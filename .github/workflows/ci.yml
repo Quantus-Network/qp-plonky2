@@ -63,9 +63,9 @@ jobs:
         run: |
           brew install protobuf
       - name: Build
-        run: cargo build --locked --release
+        run: cargo build --release
       - name: Test
-        run: cargo test --locked --release
+        run: cargo test --release
 
   analysis:
     name: 🤖 Analysis (Doc)
@@ -84,4 +84,4 @@ jobs:
       - name: Install required components
         run: rustup component add rust-src
       - name: Run doc
-        run: cargo doc --locked --no-deps
+        run: cargo doc --no-deps
