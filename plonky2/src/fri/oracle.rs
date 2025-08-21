@@ -121,8 +121,10 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
             #[cfg(not(feature = "no_random"))]
             return Self::lde_blinded_values(polynomials, rate_bits, fft_root_table);
             #[cfg(feature = "no_random")]
-            assert!(false, "Cannot set blinding with no_random feature");
-            [].into()
+            {
+                assert!(false, "Cannot set blinding with no_random feature");
+                [].into()
+            }
         } else {
             Self::lde_unblinded_values(polynomials, rate_bits, fft_root_table)
         }
@@ -132,7 +134,7 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
     fn lde_blinded_values(
         polynomials: &[PolynomialCoeffs<F>],
         rate_bits: usize,
-        fft_root_table: Option<&FftRootTable<F>>
+        fft_root_table: Option<&FftRootTable<F>>,
     ) -> Vec<Vec<F>> {
         let degree = polynomials[0].len();
 
@@ -155,7 +157,7 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
     fn lde_unblinded_values(
         polynomials: &[PolynomialCoeffs<F>],
         rate_bits: usize,
-        fft_root_table: Option<&FftRootTable<F>>
+        fft_root_table: Option<&FftRootTable<F>>,
     ) -> Vec<Vec<F>> {
         let degree = polynomials[0].len();
 
