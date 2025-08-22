@@ -614,7 +614,7 @@ dependencies = [
 
 [[package]]
 name = "quantus_plonky2"
-version = "1.0.2"
+version = "0.0.1"
 dependencies = [
  "ahash",
  "anyhow",
