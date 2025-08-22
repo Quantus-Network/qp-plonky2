@@ -35,11 +35,11 @@ use crate::hash::hash_types::{HashOut, HashOutTarget, MerkleCapTarget, RichField
 use crate::hash::merkle_proofs::MerkleProofTarget;
 use crate::hash::merkle_tree::MerkleCap;
 use crate::iop::ext_target::ExtensionTarget;
+#[cfg(not(feature = "no_random"))]
+use crate::iop::generator::RandomValueGenerator;
 use crate::iop::generator::{
     ConstantGenerator, CopyGenerator, SimpleGenerator, WitnessGeneratorRef,
 };
-#[cfg(not(feature = "no_random"))]
-use crate::iop::generator::RandomValueGenerator;
 use crate::iop::target::{BoolTarget, Target};
 use crate::iop::wire::Wire;
 use crate::plonk::circuit_data::{
@@ -915,7 +915,10 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             #[cfg(not(feature = "no_random"))]
             self.blind();
             #[cfg(feature = "no_random")]
-            assert!(false, "Cannot use no_random feature with config.zero_knowledge");
+            assert!(
+                false,
+                "Cannot use no_random feature with config.zero_knowledge"
+            );
         }
 
         while !self.gate_instances.len().is_power_of_two() {

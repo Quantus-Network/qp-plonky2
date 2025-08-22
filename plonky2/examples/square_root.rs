@@ -1,4 +1,3 @@
-
 use core::marker::PhantomData;
 
 use anyhow::Result;
@@ -7,11 +6,9 @@ use plonky2::gates::arithmetic_base::ArithmeticBaseGenerator;
 use plonky2::gates::poseidon::PoseidonGenerator;
 use plonky2::gates::poseidon_mds::PoseidonMdsGenerator;
 use plonky2::hash::hash_types::RichField;
-use plonky2::iop::generator::{
-    ConstantGenerator, GeneratedValues, SimpleGenerator,
-};
 #[cfg(not(feature = "no_random"))]
 use plonky2::iop::generator::RandomValueGenerator;
+use plonky2::iop::generator::{ConstantGenerator, GeneratedValues, SimpleGenerator};
 use plonky2::iop::target::Target;
 use plonky2::iop::witness::{PartialWitness, PartitionWitness, Witness, WitnessWrite};
 use plonky2::plonk::circuit_builder::CircuitBuilder;

@@ -120,11 +120,9 @@ pub mod default {
     use crate::gates::reducing::ReducingGenerator;
     use crate::gates::reducing_extension::ReducingGenerator as ReducingExtensionGenerator;
     use crate::hash::hash_types::RichField;
-    use crate::iop::generator::{
-        ConstantGenerator, CopyGenerator, NonzeroTestGenerator,
-    };
     #[cfg(not(feature = "no_random"))]
     use crate::iop::generator::RandomValueGenerator;
+    use crate::iop::generator::{ConstantGenerator, CopyGenerator, NonzeroTestGenerator};
     use crate::plonk::config::{AlgebraicHasher, GenericConfig};
     use crate::recursion::dummy_circuit::DummyProofGenerator;
     use crate::util::serialization::WitnessGeneratorSerializer;
