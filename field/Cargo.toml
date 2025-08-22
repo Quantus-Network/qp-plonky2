@@ -2,7 +2,12 @@
 name = "plonky2_field"
 description = "Finite field arithmetic"
 version = "1.0.0"
-authors = ["Daniel Lubarov <daniel@lubarov.com>", "William Borgeaud <williamborgeaud@gmail.com>", "Jacqueline Nabaglo <j@nab.gl>", "Hamish Ivey-Law <hamish@ivey-law.name>"]
+authors = [
+    "Daniel Lubarov <daniel@lubarov.com>",
+    "William Borgeaud <williamborgeaud@gmail.com>",
+    "Jacqueline Nabaglo <j@nab.gl>",
+    "Hamish Ivey-Law <hamish@ivey-law.name>",
+]
 edition.workspace = true
 license.workspace = true
 homepage.workspace = true

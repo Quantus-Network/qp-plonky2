@@ -1,0 +1,133 @@
+name: Create Release Tag & Publish
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  create-tag:
+    name: Create Tag
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release-proposal')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.extract_version.outputs.version }}
+      is_draft: ${{ steps.extract_version.outputs.is_draft }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version from PR title
+        id: extract_version
+        run: |
+          # Extract version from PR title (format: "ci: Automate version bump to vX.Y.Z")
+          VERSION=$(echo "${{ github.event.pull_request.title }}" | grep -o 'v[0-9]\+\.[0-9]\+\.[0-9]\+')
+          if [ -z "$VERSION" ]; then
+            echo "Error: Could not extract version from PR title: ${{ github.event.pull_request.title }}"
+            exit 1
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+          # Check if this is a draft release
+          if [[ "${{ contains(github.event.pull_request.labels.*.name, 'draft-release') }}" == "true" ]]; then
+            echo "is_draft=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_draft=false" >> $GITHUB_OUTPUT
+          fi
+          echo "Extracted version: $VERSION"
+
+      - name: Create and push tag
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git tag -a "${{ steps.extract_version.outputs.version }}" -m "Release ${{ steps.extract_version.outputs.version }}"
+          git push origin "${{ steps.extract_version.outputs.version }}"
+
+  build-and-release:
+    name: Build & Release (docs only)
+    needs: create-tag
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-24.04
+          - target: x86_64-apple-darwin
+            os: macos-15
+          - target: x86_64-pc-windows-msvc
+            os: windows-2025
+    steps:
+      - name: Checkout code at tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.create-tag.outputs.version }}
+
+      - name: Install Rust toolchain
+        run: |
+          rustup update
+          rustup target add ${{ matrix.target }}
+          rustup component add rustfmt clippy
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ matrix.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build docs
+        run: |
+          cargo doc --no-deps
+
+  create-github-release:
+    name: 🚀 Create GitHub Release
+    needs: [create-tag, build-and-release]
+    if: always() && needs.build-and-release.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.create-tag.outputs.version }}
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Create GitHub Release (no binaries)
+        env:
+          GITHUB_TOKEN: ${{ secrets.ADMIN_PAT }}
+          NEW_VERSION: ${{ needs.create-tag.outputs.version }}
+        run: |
+          release_notes="Automated release for version $NEW_VERSION."
+          printf "%s" "$release_notes" > release_notes.txt
+
+          # Add draft flag if this is a draft release
+          if [[ "${{ needs.create-tag.outputs.is_draft }}" == "true" ]]; then
+            DRAFT_FLAG="--draft"
+          else
+            DRAFT_FLAG=""
+          fi
+
+          echo "Creating release with DRAFT_FLAG: $DRAFT_FLAG"
+
+          gh release create "$NEW_VERSION" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Quantus libraries $NEW_VERSION" \
+            --notes-file release_notes.txt \
+            --target main \
+            $DRAFT_FLAG
+
+      - name: Publish quantus_plonky2 to crates.io
+        working-directory: plonky2
+        run: cargo publish --token ${{ secrets.CARGO_REGISTRY_TOKEN }} --allow-dirty
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+

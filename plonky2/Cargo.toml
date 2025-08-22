@@ -1,8 +1,12 @@
 [package]
-name = "plonky2"
+name = "quantus_plonky2"
 description = "Recursive SNARKs based on PLONK and FRI"
 version = "1.0.2"
-authors = ["Daniel Lubarov <daniel@lubarov.com>", "William Borgeaud <williamborgeaud@gmail.com>", "Nicholas Ward <npward@berkeley.edu>"]
+authors = [
+    "Daniel Lubarov <daniel@lubarov.com>",
+    "William Borgeaud <williamborgeaud@gmail.com>",
+    "Nicholas Ward <npward@berkeley.edu>",
+]
 readme = "README.md"
 edition.workspace = true
 license.workspace = true
@@ -12,7 +16,14 @@ keywords.workspace = true
 categories.workspace = true
 
 [features]
-default = ["gate_testing", "parallel", "rand_chacha", "timing", "getrandom", "plonky2_field/default"]
+default = [
+    "gate_testing",
+    "parallel",
+    "rand_chacha",
+    "timing",
+    "getrandom",
+    "plonky2_field/default",
+]
 gate_testing = []
 parallel = ["hashbrown/rayon", "plonky2_maybe_rayon/parallel"]
 std = ["anyhow/std", "rand/std", "itertools/use_std"]
@@ -40,8 +51,10 @@ plonky2_maybe_rayon = { version = "1.0.0", path = "../maybe_rayon", default-feat
 plonky2_util = { version = "1.0.0", path = "../util", default-features = false }
 
 
-[target.'cfg(all(target_arch = "wasm32", target_os = "unknown", not(feature = "no-random")))'.dependencies]
-getrandom = { version = "0.2", default-features = false, features = ["js"], optional = true }
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
+getrandom = { version = "0.2", default-features = false, features = [
+    "js",
+], optional = true }
 
 [dev-dependencies]
 criterion = { version = "0.5.1", default-features = false }
@@ -92,3 +105,6 @@ cargo-args = ["--no-deps"]
 
 [lints]
 workspace = true
+
+[lib]
+name = "plonky2"
