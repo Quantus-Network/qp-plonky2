@@ -2,13 +2,19 @@
 name = "plonky2_field"
 description = "Finite field arithmetic"
 version = "1.0.0"
-authors = ["Daniel Lubarov <daniel@lubarov.com>", "William Borgeaud <williamborgeaud@gmail.com>", "Jacqueline Nabaglo <j@nab.gl>", "Hamish Ivey-Law <hamish@ivey-law.name>"]
+authors = [
+    "Daniel Lubarov <daniel@lubarov.com>",
+    "William Borgeaud <williamborgeaud@gmail.com>",
+    "Jacqueline Nabaglo <j@nab.gl>",
+    "Hamish Ivey-Law <hamish@ivey-law.name>",
+]
 edition.workspace = true
 license.workspace = true
 homepage.workspace = true
 repository.workspace = true
 keywords.workspace = true
 categories.workspace = true
+build = "build.rs"
 
 [dependencies]
 anyhow = { workspace = true }
@@ -34,3 +40,6 @@ workspace = true
 [features]
 default = ["rand"]
 no_random = []
+
+[build-dependencies]
+rustc_version = "0.4"
