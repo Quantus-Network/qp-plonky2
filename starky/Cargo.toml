@@ -13,9 +13,9 @@ categories.workspace = true
 
 [features]
 default = ["parallel", "std", "timing"]
-parallel = ["plonky2/parallel", "plonky2_maybe_rayon/parallel"]
-std = ["anyhow/std", "plonky2/std"]
-timing = ["plonky2/timing"]
+parallel = ["qp-plonky2/parallel", "plonky2_maybe_rayon/parallel"]
+std = ["anyhow/std", "qp-plonky2/std"]
+timing = ["qp-plonky2/timing"]
 
 [dependencies]
 ahash = { workspace = true }
@@ -27,7 +27,7 @@ serde = { workspace = true, features = ["rc"] }
 num-bigint = { version = "0.4.3", default-features = false }
 
 # Local dependencies
-plonky2 = { package = "quantus_plonky2", path = "../plonky2", default-features = false }
+qp-plonky2 = {path = "../plonky2", default-features = false }
 plonky2_maybe_rayon = { version = "1.0.0", path = "../maybe_rayon", default-features = false }
 plonky2_util = { version = "1.0.0", path = "../util", default-features = false }
 

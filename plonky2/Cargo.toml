@@ -1,5 +1,5 @@
 [package]
-name = "quantus_plonky2"
+name = "qp-plonky2"
 description = "Recursive SNARKs based on PLONK and FRI"
 version = "0.0.10"
 authors = [
@@ -22,13 +22,13 @@ default = [
     "rand_chacha",
     "timing",
     "getrandom",
-    "plonky2_field/default",
+    "plonky2-field/default",
 ]
 gate_testing = []
 parallel = ["hashbrown/rayon", "plonky2_maybe_rayon/parallel"]
 std = ["anyhow/std", "rand/std", "itertools/use_std"]
 timing = ["std", "dep:web-time"]
-no_random = ["plonky2_field/no_random"]
+no_random = ["plonky2-field/no_random"]
 
 [dependencies]
 ahash = { workspace = true }
@@ -46,7 +46,7 @@ unroll = { workspace = true }
 web-time = { version = "1.0.0", optional = true }
 
 # Local dependencies
-plonky2_field = { package = "quantus_plonky2_field", version = "0.0.10", path = "../field" }
+plonky2-field = {package="qp-plonky2-field", version = "0.0.10", path = "../field" }
 plonky2_maybe_rayon = { version = "1.0.0", path = "../maybe_rayon", default-features = false }
 plonky2_util = { version = "1.0.0", path = "../util", default-features = false }
 

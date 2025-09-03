@@ -599,8 +599,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "quantus_plonky2"
-version = "0.0.9"
+name = "qp-plonky2"
+version = "0.0.10"
 dependencies = [
  "ahash",
  "anyhow",
@@ -616,7 +616,7 @@ dependencies = [
  "num_cpus",
  "plonky2_maybe_rayon",
  "plonky2_util",
- "quantus_plonky2_field",
+ "qp-plonky2-field",
  "rand",
  "rand_chacha",
  "serde",
@@ -630,8 +630,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "quantus_plonky2_field"
-version = "0.0.9"
+name = "qp-plonky2-field"
+version = "0.0.10"
 dependencies = [
  "anyhow",
  "itertools 0.11.0",
@@ -823,7 +823,7 @@ dependencies = [
  "num-bigint",
  "plonky2_maybe_rayon",
  "plonky2_util",
- "quantus_plonky2",
+ "qp-plonky2",
  "serde",
 ]
 
