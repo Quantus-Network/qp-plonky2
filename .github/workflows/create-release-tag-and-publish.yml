@@ -124,30 +124,30 @@ jobs:
             --target main \
             $DRAFT_FLAG
 
-      - name: Publish quantus_plonky2_field to crates.io
+      - name: Publish qp-plonky2-field to crates.io
         working-directory: field
         run: cargo publish --token ${{ secrets.CARGO_REGISTRY_TOKEN }} --allow-dirty
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
-      - name: Wait for quantus_plonky2_field to appear on crates.io
+      - name: Wait for qp-plonky2-field to appear on crates.io
         shell: bash
         env:
           NEW_VERSION: ${{ needs.create-tag.outputs.version }}
         run: |
           set -e
           FIELD_VERSION=${NEW_VERSION#v}
-          echo "Waiting for quantus_plonky2_field ${FIELD_VERSION} to be available..."
+          echo "Waiting for qp-plonky2-field ${FIELD_VERSION} to be available..."
           UA="quantus-actions/${GITHUB_RUN_ID}"
           check_available() {
             # 1) JSON endpoint for the exact version
             if curl -fsSL -A "$UA" -H "Accept: application/json" \
-                 "https://crates.io/api/v1/crates/quantus_plonky2_field/${FIELD_VERSION}" \
+                 "https://crates.io/api/v1/crates/qp-plonky2-field/${FIELD_VERSION}" \
                  | grep -q '"crate"'; then
               return 0
             fi
             # 2) HTML page for the exact version
-            if curl -fsSIL -A "$UA" "https://crates.io/crates/quantus_plonky2_field/${FIELD_VERSION}" \
+            if curl -fsSIL -A "$UA" "https://crates.io/crates/qp-plonky2-field/${FIELD_VERSION}" \
                  | grep -q "^HTTP/.* 200"; then
               return 0
             fi
@@ -156,13 +156,13 @@ jobs:
 
           for i in {1..60}; do
             if check_available; then
-              echo "quantus_plonky2_field ${FIELD_VERSION} is available."
+              echo "qp-plonky2-field ${FIELD_VERSION} is available."
               break
             fi
             echo "Not yet available, retry $i/60..."; sleep 5
           done
 
-      - name: Publish quantus_plonky2 to crates.io
+      - name: Publish qp-plonky2 to crates.io
         working-directory: plonky2
         run: cargo publish --token ${{ secrets.CARGO_REGISTRY_TOKEN }} --allow-dirty
         env:

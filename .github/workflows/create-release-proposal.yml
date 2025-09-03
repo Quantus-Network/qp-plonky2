@@ -136,16 +136,16 @@ jobs:
           git checkout "$SOURCE_BRANCH"
           git checkout -b "$branch_name"
           
-          # Update quantus_plonky2_field version
+          # Update qp-plonky2-field version
           echo "Updating field/Cargo.toml to version: $new_cargo_version"
           sed -i -E "s/^version\s*=\s*\"[0-9a-zA-Z.-]+\"/version = \"$new_cargo_version\"/" field/Cargo.toml
 
-          # Update quantus_plonky2 version
+          # Update qp-plonky2 version
           echo "Updating plonky2/Cargo.toml to version: $new_cargo_version"
           sed -i -E "s/^version\s*=\s*\"[0-9a-zA-Z.-]+\"/version = \"$new_cargo_version\"/" plonky2/Cargo.toml
 
-          # Sync plonky2 dependency on quantus_plonky2_field to the new version
-          sed -i -E "s/(quantus_plonky2_field\", version = \")([0-9a-zA-Z.-]+)(\")/\1${new_cargo_version}\3/" plonky2/Cargo.toml
+          # Sync plonky2 dependency on qp-plonky2-field to the new version
+          sed -i -E "s/(qp-plonky2-field\", version = \")([0-9a-zA-Z.-]+)(\")/\1${new_cargo_version}\3/" plonky2/Cargo.toml
 
           # Commit changes (no lockfile in libs)
           git config user.name "${{ github.actor }}"
