@@ -548,9 +548,9 @@ dependencies = [
  "log",
  "num",
  "num_cpus",
- "plonky2_field",
  "plonky2_maybe_rayon",
  "plonky2_util",
+ "quantus_plonky2_field",
  "rand",
  "rand_chacha",
  "serde",
@@ -561,21 +561,6 @@ dependencies = [
  "tynm",
  "unroll",
  "web-time",
-]
-
-[[package]]
-name = "plonky2_field"
-version = "1.0.0"
-dependencies = [
- "anyhow",
- "itertools 0.11.0",
- "num",
- "plonky2_util",
- "rand",
- "rustc_version",
- "serde",
- "static_assertions",
- "unroll",
 ]
 
 [[package]]
@@ -642,6 +627,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "89ae43fd86e4158d6db51ad8e2b80f313af9cc74f5c0e03ccb87de09998732de"
 dependencies = [
  "unicode-ident",
+]
+
+[[package]]
+name = "quantus_plonky2_field"
+version = "1.0.0"
+dependencies = [
+ "anyhow",
+ "itertools 0.11.0",
+ "num",
+ "plonky2_util",
+ "rand",
+ "rustc_version",
+ "serde",
+ "static_assertions",
+ "unroll",
 ]
 
 [[package]]

@@ -1,5 +1,5 @@
 [package]
-name = "plonky2_field"
+name = "quantus_plonky2_field"
 description = "Finite field arithmetic"
 version = "1.0.0"
 authors = [
