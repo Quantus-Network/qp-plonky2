@@ -600,7 +600,7 @@ dependencies = [
 
 [[package]]
 name = "quantus_plonky2"
-version = "1.0.2"
+version = "0.0.9"
 dependencies = [
  "ahash",
  "anyhow",
@@ -631,7 +631,7 @@ dependencies = [
 
 [[package]]
 name = "quantus_plonky2_field"
-version = "1.0.0"
+version = "0.0.9"
 dependencies = [
  "anyhow",
  "itertools 0.11.0",
