@@ -1,5 +1,5 @@
 [package]
-name = "plonky2"
+name = "quantus_plonky2"
 description = "Recursive SNARKs based on PLONK and FRI"
 version = "1.0.2"
 authors = ["Daniel Lubarov <daniel@lubarov.com>", "William Borgeaud <williamborgeaud@gmail.com>", "Nicholas Ward <npward@berkeley.edu>"]
@@ -92,3 +92,6 @@ cargo-args = ["--no-deps"]
 
 [lints]
 workspace = true
+
+[lib]
+name = "plonky2"
