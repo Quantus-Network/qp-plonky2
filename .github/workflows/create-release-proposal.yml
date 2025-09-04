@@ -146,6 +146,9 @@ jobs:
 
           # Sync plonky2 dependency on qp-plonky2-field to the new version
           sed -i -E "s/(qp-plonky2-field\", version = \")([0-9a-zA-Z.-]+)(\")/\1${new_cargo_version}\3/" plonky2/Cargo.toml
+          
+          # Sync starky dependency on qp-plonky2 to the new version  
+          sed -i -E "s/(qp-plonky2.*version = \")([0-9a-zA-Z.-]+)(\")/\1${new_cargo_version}\3/" starky/Cargo.toml
 
           # Commit changes (no lockfile in libs)
           git config user.name "${{ github.actor }}"
