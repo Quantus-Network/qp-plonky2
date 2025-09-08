@@ -85,3 +85,27 @@ jobs:
         run: rustup component add rust-src
       - name: Run doc
         run: cargo doc --no-deps
+
+  no-std-check:
+    name: 🧪 no_std (wasm32v1-none)
+    needs: fast-checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@nightly
+      - name: Add wasm32v1-none target
+        run: rustup target add wasm32v1-none
+      - name: Run no_std check script
+        run: scripts/check-no-std.sh
+
+  security-audit:
+    name: 🔒 Security Audit
+    needs: fast-checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install cargo-audit
+        run: cargo install cargo-audit --locked
+      - name: Run security audit
+        run: cargo audit

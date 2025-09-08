@@ -1,0 +1,14 @@
+[package]
+name = "no-std-check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "no_std_check"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[dependencies]
+qp-plonky2 = { path = "../plonky2", default-features = false, features = [
+    "no_random",
+] }
