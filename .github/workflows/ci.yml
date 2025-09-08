@@ -98,3 +98,14 @@ jobs:
         run: rustup target add wasm32v1-none
       - name: Run no_std check script
         run: scripts/check-no-std.sh
+
+  security-audit:
+    name: 🔒 Security Audit
+    needs: fast-checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install cargo-audit
+        run: cargo install cargo-audit --locked
+      - name: Run security audit
+        run: cargo audit
