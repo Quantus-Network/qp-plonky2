@@ -46,7 +46,7 @@ unroll = { workspace = true }
 web-time = { version = "1.0.0", optional = true }
 
 # Local dependencies
-plonky2-field = { package = "qp-plonky2-field", version = "1.1.0", path = "../field" }
+plonky2-field = { package = "qp-plonky2-field", version = "1.1.0", path = "../field", default-features = false }
 plonky2_maybe_rayon = { version = "1.0.0", path = "../maybe_rayon", default-features = false }
 plonky2_util = { version = "1.0.0", path = "../util", default-features = false }
 
