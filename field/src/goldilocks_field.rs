@@ -20,7 +20,7 @@ const EPSILON: u64 = (1 << 32) - 1;
 ///   = 2**64 - 2**32 + 1
 ///   = 2**32 * (2**32 - 1) + 1
 /// ```
-#[derive(Copy, Clone, Serialize, Deserialize)]
+#[derive(Copy, Clone, Serialize, Deserialize, Ord, PartialOrd)]
 #[repr(transparent)]
 pub struct GoldilocksField(pub u64);
 
