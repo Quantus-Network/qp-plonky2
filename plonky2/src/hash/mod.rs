@@ -11,3 +11,4 @@ pub mod merkle_tree;
 pub mod path_compression;
 pub mod poseidon;
 pub mod poseidon_goldilocks;
+pub mod poseidon2;

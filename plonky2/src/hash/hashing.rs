@@ -56,6 +56,84 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             state = self.permute::<H>(state);
         }
     }
+
+    /// Poseidon2-style additive absorption + padding (identical to CPU `hash_n_to_hash_no_pad_p2`).
+    pub fn hash_n_to_hash_no_pad_p2<H: AlgebraicHasher<F>>(
+        &mut self,
+        inputs: Vec<Target>,
+    ) -> HashOutTarget {
+        const RATE: usize = 4; // matches your gate
+        let zero = self.zero();
+        let one  = self.one();
+
+        // Start from all-zero state.
+        let mut st = H::AlgebraicPermutation::new(core::iter::repeat(zero));
+        let mut unpadded_full_last_block = false;
+
+        if RATE == 0 {
+            // Defensive
+            return HashOutTarget::from_vec(vec![zero; NUM_HASH_OUT_ELTS]);
+        }
+
+        // Absorb all input chunks, additively.
+        let mut idx = 0usize;
+        while idx < inputs.len() {
+            let remaining = inputs.len() - idx;
+            let take = remaining.min(RATE);
+
+            // Build the block: length `RATE`
+            let mut blk = vec![zero; RATE];
+            for i in 0..take {
+                blk[i] = inputs[idx + i];
+            }
+            // Last chunk?
+            if idx + take == inputs.len() {
+                if take < RATE {
+                    // Delimiter 1 at first free slot
+                    blk[take] = one;
+                } else {
+                    // Exactly full; remember to add extra [1,0,0,0] later
+                    unpadded_full_last_block = true;
+                }
+            }
+
+            // Additive absorption: st[i] += blk[i]
+            for i in 0..RATE {
+                let sum = self.add(st.as_ref()[i], blk[i]);
+                st.set_elt(sum, i);
+            }
+            // Permute
+            st = self.permute::<H>(st);
+
+            idx += take;
+        }
+
+        // If last chunk was exactly full, absorb extra [1,0,0,0]
+        if unpadded_full_last_block {
+            let mut blk = vec![zero; RATE];
+            blk[0] = one;
+            for i in 0..RATE {
+                let sum = self.add(st.as_ref()[i], blk[i]);
+                st.set_elt(sum, i);
+            }
+            st = self.permute::<H>(st);
+        }
+
+        // Always absorb final [0,0,0,1]
+        {
+            let mut blk = vec![zero; RATE];
+            blk[RATE - 1] = one;
+            for i in 0..RATE {
+                let sum = self.add(st.as_ref()[i], blk[i]);
+                st.set_elt(sum, i);
+            }
+            st = self.permute::<H>(st);
+        }
+
+        // Squeeze first 4 felts; no extra permute here.
+        let outs = st.squeeze()[..NUM_HASH_OUT_ELTS].to_vec();
+        HashOutTarget::from_vec(outs)
+    }
 }
 
 /// Permutation that can be used in the sponge construction for an algebraic hash.
@@ -143,3 +221,85 @@ pub fn hash_n_to_m_no_pad<F: RichField, P: PlonkyPermutation<F>>(
 pub fn hash_n_to_hash_no_pad<F: RichField, P: PlonkyPermutation<F>>(inputs: &[F]) -> HashOut<F> {
     HashOut::from_vec(hash_n_to_m_no_pad::<F, P>(inputs, NUM_HASH_OUT_ELTS))
 }
+
+/// Poseidon2-style “additive absorption + domain separation”
+///
+/// This mirrors the CPU `Poseidon2Core::hash_no_pad`:
+/// - Absorb by **adding** the block into the first `RATE` lanes (not overwrite).
+/// - For the **last** chunk:
+///     - if it is **shorter** than `RATE`, append a 1-byte delimiter at `block[len]`
+///       (i.e. set `block[len] = 1` before absorption),
+///     - else (it exactly fits `RATE`) remember `unpadded = true`.
+/// - After all chunks:
+///     - if `unpadded == true`, absorb an extra block `[1, 0, 0, 0]`,
+///     - always absorb a final block `[0, 0, 0, 1]`.
+/// - Then squeeze `NUM_HASH_OUT_ELTS` field elements.
+///
+pub fn hash_n_to_hash_no_pad_p2<F: RichField, P: PlonkyPermutation<F>>(inputs: &[F]) -> HashOut<F> {
+    let mut perm = P::new(core::iter::repeat(F::ZERO));
+    let rate = P::RATE;
+
+    // Absorb all input chunks additively, with the Poseidon2 delimiters.
+    let mut unpadded_full_last_block = false;
+
+    if rate == 0 {
+        // Defensive: should never happen for a real permutation.
+        return HashOut::from_vec(vec![F::ZERO; NUM_HASH_OUT_ELTS]);
+    }
+
+    let mut idx = 0usize;
+    while idx < inputs.len() {
+        let remaining = inputs.len() - idx;
+        let take = remaining.min(rate);
+
+        // Build the block
+        let mut block = vec![F::ZERO; rate];
+        for i in 0..take {
+            block[i] = inputs[idx + i];
+        }
+        // Last chunk?
+        if idx + take == inputs.len() {
+            if take < rate {
+                // Delimiter at the first free slot.
+                block[take] = F::ONE;
+            } else {
+                // Exactly full; we will add an extra [1,0,0,0] after the loop.
+                unpadded_full_last_block = true;
+            }
+        }
+
+        // Additive absorption: state[i] += block[i]
+        for i in 0..rate {
+            let si = perm.as_ref()[i];
+            perm.set_elt(si + block[i], i);
+        }
+        perm.permute();
+
+        idx += take;
+    }
+
+    // If the last chunk was exactly full, add the extra [1,0,0,0] block.
+    if unpadded_full_last_block {
+        for i in 0..rate {
+            let si = perm.as_ref()[i];
+            let add = if i == 0 { F::ONE } else { F::ZERO };
+            perm.set_elt(si + add, i);
+        }
+        perm.permute();
+    }
+
+    // Always append the final [0,0,0,1] block.
+    for i in 0..rate {
+        let si = perm.as_ref()[i];
+        let add = if i + 1 == rate { F::ONE } else { F::ZERO };
+        perm.set_elt(si + add, i);
+    }
+    perm.permute();
+
+    // Squeeze NUM_HASH_OUT_ELTS elements.
+    HashOut::from_vec(
+        perm.squeeze()[..NUM_HASH_OUT_ELTS]
+            .to_vec()
+    )
+}
+
