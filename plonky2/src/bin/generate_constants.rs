@@ -4,7 +4,10 @@
 
 use plonky2::field::goldilocks_field::GoldilocksField;
 use plonky2::field::types::Field64;
-use rand_chacha::{rand_core::{RngCore, SeedableRng}, ChaCha8Rng, Rng};
+use rand_chacha::{
+    rand_core::{RngCore, SeedableRng},
+    ChaCha8Rng, Rng,
+};
 
 const SAMPLE_RANGE_END: u64 = GoldilocksField::ORDER;
 

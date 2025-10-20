@@ -1,8 +1,8 @@
 //! Concrete instantiation of a hash function.
 #[cfg(not(feature = "std"))]
-use alloc::vec::Vec;
-#[cfg(not(feature = "std"))]
 use alloc::vec;
+#[cfg(not(feature = "std"))]
+use alloc::vec::Vec;
 use core::fmt::Debug;
 
 use crate::field::extension::Extendable;

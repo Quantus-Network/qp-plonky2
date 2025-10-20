@@ -3,13 +3,13 @@
 extern crate alloc;
 
 #[cfg(not(feature = "std"))]
-use core::fmt::Debug;
-#[cfg(not(feature = "std"))]
-use alloc::{vec, vec::Vec};
+use alloc::format;
 #[cfg(not(feature = "std"))]
 use alloc::string::String;
 #[cfg(not(feature = "std"))]
-use alloc::format;
+use alloc::{vec, vec::Vec};
+#[cfg(not(feature = "std"))]
+use core::fmt::Debug;
 
 use core::marker::PhantomData;
 use plonky2_field::extension::Extendable;

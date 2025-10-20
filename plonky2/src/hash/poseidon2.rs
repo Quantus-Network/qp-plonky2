@@ -3,24 +3,24 @@
 extern crate alloc;
 
 #[cfg(not(feature = "std"))]
-use core::fmt::Debug;
-#[cfg(not(feature = "std"))]
-use alloc::{vec, vec::Vec};
+use alloc::format;
 #[cfg(not(feature = "std"))]
 use alloc::string::String;
 #[cfg(not(feature = "std"))]
-use alloc::format;
+use alloc::{vec, vec::Vec};
+#[cfg(not(feature = "std"))]
+use core::fmt::Debug;
 
 use p3_goldilocks::{Goldilocks as P3G, Poseidon2Goldilocks};
 use p3_symmetric::Permutation;
-
 
 use p3_field::integers::QuotientMap;
 use p3_field::{PrimeCharacteristicRing, PrimeField64 as P3PrimeField64};
 
 use crate::field::types::{Field, PrimeField64};
 use crate::gates::poseidon2::{
-    Poseidon2ExtInitPreambleGate, Poseidon2ExtRoundGate, Poseidon2IntRoundGate, EXT_INIT_U64, EXT_TERM_U64, INT_RC_U64, P2_INTERNAL_ROUNDS, P2_WIDTH
+    Poseidon2ExtInitPreambleGate, Poseidon2ExtRoundGate, Poseidon2IntRoundGate, EXT_INIT_U64,
+    EXT_TERM_U64, INT_RC_U64, P2_INTERNAL_ROUNDS, P2_WIDTH,
 };
 use crate::hash::hash_types::{HashOut, RichField, NUM_HASH_OUT_ELTS};
 use crate::hash::hashing::{hash_n_to_hash_no_pad_p2, PlonkyPermutation};
@@ -51,10 +51,16 @@ fn p2_permute_gl(mut state: [GL; SPONGE_WIDTH]) -> [GL; SPONGE_WIDTH] {
     // using the rand chacha rng and the seed 0x0189_1891_8918_9189;
     let poseidon2_from_const: Poseidon2Goldilocks<SPONGE_WIDTH> = Poseidon2Goldilocks::new(
         p3_poseidon2::ExternalLayerConstants::<P3G, SPONGE_WIDTH>::new(
-            EXT_INIT_U64.map(|row| row.map(|x| unsafe { P3G::from_canonical_unchecked(x) })).to_vec(),
-            EXT_TERM_U64.map(|row| row.map(|x| unsafe { P3G::from_canonical_unchecked(x) })).to_vec(),
+            EXT_INIT_U64
+                .map(|row| row.map(|x| unsafe { P3G::from_canonical_unchecked(x) }))
+                .to_vec(),
+            EXT_TERM_U64
+                .map(|row| row.map(|x| unsafe { P3G::from_canonical_unchecked(x) }))
+                .to_vec(),
         ),
-        INT_RC_U64.map(|x| unsafe { P3G::from_canonical_unchecked(x) }).to_vec(),
+        INT_RC_U64
+            .map(|x| unsafe { P3G::from_canonical_unchecked(x) })
+            .to_vec(),
     );
 
     let mut st = s_p3;
