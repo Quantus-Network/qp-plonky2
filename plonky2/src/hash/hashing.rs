@@ -64,7 +64,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     ) -> HashOutTarget {
         const RATE: usize = 4; // matches your gate
         let zero = self.zero();
-        let one  = self.one();
+        let one = self.one();
 
         // Start from all-zero state.
         let mut st = H::AlgebraicPermutation::new(core::iter::repeat(zero));
@@ -297,9 +297,5 @@ pub fn hash_n_to_hash_no_pad_p2<F: RichField, P: PlonkyPermutation<F>>(inputs: &
     perm.permute();
 
     // Squeeze NUM_HASH_OUT_ELTS elements.
-    HashOut::from_vec(
-        perm.squeeze()[..NUM_HASH_OUT_ELTS]
-            .to_vec()
-    )
+    HashOut::from_vec(perm.squeeze()[..NUM_HASH_OUT_ELTS].to_vec())
 }
-
