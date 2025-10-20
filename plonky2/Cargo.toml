@@ -43,7 +43,7 @@ p3-field = { version = "0.3.0", default-features = false }
 rand = { workspace = true }
 log = { workspace = true }
 num = { workspace = true }
-rand_chacha = { version = "0.9", optional = true, default-features = false }
+rand_chacha = { version = "0.3.1", optional = true, default-features = false }
 serde = { workspace = true, features = ["rc"] }
 static_assertions = { workspace = true }
 unroll = { workspace = true }
@@ -65,7 +65,7 @@ criterion = { version = "0.5.1", default-features = false }
 env_logger = { version = "0.9.0", default-features = false }
 num_cpus = { version = "1.14.0", default-features = false }
 rand = { workspace = true, features = ["getrandom"] }
-rand_chacha = { version = "0.9", default-features = false }
+rand_chacha = { version = "0.3.1", default-features = false }
 serde_cbor = { version = "0.11.2" }
 serde_json = { version = "1.0" }
 structopt = { version = "0.3.26", default-features = false }

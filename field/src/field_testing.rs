@@ -1,5 +1,6 @@
-use crate::extension::Extendable;
-use crate::types::Field;
+use crate::extension::{Extendable, Frobenius};
+use crate::ops::Square;
+use crate::types::{Field, Sample};
 
 #[macro_export]
 macro_rules! test_field_arithmetic {
@@ -7,9 +8,10 @@ macro_rules! test_field_arithmetic {
         mod field_arithmetic {
             use alloc::vec::Vec;
 
+            use num::bigint::BigUint;
             use rand::rngs::OsRng;
-            use rand::RngCore;
-            use $crate::types::Field;
+            use rand::{Rng, RngCore};
+            use $crate::types::{Field, Sample};
 
             #[test]
             fn modular_reduction() {
