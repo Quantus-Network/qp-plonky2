@@ -392,9 +392,7 @@ fn internal_mix_base<F: Field>(x: &[F; P2_WIDTH], diag: &[F; P2_WIDTH]) -> [F; P
 }
 
 #[inline(always)]
-fn ext_c<Fx: RichField + Extendable<D>, const D: usize>(
-    x: Fx,
-) -> <Fx as Extendable<D>>::Extension {
+fn ext_c<Fx: RichField + Extendable<D>, const D: usize>(x: Fx) -> <Fx as Extendable<D>>::Extension {
     <<Fx as Extendable<D>>::Extension as Field>::from_canonical_u64(x.to_canonical_u64())
 }
 
@@ -854,7 +852,6 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for Poseidon2IntRo
         let lw = vars.local_wires;
         let mut s: [F::Extension; P2_WIDTH] = core::array::from_fn(|i| lw[Self::wire_input(i)]);
 
-        // --- Internal round (p3 semantics) ---
         // 1) lane 0: add RC then S-box; other lanes: no S-box
         s[0] = s[0] + ext_c::<F, D>(self.params.int_rc[self.round_idx]);
         s[0] = sbox7_ext::<F, D>(s[0]);
@@ -885,7 +882,6 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for Poseidon2IntRo
         let mut s: [ExtensionTarget<D>; P2_WIDTH] =
             core::array::from_fn(|i| lw[Self::wire_input(i)]);
 
-        // --- Internal round (p3 semantics) ---
         // 1) lane 0: add RC then S-box; other lanes: no S-box
         let rc0 = b.constant_extension(ext_c::<F, D>(self.params.int_rc[self.round_idx]));
         s[0] = b.add_extension(s[0], rc0);
@@ -955,7 +951,6 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D>
             });
         }
 
-        // --- Internal round (p3 semantics) ---
         // 1) lane 0: add RC then S-box; other lanes: no S-box
         s[0] = sbox7_base(s[0] + self.params.int_rc[self.round_idx]);
 

@@ -74,7 +74,7 @@ trait P2Permuter: Sized {
     fn permute(input: [Self; SPONGE_WIDTH]) -> [Self; SPONGE_WIDTH];
 }
 
-// CPU: use the real p3 Poseidon2 GL permutation.
+// CPU: use the canonical p3 Poseidon2 GL permutation.
 impl P2Permuter for GL {
     #[inline(always)]
     fn permute(input: [Self; SPONGE_WIDTH]) -> [Self; SPONGE_WIDTH] {
@@ -157,7 +157,6 @@ impl<F: RichField + P2Permuter> Hasher<F> for Poseidon2Hash {
     type Hash = HashOut<F>;
     type Permutation = Poseidon2Permutation<F>;
 
-    /// Exact CPU semantics (add-absorb, special padding) via your dedicated helper.
     fn hash_no_pad(input: &[F]) -> Self::Hash {
         hash_n_to_hash_no_pad_p2::<F, Self::Permutation>(input)
     }
@@ -171,7 +170,6 @@ impl<F: RichField + P2Permuter> Hasher<F> for Poseidon2Hash {
     }
 }
 
-// ---------- (Optional) bytes helper: same layout as your digest_felts_to_bytes ----------
 #[allow(dead_code)]
 pub fn hash_no_pad_bytes(input: &[GL]) -> [u8; 32] {
     let h = Poseidon2Hash::hash_no_pad(input);
@@ -260,6 +258,7 @@ mod tests {
     use crate::plonk::circuit_builder::CircuitBuilder;
     use crate::plonk::circuit_data::CircuitConfig;
     use crate::plonk::config::PoseidonGoldilocksConfig;
+    use crate::qp_poseidon::Poseidon2 as QPPoseidon2;
     use plonky2_field::goldilocks_field::GoldilocksField as F;
     use rand_chacha::rand_core::RngCore;
 
