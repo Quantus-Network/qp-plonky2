@@ -263,6 +263,7 @@ mod tests {
     use crate::plonk::circuit_data::CircuitConfig;
     use crate::plonk::config::PoseidonGoldilocksConfig;
     use plonky2_field::goldilocks_field::GoldilocksField as F;
+    use qp_poseidon_core::Poseidon2Core as P3Poseidon2;
     use rand_chacha::rand_core::RngCore;
 
     type C = PoseidonGoldilocksConfig;
@@ -328,6 +329,43 @@ mod tests {
                 .map(|_| F::from_canonical_u64(rng.next_u64()))
                 .collect();
             assert_hash_matches(inputs);
+        }
+    }
+    #[test]
+    fn poseidon2_hash_matches_qp_poseidon() {
+        use p3_goldilocks::Goldilocks as P3F;
+
+        // p3-side hasher with deterministic constants
+        let p3 = P3Poseidon2::new();
+
+        // random inputs of varying sizes
+        let mut rng = ChaCha8Rng::seed_from_u64(0xD1CE_D00D);
+        for _ in 0..100 {
+            let len = (rng.next_u32() as usize) % 64; // up to 63 elements
+
+            // Build the same input in both field types
+            let inputs_f: Vec<F> = (0..len)
+                .map(|_| F::from_canonical_u64(rng.next_u64()))
+                .collect();
+
+            let inputs_p3: Vec<P3F> = inputs_f
+                .iter()
+                .map(|x| P3F::from_int(x.to_canonical_u64()))
+                .collect();
+
+            // Plonky2 CPU reference
+            let cpu = Poseidon2Hash::hash_no_pad(&inputs_f);
+            // Convert to bytes (LE u64 per felt, total 32 bytes)
+            let mut cpu_bytes = [0u8; 32];
+            for (i, elt) in cpu.elements.iter().enumerate() {
+                let w = elt.to_canonical_u64().to_le_bytes();
+                cpu_bytes[i * 8..(i + 1) * 8].copy_from_slice(&w);
+            }
+
+            // p3 (qp_poseidon_core) reference
+            let p3_bytes = p3.hash_no_pad(inputs_p3);
+
+            assert_eq!(cpu_bytes, p3_bytes, "Poseidon2 mismatch for len={len}");
         }
     }
 }
