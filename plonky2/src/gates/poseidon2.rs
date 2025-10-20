@@ -1,7 +1,16 @@
 #![allow(clippy::needless_range_loop)]
 
+extern crate alloc;
+
+#[cfg(not(feature = "std"))]
+use core::fmt::Debug;
 #[cfg(not(feature = "std"))]
 use alloc::{vec, vec::Vec};
+#[cfg(not(feature = "std"))]
+use alloc::string::String;
+#[cfg(not(feature = "std"))]
+use alloc::format;
+
 use core::marker::PhantomData;
 use plonky2_field::extension::Extendable;
 
@@ -738,7 +747,7 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D>
     for Poseidon2ExtRoundGen<F, D>
 {
     fn id(&self) -> String {
-        "Poseidon2ExtRoundGen".to_string()
+        String::from("Poseidon2ExtRoundGen")
     }
     fn dependencies(&self) -> Vec<Target> {
         (0..P2_WIDTH)
@@ -929,7 +938,7 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D>
     for Poseidon2IntRoundGen<F, D>
 {
     fn id(&self) -> String {
-        "Poseidon2IntRoundGen".to_string()
+        String::from("Poseidon2IntRoundGen")
     }
 
     fn dependencies(&self) -> Vec<Target> {

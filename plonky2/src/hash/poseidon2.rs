@@ -1,20 +1,26 @@
 #![allow(clippy::needless_range_loop)]
 
+extern crate alloc;
+
 #[cfg(not(feature = "std"))]
 use core::fmt::Debug;
-
-use rand_chacha::{rand_core::SeedableRng, ChaCha8Rng};
+#[cfg(not(feature = "std"))]
+use alloc::{vec, vec::Vec};
+#[cfg(not(feature = "std"))]
+use alloc::string::String;
+#[cfg(not(feature = "std"))]
+use alloc::format;
 
 use p3_goldilocks::{Goldilocks as P3G, Poseidon2Goldilocks};
 use p3_symmetric::Permutation;
+
 
 use p3_field::integers::QuotientMap;
 use p3_field::{PrimeCharacteristicRing, PrimeField64 as P3PrimeField64};
 
 use crate::field::types::{Field, PrimeField64};
 use crate::gates::poseidon2::{
-    Poseidon2ExtInitPreambleGate, Poseidon2ExtRoundGate, Poseidon2IntRoundGate, P2_INTERNAL_ROUNDS,
-    P2_WIDTH,
+    Poseidon2ExtInitPreambleGate, Poseidon2ExtRoundGate, Poseidon2IntRoundGate, EXT_INIT_U64, EXT_TERM_U64, INT_RC_U64, P2_INTERNAL_ROUNDS, P2_WIDTH
 };
 use crate::hash::hash_types::{HashOut, RichField, NUM_HASH_OUT_ELTS};
 use crate::hash::hashing::{hash_n_to_hash_no_pad_p2, PlonkyPermutation};
@@ -27,7 +33,6 @@ use plonky2_field::extension::Extendable;
 use plonky2_field::goldilocks_field::GoldilocksField as GL;
 
 // ---------- Params (match your Poseidon2Core exactly) ----------
-const POSEIDON2_SEED: u64 = 0x0189_1891_8918_9189;
 const SPONGE_WIDTH: usize = 12;
 const SPONGE_RATE: usize = 4; // 4-felt output, 4-felt rate, 8-felt capacity
 
@@ -41,26 +46,19 @@ fn p2_permute_gl(mut state: [GL; SPONGE_WIDTH]) -> [GL; SPONGE_WIDTH] {
         s_p3[i] = unsafe { P3G::from_canonical_unchecked(state[i].to_canonical_u64()) };
     }
 
-    // Deterministic constants from the same fixed seed (matches CPU).
-    let mut rng = ChaCha8Rng::seed_from_u64(POSEIDON2_SEED);
-    let poseidon2_from_rng = Poseidon2Goldilocks::<SPONGE_WIDTH>::new_from_rng_128(&mut rng);
-
-    // // Create a version of poseidon2 from the ext_init/ext_term/int_rc constants.
-    // let poseidon2_from_const: Poseidon2Goldilocks<SPONGE_WIDTH> = Poseidon2Goldilocks::new(
-    //     ExternalLayerConstants::<P3G, SPONGE_WIDTH>::new(
-    //         EXT_INIT_U64.map(|row| row.map(|x| unsafe { P3G::from_canonical_unchecked(x) })).to_vec(),
-    //         EXT_TERM_U64.map(|row| row.map(|x| unsafe { P3G::from_canonical_unchecked(x) })).to_vec(),
-    //     ),
-    //     INT_RC_U64.map(|x| unsafe { P3G::from_canonical_unchecked(x) }).to_vec(),
-    // );
+    // Create a version of p3 gl poseidon2 from the ext_init/ext_term/int_rc constants.
+    // These constants match what are generated from the poseidon-resonance core
+    // using the rand chacha rng and the seed 0x0189_1891_8918_9189;
+    let poseidon2_from_const: Poseidon2Goldilocks<SPONGE_WIDTH> = Poseidon2Goldilocks::new(
+        p3_poseidon2::ExternalLayerConstants::<P3G, SPONGE_WIDTH>::new(
+            EXT_INIT_U64.map(|row| row.map(|x| unsafe { P3G::from_canonical_unchecked(x) })).to_vec(),
+            EXT_TERM_U64.map(|row| row.map(|x| unsafe { P3G::from_canonical_unchecked(x) })).to_vec(),
+        ),
+        INT_RC_U64.map(|x| unsafe { P3G::from_canonical_unchecked(x) }).to_vec(),
+    );
 
     let mut st = s_p3;
-    poseidon2_from_rng.permute_mut(&mut st);
-
-    // // Check that the two Poseidon2 instances agree.
-    // let mut st_check = s_p3;
-    // poseidon2_from_const.permute_mut(&mut st_check);
-    // assert_eq!(st, st_check, "Poseidon2 permutation mismatch between RNG-derived and constant-derived instances");
+    poseidon2_from_const.permute_mut(&mut st);
 
     // Back to plonky2 GL
     for i in 0..SPONGE_WIDTH {
@@ -258,7 +256,6 @@ mod tests {
     use crate::plonk::circuit_builder::CircuitBuilder;
     use crate::plonk::circuit_data::CircuitConfig;
     use crate::plonk::config::PoseidonGoldilocksConfig;
-    use crate::qp_poseidon::Poseidon2 as QPPoseidon2;
     use plonky2_field::goldilocks_field::GoldilocksField as F;
     use rand_chacha::rand_core::RngCore;
 
