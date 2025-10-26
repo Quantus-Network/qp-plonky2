@@ -29,6 +29,10 @@ use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::circuit_data::CommonCircuitData;
 use crate::plonk::vars::{EvaluationTargets, EvaluationVars};
 use crate::util::serialization::{Buffer, IoResult, Read, Write};
+use qp_poseidon_core::constants::{
+    POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW, POSEIDON2_INTERNAL_CONSTANTS_RAW,
+    POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
+};
 
 /// WIDTH=12, RATE=4 (capacity 8).
 pub const P2_WIDTH: usize = 12;
@@ -79,148 +83,7 @@ pub const P2_RATE: usize = 4;
 /// - External rounds are also degree 7 (S-box on all lanes).
 
 pub const P2_INTERNAL_ROUNDS: usize = 22;
-pub const EXT_INIT_U64: [[u64; P2_WIDTH]; 4] = [
-    [
-        16014189612424237997,
-        3234130550329388769,
-        12770310677236056740,
-        2522059831407870648,
-        16516262146806714622,
-        14346955448063414307,
-        18098338222873569217,
-        16506915715127403909,
-        1740142456686137078,
-        12590467223883536996,
-        6078974114340264836,
-        394831167838043051,
-    ],
-    [
-        14292589812259157005,
-        8460209114181982917,
-        15011214242444884325,
-        13462791225860855588,
-        10627487433335459888,
-        1624755420897328351,
-        2063209653571085939,
-        18067308934647734526,
-        6538629857251435881,
-        3217577208297444599,
-        15338949981999486846,
-        12864825732577819657,
-    ],
-    [
-        7706595502408214652,
-        16738738787192632900,
-        10982098878410176042,
-        14268282552721501435,
-        11454941221469237933,
-        14617692430364504137,
-        13916571882331192922,
-        6814962505004916576,
-        14028125575994250062,
-        13225657213032524375,
-        4626384406055707720,
-        14990940063728124690,
-    ],
-    [
-        1911457633639084210,
-        7163368907680515062,
-        8413980300210324228,
-        1675047486134189732,
-        16041698939438607870,
-        11228094700653369233,
-        6501995543359590331,
-        9685480985245200466,
-        12679244446883551807,
-        8464058752967496937,
-        7741578890911679009,
-        3283703336442212930,
-    ],
-];
 
-pub const EXT_TERM_U64: [[u64; P2_WIDTH]; 4] = [
-    [
-        17351355999406684364,
-        16137439874414729127,
-        12055514998018621195,
-        594679093829729354,
-        16737512074876758192,
-        2737574840832795298,
-        3465446135797481753,
-        4292409154763056687,
-        11224437497275816114,
-        4023045499853201921,
-        10779624707907978147,
-        14278665975259142116,
-    ],
-    [
-        11903321889543839706,
-        5408672356853253133,
-        11722650664643554577,
-        15832064295836011218,
-        12196513835950390987,
-        4557876614450441262,
-        4514423607167246200,
-        13179281050059116604,
-        13816175314507993453,
-        16904171011585020664,
-        9501194326912928839,
-        16115508209786346411,
-    ],
-    [
-        14980304976005993651,
-        13949798916377127336,
-        8391339834223394752,
-        2486734703723642889,
-        16495720201386686142,
-        17027676271156490018,
-        9836722774726345255,
-        1598759041324173985,
-        9904883565707568937,
-        7841704489011952451,
-        588114624806878733,
-        673913537142101185,
-    ],
-    [
-        4599835491909300182,
-        12688992728618520237,
-        14877058244946658134,
-        10918174468110998885,
-        10255536904610753386,
-        2590325024884566512,
-        13607037626913552939,
-        9862747855710264415,
-        376886820764458257,
-        9236712289059050564,
-        7363125273922585709,
-        6340039608049649771,
-    ],
-];
-
-pub const INT_RC_U64: [u64; P2_INTERNAL_ROUNDS] = [
-    3164763325237167292,
-    4510474569205763846,
-    10020902063516359798,
-    8069563132531746417,
-    3254592259677490479,
-    11985549796265474924,
-    10987927494624206223,
-    12015039453665918149,
-    4575586241449602538,
-    10824249772622471957,
-    9852067153475416880,
-    18282006677946798315,
-    17127667785536367426,
-    9262743637454041195,
-    7842676173661650237,
-    6586650076667080425,
-    3357942524992632948,
-    13653200854074857022,
-    5944505826517591163,
-    1374723928025097978,
-    360175609930259452,
-    18390393266911553461,
-];
 /// Constants (shared with CPU hashing).
 #[derive(Clone, Debug, Default)]
 pub struct Poseidon2Params<F: RichField + Extendable<D>, const D: usize> {
@@ -600,7 +463,11 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2ExtRoundGate<F, D> {
 
     pub fn new_initial(round_idx: usize) -> Self {
         Self {
-            params: Poseidon2Params::from_p3_constants_u64(EXT_INIT_U64, EXT_TERM_U64, INT_RC_U64),
+            params: Poseidon2Params::from_p3_constants_u64(
+                POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW,
+                POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
+                POSEIDON2_INTERNAL_CONSTANTS_RAW,
+            ),
             round_idx,
             is_initial: true,
             _pd: PhantomData,
@@ -608,7 +475,11 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2ExtRoundGate<F, D> {
     }
     pub fn new_terminal(round_idx: usize) -> Self {
         Self {
-            params: Poseidon2Params::from_p3_constants_u64(EXT_INIT_U64, EXT_TERM_U64, INT_RC_U64),
+            params: Poseidon2Params::from_p3_constants_u64(
+                POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW,
+                POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
+                POSEIDON2_INTERNAL_CONSTANTS_RAW,
+            ),
             round_idx,
             is_initial: false,
             _pd: PhantomData,
@@ -797,7 +668,11 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D>
         let is_init = src.read_bool()?;
         Ok(Self {
             row,
-            params: Poseidon2Params::from_p3_constants_u64(EXT_INIT_U64, EXT_TERM_U64, INT_RC_U64),
+            params: Poseidon2Params::from_p3_constants_u64(
+                POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW,
+                POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
+                POSEIDON2_INTERNAL_CONSTANTS_RAW,
+            ),
             round_idx: r,
             is_initial: is_init,
         })
@@ -824,7 +699,11 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2IntRoundGate<F, D> {
     }
     pub fn new(round_idx: usize) -> Self {
         Self {
-            params: Poseidon2Params::from_p3_constants_u64(EXT_INIT_U64, EXT_TERM_U64, INT_RC_U64),
+            params: Poseidon2Params::from_p3_constants_u64(
+                POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW,
+                POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
+                POSEIDON2_INTERNAL_CONSTANTS_RAW,
+            ),
             round_idx,
             _pd: PhantomData,
         }
@@ -988,7 +867,11 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D>
         let r = src.read_usize()?;
         Ok(Self {
             row,
-            params: Poseidon2Params::from_p3_constants_u64(EXT_INIT_U64, EXT_TERM_U64, INT_RC_U64),
+            params: Poseidon2Params::from_p3_constants_u64(
+                POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW,
+                POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
+                POSEIDON2_INTERNAL_CONSTANTS_RAW,
+            ),
             round_idx: r,
         })
     }

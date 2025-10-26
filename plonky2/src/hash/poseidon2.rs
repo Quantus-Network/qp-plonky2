@@ -19,8 +19,8 @@ use p3_field::{PrimeCharacteristicRing, PrimeField64 as P3PrimeField64};
 
 use crate::field::types::{Field, PrimeField64};
 use crate::gates::poseidon2::{
-    Poseidon2ExtInitPreambleGate, Poseidon2ExtRoundGate, Poseidon2IntRoundGate, EXT_INIT_U64,
-    EXT_TERM_U64, INT_RC_U64, P2_INTERNAL_ROUNDS, P2_WIDTH,
+    Poseidon2ExtInitPreambleGate, Poseidon2ExtRoundGate, Poseidon2IntRoundGate, P2_INTERNAL_ROUNDS,
+    P2_WIDTH,
 };
 use crate::hash::hash_types::{HashOut, RichField, NUM_HASH_OUT_ELTS};
 use crate::hash::hashing::{hash_n_to_hash_no_pad_p2, PlonkyPermutation};
@@ -28,6 +28,7 @@ use crate::iop::target::{BoolTarget, Target};
 use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::config::{AlgebraicHasher, Hasher};
 use plonky2_field::extension::Extendable;
+use qp_poseidon_core::constants::create_poseidon;
 
 // We only support Goldilocks for now, which matches your Poseidon2Core.
 use plonky2_field::goldilocks_field::GoldilocksField as GL;
@@ -46,25 +47,9 @@ fn p2_permute_gl(mut state: [GL; SPONGE_WIDTH]) -> [GL; SPONGE_WIDTH] {
         s_p3[i] = unsafe { P3G::from_canonical_unchecked(state[i].to_canonical_u64()) };
     }
 
-    // Create a version of p3 gl poseidon2 from the ext_init/ext_term/int_rc constants.
-    // These constants match what are generated from the poseidon-resonance core
-    // using the rand chacha rng and the seed 0x0189_1891_8918_9189;
-    let poseidon2_from_const: Poseidon2Goldilocks<SPONGE_WIDTH> = Poseidon2Goldilocks::new(
-        p3_poseidon2::ExternalLayerConstants::<P3G, SPONGE_WIDTH>::new(
-            EXT_INIT_U64
-                .map(|row| row.map(|x| unsafe { P3G::from_canonical_unchecked(x) }))
-                .to_vec(),
-            EXT_TERM_U64
-                .map(|row| row.map(|x| unsafe { P3G::from_canonical_unchecked(x) }))
-                .to_vec(),
-        ),
-        INT_RC_U64
-            .map(|x| unsafe { P3G::from_canonical_unchecked(x) })
-            .to_vec(),
-    );
-
+    let poseidon2 = create_poseidon();
     let mut st = s_p3;
-    poseidon2_from_const.permute_mut(&mut st);
+    poseidon2.permute_mut(&mut st);
 
     // Back to plonky2 GL
     for i in 0..SPONGE_WIDTH {
@@ -263,7 +248,7 @@ mod tests {
     use crate::plonk::circuit_data::CircuitConfig;
     use crate::plonk::config::PoseidonGoldilocksConfig;
     use plonky2_field::goldilocks_field::GoldilocksField as F;
-    use qp_poseidon_core::Poseidon2Core as P3Poseidon2;
+    use qp_poseidon_core::hash_variable_length;
     use rand_chacha::rand_core::RngCore;
 
     type C = PoseidonGoldilocksConfig;
@@ -335,9 +320,6 @@ mod tests {
     fn poseidon2_hash_matches_qp_poseidon() {
         use p3_goldilocks::Goldilocks as P3F;
 
-        // p3-side hasher with deterministic constants
-        let p3 = P3Poseidon2::new();
-
         // random inputs of varying sizes
         let mut rng = ChaCha8Rng::seed_from_u64(0xD1CE_D00D);
         for _ in 0..100 {
@@ -363,7 +345,7 @@ mod tests {
             }
 
             // p3 (qp_poseidon_core) reference
-            let p3_bytes = p3.hash_no_pad(inputs_p3);
+            let p3_bytes = hash_variable_length(inputs_p3);
 
             assert_eq!(cpu_bytes, p3_bytes, "Poseidon2 mismatch for len={len}");
         }

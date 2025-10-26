@@ -48,6 +48,7 @@ serde = { workspace = true, features = ["rc"] }
 static_assertions = { workspace = true }
 unroll = { workspace = true }
 web-time = { version = "1.0.0", optional = true }
+qp-poseidon-core = { git="https://github.com/Quantus-Network/qp-poseidon", branch="audit-responses" }
 
 # Local dependencies
 plonky2-field = { package = "qp-plonky2-field", version = "1.1.1", path = "../field", default-features = false }
@@ -65,7 +66,6 @@ criterion = { version = "0.5.1", default-features = false }
 env_logger = { version = "0.9.0", default-features = false }
 num_cpus = { version = "1.14.0", default-features = false }
 rand = { workspace = true, features = ["getrandom"] }
-qp-poseidon-core = { version = "0.9.5" }
 rand_chacha = { version = "0.3.1", default-features = false }
 serde_cbor = { version = "0.11.2" }
 serde_json = { version = "1.0" }
