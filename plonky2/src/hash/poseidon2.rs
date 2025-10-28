@@ -28,7 +28,7 @@ use crate::iop::target::{BoolTarget, Target};
 use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::config::{AlgebraicHasher, Hasher};
 use plonky2_field::extension::Extendable;
-use qp_poseidon_core::constants::create_poseidon;
+use qp_poseidon_constants::create_poseidon;
 
 // We only support Goldilocks for now, which matches your Poseidon2Core.
 use plonky2_field::goldilocks_field::GoldilocksField as GL;

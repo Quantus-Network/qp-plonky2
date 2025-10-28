@@ -29,7 +29,7 @@ use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::circuit_data::CommonCircuitData;
 use crate::plonk::vars::{EvaluationTargets, EvaluationVars};
 use crate::util::serialization::{Buffer, IoResult, Read, Write};
-use qp_poseidon_core::constants::{
+use qp_poseidon_constants::{
     POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW, POSEIDON2_INTERNAL_CONSTANTS_RAW,
     POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
 };

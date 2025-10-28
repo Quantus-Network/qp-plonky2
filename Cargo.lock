@@ -765,6 +765,7 @@ dependencies = [
  "plonky2_maybe_rayon",
  "plonky2_util",
  "qp-plonky2-field",
+ "qp-poseidon-constants",
  "qp-poseidon-core",
  "rand 0.8.5",
  "rand_chacha 0.3.1",
@@ -794,15 +795,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "qp-poseidon-constants"
+version = "0.9.5"
+source = "git+https://github.com/Quantus-Network/qp-poseidon?branch=audit-responses#dbad373ed3b3e77eab23ab9af71801b2eb2a208c"
+dependencies = [
+ "p3-field",
+ "p3-goldilocks",
+ "p3-poseidon2",
+ "rand 0.9.2",
+ "rand_chacha 0.9.0",
+]
+
+[[package]]
 name = "qp-poseidon-core"
 version = "0.9.5"
-source = "git+https://github.com/Quantus-Network/qp-poseidon?branch=audit-responses#27d842a6304d47e84d9482f8b736ccfb93b46f3a"
+source = "git+https://github.com/Quantus-Network/qp-poseidon?branch=audit-responses#dbad373ed3b3e77eab23ab9af71801b2eb2a208c"
 dependencies = [
  "p3-field",
  "p3-goldilocks",
  "p3-poseidon2",
  "p3-symmetric",
- "rand 0.9.2",
+ "qp-poseidon-constants",
  "rand_chacha 0.9.0",
 ]
 
