@@ -37,7 +37,7 @@ use plonky2_field::goldilocks_field::GoldilocksField as GL;
 const SPONGE_WIDTH: usize = 12;
 const SPONGE_RATE: usize = 4; // 4-felt output, 4-felt rate, 8-felt capacity
 
-// ---------- Internal helper: p3 permutation on Goldilocks ----------
+/// ---------- Internal helper: p3 permutation on Goldilocks ----------
 #[inline(always)]
 fn p2_permute_gl(mut state: [GL; SPONGE_WIDTH]) -> [GL; SPONGE_WIDTH] {
     // Convert to p3 Goldilocks.
@@ -59,7 +59,7 @@ fn p2_permute_gl(mut state: [GL; SPONGE_WIDTH]) -> [GL; SPONGE_WIDTH] {
 }
 
 // ---------- Permuter wiring ----------
-trait P2Permuter: Sized {
+pub trait P2Permuter: Sized {
     fn permute(input: [Self; SPONGE_WIDTH]) -> [Self; SPONGE_WIDTH];
 }
 
