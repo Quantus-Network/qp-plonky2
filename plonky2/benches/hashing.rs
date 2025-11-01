@@ -4,10 +4,10 @@ use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
 use plonky2::field::goldilocks_field::GoldilocksField;
 use plonky2::field::types::Sample;
 use plonky2::hash::hash_types::{BytesHash, RichField};
+use plonky2::hash::hashing::PlonkyPermutation;
 use plonky2::hash::keccak::KeccakHash;
 use plonky2::hash::poseidon::{Poseidon, SPONGE_WIDTH};
-use plonky2::hash::hashing::PlonkyPermutation;
-use plonky2::hash::poseidon2::{Poseidon2Permutation, P2Permuter};
+use plonky2::hash::poseidon2::{P2Permuter, Poseidon2Permutation};
 use plonky2::plonk::config::Hasher;
 use tynm::type_name;
 
@@ -32,7 +32,6 @@ pub(crate) fn bench_poseidon<F: Poseidon>(c: &mut Criterion) {
             )
         },
     );
-
 }
 pub(crate) fn bench_poseidon2<F: Poseidon + P2Permuter>(c: &mut Criterion) {
     c.bench_function(
