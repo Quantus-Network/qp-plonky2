@@ -224,7 +224,7 @@ mod tests {
     use anyhow::Result;
     use itertools::Itertools;
     use plonky2_field::goldilocks_field::GoldilocksField;
-    use plonky2_field::types::{Field64, Sample};
+    use plonky2_field::types::Field64;
 
     use super::*;
     use crate::batch_fri::oracle::BatchFriOracle;
@@ -341,6 +341,7 @@ mod tests {
     #[test]
     #[cfg(not(feature = "no_random"))]
     fn multiple_polynomials() -> Result<()> {
+        use plonky2_field::types::Sample;
         let mut timing = TimingTree::default();
 
         let k0 = 9;
