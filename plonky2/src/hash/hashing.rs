@@ -210,55 +210,32 @@ pub fn hash_n_to_hash_no_pad<F: RichField, P: PlonkyPermutation<F>>(inputs: &[F]
 
 /// Poseidon2 variable length padding (…||1||0* to RATE)
 pub fn hash_n_to_hash_no_pad_p2<F: RichField, P: PlonkyPermutation<F>>(inputs: &[F]) -> HashOut<F> {
-    let mut perm = P::new(core::iter::repeat(F::ZERO));
     let rate = P::RATE;
 
+    // Defensive: RATE should never be 0 for a real permutation.
     if rate == 0 {
-        // Defensive: should never happen for a real permutation.
         return HashOut::from_vec(vec![F::ZERO; NUM_HASH_OUT_ELTS]);
     }
 
-    // Absorb input in RATE-sized chunks with additive absorption.
-    let mut idx = 0usize;
-    while idx < inputs.len() {
-        let remaining = inputs.len() - idx;
-        let take = remaining.min(rate);
+    // Append one '1' and zero-pad to a rate-aligned length.
+    // This automatically adds a whole [1,0,...,0] block when inputs.len() % rate == 0,
+    // including the empty-input case.
+    let padded_len = ((inputs.len() + 1 + rate - 1) / rate) * rate;
 
-        // Build one block.
-        let mut block = vec![F::ZERO; rate];
-        for i in 0..take {
-            block[i] = inputs[idx + i];
-        }
+    let mut msg = vec![F::ZERO; padded_len];
+    msg[..inputs.len()].copy_from_slice(inputs);
+    msg[inputs.len()] = F::ONE;
 
-        // If this is the last (possibly partial) chunk, append the variable-length pad:
-        // place a single 1 after the data if there is room; otherwise we'll add
-        // a whole [1,0,0,...] block after the loop.
-        if idx + take == inputs.len() && take < rate {
-            block[take] = F::ONE;
-            // remaining entries already zero
-        }
-
-        // Additive absorption, then permute.
-        for i in 0..rate {
+    // Absorb/additively and permute per block.
+    let mut perm = P::new(core::iter::repeat(F::ZERO));
+    for block in msg.chunks(rate) {
+        for (i, &x) in block.iter().enumerate() {
             let si = perm.as_ref()[i];
-            perm.set_elt(si + block[i], i);
-        }
-        perm.permute();
-
-        idx += take;
-    }
-
-    // If inputs were an exact multiple of the rate (including empty),
-    // we still need to absorb one full padding block [1,0,0,...].
-    if inputs.len() % rate == 0 {
-        for i in 0..rate {
-            let si = perm.as_ref()[i];
-            let add = if i == 0 { F::ONE } else { F::ZERO };
-            perm.set_elt(si + add, i);
+            perm.set_elt(si + x, i);
         }
         perm.permute();
     }
 
-    // Squeeze NUM_HASH_OUT_ELTS elements from the current state (no extra permute).
+    // Squeeze without an extra permute.
     HashOut::from_vec(perm.squeeze()[..NUM_HASH_OUT_ELTS].to_vec())
 }
