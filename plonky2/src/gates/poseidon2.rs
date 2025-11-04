@@ -378,66 +378,69 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D>
     }
 
     fn generators(&self, row: usize, _lc: &[F]) -> Vec<WitnessGeneratorRef<F, D>> {
-        #[derive(Debug)]
-        struct G<F: RichField + Extendable<D>, const D: usize> {
-            row: usize,
-            _pd: PhantomData<F>,
-        }
-        impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D> for G<F, D> {
-            fn id(&self) -> String {
-                "Poseidon2ExtInitPreambleGen".into()
-            }
-            fn dependencies(&self) -> Vec<Target> {
-                (0..P2_WIDTH)
-                    .map(|i| {
-                        Target::wire(
-                            self.row,
-                            Poseidon2ExtInitPreambleGate::<F, D>::wire_input(i),
-                        )
-                    })
-                    .collect()
-            }
-            fn run_once(
-                &self,
-                pw: &PartitionWitness<F>,
-                out: &mut GeneratedValues<F>,
-            ) -> anyhow::Result<()> {
-                let mut s = [F::ZERO; P2_WIDTH];
-                for i in 0..P2_WIDTH {
-                    s[i] = pw.get_wire(Wire {
-                        row: self.row,
-                        column: Poseidon2ExtInitPreambleGate::<F, D>::wire_input(i),
-                    });
-                }
-                mds_light_base(&mut s);
-                for i in 0..P2_WIDTH {
-                    out.set_wire(
-                        Wire {
-                            row: self.row,
-                            column: Poseidon2ExtInitPreambleGate::<F, D>::wire_output(i),
-                        },
-                        s[i],
-                    )?;
-                }
-                Ok(())
-            }
-            fn serialize(&self, dst: &mut Vec<u8>, _cd: &CommonCircuitData<F, D>) -> IoResult<()> {
-                dst.write_usize(self.row)
-            }
-            fn deserialize(src: &mut Buffer, _cd: &CommonCircuitData<F, D>) -> IoResult<Self> {
-                Ok(Self {
-                    row: src.read_usize()?,
-                    _pd: PhantomData,
-                })
-            }
-        }
         vec![WitnessGeneratorRef::new(
-            G::<F, D> {
+            Poseidon2ExtInitPreambleGen::<F, D> {
                 row,
                 _pd: PhantomData,
             }
             .adapter(),
         )]
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct Poseidon2ExtInitPreambleGen<F: RichField + Extendable<D>, const D: usize> {
+    row: usize,
+    _pd: PhantomData<F>,
+}
+impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D>
+    for Poseidon2ExtInitPreambleGen<F, D>
+{
+    fn id(&self) -> String {
+        "Poseidon2ExtInitPreambleGen".into()
+    }
+    fn dependencies(&self) -> Vec<Target> {
+        (0..P2_WIDTH)
+            .map(|i| {
+                Target::wire(
+                    self.row,
+                    Poseidon2ExtInitPreambleGate::<F, D>::wire_input(i),
+                )
+            })
+            .collect()
+    }
+    fn run_once(
+        &self,
+        pw: &PartitionWitness<F>,
+        out: &mut GeneratedValues<F>,
+    ) -> anyhow::Result<()> {
+        let mut s = [F::ZERO; P2_WIDTH];
+        for i in 0..P2_WIDTH {
+            s[i] = pw.get_wire(Wire {
+                row: self.row,
+                column: Poseidon2ExtInitPreambleGate::<F, D>::wire_input(i),
+            });
+        }
+        mds_light_base(&mut s);
+        for i in 0..P2_WIDTH {
+            out.set_wire(
+                Wire {
+                    row: self.row,
+                    column: Poseidon2ExtInitPreambleGate::<F, D>::wire_output(i),
+                },
+                s[i],
+            )?;
+        }
+        Ok(())
+    }
+    fn serialize(&self, dst: &mut Vec<u8>, _cd: &CommonCircuitData<F, D>) -> IoResult<()> {
+        dst.write_usize(self.row)
+    }
+    fn deserialize(src: &mut Buffer, _cd: &CommonCircuitData<F, D>) -> IoResult<Self> {
+        Ok(Self {
+            row: src.read_usize()?,
+            _pd: PhantomData,
+        })
     }
 }
 
@@ -607,8 +610,8 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for Poseidon2ExtRo
         )]
     }
 }
-#[derive(Clone, Debug)]
-struct Poseidon2ExtRoundGen<F: RichField + Extendable<D>, const D: usize> {
+#[derive(Debug, Default)]
+pub struct Poseidon2ExtRoundGen<F: RichField + Extendable<D>, const D: usize> {
     row: usize,
     params: Poseidon2Params<F, D>,
     round_idx: usize,
@@ -806,8 +809,8 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for Poseidon2IntRo
     }
 }
 
-#[derive(Clone, Debug)]
-struct Poseidon2IntRoundGen<F: RichField + Extendable<D>, const D: usize> {
+#[derive(Default, Debug)]
+pub struct Poseidon2IntRoundGen<F: RichField + Extendable<D>, const D: usize> {
     row: usize,
     params: Poseidon2Params<F, D>,
     round_idx: usize,
