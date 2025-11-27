@@ -10,12 +10,13 @@ use alloc::string::String;
 use alloc::{vec, vec::Vec};
 #[cfg(not(feature = "std"))]
 use core::fmt::Debug;
-
 use core::marker::PhantomData;
-use plonky2_field::extension::Extendable;
 
-use crate::iop::wire::Wire;
-use crate::iop::witness::Witness;
+use plonky2_field::extension::Extendable;
+use qp_poseidon_constants::{
+    POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW, POSEIDON2_INTERNAL_CONSTANTS_RAW,
+    POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
+};
 
 use crate::field::types::Field;
 use crate::gates::gate::Gate;
@@ -23,16 +24,12 @@ use crate::hash::hash_types::RichField;
 use crate::iop::ext_target::ExtensionTarget;
 use crate::iop::generator::{GeneratedValues, SimpleGenerator, WitnessGeneratorRef};
 use crate::iop::target::Target;
-use crate::iop::witness::PartitionWitness;
-use crate::iop::witness::WitnessWrite;
+use crate::iop::wire::Wire;
+use crate::iop::witness::{PartitionWitness, Witness, WitnessWrite};
 use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::circuit_data::CommonCircuitData;
 use crate::plonk::vars::{EvaluationTargets, EvaluationVars};
 use crate::util::serialization::{Buffer, IoResult, Read, Write};
-use qp_poseidon_constants::{
-    POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW, POSEIDON2_INTERNAL_CONSTANTS_RAW,
-    POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
-};
 
 /// WIDTH=12, RATE=4 (capacity 8).
 pub const P2_WIDTH: usize = 12;
