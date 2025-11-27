@@ -11,11 +11,14 @@ use alloc::{vec, vec::Vec};
 #[cfg(not(feature = "std"))]
 use core::fmt::Debug;
 
-use p3_goldilocks::{Goldilocks as P3G, Poseidon2Goldilocks};
-use p3_symmetric::Permutation;
-
 use p3_field::integers::QuotientMap;
 use p3_field::{PrimeCharacteristicRing, PrimeField64 as P3PrimeField64};
+use p3_goldilocks::Goldilocks as P3G;
+use p3_symmetric::Permutation;
+use plonky2_field::extension::Extendable;
+// We only support Goldilocks for now, which matches your Poseidon2Core.
+use plonky2_field::goldilocks_field::GoldilocksField as GL;
+use qp_poseidon_constants::create_poseidon;
 
 use crate::field::types::{Field, PrimeField64};
 use crate::gates::poseidon2::{
@@ -27,11 +30,6 @@ use crate::hash::hashing::{hash_n_to_hash_no_pad_p2, PlonkyPermutation};
 use crate::iop::target::{BoolTarget, Target};
 use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::config::{AlgebraicHasher, Hasher};
-use plonky2_field::extension::Extendable;
-use qp_poseidon_constants::create_poseidon;
-
-// We only support Goldilocks for now, which matches your Poseidon2Core.
-use plonky2_field::goldilocks_field::GoldilocksField as GL;
 
 // ---------- Params (match your Poseidon2Core exactly) ----------
 const SPONGE_WIDTH: usize = 12;
@@ -240,16 +238,16 @@ impl<F: RichField + P2Permuter> AlgebraicHasher<F> for Poseidon2Hash {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use rand_chacha::{rand_core::SeedableRng, ChaCha8Rng};
+    use plonky2_field::goldilocks_field::GoldilocksField as F;
+    use qp_poseidon_core::hash_variable_length;
+    use rand_chacha::rand_core::{RngCore, SeedableRng};
+    use rand_chacha::ChaCha8Rng;
 
+    use super::*;
     use crate::iop::witness::{PartialWitness, WitnessWrite};
     use crate::plonk::circuit_builder::CircuitBuilder;
     use crate::plonk::circuit_data::CircuitConfig;
     use crate::plonk::config::PoseidonGoldilocksConfig;
-    use plonky2_field::goldilocks_field::GoldilocksField as F;
-    use qp_poseidon_core::hash_variable_length;
-    use rand_chacha::rand_core::RngCore;
 
     type C = PoseidonGoldilocksConfig;
     const D: usize = 2;

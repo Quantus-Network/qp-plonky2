@@ -1,5 +1,5 @@
 [workspace]
-members = ["field", "maybe_rayon", "plonky2", "starky", "util", "no_std_check"]
+members = ["field", "maybe_rayon", "plonky2", "starky", "util"]
 default-members = ["field", "maybe_rayon", "plonky2", "starky", "util"]
 resolver = "2"
 

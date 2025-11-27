@@ -48,7 +48,7 @@ serde = { workspace = true, features = ["rc"] }
 static_assertions = { workspace = true }
 unroll = { workspace = true }
 web-time = { version = "1.0.0", optional = true }
-qp-poseidon-constants = { version = "1.0.1" }
+qp-poseidon-constants = { version = "1.0" }
 
 # Local dependencies
 plonky2-field = { package = "qp-plonky2-field", version = "1.1.2", path = "../field", default-features = false }
