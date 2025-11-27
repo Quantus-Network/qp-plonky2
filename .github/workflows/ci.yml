@@ -62,8 +62,12 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: |
           brew install protobuf
+      - name: Add wasm32v1-none target
+        run: rustup target add wasm32v1-none
       - name: Build
         run: cargo build --release
+      - name: Check no-std
+        run: cargo check --no-default-features --target wasm32v1-none
       - name: Test
         run: cargo test --release
 
@@ -85,19 +89,6 @@ jobs:
         run: rustup component add rust-src
       - name: Run doc
         run: cargo doc --no-deps
-
-  no-std-check:
-    name: 🧪 no_std (wasm32v1-none)
-    needs: fast-checks
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@nightly
-      - name: Add wasm32v1-none target
-        run: rustup target add wasm32v1-none
-      - name: Run no_std check script
-        run: scripts/check-no-std.sh
 
   security-audit:
     name: 🔒 Security Audit
