@@ -74,37 +74,41 @@ fn bench_poseidon_air(c: &mut Criterion) {
     let mut rng = StdRng::seed_from_u64(0xdeadbeef);
     let inputs = generate_inputs(&mut rng);
 
+    // 1) Build circuit ONCE
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+
+    // Add inputs as targets
+    let input_targets: Vec<[Target; SPONGE_WIDTH]> = (0..NUM_PERMS)
+        .map(|_| [(); SPONGE_WIDTH].map(|_| builder.add_virtual_target()))
+        .collect();
+
+    // Perform permutations
+    for input_t in input_targets.iter() {
+        let perm = <PoseidonHash as AlgebraicHasher<F>>::AlgebraicPermutation::new(
+            input_t.iter().cloned(),
+        );
+        let swap = builder.zero();  // No swap
+        let out = PoseidonHash::permute_swapped(perm, BoolTarget::new_unsafe(swap), &mut builder);
+        // Register output to ensure it's computed (dummy)
+        builder.register_public_inputs(&out.squeeze());
+    }
+
+    let data = builder.build::<C>();
+
+    // 2) Build witness ONCE
+    let mut base_pw = PartialWitness::new();
+    for (i, state) in inputs.iter().enumerate() {
+        for (j, &val) in state.iter().enumerate() {
+            base_pw.set_target(input_targets[i][j], val).unwrap();
+        }
+    }
+
+    // 3) Pure prover benchmark: only data.prove(...)
     c.bench_function("poseidon_prove", |b| {
         b.iter(|| {
-            let config = CircuitConfig::standard_recursion_config();
-            let mut builder = CircuitBuilder::<F, D>::new(config);
-
-            // Add inputs as targets
-            let input_targets: Vec<[Target; SPONGE_WIDTH]> = (0..NUM_PERMS)
-                .map(|_| [(); SPONGE_WIDTH].map(|_| builder.add_virtual_target()))
-                .collect();
-
-            // Perform permutations
-            for input_t in input_targets.iter() {
-                let perm = <PoseidonHash as AlgebraicHasher<F>>::AlgebraicPermutation::new(input_t.iter().cloned());
-                let swap = builder.zero();  // No swap
-                let out = PoseidonHash::permute_swapped(perm, BoolTarget::new_unsafe(swap), &mut builder);
-                // Register output to ensure it's computed (dummy)
-                builder.register_public_inputs(&out.squeeze());
-            }
-
-            let data = builder.build::<C>();
-
-            // Set witness
-            let mut pw = PartialWitness::new();
-            for (i, state) in inputs.iter().enumerate() {
-                for (j, &val) in state.iter().enumerate() {
-                    pw.set_target(input_targets[i][j], val).unwrap();
-                }
-            }
-
-            // Prove
-            let proof = data.prove(pw.clone()).unwrap();
+            let pw = base_pw.clone();
+            let proof = data.prove(pw).unwrap();
             black_box(proof);
         })
     });
@@ -114,47 +118,55 @@ fn bench_poseidon2_air(c: &mut Criterion) {
     let mut rng = StdRng::seed_from_u64(0xdeadbeef);
     let inputs = generate_inputs(&mut rng);
 
+    // 1) Build circuit ONCE
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+
+    // Add inputs as targets
+    let input_targets: Vec<[Target; SPONGE_WIDTH]> = (0..NUM_PERMS)
+        .map(|_| [(); SPONGE_WIDTH].map(|_| builder.add_virtual_target()))
+        .collect();
+
+    // Perform permutations
+    for input_t in input_targets.iter() {
+        let perm = <Poseidon2Hash as AlgebraicHasher<F>>::AlgebraicPermutation::new(
+            input_t.iter().cloned(),
+        );
+        let swap = builder.zero();  // No swap
+        let out =
+            Poseidon2Hash::permute_swapped(perm, BoolTarget::new_unsafe(swap), &mut builder);
+        // Register output to ensure it's computed (dummy)
+        builder.register_public_inputs(&out.squeeze());
+    }
+
+    let data = builder.build::<C>();
+
+    // 2) Build witness ONCE
+    let mut base_pw = PartialWitness::new();
+    for (i, state) in inputs.iter().enumerate() {
+        for (j, &val) in state.iter().enumerate() {
+            base_pw.set_target(input_targets[i][j], val).unwrap();
+        }
+    }
+
+    // 3) Pure prover benchmark
     c.bench_function("poseidon2_prove", |b| {
         b.iter(|| {
-            let config = CircuitConfig::standard_recursion_config();
-            let mut builder = CircuitBuilder::<F, D>::new(config);
-
-            // Add inputs as targets
-            let input_targets: Vec<[Target; SPONGE_WIDTH]> = (0..NUM_PERMS)
-                .map(|_| [(); SPONGE_WIDTH].map(|_| builder.add_virtual_target()))
-                .collect();
-
-            // Perform permutations
-            for input_t in input_targets.iter() {
-                let perm = <Poseidon2Hash as AlgebraicHasher<F>>::AlgebraicPermutation::new(input_t.iter().cloned());
-                let swap = builder.zero();  // No swap
-                let out = Poseidon2Hash::permute_swapped(perm, BoolTarget::new_unsafe(swap), &mut builder);
-                // Register output to ensure it's computed (dummy)
-                builder.register_public_inputs(&out.squeeze());
-            }
-
-            let data = builder.build::<C>();
-
-            // Set witness
-            let mut pw = PartialWitness::new();
-            for (i, state) in inputs.iter().enumerate() {
-                for (j, &val) in state.iter().enumerate() {
-                    pw.set_target(input_targets[i][j], val).unwrap();
-                }
-            }
-
-            // Prove
-            let proof = data.prove(pw.clone()).unwrap();
+            let pw = base_pw.clone();
+            let proof = data.prove(pw).unwrap();
             black_box(proof);
         })
     });
 }
 
+// Keep your other hash-function benchmarks if you want them too
 fn criterion_benchmark(c: &mut Criterion) {
     bench_poseidon::<GoldilocksField>(c);
     bench_keccak::<GoldilocksField>(c);
     bench_poseidon2::<GoldilocksField>(c);
+    bench_poseidon_air(c);
+    bench_poseidon2_air(c);
 }
 
-criterion_group!(benches, criterion_benchmark, bench_poseidon2_air, bench_poseidon_air);
+criterion_group!(benches, criterion_benchmark);
 criterion_main!(benches);
