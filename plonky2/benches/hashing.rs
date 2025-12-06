@@ -1,8 +1,8 @@
 mod allocator;
 
-use criterion::{BatchSize, Criterion, black_box, criterion_group, criterion_main};
+use criterion::{black_box, criterion_group, criterion_main, BatchSize, Criterion};
 use plonky2::field::goldilocks_field::GoldilocksField;
-use plonky2::field::types::{Sample, Field};
+use plonky2::field::types::{Field, Sample};
 use plonky2::hash::hash_types::{BytesHash, RichField};
 use plonky2::hash::hashing::PlonkyPermutation;
 use plonky2::hash::keccak::KeccakHash;
@@ -13,9 +13,9 @@ use plonky2::iop::witness::{PartialWitness, WitnessWrite};
 use plonky2::plonk::circuit_builder::CircuitBuilder;
 use plonky2::plonk::circuit_data::CircuitConfig;
 use plonky2::plonk::config::{AlgebraicHasher, GenericConfig, Hasher, PoseidonGoldilocksConfig};
-use tynm::type_name;
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
+use tynm::type_name;
 
 pub(crate) fn bench_keccak<F: RichField>(c: &mut Criterion) {
     c.bench_function("keccak256", |b| {
@@ -55,7 +55,7 @@ const D: usize = 2;
 type C = PoseidonGoldilocksConfig;
 type F = <C as GenericConfig<D>>::F;
 
-const NUM_PERMS: usize = 100;  // Number of permutations to perform in the circuit
+const NUM_PERMS: usize = 100; // Number of permutations to perform in the circuit
 
 // Helper: Generate fixed random inputs for fairness
 fn generate_inputs(rng: &mut StdRng) -> Vec<[F; SPONGE_WIDTH]> {
@@ -88,7 +88,7 @@ fn bench_poseidon_air(c: &mut Criterion) {
         let perm = <PoseidonHash as AlgebraicHasher<F>>::AlgebraicPermutation::new(
             input_t.iter().cloned(),
         );
-        let swap = builder.zero();  // No swap
+        let swap = builder.zero(); // No swap
         let out = PoseidonHash::permute_swapped(perm, BoolTarget::new_unsafe(swap), &mut builder);
         // Register output to ensure it's computed (dummy)
         builder.register_public_inputs(&out.squeeze());
@@ -132,9 +132,8 @@ fn bench_poseidon2_air(c: &mut Criterion) {
         let perm = <Poseidon2Hash as AlgebraicHasher<F>>::AlgebraicPermutation::new(
             input_t.iter().cloned(),
         );
-        let swap = builder.zero();  // No swap
-        let out =
-            Poseidon2Hash::permute_swapped(perm, BoolTarget::new_unsafe(swap), &mut builder);
+        let swap = builder.zero(); // No swap
+        let out = Poseidon2Hash::permute_swapped(perm, BoolTarget::new_unsafe(swap), &mut builder);
         // Register output to ensure it's computed (dummy)
         builder.register_public_inputs(&out.squeeze());
     }
@@ -161,11 +160,11 @@ fn bench_poseidon2_air(c: &mut Criterion) {
 
 // Keep your other hash-function benchmarks if you want them too
 fn criterion_benchmark(c: &mut Criterion) {
-    bench_poseidon::<GoldilocksField>(c);
-    bench_keccak::<GoldilocksField>(c);
-    bench_poseidon2::<GoldilocksField>(c);
-    bench_poseidon_air(c);
+    // bench_poseidon::<GoldilocksField>(c);
+    // bench_keccak::<GoldilocksField>(c);
+    // bench_poseidon2::<GoldilocksField>(c);
     bench_poseidon2_air(c);
+    bench_poseidon_air(c);
 }
 
 criterion_group!(benches, criterion_benchmark);

@@ -37,6 +37,8 @@ pub mod noop;
 pub mod packed_util;
 pub mod poseidon;
 pub mod poseidon2;
+pub mod poseidon2_int_mix;
+pub mod poseidon2_mds;
 pub mod poseidon_mds;
 pub mod public_input;
 pub mod random_access;

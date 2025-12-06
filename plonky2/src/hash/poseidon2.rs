@@ -21,9 +21,7 @@ use plonky2_field::goldilocks_field::GoldilocksField as GL;
 use qp_poseidon_constants::create_poseidon;
 
 use crate::field::types::{Field, PrimeField64};
-use crate::gates::poseidon2::{
-    P2_WIDTH, Poseidon2Gate
-};
+use crate::gates::poseidon2::{Poseidon2Gate, P2_WIDTH};
 use crate::hash::hash_types::{HashOut, RichField, NUM_HASH_OUT_ELTS};
 use crate::hash::hashing::{hash_n_to_hash_no_pad_p2, PlonkyPermutation};
 use crate::iop::target::{BoolTarget, Target};
@@ -172,7 +170,7 @@ pub fn hash_no_pad_bytes(input: &[GL]) -> [u8; 32] {
 impl<F: RichField + P2Permuter> AlgebraicHasher<F> for Poseidon2Hash {
     type AlgebraicPermutation = Poseidon2Permutation<Target>;
 
-  fn permute_swapped<const D: usize>(
+    fn permute_swapped<const D: usize>(
         inputs: Self::AlgebraicPermutation,
         _swap: BoolTarget, // still ignored (semantics unchanged)
         b: &mut CircuitBuilder<F, D>,
@@ -195,9 +193,8 @@ impl<F: RichField + P2Permuter> AlgebraicHasher<F> for Poseidon2Hash {
         }
 
         // collect outputs
-        let state: [Target; P2_WIDTH] = core::array::from_fn(|i| {
-            Target::wire(row, Poseidon2Gate::<F, D>::wire_output(i))
-        });
+        let state: [Target; P2_WIDTH] =
+            core::array::from_fn(|i| Target::wire(row, Poseidon2Gate::<F, D>::wire_output(i)));
 
         Poseidon2Permutation { state }
     }

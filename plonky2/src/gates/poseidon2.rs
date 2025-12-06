@@ -20,6 +20,8 @@ use qp_poseidon_constants::{
 
 use crate::field::types::Field;
 use crate::gates::gate::Gate;
+use crate::gates::poseidon2_int_mix::Poseidon2IntMixGate;
+use crate::gates::poseidon2_mds::Poseidon2MdsGate;
 use crate::hash::hash_types::RichField;
 use crate::iop::ext_target::ExtensionTarget;
 use crate::iop::generator::{GeneratedValues, SimpleGenerator, WitnessGeneratorRef};
@@ -288,12 +290,97 @@ fn sbox7_ext_circuit<F: RichField + Extendable<D>, const D: usize>(
     b.mul_extension(x3, x4) // x^7
 }
 
+fn mds_light_circuit<F: RichField + Extendable<D>, const D: usize>(
+    builder: &mut CircuitBuilder<F, D>,
+    state: &[ExtensionTarget<D>; P2_WIDTH],
+) -> [ExtensionTarget<D>; P2_WIDTH]
+where
+    F: RichField + Extendable<D>,
+{
+    let mds_gate = Poseidon2MdsGate::<F, D>::new();
+
+    if builder.config.num_routed_wires >= mds_gate.num_wires() {
+        let row = builder.add_gate(mds_gate, vec![]);
+
+        // Connect inputs
+        for i in 0..P2_WIDTH {
+            let input_wire = Poseidon2MdsGate::<F, D>::wires_input(i);
+            builder.connect_extension(state[i], ExtensionTarget::from_range(row, input_wire));
+        }
+
+        // Read outputs
+        (0..P2_WIDTH)
+            .map(|i| {
+                let output_wire = Poseidon2MdsGate::<F, D>::wires_output(i);
+                ExtensionTarget::from_range(row, output_wire)
+            })
+            .collect::<Vec<_>>()
+            .try_into()
+            .unwrap()
+    } else {
+        // Fallback: reuse “inline” MDS.
+        let mut out = *state;
+        mds_light_ext::<F, D>(builder, &mut out);
+        out
+    }
+}
+
+fn internal_mix_circuit<F: RichField + Extendable<D>, const D: usize>(
+    builder: &mut CircuitBuilder<F, D>,
+    state: &[ExtensionTarget<D>; P2_WIDTH],
+    diag: &[F; P2_WIDTH],
+) -> [ExtensionTarget<D>; P2_WIDTH] {
+    let mix_gate = Poseidon2IntMixGate::<F, D>::new();
+
+    if builder.config.num_routed_wires >= mix_gate.num_wires() {
+        let row = builder.add_gate(mix_gate, vec![]);
+
+        // Connect inputs to gate wires
+        for i in 0..P2_WIDTH {
+            let input_wire = Poseidon2IntMixGate::<F, D>::wires_input(i);
+            builder.connect_extension(state[i], ExtensionTarget::from_range(row, input_wire));
+        }
+
+        // Read outputs
+        (0..P2_WIDTH)
+            .map(|i| {
+                let output_wire = Poseidon2IntMixGate::<F, D>::wires_output(i);
+                ExtensionTarget::from_range(row, output_wire)
+            })
+            .collect::<Vec<_>>()
+            .try_into()
+            .unwrap()
+    } else {
+        // Fallback: inline version, no gate
+        let mut s = *state;
+
+        // diag as extension constants
+        let diag_ext: [ExtensionTarget<D>; P2_WIDTH] = core::array::from_fn(|i| {
+            let val = ext_c::<F, D>(diag[i]);
+            builder.constant_extension(val)
+        });
+
+        // sum = sum_j s[j]
+        let mut sum = s[0];
+        for i in 1..P2_WIDTH {
+            sum = builder.add_extension(sum, s[i]);
+        }
+
+        // y[i] = diag[i] * s[i] + sum
+        for i in 0..P2_WIDTH {
+            let t = builder.mul_extension(s[i], diag_ext[i]);
+            s[i] = builder.add_extension(t, sum);
+        }
+
+        s
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct Poseidon2Gate<F: RichField + Extendable<D>, const D: usize> {
     params: Poseidon2Params<F, D>,
     _pd: PhantomData<F>,
 }
-
 
 impl<F: RichField + Extendable<D>, const D: usize> Poseidon2Gate<F, D> {
     pub const W_IN: usize = 0;
@@ -377,8 +464,7 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for Poseidon2Gate<
         let mut constr = Vec::with_capacity(self.num_constraints());
 
         // 0) load inputs into extension state
-        let mut state: [F::Extension; P2_WIDTH] =
-            core::array::from_fn(|i| lw[Self::wire_input(i)]);
+        let mut state: [F::Extension; P2_WIDTH] = core::array::from_fn(|i| lw[Self::wire_input(i)]);
 
         // 1) initial preamble (light MDS)
         mds_light_any::<F::Extension>(&mut state);
@@ -462,126 +548,112 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for Poseidon2Gate<
         constr
     }
 
-fn eval_unfiltered_circuit(
-    &self,
-    b: &mut CircuitBuilder<F, D>,
-    vars: EvaluationTargets<D>,
-) -> Vec<ExtensionTarget<D>> {
-    let lw = &vars.local_wires;
-    let mut constr = Vec::with_capacity(self.num_constraints());
+    fn eval_unfiltered_circuit(
+        &self,
+        b: &mut CircuitBuilder<F, D>,
+        vars: EvaluationTargets<D>,
+    ) -> Vec<ExtensionTarget<D>> {
+        let lw = &vars.local_wires;
+        let mut constr = Vec::with_capacity(self.num_constraints());
 
-    // 0) load inputs
-    let mut state: [ExtensionTarget<D>; P2_WIDTH] =
-        core::array::from_fn(|i| lw[Self::wire_input(i)]);
+        // 0) load inputs
+        let mut state: [ExtensionTarget<D>; P2_WIDTH] =
+            core::array::from_fn(|i| lw[Self::wire_input(i)]);
 
-    // 1) preamble light MDS
-    mds_light_ext::<F, D>(b, &mut state);
+        // 1) preamble light MDS
+        mds_light_circuit::<F, D>(b, &mut state);
 
-    let ext_init = &self.params.ext_init;
-    let ext_term = &self.params.ext_term;
-    let int_rc = &self.params.int_rc;
-    let diag = &self.params.diag;
+        let ext_init = &self.params.ext_init;
+        let ext_term = &self.params.ext_term;
+        let int_rc = &self.params.int_rc;
+        let diag = &self.params.diag;
 
-    // Hoist diag constants *once* for all internal rounds
-    let diag_ext: [ExtensionTarget<D>; P2_WIDTH] = core::array::from_fn(|i| {
-        let val = ext_c::<F, D>(diag[i]);
-        b.constant_extension(val)
-    });
+        let mut ext_round_idx = 0usize;
 
-    let mut ext_round_idx = 0usize;
+        // 2) initial external rounds
+        for r in 0..4 {
+            // Hoist this round's RCs: one constant per lane
+            let rc_row: [ExtensionTarget<D>; P2_WIDTH] = core::array::from_fn(|i| {
+                let val = ext_c::<F, D>(ext_init[r][i]);
+                b.constant_extension(val)
+            });
 
-    // 2) initial external rounds
-    for r in 0..4 {
-        // Hoist this round's RCs: one constant per lane
-        let rc_row: [ExtensionTarget<D>; P2_WIDTH] = core::array::from_fn(|i| {
-            let val = ext_c::<F, D>(ext_init[r][i]);
-            b.constant_extension(val)
-        });
+            // add RCs
+            for i in 0..P2_WIDTH {
+                state[i] = b.add_extension(state[i], rc_row[i]);
+            }
 
-        // add RCs
-        for i in 0..P2_WIDTH {
-            state[i] = b.add_extension(state[i], rc_row[i]);
+            // constrain S-box inputs and update state = sbox_in
+            for i in 0..P2_WIDTH {
+                let sbox_in = lw[Self::wire_ext_sbox(ext_round_idx, i)];
+                constr.push(b.sub_extension(state[i], sbox_in));
+                state[i] = sbox_in;
+            }
+
+            // S-box x^7
+            for i in 0..P2_WIDTH {
+                state[i] = sbox7_ext_circuit::<F, D>(b, state[i]);
+            }
+
+            mds_light_circuit::<F, D>(b, &mut state);
+            ext_round_idx += 1;
         }
 
-        // constrain S-box inputs and update state = sbox_in
-        for i in 0..P2_WIDTH {
-            let sbox_in = lw[Self::wire_ext_sbox(ext_round_idx, i)];
-            constr.push(b.sub_extension(state[i], sbox_in));
-            state[i] = sbox_in;
+        // 3) internal rounds
+        for r in 0..P2_INTERNAL_ROUNDS {
+            // lane 0 RC, hoisted once per round
+            let rc0 = {
+                let val = ext_c::<F, D>(int_rc[r]);
+                b.constant_extension(val)
+            };
+            state[0] = b.add_extension(state[0], rc0);
+
+            let sbox_in = lw[Self::wire_int_sbox(r)];
+            constr.push(b.sub_extension(state[0], sbox_in));
+            state[0] = sbox_in;
+            state[0] = sbox7_ext_circuit::<F, D>(b, state[0]);
+
+            // internal mixing via dedicated gate (or inline fallback)
+            state = internal_mix_circuit::<F, D>(b, &state, diag);
         }
 
-        // S-box x^7
-        for i in 0..P2_WIDTH {
-            state[i] = sbox7_ext_circuit::<F, D>(b, state[i]);
+        // 4) terminal external rounds
+        for r in 0..4 {
+            // Hoist terminal RCs for this round
+            let rc_row: [ExtensionTarget<D>; P2_WIDTH] = core::array::from_fn(|i| {
+                let val = ext_c::<F, D>(ext_term[r][i]);
+                b.constant_extension(val)
+            });
+
+            // add RCs
+            for i in 0..P2_WIDTH {
+                state[i] = b.add_extension(state[i], rc_row[i]);
+            }
+
+            // constrain S-box inputs
+            for i in 0..P2_WIDTH {
+                let sbox_in = lw[Self::wire_ext_sbox(ext_round_idx, i)];
+                constr.push(b.sub_extension(state[i], sbox_in));
+                state[i] = sbox_in;
+            }
+
+            // S-box x^7
+            for i in 0..P2_WIDTH {
+                state[i] = sbox7_ext_circuit::<F, D>(b, state[i]);
+            }
+
+            mds_light_circuit::<F, D>(b, &mut state);
+            ext_round_idx += 1;
         }
 
-        mds_light_ext::<F, D>(b, &mut state);
-        ext_round_idx += 1;
+        // 5) outputs == state
+        for i in 0..P2_WIDTH {
+            let out = lw[Self::wire_output(i)];
+            constr.push(b.sub_extension(out, state[i]));
+        }
+
+        constr
     }
-
-    // 3) internal rounds
-    for r in 0..P2_INTERNAL_ROUNDS {
-        // lane 0 RC, hoisted once per round
-        let rc0 = {
-            let val = ext_c::<F, D>(int_rc[r]);
-            b.constant_extension(val)
-        };
-        state[0] = b.add_extension(state[0], rc0);
-
-        let sbox_in = lw[Self::wire_int_sbox(r)];
-        constr.push(b.sub_extension(state[0], sbox_in));
-        state[0] = sbox_in;
-        state[0] = sbox7_ext_circuit::<F, D>(b, state[0]);
-
-        // internal mixing: y[i] = diag[i]*x[i] + sum(x)
-        let mut sum = state[0];
-        for i in 1..P2_WIDTH {
-            sum = b.add_extension(sum, state[i]);
-        }
-        for i in 0..P2_WIDTH {
-            // use precomputed diag_ext[i] instead of re-making constants
-            let t = b.mul_extension(state[i], diag_ext[i]);
-            state[i] = b.add_extension(t, sum);
-        }
-    }
-
-    // 4) terminal external rounds
-    for r in 0..4 {
-        // Hoist terminal RCs for this round
-        let rc_row: [ExtensionTarget<D>; P2_WIDTH] = core::array::from_fn(|i| {
-            let val = ext_c::<F, D>(ext_term[r][i]);
-            b.constant_extension(val)
-        });
-
-        // add RCs
-        for i in 0..P2_WIDTH {
-            state[i] = b.add_extension(state[i], rc_row[i]);
-        }
-
-        // constrain S-box inputs
-        for i in 0..P2_WIDTH {
-            let sbox_in = lw[Self::wire_ext_sbox(ext_round_idx, i)];
-            constr.push(b.sub_extension(state[i], sbox_in));
-            state[i] = sbox_in;
-        }
-
-        // S-box x^7
-        for i in 0..P2_WIDTH {
-            state[i] = sbox7_ext_circuit::<F, D>(b, state[i]);
-        }
-
-        mds_light_ext::<F, D>(b, &mut state);
-        ext_round_idx += 1;
-    }
-
-    // 5) outputs == state
-    for i in 0..P2_WIDTH {
-        let out = lw[Self::wire_output(i)];
-        constr.push(b.sub_extension(out, state[i]));
-    }
-
-    constr
-}
 
     fn generators(&self, row: usize, _lc: &[F]) -> Vec<WitnessGeneratorRef<F, D>> {
         vec![WitnessGeneratorRef::new(
@@ -595,7 +667,7 @@ fn eval_unfiltered_circuit(
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct Poseidon2FullGen<F: RichField + Extendable<D>, const D: usize> {
     row: usize,
     params: Poseidon2Params<F, D>,
@@ -616,7 +688,7 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D>
             .collect()
     }
 
-  fn run_once(
+    fn run_once(
         &self,
         pw: &PartitionWitness<F>,
         out: &mut GeneratedValues<F>,
@@ -720,609 +792,6 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D>
                 POSEIDON2_INTERNAL_CONSTANTS_RAW,
             ),
             _pd: PhantomData,
-        })
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct Poseidon2ExtInitPreambleGate<F: RichField + Extendable<D>, const D: usize>(
-    PhantomData<F>,
-);
-
-impl<F: RichField + Extendable<D>, const D: usize> Poseidon2ExtInitPreambleGate<F, D> {
-    pub const W_IN: usize = 0;
-    pub const W_OUT: usize = P2_WIDTH;
-    #[inline]
-    pub fn wire_input(i: usize) -> usize {
-        Self::W_IN + i
-    }
-    #[inline]
-    pub fn wire_output(i: usize) -> usize {
-        Self::W_OUT + i
-    }
-    pub fn new() -> Self {
-        Self(PhantomData)
-    }
-}
-
-impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D>
-    for Poseidon2ExtInitPreambleGate<F, D>
-{
-    fn id(&self) -> String {
-        "Poseidon2ExtInitPreamble".into()
-    }
-    fn serialize(&self, _dst: &mut Vec<u8>, _cd: &CommonCircuitData<F, D>) -> IoResult<()> {
-        Ok(())
-    }
-    fn deserialize(_src: &mut Buffer, _cd: &CommonCircuitData<F, D>) -> IoResult<Self> {
-        Ok(Self::new())
-    }
-
-    fn num_wires(&self) -> usize {
-        2 * P2_WIDTH
-    }
-    fn num_constants(&self) -> usize {
-        0
-    }
-    fn num_constraints(&self) -> usize {
-        P2_WIDTH
-    }
-    fn degree(&self) -> usize {
-        1
-    }
-
-    fn eval_unfiltered(&self, vars: EvaluationVars<F, D>) -> Vec<F::Extension> {
-        let lw = vars.local_wires;
-        let mut s: [F::Extension; P2_WIDTH] = core::array::from_fn(|i| lw[Self::wire_input(i)]);
-        // light MDS only
-        // 4×4 per block
-        for k in (0..P2_WIDTH).step_by(4) {
-            let a = s[k];
-            let x = s[k + 1];
-            let c = s[k + 2];
-            let d = s[k + 3];
-            let two = F::Extension::from_canonical_u64(2);
-            let three = F::Extension::from_canonical_u64(3);
-            let y0 = a * two + x * three + c + d;
-            let y1 = a + x * two + c * three + d;
-            let y2 = a + x + c * two + d * three;
-            let y3 = a * three + x + c + d * two;
-            s[k] = y0;
-            s[k + 1] = y1;
-            s[k + 2] = y2;
-            s[k + 3] = y3;
-        }
-        // sums per residue
-        let mut sums = [F::Extension::ZERO; 4];
-        for k in 0..4 {
-            sums[k] = s[k] + s[4 + k] + s[8 + k];
-        }
-        for i in 0..P2_WIDTH {
-            s[i] = s[i] + sums[i % 4];
-        }
-
-        let mut v = Vec::with_capacity(P2_WIDTH);
-        for i in 0..P2_WIDTH {
-            v.push(lw[Self::wire_output(i)] - s[i]);
-        }
-        v
-    }
-
-    fn eval_unfiltered_circuit(
-        &self,
-        b: &mut CircuitBuilder<F, D>,
-        vars: EvaluationTargets<D>,
-    ) -> Vec<ExtensionTarget<D>> {
-        let lw = &vars.local_wires;
-        let mut s: [ExtensionTarget<D>; P2_WIDTH] =
-            core::array::from_fn(|i| lw[Self::wire_input(i)]);
-        mds_light_ext::<F, D>(b, &mut s);
-        let mut v = Vec::with_capacity(P2_WIDTH);
-        for i in 0..P2_WIDTH {
-            v.push(b.sub_extension(lw[Self::wire_output(i)], s[i]));
-        }
-        v
-    }
-
-    fn generators(&self, row: usize, _lc: &[F]) -> Vec<WitnessGeneratorRef<F, D>> {
-        vec![WitnessGeneratorRef::new(
-            Poseidon2ExtInitPreambleGen::<F, D> {
-                row,
-                _pd: PhantomData,
-            }
-            .adapter(),
-        )]
-    }
-}
-
-#[derive(Debug, Default)]
-pub struct Poseidon2ExtInitPreambleGen<F: RichField + Extendable<D>, const D: usize> {
-    row: usize,
-    _pd: PhantomData<F>,
-}
-impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D>
-    for Poseidon2ExtInitPreambleGen<F, D>
-{
-    fn id(&self) -> String {
-        "Poseidon2ExtInitPreambleGen".into()
-    }
-    fn dependencies(&self) -> Vec<Target> {
-        (0..P2_WIDTH)
-            .map(|i| {
-                Target::wire(
-                    self.row,
-                    Poseidon2ExtInitPreambleGate::<F, D>::wire_input(i),
-                )
-            })
-            .collect()
-    }
-    fn run_once(
-        &self,
-        pw: &PartitionWitness<F>,
-        out: &mut GeneratedValues<F>,
-    ) -> anyhow::Result<()> {
-        let mut s = [F::ZERO; P2_WIDTH];
-        for i in 0..P2_WIDTH {
-            s[i] = pw.get_wire(Wire {
-                row: self.row,
-                column: Poseidon2ExtInitPreambleGate::<F, D>::wire_input(i),
-            });
-        }
-        mds_light_base(&mut s);
-        for i in 0..P2_WIDTH {
-            out.set_wire(
-                Wire {
-                    row: self.row,
-                    column: Poseidon2ExtInitPreambleGate::<F, D>::wire_output(i),
-                },
-                s[i],
-            )?;
-        }
-        Ok(())
-    }
-    fn serialize(&self, dst: &mut Vec<u8>, _cd: &CommonCircuitData<F, D>) -> IoResult<()> {
-        dst.write_usize(self.row)
-    }
-    fn deserialize(src: &mut Buffer, _cd: &CommonCircuitData<F, D>) -> IoResult<Self> {
-        Ok(Self {
-            row: src.read_usize()?,
-            _pd: PhantomData,
-        })
-    }
-}
-
-// ---------- External (full) round gate: add RCs, x^7 on all lanes, block MDS ----------
-#[derive(Clone, Debug)]
-pub struct Poseidon2ExtRoundGate<F: RichField + Extendable<D>, const D: usize> {
-    params: Poseidon2Params<F, D>,
-    round_idx: usize, // 0..4
-    is_initial: bool, // true => use ext_init; false => ext_term
-    _pd: PhantomData<F>,
-}
-impl<F: RichField + Extendable<D>, const D: usize> Poseidon2ExtRoundGate<F, D> {
-    pub const W_IN: usize = 0;
-    pub const W_OUT: usize = P2_WIDTH;
-    #[inline]
-    pub fn wire_input(i: usize) -> usize {
-        Self::W_IN + i
-    }
-    #[inline]
-    pub fn wire_output(i: usize) -> usize {
-        Self::W_OUT + i
-    }
-
-    pub fn new_initial(round_idx: usize) -> Self {
-        Self {
-            params: Poseidon2Params::from_p3_constants_u64(
-                POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW,
-                POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
-                POSEIDON2_INTERNAL_CONSTANTS_RAW,
-            ),
-            round_idx,
-            is_initial: true,
-            _pd: PhantomData,
-        }
-    }
-    pub fn new_terminal(round_idx: usize) -> Self {
-        Self {
-            params: Poseidon2Params::from_p3_constants_u64(
-                POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW,
-                POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
-                POSEIDON2_INTERNAL_CONSTANTS_RAW,
-            ),
-            round_idx,
-            is_initial: false,
-            _pd: PhantomData,
-        }
-    }
-}
-impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for Poseidon2ExtRoundGate<F, D> {
-    fn id(&self) -> String {
-        format!(
-            "Poseidon2ExtRound<r={},init={}>",
-            self.round_idx, self.is_initial
-        )
-    }
-    fn serialize(&self, dst: &mut Vec<u8>, _cd: &CommonCircuitData<F, D>) -> IoResult<()> {
-        dst.write_usize(self.round_idx)?;
-        dst.write_bool(self.is_initial)
-    }
-    fn deserialize(src: &mut Buffer, _cd: &CommonCircuitData<F, D>) -> IoResult<Self> {
-        let r = src.read_usize()?;
-        let is_init = src.read_bool()?;
-        Ok(if is_init {
-            Self::new_initial(r)
-        } else {
-            Self::new_terminal(r)
-        })
-    }
-
-    fn num_wires(&self) -> usize {
-        2 * P2_WIDTH
-    } // 12 in + 12 out
-    fn num_constants(&self) -> usize {
-        0
-    }
-    fn num_constraints(&self) -> usize {
-        P2_WIDTH
-    } // output equality only
-    fn degree(&self) -> usize {
-        7
-    }
-
-    fn eval_unfiltered(&self, vars: EvaluationVars<F, D>) -> Vec<F::Extension> {
-        let lw = vars.local_wires;
-        let mut s: [F::Extension; P2_WIDTH] = core::array::from_fn(|i| lw[Self::wire_input(i)]);
-        // add RCs + sbox
-        let rcs = if self.is_initial {
-            &self.params.ext_init[self.round_idx]
-        } else {
-            &self.params.ext_term[self.round_idx]
-        };
-        for i in 0..P2_WIDTH {
-            s[i] = s[i] + ext_c::<F, D>(rcs[i]);
-            s[i] = sbox7_ext::<F, D>(s[i]);
-        }
-        // apply light MDS
-        for k in (0..P2_WIDTH).step_by(4) {
-            let a = s[k];
-            let x = s[k + 1];
-            let c = s[k + 2];
-            let d = s[k + 3];
-            let two = F::Extension::from_canonical_u64(2);
-            let three = F::Extension::from_canonical_u64(3);
-            let y0 = a * two + x * three + c + d;
-            let y1 = a + x * two + c * three + d;
-            let y2 = a + x + c * two + d * three;
-            let y3 = a * three + x + c + d * two;
-            s[k] = y0;
-            s[k + 1] = y1;
-            s[k + 2] = y2;
-            s[k + 3] = y3;
-        }
-        let mut sums = [F::Extension::ZERO; 4];
-        for k in 0..4 {
-            sums[k] = s[k] + s[4 + k] + s[8 + k];
-        }
-        for i in 0..P2_WIDTH {
-            s[i] = s[i] + sums[i % 4];
-        }
-
-        // outputs equal
-        let mut v = Vec::with_capacity(P2_WIDTH);
-        for i in 0..P2_WIDTH {
-            v.push(lw[Self::wire_output(i)] - s[i]);
-        }
-        v
-    }
-
-    fn eval_unfiltered_circuit(
-        &self,
-        b: &mut CircuitBuilder<F, D>,
-        vars: EvaluationTargets<D>,
-    ) -> Vec<ExtensionTarget<D>> {
-        let lw = &vars.local_wires;
-        // load inputs
-        let mut s: [ExtensionTarget<D>; P2_WIDTH] =
-            core::array::from_fn(|i| lw[Self::wire_input(i)]);
-        // add RCs + sbox
-        for i in 0..P2_WIDTH {
-            let rc = b.constant_extension(ext_c::<F, D>(if self.is_initial {
-                self.params.ext_init[self.round_idx][i]
-            } else {
-                self.params.ext_term[self.round_idx][i]
-            }));
-            s[i] = b.add_extension(s[i], rc);
-            s[i] = b.exp_u64_extension(s[i], 7);
-        }
-        // apply light MDS
-        mds_light_ext::<F, D>(b, &mut s);
-        // constraints: out - s
-        let mut v = Vec::with_capacity(P2_WIDTH);
-        for i in 0..P2_WIDTH {
-            v.push(b.sub_extension(lw[Self::wire_output(i)], s[i]));
-        }
-        v
-    }
-
-    fn generators(&self, row: usize, _lc: &[F]) -> Vec<WitnessGeneratorRef<F, D>> {
-        vec![WitnessGeneratorRef::new(
-            Poseidon2ExtRoundGen::<F, D> {
-                row,
-                params: self.params.clone(),
-                round_idx: self.round_idx,
-                is_initial: self.is_initial,
-            }
-            .adapter(),
-        )]
-    }
-}
-#[derive(Debug, Default)]
-pub struct Poseidon2ExtRoundGen<F: RichField + Extendable<D>, const D: usize> {
-    row: usize,
-    params: Poseidon2Params<F, D>,
-    round_idx: usize,
-    is_initial: bool,
-}
-impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D>
-    for Poseidon2ExtRoundGen<F, D>
-{
-    fn id(&self) -> String {
-        String::from("Poseidon2ExtRoundGen")
-    }
-    fn dependencies(&self) -> Vec<Target> {
-        (0..P2_WIDTH)
-            .map(|i| Target::wire(self.row, Poseidon2ExtRoundGate::<F, D>::wire_input(i)))
-            .collect()
-    }
-    fn run_once(
-        &self,
-        pw: &PartitionWitness<F>,
-        out: &mut GeneratedValues<F>,
-    ) -> anyhow::Result<()> {
-        let mut s = [F::ZERO; P2_WIDTH];
-        for i in 0..P2_WIDTH {
-            s[i] = pw.get_wire(Wire {
-                row: self.row,
-                column: Poseidon2ExtRoundGate::<F, D>::wire_input(i),
-            });
-        }
-        let rcs = if self.is_initial {
-            self.params.ext_init[self.round_idx]
-        } else {
-            self.params.ext_term[self.round_idx]
-        };
-        for i in 0..P2_WIDTH {
-            s[i] = sbox7_base(s[i] + rcs[i]);
-        }
-        mds_light_base(&mut s);
-        for i in 0..P2_WIDTH {
-            out.set_wire(
-                Wire {
-                    row: self.row,
-                    column: Poseidon2ExtRoundGate::<F, D>::wire_output(i),
-                },
-                s[i],
-            )?;
-        }
-        Ok(())
-    }
-    fn serialize(&self, dst: &mut Vec<u8>, _cd: &CommonCircuitData<F, D>) -> IoResult<()> {
-        dst.write_usize(self.row)?;
-        dst.write_usize(self.round_idx)?;
-        dst.write_bool(self.is_initial)
-    }
-    fn deserialize(src: &mut Buffer, _cd: &CommonCircuitData<F, D>) -> IoResult<Self> {
-        let row = src.read_usize()?;
-        let r = src.read_usize()?;
-        let is_init = src.read_bool()?;
-        Ok(Self {
-            row,
-            params: Poseidon2Params::from_p3_constants_u64(
-                POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW,
-                POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
-                POSEIDON2_INTERNAL_CONSTANTS_RAW,
-            ),
-            round_idx: r,
-            is_initial: is_init,
-        })
-    }
-}
-
-// ---------- Internal round gate: add rc0, x^7 on all, then internal mixing ----------
-#[derive(Clone, Debug)]
-pub struct Poseidon2IntRoundGate<F: RichField + Extendable<D>, const D: usize> {
-    params: Poseidon2Params<F, D>,
-    round_idx: usize, // 0..P2_INTERNAL_ROUNDS
-    _pd: PhantomData<F>,
-}
-impl<F: RichField + Extendable<D>, const D: usize> Poseidon2IntRoundGate<F, D> {
-    pub const W_IN: usize = 0;
-    pub const W_OUT: usize = P2_WIDTH;
-    #[inline]
-    pub fn wire_input(i: usize) -> usize {
-        Self::W_IN + i
-    }
-    #[inline]
-    pub fn wire_output(i: usize) -> usize {
-        Self::W_OUT + i
-    }
-    pub fn new(round_idx: usize) -> Self {
-        Self {
-            params: Poseidon2Params::from_p3_constants_u64(
-                POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW,
-                POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
-                POSEIDON2_INTERNAL_CONSTANTS_RAW,
-            ),
-            round_idx,
-            _pd: PhantomData,
-        }
-    }
-}
-
-impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for Poseidon2IntRoundGate<F, D> {
-    fn id(&self) -> String {
-        format!("Poseidon2IntRound<r={}>", self.round_idx)
-    }
-
-    fn serialize(&self, dst: &mut Vec<u8>, _cd: &CommonCircuitData<F, D>) -> IoResult<()> {
-        dst.write_usize(self.round_idx)
-    }
-    fn deserialize(src: &mut Buffer, _cd: &CommonCircuitData<F, D>) -> IoResult<Self> {
-        let r = src.read_usize()?;
-        Ok(Self::new(r))
-    }
-
-    fn num_wires(&self) -> usize {
-        2 * P2_WIDTH
-    }
-    fn num_constants(&self) -> usize {
-        0
-    }
-    fn num_constraints(&self) -> usize {
-        P2_WIDTH
-    }
-    fn degree(&self) -> usize {
-        7
-    }
-
-    fn eval_unfiltered(&self, vars: EvaluationVars<F, D>) -> Vec<F::Extension> {
-        let lw = vars.local_wires;
-        let mut s: [F::Extension; P2_WIDTH] = core::array::from_fn(|i| lw[Self::wire_input(i)]);
-
-        // 1) lane 0: add RC then S-box; other lanes: no S-box
-        s[0] = s[0] + ext_c::<F, D>(self.params.int_rc[self.round_idx]);
-        s[0] = sbox7_ext::<F, D>(s[0]);
-
-        // 2) internal mix: y[i] = diag[i] * x[i] + sum(x)
-        let mut sum = s[0];
-        for i in 1..P2_WIDTH {
-            sum = sum + s[i];
-        }
-        for i in 0..P2_WIDTH {
-            s[i] = s[i] * ext_c::<F, D>(self.params.diag[i]) + sum;
-        }
-
-        // out == s
-        let mut v = Vec::with_capacity(P2_WIDTH);
-        for i in 0..P2_WIDTH {
-            v.push(lw[Self::wire_output(i)] - s[i]);
-        }
-        v
-    }
-
-    fn eval_unfiltered_circuit(
-        &self,
-        b: &mut CircuitBuilder<F, D>,
-        vars: EvaluationTargets<D>,
-    ) -> Vec<ExtensionTarget<D>> {
-        let lw = &vars.local_wires;
-        let mut s: [ExtensionTarget<D>; P2_WIDTH] =
-            core::array::from_fn(|i| lw[Self::wire_input(i)]);
-
-        // 1) lane 0: add RC then S-box; other lanes: no S-box
-        let rc0 = b.constant_extension(ext_c::<F, D>(self.params.int_rc[self.round_idx]));
-        s[0] = b.add_extension(s[0], rc0);
-        s[0] = b.exp_u64_extension(s[0], 7);
-
-        // 2) internal mix: y[i] = diag[i] * x[i] + sum(x)
-        let mut sum = s[0];
-        for i in 1..P2_WIDTH {
-            sum = b.add_extension(sum, s[i]);
-        }
-        for i in 0..P2_WIDTH {
-            let d = b.constant_extension(ext_c::<F, D>(self.params.diag[i]));
-            let t = b.mul_extension(s[i], d);
-            s[i] = b.add_extension(t, sum);
-        }
-
-        // out == s
-        let mut v = Vec::with_capacity(P2_WIDTH);
-        for i in 0..P2_WIDTH {
-            v.push(b.sub_extension(lw[Self::wire_output(i)], s[i]));
-        }
-        v
-    }
-
-    fn generators(&self, row: usize, _lc: &[F]) -> Vec<WitnessGeneratorRef<F, D>> {
-        vec![WitnessGeneratorRef::new(
-            Poseidon2IntRoundGen::<F, D> {
-                row,
-                params: self.params.clone(),
-                round_idx: self.round_idx,
-            }
-            .adapter(),
-        )]
-    }
-}
-
-#[derive(Default, Debug)]
-pub struct Poseidon2IntRoundGen<F: RichField + Extendable<D>, const D: usize> {
-    row: usize,
-    params: Poseidon2Params<F, D>,
-    round_idx: usize,
-}
-
-impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D>
-    for Poseidon2IntRoundGen<F, D>
-{
-    fn id(&self) -> String {
-        String::from("Poseidon2IntRoundGen")
-    }
-
-    fn dependencies(&self) -> Vec<Target> {
-        (0..P2_WIDTH)
-            .map(|i| Target::wire(self.row, Poseidon2IntRoundGate::<F, D>::wire_input(i)))
-            .collect()
-    }
-
-    fn run_once(
-        &self,
-        pw: &PartitionWitness<F>,
-        out: &mut GeneratedValues<F>,
-    ) -> anyhow::Result<()> {
-        let mut s = [F::ZERO; P2_WIDTH];
-        for i in 0..P2_WIDTH {
-            s[i] = pw.get_wire(Wire {
-                row: self.row,
-                column: Poseidon2IntRoundGate::<F, D>::wire_input(i),
-            });
-        }
-
-        // 1) lane 0: add RC then S-box; other lanes: no S-box
-        s[0] = sbox7_base(s[0] + self.params.int_rc[self.round_idx]);
-
-        // 2) internal mix
-        s = internal_mix_base(&s, &self.params.diag);
-
-        // write outputs
-        for i in 0..P2_WIDTH {
-            out.set_wire(
-                Wire {
-                    row: self.row,
-                    column: Poseidon2IntRoundGate::<F, D>::wire_output(i),
-                },
-                s[i],
-            )?;
-        }
-        Ok(())
-    }
-
-    fn serialize(&self, dst: &mut Vec<u8>, _cd: &CommonCircuitData<F, D>) -> IoResult<()> {
-        dst.write_usize(self.row)?;
-        dst.write_usize(self.round_idx)
-    }
-    fn deserialize(src: &mut Buffer, _cd: &CommonCircuitData<F, D>) -> IoResult<Self> {
-        let row = src.read_usize()?;
-        let r = src.read_usize()?;
-        Ok(Self {
-            row,
-            params: Poseidon2Params::from_p3_constants_u64(
-                POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW,
-                POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
-                POSEIDON2_INTERNAL_CONSTANTS_RAW,
-            ),
-            round_idx: r,
         })
     }
 }
