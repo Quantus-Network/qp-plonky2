@@ -25,7 +25,7 @@ use core::ops::Range;
 
 // Re-use your existing constants
 use crate::gates::poseidon2::Poseidon2Params;
-use crate::gates::poseidon2::{P2_WIDTH};
+use crate::gates::poseidon2::P2_WIDTH;
 use qp_poseidon_constants::{
     POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW, POSEIDON2_INTERNAL_CONSTANTS_RAW,
     POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
