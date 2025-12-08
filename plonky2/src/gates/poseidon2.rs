@@ -5,7 +5,7 @@ extern crate alloc;
 #[cfg(not(feature = "std"))]
 use alloc::format;
 #[cfg(not(feature = "std"))]
-use alloc::string::String;
+use alloc::string::{String, ToString};
 #[cfg(not(feature = "std"))]
 use alloc::{vec, vec::Vec};
 #[cfg(not(feature = "std"))]
@@ -430,7 +430,7 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2Gate<F, D> {
 
 impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for Poseidon2Gate<F, D> {
     fn id(&self) -> String {
-        "Poseidon2FullGate".to_string()
+        format!("{self:?}<WIDTH={P2_WIDTH}>")
     }
 
     fn serialize(&self, _dst: &mut Vec<u8>, _cd: &CommonCircuitData<F, D>) -> IoResult<()> {

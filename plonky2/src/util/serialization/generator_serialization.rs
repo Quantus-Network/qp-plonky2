@@ -176,7 +176,7 @@ pub mod default {
             PoseidonMdsGenerator<D>,
             Poseidon2FullGen<F, D>,
             Poseidon2MdsGenerator<D>,
-            Poseidon2IntMixGenerator<F, D>,
+            Poseidon2IntMixGenerator<D>,
             QuotientGeneratorExtension<D>,
             RandomAccessGenerator<F, D>,
             ReducingGenerator<D>,

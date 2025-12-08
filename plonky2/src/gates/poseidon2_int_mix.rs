@@ -12,13 +12,20 @@ use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::circuit_data::CommonCircuitData;
 use crate::plonk::vars::{EvaluationTargets, EvaluationVars, EvaluationVarsBase};
 use crate::util::serialization::{Buffer, IoResult, Read, Write};
+#[cfg(not(feature = "std"))]
+use alloc::{
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
 use anyhow::Result;
 use core::marker::PhantomData;
 use core::ops::Range;
 
 // Re-use your existing constants
 use crate::gates::poseidon2::Poseidon2Params;
-use crate::gates::poseidon2::{P2_INTERNAL_ROUNDS, P2_WIDTH};
+use crate::gates::poseidon2::{P2_WIDTH};
 use qp_poseidon_constants::{
     POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW, POSEIDON2_INTERNAL_CONSTANTS_RAW,
     POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
