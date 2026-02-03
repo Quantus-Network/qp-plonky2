@@ -3,12 +3,6 @@
 
 This repository was originally for Plonky2, a SNARK implementation based on techniques from PLONK and FRI. It has since expanded to include tools such as Starky, a highly performant STARK implementation.
 
-## ⚠️ Plonky2 Deprecation Notice
-
-Plonky2 is being deprecated and will no longer receive updates or support.
-
-Please consider using **[Plonky3](https://github.com/Plonky3/Plonky3)** instead, Polygon's next-generation ZK proving system.
-
 ## Documentation
 
 For more details about the Plonky2 argument system, see this [writeup](plonky2/plonky2.pdf).
