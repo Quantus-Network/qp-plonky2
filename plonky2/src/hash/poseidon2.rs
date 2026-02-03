@@ -21,10 +21,7 @@ use plonky2_field::goldilocks_field::GoldilocksField as GL;
 use qp_poseidon_constants::create_poseidon;
 
 use crate::field::types::{Field, PrimeField64};
-use crate::gates::poseidon2::{
-    Poseidon2ExtInitPreambleGate, Poseidon2ExtRoundGate, Poseidon2IntRoundGate, P2_INTERNAL_ROUNDS,
-    P2_WIDTH,
-};
+use crate::gates::poseidon2::{Poseidon2Gate, P2_WIDTH};
 use crate::hash::hash_types::{HashOut, RichField, NUM_HASH_OUT_ELTS};
 use crate::hash::hashing::{hash_n_to_hash_no_pad_p2, PlonkyPermutation};
 use crate::iop::target::{BoolTarget, Target};
@@ -175,62 +172,29 @@ impl<F: RichField + P2Permuter> AlgebraicHasher<F> for Poseidon2Hash {
 
     fn permute_swapped<const D: usize>(
         inputs: Self::AlgebraicPermutation,
-        _swap: BoolTarget, // ignored (assumed 0)
+        _swap: BoolTarget, // still ignored (semantics unchanged)
         b: &mut CircuitBuilder<F, D>,
     ) -> Self::AlgebraicPermutation
     where
         F: RichField + Extendable<D>,
     {
-        // Start from inputs as-is (no swap).
-        let mut state: [Target; SPONGE_WIDTH] = inputs.as_ref().try_into().unwrap();
-        // 0) initial pre-mds_light
-        {
-            let gate = Poseidon2ExtInitPreambleGate::<F, D>::new();
-            let row = b.add_gate(gate, vec![]);
-            for i in 0..P2_WIDTH {
-                b.connect(
-                    state[i],
-                    Target::wire(row, Poseidon2ExtInitPreambleGate::<F, D>::wire_input(i)),
-                );
-                state[i] = Target::wire(row, Poseidon2ExtInitPreambleGate::<F, D>::wire_output(i));
-            }
+        let gate_type = Poseidon2Gate::<F, D>::new();
+        let row = b.add_gate(gate_type, vec![]);
+
+        let inp = inputs.as_ref();
+        assert_eq!(inp.len(), P2_WIDTH);
+
+        // connect inputs
+        for i in 0..P2_WIDTH {
+            b.connect(
+                inp[i],
+                Target::wire(row, Poseidon2Gate::<F, D>::wire_input(i)),
+            );
         }
 
-        // 1) 4 external initial rounds (rc+sbox on all lanes, then light-MDS)
-        for r in 0..4 {
-            let row = b.add_gate(Poseidon2ExtRoundGate::<F, D>::new_initial(r), vec![]);
-            for i in 0..P2_WIDTH {
-                b.connect(
-                    state[i],
-                    Target::wire(row, Poseidon2ExtRoundGate::<F, D>::wire_input(i)),
-                );
-                state[i] = Target::wire(row, Poseidon2ExtRoundGate::<F, D>::wire_output(i));
-            }
-        }
-
-        // 2) 22 internal rounds (rc+sbox on lane 0 only, then internal mix)
-        for r in 0..P2_INTERNAL_ROUNDS {
-            let row = b.add_gate(Poseidon2IntRoundGate::<F, D>::new(r), vec![]);
-            for i in 0..P2_WIDTH {
-                b.connect(
-                    state[i],
-                    Target::wire(row, Poseidon2IntRoundGate::<F, D>::wire_input(i)),
-                );
-                state[i] = Target::wire(row, Poseidon2IntRoundGate::<F, D>::wire_output(i));
-            }
-        }
-
-        // 3) 4 external terminal rounds (rc+sbox all lanes, then light-MDS)
-        for r in 0..4 {
-            let row = b.add_gate(Poseidon2ExtRoundGate::<F, D>::new_terminal(r), vec![]);
-            for i in 0..P2_WIDTH {
-                b.connect(
-                    state[i],
-                    Target::wire(row, Poseidon2ExtRoundGate::<F, D>::wire_input(i)),
-                );
-                state[i] = Target::wire(row, Poseidon2ExtRoundGate::<F, D>::wire_output(i));
-            }
-        }
+        // collect outputs
+        let state: [Target; P2_WIDTH] =
+            core::array::from_fn(|i| Target::wire(row, Poseidon2Gate::<F, D>::wire_output(i)));
 
         Poseidon2Permutation { state }
     }

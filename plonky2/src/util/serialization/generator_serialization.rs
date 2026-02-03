@@ -115,9 +115,9 @@ pub mod default {
     use crate::gates::lookup_table::LookupTableGenerator;
     use crate::gates::multiplication_extension::MulExtensionGenerator;
     use crate::gates::poseidon::PoseidonGenerator;
-    use crate::gates::poseidon2::{
-        Poseidon2ExtInitPreambleGen, Poseidon2ExtRoundGen, Poseidon2IntRoundGen,
-    };
+    use crate::gates::poseidon2::Poseidon2FullGen;
+    use crate::gates::poseidon2_int_mix::Poseidon2IntMixGenerator;
+    use crate::gates::poseidon2_mds::Poseidon2MdsGenerator;
     use crate::gates::poseidon_mds::PoseidonMdsGenerator;
     use crate::gates::random_access::RandomAccessGenerator;
     use crate::gates::reducing::ReducingGenerator;
@@ -174,9 +174,9 @@ pub mod default {
             NonzeroTestGenerator,
             PoseidonGenerator<F, D>,
             PoseidonMdsGenerator<D>,
-            Poseidon2ExtInitPreambleGen<F, D>,
-            Poseidon2ExtRoundGen<F, D>,
-            Poseidon2IntRoundGen<F, D>,
+            Poseidon2FullGen<F, D>,
+            Poseidon2MdsGenerator<D>,
+            Poseidon2IntMixGenerator<D>,
             QuotientGeneratorExtension<D>,
             RandomAccessGenerator<F, D>,
             ReducingGenerator<D>,
@@ -204,9 +204,9 @@ pub mod default {
             NonzeroTestGenerator,
             PoseidonGenerator<F, D>,
             PoseidonMdsGenerator<D>,
-            Poseidon2ExtInitPreambleGen<F, D>,
-            Poseidon2ExtRoundGen<F, D>,
-            Poseidon2IntRoundGen<F, D>,
+            Poseidon2FullGen<F, D>,
+            Poseidon2MdsGenerator<D>,
+            Poseidon2IntMixGenerator<D>,
             QuotientGeneratorExtension<D>,
             RandomAccessGenerator<F, D>,
             RandomValueGenerator,
