@@ -60,9 +60,21 @@ These files in `qp-plonky2` contain the same verification logic as `qp-plonky2-v
 3. **Type Definitions**: Keep identical between both crates
 4. **Serialization**: Must be compatible between verifier and prover
 
+## Why We Keep the Duplication
+
+Rather than trying to remove the 18 identical files through re-exports or shared internal crates, we keep them duplicated for these reasons:
+
+1. **Module path resolution** - Rust's visibility and module system makes it difficult to selectively re-export verification modules while keeping prover-specific code in the same directory structure
+2. **Backwards compatibility** - Existing code depends on `qp-plonky2::gates::util`, etc. Changing this to come through re-exports could break or confuse users
+3. **Separation of concerns** - Each crate is self-contained and doesn't require understanding the other's structure
+4. **Verification consistency is managed through dependency** - `qp-plonky2` depends on `qp-plonky2-verifier` and re-exports its types, ensuring type compatibility
+5. **Future CI checks** - We can add automated checks to detect if verification code drifts between the two crates
+
 ## Future Refactoring
 
-Once Rust becomes better at code sharing (with more advanced macros or monomorphization control), these codebases could be fully merged. For now, the slight duplication ensures:
-- `qp-plonky2-verifier` stays lightweight for WASM and no_std environments
-- `qp-plonky2` can have prover-specific optimizations
-- Clear separation of concerns
+To fully remove this duplication would require one of:
+1. **Create a third shared internal crate** - Move all 69 files to `qp-plonky2-internal`, have both crates depend on it. This adds complexity but eliminates duplication completely.
+2. **Merge everything into qp-plonky2** - Make the verifier crate a simple re-export wrapper around qp-plonky2 features. Simplest but loses the lightweight verifier benefits.
+3. **Use Rust workspace macros/includes** - Once Rust stabilizes better code-sharing features, use them instead of duplication.
+
+For now, the current architecture balances these tradeoffs well.
