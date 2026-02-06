@@ -113,7 +113,7 @@ pub(crate) fn decompress_merkle_proofs<F: RichField, H: Hasher<F>>(
 }
 
 #[cfg(test)]
-#[cfg(not(feature = "no_random"))]
+#[cfg(feature = "rand")]
 mod tests {
     use rand::rngs::OsRng;
     use rand::Rng;

@@ -123,7 +123,7 @@ pub mod default {
     use crate::gates::reducing::ReducingGenerator;
     use crate::gates::reducing_extension::ReducingGenerator as ReducingExtensionGenerator;
     use crate::hash::hash_types::RichField;
-    #[cfg(not(feature = "no_random"))]
+    #[cfg(feature = "rand")]
     use crate::iop::generator::RandomValueGenerator;
     use crate::iop::generator::{ConstantGenerator, CopyGenerator, NonzeroTestGenerator};
     use crate::plonk::config::{AlgebraicHasher, GenericConfig};
@@ -154,7 +154,7 @@ pub mod default {
         C: GenericConfig<D, F = F> + 'static,
         C::Hasher: AlgebraicHasher<F>,
     {
-        #[cfg(feature = "no_random")]
+        #[cfg(not(feature = "rand"))]
         impl_generator_serializer! {
             DefaultGeneratorSerializer,
             ArithmeticBaseGenerator<F, D>,
@@ -184,7 +184,7 @@ pub mod default {
             SplitGenerator,
             WireSplitGenerator
         }
-        #[cfg(not(feature = "no_random"))]
+        #[cfg(feature = "rand")]
         impl_generator_serializer! {
             DefaultGeneratorSerializer,
             ArithmeticBaseGenerator<F, D>,

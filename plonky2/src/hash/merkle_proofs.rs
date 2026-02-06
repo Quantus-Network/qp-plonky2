@@ -313,7 +313,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
 }
 
 #[cfg(test)]
-#[cfg(not(feature = "no_random"))]
+#[cfg(feature = "rand")]
 mod tests {
     use rand::rngs::OsRng;
     use rand::Rng;

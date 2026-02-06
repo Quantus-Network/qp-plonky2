@@ -339,7 +339,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(not(feature = "no_random"))]
+    #[cfg(feature = "rand")]
     fn multiple_polynomials() -> Result<()> {
         use plonky2_field::types::Sample;
         let mut timing = TimingTree::default();

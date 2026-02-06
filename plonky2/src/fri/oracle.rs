@@ -118,11 +118,11 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         fft_root_table: Option<&FftRootTable<F>>,
     ) -> Vec<Vec<F>> {
         if blinding {
-            #[cfg(not(feature = "no_random"))]
+            #[cfg(feature = "rand")]
             return Self::lde_blinded_values(polynomials, rate_bits, fft_root_table);
-            #[cfg(feature = "no_random")]
+            #[cfg(not(feature = "rand"))]
             {
-                assert!(false, "Cannot set blinding with no_random feature");
+                assert!(false, "Cannot set blinding without rand feature");
                 [].into()
             }
         } else {
@@ -130,7 +130,7 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         }
     }
 
-    #[cfg(not(feature = "no_random"))]
+    #[cfg(feature = "rand")]
     fn lde_blinded_values(
         polynomials: &[PolynomialCoeffs<F>],
         rate_bits: usize,

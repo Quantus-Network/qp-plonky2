@@ -49,9 +49,9 @@ impl<F: Extendable<2>> From<F> for QuadraticExtension<F> {
     }
 }
 
+#[cfg(feature = "rand")]
 impl<F: Extendable<2>> Sample for QuadraticExtension<F> {
     #[inline]
-    #[cfg(not(feature = "no_random"))]
     fn sample<R>(rng: &mut R) -> Self
     where
         R: rand::RngCore + ?Sized,
@@ -59,6 +59,9 @@ impl<F: Extendable<2>> Sample for QuadraticExtension<F> {
         Self([F::sample(rng), F::sample(rng)])
     }
 }
+
+#[cfg(not(feature = "rand"))]
+impl<F: Extendable<2>> Sample for QuadraticExtension<F> {}
 
 impl<F: Extendable<2>> Field for QuadraticExtension<F> {
     const ZERO: Self = Self([F::ZERO; 2]);

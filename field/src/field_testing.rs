@@ -60,7 +60,7 @@ macro_rules! test_field_arithmetic {
             }
 
             #[test]
-            #[cfg(not(feature = "no_random"))]
+            #[cfg(feature = "rand")]
             fn exponentiation() {
                 type F = $field;
 
@@ -85,7 +85,7 @@ macro_rules! test_field_arithmetic {
             }
 
             #[test]
-            #[cfg(not(feature = "no_random"))]
+            #[cfg(feature = "rand")]
             fn exponentiation_large() {
                 type F = $field;
 
@@ -103,7 +103,7 @@ macro_rules! test_field_arithmetic {
             }
 
             #[test]
-            #[cfg(not(feature = "no_random"))]
+            #[cfg(feature = "rand")]
             fn inverses() {
                 type F = $field;
 
@@ -120,7 +120,7 @@ macro_rules! test_field_arithmetic {
 }
 
 #[allow(clippy::eq_op)]
-#[cfg(not(feature = "no_random"))]
+#[cfg(feature = "rand")]
 pub(crate) fn test_add_neg_sub_mul<BF: Extendable<D>, const D: usize>() {
     let x = BF::Extension::rand();
     let y = BF::Extension::rand();
@@ -137,7 +137,7 @@ pub(crate) fn test_add_neg_sub_mul<BF: Extendable<D>, const D: usize>() {
     assert_eq!(x * (y + z), x * y + x * z);
 }
 
-#[cfg(not(feature = "no_random"))]
+#[cfg(feature = "rand")]
 pub(crate) fn test_inv_div<BF: Extendable<D>, const D: usize>() {
     let x = BF::Extension::rand();
     let y = BF::Extension::rand();
@@ -150,7 +150,7 @@ pub(crate) fn test_inv_div<BF: Extendable<D>, const D: usize>() {
     assert_eq!((x * y) / z, x * (y / z));
 }
 
-#[cfg(not(feature = "no_random"))]
+#[cfg(feature = "rand")]
 pub(crate) fn test_frobenius<BF: Extendable<D>, const D: usize>() {
     let x = BF::Extension::rand();
     assert_eq!(x.exp_biguint(&BF::order()), x.frobenius());
@@ -162,7 +162,7 @@ pub(crate) fn test_frobenius<BF: Extendable<D>, const D: usize>() {
     }
 }
 
-#[cfg(not(feature = "no_random"))]
+#[cfg(feature = "rand")]
 pub(crate) fn test_field_order<BF: Extendable<D>, const D: usize>() {
     let x = BF::Extension::rand();
     assert_eq!(
@@ -189,22 +189,22 @@ macro_rules! test_field_extension {
     ($field:ty, $d:expr) => {
         mod field_extension {
             #[test]
-            #[cfg(not(feature = "no_random"))]
+            #[cfg(feature = "rand")]
             fn test_add_neg_sub_mul() {
                 $crate::field_testing::test_add_neg_sub_mul::<$field, $d>();
             }
             #[test]
-            #[cfg(not(feature = "no_random"))]
+            #[cfg(feature = "rand")]
             fn test_inv_div() {
                 $crate::field_testing::test_inv_div::<$field, $d>();
             }
             #[test]
-            #[cfg(not(feature = "no_random"))]
+            #[cfg(feature = "rand")]
             fn test_frobenius() {
                 $crate::field_testing::test_frobenius::<$field, $d>();
             }
             #[test]
-            #[cfg(not(feature = "no_random"))]
+            #[cfg(feature = "rand")]
             fn test_field_order() {
                 $crate::field_testing::test_field_order::<$field, $d>();
             }

@@ -8,39 +8,38 @@ use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAss
 use num::bigint::BigUint;
 use num::{Integer, One, ToPrimitive, Zero};
 use plonky2_util::bits_u64;
-#[cfg(not(feature = "no_random"))]
-use rand::rngs::OsRng;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
 use crate::extension::Frobenius;
 use crate::ops::Square;
 
-/// Sampling
+/// Sampling trait for generating random field elements.
+///
+/// This trait is only meaningful when the `rand` feature is enabled.
+/// When `rand` feature is disabled, this trait has no methods but
+/// must still be implemented for all field types.
+#[cfg(feature = "rand")]
 pub trait Sample: Sized {
     /// Samples a single value using `rng`.
-    #[cfg(not(feature = "no_random"))]
     fn sample<R>(rng: &mut R) -> Self
     where
         R: rand::RngCore + ?Sized;
 
     /// Samples a single value using the [`OsRng`].
     #[inline]
-    #[cfg(not(feature = "no_random"))]
     fn rand() -> Self {
-        Self::sample(&mut OsRng)
+        Self::sample(&mut rand::rngs::OsRng)
     }
 
     /// Samples a [`Vec`] of values of length `n` using [`OsRng`].
     #[inline]
-    #[cfg(not(feature = "no_random"))]
     fn rand_vec(n: usize) -> Vec<Self> {
         (0..n).map(|_| Self::rand()).collect()
     }
 
     /// Samples an array of values of length `N` using [`OsRng`].
     #[inline]
-    #[cfg(not(feature = "no_random"))]
     fn rand_array<const N: usize>() -> [Self; N] {
         Self::rand_vec(N)
             .try_into()
@@ -48,6 +47,14 @@ pub trait Sample: Sized {
             .expect("This conversion can never fail.")
     }
 }
+
+/// Sampling trait stub when randomness is not available.
+///
+/// This empty trait allows field types to implement `Field` without
+/// requiring randomness support, which is needed for verification-only
+/// builds that run in no_std environments without OS randomness.
+#[cfg(not(feature = "rand"))]
+pub trait Sample: Sized {}
 
 /// A finite field.
 pub trait Field:

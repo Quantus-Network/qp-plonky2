@@ -278,7 +278,7 @@ impl<F: RichField + Extendable<D> + Poseidon, const D: usize> SimpleGenerator<F,
 }
 
 #[cfg(test)]
-#[cfg(not(feature = "no_random"))]
+#[cfg(feature = "rand")]
 mod tests {
     use crate::gates::gate_testing::{test_eval_fns, test_low_degree};
     use crate::gates::poseidon_mds::PoseidonMdsGate;

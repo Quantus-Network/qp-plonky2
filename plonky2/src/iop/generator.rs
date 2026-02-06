@@ -313,12 +313,12 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D> for Cop
 
 /// A generator for including a random value
 #[derive(Debug, Default)]
-#[cfg(not(feature = "no_random"))]
+#[cfg(feature = "rand")]
 pub struct RandomValueGenerator {
     pub(crate) target: Target,
 }
 
-#[cfg(not(feature = "no_random"))]
+#[cfg(feature = "rand")]
 impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D> for RandomValueGenerator {
     fn id(&self) -> String {
         "RandomValueGenerator".to_string()

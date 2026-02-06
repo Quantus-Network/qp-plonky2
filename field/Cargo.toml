@@ -39,7 +39,6 @@ workspace = true
 
 [features]
 default = ["rand"]
-no_random = []
 
 [build-dependencies]
 rustc_version = "0.4"

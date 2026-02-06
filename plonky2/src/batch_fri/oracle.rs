@@ -249,7 +249,7 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
 }
 
 #[cfg(test)]
-#[cfg(not(feature = "no_random"))]
+#[cfg(feature = "rand")]
 mod test {
     #[cfg(not(feature = "std"))]
     use alloc::vec;

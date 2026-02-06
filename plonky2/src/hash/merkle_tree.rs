@@ -238,7 +238,7 @@ impl<F: RichField, H: Hasher<F>> MerkleTree<F, H> {
 }
 
 #[cfg(test)]
-#[cfg(not(feature = "no_random"))]
+#[cfg(feature = "rand")]
 pub(crate) mod tests {
     use anyhow::Result;
 
