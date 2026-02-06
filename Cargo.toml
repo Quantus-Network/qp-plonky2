@@ -1,12 +1,10 @@
 [workspace]
-members = ["field", "maybe_rayon", "plonky2", "starky", "util"]
-default-members = ["field", "maybe_rayon", "plonky2", "starky", "util"]
+members = ["field", "maybe_rayon", "plonky2", "starky", "util", "verifier"]
+default-members = ["field", "maybe_rayon", "plonky2", "starky", "util", "verifier"]
 resolver = "2"
 
 [workspace.dependencies]
-ahash = { version = "0.8.7", default-features = false, features = [
-    "compile-time-rng",
-] } # NOTE: Be sure to keep this version the same as the dependency in `hashbrown`.
+ahash = { version = "0.8.7", default-features = false } # NOTE: Be sure to keep this version the same as the dependency in `hashbrown`. Removed compile-time-rng for WASM compatibility.
 anyhow = { version = "1.0.40", default-features = false }
 hashbrown = { version = "0.14.3", default-features = false, features = [
     "ahash",
