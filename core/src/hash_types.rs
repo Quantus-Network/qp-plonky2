@@ -68,6 +68,24 @@ impl<F: Field> Default for HashOut<F> {
     }
 }
 
+#[cfg(feature = "rand")]
+impl<F: Field + crate::field::types::Sample> crate::field::types::Sample for HashOut<F> {
+    #[inline]
+    fn sample<R>(rng: &mut R) -> Self
+    where
+        R: rand::RngCore + ?Sized,
+    {
+        Self {
+            elements: [
+                F::sample(rng),
+                F::sample(rng),
+                F::sample(rng),
+                F::sample(rng),
+            ],
+        }
+    }
+}
+
 /// Hash consisting of a byte array.
 #[derive(Eq, PartialEq, Copy, Clone, Debug)]
 pub struct BytesHash<const N: usize>(pub [u8; N]);

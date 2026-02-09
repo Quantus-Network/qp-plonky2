@@ -24,6 +24,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         inner_common_data: &CommonCircuitData<F, D>,
     ) where
         C::Hasher: AlgebraicHasher<F>,
+        C::InnerHasher: AlgebraicHasher<F>,
     {
         assert_eq!(
             proof_with_pis.public_inputs.len(),
@@ -423,7 +424,10 @@ mod tests {
     fn dummy_proof<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>(
         config: &CircuitConfig,
         num_dummy_gates: u64,
-    ) -> Result<Proof<F, C, D>> {
+    ) -> Result<Proof<F, C, D>>
+    where
+        C::InnerHasher: AlgebraicHasher<F>,
+    {
         let mut builder = CircuitBuilder::<F, D>::new(config.clone());
         for _ in 0..num_dummy_gates {
             builder.add_gate(NoopGate, vec![]);
@@ -445,7 +449,10 @@ mod tests {
     >(
         config: &CircuitConfig,
         num_dummy_gates: u64,
-    ) -> Result<Proof<F, C, D>> {
+    ) -> Result<Proof<F, C, D>>
+    where
+        C::InnerHasher: AlgebraicHasher<F>,
+    {
         let mut builder = CircuitBuilder::<F, D>::new(config.clone());
         let initial_a = builder.add_virtual_target();
         let initial_b = builder.add_virtual_target();
@@ -502,7 +509,10 @@ mod tests {
         const D: usize,
     >(
         config: &CircuitConfig,
-    ) -> Result<Proof<F, C, D>> {
+    ) -> Result<Proof<F, C, D>>
+    where
+        C::InnerHasher: AlgebraicHasher<F>,
+    {
         let mut builder = CircuitBuilder::<F, D>::new(config.clone());
         let initial_a = builder.add_virtual_target();
         let initial_b = builder.add_virtual_target();
@@ -579,7 +589,10 @@ mod tests {
         const D: usize,
     >(
         config: &CircuitConfig,
-    ) -> Result<Proof<F, C, D>> {
+    ) -> Result<Proof<F, C, D>>
+    where
+        C::InnerHasher: AlgebraicHasher<F>,
+    {
         let mut builder = CircuitBuilder::<F, D>::new(config.clone());
 
         let initial_a = builder.add_virtual_target();
@@ -644,6 +657,8 @@ mod tests {
     ) -> Result<Proof<F, C, D>>
     where
         InnerC::Hasher: AlgebraicHasher<F>,
+        InnerC::InnerHasher: AlgebraicHasher<F>,
+        C::InnerHasher: AlgebraicHasher<F>,
     {
         let mut builder = CircuitBuilder::<F, D>::new(config.clone());
         let mut pw = PartialWitness::new();

@@ -11,7 +11,7 @@ use plonky2::hash::hash_types::RichField;
 use plonky2::iop::witness::{PartialWitness, WitnessWrite};
 use plonky2::plonk::circuit_builder::CircuitBuilder;
 use plonky2::plonk::circuit_data::CircuitConfig;
-use plonky2::plonk::config::GenericConfig;
+use plonky2::plonk::config::{AlgebraicHasher, GenericConfig};
 use plonky2::util::{log2_ceil, log2_strict, transpose};
 
 use crate::constraint_consumer::{ConstraintConsumer, RecursiveConstraintConsumer};
@@ -80,7 +80,10 @@ pub fn test_stark_circuit_constraints<
     const D: usize,
 >(
     stark: S,
-) -> Result<()> {
+) -> Result<()>
+where
+    C::InnerHasher: AlgebraicHasher<F>,
+{
     // Compute native constraint evaluation on random values.
     let vars = S::EvaluationFrame::from_values(
         &F::Extension::rand_vec(S::COLUMNS),
@@ -141,7 +144,7 @@ pub fn test_stark_circuit_constraints<
     data.verify(proof)
 }
 
-fn random_low_degree_matrix<F: Field>(num_polys: usize, rate_bits: usize) -> Vec<Vec<F>> {
+fn random_low_degree_matrix<F: Field + Sample>(num_polys: usize, rate_bits: usize) -> Vec<Vec<F>> {
     let polys = (0..num_polys)
         .map(|_| random_low_degree_values(rate_bits))
         .collect::<Vec<_>>();
@@ -149,7 +152,7 @@ fn random_low_degree_matrix<F: Field>(num_polys: usize, rate_bits: usize) -> Vec
     transpose(&polys)
 }
 
-fn random_low_degree_values<F: Field>(rate_bits: usize) -> Vec<F> {
+fn random_low_degree_values<F: Field + Sample>(rate_bits: usize) -> Vec<F> {
     PolynomialCoeffs::new(F::rand_vec(WITNESS_SIZE))
         .lde(rate_bits)
         .fft()

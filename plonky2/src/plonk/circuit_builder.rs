@@ -1068,7 +1068,10 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     pub fn build_with_options<C: GenericConfig<D, F = F>>(
         self,
         commit_to_sigma: bool,
-    ) -> CircuitData<F, C, D> {
+    ) -> CircuitData<F, C, D>
+    where
+        C::InnerHasher: AlgebraicHasher<F>,
+    {
         let (circuit_data, success) = self.try_build_with_options(commit_to_sigma);
         if !success {
             panic!("Failed to build circuit");
@@ -1079,7 +1082,10 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     pub fn try_build_with_options<C: GenericConfig<D, F = F>>(
         mut self,
         commit_to_sigma: bool,
-    ) -> (CircuitData<F, C, D>, bool) {
+    ) -> (CircuitData<F, C, D>, bool)
+    where
+        C::InnerHasher: AlgebraicHasher<F>,
+    {
         let mut timing = TimingTree::new("preprocess", Level::Trace);
 
         #[cfg(feature = "timing")]
@@ -1329,11 +1335,17 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     }
 
     /// Builds a "full circuit", with both prover and verifier data.
-    pub fn build<C: GenericConfig<D, F = F>>(self) -> CircuitData<F, C, D> {
+    pub fn build<C: GenericConfig<D, F = F>>(self) -> CircuitData<F, C, D>
+    where
+        C::InnerHasher: AlgebraicHasher<F>,
+    {
         self.build_with_options(true)
     }
 
-    pub fn mock_build<C: GenericConfig<D, F = F>>(self) -> MockCircuitData<F, C, D> {
+    pub fn mock_build<C: GenericConfig<D, F = F>>(self) -> MockCircuitData<F, C, D>
+    where
+        C::InnerHasher: AlgebraicHasher<F>,
+    {
         let circuit_data = self.build_with_options(false);
         MockCircuitData {
             prover_only: circuit_data.prover_only,
@@ -1341,14 +1353,20 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         }
     }
     /// Builds a "prover circuit", with data needed to generate proofs but not verify them.
-    pub fn build_prover<C: GenericConfig<D, F = F>>(self) -> ProverCircuitData<F, C, D> {
+    pub fn build_prover<C: GenericConfig<D, F = F>>(self) -> ProverCircuitData<F, C, D>
+    where
+        C::InnerHasher: AlgebraicHasher<F>,
+    {
         // TODO: Can skip parts of this.
         let circuit_data = self.build::<C>();
         circuit_data.prover_data()
     }
 
     /// Builds a "verifier circuit", with data needed to verify proofs but not generate them.
-    pub fn build_verifier<C: GenericConfig<D, F = F>>(self) -> VerifierCircuitData<F, C, D> {
+    pub fn build_verifier<C: GenericConfig<D, F = F>>(self) -> VerifierCircuitData<F, C, D>
+    where
+        C::InnerHasher: AlgebraicHasher<F>,
+    {
         // TODO: Can skip parts of this.
         let circuit_data = self.build::<C>();
         circuit_data.verifier_data()

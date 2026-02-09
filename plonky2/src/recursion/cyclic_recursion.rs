@@ -110,6 +110,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     ) -> Result<()>
     where
         C::Hasher: AlgebraicHasher<F>,
+        C::InnerHasher: AlgebraicHasher<F>,
     {
         let verifier_data = self
             .verifier_data_public_input
@@ -162,6 +163,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     ) -> Result<()>
     where
         C::Hasher: AlgebraicHasher<F>,
+        C::InnerHasher: AlgebraicHasher<F>,
     {
         let (dummy_proof_with_pis_target, dummy_verifier_data_target) =
             self.dummy_proof_and_vk::<C>(common_data)?;
@@ -225,6 +227,7 @@ mod tests {
     >() -> CommonCircuitData<F, D>
     where
         C::Hasher: AlgebraicHasher<F>,
+        C::InnerHasher: AlgebraicHasher<F>,
     {
         let config = CircuitConfig::standard_recursion_config();
         let builder = CircuitBuilder::<F, D>::new(config);

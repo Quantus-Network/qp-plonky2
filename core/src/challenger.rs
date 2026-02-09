@@ -160,11 +160,11 @@ mod tests {
     use alloc::vec::Vec;
 
     use rand::rngs::SmallRng;
-    use rand::{Rng, SeedableRng};
+    use rand::SeedableRng;
 
     use crate::challenger::Challenger;
     use crate::config::{GenericConfig, PoseidonGoldilocksConfig};
-    use crate::field::types::Field;
+    use crate::field::types::Sample;
 
     #[test]
     fn no_duplicate_challenges() {
@@ -177,7 +177,7 @@ mod tests {
 
         for i in 1..10 {
             challenges.extend(challenger.get_n_challenges(i));
-            challenger.observe_element(F::from_canonical_u64(rng.random()));
+            challenger.observe_element(F::sample(&mut rng));
         }
 
         let dedup_challenges = {

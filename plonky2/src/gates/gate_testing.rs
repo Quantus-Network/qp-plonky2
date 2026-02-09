@@ -97,7 +97,10 @@ pub fn test_eval_fns<
     const D: usize,
 >(
     gate: G,
-) -> Result<()> {
+) -> Result<()>
+where
+    C::InnerHasher: crate::plonk::config::AlgebraicHasher<F>,
+{
     // Test that `eval_unfiltered` and `eval_unfiltered_base` are coherent.
     let wires_base = F::rand_vec(gate.num_wires());
     let constants_base = F::rand_vec(gate.num_constants());

@@ -42,8 +42,8 @@ pub use merkle_tree::{
     capacity_up_to_mut, fill_digests_buf, fill_subtree, merkle_tree_prove, MerkleCap, MerkleTree,
 };
 pub use poseidon::{
-    Poseidon, PoseidonHash, HALF_N_FULL_ROUNDS, N_FULL_ROUNDS_TOTAL, N_PARTIAL_ROUNDS, N_ROUNDS,
-    SPONGE_CAPACITY, SPONGE_RATE, SPONGE_WIDTH,
+    Poseidon, PoseidonHash, PoseidonPermutation, ALL_ROUND_CONSTANTS, HALF_N_FULL_ROUNDS,
+    N_FULL_ROUNDS_TOTAL, N_PARTIAL_ROUNDS, N_ROUNDS, SPONGE_CAPACITY, SPONGE_RATE, SPONGE_WIDTH,
 };
 
 /// The extension degree for the field extension (D=2 provides 100-bits of security)

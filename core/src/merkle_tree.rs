@@ -235,22 +235,18 @@ impl<F: RichField, H: Hasher<F>> MerkleTree<F, H> {
 pub(crate) mod tests {
     use anyhow::Result;
     use rand::rngs::SmallRng;
-    use rand::{Rng, SeedableRng};
+    use rand::SeedableRng;
 
     use super::*;
     use crate::config::{GenericConfig, PoseidonGoldilocksConfig};
     use crate::field::extension::Extendable;
-    use crate::field::types::Field;
+    use crate::field::types::{Field, Sample};
     use crate::merkle_proofs::verify_merkle_proof_to_cap;
 
-    pub(crate) fn random_data<F: Field>(n: usize, k: usize) -> Vec<Vec<F>> {
+    pub(crate) fn random_data<F: Field + Sample>(n: usize, k: usize) -> Vec<Vec<F>> {
         let mut rng = SmallRng::seed_from_u64(42);
         (0..n)
-            .map(|_| {
-                (0..k)
-                    .map(|_| F::from_canonical_u64(rng.random()))
-                    .collect()
-            })
+            .map(|_| (0..k).map(|_| F::sample(&mut rng)).collect())
             .collect()
     }
 

@@ -78,7 +78,10 @@ struct Options {
 fn dummy_proof<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>(
     config: &CircuitConfig,
     log2_size: usize,
-) -> Result<ProofTuple<F, C, D>> {
+) -> Result<ProofTuple<F, C, D>>
+where
+    C::InnerHasher: AlgebraicHasher<F>,
+{
     // 'size' is in degree, but we want number of noop gates. A non-zero amount of padding will be added and size will be rounded to the next power of two. To hit our target size, we go just under the previous power of two and hope padding is less than half the proof.
     let num_dummy_gates = match log2_size {
         0 => return Err(anyhow!("size must be at least 1")),
@@ -107,7 +110,10 @@ fn dummy_proof<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D
 fn dummy_lookup_proof<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>(
     config: &CircuitConfig,
     log2_size: usize,
-) -> Result<ProofTuple<F, C, D>> {
+) -> Result<ProofTuple<F, C, D>>
+where
+    C::InnerHasher: AlgebraicHasher<F>,
+{
     let mut builder = CircuitBuilder::<F, D>::new(config.clone());
     let tip5_table = TIP5_TABLE.to_vec();
     let inps = 0..256;
@@ -148,14 +154,13 @@ fn dummy_lookup_proof<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, 
 }
 
 /// Creates a dummy proof which has more than 256 lookups to one LUT
-fn dummy_many_rows_proof<
-    F: RichField + Extendable<D>,
-    C: GenericConfig<D, F = F>,
-    const D: usize,
->(
+fn dummy_many_rows_proof<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>(
     config: &CircuitConfig,
     log2_size: usize,
-) -> Result<ProofTuple<F, C, D>> {
+) -> Result<ProofTuple<F, C, D>>
+where
+    C::InnerHasher: AlgebraicHasher<F>,
+{
     let mut builder = CircuitBuilder::<F, D>::new(config.clone());
     let tip5_table = TIP5_TABLE.to_vec();
     let inps: Vec<u16> = (0..256).collect();
@@ -211,6 +216,8 @@ fn recursive_proof<
 ) -> Result<ProofTuple<F, C, D>>
 where
     InnerC::Hasher: AlgebraicHasher<F>,
+    InnerC::InnerHasher: AlgebraicHasher<F>,
+    C::InnerHasher: AlgebraicHasher<F>,
 {
     let (inner_proof, inner_vd, inner_cd) = inner;
     let mut builder = CircuitBuilder::<F, D>::new(config.clone());

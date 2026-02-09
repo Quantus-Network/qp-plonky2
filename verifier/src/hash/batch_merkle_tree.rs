@@ -171,7 +171,9 @@ mod tests {
 
     use anyhow::Result;
     use plonky2_field::goldilocks_field::GoldilocksField;
-    use plonky2_field::types::Field;
+    use plonky2_field::types::{Field, Sample};
+    use rand::rngs::SmallRng;
+    use rand::SeedableRng;
 
     use super::*;
     use crate::hash::merkle_proofs::verify_batch_merkle_proof_to_cap;
@@ -181,6 +183,13 @@ mod tests {
     type C = PoseidonGoldilocksConfig;
     type F = <C as GenericConfig<D>>::F;
     type H = <C as GenericConfig<D>>::Hasher;
+
+    fn random_data<F: Field + Sample>(n: usize, k: usize) -> Vec<Vec<F>> {
+        let mut rng = SmallRng::seed_from_u64(42);
+        (0..n)
+            .map(|_| (0..k).map(|_| F::sample(&mut rng)).collect())
+            .collect()
+    }
 
     #[test]
     fn commit_single() -> Result<()> {
@@ -295,9 +304,9 @@ mod tests {
 
     #[test]
     fn test_batch_merkle_trees() -> Result<()> {
-        let leaves_1 = crate::hash::merkle_tree::tests::random_data::<F>(1024, 7);
-        let leaves_2 = crate::hash::merkle_tree::tests::random_data::<F>(64, 3);
-        let leaves_3 = crate::hash::merkle_tree::tests::random_data::<F>(32, 100);
+        let leaves_1 = random_data::<F>(1024, 7);
+        let leaves_2 = random_data::<F>(64, 3);
+        let leaves_3 = random_data::<F>(32, 100);
 
         let fmt: BatchMerkleTree<GoldilocksField, H> =
             BatchMerkleTree::new(vec![leaves_1, leaves_2, leaves_3], 3);
@@ -318,7 +327,7 @@ mod tests {
 
     #[test]
     fn test_batch_merkle_trees_cap_at_leaves_height() -> Result<()> {
-        let leaves_1 = crate::hash::merkle_tree::tests::random_data::<F>(16, 7);
+        let leaves_1 = random_data::<F>(16, 7);
 
         let fmt: BatchMerkleTree<GoldilocksField, H> = BatchMerkleTree::new(vec![leaves_1], 4);
         for index in 0..16 {

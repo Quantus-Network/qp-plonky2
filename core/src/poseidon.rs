@@ -1,9 +1,13 @@
 //! Implementation of the Poseidon hash function, as described in
 //! <https://eprint.iacr.org/2019/458.pdf>
 
-#[cfg(test)]
+#[cfg(all(test, not(feature = "std")))]
+extern crate alloc;
+#[cfg(all(test, not(feature = "std")))]
 use alloc::vec::Vec;
 use core::fmt::Debug;
+#[cfg(all(test, feature = "std"))]
+use std::vec::Vec;
 
 use plonky2_field::packed::PackedField;
 use unroll::unroll_for_loops;

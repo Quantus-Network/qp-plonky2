@@ -243,6 +243,8 @@ mod tests {
     ) -> Result<()>
     where
         InnerC::Hasher: AlgebraicHasher<F>,
+        InnerC::InnerHasher: AlgebraicHasher<F>,
+        C::InnerHasher: AlgebraicHasher<F>,
     {
         let circuit_config = CircuitConfig::standard_recursion_config();
         let mut builder = CircuitBuilder::<F, D>::new(circuit_config);

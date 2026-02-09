@@ -28,7 +28,7 @@ gate_testing = []
 parallel = ["hashbrown/rayon", "plonky2_maybe_rayon/parallel"]
 std = ["anyhow/std", "rand/std", "itertools/use_std", "plonky2-verifier/std", "qp-plonky2-core/std"]
 timing = ["std", "dep:web-time"]
-rand = ["plonky2-field/rand"]
+rand = ["plonky2-field/rand", "qp-plonky2-core/rand"]
 
 [dependencies]
 ahash = { workspace = true }
