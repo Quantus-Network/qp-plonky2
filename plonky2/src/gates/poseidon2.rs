@@ -292,37 +292,15 @@ fn sbox7_ext_circuit<F: RichField + Extendable<D>, const D: usize>(
 
 fn mds_light_circuit<F: RichField + Extendable<D>, const D: usize>(
     builder: &mut CircuitBuilder<F, D>,
-    state: &[ExtensionTarget<D>; P2_WIDTH],
-) -> [ExtensionTarget<D>; P2_WIDTH]
-where
+    state: &mut [ExtensionTarget<D>; P2_WIDTH],
+) where
     F: RichField + Extendable<D>,
 {
-    let mds_gate = Poseidon2MdsGate::<F, D>::new();
-
-    if builder.config.num_routed_wires >= mds_gate.num_wires() {
-        let row = builder.add_gate(mds_gate, vec![]);
-
-        // Connect inputs
-        for i in 0..P2_WIDTH {
-            let input_wire = Poseidon2MdsGate::<F, D>::wires_input(i);
-            builder.connect_extension(state[i], ExtensionTarget::from_range(row, input_wire));
-        }
-
-        // Read outputs
-        (0..P2_WIDTH)
-            .map(|i| {
-                let output_wire = Poseidon2MdsGate::<F, D>::wires_output(i);
-                ExtensionTarget::from_range(row, output_wire)
-            })
-            .collect::<Vec<_>>()
-            .try_into()
-            .unwrap()
-    } else {
-        // Fallback: reuse “inline” MDS.
-        let mut out = *state;
-        mds_light_ext::<F, D>(builder, &mut out);
-        out
-    }
+    // Note: Always use inline computation here instead of adding a gate.
+    // Adding a Poseidon2MdsGate during eval_unfiltered_circuit causes issues:
+    // the gate's generator conflicts with other generators when used in
+    // recursive verification circuits.
+    mds_light_ext::<F, D>(builder, state);
 }
 
 fn internal_mix_circuit<F: RichField + Extendable<D>, const D: usize>(
@@ -330,50 +308,30 @@ fn internal_mix_circuit<F: RichField + Extendable<D>, const D: usize>(
     state: &[ExtensionTarget<D>; P2_WIDTH],
     diag: &[F; P2_WIDTH],
 ) -> [ExtensionTarget<D>; P2_WIDTH] {
-    let mix_gate = Poseidon2IntMixGate::<F, D>::new();
+    // Note: Always use inline computation here instead of adding a gate.
+    // Adding a Poseidon2IntMixGate during eval_unfiltered_circuit causes issues:
+    // the gate's generator conflicts with other generators when used in
+    // recursive verification circuits.
+    let mut s = *state;
 
-    if builder.config.num_routed_wires >= mix_gate.num_wires() {
-        let row = builder.add_gate(mix_gate, vec![]);
+    // diag as extension constants
+    let diag_ext: [ExtensionTarget<D>; P2_WIDTH] = core::array::from_fn(|i| {
+        let val = ext_c::<F, D>(diag[i]);
+        builder.constant_extension(val)
+    });
 
-        // Connect inputs to gate wires
-        for i in 0..P2_WIDTH {
-            let input_wire = Poseidon2IntMixGate::<F, D>::wires_input(i);
-            builder.connect_extension(state[i], ExtensionTarget::from_range(row, input_wire));
-        }
-
-        // Read outputs
-        (0..P2_WIDTH)
-            .map(|i| {
-                let output_wire = Poseidon2IntMixGate::<F, D>::wires_output(i);
-                ExtensionTarget::from_range(row, output_wire)
-            })
-            .collect::<Vec<_>>()
-            .try_into()
-            .unwrap()
-    } else {
-        // Fallback: inline version, no gate
-        let mut s = *state;
-
-        // diag as extension constants
-        let diag_ext: [ExtensionTarget<D>; P2_WIDTH] = core::array::from_fn(|i| {
-            let val = ext_c::<F, D>(diag[i]);
-            builder.constant_extension(val)
-        });
-
-        // sum = sum_j s[j]
-        let mut sum = s[0];
-        for i in 1..P2_WIDTH {
-            sum = builder.add_extension(sum, s[i]);
-        }
-
-        // y[i] = diag[i] * s[i] + sum
-        for i in 0..P2_WIDTH {
-            let t = builder.mul_extension(s[i], diag_ext[i]);
-            s[i] = builder.add_extension(t, sum);
-        }
-
-        s
+    // sum = sum_j s[j]
+    let mut sum = s[0];
+    for i in 1..P2_WIDTH {
+        sum = builder.add_extension(sum, s[i]);
     }
+
+    // y[i] = diag[i] * s[i] + sum
+    for i in 0..P2_WIDTH {
+        s[i] = builder.mul_add_extension(diag_ext[i], s[i], sum);
+    }
+
+    s
 }
 
 #[derive(Clone, Debug)]

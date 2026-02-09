@@ -646,7 +646,9 @@ impl<T> AsRef<[T]> for PoseidonPermutation<T> {
     }
 }
 
-trait Permuter: Sized {
+/// Trait for types that can be permuted using Poseidon.
+/// Public to allow plonky2 to implement it for `Target`.
+pub trait Permuter: Sized {
     fn permute(input: [Self; SPONGE_WIDTH]) -> [Self; SPONGE_WIDTH];
 }
 

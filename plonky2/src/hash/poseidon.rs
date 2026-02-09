@@ -22,62 +22,15 @@ use crate::plonk::config::AlgebraicHasher;
 
 // Re-export all poseidon types from core
 pub use qp_plonky2_core::poseidon::{
-    Poseidon, PoseidonHash, PoseidonPermutation, ALL_ROUND_CONSTANTS, HALF_N_FULL_ROUNDS,
+    Permuter, Poseidon, PoseidonHash, PoseidonPermutation, ALL_ROUND_CONSTANTS, HALF_N_FULL_ROUNDS,
     N_FULL_ROUNDS_TOTAL, N_PARTIAL_ROUNDS, N_ROUNDS, SPONGE_CAPACITY, SPONGE_RATE, SPONGE_WIDTH,
 };
 
-/// Algebraic permutation state for use in circuit building.
-/// This is separate from `PoseidonPermutation<F>` because `Target` doesn't implement `Poseidon`.
-/// The actual permutation is performed via gates, not via the `permute` method.
-#[derive(Copy, Clone, Default, Debug, PartialEq, Eq)]
-pub struct PoseidonPermutationTarget {
-    state: [Target; SPONGE_WIDTH],
-}
-
-impl AsRef<[Target]> for PoseidonPermutationTarget {
-    fn as_ref(&self) -> &[Target] {
-        &self.state
-    }
-}
-
-impl PlonkyPermutation<Target> for PoseidonPermutationTarget {
-    const RATE: usize = SPONGE_RATE;
-    const WIDTH: usize = SPONGE_WIDTH;
-
-    fn new<I: IntoIterator<Item = Target>>(elts: I) -> Self {
-        let mut perm = Self {
-            state: [Target::default(); SPONGE_WIDTH],
-        };
-        perm.set_from_iter(elts, 0);
-        perm
-    }
-
-    fn set_elt(&mut self, elt: Target, idx: usize) {
-        self.state[idx] = elt;
-    }
-
-    fn set_from_slice(&mut self, elts: &[Target], start_idx: usize) {
-        let begin = start_idx;
-        let end = start_idx + elts.len();
-        self.state[begin..end].copy_from_slice(elts);
-    }
-
-    fn set_from_iter<I: IntoIterator<Item = Target>>(&mut self, elts: I, start_idx: usize) {
-        for (s, e) in self.state[start_idx..].iter_mut().zip(elts) {
-            *s = e;
-        }
-    }
-
-    fn permute(&mut self) {
-        // This is a no-op for circuit targets - permutation is done via gates.
-        // The actual permutation happens in `permute_swapped` via PoseidonGate.
-        panic!(
-            "PoseidonPermutationTarget::permute() should not be called directly; use gates instead"
-        );
-    }
-
-    fn squeeze(&self) -> &[Target] {
-        &self.state[..Self::RATE]
+// Implement Permuter for Target so that PoseidonPermutation<Target> can implement PlonkyPermutation.
+// The actual permutation is performed via gates in AlgebraicHasher::permute_swapped.
+impl Permuter for Target {
+    fn permute(_input: [Self; SPONGE_WIDTH]) -> [Self; SPONGE_WIDTH] {
+        panic!("Call `permute_swapped()` instead of `permute()` for Target")
     }
 }
 
@@ -256,7 +209,7 @@ impl<T: Poseidon> PoseidonCircuit for T {}
 
 // Implement AlgebraicHasher for PoseidonHash (circuit-building extension)
 impl<F: RichField> AlgebraicHasher<F> for PoseidonHash {
-    type AlgebraicPermutation = PoseidonPermutationTarget;
+    type AlgebraicPermutation = PoseidonPermutation<Target>;
 
     fn permute_swapped<const D: usize>(
         inputs: Self::AlgebraicPermutation,

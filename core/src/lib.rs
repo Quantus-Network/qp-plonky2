@@ -42,7 +42,7 @@ pub use merkle_tree::{
     capacity_up_to_mut, fill_digests_buf, fill_subtree, merkle_tree_prove, MerkleCap, MerkleTree,
 };
 pub use poseidon::{
-    Poseidon, PoseidonHash, PoseidonPermutation, ALL_ROUND_CONSTANTS, HALF_N_FULL_ROUNDS,
+    Permuter, Poseidon, PoseidonHash, PoseidonPermutation, ALL_ROUND_CONSTANTS, HALF_N_FULL_ROUNDS,
     N_FULL_ROUNDS_TOTAL, N_PARTIAL_ROUNDS, N_ROUNDS, SPONGE_CAPACITY, SPONGE_RATE, SPONGE_WIDTH,
 };
 
