@@ -8,7 +8,7 @@
 use plonky2_field::types::Field;
 
 use crate::field::goldilocks_field::GoldilocksField;
-use crate::hash::poseidon::{Poseidon, N_PARTIAL_ROUNDS};
+use crate::poseidon::{Poseidon, N_PARTIAL_ROUNDS};
 
 #[rustfmt::skip]
 impl Poseidon for GoldilocksField {
@@ -251,7 +251,7 @@ impl Poseidon for GoldilocksField {
     // #[inline]
     // fn poseidon(input: [Self; 12]) -> [Self; 12] {
     //     unsafe {
-    //         crate::hash::arch::x86_64::poseidon_goldilocks_avx2_bmi2::poseidon(&input)
+    //         crate::arch::x86_64::poseidon_goldilocks_avx2_bmi2::poseidon(&input)
     //     }
     // }
 
@@ -259,7 +259,7 @@ impl Poseidon for GoldilocksField {
     // #[inline(always)]
     // fn constant_layer(state: &mut [Self; 12], round_ctr: usize) {
     //     unsafe {
-    //         crate::hash::arch::x86_64::poseidon_goldilocks_avx2_bmi2::constant_layer(state, round_ctr);
+    //         crate::arch::x86_64::poseidon_goldilocks_avx2_bmi2::constant_layer(state, round_ctr);
     //     }
     // }
 
@@ -267,7 +267,7 @@ impl Poseidon for GoldilocksField {
     // #[inline(always)]
     // fn sbox_layer(state: &mut [Self; 12]) {
     //     unsafe {
-    //         crate::hash::arch::x86_64::poseidon_goldilocks_avx2_bmi2::sbox_layer(state);
+    //         crate::arch::x86_64::poseidon_goldilocks_avx2_bmi2::sbox_layer(state);
     //     }
     // }
 
@@ -275,7 +275,7 @@ impl Poseidon for GoldilocksField {
     // #[inline(always)]
     // fn mds_layer(state: &[Self; 12]) -> [Self; 12] {
     //     unsafe {
-    //         crate::hash::arch::x86_64::poseidon_goldilocks_avx2_bmi2::mds_layer(state)
+    //         crate::arch::x86_64::poseidon_goldilocks_avx2_bmi2::mds_layer(state)
     //     }
     // }
 
@@ -283,7 +283,7 @@ impl Poseidon for GoldilocksField {
     // #[inline]
     // fn poseidon(input: [Self; 12]) -> [Self; 12] {
     //     unsafe {
-    //         crate::hash::arch::aarch64::poseidon_goldilocks_neon::poseidon(input)
+    //         crate::arch::aarch64::poseidon_goldilocks_neon::poseidon(input)
     //     }
     // }
 
@@ -291,7 +291,7 @@ impl Poseidon for GoldilocksField {
     #[inline(always)]
     fn sbox_layer(state: &mut [Self; 12]) {
         unsafe {
-            crate::hash::arch::aarch64::poseidon_goldilocks_neon::sbox_layer(state);
+            crate::arch::aarch64::poseidon_goldilocks_neon::sbox_layer(state);
         }
     }
 
@@ -299,7 +299,7 @@ impl Poseidon for GoldilocksField {
     #[inline(always)]
     fn mds_layer(state: &[Self; 12]) -> [Self; 12] {
         unsafe {
-            crate::hash::arch::aarch64::poseidon_goldilocks_neon::mds_layer(state)
+            crate::arch::aarch64::poseidon_goldilocks_neon::mds_layer(state)
         }
     }
 }
@@ -449,7 +449,7 @@ mod tests {
 
     use crate::field::goldilocks_field::GoldilocksField as F;
     use crate::field::types::{Field, PrimeField64};
-    use crate::hash::poseidon::test_helpers::{check_consistency, check_test_vectors};
+    use crate::poseidon::test_helpers::{check_consistency, check_test_vectors};
 
     #[test]
     fn test_vectors() {

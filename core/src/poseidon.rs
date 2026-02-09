@@ -8,11 +8,11 @@ use core::fmt::Debug;
 use plonky2_field::packed::PackedField;
 use unroll::unroll_for_loops;
 
+use crate::config::Hasher;
 use crate::field::extension::{Extendable, FieldExtension};
 use crate::field::types::PrimeField64;
-use crate::hash::hash_types::{HashOut, RichField};
-use crate::hash::hashing::{compress, hash_n_to_hash_no_pad, PlonkyPermutation};
-use crate::plonk::config::Hasher;
+use crate::hash_types::{HashOut, RichField};
+use crate::hashing::{compress, hash_n_to_hash_no_pad, PlonkyPermutation};
 
 pub const SPONGE_RATE: usize = 8;
 pub const SPONGE_CAPACITY: usize = 4;
@@ -25,7 +25,7 @@ pub const SPONGE_WIDTH: usize = SPONGE_RATE + SPONGE_CAPACITY;
 // NB: Changing any of these values will require regenerating all of
 // the precomputed constant arrays in this file.
 pub const HALF_N_FULL_ROUNDS: usize = 4;
-pub(crate) const N_FULL_ROUNDS_TOTAL: usize = 2 * HALF_N_FULL_ROUNDS;
+pub const N_FULL_ROUNDS_TOTAL: usize = 2 * HALF_N_FULL_ROUNDS;
 pub const N_PARTIAL_ROUNDS: usize = 22;
 pub const N_ROUNDS: usize = N_FULL_ROUNDS_TOTAL + N_PARTIAL_ROUNDS;
 const MAX_WIDTH: usize = 12; // we only have width 8 and 12, and 12 is bigger. :)

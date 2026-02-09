@@ -5,10 +5,10 @@ use core::slice;
 
 use serde::{Deserialize, Serialize};
 
-use crate::hash::hash_types::RichField;
-use crate::hash::merkle_proofs::MerkleProof;
-use crate::plonk::config::{GenericHashOut, Hasher};
-use crate::util::log2_strict;
+use crate::config::{GenericHashOut, Hasher};
+use crate::hash_types::RichField;
+use crate::merkle_proofs::MerkleProof;
+use plonky2_util::log2_strict;
 
 /// The Merkle cap of height `h` of a Merkle tree is the `h`-th layer (from the root) of the tree.
 /// It can be used in place of the root to verify Merkle paths, which are `h` elements shorter.
@@ -70,7 +70,7 @@ impl<F: RichField, H: Hasher<F>> Default for MerkleTree<F, H> {
     }
 }
 
-pub(crate) fn capacity_up_to_mut<T>(v: &mut Vec<T>, len: usize) -> &mut [MaybeUninit<T>] {
+pub fn capacity_up_to_mut<T>(v: &mut Vec<T>, len: usize) -> &mut [MaybeUninit<T>] {
     assert!(v.capacity() >= len);
     let v_ptr = v.as_mut_ptr().cast::<MaybeUninit<T>>();
     unsafe {
@@ -82,7 +82,7 @@ pub(crate) fn capacity_up_to_mut<T>(v: &mut Vec<T>, len: usize) -> &mut [MaybeUn
     }
 }
 
-pub(crate) fn fill_subtree<F: RichField, H: Hasher<F>>(
+pub fn fill_subtree<F: RichField, H: Hasher<F>>(
     digests_buf: &mut [MaybeUninit<H::Hash>],
     leaves: &[Vec<F>],
 ) -> H::Hash {
@@ -109,7 +109,7 @@ pub(crate) fn fill_subtree<F: RichField, H: Hasher<F>>(
     }
 }
 
-pub(crate) fn fill_digests_buf<F: RichField, H: Hasher<F>>(
+pub fn fill_digests_buf<F: RichField, H: Hasher<F>>(
     digests_buf: &mut [MaybeUninit<H::Hash>],
     cap_buf: &mut [MaybeUninit<H::Hash>],
     leaves: &[Vec<F>],
@@ -142,7 +142,7 @@ pub(crate) fn fill_digests_buf<F: RichField, H: Hasher<F>>(
     );
 }
 
-pub(crate) fn merkle_tree_prove<F: RichField, H: Hasher<F>>(
+pub fn merkle_tree_prove<F: RichField, H: Hasher<F>>(
     leaf_index: usize,
     leaves_len: usize,
     cap_height: usize,
@@ -238,10 +238,10 @@ pub(crate) mod tests {
     use rand::{Rng, SeedableRng};
 
     use super::*;
+    use crate::config::{GenericConfig, PoseidonGoldilocksConfig};
     use crate::field::extension::Extendable;
     use crate::field::types::Field;
-    use crate::hash::merkle_proofs::verify_merkle_proof_to_cap;
-    use crate::plonk::config::{GenericConfig, PoseidonGoldilocksConfig};
+    use crate::merkle_proofs::verify_merkle_proof_to_cap;
 
     pub(crate) fn random_data<F: Field>(n: usize, k: usize) -> Vec<Vec<F>> {
         let mut rng = SmallRng::seed_from_u64(42);

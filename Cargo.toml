@@ -1,6 +1,6 @@
 [workspace]
-members = ["field", "maybe_rayon", "plonky2", "starky", "util", "verifier"]
-default-members = ["field", "maybe_rayon", "plonky2", "starky", "util", "verifier"]
+members = ["core", "field", "maybe_rayon", "plonky2", "starky", "util", "verifier"]
+default-members = ["core", "field", "maybe_rayon", "plonky2", "starky", "util", "verifier"]
 resolver = "2"
 
 [workspace.dependencies]

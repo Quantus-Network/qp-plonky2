@@ -6,7 +6,7 @@ use alloc::vec::Vec;
 use core::fmt::Debug;
 
 use crate::field::types::Field;
-use crate::hash::hash_types::{HashOut, RichField, NUM_HASH_OUT_ELTS};
+use crate::hash_types::{HashOut, RichField, NUM_HASH_OUT_ELTS};
 
 /// Permutation that can be used in the sponge construction for an algebraic hash.
 pub trait PlonkyPermutation<T: Copy + Default>:

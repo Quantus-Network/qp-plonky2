@@ -5,11 +5,11 @@ use hashbrown::HashSet;
 
 use crate::field::extension::Extendable;
 use crate::field::polynomial::PolynomialCoeffs;
+use crate::fri::challenges::ChallengerFriExt;
 use crate::fri::proof::{CompressedFriProof, FriChallenges, FriProof};
 use crate::fri::verifier::{compute_evaluation, fri_combine_initial, PrecomputedReducedOpenings};
 use crate::hash::hash_types::RichField;
 use crate::hash::merkle_tree::MerkleCap;
-use crate::iop::challenger::Challenger;
 use crate::plonk::circuit_data::CommonCircuitData;
 use crate::plonk::config::{GenericConfig, Hasher};
 use crate::plonk::proof::{
@@ -17,6 +17,7 @@ use crate::plonk::proof::{
     ProofChallenges, ProofWithPublicInputs,
 };
 use crate::util::reverse_bits;
+use qp_plonky2_core::Challenger;
 
 fn get_challenges<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>(
     public_inputs_hash: <<C as GenericConfig<D>>::InnerHasher as Hasher<F>>::Hash,

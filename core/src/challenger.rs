@@ -1,11 +1,11 @@
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
 
+use crate::config::{GenericHashOut, Hasher};
 use crate::field::extension::{Extendable, FieldExtension};
-use crate::hash::hash_types::{HashOut, RichField};
-use crate::hash::hashing::PlonkyPermutation;
-use crate::hash::merkle_tree::MerkleCap;
-use crate::plonk::config::{GenericHashOut, Hasher};
+use crate::hash_types::{HashOut, RichField};
+use crate::hashing::PlonkyPermutation;
+use crate::merkle_tree::MerkleCap;
 
 /// Observes prover messages, and generates challenges by hashing the transcript, a la Fiat-Shamir.
 #[derive(Clone, Debug)]
@@ -162,9 +162,9 @@ mod tests {
     use rand::rngs::SmallRng;
     use rand::{Rng, SeedableRng};
 
+    use crate::challenger::Challenger;
+    use crate::config::{GenericConfig, PoseidonGoldilocksConfig};
     use crate::field::types::Field;
-    use crate::iop::challenger::Challenger;
-    use crate::plonk::config::{GenericConfig, PoseidonGoldilocksConfig};
 
     #[test]
     fn no_duplicate_challenges() {

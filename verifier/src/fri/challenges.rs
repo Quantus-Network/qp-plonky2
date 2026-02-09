@@ -10,12 +10,32 @@ use crate::fri::FriConfig;
 
 use crate::hash::hash_types::{RichField, NUM_HASH_OUT_ELTS};
 use crate::hash::merkle_tree::MerkleCap;
-use crate::iop::challenger::Challenger;
+use qp_plonky2_core::Challenger;
 
 use crate::plonk::config::{GenericConfig, Hasher};
 
-impl<F: RichField, H: Hasher<F>> Challenger<F, H> {
-    pub fn observe_openings<const D: usize>(&mut self, openings: &FriOpenings<F, D>)
+/// Extension trait for Challenger with FRI-specific methods
+pub trait ChallengerFriExt<F: RichField, H: Hasher<F>> {
+    fn observe_openings<const D: usize>(&mut self, openings: &FriOpenings<F, D>)
+    where
+        F: RichField + Extendable<D>;
+
+    fn fri_challenges<C: GenericConfig<D, F = F>, const D: usize>(
+        &mut self,
+        commit_phase_merkle_caps: &[MerkleCap<F, C::Hasher>],
+        final_poly: &PolynomialCoeffs<F::Extension>,
+        pow_witness: F,
+        degree_bits: usize,
+        config: &FriConfig,
+        final_poly_coeff_len: Option<usize>,
+        max_num_query_steps: Option<usize>,
+    ) -> FriChallenges<F, D>
+    where
+        F: RichField + Extendable<D>;
+}
+
+impl<F: RichField, H: Hasher<F>> ChallengerFriExt<F, H> for Challenger<F, H> {
+    fn observe_openings<const D: usize>(&mut self, openings: &FriOpenings<F, D>)
     where
         F: RichField + Extendable<D>,
     {
@@ -24,7 +44,7 @@ impl<F: RichField, H: Hasher<F>> Challenger<F, H> {
         }
     }
 
-    pub fn fri_challenges<C: GenericConfig<D, F = F>, const D: usize>(
+    fn fri_challenges<C: GenericConfig<D, F = F>, const D: usize>(
         &mut self,
         commit_phase_merkle_caps: &[MerkleCap<F, C::Hasher>],
         final_poly: &PolynomialCoeffs<F::Extension>,

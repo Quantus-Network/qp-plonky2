@@ -5,10 +5,9 @@ use core::mem::size_of;
 use itertools::Itertools;
 use keccak_hash::keccak;
 
-use crate::hash::hash_types::{BytesHash, RichField};
-use crate::hash::hashing::PlonkyPermutation;
-use crate::plonk::config::Hasher;
-use crate::util::serialization::Write;
+use crate::config::Hasher;
+use crate::hash_types::{BytesHash, RichField};
+use crate::hashing::PlonkyPermutation;
 
 pub const SPONGE_RATE: usize = 8;
 pub const SPONGE_CAPACITY: usize = 4;
@@ -107,8 +106,11 @@ impl<F: RichField, const N: usize> Hasher<F> for KeccakHash<N> {
     type Permutation = KeccakPermutation<F>;
 
     fn hash_no_pad(input: &[F]) -> Self::Hash {
-        let mut buffer = Vec::with_capacity(input.len());
-        buffer.write_field_vec(input).unwrap();
+        // Serialize field elements to bytes
+        let mut buffer = Vec::with_capacity(input.len() * 8);
+        for f in input {
+            buffer.extend_from_slice(&f.to_canonical_u64().to_le_bytes());
+        }
         let mut arr = [0; N];
         let hash_bytes = keccak(buffer).0;
         arr.copy_from_slice(&hash_bytes[..N]);

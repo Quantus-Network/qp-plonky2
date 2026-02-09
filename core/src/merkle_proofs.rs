@@ -4,9 +4,9 @@ use alloc::{vec, vec::Vec};
 use anyhow::{ensure, Result};
 use serde::{Deserialize, Serialize};
 
-use crate::hash::hash_types::RichField;
-use crate::hash::merkle_tree::MerkleCap;
-use crate::plonk::config::{GenericHashOut, Hasher};
+use crate::config::{GenericHashOut, Hasher};
+use crate::hash_types::RichField;
+use crate::merkle_tree::MerkleCap;
 
 #[derive(Clone, Debug, Serialize, Deserialize, Eq, PartialEq)]
 #[serde(bound = "")]

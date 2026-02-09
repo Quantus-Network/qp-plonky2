@@ -9,10 +9,10 @@ use serde::Serialize;
 
 use crate::fri::reduction_strategies::FriReductionStrategy;
 use crate::hash::hash_types::RichField;
-use crate::iop::challenger::Challenger;
 use crate::plonk::config::Hasher;
+use qp_plonky2_core::Challenger;
 
-mod challenges;
+pub mod challenges;
 pub mod proof;
 pub mod reduction_strategies;
 pub mod structure;

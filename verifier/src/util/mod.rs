@@ -3,9 +3,11 @@
 #[doc(inline)]
 pub use plonky2_util::*;
 
-pub mod reducing;
 pub mod serialization;
-pub mod strided_view;
+
+// Re-export reducing and strided_view from core
+pub use qp_plonky2_core::reducing;
+pub use qp_plonky2_core::strided_view;
 
 pub(crate) const fn reverse_bits(n: usize, num_bits: usize) -> usize {
     // NB: The only reason we need overflowing_shr() here as opposed
