@@ -26,19 +26,19 @@ pub trait Sample: Sized {
     where
         R: rand::RngCore + ?Sized;
 
-    /// Samples a single value using the [`OsRng`].
+    /// Samples a single value using the [`rand::rngs::OsRng`].
     #[inline]
     fn rand() -> Self {
         Self::sample(&mut rand::rngs::OsRng)
     }
 
-    /// Samples a [`Vec`] of values of length `n` using [`OsRng`].
+    /// Samples a [`Vec`] of values of length `n` using [`rand::rngs::OsRng`].
     #[inline]
     fn rand_vec(n: usize) -> Vec<Self> {
         (0..n).map(|_| Self::rand()).collect()
     }
 
-    /// Samples an array of values of length `N` using [`OsRng`].
+    /// Samples an array of values of length `N` using [`rand::rngs::OsRng`].
     #[inline]
     fn rand_array<const N: usize>() -> [Self; N] {
         Self::rand_vec(N)

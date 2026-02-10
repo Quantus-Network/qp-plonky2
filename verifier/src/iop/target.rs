@@ -15,7 +15,7 @@ use crate::plonk::circuit_data::CircuitConfig;
 ///
 /// When generating a proof for a given circuit, the prover will "set" the values of some
 /// (or all) targets, so that they satisfy the circuit constraints.  This is done through
-/// the [PartialWitness](crate::iop::witness::PartialWitness) interface.
+/// the `PartialWitness` interface (in the prover crate).
 ///
 /// There are different "variants" of the `Target` type, namely [`ExtensionTarget`],
 /// [ExtensionAlgebraTarget](crate::iop::ext_target::ExtensionAlgebraTarget).
