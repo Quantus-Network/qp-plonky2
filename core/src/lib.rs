@@ -27,6 +27,7 @@ pub mod iop;
 pub mod keccak;
 pub mod merkle_proofs;
 pub mod merkle_tree;
+pub mod plonk;
 pub mod plonk_common;
 pub mod poseidon;
 pub mod poseidon_crandall;
@@ -69,8 +70,8 @@ pub use selectors::{LookupSelectors, SelectorsInfo, UNUSED_SELECTOR};
 
 // IOP types
 pub use iop::{
-    flatten_target, unflatten_target, BoolTarget, ExtensionAlgebraTarget, ExtensionTarget, Target,
-    Wire,
+    flatten_target, unflatten_target, BoolTarget, ExtensionAlgebraTarget, ExtensionTarget,
+    HashOutTarget, MerkleCapTarget, Target, Wire,
 };
 
 /// The extension degree for the field extension (D=2 provides 100-bits of security)

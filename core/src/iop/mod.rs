@@ -4,9 +4,11 @@
 //! circuit witness locations.
 
 pub mod ext_target;
+pub mod hash_target;
 pub mod target;
 pub mod wire;
 
 pub use ext_target::{flatten_target, unflatten_target, ExtensionAlgebraTarget, ExtensionTarget};
+pub use hash_target::{HashOutTarget, MerkleCapTarget};
 pub use target::{BoolTarget, Target};
 pub use wire::Wire;
