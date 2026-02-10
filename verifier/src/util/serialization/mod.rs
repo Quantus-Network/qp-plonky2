@@ -17,16 +17,9 @@ use hashbrown::HashMap;
 use crate::field::extension::{Extendable, FieldExtension};
 use crate::field::polynomial::PolynomialCoeffs;
 use crate::field::types::{Field64, PrimeField64};
-use crate::fri::proof::{
-    CompressedFriProof, CompressedFriQueryRounds, FriInitialTreeProof, FriProof, FriQueryRound,
-    FriQueryStep,
-};
-use crate::fri::{FriConfig, FriParams, FriReductionStrategy};
 use crate::gates::gate::GateRef;
 use crate::gates::selectors::SelectorsInfo;
 use crate::hash::hash_types::RichField;
-use crate::hash::merkle_proofs::MerkleProof;
-use crate::hash::merkle_tree::MerkleCap;
 use crate::plonk::circuit_data::{
     CircuitConfig, CommonCircuitData, VerifierCircuitData, VerifierOnlyCircuitData,
 };
@@ -35,6 +28,13 @@ use crate::plonk::plonk_common::salt_size;
 use crate::plonk::proof::{
     CompressedProof, CompressedProofWithPublicInputs, OpeningSet, Proof, ProofWithPublicInputs,
 };
+use qp_plonky2_core::fri_proof::{
+    CompressedFriProof, CompressedFriQueryRounds, FriInitialTreeProof, FriProof, FriQueryRound,
+    FriQueryStep,
+};
+use qp_plonky2_core::merkle_proofs::MerkleProof;
+use qp_plonky2_core::merkle_tree::MerkleCap;
+use qp_plonky2_core::{FriConfig, FriParams, FriReductionStrategy};
 
 /// A no_std compatible variant of `std::io::Error`
 #[derive(Debug)]

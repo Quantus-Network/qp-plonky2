@@ -16,8 +16,8 @@ mod tests {
 
     use super::*;
     use crate::field::types::Sample;
-    use crate::hash::merkle_tree::MerkleTree;
     use crate::plonk::config::{GenericConfig, PoseidonGoldilocksConfig};
+    use qp_plonky2_core::merkle_tree::MerkleTree;
 
     #[test]
     fn test_path_compression() {

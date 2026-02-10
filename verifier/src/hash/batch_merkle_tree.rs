@@ -6,12 +6,12 @@ use alloc::vec::Vec;
 use itertools::Itertools;
 
 use crate::hash::hash_types::{RichField, NUM_HASH_OUT_ELTS};
-use crate::hash::merkle_proofs::MerkleProof;
-use crate::hash::merkle_tree::{
-    capacity_up_to_mut, fill_digests_buf, merkle_tree_prove, MerkleCap,
-};
 use crate::plonk::config::{GenericHashOut, Hasher};
 use crate::util::log2_strict;
+use qp_plonky2_core::merkle_proofs::MerkleProof;
+use qp_plonky2_core::merkle_tree::{
+    capacity_up_to_mut, fill_digests_buf, merkle_tree_prove, MerkleCap,
+};
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct BatchMerkleTree<F: RichField, H: Hasher<F>> {
@@ -176,8 +176,8 @@ mod tests {
     use rand::SeedableRng;
 
     use super::*;
-    use crate::hash::merkle_proofs::verify_batch_merkle_proof_to_cap;
     use crate::plonk::config::{GenericConfig, PoseidonGoldilocksConfig};
+    use qp_plonky2_core::merkle_proofs::verify_batch_merkle_proof_to_cap;
 
     const D: usize = 2;
     type C = PoseidonGoldilocksConfig;

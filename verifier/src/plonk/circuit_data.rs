@@ -12,17 +12,17 @@ use serde::Serialize;
 use crate::field::extension::Extendable;
 use crate::field::types::Field;
 use crate::fri::structure::{FriBatchInfo, FriInstanceInfo, FriOracleInfo, FriPolynomialInfo};
-use crate::fri::FriParams;
 use crate::gates::gate::GateRef;
 use crate::gates::lookup_table::LookupTable;
 use crate::gates::selectors::SelectorsInfo;
 use crate::hash::hash_types::RichField;
-use crate::hash::merkle_tree::MerkleCap;
 use crate::plonk::config::{GenericConfig, Hasher};
 use crate::plonk::plonk_common::PlonkOracle;
 use crate::plonk::proof::{CompressedProofWithPublicInputs, ProofWithPublicInputs};
 use crate::plonk::verifier::verify;
 use crate::util::serialization::{Buffer, GateSerializer, IoResult, Read, Write};
+use qp_plonky2_core::merkle_tree::MerkleCap;
+use qp_plonky2_core::FriParams;
 
 // Re-export CircuitConfig from core
 pub use qp_plonky2_core::CircuitConfig;

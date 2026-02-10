@@ -7,11 +7,11 @@ use crate::field::types::Field;
 use crate::gates::gate::VerificationGate;
 use crate::gates::util::StridedConstraintConsumer;
 use crate::hash::hash_types::RichField;
-use crate::hash::poseidon;
-use crate::hash::poseidon::{Poseidon, SPONGE_WIDTH};
 use crate::plonk::circuit_data::CommonCircuitData;
 use crate::plonk::vars::{EvaluationVars, EvaluationVarsBase};
 use crate::util::serialization::{Buffer, IoResult};
+use qp_plonky2_core::poseidon;
+use qp_plonky2_core::poseidon::{Poseidon, SPONGE_WIDTH};
 
 /// Evaluates a full Poseidon permutation with 12 state elements.
 ///

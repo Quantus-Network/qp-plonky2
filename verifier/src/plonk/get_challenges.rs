@@ -5,12 +5,7 @@ use hashbrown::HashSet;
 
 use crate::field::extension::Extendable;
 use crate::field::polynomial::PolynomialCoeffs;
-use crate::fri::proof::{CompressedFriProof, FriChallenges, FriProof};
-use crate::fri::verifier::{compute_evaluation, fri_combine_initial, PrecomputedReducedOpenings};
-use crate::fri::FriChallenger;
-use crate::fri::FriParamsObserve;
 use crate::hash::hash_types::RichField;
-use crate::hash::merkle_tree::MerkleCap;
 use crate::plonk::circuit_data::CommonCircuitData;
 use crate::plonk::config::{GenericConfig, Hasher};
 use crate::plonk::proof::{
@@ -18,7 +13,13 @@ use crate::plonk::proof::{
     ProofChallenges, ProofWithPublicInputs,
 };
 use crate::util::reverse_bits;
+use qp_plonky2_core::fri_proof::{CompressedFriProof, FriProof};
+use qp_plonky2_core::fri_verifier::{
+    compute_evaluation, fri_combine_initial, PrecomputedReducedOpenings,
+};
+use qp_plonky2_core::merkle_tree::MerkleCap;
 use qp_plonky2_core::Challenger;
+use qp_plonky2_core::{FriChallenger, FriChallenges, FriParamsObserve};
 
 fn get_challenges<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>(
     public_inputs_hash: <<C as GenericConfig<D>>::InnerHasher as Hasher<F>>::Hash,

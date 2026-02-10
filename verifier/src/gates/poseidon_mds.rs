@@ -9,10 +9,10 @@ use crate::field::types::Field;
 use crate::gates::gate::VerificationGate;
 use crate::gates::util::StridedConstraintConsumer;
 use crate::hash::hash_types::RichField;
-use crate::hash::poseidon::{Poseidon, SPONGE_WIDTH};
 use crate::plonk::circuit_data::CommonCircuitData;
 use crate::plonk::vars::{EvaluationVars, EvaluationVarsBase};
 use crate::util::serialization::{Buffer, IoResult};
+use qp_plonky2_core::poseidon::{Poseidon, SPONGE_WIDTH};
 
 /// Poseidon MDS Gate
 #[derive(Debug, Default)]

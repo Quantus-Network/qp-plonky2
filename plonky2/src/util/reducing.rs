@@ -4,7 +4,7 @@
 //! `ReducingFactorTarget` (circuit-specific) is defined locally.
 
 #[cfg(not(feature = "std"))]
-use alloc::vec::Vec;
+use alloc::{vec, vec::Vec};
 
 use crate::field::extension::Extendable;
 use crate::gates::arithmetic_extension::ArithmeticExtensionGate;

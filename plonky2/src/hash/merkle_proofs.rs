@@ -4,7 +4,7 @@
 //! Circuit-specific types and CircuitBuilder methods are defined locally.
 
 #[cfg(not(feature = "std"))]
-use alloc::vec::Vec;
+use alloc::{vec, vec::Vec};
 use core::ops::RangeInclusive;
 
 use itertools::Itertools;

@@ -11,15 +11,15 @@ use anyhow::ensure;
 use serde::{Deserialize, Serialize};
 
 use crate::field::extension::Extendable;
-use crate::fri::proof::{CompressedFriProof, FriProof};
 use crate::fri::structure::{FriOpeningBatch, FriOpenings};
-use crate::fri::FriParams;
 use crate::hash::hash_types::RichField;
-use crate::hash::merkle_tree::MerkleCap;
 use crate::plonk::circuit_data::{CommonCircuitData, VerifierOnlyCircuitData};
 use crate::plonk::config::{GenericConfig, Hasher};
 use crate::plonk::verifier::verify_with_challenges;
 use crate::util::serialization::{Buffer, Read, Write};
+use qp_plonky2_core::fri_proof::{CompressedFriProof, FriProof};
+use qp_plonky2_core::merkle_tree::MerkleCap;
+use qp_plonky2_core::FriParams;
 
 #[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
 #[serde(bound = "")]

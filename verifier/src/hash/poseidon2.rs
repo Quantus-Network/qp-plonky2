@@ -15,8 +15,8 @@ use qp_poseidon_constants::create_poseidon;
 
 use crate::field::types::{Field, PrimeField64};
 use crate::hash::hash_types::{HashOut, RichField, NUM_HASH_OUT_ELTS};
-use crate::hash::hashing::{hash_n_to_hash_no_pad_p2, PlonkyPermutation};
 use crate::plonk::config::Hasher;
+use qp_plonky2_core::hashing::{hash_n_to_hash_no_pad_p2, PlonkyPermutation};
 
 // ---------- Params (match your Poseidon2Core exactly) ----------
 const SPONGE_WIDTH: usize = 12;
