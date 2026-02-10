@@ -137,7 +137,7 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2Params<F, D> {
 }
 
 #[inline(always)]
-fn apply_mat4<F: Field>(a: F, x: F, c: F, d: F) -> [F; 4] {
+fn apply_mat4_base<F: Field>(a: F, x: F, c: F, d: F) -> [F; 4] {
     let two = F::from_canonical_u64(2);
     let three = F::from_canonical_u64(3);
     let y0 = a * two + x * three + c + d;
@@ -148,10 +148,10 @@ fn apply_mat4<F: Field>(a: F, x: F, c: F, d: F) -> [F; 4] {
 }
 
 #[inline(always)]
-fn mds_light<F: Field>(s: &mut [F; P2_WIDTH]) {
+fn mds_light_base<F: Field>(s: &mut [F; P2_WIDTH]) {
     // 1) 4×4 per block
     for k in (0..P2_WIDTH).step_by(4) {
-        let [y0, y1, y2, y3] = apply_mat4(s[k], s[k + 1], s[k + 2], s[k + 3]);
+        let [y0, y1, y2, y3] = apply_mat4_base(s[k], s[k + 1], s[k + 2], s[k + 3]);
         s[k] = y0;
         s[k + 1] = y1;
         s[k + 2] = y2;
@@ -271,7 +271,7 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for Po
         let mut state: [F::Extension; P2_WIDTH] = core::array::from_fn(|i| lw[Self::wire_input(i)]);
 
         // 1) initial preamble (light MDS)
-        mds_light::<F::Extension>(&mut state);
+        mds_light_base::<F::Extension>(&mut state);
 
         let ext_init = &self.params.ext_init;
         let ext_term = &self.params.ext_term;
@@ -297,7 +297,7 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for Po
                 state[i] = sbox7(state[i]);
             }
             // light MDS
-            mds_light::<F::Extension>(&mut state);
+            mds_light_base::<F::Extension>(&mut state);
             ext_round_idx += 1;
         }
 
@@ -339,7 +339,7 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for Po
             for i in 0..P2_WIDTH {
                 state[i] = sbox7(state[i]);
             }
-            mds_light::<F::Extension>(&mut state);
+            mds_light_base::<F::Extension>(&mut state);
             ext_round_idx += 1;
         }
 
