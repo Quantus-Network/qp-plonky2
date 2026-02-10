@@ -45,7 +45,8 @@ pub mod util;
 
 // Re-export commonly used types at crate root
 pub use plonk::circuit_data::{
-    CircuitConfig, CommonCircuitData, VerifierCircuitData, VerifierOnlyCircuitData,
+    CircuitConfig, CommonCircuitData, CommonVerifierData, VerifierCircuitData,
+    VerifierOnlyCircuitData,
 };
 pub use plonk::config::{GenericConfig, GenericHashOut, Hasher, PoseidonGoldilocksConfig};
 pub use plonk::proof::{CompressedProofWithPublicInputs, Proof, ProofWithPublicInputs};

@@ -2,7 +2,7 @@
 use alloc::{string::String, vec::Vec};
 
 use crate::field::extension::Extendable;
-use crate::gates::gate::Gate;
+use crate::gates::gate::VerificationGate;
 use crate::hash::hash_types::RichField;
 use crate::plonk::circuit_data::CommonCircuitData;
 use crate::plonk::vars::{EvaluationVars, EvaluationVarsBaseBatch};
@@ -12,7 +12,7 @@ use crate::util::serialization::{Buffer, IoResult};
 #[derive(Debug)]
 pub struct NoopGate;
 
-impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for NoopGate {
+impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for NoopGate {
     fn id(&self) -> String {
         "NoopGate".into()
     }

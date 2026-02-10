@@ -7,7 +7,7 @@ use crate::field::extension::algebra::ExtensionAlgebra;
 use crate::field::extension::{Extendable, FieldExtension, OEF};
 use crate::field::interpolation::barycentric_weights;
 use crate::field::types::Field;
-use crate::gates::gate::Gate;
+use crate::gates::gate::VerificationGate;
 use crate::gates::util::StridedConstraintConsumer;
 use crate::hash::hash_types::RichField;
 use crate::plonk::circuit_data::CommonCircuitData;
@@ -160,7 +160,9 @@ impl<F: RichField + Extendable<D>, const D: usize> CosetInterpolationGate<F, D> 
     }
 }
 
-impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for CosetInterpolationGate<F, D> {
+impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D>
+    for CosetInterpolationGate<F, D>
+{
     fn id(&self) -> String {
         format!("{self:?}<D={D}>")
     }

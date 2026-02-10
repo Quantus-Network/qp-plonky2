@@ -20,6 +20,7 @@ pub mod challenger;
 pub mod circuit_config;
 pub mod config;
 pub mod fri;
+pub mod fri_structure;
 pub mod hash_types;
 pub mod hashing;
 pub mod keccak;
@@ -52,7 +53,11 @@ pub use poseidon::{
 
 // Circuit and FRI configuration types
 pub use circuit_config::CircuitConfig;
-pub use fri::{FriConfig, FriParams, FriReductionStrategy};
+pub use fri::{FriChallenger, FriConfig, FriParams, FriReductionStrategy};
+pub use fri_structure::{
+    FriBatchInfo, FriChallenges, FriInstanceInfo, FriOpeningBatch, FriOpenings, FriOracleInfo,
+    FriPolynomialInfo,
+};
 pub use plonk_common::{
     eval_l_0, eval_zero_poly, reduce_with_powers, reduce_with_powers_multi, salt_size, PlonkOracle,
     SALT_SIZE,

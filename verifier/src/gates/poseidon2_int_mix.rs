@@ -1,7 +1,7 @@
 use crate::field::extension::algebra::ExtensionAlgebra;
 use crate::field::extension::{Extendable, FieldExtension};
 use crate::field::types::Field;
-use crate::gates::gate::Gate;
+use crate::gates::gate::VerificationGate;
 use crate::gates::util::StridedConstraintConsumer;
 use crate::hash::hash_types::RichField;
 use crate::plonk::circuit_data::CommonCircuitData;
@@ -90,7 +90,9 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2IntMixGate<F, D> {
     }
 }
 
-impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for Poseidon2IntMixGate<F, D> {
+impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D>
+    for Poseidon2IntMixGate<F, D>
+{
     fn id(&self) -> String {
         format!("{self:?}<WIDTH={P2_WIDTH}>")
     }

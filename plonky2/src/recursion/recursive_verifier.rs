@@ -208,8 +208,7 @@ mod tests {
     use log::{info, Level};
 
     use super::*;
-    use crate::fri::reduction_strategies::FriReductionStrategy;
-    use crate::fri::FriConfig;
+    use crate::fri::{FriConfig, FriReductionStrategy};
     use crate::gadgets::lookup::{OTHER_TABLE, TIP5_TABLE};
     use crate::gates::lookup_table::LookupTable;
     use crate::gates::noop::NoopGate;

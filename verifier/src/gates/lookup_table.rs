@@ -8,7 +8,7 @@ use keccak_hash::keccak;
 
 use crate::field::extension::Extendable;
 use crate::field::packed::PackedField;
-use crate::gates::gate::Gate;
+use crate::gates::gate::VerificationGate;
 use crate::gates::packed_util::PackedEvaluableBase;
 use crate::gates::util::StridedConstraintConsumer;
 use crate::hash::hash_types::RichField;
@@ -69,7 +69,7 @@ impl LookupTableGate {
     }
 }
 
-impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for LookupTableGate {
+impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for LookupTableGate {
     fn id(&self) -> String {
         // Custom implementation to not have the entire lookup table
         format!(

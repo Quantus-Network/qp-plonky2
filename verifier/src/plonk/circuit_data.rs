@@ -35,7 +35,7 @@ pub struct VerifierCircuitData<
     const D: usize,
 > {
     pub verifier_only: VerifierOnlyCircuitData<C, D>,
-    pub common: CommonCircuitData<F, D>,
+    pub common: CommonVerifierData<F, D>,
 }
 
 impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
@@ -90,9 +90,13 @@ impl<C: GenericConfig<D>, const D: usize> VerifierOnlyCircuitData<C, D> {
     }
 }
 
-/// Circuit data required by both the prover and the verifier (common data).
+/// Verification-specific circuit data.
+///
+/// This contains the data needed for proof verification. It is a lighter
+/// version of the prover's `CommonCircuitData`, containing only what the
+/// verifier needs.
 #[derive(Debug, Clone, Eq, PartialEq, Serialize)]
-pub struct CommonCircuitData<F: RichField + Extendable<D>, const D: usize> {
+pub struct CommonVerifierData<F: RichField + Extendable<D>, const D: usize> {
     pub config: CircuitConfig,
 
     pub fri_params: FriParams,
@@ -130,7 +134,7 @@ pub struct CommonCircuitData<F: RichField + Extendable<D>, const D: usize> {
     pub luts: Vec<LookupTable>,
 }
 
-impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
+impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
     pub fn to_bytes(&self, gate_serializer: &dyn GateSerializer<F, D>) -> IoResult<Vec<u8>> {
         let mut buffer = Vec::new();
         buffer.write_common_circuit_data(self, gate_serializer)?;
@@ -314,3 +318,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
         .concat()
     }
 }
+
+/// Type alias for backward compatibility.
+pub type CommonCircuitData<F, const D: usize> = CommonVerifierData<F, D>;

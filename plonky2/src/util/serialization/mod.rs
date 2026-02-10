@@ -27,8 +27,7 @@ use crate::fri::proof::{
     CompressedFriProof, CompressedFriQueryRounds, FriInitialTreeProof, FriInitialTreeProofTarget,
     FriProof, FriProofTarget, FriQueryRound, FriQueryRoundTarget, FriQueryStep, FriQueryStepTarget,
 };
-use crate::fri::reduction_strategies::FriReductionStrategy;
-use crate::fri::{FriConfig, FriParams};
+use crate::fri::{FriConfig, FriParams, FriReductionStrategy};
 use crate::gadgets::polynomial::PolynomialCoeffsExtTarget;
 use crate::gates::gate::GateRef;
 use crate::gates::lookup::Lookup;

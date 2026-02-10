@@ -5,9 +5,10 @@ use hashbrown::HashSet;
 
 use crate::field::extension::Extendable;
 use crate::field::polynomial::PolynomialCoeffs;
-use crate::fri::challenges::ChallengerFriExt;
 use crate::fri::proof::{CompressedFriProof, FriChallenges, FriProof};
 use crate::fri::verifier::{compute_evaluation, fri_combine_initial, PrecomputedReducedOpenings};
+use crate::fri::FriChallenger;
+use crate::fri::FriParamsObserve;
 use crate::hash::hash_types::RichField;
 use crate::hash::merkle_tree::MerkleCap;
 use crate::plonk::circuit_data::CommonCircuitData;

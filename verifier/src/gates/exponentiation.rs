@@ -6,7 +6,7 @@ use crate::field::extension::Extendable;
 use crate::field::ops::Square;
 use crate::field::packed::PackedField;
 use crate::field::types::Field;
-use crate::gates::gate::Gate;
+use crate::gates::gate::VerificationGate;
 use crate::gates::packed_util::PackedEvaluableBase;
 use crate::gates::util::StridedConstraintConsumer;
 use crate::hash::hash_types::RichField;
@@ -63,7 +63,9 @@ impl<F: RichField + Extendable<D>, const D: usize> ExponentiationGate<F, D> {
     }
 }
 
-impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for ExponentiationGate<F, D> {
+impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D>
+    for ExponentiationGate<F, D>
+{
     fn id(&self) -> String {
         format!("{self:?}<D={D}>")
     }

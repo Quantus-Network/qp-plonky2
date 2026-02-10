@@ -1,4 +1,4 @@
-//! A module to help with GateRef serialization
+//! A module to help with VerificationGateRef serialization
 
 #[cfg(not(feature = "std"))]
 pub use alloc::vec::Vec;
@@ -34,8 +34,8 @@ macro_rules! read_gate_impl {
         let buf = $buf;
         let mut i = 0..;
         $(if tag == i.next().unwrap() {
-            let gate = <$gate_types as $crate::gates::gate::Gate<F, D>>::deserialize(buf, $common)?;
-            Ok($crate::gates::gate::GateRef::<F, D>::new(gate))
+            let gate = <$gate_types as $crate::gates::gate::VerificationGate<F, D>>::deserialize(buf, $common)?;
+            Ok($crate::gates::gate::VerificationGateRef::<F, D>::new(gate))
         } else)*
         {
             Err($crate::util::serialization::IoError)
@@ -73,7 +73,7 @@ macro_rules! impl_gate_serializer {
             &self,
             buf: &mut $crate::util::serialization::Buffer,
             common: &$crate::plonk::circuit_data::CommonCircuitData<F, D>,
-        ) -> $crate::util::serialization::IoResult<$crate::gates::gate::GateRef<F, D>> {
+        ) -> $crate::util::serialization::IoResult<$crate::gates::gate::VerificationGateRef<F, D>> {
             let tag = $crate::util::serialization::Read::read_u32(buf)?;
             read_gate_impl!(buf, tag, common, $($gate_types),+)
         }
@@ -81,7 +81,7 @@ macro_rules! impl_gate_serializer {
         fn write_gate(
             &self,
             buf: &mut $crate::util::serialization::gate_serialization::Vec<u8>,
-            gate: &$crate::gates::gate::GateRef<F, D>,
+            gate: &$crate::gates::gate::VerificationGateRef<F, D>,
             common: &$crate::plonk::circuit_data::CommonCircuitData<F, D>,
         ) -> $crate::util::serialization::IoResult<()> {
             let tag = get_gate_tag_impl!(gate, $($gate_types),+)?;

@@ -3,7 +3,7 @@ use alloc::{format, string::String, vec::Vec};
 use core::ops::Range;
 
 use crate::field::extension::{Extendable, FieldExtension};
-use crate::gates::gate::Gate;
+use crate::gates::gate::VerificationGate;
 use crate::gates::util::StridedConstraintConsumer;
 use crate::hash::hash_types::RichField;
 use crate::plonk::circuit_data::CommonCircuitData;
@@ -50,7 +50,7 @@ impl<const D: usize> ReducingGate<D> {
     }
 }
 
-impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for ReducingGate<D> {
+impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for ReducingGate<D> {
     fn id(&self) -> String {
         format!("{self:?}")
     }
@@ -79,7 +79,8 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for ReducingGate<D
             .map(|i| vars.get_local_ext_algebra(self.wires_accs(i)))
             .collect::<Vec<_>>();
 
-        let mut constraints = Vec::with_capacity(<Self as Gate<F, D>>::num_constraints(self));
+        let mut constraints =
+            Vec::with_capacity(<Self as VerificationGate<F, D>>::num_constraints(self));
         let mut acc = old_acc;
         for i in 0..self.num_coeffs {
             constraints.push(acc * alpha + coeffs[i].into() - accs[i]);

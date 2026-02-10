@@ -146,6 +146,18 @@ impl<F: RichField, H: Hasher<F>> Challenger<F, H> {
         self.output_buffer.clear();
         self.sponge_state
     }
+
+    /// Returns a copy of the current sponge state.
+    /// This is useful for proof-of-work calculations in the prover.
+    pub fn sponge_state(&self) -> H::Permutation {
+        self.sponge_state
+    }
+
+    /// Returns the current input buffer.
+    /// This is useful for proof-of-work calculations in the prover.
+    pub fn input_buffer(&self) -> &[F] {
+        &self.input_buffer
+    }
 }
 
 impl<F: RichField, H: Hasher<F>> Default for Challenger<F, H> {

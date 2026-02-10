@@ -3,7 +3,7 @@ use alloc::{format, string::String, vec::Vec};
 use core::ops::Range;
 
 use crate::field::extension::{Extendable, FieldExtension};
-use crate::gates::gate::Gate;
+use crate::gates::gate::VerificationGate;
 use crate::gates::util::StridedConstraintConsumer;
 use crate::hash::hash_types::RichField;
 use crate::plonk::circuit_data::{CircuitConfig, CommonCircuitData};
@@ -42,7 +42,7 @@ impl<const D: usize> MulExtensionGate<D> {
     }
 }
 
-impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for MulExtensionGate<D> {
+impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for MulExtensionGate<D> {
     fn id(&self) -> String {
         format!("{self:?}")
     }

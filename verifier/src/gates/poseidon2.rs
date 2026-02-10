@@ -19,7 +19,7 @@ use qp_poseidon_constants::{
 };
 
 use crate::field::types::Field;
-use crate::gates::gate::Gate;
+use crate::gates::gate::VerificationGate;
 use crate::hash::hash_types::RichField;
 use crate::plonk::circuit_data::CommonCircuitData;
 use crate::plonk::vars::EvaluationVars;
@@ -232,7 +232,7 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2Gate<F, D> {
     }
 }
 
-impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for Poseidon2Gate<F, D> {
+impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for Poseidon2Gate<F, D> {
     fn id(&self) -> String {
         format!("{self:?}<WIDTH={P2_WIDTH}>")
     }

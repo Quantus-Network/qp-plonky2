@@ -4,7 +4,7 @@ use core::marker::PhantomData;
 
 use crate::field::extension::Extendable;
 use crate::field::types::Field;
-use crate::gates::gate::Gate;
+use crate::gates::gate::VerificationGate;
 use crate::gates::util::StridedConstraintConsumer;
 use crate::hash::hash_types::RichField;
 use crate::hash::poseidon;
@@ -87,7 +87,7 @@ impl<F: RichField + Extendable<D>, const D: usize> PoseidonGate<F, D> {
     }
 }
 
-impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for PoseidonGate<F, D> {
+impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for PoseidonGate<F, D> {
     fn id(&self) -> String {
         format!("{self:?}<WIDTH={SPONGE_WIDTH}>")
     }

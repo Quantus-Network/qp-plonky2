@@ -20,7 +20,11 @@ use crate::plonk::circuit_data::CommonCircuitData;
 use crate::plonk::vars::{EvaluationVars, EvaluationVarsBase, EvaluationVarsBaseBatch};
 use crate::util::serialization::{Buffer, IoResult};
 
-/// A custom gate.
+/// A verification-only gate trait.
+///
+/// This is the verifier-side counterpart to the full `Gate` trait in the prover.
+/// It contains only the methods needed for proof verification, without the
+/// circuit-building methods that require `CircuitBuilder`.
 ///
 /// Vanilla Plonk arithmetization only supports basic fan-in 2 / fan-out 1 arithmetic gates,
 /// each of the form
@@ -45,7 +49,9 @@ use crate::util::serialization::{Buffer, IoResult};
 ///
 /// Note however that extending the number of wires necessary for a custom gate comes at a price, and may
 /// impact the overall performances when generating proofs for a circuit containing them.
-pub trait Gate<F: RichField + Extendable<D>, const D: usize>: 'static + Send + Sync {
+pub trait VerificationGate<F: RichField + Extendable<D>, const D: usize>:
+    'static + Send + Sync
+{
     /// Defines a unique identifier for this custom gate.
     ///
     /// This is used as differentiating tag in gate serializers.
@@ -198,48 +204,54 @@ pub trait Gate<F: RichField + Extendable<D>, const D: usize>: 'static + Send + S
     }
 }
 
-/// A wrapper trait over a `Gate`, to allow for gate serialization.
-pub trait AnyGate<F: RichField + Extendable<D>, const D: usize>: Gate<F, D> {
+/// A wrapper trait over a `VerificationGate`, to allow for gate serialization.
+pub trait AnyVerificationGate<F: RichField + Extendable<D>, const D: usize>:
+    VerificationGate<F, D>
+{
     fn as_any(&self) -> &dyn Any;
 }
 
-impl<T: Gate<F, D>, F: RichField + Extendable<D>, const D: usize> AnyGate<F, D> for T {
+impl<T: VerificationGate<F, D>, F: RichField + Extendable<D>, const D: usize>
+    AnyVerificationGate<F, D> for T
+{
     fn as_any(&self) -> &dyn Any {
         self
     }
 }
 
-/// A wrapper around an `Arc<AnyGate>` which implements `PartialEq`, `Eq` and `Hash` based on gate IDs.
+/// A wrapper around an `Arc<AnyVerificationGate>` which implements `PartialEq`, `Eq` and `Hash` based on gate IDs.
 #[derive(Clone)]
-pub struct GateRef<F: RichField + Extendable<D>, const D: usize>(pub Arc<dyn AnyGate<F, D>>);
+pub struct VerificationGateRef<F: RichField + Extendable<D>, const D: usize>(
+    pub Arc<dyn AnyVerificationGate<F, D>>,
+);
 
-impl<F: RichField + Extendable<D>, const D: usize> GateRef<F, D> {
-    pub fn new<G: Gate<F, D>>(gate: G) -> GateRef<F, D> {
-        GateRef(Arc::new(gate))
+impl<F: RichField + Extendable<D>, const D: usize> VerificationGateRef<F, D> {
+    pub fn new<G: VerificationGate<F, D>>(gate: G) -> VerificationGateRef<F, D> {
+        VerificationGateRef(Arc::new(gate))
     }
 }
 
-impl<F: RichField + Extendable<D>, const D: usize> PartialEq for GateRef<F, D> {
+impl<F: RichField + Extendable<D>, const D: usize> PartialEq for VerificationGateRef<F, D> {
     fn eq(&self, other: &Self) -> bool {
         self.0.id() == other.0.id()
     }
 }
 
-impl<F: RichField + Extendable<D>, const D: usize> Hash for GateRef<F, D> {
+impl<F: RichField + Extendable<D>, const D: usize> Hash for VerificationGateRef<F, D> {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.0.id().hash(state)
     }
 }
 
-impl<F: RichField + Extendable<D>, const D: usize> Eq for GateRef<F, D> {}
+impl<F: RichField + Extendable<D>, const D: usize> Eq for VerificationGateRef<F, D> {}
 
-impl<F: RichField + Extendable<D>, const D: usize> Debug for GateRef<F, D> {
+impl<F: RichField + Extendable<D>, const D: usize> Debug for VerificationGateRef<F, D> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         write!(f, "{}", self.0.id())
     }
 }
 
-impl<F: RichField + Extendable<D>, const D: usize> Serialize for GateRef<F, D> {
+impl<F: RichField + Extendable<D>, const D: usize> Serialize for VerificationGateRef<F, D> {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_str(&self.0.id())
     }
@@ -255,15 +267,15 @@ pub struct CurrentSlot<F: RichField + Extendable<D>, const D: usize> {
 
 /// A gate along with any constants used to configure it.
 #[derive(Clone, Debug)]
-pub struct GateInstance<F: RichField + Extendable<D>, const D: usize> {
-    pub gate_ref: GateRef<F, D>,
+pub struct VerificationGateInstance<F: RichField + Extendable<D>, const D: usize> {
+    pub gate_ref: VerificationGateRef<F, D>,
     pub constants: Vec<F>,
 }
 
 /// Map each gate to a boolean prefix used to construct the gate's selector polynomial.
 #[derive(Debug, Clone)]
-pub struct PrefixedGate<F: RichField + Extendable<D>, const D: usize> {
-    pub gate: GateRef<F, D>,
+pub struct PrefixedVerificationGate<F: RichField + Extendable<D>, const D: usize> {
+    pub gate: VerificationGateRef<F, D>,
     pub prefix: Vec<bool>,
 }
 
@@ -276,3 +288,11 @@ fn compute_filter<K: Field>(row: usize, group_range: Range<usize>, s: K, many_se
         .map(|i| K::from_canonical_usize(i) - s)
         .product()
 }
+
+// Type aliases for backward compatibility
+/// Alias for [`VerificationGateRef`] for backward compatibility.
+pub type GateRef<F, const D: usize> = VerificationGateRef<F, D>;
+/// Alias for [`VerificationGateInstance`] for backward compatibility.
+pub type GateInstance<F, const D: usize> = VerificationGateInstance<F, D>;
+/// Alias for [`PrefixedVerificationGate`] for backward compatibility.
+pub type PrefixedGate<F, const D: usize> = PrefixedVerificationGate<F, D>;

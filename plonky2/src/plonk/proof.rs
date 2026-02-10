@@ -462,7 +462,7 @@ mod tests {
     use plonky2_field::types::Sample;
 
     use super::*;
-    use crate::fri::reduction_strategies::FriReductionStrategy;
+    use crate::fri::FriReductionStrategy;
     use crate::gates::lookup_table::LookupTable;
     use crate::gates::noop::NoopGate;
     use crate::iop::witness::PartialWitness;

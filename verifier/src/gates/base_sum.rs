@@ -5,7 +5,7 @@ use core::ops::Range;
 use crate::field::extension::Extendable;
 use crate::field::packed::PackedField;
 use crate::field::types::{Field, Field64};
-use crate::gates::gate::Gate;
+use crate::gates::gate::VerificationGate;
 use crate::gates::packed_util::PackedEvaluableBase;
 use crate::gates::util::StridedConstraintConsumer;
 use crate::hash::hash_types::RichField;
@@ -43,7 +43,9 @@ impl<const B: usize> BaseSumGate<B> {
     }
 }
 
-impl<F: RichField + Extendable<D>, const D: usize, const B: usize> Gate<F, D> for BaseSumGate<B> {
+impl<F: RichField + Extendable<D>, const D: usize, const B: usize> VerificationGate<F, D>
+    for BaseSumGate<B>
+{
     fn id(&self) -> String {
         format!("{self:?} + Base: {B}")
     }

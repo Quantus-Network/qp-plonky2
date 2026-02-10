@@ -26,12 +26,11 @@ use crate::field::extension::Extendable;
 use crate::field::fft::FftRootTable;
 use crate::field::types::Field;
 use crate::fri::oracle::PolynomialBatch;
-use crate::fri::reduction_strategies::FriReductionStrategy;
 use crate::fri::structure::{
     FriBatchInfo, FriBatchInfoTarget, FriInstanceInfo, FriInstanceInfoTarget, FriOracleInfo,
     FriPolynomialInfo,
 };
-use crate::fri::{FriConfig, FriParams};
+use crate::fri::{FriConfig, FriParams, FriReductionStrategy};
 use crate::gates::gate::GateRef;
 use crate::gates::lookup::Lookup;
 use crate::gates::lookup_table::LookupTable;

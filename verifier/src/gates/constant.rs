@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::field::extension::Extendable;
 use crate::field::packed::PackedField;
-use crate::gates::gate::Gate;
+use crate::gates::gate::VerificationGate;
 use crate::gates::packed_util::PackedEvaluableBase;
 use crate::gates::util::StridedConstraintConsumer;
 use crate::hash::hash_types::RichField;
@@ -37,7 +37,7 @@ impl ConstantGate {
     }
 }
 
-impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for ConstantGate {
+impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for ConstantGate {
     fn id(&self) -> String {
         format!("{self:?}")
     }
