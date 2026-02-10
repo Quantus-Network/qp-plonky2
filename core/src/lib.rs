@@ -17,16 +17,20 @@ pub use plonky2_field as field;
 // Core modules - order matters for dependencies
 mod arch;
 pub mod challenger;
+pub mod circuit_config;
 pub mod config;
+pub mod fri;
 pub mod hash_types;
 pub mod hashing;
 pub mod keccak;
 pub mod merkle_proofs;
 pub mod merkle_tree;
+pub mod plonk_common;
 pub mod poseidon;
 pub mod poseidon_crandall;
 pub mod poseidon_goldilocks;
 pub mod reducing;
+pub mod selectors;
 pub mod strided_view;
 
 // Re-export key types at crate root for convenience
@@ -45,6 +49,15 @@ pub use poseidon::{
     Permuter, Poseidon, PoseidonHash, PoseidonPermutation, ALL_ROUND_CONSTANTS, HALF_N_FULL_ROUNDS,
     N_FULL_ROUNDS_TOTAL, N_PARTIAL_ROUNDS, N_ROUNDS, SPONGE_CAPACITY, SPONGE_RATE, SPONGE_WIDTH,
 };
+
+// Circuit and FRI configuration types
+pub use circuit_config::CircuitConfig;
+pub use fri::{FriConfig, FriParams, FriReductionStrategy};
+pub use plonk_common::{
+    eval_l_0, eval_zero_poly, reduce_with_powers, reduce_with_powers_multi, salt_size, PlonkOracle,
+    SALT_SIZE,
+};
+pub use selectors::{LookupSelectors, SelectorsInfo, UNUSED_SELECTOR};
 
 /// The extension degree for the field extension (D=2 provides 100-bits of security)
 pub const D: usize = 2;

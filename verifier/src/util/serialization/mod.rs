@@ -21,8 +21,7 @@ use crate::fri::proof::{
     CompressedFriProof, CompressedFriQueryRounds, FriInitialTreeProof, FriProof, FriQueryRound,
     FriQueryStep,
 };
-use crate::fri::reduction_strategies::FriReductionStrategy;
-use crate::fri::{FriConfig, FriParams};
+use crate::fri::{FriConfig, FriParams, FriReductionStrategy};
 use crate::gates::gate::GateRef;
 use crate::gates::selectors::SelectorsInfo;
 use crate::hash::hash_types::RichField;
