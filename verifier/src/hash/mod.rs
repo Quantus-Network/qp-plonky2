@@ -1,5 +1,4 @@
-//! plonky2 hashing logic for in-circuit hashing and Merkle proof verification
-//! as well as specific hash functions implementation.
+//! Hashing utilities for proof verification.
 
 pub mod batch_merkle_tree;
 pub mod hash_types;

@@ -30,7 +30,6 @@ qp-plonky2-field → qp-plonky2-core → qp-plonky2-verifier
 - `VerificationGate` trait and gate implementations (verification-only)
 - `CommonVerifierData` — circuit metadata needed for verification
 - Proof verification logic
-- Re-exports core types
 
 **`qp-plonky2`** — Full prover capabilities:
 - `Gate` trait with constraint generation and witness computation

@@ -11,15 +11,11 @@
 //! # Usage
 //!
 //! ```ignore
-//! use plonky2_verifier::{verify, VerifierCircuitData, ProofWithPublicInputs};
+//! use qp_plonky2_verifier::{verify, VerifierCircuitData, ProofWithPublicInputs};
 //!
-//! // Load verifier data (usually pre-generated and serialized)
 //! let verifier_data = VerifierCircuitData::from_bytes(...)?;
-//!
-//! // Deserialize the proof
 //! let proof = ProofWithPublicInputs::from_bytes(...)?;
 //!
-//! // Verify
 //! verifier_data.verify(proof)?;
 //! ```
 
