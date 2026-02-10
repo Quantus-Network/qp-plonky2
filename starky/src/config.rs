@@ -10,7 +10,9 @@ use alloc::format;
 use anyhow::{anyhow, Result};
 use plonky2::field::extension::Extendable;
 use plonky2::field::types::Field;
-use plonky2::fri::{FriConfig, FriConfigObserve, FriParams, FriReductionStrategy};
+use plonky2::fri::{
+    FriConfig, FriConfigObserve, FriConfigObserveTarget, FriParams, FriReductionStrategy,
+};
 use plonky2::hash::hash_types::RichField;
 use plonky2::iop::challenger::{Challenger, RecursiveChallenger};
 use plonky2::plonk::circuit_builder::CircuitBuilder;

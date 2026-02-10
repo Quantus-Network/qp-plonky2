@@ -23,6 +23,7 @@ pub mod fri;
 pub mod fri_structure;
 pub mod hash_types;
 pub mod hashing;
+pub mod iop;
 pub mod keccak;
 pub mod merkle_proofs;
 pub mod merkle_tree;
@@ -53,7 +54,9 @@ pub use poseidon::{
 
 // Circuit and FRI configuration types
 pub use circuit_config::CircuitConfig;
-pub use fri::{FriChallenger, FriConfig, FriParams, FriReductionStrategy};
+pub use fri::{
+    FriChallenger, FriConfig, FriConfigObserve, FriParams, FriParamsObserve, FriReductionStrategy,
+};
 pub use fri_structure::{
     FriBatchInfo, FriChallenges, FriInstanceInfo, FriOpeningBatch, FriOpenings, FriOracleInfo,
     FriPolynomialInfo,
@@ -63,6 +66,12 @@ pub use plonk_common::{
     SALT_SIZE,
 };
 pub use selectors::{LookupSelectors, SelectorsInfo, UNUSED_SELECTOR};
+
+// IOP types
+pub use iop::{
+    flatten_target, unflatten_target, BoolTarget, ExtensionAlgebraTarget, ExtensionTarget, Target,
+    Wire,
+};
 
 /// The extension degree for the field extension (D=2 provides 100-bits of security)
 pub const D: usize = 2;

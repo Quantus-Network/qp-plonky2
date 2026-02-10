@@ -1,3 +1,5 @@
+//! Extension field target types for recursive verification.
+
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
 use core::ops::Range;
@@ -60,4 +62,14 @@ pub fn unflatten_target<const D: usize>(l: &[Target]) -> Vec<ExtensionTarget<D>>
     l.chunks_exact(D)
         .map(|c| c.to_vec().try_into().unwrap())
         .collect()
+}
+
+// Add the to_ext_target method to Target
+impl Target {
+    /// Conversion to an `ExtensionTarget`.
+    pub const fn to_ext_target<const D: usize>(self, zero: Self) -> ExtensionTarget<D> {
+        let mut arr = [zero; D];
+        arr[0] = self;
+        ExtensionTarget(arr)
+    }
 }

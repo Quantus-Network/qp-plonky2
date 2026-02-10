@@ -1,10 +1,12 @@
+//! Wire type representing a location in the circuit witness grid.
+
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
 use core::ops::Range;
 
 use serde::{Deserialize, Serialize};
 
-use crate::plonk::circuit_data::CircuitConfig;
+use crate::circuit_config::CircuitConfig;
 
 /// Represents a wire in the circuit, seen as a `degree x num_wires` table.
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug, Serialize, Deserialize)]

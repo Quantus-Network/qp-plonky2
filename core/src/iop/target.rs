@@ -1,12 +1,13 @@
+//! Target types representing locations in the witness.
+
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
 use core::ops::Range;
 
 use serde::{Deserialize, Serialize};
 
-use crate::iop::ext_target::ExtensionTarget;
+use crate::circuit_config::CircuitConfig;
 use crate::iop::wire::Wire;
-use crate::plonk::circuit_data::CircuitConfig;
 
 /// A location in the witness.
 ///
@@ -14,11 +15,11 @@ use crate::plonk::circuit_data::CircuitConfig;
 /// serving as intermediary value holders, and copied to other locations whenever needed.
 ///
 /// When generating a proof for a given circuit, the prover will "set" the values of some
-/// (or all) targets, so that they satisfy the circuit constraints.  This is done through
-/// the `PartialWitness` interface (in the prover crate).
+/// (or all) targets, so that they satisfy the circuit constraints. This is done through
+/// the `PartialWitness` interface.
 ///
 /// There are different "variants" of the `Target` type, namely [`ExtensionTarget`],
-/// [ExtensionAlgebraTarget](crate::iop::ext_target::ExtensionAlgebraTarget).
+/// [`ExtensionAlgebraTarget`](crate::iop::ext_target::ExtensionAlgebraTarget).
 /// The `Target` type is the default one for most circuits verifying some simple statement.
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug, Serialize, Deserialize)]
 pub enum Target {
@@ -57,13 +58,6 @@ impl Target {
             Target::Wire(Wire { row, column }) => row * num_wires + column,
             Target::VirtualTarget { index } => degree * num_wires + index,
         }
-    }
-
-    /// Conversion to an `ExtensionTarget`.
-    pub const fn to_ext_target<const D: usize>(self, zero: Self) -> ExtensionTarget<D> {
-        let mut arr = [zero; D];
-        arr[0] = self;
-        ExtensionTarget(arr)
     }
 }
 

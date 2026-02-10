@@ -278,6 +278,48 @@ impl FriParams {
     }
 }
 
+/// Trait for observing FRI configuration in a Challenger.
+///
+/// This allows the FRI config to be incorporated into the Fiat-Shamir transcript.
+pub trait FriConfigObserve {
+    /// Observe the FRI configuration parameters in a Challenger.
+    fn observe<F: RichField, H: Hasher<F>>(&self, challenger: &mut Challenger<F, H>);
+}
+
+impl FriConfigObserve for FriConfig {
+    fn observe<F: RichField, H: Hasher<F>>(&self, challenger: &mut Challenger<F, H>) {
+        challenger.observe_element(F::from_canonical_usize(self.rate_bits));
+        challenger.observe_element(F::from_canonical_usize(self.cap_height));
+        challenger.observe_element(F::from_canonical_u32(self.proof_of_work_bits));
+        challenger.observe_elements(&self.reduction_strategy.serialize());
+        challenger.observe_element(F::from_canonical_usize(self.num_query_rounds));
+    }
+}
+
+/// Trait for observing FRI parameters in a Challenger.
+///
+/// This allows the FRI params to be incorporated into the Fiat-Shamir transcript.
+pub trait FriParamsObserve {
+    /// Observe the FRI parameters in a Challenger.
+    fn observe<F: RichField, H: Hasher<F>>(&self, challenger: &mut Challenger<F, H>);
+}
+
+impl FriParamsObserve for FriParams {
+    fn observe<F: RichField, H: Hasher<F>>(&self, challenger: &mut Challenger<F, H>) {
+        self.config.observe(challenger);
+
+        challenger.observe_element(F::from_bool(self.hiding));
+        challenger.observe_element(F::from_canonical_usize(self.degree_bits));
+        challenger.observe_elements(
+            &self
+                .reduction_arity_bits
+                .iter()
+                .map(|&e| F::from_canonical_usize(e))
+                .collect::<Vec<_>>(),
+        );
+    }
+}
+
 /// Trait for Challenger with FRI-specific methods.
 ///
 /// This trait provides methods for observing FRI openings and generating

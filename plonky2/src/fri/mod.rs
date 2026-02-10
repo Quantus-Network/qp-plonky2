@@ -9,9 +9,9 @@ use alloc::vec::Vec;
 use plonky2_field::extension::Extendable;
 
 use crate::hash::hash_types::RichField;
-use crate::iop::challenger::{Challenger, RecursiveChallenger};
+use crate::iop::challenger::RecursiveChallenger;
 use crate::plonk::circuit_builder::CircuitBuilder;
-use crate::plonk::config::{AlgebraicHasher, Hasher};
+use crate::plonk::config::AlgebraicHasher;
 
 pub mod challenges;
 pub mod oracle;
@@ -24,14 +24,16 @@ pub mod verifier;
 pub mod witness_util;
 
 // Re-export FRI types from core
-pub use qp_plonky2_core::{FriChallenger, FriConfig, FriParams, FriReductionStrategy};
+pub use qp_plonky2_core::{
+    FriChallenger, FriConfig, FriConfigObserve, FriParams, FriParamsObserve, FriReductionStrategy,
+};
 
-/// Trait for FriConfig to add prover-specific support.
-pub trait FriConfigObserve {
-    /// Observe the FRI configuration parameters (for prover's Challenger).
-    fn observe<F: RichField, H: Hasher<F>>(&self, challenger: &mut Challenger<F, H>);
-
-    /// Observe the FRI configuration parameters for the recursive verifier.
+/// Trait for observing FRI configuration in a RecursiveChallenger (circuit target version).
+///
+/// This is used for recursive verification where the FRI config must be observed
+/// as circuit targets.
+pub trait FriConfigObserveTarget {
+    /// Observe the FRI configuration parameters in a RecursiveChallenger.
     fn observe_target<F, H, const D: usize>(
         &self,
         builder: &mut CircuitBuilder<F, D>,
@@ -41,15 +43,7 @@ pub trait FriConfigObserve {
         H: AlgebraicHasher<F>;
 }
 
-impl FriConfigObserve for FriConfig {
-    fn observe<F: RichField, H: Hasher<F>>(&self, challenger: &mut Challenger<F, H>) {
-        challenger.observe_element(F::from_canonical_usize(self.rate_bits));
-        challenger.observe_element(F::from_canonical_usize(self.cap_height));
-        challenger.observe_element(F::from_canonical_u32(self.proof_of_work_bits));
-        challenger.observe_elements(&self.reduction_strategy.serialize());
-        challenger.observe_element(F::from_canonical_usize(self.num_query_rounds));
-    }
-
+impl FriConfigObserveTarget for FriConfig {
     fn observe_target<F, H, const D: usize>(
         &self,
         builder: &mut CircuitBuilder<F, D>,
@@ -68,12 +62,12 @@ impl FriConfigObserve for FriConfig {
     }
 }
 
-/// Trait for FriParams to add prover-specific support.
-pub trait FriParamsObserve {
-    /// Observe the FRI parameters (for prover's Challenger).
-    fn observe<F: RichField, H: Hasher<F>>(&self, challenger: &mut Challenger<F, H>);
-
-    /// Observe the FRI parameters for the recursive verifier.
+/// Trait for observing FRI parameters in a RecursiveChallenger (circuit target version).
+///
+/// This is used for recursive verification where the FRI params must be observed
+/// as circuit targets.
+pub trait FriParamsObserveTarget {
+    /// Observe the FRI parameters in a RecursiveChallenger.
     fn observe_target<F, H, const D: usize>(
         &self,
         builder: &mut CircuitBuilder<F, D>,
@@ -83,21 +77,7 @@ pub trait FriParamsObserve {
         H: AlgebraicHasher<F>;
 }
 
-impl FriParamsObserve for FriParams {
-    fn observe<F: RichField, H: Hasher<F>>(&self, challenger: &mut Challenger<F, H>) {
-        self.config.observe(challenger);
-
-        challenger.observe_element(F::from_bool(self.hiding));
-        challenger.observe_element(F::from_canonical_usize(self.degree_bits));
-        challenger.observe_elements(
-            &self
-                .reduction_arity_bits
-                .iter()
-                .map(|&e| F::from_canonical_usize(e))
-                .collect::<Vec<_>>(),
-        );
-    }
-
+impl FriParamsObserveTarget for FriParams {
     fn observe_target<F, H, const D: usize>(
         &self,
         builder: &mut CircuitBuilder<F, D>,
