@@ -20,8 +20,6 @@ use qp_poseidon_constants::{
 
 use crate::field::types::Field;
 use crate::gates::gate::Gate;
-use crate::gates::poseidon2_int_mix::Poseidon2IntMixGate;
-use crate::gates::poseidon2_mds::Poseidon2MdsGate;
 use crate::hash::hash_types::RichField;
 use crate::iop::ext_target::ExtensionTarget;
 use crate::iop::generator::{GeneratedValues, SimpleGenerator, WitnessGeneratorRef};

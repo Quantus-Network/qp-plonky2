@@ -3,6 +3,21 @@
 
 This repository was originally for Plonky2, a SNARK implementation based on techniques from PLONK and FRI. It has since expanded to include tools such as Starky, a highly performant STARK implementation.
 
+## Crate Structure
+
+| Crate | Purpose | `no_std` |
+|-------|---------|----------|
+| `qp-plonky2` | Full prover + verifier | ✓ |
+| `qp-plonky2-verifier` | Lightweight verification-only | ✓ |
+| `qp-plonky2-core` | Shared primitives (poseidon, merkle, etc.) | ✓ |
+
+```
+qp-plonky2-field → qp-plonky2-core → qp-plonky2-verifier
+                                   ↘ qp-plonky2 (includes verifier)
+```
+
+Use `qp-plonky2` for proving. Use `qp-plonky2-verifier` for verification-only applications (smaller binary).
+
 ## Documentation
 
 For more details about the Plonky2 argument system, see this [writeup](plonky2/plonky2.pdf).

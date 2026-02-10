@@ -58,7 +58,7 @@ plonky2_util = { version = "1.0.0", path = "../util", default-features = false }
 qp-plonky2-core = { version = "1.0.0", path = "../core", default-features = false }
 
 
-[target.'cfg(all(target_arch = "wasm32", target_os = "unknown", not(feature = "no-random")))'.dependencies]
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
 getrandom = { version = "0.2", default-features = false, features = [
     "js",
 ], optional = true }
