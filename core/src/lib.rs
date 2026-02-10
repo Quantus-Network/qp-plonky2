@@ -20,7 +20,11 @@ pub mod challenger;
 pub mod circuit_config;
 pub mod config;
 pub mod fri;
+pub mod fri_proof;
 pub mod fri_structure;
+pub mod fri_validate_shape;
+pub mod fri_verifier;
+pub mod hash;
 pub mod hash_types;
 pub mod hashing;
 pub mod iop;
@@ -32,9 +36,11 @@ pub mod plonk_common;
 pub mod poseidon;
 pub mod poseidon_crandall;
 pub mod poseidon_goldilocks;
+pub mod proof;
 pub mod reducing;
 pub mod selectors;
 pub mod strided_view;
+pub mod util;
 
 // Re-export key types at crate root for convenience
 pub use challenger::Challenger;
@@ -67,6 +73,29 @@ pub use plonk_common::{
     SALT_SIZE,
 };
 pub use selectors::{LookupSelectors, SelectorsInfo, UNUSED_SELECTOR};
+
+// FRI proof types
+pub use fri_proof::{
+    CompressedFriProof, CompressedFriQueryRounds, FriInitialTreeProof, FriProof, FriQueryRound,
+    FriQueryStep,
+};
+pub use fri_validate_shape::{validate_batch_fri_proof_shape, validate_fri_proof_shape};
+pub use fri_verifier::{
+    compute_evaluation, fri_combine_initial, fri_verify_proof_of_work, verify_fri_proof,
+    PrecomputedReducedOpenings,
+};
+
+// Hash utilities
+pub use hash::path_compression::{compress_merkle_proofs, decompress_merkle_proofs};
+
+// Proof challenge types
+pub use proof::{FriInferredElements, ProofChallenges};
+
+// Utility functions
+pub use util::{
+    assume, branch_hint, log2_ceil, log2_strict, reverse_bits, reverse_index_bits,
+    reverse_index_bits_in_place,
+};
 
 // IOP types
 pub use iop::{

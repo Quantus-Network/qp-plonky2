@@ -11,7 +11,7 @@ use anyhow::ensure;
 use serde::{Deserialize, Serialize};
 
 use crate::field::extension::Extendable;
-use crate::fri::proof::{CompressedFriProof, FriChallenges, FriProof};
+use crate::fri::proof::{CompressedFriProof, FriProof};
 use crate::fri::structure::{FriOpeningBatch, FriOpenings};
 use crate::fri::FriParams;
 use crate::hash::hash_types::RichField;
@@ -239,30 +239,8 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
     }
 }
 
-#[derive(Debug)]
-pub struct ProofChallenges<F: RichField + Extendable<D>, const D: usize> {
-    /// Random values used in Plonk's permutation argument.
-    pub plonk_betas: Vec<F>,
-
-    /// Random values used in Plonk's permutation argument.
-    pub plonk_gammas: Vec<F>,
-
-    /// Random values used to combine PLONK constraints.
-    pub plonk_alphas: Vec<F>,
-
-    /// Lookup challenges.
-    pub plonk_deltas: Vec<F>,
-
-    /// Point at which the PLONK polynomials are opened.
-    pub plonk_zeta: F::Extension,
-
-    pub fri_challenges: FriChallenges<F, D>,
-}
-
-/// Coset elements that can be inferred in the FRI reduction steps.
-pub(crate) struct FriInferredElements<F: RichField + Extendable<D>, const D: usize>(
-    pub Vec<F::Extension>,
-);
+// Re-export proof challenge types from core
+pub use qp_plonky2_core::proof::{FriInferredElements, ProofChallenges};
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize, Eq, PartialEq)]
 /// The purported values of each polynomial at a single point.

@@ -17,6 +17,12 @@ pub mod serialization;
 pub mod strided_view;
 pub mod timing;
 
+// Re-export utility functions from core
+pub use qp_plonky2_core::util::{
+    assume, branch_hint, log2_ceil, log2_strict, reverse_bits, reverse_index_bits,
+    reverse_index_bits_in_place,
+};
+
 pub(crate) fn transpose_poly_values<F: Field>(polys: Vec<PolynomialValues<F>>) -> Vec<Vec<F>> {
     let poly_values = polys.into_iter().map(|p| p.values).collect::<Vec<_>>();
     transpose(&poly_values)
@@ -28,16 +34,6 @@ pub fn transpose<T: Send + Sync + Copy>(matrix: &[Vec<T>]) -> Vec<Vec<T>> {
         .into_par_iter()
         .map(|i| matrix.iter().map(|row| row[i]).collect())
         .collect()
-}
-
-pub(crate) const fn reverse_bits(n: usize, num_bits: usize) -> usize {
-    // NB: The only reason we need overflowing_shr() here as opposed
-    // to plain '>>' is to accommodate the case n == num_bits == 0,
-    // which would become `0 >> 64`. Rust thinks that any shift of 64
-    // bits causes overflow, even when the argument is zero.
-    n.reverse_bits()
-        .overflowing_shr(usize::BITS - num_bits as u32)
-        .0
 }
 
 #[cfg(test)]
