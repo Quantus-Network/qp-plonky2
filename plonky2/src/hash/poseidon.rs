@@ -26,14 +26,6 @@ pub use qp_plonky2_core::poseidon::{
     N_FULL_ROUNDS_TOTAL, N_PARTIAL_ROUNDS, N_ROUNDS, SPONGE_CAPACITY, SPONGE_RATE, SPONGE_WIDTH,
 };
 
-// Implement Permuter for Target so that PoseidonPermutation<Target> can implement PlonkyPermutation.
-// The actual permutation is performed via gates in AlgebraicHasher::permute_swapped.
-impl Permuter for Target {
-    fn permute(_input: [Self; SPONGE_WIDTH]) -> [Self; SPONGE_WIDTH] {
-        panic!("Call `permute_swapped()` instead of `permute()` for Target")
-    }
-}
-
 /// Extension trait that adds circuit-building methods to types implementing `Poseidon`.
 /// These methods are used for in-circuit hashing and are specific to the prover.
 pub trait PoseidonCircuit: Poseidon {

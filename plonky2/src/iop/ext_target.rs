@@ -1,6 +1,9 @@
+//! Extension field target types for recursive verification.
+//!
+//! Re-exports base types from qp-plonky2-core and adds CircuitBuilder methods.
+
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
-use core::ops::Range;
 
 use crate::field::extension::algebra::ExtensionAlgebra;
 use crate::field::extension::{Extendable, FieldExtension, OEF};
@@ -9,37 +12,38 @@ use crate::hash::hash_types::RichField;
 use crate::iop::target::Target;
 use crate::plonk::circuit_builder::CircuitBuilder;
 
-/// `Target`s representing an element of an extension field.
-///
-/// This is typically used in recursion settings, where the outer circuit must verify
-/// a proof satisfying an inner circuit's statement, which is verified using arithmetic
-/// in an extension of the base field.
-#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
-pub struct ExtensionTarget<const D: usize>(pub [Target; D]);
+// Re-export base types from core
+pub use qp_plonky2_core::{
+    flatten_target, unflatten_target, ExtensionAlgebraTarget, ExtensionTarget,
+};
 
-impl<const D: usize> Default for ExtensionTarget<D> {
-    fn default() -> Self {
-        Self([Target::default(); D])
-    }
-}
-
-impl<const D: usize> ExtensionTarget<D> {
-    pub const fn to_target_array(&self) -> [Target; D] {
-        self.0
-    }
-
-    pub fn frobenius<F: RichField + Extendable<D>>(
+/// Extension trait for ExtensionTarget with methods requiring CircuitBuilder.
+pub trait ExtensionTargetFrobenius<const D: usize> {
+    fn frobenius<F: RichField + Extendable<D>>(
         &self,
         builder: &mut CircuitBuilder<F, D>,
-    ) -> Self {
-        self.repeated_frobenius(1, builder)
-    }
+    ) -> ExtensionTarget<D>;
 
-    pub fn repeated_frobenius<F: RichField + Extendable<D>>(
+    fn repeated_frobenius<F: RichField + Extendable<D>>(
         &self,
         count: usize,
         builder: &mut CircuitBuilder<F, D>,
-    ) -> Self {
+    ) -> ExtensionTarget<D>;
+}
+
+impl<const D: usize> ExtensionTargetFrobenius<D> for ExtensionTarget<D> {
+    fn frobenius<F: RichField + Extendable<D>>(
+        &self,
+        builder: &mut CircuitBuilder<F, D>,
+    ) -> ExtensionTarget<D> {
+        self.repeated_frobenius(1, builder)
+    }
+
+    fn repeated_frobenius<F: RichField + Extendable<D>>(
+        &self,
+        count: usize,
+        builder: &mut CircuitBuilder<F, D>,
+    ) -> ExtensionTarget<D> {
         if count == 0 {
             return *self;
         } else if count >= D {
@@ -62,31 +66,9 @@ impl<const D: usize> ExtensionTarget<D> {
 
         res.try_into().unwrap()
     }
-
-    pub fn from_range(row: usize, range: Range<usize>) -> Self {
-        debug_assert_eq!(range.end - range.start, D);
-        Target::wires_from_range(row, range).try_into().unwrap()
-    }
 }
 
-impl<const D: usize> TryFrom<Vec<Target>> for ExtensionTarget<D> {
-    type Error = Vec<Target>;
-
-    fn try_from(value: Vec<Target>) -> Result<Self, Self::Error> {
-        Ok(Self(value.try_into()?))
-    }
-}
-
-/// `Target`s representing an element of an extension of an extension field.
-#[derive(Copy, Clone, Debug)]
-pub struct ExtensionAlgebraTarget<const D: usize>(pub [ExtensionTarget<D>; D]);
-
-impl<const D: usize> ExtensionAlgebraTarget<D> {
-    pub const fn to_ext_target_array(&self) -> [ExtensionTarget<D>; D] {
-        self.0
-    }
-}
-
+// CircuitBuilder extension methods for extension targets
 impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     pub fn constant_extension(&mut self, c: F::Extension) -> ExtensionTarget<D> {
         let c_parts = c.to_basefield_array();
@@ -140,19 +122,4 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         arr[0] = et;
         ExtensionAlgebraTarget(arr)
     }
-}
-
-/// Flatten the slice by sending every extension target to its D-sized canonical representation.
-pub fn flatten_target<const D: usize>(l: &[ExtensionTarget<D>]) -> Vec<Target> {
-    l.iter()
-        .flat_map(|x| x.to_target_array().to_vec())
-        .collect()
-}
-
-/// Batch every D-sized chunks into extension targets.
-pub fn unflatten_target<const D: usize>(l: &[Target]) -> Vec<ExtensionTarget<D>> {
-    debug_assert_eq!(l.len() % D, 0);
-    l.chunks_exact(D)
-        .map(|c| c.to_vec().try_into().unwrap())
-        .collect()
 }

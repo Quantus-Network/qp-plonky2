@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::circuit_config::CircuitConfig;
 use crate::iop::wire::Wire;
+use crate::poseidon::{Permuter, SPONGE_WIDTH};
 
 /// A location in the witness.
 ///
@@ -76,5 +77,13 @@ impl BoolTarget {
             target,
             _private: (),
         }
+    }
+}
+
+// Implement Permuter for Target so that PoseidonPermutation<Target> can implement PlonkyPermutation.
+// The actual permutation is performed via gates in AlgebraicHasher::permute_swapped.
+impl Permuter for Target {
+    fn permute(_input: [Self; SPONGE_WIDTH]) -> [Self; SPONGE_WIDTH] {
+        panic!("Call `permute_swapped()` instead of `permute()` for Target")
     }
 }
