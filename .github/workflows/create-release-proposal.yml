@@ -135,30 +135,47 @@ jobs:
           # Create new branch from source branch
           git checkout "$SOURCE_BRANCH"
           git checkout -b "$branch_name"
-          
+
           # Update qp-plonky2-field version
           echo "Updating field/Cargo.toml to version: $new_cargo_version"
           sed -i -E "s/^version\s*=\s*\"[0-9a-zA-Z.-]+\"/version = \"$new_cargo_version\"/" field/Cargo.toml
+
+          # Update qp-plonky2-core version
+          echo "Updating core/Cargo.toml to version: $new_cargo_version"
+          sed -i -E "s/^version\s*=\s*\"[0-9a-zA-Z.-]+\"/version = \"$new_cargo_version\"/" core/Cargo.toml
+
+          # Update qp-plonky2-verifier version
+          echo "Updating verifier/Cargo.toml to version: $new_cargo_version"
+          sed -i -E "s/^version\s*=\s*\"[0-9a-zA-Z.-]+\"/version = \"$new_cargo_version\"/" verifier/Cargo.toml
 
           # Update qp-plonky2 version
           echo "Updating plonky2/Cargo.toml to version: $new_cargo_version"
           sed -i -E "s/^version\s*=\s*\"[0-9a-zA-Z.-]+\"/version = \"$new_cargo_version\"/" plonky2/Cargo.toml
 
-          # Sync plonky2 dependency on qp-plonky2-field to the new version
-          sed -i -E "s/(qp-plonky2-field\", version = \")([0-9a-zA-Z.-]+)(\")/\1${new_cargo_version}\3/" plonky2/Cargo.toml
-
           # Update starky version
           echo "Updating starky/Cargo.toml to version: $new_cargo_version"
           sed -i -E "s/^version\s*=\s*\"[0-9a-zA-Z.-]+\"/version = \"$new_cargo_version\"/" starky/Cargo.toml
-          
-          # Sync starky dependency on qp-plonky2 to the new version  
-          sed -i -E "s/(qp-plonky2.*version = \")([0-9a-zA-Z.-]+)(\")/\1${new_cargo_version}\3/" starky/Cargo.toml
+
+          # Sync plonky2 dependencies on qp-plonky2-field, qp-plonky2-verifier, qp-plonky2-core
+          sed -i -E "s/(qp-plonky2-field\", version = \")([0-9a-zA-Z.-]+)(\")/\1${new_cargo_version}\3/" plonky2/Cargo.toml
+          sed -i -E "s/(qp-plonky2-verifier\", version = \")([0-9a-zA-Z.-]+)(\")/\1${new_cargo_version}\3/" plonky2/Cargo.toml
+          sed -i -E "s/(qp-plonky2-core = \{ version = \")([0-9a-zA-Z.-]+)(\")/\1${new_cargo_version}\3/" plonky2/Cargo.toml
+
+          # Sync core and verifier dependencies on qp-plonky2-field
+          sed -i -E "s/(qp-plonky2-field\", version = \")([0-9a-zA-Z.-]+)(\")/\1${new_cargo_version}\3/" core/Cargo.toml
+          sed -i -E "s/(qp-plonky2-field\", version = \")([0-9a-zA-Z.-]+)(\")/\1${new_cargo_version}\3/" verifier/Cargo.toml
+
+          # Sync verifier dependency on qp-plonky2-core
+          sed -i -E "s/(qp-plonky2-core = \{ version = \")([0-9a-zA-Z.-]+)(\")/\1${new_cargo_version}\3/" verifier/Cargo.toml
+
+          # Sync starky dependency on qp-plonky2
+          sed -i -E "s/(qp-plonky2 = \{ version = \")([0-9a-zA-Z.-]+)(\")/\1${new_cargo_version}\3/" starky/Cargo.toml
 
           # Commit changes (no lockfile in libs)
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           
-          git add field/Cargo.toml plonky2/Cargo.toml starky/Cargo.toml
+          git add field/Cargo.toml core/Cargo.toml verifier/Cargo.toml plonky2/Cargo.toml starky/Cargo.toml
           git commit -m "ci: Automate version bump to $NEW_VERSION"
           git push origin "$branch_name"
 
