@@ -1,7 +1,7 @@
 [package]
 name = "qp-plonky2-verifier"
 description = "Plonky2 verification library - minimal, no-std compatible, no randomness required"
-version = "2.0.0"
+version = "1.1.4"
 authors = [
     "Daniel Lubarov <daniel@lubarov.com>",
     "William Borgeaud <williamborgeaud@gmail.com>",
@@ -42,14 +42,14 @@ p3-symmetric = { version = "0.3.0", default-features = false }
 qp-poseidon-constants = { version = "1.0", default-features = false }
 
 # Local dependencies - note: no "rand" feature = verification-only, no randomness needed
-plonky2-field = { package = "qp-plonky2-field", version = "1.1.3", path = "../field", default-features = false }
+plonky2-field = { package = "qp-plonky2-field", version = "1.1.4", path = "../field", default-features = false }
 plonky2_util = { version = "1.0.0", path = "../util", default-features = false }
-qp-plonky2-core = { version = "1.0.0", path = "../core", default-features = false }
+qp-plonky2-core = { version = "1.1.4", path = "../core", default-features = false }
 
 [dev-dependencies]
 criterion = { version = "0.5.1", default-features = false }
 rand = { version = "0.8", features = ["small_rng"] }
-plonky2-field = { package = "qp-plonky2-field", version = "1.1.3", path = "../field", features = ["rand"] }
+plonky2-field = { package = "qp-plonky2-field", version = "1.1.4", path = "../field", features = ["rand"] }
 serde_cbor = { version = "0.11.2", default-features = true }
 
 [lints]
