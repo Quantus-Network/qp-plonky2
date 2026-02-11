@@ -745,7 +745,7 @@ dependencies = [
 
 [[package]]
 name = "qp-plonky2"
-version = "1.1.3"
+version = "1.1.4"
 dependencies = [
  "ahash",
  "anyhow",
@@ -784,7 +784,7 @@ dependencies = [
 
 [[package]]
 name = "qp-plonky2-core"
-version = "1.0.0"
+version = "1.1.4"
 dependencies = [
  "ahash",
  "anyhow",
@@ -808,7 +808,7 @@ dependencies = [
 
 [[package]]
 name = "qp-plonky2-field"
-version = "1.1.3"
+version = "1.1.4"
 dependencies = [
  "anyhow",
  "itertools 0.11.0",
@@ -823,7 +823,7 @@ dependencies = [
 
 [[package]]
 name = "qp-plonky2-verifier"
-version = "2.0.0"
+version = "1.1.4"
 dependencies = [
  "ahash",
  "anyhow",
@@ -1085,7 +1085,7 @@ checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
 
 [[package]]
 name = "starky"
-version = "1.1.3"
+version = "1.1.4"
 dependencies = [
  "ahash",
  "anyhow",
