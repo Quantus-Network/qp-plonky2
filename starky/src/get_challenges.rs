@@ -7,6 +7,7 @@ use plonky2::field::polynomial::PolynomialCoeffs;
 use plonky2::field::types::Field;
 use plonky2::fri::proof::{FriProof, FriProofTarget};
 use plonky2::fri::prover::final_poly_coeff_len;
+use plonky2::fri::FriChallenger;
 use plonky2::fri::FriParams;
 use plonky2::gadgets::polynomial::PolynomialCoeffsExtTarget;
 use plonky2::hash::hash_types::{MerkleCapTarget, RichField};

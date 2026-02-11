@@ -11,8 +11,7 @@ use plonky2_field::extension::Extendable;
 use plonky2_field::polynomial::PolynomialCoeffs;
 
 use crate::fri::proof::{FriProof, FriProofTarget};
-use crate::fri::reduction_strategies::FriReductionStrategy;
-use crate::fri::{FriConfig, FriParams};
+use crate::fri::{FriConfig, FriParams, FriReductionStrategy};
 use crate::gadgets::polynomial::PolynomialCoeffsExtTarget;
 use crate::gates::noop::NoopGate;
 use crate::gates::selectors::SelectorsInfo;
@@ -47,6 +46,7 @@ where
     F: RichField + Extendable<D>,
     C: GenericConfig<D, F = F>,
     C::Hasher: AlgebraicHasher<C::F>,
+    C::InnerHasher: AlgebraicHasher<F>,
 {
     let pis_len = common_data.num_public_inputs;
     let cap_elements = common_data.config.fri_config.num_cap_elements();
@@ -89,7 +89,10 @@ where
 /// Generate a circuit matching a given `CommonCircuitData`.
 pub fn dummy_circuit<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>(
     common_data: &CommonCircuitData<F, D>,
-) -> CircuitData<F, C, D> {
+) -> CircuitData<F, C, D>
+where
+    C::InnerHasher: crate::plonk::config::AlgebraicHasher<F>,
+{
     let config = common_data.config.clone();
     assert!(
         !common_data.config.zero_knowledge,
@@ -124,6 +127,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     ) -> anyhow::Result<(ProofWithPublicInputsTarget<D>, VerifierCircuitTarget)>
     where
         C::Hasher: AlgebraicHasher<F>,
+        C::InnerHasher: AlgebraicHasher<F>,
     {
         let dummy_circuit = dummy_circuit::<F, C, D>(common_data);
         let dummy_proof_with_pis = dummy_proof::<F, C, D>(&dummy_circuit, HashMap::new())?;
@@ -147,6 +151,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     ) -> anyhow::Result<(ProofWithPublicInputsTarget<D>, VerifierCircuitTarget)>
     where
         C::Hasher: AlgebraicHasher<F>,
+        C::InnerHasher: AlgebraicHasher<F>,
     {
         let dummy_circuit = dummy_circuit::<F, C, D>(common_data);
         let dummy_proof_with_pis_target = self.add_virtual_proof_with_pis(common_data);

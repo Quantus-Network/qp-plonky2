@@ -1,0 +1,56 @@
+[package]
+name = "qp-plonky2-verifier"
+description = "Plonky2 verification library - minimal, no-std compatible, no randomness required"
+version = "2.0.0"
+authors = [
+    "Daniel Lubarov <daniel@lubarov.com>",
+    "William Borgeaud <williamborgeaud@gmail.com>",
+    "Nicholas Ward <npward@berkeley.edu>",
+]
+readme = "README.md"
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[features]
+default = []
+std = ["anyhow/std", "itertools/use_std", "num/std", "serde/std", "qp-plonky2-core/std"]
+
+[dependencies]
+# Use workspace versions for most deps
+ahash = { workspace = true }
+anyhow = { workspace = true }
+hashbrown = { workspace = true }
+itertools = { workspace = true }
+keccak-hash = { version = "0.8.0", default-features = false }
+log = { workspace = true }
+# Override num to NOT include rand feature - this prevents rand 0.8 → rand_chacha 0.3 → getrandom
+# from being pulled into WASM builds
+num = { version = "0.4", default-features = false, features = ["alloc"] }
+serde = { workspace = true, features = ["rc"] }
+static_assertions = { workspace = true }
+unroll = { workspace = true }
+
+# p3 crates - keep default-features = false
+p3-field = { version = "0.3.0", default-features = false }
+p3-goldilocks = { version = "0.3.0", default-features = false }
+p3-poseidon2 = { version = "0.3.0", default-features = false }
+p3-symmetric = { version = "0.3.0", default-features = false }
+qp-poseidon-constants = { version = "1.0", default-features = false }
+
+# Local dependencies - note: no "rand" feature = verification-only, no randomness needed
+plonky2-field = { package = "qp-plonky2-field", version = "1.1.3", path = "../field", default-features = false }
+plonky2_util = { version = "1.0.0", path = "../util", default-features = false }
+qp-plonky2-core = { version = "1.0.0", path = "../core", default-features = false }
+
+[dev-dependencies]
+criterion = { version = "0.5.1", default-features = false }
+rand = { version = "0.8", features = ["small_rng"] }
+plonky2-field = { package = "qp-plonky2-field", version = "1.1.3", path = "../field", features = ["rand"] }
+serde_cbor = { version = "0.11.2", default-features = true }
+
+[lints]
+workspace = true

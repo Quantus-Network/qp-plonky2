@@ -8,8 +8,8 @@ use static_assertions::const_assert;
 use unroll::unroll_for_loops;
 
 use crate::field::goldilocks_field::GoldilocksField;
-use crate::hash::poseidon::Poseidon;
-use crate::util::branch_hint;
+use crate::poseidon::Poseidon;
+use plonky2_util::branch_hint;
 
 // ========================================== CONSTANTS ===========================================
 

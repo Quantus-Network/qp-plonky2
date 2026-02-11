@@ -50,9 +50,9 @@ impl<F: Extendable<5>> From<F> for QuinticExtension<F> {
     }
 }
 
+#[cfg(feature = "rand")]
 impl<F: Extendable<5>> Sample for QuinticExtension<F> {
     #[inline]
-    #[cfg(not(feature = "no_random"))]
     fn sample<R>(rng: &mut R) -> Self
     where
         R: rand::RngCore + ?Sized,
@@ -66,6 +66,9 @@ impl<F: Extendable<5>> Sample for QuinticExtension<F> {
         ])
     }
 }
+
+#[cfg(not(feature = "rand"))]
+impl<F: Extendable<5>> Sample for QuinticExtension<F> {}
 
 impl<F: Extendable<5>> Field for QuinticExtension<F> {
     const ZERO: Self = Self([F::ZERO; 5]);

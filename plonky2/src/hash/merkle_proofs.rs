@@ -1,109 +1,32 @@
+//! Merkle proof types and verification functions.
+//!
+//! Core types and functions are re-exported from qp-plonky2-core.
+//! Circuit-specific types and CircuitBuilder methods are defined locally.
+
 #[cfg(not(feature = "std"))]
 use alloc::{vec, vec::Vec};
 use core::ops::RangeInclusive;
 
-use anyhow::{ensure, Result};
 use itertools::Itertools;
-use serde::{Deserialize, Serialize};
 
 use crate::field::extension::Extendable;
 use crate::hash::hash_types::{HashOutTarget, MerkleCapTarget, RichField, NUM_HASH_OUT_ELTS};
 use crate::hash::hashing::PlonkyPermutation;
-use crate::hash::merkle_tree::MerkleCap;
 use crate::iop::target::{BoolTarget, Target};
 use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::circuit_data::VerifierCircuitTarget;
-use crate::plonk::config::{AlgebraicHasher, GenericHashOut, Hasher};
+use crate::plonk::config::AlgebraicHasher;
 
-#[derive(Clone, Debug, Serialize, Deserialize, Eq, PartialEq)]
-#[serde(bound = "")]
-pub struct MerkleProof<F: RichField, H: Hasher<F>> {
-    /// The Merkle digest of each sibling subtree, staying from the bottommost layer.
-    pub siblings: Vec<H::Hash>,
-}
+// Re-export MerkleProof and verification functions from core
+pub use qp_plonky2_core::merkle_proofs::{
+    verify_batch_merkle_proof_to_cap, verify_merkle_proof, verify_merkle_proof_to_cap, MerkleProof,
+};
 
-impl<F: RichField, H: Hasher<F>> MerkleProof<F, H> {
-    pub fn len(&self) -> usize {
-        self.siblings.len()
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.len() == 0
-    }
-}
-
+/// Circuit representation of a Merkle proof.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct MerkleProofTarget {
     /// The Merkle digest of each sibling subtree, staying from the bottommost layer.
     pub siblings: Vec<HashOutTarget>,
-}
-
-/// Verifies that the given leaf data is present at the given index in the Merkle tree with the
-/// given root.
-pub fn verify_merkle_proof<F: RichField, H: Hasher<F>>(
-    leaf_data: Vec<F>,
-    leaf_index: usize,
-    merkle_root: H::Hash,
-    proof: &MerkleProof<F, H>,
-) -> Result<()> {
-    let merkle_cap = MerkleCap(vec![merkle_root]);
-    verify_merkle_proof_to_cap(leaf_data, leaf_index, &merkle_cap, proof)
-}
-
-/// Verifies that the given leaf data is present at the given index in the Merkle tree with the
-/// given cap.
-pub fn verify_merkle_proof_to_cap<F: RichField, H: Hasher<F>>(
-    leaf_data: Vec<F>,
-    leaf_index: usize,
-    merkle_cap: &MerkleCap<F, H>,
-    proof: &MerkleProof<F, H>,
-) -> Result<()> {
-    verify_batch_merkle_proof_to_cap(
-        &[leaf_data.clone()],
-        &[proof.siblings.len()],
-        leaf_index,
-        merkle_cap,
-        proof,
-    )
-}
-
-/// Verifies that the given leaf data is present at the given index in the Field Merkle tree with the
-/// given cap.
-pub fn verify_batch_merkle_proof_to_cap<F: RichField, H: Hasher<F>>(
-    leaf_data: &[Vec<F>],
-    leaf_heights: &[usize],
-    mut leaf_index: usize,
-    merkle_cap: &MerkleCap<F, H>,
-    proof: &MerkleProof<F, H>,
-) -> Result<()> {
-    assert_eq!(leaf_data.len(), leaf_heights.len());
-    let mut current_digest = H::hash_or_noop(&leaf_data[0]);
-    let mut current_height = leaf_heights[0];
-    let mut leaf_data_index = 1;
-    for &sibling_digest in &proof.siblings {
-        let bit = leaf_index & 1;
-        leaf_index >>= 1;
-        current_digest = if bit == 1 {
-            H::two_to_one(sibling_digest, current_digest)
-        } else {
-            H::two_to_one(current_digest, sibling_digest)
-        };
-        current_height -= 1;
-
-        if leaf_data_index < leaf_heights.len() && current_height == leaf_heights[leaf_data_index] {
-            let mut new_leaves = current_digest.to_vec();
-            new_leaves.extend_from_slice(&leaf_data[leaf_data_index]);
-            current_digest = H::hash_or_noop(&new_leaves);
-            leaf_data_index += 1;
-        }
-    }
-    assert_eq!(leaf_data_index, leaf_data.len());
-    ensure!(
-        current_digest == merkle_cap.0[leaf_index],
-        "Invalid Merkle proof."
-    );
-
-    Ok(())
 }
 
 impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
@@ -313,8 +236,9 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
 }
 
 #[cfg(test)]
-#[cfg(not(feature = "no_random"))]
+#[cfg(feature = "rand")]
 mod tests {
+    use anyhow::Result;
     use rand::rngs::OsRng;
     use rand::Rng;
 

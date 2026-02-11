@@ -1,8 +1,10 @@
+//! Selector types and functions for gate constraints.
+//!
+//! Core types are re-exported from qp-plonky2-core.
+//! Prover-specific functions are defined locally.
+
 #[cfg(not(feature = "std"))]
 use alloc::{vec, vec::Vec};
-use core::ops::Range;
-
-use serde::Serialize;
 
 use crate::field::extension::Extendable;
 use crate::field::polynomial::PolynomialValues;
@@ -10,34 +12,8 @@ use crate::gates::gate::{GateInstance, GateRef};
 use crate::hash::hash_types::RichField;
 use crate::plonk::circuit_builder::LookupWire;
 
-/// Placeholder value to indicate that a gate doesn't use a selector polynomial.
-pub(crate) const UNUSED_SELECTOR: usize = u32::MAX as usize;
-
-#[derive(Debug, Clone, Eq, PartialEq, Serialize)]
-pub struct SelectorsInfo {
-    pub(crate) selector_indices: Vec<usize>,
-    pub(crate) groups: Vec<Range<usize>>,
-}
-
-impl SelectorsInfo {
-    pub fn num_selectors(&self) -> usize {
-        self.groups.len()
-    }
-}
-
-/// Enum listing the different selectors for lookup constraints:
-/// - `TransSre` is for Sum and RE transition constraints.
-/// - `TransLdc` is for LDC transition constraints.
-/// - `InitSre` is for the initial constraint of Sum and Re.
-/// - `LastLdc` is for the final LDC (and Sum) constraint.
-/// - `StartEnd` indicates where lookup end selectors begin.
-pub enum LookupSelectors {
-    TransSre = 0,
-    TransLdc,
-    InitSre,
-    LastLdc,
-    StartEnd,
-}
+// Re-export selector types from core
+pub use qp_plonky2_core::selectors::{LookupSelectors, SelectorsInfo, UNUSED_SELECTOR};
 
 /// Returns selector polynomials for each LUT. We have two constraint domains (remember that gates are stored upside down):
 /// - [last_lut_row, first_lut_row] (Sum and RE transition constraints),

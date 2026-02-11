@@ -35,7 +35,7 @@ use crate::hash::hash_types::{HashOut, HashOutTarget, MerkleCapTarget, RichField
 use crate::hash::merkle_proofs::MerkleProofTarget;
 use crate::hash::merkle_tree::MerkleCap;
 use crate::iop::ext_target::ExtensionTarget;
-#[cfg(not(feature = "no_random"))]
+#[cfg(feature = "rand")]
 use crate::iop::generator::RandomValueGenerator;
 use crate::iop::generator::{
     ConstantGenerator, CopyGenerator, SimpleGenerator, WitnessGeneratorRef,
@@ -912,13 +912,10 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
 
     fn blind_and_pad(&mut self) {
         if self.config.zero_knowledge {
-            #[cfg(not(feature = "no_random"))]
+            #[cfg(feature = "rand")]
             self.blind();
-            #[cfg(feature = "no_random")]
-            assert!(
-                false,
-                "Cannot use no_random feature with config.zero_knowledge"
-            );
+            #[cfg(not(feature = "rand"))]
+            assert!(false, "Cannot use zero_knowledge without rand feature");
         }
 
         while !self.gate_instances.len().is_power_of_two() {
@@ -926,7 +923,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         }
     }
 
-    #[cfg(not(feature = "no_random"))]
+    #[cfg(feature = "rand")]
     fn blind(&mut self) {
         let (regular_poly_openings, z_openings) = self.blinding_counts();
         info!(
@@ -1058,7 +1055,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     /// mitigate this by randomizing some unused witness elements, so if proving fails with
     /// division by zero, the next attempt will have an (almost) independent chance of success.
     /// See <https://github.com/0xPolygonZero/plonky2/issues/456>.
-    #[cfg(not(feature = "no_random"))]
+    #[cfg(feature = "rand")]
     fn randomize_unused_pi_wires(&mut self, pi_gate: usize) {
         for wire in PublicInputGate::wires_public_inputs_hash().end..self.config.num_wires {
             self.add_simple_generator(RandomValueGenerator {
@@ -1071,7 +1068,10 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     pub fn build_with_options<C: GenericConfig<D, F = F>>(
         self,
         commit_to_sigma: bool,
-    ) -> CircuitData<F, C, D> {
+    ) -> CircuitData<F, C, D>
+    where
+        C::InnerHasher: AlgebraicHasher<F>,
+    {
         let (circuit_data, success) = self.try_build_with_options(commit_to_sigma);
         if !success {
             panic!("Failed to build circuit");
@@ -1082,7 +1082,10 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     pub fn try_build_with_options<C: GenericConfig<D, F = F>>(
         mut self,
         commit_to_sigma: bool,
-    ) -> (CircuitData<F, C, D>, bool) {
+    ) -> (CircuitData<F, C, D>, bool)
+    where
+        C::InnerHasher: AlgebraicHasher<F>,
+    {
         let mut timing = TimingTree::new("preprocess", Level::Trace);
 
         #[cfg(feature = "timing")]
@@ -1105,7 +1108,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         {
             self.connect(hash_part, Target::wire(pi_gate, wire))
         }
-        #[cfg(not(feature = "no_random"))]
+        #[cfg(feature = "rand")]
         self.randomize_unused_pi_wires(pi_gate);
 
         // Place LUT-related gates.
@@ -1332,11 +1335,17 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     }
 
     /// Builds a "full circuit", with both prover and verifier data.
-    pub fn build<C: GenericConfig<D, F = F>>(self) -> CircuitData<F, C, D> {
+    pub fn build<C: GenericConfig<D, F = F>>(self) -> CircuitData<F, C, D>
+    where
+        C::InnerHasher: AlgebraicHasher<F>,
+    {
         self.build_with_options(true)
     }
 
-    pub fn mock_build<C: GenericConfig<D, F = F>>(self) -> MockCircuitData<F, C, D> {
+    pub fn mock_build<C: GenericConfig<D, F = F>>(self) -> MockCircuitData<F, C, D>
+    where
+        C::InnerHasher: AlgebraicHasher<F>,
+    {
         let circuit_data = self.build_with_options(false);
         MockCircuitData {
             prover_only: circuit_data.prover_only,
@@ -1344,14 +1353,20 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         }
     }
     /// Builds a "prover circuit", with data needed to generate proofs but not verify them.
-    pub fn build_prover<C: GenericConfig<D, F = F>>(self) -> ProverCircuitData<F, C, D> {
+    pub fn build_prover<C: GenericConfig<D, F = F>>(self) -> ProverCircuitData<F, C, D>
+    where
+        C::InnerHasher: AlgebraicHasher<F>,
+    {
         // TODO: Can skip parts of this.
         let circuit_data = self.build::<C>();
         circuit_data.prover_data()
     }
 
     /// Builds a "verifier circuit", with data needed to verify proofs but not generate them.
-    pub fn build_verifier<C: GenericConfig<D, F = F>>(self) -> VerifierCircuitData<F, C, D> {
+    pub fn build_verifier<C: GenericConfig<D, F = F>>(self) -> VerifierCircuitData<F, C, D>
+    where
+        C::InnerHasher: AlgebraicHasher<F>,
+    {
         // TODO: Can skip parts of this.
         let circuit_data = self.build::<C>();
         circuit_data.verifier_data()

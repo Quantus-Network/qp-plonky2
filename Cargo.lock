@@ -765,7 +765,9 @@ dependencies = [
  "p3-symmetric",
  "plonky2_maybe_rayon",
  "plonky2_util",
+ "qp-plonky2-core",
  "qp-plonky2-field",
+ "qp-plonky2-verifier",
  "qp-poseidon-constants",
  "qp-poseidon-core",
  "rand 0.8.5",
@@ -781,6 +783,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "qp-plonky2-core"
+version = "1.0.0"
+dependencies = [
+ "ahash",
+ "anyhow",
+ "hashbrown",
+ "itertools 0.11.0",
+ "keccak-hash",
+ "log",
+ "num",
+ "p3-field",
+ "p3-goldilocks",
+ "p3-poseidon2",
+ "p3-symmetric",
+ "plonky2_util",
+ "qp-plonky2-field",
+ "qp-poseidon-constants",
+ "rand 0.8.5",
+ "serde",
+ "static_assertions",
+ "unroll",
+]
+
+[[package]]
 name = "qp-plonky2-field"
 version = "1.1.3"
 dependencies = [
@@ -791,6 +817,33 @@ dependencies = [
  "rand 0.8.5",
  "rustc_version",
  "serde",
+ "static_assertions",
+ "unroll",
+]
+
+[[package]]
+name = "qp-plonky2-verifier"
+version = "2.0.0"
+dependencies = [
+ "ahash",
+ "anyhow",
+ "criterion",
+ "hashbrown",
+ "itertools 0.11.0",
+ "keccak-hash",
+ "log",
+ "num",
+ "p3-field",
+ "p3-goldilocks",
+ "p3-poseidon2",
+ "p3-symmetric",
+ "plonky2_util",
+ "qp-plonky2-core",
+ "qp-plonky2-field",
+ "qp-poseidon-constants",
+ "rand 0.8.5",
+ "serde",
+ "serde_cbor",
  "static_assertions",
  "unroll",
 ]

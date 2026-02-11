@@ -4,43 +4,14 @@ use core::mem::MaybeUninit;
 use core::slice;
 
 use plonky2_maybe_rayon::*;
-use serde::{Deserialize, Serialize};
 
 use crate::hash::hash_types::RichField;
 use crate::hash::merkle_proofs::MerkleProof;
-use crate::plonk::config::{GenericHashOut, Hasher};
+use crate::plonk::config::Hasher;
 use crate::util::log2_strict;
 
-/// The Merkle cap of height `h` of a Merkle tree is the `h`-th layer (from the root) of the tree.
-/// It can be used in place of the root to verify Merkle paths, which are `h` elements shorter.
-#[derive(Clone, Debug, Serialize, Deserialize, Eq, PartialEq)]
-#[serde(bound = "")]
-// TODO: Change H to GenericHashOut<F>, since this only cares about the hash, not the hasher.
-pub struct MerkleCap<F: RichField, H: Hasher<F>>(pub Vec<H::Hash>);
-
-impl<F: RichField, H: Hasher<F>> Default for MerkleCap<F, H> {
-    fn default() -> Self {
-        Self(Vec::new())
-    }
-}
-
-impl<F: RichField, H: Hasher<F>> MerkleCap<F, H> {
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.len() == 0
-    }
-
-    pub fn height(&self) -> usize {
-        log2_strict(self.len())
-    }
-
-    pub fn flatten(&self) -> Vec<F> {
-        self.0.iter().flat_map(|&h| h.to_vec()).collect()
-    }
-}
+// Re-export MerkleCap from core for unified type across crates
+pub use qp_plonky2_core::MerkleCap;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct MerkleTree<F: RichField, H: Hasher<F>> {
@@ -238,7 +209,7 @@ impl<F: RichField, H: Hasher<F>> MerkleTree<F, H> {
 }
 
 #[cfg(test)]
-#[cfg(not(feature = "no_random"))]
+#[cfg(feature = "rand")]
 pub(crate) mod tests {
     use anyhow::Result;
 

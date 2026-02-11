@@ -229,12 +229,11 @@ mod tests {
     use super::*;
     use crate::batch_fri::oracle::BatchFriOracle;
     use crate::batch_fri::verifier::verify_batch_fri_proof;
-    use crate::fri::reduction_strategies::FriReductionStrategy;
     use crate::fri::structure::{
         FriBatchInfo, FriInstanceInfo, FriOpeningBatch, FriOpenings, FriOracleInfo,
         FriPolynomialInfo,
     };
-    use crate::fri::FriConfig;
+    use crate::fri::{FriChallenger, FriConfig, FriReductionStrategy};
     use crate::plonk::config::PoseidonGoldilocksConfig;
 
     const D: usize = 2;
@@ -339,7 +338,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(not(feature = "no_random"))]
+    #[cfg(feature = "rand")]
     fn multiple_polynomials() -> Result<()> {
         use plonky2_field::types::Sample;
         let mut timing = TimingTree::default();

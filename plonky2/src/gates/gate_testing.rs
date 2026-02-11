@@ -21,7 +21,7 @@ const WITNESS_DEGREE: usize = WITNESS_SIZE - 1;
 
 /// Tests that the constraints imposed by the given gate are low-degree by applying them to random
 /// low-degree witness polynomials.
-#[cfg(not(feature = "no_random"))]
+#[cfg(feature = "rand")]
 pub fn test_low_degree<F: RichField + Extendable<D>, G: Gate<F, D>, const D: usize>(gate: G) {
     let rate_bits = log2_ceil(gate.degree() + 1);
 
@@ -67,7 +67,7 @@ pub fn test_low_degree<F: RichField + Extendable<D>, G: Gate<F, D>, const D: usi
     );
 }
 
-#[cfg(not(feature = "no_random"))]
+#[cfg(feature = "rand")]
 fn random_low_degree_matrix<F: Field>(num_polys: usize, rate_bits: usize) -> Vec<Vec<F>> {
     let polys = (0..num_polys)
         .map(|_| random_low_degree_values(rate_bits))
@@ -81,7 +81,7 @@ fn random_low_degree_matrix<F: Field>(num_polys: usize, rate_bits: usize) -> Vec
     }
 }
 
-#[cfg(not(feature = "no_random"))]
+#[cfg(feature = "rand")]
 fn random_low_degree_values<F: Field>(rate_bits: usize) -> Vec<F> {
     PolynomialCoeffs::new(F::rand_vec(WITNESS_SIZE))
         .lde(rate_bits)
@@ -89,7 +89,7 @@ fn random_low_degree_values<F: Field>(rate_bits: usize) -> Vec<F> {
         .values
 }
 
-#[cfg(not(feature = "no_random"))]
+#[cfg(feature = "rand")]
 pub fn test_eval_fns<
     F: RichField + Extendable<D>,
     C: GenericConfig<D, F = F>,
@@ -97,7 +97,10 @@ pub fn test_eval_fns<
     const D: usize,
 >(
     gate: G,
-) -> Result<()> {
+) -> Result<()>
+where
+    C::InnerHasher: crate::plonk::config::AlgebraicHasher<F>,
+{
     // Test that `eval_unfiltered` and `eval_unfiltered_base` are coherent.
     let wires_base = F::rand_vec(gate.num_wires());
     let constants_base = F::rand_vec(gate.num_constants());

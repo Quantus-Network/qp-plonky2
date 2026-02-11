@@ -67,9 +67,9 @@ impl Debug for Secp256K1Scalar {
     }
 }
 
+#[cfg(feature = "rand")]
 impl Sample for Secp256K1Scalar {
     #[inline]
-    #[cfg(not(feature = "no_random"))]
     fn sample<R>(rng: &mut R) -> Self
     where
         R: rand::RngCore + ?Sized,
@@ -78,6 +78,9 @@ impl Sample for Secp256K1Scalar {
         Self::from_noncanonical_biguint(rng.gen_biguint_below(&Self::order()))
     }
 }
+
+#[cfg(not(feature = "rand"))]
+impl Sample for Secp256K1Scalar {}
 
 impl Field for Secp256K1Scalar {
     const ZERO: Self = Self([0; 4]);

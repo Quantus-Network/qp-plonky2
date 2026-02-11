@@ -3,6 +3,46 @@
 
 This repository was originally for Plonky2, a SNARK implementation based on techniques from PLONK and FRI. It has since expanded to include tools such as Starky, a highly performant STARK implementation.
 
+## Crate Structure
+
+| Crate | Purpose | `no_std` |
+|-------|---------|----------|
+| `qp-plonky2` | Full prover with circuit building and recursive verification | ✓ |
+| `qp-plonky2-verifier` | Lightweight verification-only | ✓ |
+| `qp-plonky2-core` | Shared primitives used by both prover and verifier | ✓ |
+
+```
+qp-plonky2-field → qp-plonky2-core → qp-plonky2-verifier
+                                   ↘ qp-plonky2 (includes verifier)
+```
+
+### What's in each crate?
+
+**`qp-plonky2-core`** — Foundation types shared between prover and verifier:
+- `Challenger` — Fiat-Shamir transcript for generating challenges
+- `FriChallenger` trait — FRI-specific challenge generation
+- FRI types — `FriConfig`, `FriParams`, `FriChallenges`, `FriOpenings`, etc.
+- Merkle types — `MerkleCap`, `MerkleTree`, `MerkleProof`
+- Hash implementations — Poseidon, Keccak
+- `CircuitConfig`, `GenericConfig`, `SelectorsInfo`
+
+**`qp-plonky2-verifier`** — Minimal verification implementation:
+- `VerificationGate` trait and gate implementations (verification-only)
+- `CommonVerifierData` — circuit metadata needed for verification
+- Proof verification logic
+
+**`qp-plonky2`** — Full prover capabilities:
+- `Gate` trait with constraint generation and witness computation
+- `CircuitBuilder` for constructing circuits
+- `RecursiveChallenger` for in-circuit verification
+- Prover implementation
+- All `*Target` types for recursive circuits
+
+### Which crate should I use?
+
+- **For proving:** Use `qp-plonky2` — it includes everything
+- **For verification-only:** Use `qp-plonky2-verifier` — smaller binary, no prover dependencies
+
 ## Documentation
 
 For more details about the Plonky2 argument system, see this [writeup](plonky2/plonky2.pdf).

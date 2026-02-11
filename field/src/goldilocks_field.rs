@@ -56,9 +56,9 @@ impl Debug for GoldilocksField {
     }
 }
 
+#[cfg(feature = "rand")]
 impl Sample for GoldilocksField {
     #[inline]
-    #[cfg(not(feature = "no_random"))]
     fn sample<R>(rng: &mut R) -> Self
     where
         R: rand::RngCore + ?Sized,
@@ -67,6 +67,9 @@ impl Sample for GoldilocksField {
         Self::from_canonical_u64(rng.gen_range(0..Self::ORDER))
     }
 }
+
+#[cfg(not(feature = "rand"))]
+impl Sample for GoldilocksField {}
 
 impl Field for GoldilocksField {
     const ZERO: Self = Self(0);

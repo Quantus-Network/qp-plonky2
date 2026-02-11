@@ -11,6 +11,16 @@ pub extern crate alloc;
 #[doc(inline)]
 pub use plonky2_field as field;
 
+/// Re-export verification types from the verifier crate (canonical source)
+#[doc(inline)]
+pub use plonky2_verifier::verify;
+pub use plonky2_verifier::{
+    CommonCircuitData, CompressedProofWithPublicInputs, GenericConfig, GenericHashOut, Hasher,
+    PoseidonGoldilocksConfig, Proof, ProofWithPublicInputs, VerifierCircuitData,
+    VerifierOnlyCircuitData,
+};
+pub use plonky2_verifier::{C, D, F};
+
 pub mod batch_fri;
 pub mod fri;
 pub mod gadgets;

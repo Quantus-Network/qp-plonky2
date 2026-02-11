@@ -8,7 +8,7 @@ use static_assertions::const_assert;
 
 use crate::field::goldilocks_field::GoldilocksField;
 use crate::field::types::Field;
-use crate::hash::poseidon::{
+use crate::poseidon::{
     Poseidon, ALL_ROUND_CONSTANTS, HALF_N_FULL_ROUNDS, N_PARTIAL_ROUNDS, N_ROUNDS,
 };
 use crate::util::branch_hint;

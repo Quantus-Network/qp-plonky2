@@ -3,11 +3,7 @@
 extern crate alloc;
 
 #[cfg(not(feature = "std"))]
-use alloc::format;
-#[cfg(not(feature = "std"))]
-use alloc::string::String;
-#[cfg(not(feature = "std"))]
-use alloc::{vec, vec::Vec};
+use alloc::vec;
 #[cfg(not(feature = "std"))]
 use core::fmt::Debug;
 

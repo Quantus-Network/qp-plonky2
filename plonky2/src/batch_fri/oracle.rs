@@ -249,7 +249,7 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
 }
 
 #[cfg(test)]
-#[cfg(not(feature = "no_random"))]
+#[cfg(feature = "rand")]
 mod test {
     #[cfg(not(feature = "std"))]
     use alloc::vec;
@@ -260,13 +260,12 @@ mod test {
     use super::*;
     use crate::batch_fri::oracle::BatchFriOracle;
     use crate::batch_fri::verifier::verify_batch_fri_proof;
-    use crate::fri::reduction_strategies::FriReductionStrategy;
     use crate::fri::structure::{
         FriBatchInfo, FriBatchInfoTarget, FriInstanceInfo, FriInstanceInfoTarget, FriOpeningBatch,
         FriOpeningBatchTarget, FriOpenings, FriOpeningsTarget, FriOracleInfo, FriPolynomialInfo,
     };
     use crate::fri::witness_util::set_fri_proof_target;
-    use crate::fri::FriConfig;
+    use crate::fri::{FriChallenger, FriConfig, FriReductionStrategy};
     use crate::iop::challenger::RecursiveChallenger;
     use crate::iop::witness::PartialWitness;
     use crate::plonk::circuit_builder::CircuitBuilder;

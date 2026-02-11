@@ -437,7 +437,7 @@ impl<F: Field> Mul for &PolynomialCoeffs<F> {
 }
 
 #[cfg(test)]
-#[cfg(not(feature = "no_random"))]
+#[cfg(feature = "rand")]
 mod tests {
     use std::time::Instant;
 

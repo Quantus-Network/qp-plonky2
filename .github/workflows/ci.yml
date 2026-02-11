@@ -66,8 +66,8 @@ jobs:
         run: rustup target add wasm32v1-none
       - name: Build
         run: cargo build --release
-      - name: Check no-std
-        run: cargo check --package qp-plonky2 --no-default-features --features no_random
+      - name: Check no-std (without rand)
+        run: cargo check --package qp-plonky2 --no-default-features
       - name: Test
         run: cargo test --release
 

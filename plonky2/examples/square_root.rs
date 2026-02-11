@@ -6,7 +6,7 @@ use plonky2::gates::arithmetic_base::ArithmeticBaseGenerator;
 use plonky2::gates::poseidon::PoseidonGenerator;
 use plonky2::gates::poseidon_mds::PoseidonMdsGenerator;
 use plonky2::hash::hash_types::RichField;
-#[cfg(not(feature = "no_random"))]
+#[cfg(feature = "rand")]
 use plonky2::iop::generator::RandomValueGenerator;
 use plonky2::iop::generator::{ConstantGenerator, GeneratedValues, SimpleGenerator};
 use plonky2::iop::target::Target;
@@ -20,7 +20,6 @@ use plonky2::util::serialization::{
 };
 use plonky2::{get_generator_tag_impl, impl_generator_serializer, read_generator_impl};
 use plonky2_field::extension::Extendable;
-use plonky2_field::types::Field;
 
 /// A generator used by the prover to calculate the square root (`x`) of a given value
 /// (`x_squared`), outside of the circuit, in order to supply it as an additional public input.
@@ -82,7 +81,7 @@ where
     C: GenericConfig<D, F = F> + 'static,
     C::Hasher: AlgebraicHasher<F>,
 {
-    #[cfg(not(feature = "no_random"))]
+    #[cfg(feature = "rand")]
     impl_generator_serializer! {
         CustomGeneratorSerializer,
         DummyProofGenerator<F, C, D>,
@@ -94,7 +93,7 @@ where
         SquareRootGenerator<F, D>
     }
 
-    #[cfg(feature = "no_random")]
+    #[cfg(not(feature = "rand"))]
     impl_generator_serializer! {
         CustomGeneratorSerializer,
         DummyProofGenerator<F, C, D>,
@@ -106,12 +105,12 @@ where
     }
 }
 
-#[cfg(feature = "no_random")]
+#[cfg(not(feature = "rand"))]
 fn main() {}
 
 /// An example of using Plonky2 to prove a statement of the form
 /// "I know the square root of this field element."
-#[cfg(not(feature = "no_random"))]
+#[cfg(feature = "rand")]
 fn main() -> Result<()> {
     const D: usize = 2;
     type C = PoseidonGoldilocksConfig;
