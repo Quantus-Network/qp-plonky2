@@ -69,9 +69,7 @@ impl<F: RichField + Extendable<D>, const D: usize> FriOpeningExpression<F, D> {
             polynomial,
             coefficient: FriCoefficient::One,
         }]);
-        Self {
-            terms
-        }
+        Self { terms }
     }
 
     pub fn split_mask(low: FriPolynomialInfo, high: FriPolynomialInfo, split_power: usize) -> Self {
@@ -85,9 +83,7 @@ impl<F: RichField + Extendable<D>, const D: usize> FriOpeningExpression<F, D> {
                 coefficient: FriCoefficient::PointPower(split_power),
             },
         ]);
-        Self {
-            terms
-        }
+        Self { terms }
     }
 }
 
