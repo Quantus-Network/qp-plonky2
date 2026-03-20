@@ -361,7 +361,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
                 .iter()
                 .map(|p| {
                     let poly_blinding = instance.oracles[p.oracle_index].blinding;
-                    let salted = params.hiding && poly_blinding;
+                    let salted = params.leaf_hiding && poly_blinding;
                     proof.unsalted_eval(p.oracle_index, p.polynomial_index, salted)
                 })
                 .collect_vec();

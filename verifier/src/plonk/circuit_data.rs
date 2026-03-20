@@ -11,7 +11,9 @@ use serde::Serialize;
 
 use crate::field::extension::Extendable;
 use crate::field::types::Field;
-use crate::fri::structure::{FriBatchInfo, FriInstanceInfo, FriOracleInfo, FriPolynomialInfo};
+use crate::fri::structure::{
+    FriBatchInfo, FriInstanceInfo, FriOpeningExpression, FriOracleInfo, FriPolynomialInfo,
+};
 use crate::gates::gate::GateRef;
 use crate::gates::lookup_table::LookupTable;
 use crate::gates::selectors::SelectorsInfo;
@@ -101,6 +103,10 @@ pub struct CommonVerifierData<F: RichField + Extendable<D>, const D: usize> {
 
     pub fri_params: FriParams,
 
+    /// Raw-vs-logical oracle layout metadata used by the native verifier to reconstruct PolyFri
+    /// logical openings from the committed raw polynomials.
+    pub fri_oracle_layouts: Vec<FriOracleLayout>,
+
     /// The types of gates used in this circuit, along with their prefixes.
     pub gates: Vec<GateRef<F, D>>,
 
@@ -132,6 +138,19 @@ pub struct CommonVerifierData<F: RichField + Extendable<D>, const D: usize> {
 
     /// The stored lookup tables.
     pub luts: Vec<LookupTable>,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize)]
+pub struct FriOracleLayout {
+    pub raw_polys: usize,
+    pub logical_polys: usize,
+    pub representation: FriOracleRepresentation,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize)]
+pub enum FriOracleRepresentation {
+    Raw,
+    SplitMask { split_power: usize },
 }
 
 impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
@@ -212,7 +231,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
         // All polynomials are opened at zeta.
         let zeta_batch = FriBatchInfo {
             point: zeta,
-            polynomials: self.fri_all_polys(),
+            openings: self.fri_all_openings(),
         };
 
         // The Z polynomials are also opened at g * zeta.
@@ -220,7 +239,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
         let zeta_next = g * zeta;
         let zeta_next_batch = FriBatchInfo {
             point: zeta_next,
-            polynomials: self.fri_next_batch_polys(),
+            openings: self.fri_next_batch_openings(),
         };
 
         let openings = vec![zeta_batch, zeta_next_batch];
@@ -231,24 +250,18 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
     }
 
     fn fri_oracles(&self) -> Vec<FriOracleInfo> {
-        vec![
-            FriOracleInfo {
-                num_polys: self.num_preprocessed_polys(),
-                blinding: PlonkOracle::CONSTANTS_SIGMAS.blinding,
-            },
-            FriOracleInfo {
-                num_polys: self.config.num_wires,
-                blinding: PlonkOracle::WIRES.blinding,
-            },
-            FriOracleInfo {
-                num_polys: self.num_zs_partial_products_polys() + self.num_all_lookup_polys(),
-                blinding: PlonkOracle::ZS_PARTIAL_PRODUCTS.blinding,
-            },
-            FriOracleInfo {
-                num_polys: self.num_quotient_polys(),
-                blinding: PlonkOracle::QUOTIENT.blinding,
-            },
+        [
+            PlonkOracle::CONSTANTS_SIGMAS,
+            PlonkOracle::WIRES,
+            PlonkOracle::ZS_PARTIAL_PRODUCTS,
+            PlonkOracle::QUOTIENT,
         ]
+        .into_iter()
+        .map(|oracle| FriOracleInfo {
+            num_polys: self.fri_oracle_layouts[oracle.index].raw_polys,
+            blinding: oracle.blinding,
+        })
+        .collect()
     }
 
     fn fri_preprocessed_polys(&self) -> Vec<FriPolynomialInfo> {
@@ -267,6 +280,50 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
         FriPolynomialInfo::from_range(PlonkOracle::WIRES.index, 0..num_wire_polys)
     }
 
+    fn fri_oracle_openings<I>(
+        &self,
+        oracle: PlonkOracle,
+        logical_indices: I,
+    ) -> Vec<FriOpeningExpression<F, D>>
+    where
+        I: IntoIterator<Item = usize>,
+    {
+        let layout = &self.fri_oracle_layouts[oracle.index];
+        logical_indices
+            .into_iter()
+            .map(|logical_index| match layout.representation {
+                FriOracleRepresentation::Raw => FriOpeningExpression::raw(FriPolynomialInfo {
+                    oracle_index: oracle.index,
+                    polynomial_index: logical_index,
+                }),
+                FriOracleRepresentation::SplitMask { split_power } => {
+                    FriOpeningExpression::split_mask(
+                        FriPolynomialInfo {
+                            oracle_index: oracle.index,
+                            polynomial_index: 2 * logical_index,
+                        },
+                        FriPolynomialInfo {
+                            oracle_index: oracle.index,
+                            polynomial_index: 2 * logical_index + 1,
+                        },
+                        split_power,
+                    )
+                }
+            })
+            .collect()
+    }
+
+    fn fri_preprocessed_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
+        self.fri_oracle_openings(
+            PlonkOracle::CONSTANTS_SIGMAS,
+            0..self.num_preprocessed_polys(),
+        )
+    }
+
+    fn fri_wire_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
+        self.fri_oracle_openings(PlonkOracle::WIRES, 0..self.config.num_wires)
+    }
+
     fn fri_zs_partial_products_polys(&self) -> Vec<FriPolynomialInfo> {
         FriPolynomialInfo::from_range(
             PlonkOracle::ZS_PARTIAL_PRODUCTS.index,
@@ -278,12 +335,24 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
         self.config.num_challenges * (1 + self.num_partial_products)
     }
 
+    fn fri_zs_partial_products_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
+        self.fri_oracle_openings(
+            PlonkOracle::ZS_PARTIAL_PRODUCTS,
+            0..self.num_zs_partial_products_polys(),
+        )
+    }
+
     /// Returns the total number of lookup polynomials.
     pub(crate) const fn num_all_lookup_polys(&self) -> usize {
         self.config.num_challenges * self.num_lookup_polys
     }
+
     fn fri_zs_polys(&self) -> Vec<FriPolynomialInfo> {
         FriPolynomialInfo::from_range(PlonkOracle::ZS_PARTIAL_PRODUCTS.index, self.zs_range())
+    }
+
+    fn fri_zs_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
+        self.fri_oracle_openings(PlonkOracle::ZS_PARTIAL_PRODUCTS, self.zs_range())
     }
 
     /// Returns polynomials that require evaluation at `zeta` and `g * zeta`.
@@ -291,14 +360,30 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
         [self.fri_zs_polys(), self.fri_lookup_polys()].concat()
     }
 
+    fn fri_next_batch_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
+        [self.fri_zs_openings(), self.fri_lookup_openings()].concat()
+    }
+
     fn fri_quotient_polys(&self) -> Vec<FriPolynomialInfo> {
         FriPolynomialInfo::from_range(PlonkOracle::QUOTIENT.index, 0..self.num_quotient_polys())
+    }
+
+    fn fri_quotient_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
+        self.fri_oracle_openings(PlonkOracle::QUOTIENT, 0..self.num_quotient_polys())
     }
 
     /// Returns the information for lookup polynomials, i.e. the index within the oracle and the indices of the polynomials within the commitment.
     fn fri_lookup_polys(&self) -> Vec<FriPolynomialInfo> {
         FriPolynomialInfo::from_range(
             PlonkOracle::ZS_PARTIAL_PRODUCTS.index,
+            self.num_zs_partial_products_polys()
+                ..self.num_zs_partial_products_polys() + self.num_all_lookup_polys(),
+        )
+    }
+
+    fn fri_lookup_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
+        self.fri_oracle_openings(
+            PlonkOracle::ZS_PARTIAL_PRODUCTS,
             self.num_zs_partial_products_polys()
                 ..self.num_zs_partial_products_polys() + self.num_all_lookup_polys(),
         )
@@ -314,6 +399,17 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
             self.fri_zs_partial_products_polys(),
             self.fri_quotient_polys(),
             self.fri_lookup_polys(),
+        ]
+        .concat()
+    }
+
+    fn fri_all_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
+        [
+            self.fri_preprocessed_openings(),
+            self.fri_wire_openings(),
+            self.fri_zs_partial_products_openings(),
+            self.fri_quotient_openings(),
+            self.fri_lookup_openings(),
         ]
         .concat()
     }

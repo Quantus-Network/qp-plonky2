@@ -72,6 +72,21 @@ struct Options {
     /// If `lookup_type == 2`, a benchmark with 515 lookups is run.
     #[structopt(long, default_value="0", parse(try_from_str = parse_hex_u64))]
     lookup_type: u64,
+
+    /// Zero-knowledge mode for the benchmarked proof.
+    #[structopt(long, default_value = "disabled", parse(try_from_str = parse_zk_bench_mode))]
+    zk_mode: ZkBenchMode,
+
+    /// Number of recursive verification layers to add after the initial proof.
+    #[structopt(long, default_value = "2")]
+    layers: usize,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum ZkBenchMode {
+    Disabled,
+    LeafHiding,
+    PolyFri,
 }
 
 /// Creates a dummy proof which should have `2 ** log2_size` rows.
@@ -94,6 +109,7 @@ where
     for _ in 0..num_dummy_gates {
         builder.add_gate(NoopGate, vec![]);
     }
+    info!("Inner proof pre-pad gates {}", builder.num_gates());
     builder.print_gate_counts(0);
 
     let data = builder.build::<C>();
@@ -140,6 +156,7 @@ where
     for _ in builder.num_gates()..targeted_num_gates {
         builder.add_gate(NoopGate, vec![]);
     }
+    info!("Inner proof pre-pad gates {}", builder.num_gates());
     builder.print_gate_counts(0);
 
     let data = builder.build::<C>();
@@ -189,6 +206,7 @@ where
     for _ in 0..targeted_num_gates {
         builder.add_gate(NoopGate, vec![]);
     }
+    info!("Inner proof pre-pad gates {}", builder.num_gates());
 
     builder.register_public_input(initial_a);
     builder.register_public_input(output);
@@ -302,6 +320,7 @@ pub fn benchmark_function(
     config: &CircuitConfig,
     log2_inner_size: usize,
     lookup_type: u64,
+    layers: usize,
 ) -> Result<()> {
     const D: usize = 2;
     type C = PoseidonGoldilocksConfig;
@@ -329,28 +348,44 @@ pub fn benchmark_function(
         common_data.degree(),
         common_data.degree_bits()
     );
+    match layers {
+        0 => {
+            let (proof, vd, common_data) = &inner;
+            test_serialization(proof, vd, common_data)?;
+        }
+        1 => {
+            let middle = recursive_proof::<F, C, C, D>(&inner, config, None)?;
+            let (proof, vd, common_data) = &middle;
+            info!(
+                "Single recursion {} degree {} = 2^{}",
+                name,
+                common_data.degree(),
+                common_data.degree_bits()
+            );
+            test_serialization(proof, vd, common_data)?;
+        }
+        2 => {
+            let middle = recursive_proof::<F, C, C, D>(&inner, config, None)?;
+            let (_, _, common_data) = &middle;
+            info!(
+                "Single recursion {} degree {} = 2^{}",
+                name,
+                common_data.degree(),
+                common_data.degree_bits()
+            );
 
-    // Recursively verify the proof
-    let middle = recursive_proof::<F, C, C, D>(&inner, config, None)?;
-    let (_, _, common_data) = &middle;
-    info!(
-        "Single recursion {} degree {} = 2^{}",
-        name,
-        common_data.degree(),
-        common_data.degree_bits()
-    );
-
-    // Add a second layer of recursion to shrink the proof size further
-    let outer = recursive_proof::<F, C, C, D>(&middle, config, None)?;
-    let (proof, vd, common_data) = &outer;
-    info!(
-        "Double recursion {} degree {} = 2^{}",
-        name,
-        common_data.degree(),
-        common_data.degree_bits()
-    );
-
-    test_serialization(proof, vd, common_data)?;
+            let outer = recursive_proof::<F, C, C, D>(&middle, config, None)?;
+            let (proof, vd, common_data) = &outer;
+            info!(
+                "Double recursion {} degree {} = 2^{}",
+                name,
+                common_data.degree(),
+                common_data.degree_bits()
+            );
+            test_serialization(proof, vd, common_data)?;
+        }
+        _ => return Err(anyhow!("Only 0, 1, or 2 recursion layers are supported")),
+    }
 
     Ok(())
 }
@@ -379,7 +414,23 @@ fn main() -> Result<()> {
     let num_cpus = num_cpus::get();
     let threads = options.threads.unwrap_or(num_cpus..=num_cpus);
 
-    let config = CircuitConfig::standard_recursion_config();
+    let config = match options.zk_mode {
+        ZkBenchMode::Disabled => CircuitConfig::standard_recursion_config(),
+        ZkBenchMode::LeafHiding => {
+            let mut config = CircuitConfig::standard_recursion_config();
+            config.zk_config.leaf_hiding = true;
+            config
+        }
+        ZkBenchMode::PolyFri => {
+            if options.layers != 0 {
+                return Err(anyhow!(
+                    "Phase 1 supports PolyFri only on the native prover path; rerun with --layers 0."
+                ));
+            }
+            CircuitConfig::standard_recursion_zk_config()
+        }
+    };
+    info!("Benchmark zk mode: {:?}", options.zk_mode);
 
     for log2_inner_size in options.size {
         // Since the `size` is most likely to be an unbounded range we make that the outer iterator.
@@ -395,7 +446,12 @@ fn main() -> Result<()> {
                         num_cpus
                     );
                     // Run the benchmark. `options.lookup_type` determines which benchmark to run.
-                    benchmark_function(&config, log2_inner_size, options.lookup_type)
+                    benchmark_function(
+                        &config,
+                        log2_inner_size,
+                        options.lookup_type,
+                        options.layers,
+                    )
                 })?;
         }
     }
@@ -426,5 +482,16 @@ fn parse_range_usize(src: &str) -> Result<RangeInclusive<usize>, ParseIntError> 
     } else {
         let value = usize::from_str(src)?;
         Ok(RangeInclusive::new(value, value))
+    }
+}
+
+fn parse_zk_bench_mode(src: &str) -> Result<ZkBenchMode> {
+    match src {
+        "disabled" => Ok(ZkBenchMode::Disabled),
+        "leaf-hiding" => Ok(ZkBenchMode::LeafHiding),
+        "polyfri" => Ok(ZkBenchMode::PolyFri),
+        _ => Err(anyhow!(
+            "invalid zk mode `{src}`; expected one of: disabled, leaf-hiding, polyfri"
+        )),
     }
 }

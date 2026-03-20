@@ -95,8 +95,8 @@ where
 {
     let config = common_data.config.clone();
     assert!(
-        !common_data.config.zero_knowledge,
-        "Degree calculation can be off if zero-knowledge is on."
+        !common_data.config.uses_poly_fri_zk(),
+        "Dummy recursion sizing only supports the Disabled no-zk mode."
     );
 
     // Number of `NoopGate`s to add to get a circuit of size `degree` in the end.
@@ -229,10 +229,11 @@ where
                         reduction_strategy: FriReductionStrategy::MinSize(None),
                         num_query_rounds: 0,
                     },
-                    hiding: false,
+                    leaf_hiding: false,
                     degree_bits: 0,
                     reduction_arity_bits: vec![],
                 },
+                fri_oracle_layouts: vec![],
                 gates: vec![],
                 selectors_info: SelectorsInfo {
                     selector_indices: vec![],

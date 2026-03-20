@@ -5,6 +5,7 @@
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
 use core::ops::Range;
+use serde::Serialize;
 
 use crate::field::extension::Extendable;
 use crate::hash_types::RichField;
@@ -19,7 +20,7 @@ pub struct FriInstanceInfo<F: RichField + Extendable<D>, const D: usize> {
 }
 
 /// Information about a FRI oracle.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Serialize)]
 pub struct FriOracleInfo {
     pub num_polys: usize,
     pub blinding: bool,
@@ -29,11 +30,11 @@ pub struct FriOracleInfo {
 #[derive(Clone, Debug)]
 pub struct FriBatchInfo<F: RichField + Extendable<D>, const D: usize> {
     pub point: F::Extension,
-    pub polynomials: Vec<FriPolynomialInfo>,
+    pub openings: Vec<FriOpeningExpression<F, D>>,
 }
 
 /// Information about a polynomial in a FRI oracle.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Serialize)]
 pub struct FriPolynomialInfo {
     /// Index into `FriInstanceInfo`'s `oracles` list.
     pub oracle_index: usize,
@@ -53,6 +54,54 @@ impl FriPolynomialInfo {
             })
             .collect()
     }
+}
+
+/// A logical opening can be a raw polynomial or a linear combination of committed raw pieces.
+#[derive(Clone, Debug, Serialize)]
+#[serde(bound = "")]
+pub struct FriOpeningExpression<F: RichField + Extendable<D>, const D: usize> {
+    pub terms: Vec<FriOpeningTerm<F, D>>,
+}
+
+impl<F: RichField + Extendable<D>, const D: usize> FriOpeningExpression<F, D> {
+    pub fn raw(polynomial: FriPolynomialInfo) -> Self {
+        let terms = Vec::from([FriOpeningTerm {
+            polynomial,
+            coefficient: FriCoefficient::One,
+        }]);
+        Self { terms }
+    }
+
+    pub fn split_mask(low: FriPolynomialInfo, high: FriPolynomialInfo, split_power: usize) -> Self {
+        let terms = Vec::from([
+            FriOpeningTerm {
+                polynomial: low,
+                coefficient: FriCoefficient::One,
+            },
+            FriOpeningTerm {
+                polynomial: high,
+                coefficient: FriCoefficient::PointPower(split_power),
+            },
+        ]);
+        Self { terms }
+    }
+}
+
+/// One term in a logical opening expression.
+#[derive(Clone, Debug, Serialize)]
+#[serde(bound = "")]
+pub struct FriOpeningTerm<F: RichField + Extendable<D>, const D: usize> {
+    pub polynomial: FriPolynomialInfo,
+    pub coefficient: FriCoefficient<F, D>,
+}
+
+/// Coefficients used when reconstructing a logical opening at a batch point.
+#[derive(Clone, Debug, Serialize)]
+#[serde(bound = "")]
+pub enum FriCoefficient<F: RichField + Extendable<D>, const D: usize> {
+    One,
+    PointPower(usize),
+    Constant(F::Extension),
 }
 
 /// Opened values of each polynomial.

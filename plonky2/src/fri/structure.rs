@@ -8,7 +8,8 @@ use crate::iop::ext_target::ExtensionTarget;
 
 // Re-export base FRI structure types from core
 pub use qp_plonky2_core::{
-    FriBatchInfo, FriInstanceInfo, FriOpeningBatch, FriOpenings, FriOracleInfo, FriPolynomialInfo,
+    FriBatchInfo, FriCoefficient, FriInstanceInfo, FriOpeningBatch, FriOpeningExpression,
+    FriOpeningTerm, FriOpenings, FriOracleInfo, FriPolynomialInfo,
 };
 
 /// Describes an instance of a FRI-based batch opening (circuit target version).

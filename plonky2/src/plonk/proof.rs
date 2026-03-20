@@ -25,6 +25,7 @@ use crate::iop::target::Target;
 use crate::plonk::circuit_data::{CommonCircuitData, VerifierOnlyCircuitData};
 use crate::plonk::config::{GenericConfig, Hasher};
 use crate::plonk::verifier::verify_with_challenges;
+use crate::plonk::zk::LogicalPolynomialBatch;
 use crate::util::serialization::{Buffer, Read, Write};
 
 #[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
@@ -291,30 +292,32 @@ impl<F: RichField + Extendable<D>, const D: usize> OpeningSet<F, D> {
         zeta: F::Extension,
         g: F::Extension,
         constants_sigmas_commitment: &PolynomialBatch<F, C, D>,
-        wires_commitment: &PolynomialBatch<F, C, D>,
-        zs_partial_products_lookup_commitment: &PolynomialBatch<F, C, D>,
-        quotient_polys_commitment: &PolynomialBatch<F, C, D>,
+        wires_commitment: &LogicalPolynomialBatch<F, C, D>,
+        zs_partial_products_lookup_commitment: &LogicalPolynomialBatch<F, C, D>,
+        quotient_polys_commitment: &LogicalPolynomialBatch<F, C, D>,
         common_data: &CommonCircuitData<F, D>,
     ) -> Self {
-        let eval_commitment = |z: F::Extension, c: &PolynomialBatch<F, C, D>| {
+        let eval_raw_commitment = |z: F::Extension, c: &PolynomialBatch<F, C, D>| {
             c.polynomials
                 .par_iter()
                 .map(|p| p.to_extension().eval(z))
                 .collect::<Vec<_>>()
         };
-        let constants_sigmas_eval = eval_commitment(zeta, constants_sigmas_commitment);
+        let eval_logical_commitment =
+            |z: F::Extension, c: &LogicalPolynomialBatch<F, C, D>| c.logical_evals(z);
+        let constants_sigmas_eval = eval_raw_commitment(zeta, constants_sigmas_commitment);
 
         // `zs_partial_products_lookup_eval` contains the permutation argument polynomials as well as lookup polynomials.
         let zs_partial_products_lookup_eval =
-            eval_commitment(zeta, zs_partial_products_lookup_commitment);
+            eval_logical_commitment(zeta, zs_partial_products_lookup_commitment);
         let zs_partial_products_lookup_next_eval =
-            eval_commitment(g * zeta, zs_partial_products_lookup_commitment);
-        let quotient_polys = eval_commitment(zeta, quotient_polys_commitment);
+            eval_logical_commitment(g * zeta, zs_partial_products_lookup_commitment);
+        let quotient_polys = eval_logical_commitment(zeta, quotient_polys_commitment);
 
         Self {
             constants: constants_sigmas_eval[common_data.constants_range()].to_vec(),
             plonk_sigmas: constants_sigmas_eval[common_data.sigmas_range()].to_vec(),
-            wires: eval_commitment(zeta, wires_commitment),
+            wires: eval_logical_commitment(zeta, wires_commitment),
             plonk_zs: zs_partial_products_lookup_eval[common_data.zs_range()].to_vec(),
             plonk_zs_next: zs_partial_products_lookup_next_eval[common_data.zs_range()].to_vec(),
             partial_products: zs_partial_products_lookup_eval[common_data.partial_products_range()]
