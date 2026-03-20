@@ -11,7 +11,7 @@ use crate::field::packed::PackedField;
 use crate::field::polynomial::{PolynomialCoeffs, PolynomialValues};
 use crate::fri::proof::FriProof;
 use crate::fri::prover::fri_proof;
-use crate::fri::structure::{FriBatchInfo, FriInstanceInfo};
+use crate::fri::structure::{FriBatchInfo, FriCoefficient, FriInstanceInfo, FriOpeningExpression};
 use crate::fri::FriParams;
 use crate::hash::hash_types::RichField;
 use crate::hash::merkle_tree::MerkleTree;
@@ -53,6 +53,33 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize> D
 impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
     PolynomialBatch<F, C, D>
 {
+    fn eval_coefficient(coefficient: &FriCoefficient<F, D>, point: F::Extension) -> F::Extension {
+        match coefficient {
+            FriCoefficient::One => F::Extension::ONE,
+            FriCoefficient::PointPower(power) => point.exp_u64(*power as u64),
+            FriCoefficient::Constant(constant) => *constant,
+        }
+    }
+
+    fn opening_expression_poly(
+        expression: &FriOpeningExpression<F, D>,
+        oracles: &[&Self],
+        point: F::Extension,
+    ) -> PolynomialCoeffs<F::Extension> {
+        expression
+            .terms
+            .iter()
+            .map(|term| {
+                let coefficient = Self::eval_coefficient(&term.coefficient, point);
+                let poly = &oracles[term.polynomial.oracle_index].polynomials
+                    [term.polynomial.polynomial_index];
+                let mut scaled = poly.to_extension::<D>();
+                scaled *= coefficient;
+                scaled
+            })
+            .sum()
+    }
+
     /// Creates a list polynomial commitment for the polynomials interpolating the values in `values`.
     pub fn from_values(
         values: Vec<PolynomialValues<F>>,
@@ -230,15 +257,15 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         // where the `k_i`s are chosen such that each power of `alpha` appears only once in the final sum.
         // There are usually two batches for the openings at `zeta` and `g * zeta`.
         // The oracles used in Plonky2 are given in `FRI_ORACLES` in `plonky2/src/plonk/plonk_common.rs`.
-        for FriBatchInfo { point, polynomials } in &instance.batches {
-            // Collect the coefficients of all the polynomials in `polynomials`.
-            let polys_coeff = polynomials.iter().map(|fri_poly| {
-                &oracles[fri_poly.oracle_index].polynomials[fri_poly.polynomial_index]
-            });
+        for FriBatchInfo { point, openings } in &instance.batches {
             let composition_poly = timed!(
                 timing,
-                &format!("reduce batch of {} polynomials", polynomials.len()),
-                alpha.reduce_polys_base(polys_coeff)
+                &format!("reduce batch of {} opening expressions", openings.len()),
+                alpha.reduce_polys(
+                    openings
+                        .iter()
+                        .map(|expr| { Self::opening_expression_poly(expr, oracles, *point) })
+                )
             );
             let mut quotient = composition_poly.divide_by_linear(*point);
             quotient.coeffs.push(F::Extension::ZERO); // pad back to power of two
@@ -268,5 +295,21 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         );
 
         fri_proof
+    }
+
+    /// Expression-aware opening proof entrypoint used by the PolyFri prover path.
+    ///
+    /// The instance metadata decides whether each logical opening is raw or reconstructed from
+    /// split-mask pieces; the oracle inputs stay as raw committed batches.
+    pub fn prove_openings_masked(
+        instance: &FriInstanceInfo<F, D>,
+        oracles: &[&Self],
+        challenger: &mut Challenger<F, C::Hasher>,
+        fri_params: &FriParams,
+        timing: &mut TimingTree,
+    ) -> FriProof<F, C::Hasher, D> {
+        Self::prove_openings(
+            instance, oracles, challenger, fri_params, None, None, timing,
+        )
     }
 }

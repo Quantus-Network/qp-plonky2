@@ -88,7 +88,7 @@ impl FriParamsObserveTarget for FriParams {
     {
         self.config.observe_target(builder, challenger);
 
-        challenger.observe_element(builder.constant(F::from_bool(self.hiding)));
+        challenger.observe_element(builder.constant(F::from_bool(self.leaf_hiding)));
         challenger.observe_element(builder.constant(F::from_canonical_usize(self.degree_bits)));
         challenger.observe_elements(
             &builder.constants(

@@ -230,8 +230,8 @@ mod tests {
     use crate::batch_fri::oracle::BatchFriOracle;
     use crate::batch_fri::verifier::verify_batch_fri_proof;
     use crate::fri::structure::{
-        FriBatchInfo, FriInstanceInfo, FriOpeningBatch, FriOpenings, FriOracleInfo,
-        FriPolynomialInfo,
+        FriBatchInfo, FriInstanceInfo, FriOpeningBatch, FriOpeningExpression, FriOpenings,
+        FriOracleInfo, FriPolynomialInfo,
     };
     use crate::fri::{FriChallenger, FriConfig, FriReductionStrategy};
     use crate::plonk::config::PoseidonGoldilocksConfig;
@@ -256,7 +256,7 @@ mod tests {
                 reduction_strategy: FriReductionStrategy::Fixed(reduction_arity_bits.clone()),
                 num_query_rounds: 10,
             },
-            hiding: false,
+            leaf_hiding: false,
             degree_bits: k,
             reduction_arity_bits,
         };
@@ -267,7 +267,7 @@ mod tests {
         let polynomial_batch: BatchFriOracle<GoldilocksField, C, D> = BatchFriOracle::from_values(
             vec![trace.clone()],
             fri_params.config.rate_bits,
-            fri_params.hiding,
+            fri_params.leaf_hiding,
             fri_params.config.cap_height,
             &mut timing,
             &[None],
@@ -287,10 +287,10 @@ mod tests {
             }],
             batches: vec![FriBatchInfo {
                 point: zeta,
-                polynomials: vec![FriPolynomialInfo {
+                openings: vec![FriOpeningExpression::raw(FriPolynomialInfo {
                     oracle_index: 0,
                     polynomial_index: 0,
-                }],
+                })],
             }],
         };
         let _alpha = challenger.get_extension_challenge::<D>();
@@ -355,7 +355,7 @@ mod tests {
                 reduction_strategy: FriReductionStrategy::Fixed(reduction_arity_bits.clone()),
                 num_query_rounds: 10,
             },
-            hiding: false,
+            leaf_hiding: false,
             degree_bits: k0,
             reduction_arity_bits,
         };
@@ -370,7 +370,7 @@ mod tests {
         let trace_oracle: BatchFriOracle<GoldilocksField, C, D> = BatchFriOracle::from_values(
             vec![trace0.clone(), trace1.clone(), trace2.clone()],
             fri_params.config.rate_bits,
-            fri_params.hiding,
+            fri_params.leaf_hiding,
             fri_params.config.cap_height,
             &mut timing,
             &[None; 3],
@@ -425,10 +425,10 @@ mod tests {
                 }],
                 batches: vec![FriBatchInfo {
                     point: zeta,
-                    polynomials: vec![FriPolynomialInfo {
+                    openings: vec![FriOpeningExpression::raw(FriPolynomialInfo {
                         oracle_index: 0,
                         polynomial_index,
-                    }],
+                    })],
                 }],
             }
         };

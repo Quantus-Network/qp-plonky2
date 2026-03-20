@@ -60,13 +60,13 @@ pub use poseidon::{
 };
 
 // Circuit and FRI configuration types
-pub use circuit_config::CircuitConfig;
+pub use circuit_config::{CircuitConfig, PolyFriZkConfig, ZkConfig, ZkMode};
 pub use fri::{
     FriChallenger, FriConfig, FriConfigObserve, FriParams, FriParamsObserve, FriReductionStrategy,
 };
 pub use fri_structure::{
-    FriBatchInfo, FriChallenges, FriInstanceInfo, FriOpeningBatch, FriOpenings, FriOracleInfo,
-    FriPolynomialInfo,
+    FriBatchInfo, FriChallenges, FriCoefficient, FriInstanceInfo, FriOpeningBatch,
+    FriOpeningExpression, FriOpeningTerm, FriOpenings, FriOracleInfo, FriPolynomialInfo,
 };
 pub use plonk_common::{
     eval_l_0, eval_zero_poly, reduce_with_powers, reduce_with_powers_multi, salt_size, PlonkOracle,

@@ -8,8 +8,8 @@ use plonky2::field::extension::{Extendable, FieldExtension};
 use plonky2::field::packed::PackedField;
 use plonky2::field::types::Field;
 use plonky2::fri::structure::{
-    FriBatchInfo, FriBatchInfoTarget, FriInstanceInfo, FriInstanceInfoTarget, FriOracleInfo,
-    FriPolynomialInfo,
+    FriBatchInfo, FriBatchInfoTarget, FriInstanceInfo, FriInstanceInfoTarget, FriOpeningExpression,
+    FriOracleInfo, FriPolynomialInfo,
 };
 use plonky2::hash::hash_types::RichField;
 use plonky2::iop::ext_target::ExtensionTarget;
@@ -141,16 +141,23 @@ pub trait Stark<F: RichField + Extendable<D>, const D: usize>: Sync {
 
         let zeta_batch = FriBatchInfo {
             point: zeta,
-            polynomials: [
+            openings: [
                 trace_info.clone(),
                 auxiliary_polys_info.clone(),
                 quotient_info,
             ]
-            .concat(),
+            .concat()
+            .into_iter()
+            .map(FriOpeningExpression::raw)
+            .collect(),
         };
         let zeta_next_batch = FriBatchInfo {
             point: zeta.scalar_mul(g),
-            polynomials: [trace_info, auxiliary_polys_info].concat(),
+            openings: [trace_info, auxiliary_polys_info]
+                .concat()
+                .into_iter()
+                .map(FriOpeningExpression::raw)
+                .collect(),
         };
 
         let mut batches = vec![zeta_batch, zeta_next_batch];
@@ -162,7 +169,10 @@ pub trait Stark<F: RichField + Extendable<D>, const D: usize>: Sync {
             );
             let ctl_first_batch = FriBatchInfo {
                 point: F::Extension::ONE,
-                polynomials: ctl_zs_info,
+                openings: ctl_zs_info
+                    .into_iter()
+                    .map(FriOpeningExpression::raw)
+                    .collect(),
             };
 
             batches.push(ctl_first_batch);

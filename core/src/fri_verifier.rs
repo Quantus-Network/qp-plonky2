@@ -11,7 +11,9 @@ use crate::field::interpolation::{barycentric_weights, interpolate};
 use crate::field::types::Field;
 use crate::fri::FriParams;
 use crate::fri_proof::{FriInitialTreeProof, FriProof, FriQueryRound};
-use crate::fri_structure::{FriBatchInfo, FriChallenges, FriInstanceInfo, FriOpenings};
+use crate::fri_structure::{
+    FriBatchInfo, FriChallenges, FriCoefficient, FriInstanceInfo, FriOpeningExpression, FriOpenings,
+};
 use crate::fri_validate_shape::validate_fri_proof_shape;
 use crate::hash_types::RichField;
 use crate::merkle_proofs::verify_merkle_proof_to_cap;
@@ -144,15 +146,10 @@ pub fn fri_combine_initial<
         .iter()
         .zip(&precomputed_reduced_evals.reduced_openings_at_point)
     {
-        let FriBatchInfo { point, polynomials } = batch;
-        let evals = polynomials
+        let FriBatchInfo { point, openings } = batch;
+        let evals = openings
             .iter()
-            .map(|p| {
-                let poly_blinding = instance.oracles[p.oracle_index].blinding;
-                let salted = params.hiding && poly_blinding;
-                proof.unsalted_eval(p.oracle_index, p.polynomial_index, salted)
-            })
-            .map(F::Extension::from_basefield);
+            .map(|expression| eval_opening_expression(instance, expression, proof, *point, params));
         let reduced_evals = alpha.reduce(evals);
         let numerator = reduced_evals - *reduced_openings;
         let denominator = subgroup_x - *point;
@@ -161,6 +158,38 @@ pub fn fri_combine_initial<
     }
 
     sum
+}
+
+pub fn eval_opening_expression<F, H, const D: usize>(
+    instance: &FriInstanceInfo<F, D>,
+    expression: &FriOpeningExpression<F, D>,
+    proof: &FriInitialTreeProof<F, H>,
+    point: F::Extension,
+    params: &FriParams,
+) -> F::Extension
+where
+    F: RichField + Extendable<D>,
+    H: Hasher<F>,
+{
+    expression
+        .terms
+        .iter()
+        .map(|term| {
+            let coefficient = match &term.coefficient {
+                FriCoefficient::One => F::Extension::ONE,
+                FriCoefficient::PointPower(power) => point.exp_u64(*power as u64),
+                FriCoefficient::Constant(constant) => *constant,
+            };
+            let poly_blinding = instance.oracles[term.polynomial.oracle_index].blinding;
+            let salted = params.leaf_hiding && poly_blinding;
+            let raw_eval = proof.unsalted_eval(
+                term.polynomial.oracle_index,
+                term.polynomial.polynomial_index,
+                salted,
+            );
+            coefficient * F::Extension::from_basefield(raw_eval)
+        })
+        .sum()
 }
 
 fn fri_verifier_query_round<

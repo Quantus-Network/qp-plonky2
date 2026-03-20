@@ -41,15 +41,17 @@ use crate::iop::target::{BoolTarget, Target};
 use crate::iop::wire::Wire;
 use crate::plonk::circuit_builder::LookupWire;
 use crate::plonk::circuit_data::{
-    CircuitConfig, CircuitData, CommonCircuitData, ProverCircuitData, ProverOnlyCircuitData,
-    VerifierCircuitData, VerifierCircuitTarget, VerifierOnlyCircuitData,
+    CircuitConfig, CircuitData, CommonCircuitData, FriOracleLayout, FriOracleRepresentation,
+    ProverCircuitData, ProverOnlyCircuitData, VerifierCircuitData, VerifierCircuitTarget,
+    VerifierOnlyCircuitData,
 };
 use crate::plonk::config::{GenericConfig, GenericHashOut, Hasher};
-use crate::plonk::plonk_common::salt_size;
+use crate::plonk::plonk_common::{salt_size, PlonkOracle};
 use crate::plonk::proof::{
     CompressedProof, CompressedProofWithPublicInputs, OpeningSet, OpeningSetTarget, Proof,
     ProofTarget, ProofWithPublicInputs, ProofWithPublicInputsTarget,
 };
+use qp_plonky2_core::{PolyFriZkConfig, ZkConfig, ZkMode};
 
 /// A no_std compatible variant of `std::io::Error`
 #[derive(Debug)]
@@ -435,29 +437,30 @@ pub trait Read {
         F: RichField + Extendable<D>,
         C: GenericConfig<D, F = F>,
     {
-        let config = &common_data.config;
-        let salt = salt_size(common_data.fri_params.hiding);
+        let salt = salt_size(common_data.fri_params.leaf_hiding);
         let mut evals_proofs = Vec::with_capacity(4);
 
-        let constants_sigmas_v =
-            self.read_field_vec(common_data.num_constants + config.num_routed_wires)?;
+        let constants_sigmas_v = self.read_field_vec(
+            common_data.fri_oracle_layouts[PlonkOracle::CONSTANTS_SIGMAS.index].raw_polys,
+        )?;
         let constants_sigmas_p = self.read_merkle_proof()?;
         evals_proofs.push((constants_sigmas_v, constants_sigmas_p));
 
-        let wires_v = self.read_field_vec(config.num_wires + salt)?;
+        let wires_v = self.read_field_vec(
+            common_data.fri_oracle_layouts[PlonkOracle::WIRES.index].raw_polys + salt,
+        )?;
         let wires_p = self.read_merkle_proof()?;
         evals_proofs.push((wires_v, wires_p));
 
         let zs_partial_v = self.read_field_vec(
-            config.num_challenges
-                * (1 + common_data.num_partial_products + common_data.num_lookup_polys)
-                + salt,
+            common_data.fri_oracle_layouts[PlonkOracle::ZS_PARTIAL_PRODUCTS.index].raw_polys + salt,
         )?;
         let zs_partial_p = self.read_merkle_proof()?;
         evals_proofs.push((zs_partial_v, zs_partial_p));
 
-        let quotient_v =
-            self.read_field_vec(config.num_challenges * common_data.quotient_degree_factor + salt)?;
+        let quotient_v = self.read_field_vec(
+            common_data.fri_oracle_layouts[PlonkOracle::QUOTIENT.index].raw_polys + salt,
+        )?;
         let quotient_p = self.read_merkle_proof()?;
         evals_proofs.push((quotient_v, quotient_p));
 
@@ -651,6 +654,26 @@ pub trait Read {
         })
     }
 
+    fn read_poly_fri_zk_config(&mut self) -> IoResult<PolyFriZkConfig> {
+        Ok(PolyFriZkConfig {
+            wire_mask_degree: self.read_usize()?,
+            z_mask_degree: self.read_usize()?,
+            quotient_mask_degree: self.read_usize()?,
+            fri_batch_mask_degree: self.read_usize()?,
+            commit_batch_mask_before_alpha: self.read_bool()?,
+        })
+    }
+
+    fn read_zk_config(&mut self) -> IoResult<ZkConfig> {
+        let mode = match self.read_u8()? {
+            0 => ZkMode::Disabled,
+            1 => ZkMode::PolyFri(self.read_poly_fri_zk_config()?),
+            _ => return Err(IoError),
+        };
+        let leaf_hiding = self.read_bool()?;
+        Ok(ZkConfig { mode, leaf_hiding })
+    }
+
     fn read_circuit_config(&mut self) -> IoResult<CircuitConfig> {
         let num_wires = self.read_usize()?;
         let num_routed_wires = self.read_usize()?;
@@ -659,7 +682,7 @@ pub trait Read {
         let num_challenges = self.read_usize()?;
         let max_quotient_degree_factor = self.read_usize()?;
         let use_base_arithmetic_gate = self.read_bool()?;
-        let zero_knowledge = self.read_bool()?;
+        let zk_config = self.read_zk_config()?;
         let fri_config = self.read_fri_config()?;
 
         Ok(CircuitConfig {
@@ -670,7 +693,7 @@ pub trait Read {
             num_challenges,
             max_quotient_degree_factor,
             use_base_arithmetic_gate,
-            zero_knowledge,
+            zk_config,
             fri_config,
         })
     }
@@ -679,13 +702,13 @@ pub trait Read {
         let config = self.read_fri_config()?;
         let reduction_arity_bits = self.read_usize_vec()?;
         let degree_bits = self.read_usize()?;
-        let hiding = self.read_bool()?;
+        let leaf_hiding = self.read_bool()?;
 
         Ok(FriParams {
             config,
             reduction_arity_bits,
             degree_bits,
-            hiding,
+            leaf_hiding,
         })
     }
 
@@ -714,6 +737,23 @@ pub trait Read {
         Ok(SelectorsInfo {
             selector_indices,
             groups,
+        })
+    }
+
+    fn read_fri_oracle_layout(&mut self) -> IoResult<FriOracleLayout> {
+        let raw_polys = self.read_usize()?;
+        let logical_polys = self.read_usize()?;
+        let representation = match self.read_u8()? {
+            0 => FriOracleRepresentation::Raw,
+            1 => FriOracleRepresentation::SplitMask {
+                split_power: self.read_usize()?,
+            },
+            _ => return Err(IoError),
+        };
+        Ok(FriOracleLayout {
+            raw_polys,
+            logical_polys,
+            representation,
         })
     }
 
@@ -751,6 +791,10 @@ pub trait Read {
     ) -> IoResult<CommonCircuitData<F, D>> {
         let config = self.read_circuit_config()?;
         let fri_params = self.read_fri_params()?;
+        let fri_oracle_layouts_len = self.read_usize()?;
+        let fri_oracle_layouts = (0..fri_oracle_layouts_len)
+            .map(|_| self.read_fri_oracle_layout())
+            .collect::<IoResult<Vec<_>>>()?;
 
         let selectors_info = self.read_selectors_info()?;
         let quotient_degree_factor = self.read_usize()?;
@@ -780,6 +824,7 @@ pub trait Read {
         let mut common_data = CommonCircuitData {
             config,
             fri_params,
+            fri_oracle_layouts,
             gates: vec![],
             selectors_info,
             quotient_degree_factor,
@@ -1674,13 +1719,36 @@ pub trait Write {
             config,
             reduction_arity_bits,
             degree_bits,
-            hiding,
+            leaf_hiding,
         } = fri_params;
 
         self.write_fri_config(config)?;
         self.write_usize_vec(reduction_arity_bits.as_slice())?;
         self.write_usize(*degree_bits)?;
-        self.write_bool(*hiding)?;
+        self.write_bool(*leaf_hiding)?;
+
+        Ok(())
+    }
+
+    fn write_poly_fri_zk_config(&mut self, config: &PolyFriZkConfig) -> IoResult<()> {
+        self.write_usize(config.wire_mask_degree)?;
+        self.write_usize(config.z_mask_degree)?;
+        self.write_usize(config.quotient_mask_degree)?;
+        self.write_usize(config.fri_batch_mask_degree)?;
+        self.write_bool(config.commit_batch_mask_before_alpha)?;
+
+        Ok(())
+    }
+
+    fn write_zk_config(&mut self, zk_config: &ZkConfig) -> IoResult<()> {
+        match &zk_config.mode {
+            ZkMode::Disabled => self.write_u8(0)?,
+            ZkMode::PolyFri(config) => {
+                self.write_u8(1)?;
+                self.write_poly_fri_zk_config(config)?;
+            }
+        }
+        self.write_bool(zk_config.leaf_hiding)?;
 
         Ok(())
     }
@@ -1694,7 +1762,7 @@ pub trait Write {
             num_challenges,
             max_quotient_degree_factor,
             use_base_arithmetic_gate,
-            zero_knowledge,
+            zk_config,
             fri_config,
         } = config;
 
@@ -1705,7 +1773,7 @@ pub trait Write {
         self.write_usize(*num_challenges)?;
         self.write_usize(*max_quotient_degree_factor)?;
         self.write_bool(*use_base_arithmetic_gate)?;
-        self.write_bool(*zero_knowledge)?;
+        self.write_zk_config(zk_config)?;
         self.write_fri_config(fri_config)?;
 
         Ok(())
@@ -1761,6 +1829,20 @@ pub trait Write {
         Ok(())
     }
 
+    fn write_fri_oracle_layout(&mut self, layout: &FriOracleLayout) -> IoResult<()> {
+        self.write_usize(layout.raw_polys)?;
+        self.write_usize(layout.logical_polys)?;
+        match layout.representation {
+            FriOracleRepresentation::Raw => self.write_u8(0)?,
+            FriOracleRepresentation::SplitMask { split_power } => {
+                self.write_u8(1)?;
+                self.write_usize(split_power)?;
+            }
+        }
+
+        Ok(())
+    }
+
     fn write_common_circuit_data<F: RichField + Extendable<D>, const D: usize>(
         &mut self,
         common_data: &CommonCircuitData<F, D>,
@@ -1769,6 +1851,7 @@ pub trait Write {
         let CommonCircuitData {
             config,
             fri_params,
+            fri_oracle_layouts,
             gates,
             selectors_info,
             quotient_degree_factor,
@@ -1784,6 +1867,10 @@ pub trait Write {
 
         self.write_circuit_config(config)?;
         self.write_fri_params(fri_params)?;
+        self.write_usize(fri_oracle_layouts.len())?;
+        for layout in fri_oracle_layouts {
+            self.write_fri_oracle_layout(layout)?;
+        }
 
         self.write_selectors_info(selectors_info)?;
         self.write_usize(*quotient_degree_factor)?;

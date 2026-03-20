@@ -212,7 +212,7 @@ impl FriConfig {
         1.0 / ((1 << self.rate_bits) as f64)
     }
 
-    pub fn fri_params(&self, degree_bits: usize, hiding: bool) -> FriParams {
+    pub fn fri_params(&self, degree_bits: usize, leaf_hiding: bool) -> FriParams {
         let reduction_arity_bits = self.reduction_strategy.reduction_arity_bits(
             degree_bits,
             self.rate_bits,
@@ -221,7 +221,7 @@ impl FriConfig {
         );
         FriParams {
             config: self.clone(),
-            hiding,
+            leaf_hiding,
             degree_bits,
             reduction_arity_bits,
         }
@@ -239,8 +239,9 @@ pub struct FriParams {
     /// User-specified FRI configuration.
     pub config: FriConfig,
 
-    /// Whether to use a hiding variant of Merkle trees (where random salts are added to leaves).
-    pub hiding: bool,
+    /// Whether to salt Merkle leaves. This is independent from Poly/FRI split masking so no-zk
+    /// benchmarking can disable both while PolyFri keeps row counts unchanged.
+    pub leaf_hiding: bool,
 
     /// The degree of the purported codeword, measured in bits.
     pub degree_bits: usize,
@@ -308,7 +309,7 @@ impl FriParamsObserve for FriParams {
     fn observe<F: RichField, H: Hasher<F>>(&self, challenger: &mut Challenger<F, H>) {
         self.config.observe(challenger);
 
-        challenger.observe_element(F::from_bool(self.hiding));
+        challenger.observe_element(F::from_bool(self.leaf_hiding));
         challenger.observe_element(F::from_canonical_usize(self.degree_bits));
         challenger.observe_elements(
             &self

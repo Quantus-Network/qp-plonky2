@@ -152,7 +152,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         let fri_params = &common_data.fri_params;
         let cap_height = fri_params.config.cap_height;
 
-        let salt = salt_size(common_data.fri_params.hiding);
+        let salt = salt_size(common_data.fri_params.leaf_hiding);
         let num_leaves_per_oracle = &mut vec![
             common_data.num_preprocessed_polys(),
             config.num_wires + salt,
@@ -226,7 +226,7 @@ mod tests {
         const D: usize = 2;
         type C = PoseidonGoldilocksConfig;
         type F = <C as GenericConfig<D>>::F;
-        let config = CircuitConfig::standard_recursion_zk_config();
+        let config = CircuitConfig::standard_recursion_config();
 
         let (proof, vd, common_data) = dummy_proof::<F, C, D>(&config, 4_000)?;
         let (proof, vd, common_data) =
@@ -243,7 +243,7 @@ mod tests {
         const D: usize = 2;
         type C = PoseidonGoldilocksConfig;
         type F = <C as GenericConfig<D>>::F;
-        let config = CircuitConfig::standard_recursion_zk_config();
+        let config = CircuitConfig::standard_recursion_config();
 
         let (proof, vd, common_data) = dummy_lookup_proof::<F, C, D>(&config, 10)?;
         let (proof, vd, common_data) =

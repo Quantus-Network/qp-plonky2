@@ -57,7 +57,7 @@ where
         for inst in instances {
             ensure!(oracle_count == inst.oracles.len());
             for (i, oracle) in inst.oracles.iter().enumerate() {
-                leaf_len[i] += oracle.num_polys + salt_size(oracle.blinding && params.hiding);
+                leaf_len[i] += oracle.num_polys + salt_size(oracle.blinding && params.leaf_hiding);
             }
         }
         for (i, (leaf, merkle_proof)) in initial_trees_proof.evals_proofs.iter().enumerate() {
