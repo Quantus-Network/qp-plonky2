@@ -2,8 +2,7 @@
 
 use serde::Serialize;
 
-use crate::fri::FriConfig;
-use crate::fri::FriReductionStrategy;
+use crate::fri::{FriConfig, FriReductionStrategy};
 
 /// Configuration to be used when building a circuit. This defines the shape of the circuit
 /// as well as its targeted security level and sub-protocol (e.g. FRI) parameters.

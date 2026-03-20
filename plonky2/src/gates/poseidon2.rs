@@ -13,14 +13,14 @@ use core::fmt::Debug;
 use core::marker::PhantomData;
 
 use plonky2_field::extension::Extendable;
-use qp_poseidon_constants::{
-    POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW, POSEIDON2_INTERNAL_CONSTANTS_RAW,
-    POSEIDON2_MATRIX_DIAG_12_RAW, POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
-};
 // Re-export sponge parameters from the canonical source (qp-poseidon-constants)
 pub use qp_poseidon_constants::{
     POSEIDON2_EXTERNAL_ROUNDS, POSEIDON2_INTERNAL_ROUNDS, POSEIDON2_OUTPUT, SPONGE_CAPACITY,
     SPONGE_RATE, SPONGE_WIDTH,
+};
+use qp_poseidon_constants::{
+    POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW, POSEIDON2_INTERNAL_CONSTANTS_RAW,
+    POSEIDON2_MATRIX_DIAG_12_RAW, POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
 };
 
 use crate::field::types::Field;

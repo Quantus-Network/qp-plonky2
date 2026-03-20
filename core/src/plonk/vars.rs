@@ -7,12 +7,11 @@ use crate::field::extension::{Extendable, FieldExtension};
 use crate::field::packed::PackedField;
 use crate::field::types::Field;
 use crate::hash_types::HashOut;
+/// A prime order field with the features we need to use it as a base field in our argument system.
+pub use crate::hash_types::RichField;
 use crate::iop::ext_target::{ExtensionAlgebraTarget, ExtensionTarget};
 use crate::iop::hash_target::HashOutTarget;
 use crate::strided_view::PackedStridedView;
-
-/// A prime order field with the features we need to use it as a base field in our argument system.
-pub use crate::hash_types::RichField;
 
 #[derive(Debug, Copy, Clone)]
 pub struct EvaluationVars<'a, F: RichField + Extendable<D>, const D: usize> {

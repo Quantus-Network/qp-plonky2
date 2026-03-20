@@ -1,26 +1,30 @@
-use crate::field::extension::algebra::ExtensionAlgebra;
-use crate::field::extension::{Extendable, FieldExtension};
-use crate::field::types::Field;
-use crate::gates::gate::VerificationGate;
-use crate::gates::util::StridedConstraintConsumer;
-use crate::hash::hash_types::RichField;
-use crate::plonk::circuit_data::CommonCircuitData;
-use crate::plonk::vars::{EvaluationVars, EvaluationVarsBase};
-use crate::util::serialization::{Buffer, IoResult};
 #[cfg(not(feature = "std"))]
 use alloc::{format, string::String, vec::Vec};
 use core::marker::PhantomData;
 use core::ops::Range;
 
-use crate::gates::poseidon2::Poseidon2Params;
 use qp_poseidon_constants::{
     POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW, POSEIDON2_INTERNAL_CONSTANTS_RAW,
     POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW, SPONGE_WIDTH,
 };
 
+use crate::field::extension::algebra::ExtensionAlgebra;
+use crate::field::extension::{Extendable, FieldExtension};
+use crate::field::types::Field;
+use crate::gates::gate::VerificationGate;
+use crate::gates::poseidon2::Poseidon2Params;
+use crate::gates::util::StridedConstraintConsumer;
+use crate::hash::hash_types::RichField;
+use crate::plonk::circuit_data::CommonCircuitData;
+use crate::plonk::vars::{EvaluationVars, EvaluationVarsBase};
+use crate::util::serialization::{Buffer, IoResult};
+
 /// Same formula as your existing helper:
 /// y[i] = diag[i] * x[i] + sum_j x[j]
-fn internal_mix_base<F: Field>(x: &[F; SPONGE_WIDTH], diag: &[F; SPONGE_WIDTH]) -> [F; SPONGE_WIDTH] {
+fn internal_mix_base<F: Field>(
+    x: &[F; SPONGE_WIDTH],
+    diag: &[F; SPONGE_WIDTH],
+) -> [F; SPONGE_WIDTH] {
     let mut sum = x[0];
     for i in 1..SPONGE_WIDTH {
         sum += x[i];

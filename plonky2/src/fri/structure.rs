@@ -4,12 +4,12 @@
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
 
-use crate::iop::ext_target::ExtensionTarget;
-
 // Re-export base FRI structure types from core
 pub use qp_plonky2_core::{
     FriBatchInfo, FriInstanceInfo, FriOpeningBatch, FriOpenings, FriOracleInfo, FriPolynomialInfo,
 };
+
+use crate::iop::ext_target::ExtensionTarget;
 
 /// Describes an instance of a FRI-based batch opening (circuit target version).
 #[derive(Debug)]

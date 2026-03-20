@@ -6,16 +6,16 @@
 //! the Poseidon hash function both internally and natively, and one
 //! mixing Poseidon internally and truncated Keccak externally.
 
+// Re-export core config types - these are the canonical definitions
+pub use qp_plonky2_core::config::{
+    GenericConfig, GenericHashOut, Hasher, KeccakGoldilocksConfig, PoseidonGoldilocksConfig,
+};
+
 use crate::field::extension::Extendable;
 use crate::hash::hash_types::{HashOut, RichField};
 use crate::hash::hashing::PlonkyPermutation;
 use crate::iop::target::{BoolTarget, Target};
 use crate::plonk::circuit_builder::CircuitBuilder;
-
-// Re-export core config types - these are the canonical definitions
-pub use qp_plonky2_core::config::{
-    GenericConfig, GenericHashOut, Hasher, KeccakGoldilocksConfig, PoseidonGoldilocksConfig,
-};
 
 /// Trait for algebraic hash functions, built from a permutation using the sponge construction.
 /// This extends the base `Hasher` trait with circuit-building capabilities.

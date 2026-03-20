@@ -1,6 +1,7 @@
 //! plonky2 verifier implementation.
 
 use anyhow::{ensure, Result};
+use qp_plonky2_core::fri_verifier::verify_fri_proof;
 
 use crate::field::extension::Extendable;
 use crate::field::types::Field;
@@ -12,7 +13,6 @@ use crate::plonk::proof::{Proof, ProofChallenges, ProofWithPublicInputs};
 use crate::plonk::validate_shape::validate_proof_with_pis_shape;
 use crate::plonk::vanishing_poly::eval_vanishing_poly;
 use crate::plonk::vars::EvaluationVars;
-use qp_plonky2_core::fri_verifier::verify_fri_proof;
 
 pub fn verify<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>(
     proof_with_pis: ProofWithPublicInputs<F, C, D>,

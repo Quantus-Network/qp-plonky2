@@ -11,12 +11,12 @@ use p3_goldilocks::Goldilocks as P3G;
 use p3_symmetric::Permutation;
 // We only support Goldilocks for now, which matches your Poseidon2Core.
 use plonky2_field::goldilocks_field::GoldilocksField as GL;
+use qp_plonky2_core::hashing::{hash_n_to_hash_no_pad_p2, PlonkyPermutation};
 use qp_poseidon_constants::create_poseidon;
 
 use crate::field::types::{Field, PrimeField64};
 use crate::hash::hash_types::{HashOut, RichField, NUM_HASH_OUT_ELTS};
 use crate::plonk::config::Hasher;
-use qp_plonky2_core::hashing::{hash_n_to_hash_no_pad_p2, PlonkyPermutation};
 
 // ---------- Params (match your Poseidon2Core exactly) ----------
 const SPONGE_WIDTH: usize = 12;

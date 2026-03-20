@@ -35,7 +35,7 @@ jobs:
         run: rustup component add rustfmt
       - name: Run format checks
         run: |
-          cargo fmt --all -- --check
+          cargo +nightly fmt --all -- --check
 
   build-and-test-matrix:
     name: 🛠️ Build & Test Matrix

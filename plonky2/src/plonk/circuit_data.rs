@@ -19,6 +19,7 @@ use core::ops::{Range, RangeFrom};
 use std::collections::BTreeMap;
 
 use anyhow::Result;
+pub use qp_plonky2_core::CircuitConfig;
 use serde::Serialize;
 
 use super::circuit_builder::LookupWire;
@@ -31,7 +32,6 @@ use crate::fri::structure::{
     FriPolynomialInfo,
 };
 use crate::fri::FriParams;
-
 // Re-export CircuitConfig from core
 use crate::gates::gate::GateRef;
 use crate::gates::lookup::Lookup;
@@ -53,7 +53,6 @@ use crate::util::serialization::{
     Buffer, GateSerializer, IoResult, Read, WitnessGeneratorSerializer, Write,
 };
 use crate::util::timing::TimingTree;
-pub use qp_plonky2_core::CircuitConfig;
 
 /// Mock circuit data to only do witness generation without generating a proof.
 #[derive(Eq, PartialEq, Debug)]

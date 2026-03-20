@@ -5,18 +5,18 @@ use alloc::vec;
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
 
+// Re-export core hashing types and functions
+pub use qp_plonky2_core::hashing::{
+    compress, hash_n_to_hash_no_pad, hash_n_to_hash_no_pad_p2, hash_n_to_m_no_pad,
+    PlonkyPermutation,
+};
+
 use crate::field::extension::Extendable;
 use crate::gates::poseidon2::SPONGE_RATE;
 use crate::hash::hash_types::{HashOutTarget, RichField, NUM_HASH_OUT_ELTS};
 use crate::iop::target::Target;
 use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::config::AlgebraicHasher;
-
-// Re-export core hashing types and functions
-pub use qp_plonky2_core::hashing::{
-    compress, hash_n_to_hash_no_pad, hash_n_to_hash_no_pad_p2, hash_n_to_m_no_pad,
-    PlonkyPermutation,
-};
 
 impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     pub fn hash_or_noop<H: AlgebraicHasher<F>>(&mut self, inputs: Vec<Target>) -> HashOutTarget {

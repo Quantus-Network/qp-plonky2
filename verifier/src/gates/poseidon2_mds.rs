@@ -2,6 +2,8 @@
 use alloc::{format, string::String, vec::Vec};
 use core::marker::PhantomData;
 
+use qp_poseidon_constants::SPONGE_WIDTH;
+
 use crate::field::extension::algebra::ExtensionAlgebra;
 use crate::field::extension::{Extendable, FieldExtension};
 use crate::field::types::Field;
@@ -11,7 +13,6 @@ use crate::hash::hash_types::RichField;
 use crate::plonk::circuit_data::CommonCircuitData;
 use crate::plonk::vars::{EvaluationVars, EvaluationVarsBase};
 use crate::util::serialization::{Buffer, IoResult};
-use qp_poseidon_constants::SPONGE_WIDTH;
 
 /// Poseidon2 light-MDS Gate (width = SPONGE_WIDTH).
 ///

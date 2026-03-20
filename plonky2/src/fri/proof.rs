@@ -5,21 +5,20 @@
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
 
+// Re-export all FRI proof types from core
+pub use qp_plonky2_core::fri_proof::{
+    CompressedFriProof, CompressedFriQueryRounds, FriInitialTreeProof, FriProof, FriQueryRound,
+    FriQueryStep,
+};
+// Re-export FriChallenges from core
+pub use qp_plonky2_core::FriChallenges;
+
 use crate::gadgets::polynomial::PolynomialCoeffsExtTarget;
 use crate::hash::hash_types::MerkleCapTarget;
 use crate::hash::merkle_proofs::MerkleProofTarget;
 use crate::iop::ext_target::ExtensionTarget;
 use crate::iop::target::Target;
 use crate::plonk::plonk_common::salt_size;
-
-// Re-export all FRI proof types from core
-pub use qp_plonky2_core::fri_proof::{
-    CompressedFriProof, CompressedFriQueryRounds, FriInitialTreeProof, FriProof, FriQueryRound,
-    FriQueryStep,
-};
-
-// Re-export FriChallenges from core
-pub use qp_plonky2_core::FriChallenges;
 
 /// Target version of FriQueryStep for circuit building.
 #[derive(Clone, Debug, Eq, PartialEq)]

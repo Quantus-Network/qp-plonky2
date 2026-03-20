@@ -8,16 +8,16 @@
 use alloc::{vec, vec::Vec};
 use core::marker::PhantomData;
 
+use plonky2_field::extension::Extendable;
+// Re-export Challenger from core for use throughout plonky2
+pub use qp_plonky2_core::Challenger;
+
 use crate::hash::hash_types::{HashOutTarget, MerkleCapTarget, RichField};
 use crate::hash::hashing::PlonkyPermutation;
 use crate::iop::ext_target::ExtensionTarget;
 use crate::iop::target::Target;
 use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::config::AlgebraicHasher;
-use plonky2_field::extension::Extendable;
-
-// Re-export Challenger from core for use throughout plonky2
-pub use qp_plonky2_core::Challenger;
 
 /// A recursive version of `Challenger`. The main difference is that `RecursiveChallenger`'s input
 /// buffer can grow beyond `H::Permutation::RATE`. This is so that `observe_element` etc do not need access

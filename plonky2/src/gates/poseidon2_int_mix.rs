@@ -1,7 +1,25 @@
+#[cfg(not(feature = "std"))]
+use alloc::{
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+use core::marker::PhantomData;
+use core::ops::Range;
+
+use anyhow::Result;
+use qp_poseidon_constants::{
+    POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW, POSEIDON2_INTERNAL_CONSTANTS_RAW,
+    POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
+};
+
 use crate::field::extension::algebra::ExtensionAlgebra;
 use crate::field::extension::{Extendable, FieldExtension};
 use crate::field::types::Field;
 use crate::gates::gate::Gate;
+// Re-use constants from poseidon2 gate
+use crate::gates::poseidon2::{Poseidon2Params, SPONGE_WIDTH};
 use crate::gates::util::StridedConstraintConsumer;
 use crate::hash::hash_types::RichField;
 use crate::iop::ext_target::{ExtensionAlgebraTarget, ExtensionTarget};
@@ -12,23 +30,6 @@ use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::circuit_data::CommonCircuitData;
 use crate::plonk::vars::{EvaluationTargets, EvaluationVars, EvaluationVarsBase};
 use crate::util::serialization::{Buffer, IoResult, Read, Write};
-#[cfg(not(feature = "std"))]
-use alloc::{
-    format,
-    string::{String, ToString},
-    vec,
-    vec::Vec,
-};
-use anyhow::Result;
-use core::marker::PhantomData;
-use core::ops::Range;
-
-// Re-use constants from poseidon2 gate
-use crate::gates::poseidon2::{Poseidon2Params, SPONGE_WIDTH};
-use qp_poseidon_constants::{
-    POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW, POSEIDON2_INTERNAL_CONSTANTS_RAW,
-    POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
-};
 
 /// Same formula as your existing helper:
 /// y[i] = diag[i] * x[i] + sum_j x[j]
