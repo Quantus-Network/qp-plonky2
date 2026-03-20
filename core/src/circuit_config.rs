@@ -86,6 +86,14 @@ impl CircuitConfig {
     pub fn standard_recursion_zk_config() -> Self {
         CircuitConfig {
             zero_knowledge: true,
+            security_bits: 82,
+            fri_config: FriConfig {
+                rate_bits: 3,
+                cap_height: 4,
+                proof_of_work_bits: 16,
+                reduction_strategy: FriReductionStrategy::ConstantArityBits(4, 5),
+                num_query_rounds: 22,
+            },
             ..Self::standard_recursion_config()
         }
     }
