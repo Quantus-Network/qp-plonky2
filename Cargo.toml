@@ -38,6 +38,7 @@ categories = ["cryptography"]
 [workspace.lints.clippy]
 too_long_first_doc_paragraph = "allow"
 
-# Git dep until new constants are published
+# Git deps until new constants/features are published
 [patch.crates-io]
 qp-poseidon-constants = { git = "https://github.com/Quantus-Network/qp-poseidon-constants.git", branch = "illuzen/consolidate-constants" }
+qp-poseidon-core = { git = "https://github.com/Quantus-Network/qp-poseidon.git", branch = "illuzen/injectivity" }

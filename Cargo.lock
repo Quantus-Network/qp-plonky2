@@ -850,8 +850,9 @@ dependencies = [
 
 [[package]]
 name = "qp-poseidon-constants"
-version = "1.0.3"
-source = "git+https://github.com/Quantus-Network/qp-poseidon-constants.git?branch=illuzen%2Fconsolidate-constants#57b4754d8e1f74f0470236098195e32e4639c6d6"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "300d8b01e4a492b202e739ab5f73215b261905911020cc0f74a22109365e3bd7"
 dependencies = [
  "p3-field",
  "p3-goldilocks",
@@ -862,9 +863,8 @@ dependencies = [
 
 [[package]]
 name = "qp-poseidon-core"
-version = "1.0.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0f65766d6de64eff741c7f402002a3322f5e563d53e0e9040aeab4921ff24f2b"
+version = "1.1.0"
+source = "git+https://github.com/Quantus-Network/qp-poseidon.git?branch=illuzen%2Finjectivity#eea6ae5ef0d096dc9ee51a5c053e2ce59566edbf"
 dependencies = [
  "p3-field",
  "p3-goldilocks",
@@ -1392,3 +1392,8 @@ dependencies = [
  "quote",
  "syn 2.0.108",
 ]
+
+[[patch.unused]]
+name = "qp-poseidon-constants"
+version = "1.0.3"
+source = "git+https://github.com/Quantus-Network/qp-poseidon-constants.git?branch=illuzen%2Fconsolidate-constants#57b4754d8e1f74f0470236098195e32e4639c6d6"
