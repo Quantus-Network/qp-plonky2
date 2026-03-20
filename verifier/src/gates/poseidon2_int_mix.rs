@@ -12,23 +12,21 @@ use alloc::{format, string::String, vec::Vec};
 use core::marker::PhantomData;
 use core::ops::Range;
 
-// Re-use your existing constants
 use crate::gates::poseidon2::Poseidon2Params;
-use crate::gates::poseidon2::P2_WIDTH;
 use qp_poseidon_constants::{
     POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW, POSEIDON2_INTERNAL_CONSTANTS_RAW,
-    POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
+    POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW, SPONGE_WIDTH,
 };
 
 /// Same formula as your existing helper:
 /// y[i] = diag[i] * x[i] + sum_j x[j]
-fn internal_mix_base<F: Field>(x: &[F; P2_WIDTH], diag: &[F; P2_WIDTH]) -> [F; P2_WIDTH] {
+fn internal_mix_base<F: Field>(x: &[F; SPONGE_WIDTH], diag: &[F; SPONGE_WIDTH]) -> [F; SPONGE_WIDTH] {
     let mut sum = x[0];
-    for i in 1..P2_WIDTH {
+    for i in 1..SPONGE_WIDTH {
         sum += x[i];
     }
-    let mut y = [F::ZERO; P2_WIDTH];
-    for i in 0..P2_WIDTH {
+    let mut y = [F::ZERO; SPONGE_WIDTH];
+    for i in 0..SPONGE_WIDTH {
         y[i] = diag[i] * x[i] + sum;
     }
     y
@@ -37,7 +35,7 @@ fn internal_mix_base<F: Field>(x: &[F; P2_WIDTH], diag: &[F; P2_WIDTH]) -> [F; P
 #[derive(Clone, Debug, Default)]
 pub struct Poseidon2IntMixGate<F: RichField + Extendable<D>, const D: usize> {
     /// diag in the base field F (same as Poseidon2Params.diag)
-    diag: [F; P2_WIDTH],
+    diag: [F; SPONGE_WIDTH],
     _pd: PhantomData<F>,
 }
 
@@ -56,32 +54,32 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2IntMixGate<F, D> {
     }
 
     pub(crate) const fn wires_input(i: usize) -> Range<usize> {
-        assert!(i < P2_WIDTH);
+        assert!(i < SPONGE_WIDTH);
         i * D..(i + 1) * D
     }
 
     pub(crate) const fn wires_output(i: usize) -> Range<usize> {
-        assert!(i < P2_WIDTH);
-        (P2_WIDTH + i) * D..(P2_WIDTH + i + 1) * D
+        assert!(i < SPONGE_WIDTH);
+        (SPONGE_WIDTH + i) * D..(SPONGE_WIDTH + i + 1) * D
     }
 
     /// Internal mix over an extension algebra of F::Extension
     fn internal_mix_algebra(
         &self,
-        state: &[ExtensionAlgebra<F::Extension, D>; P2_WIDTH],
-    ) -> [ExtensionAlgebra<F::Extension, D>; P2_WIDTH] {
+        state: &[ExtensionAlgebra<F::Extension, D>; SPONGE_WIDTH],
+    ) -> [ExtensionAlgebra<F::Extension, D>; SPONGE_WIDTH] {
         // Lift diag to F::Extension
-        let diag_ext: [F::Extension; P2_WIDTH] = core::array::from_fn(|i| {
+        let diag_ext: [F::Extension; SPONGE_WIDTH] = core::array::from_fn(|i| {
             F::Extension::from_canonical_u64(self.diag[i].to_canonical_u64())
         });
 
         let mut sum = state[0];
-        for i in 1..P2_WIDTH {
+        for i in 1..SPONGE_WIDTH {
             sum += state[i];
         }
 
-        let mut out = [ExtensionAlgebra::ZERO; P2_WIDTH];
-        for i in 0..P2_WIDTH {
+        let mut out = [ExtensionAlgebra::ZERO; SPONGE_WIDTH];
+        for i in 0..SPONGE_WIDTH {
             let coeff = diag_ext[i];
             // coeff * state[i] + sum
             out[i] = state[i].scalar_mul(coeff) + sum;
@@ -94,7 +92,7 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D>
     for Poseidon2IntMixGate<F, D>
 {
     fn id(&self) -> String {
-        format!("{self:?}<WIDTH={P2_WIDTH}>")
+        format!("{self:?}<WIDTH={SPONGE_WIDTH}>")
     }
 
     fn serialize(
@@ -111,7 +109,7 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D>
 
     fn eval_unfiltered(&self, vars: EvaluationVars<F, D>) -> Vec<F::Extension> {
         // inputs as extension algebra elements
-        let inputs: [_; P2_WIDTH] = (0..P2_WIDTH)
+        let inputs: [_; SPONGE_WIDTH] = (0..SPONGE_WIDTH)
             .map(|i| vars.get_local_ext_algebra(Self::wires_input(i)))
             .collect::<Vec<_>>()
             .try_into()
@@ -119,7 +117,7 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D>
 
         let computed_outputs = self.internal_mix_algebra(&inputs);
 
-        (0..P2_WIDTH)
+        (0..SPONGE_WIDTH)
             .map(|i| vars.get_local_ext_algebra(Self::wires_output(i)))
             .zip(computed_outputs)
             .flat_map(|(out, computed_out)| (out - computed_out).to_basefield_array())
@@ -132,21 +130,21 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D>
         mut yield_constr: StridedConstraintConsumer<F>,
     ) {
         // Here we work in the base-one extension (F::Extension)
-        let inputs: [_; P2_WIDTH] = (0..P2_WIDTH)
+        let inputs: [_; SPONGE_WIDTH] = (0..SPONGE_WIDTH)
             .map(|i| vars.get_local_ext(Self::wires_input(i)))
             .collect::<Vec<_>>()
             .try_into()
             .unwrap();
 
         // diag lifted into F::Extension
-        let diag_ext: [F::Extension; P2_WIDTH] = core::array::from_fn(|i| {
+        let diag_ext: [F::Extension; SPONGE_WIDTH] = core::array::from_fn(|i| {
             F::Extension::from_canonical_u64(self.diag[i].to_canonical_u64())
         });
 
         let computed_outputs = internal_mix_base::<F::Extension>(&inputs, &diag_ext);
 
         yield_constr.many(
-            (0..P2_WIDTH)
+            (0..SPONGE_WIDTH)
                 .map(|i| vars.get_local_ext(Self::wires_output(i)))
                 .zip(computed_outputs)
                 .flat_map(|(out, computed_out)| (out - computed_out).to_basefield_array()),
@@ -154,7 +152,7 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D>
     }
 
     fn num_wires(&self) -> usize {
-        2 * D * P2_WIDTH
+        2 * D * SPONGE_WIDTH
     }
 
     fn num_constants(&self) -> usize {
@@ -166,6 +164,6 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D>
     }
 
     fn num_constraints(&self) -> usize {
-        P2_WIDTH * D
+        SPONGE_WIDTH * D
     }
 }

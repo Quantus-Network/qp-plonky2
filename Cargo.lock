@@ -745,7 +745,7 @@ dependencies = [
 
 [[package]]
 name = "qp-plonky2"
-version = "1.1.4"
+version = "1.1.5"
 dependencies = [
  "ahash",
  "anyhow",
@@ -784,7 +784,7 @@ dependencies = [
 
 [[package]]
 name = "qp-plonky2-core"
-version = "1.1.4"
+version = "1.1.5"
 dependencies = [
  "ahash",
  "anyhow",
@@ -808,7 +808,7 @@ dependencies = [
 
 [[package]]
 name = "qp-plonky2-field"
-version = "1.1.4"
+version = "1.1.5"
 dependencies = [
  "anyhow",
  "itertools 0.11.0",
@@ -823,7 +823,7 @@ dependencies = [
 
 [[package]]
 name = "qp-plonky2-verifier"
-version = "1.1.4"
+version = "1.1.5"
 dependencies = [
  "ahash",
  "anyhow",
@@ -850,9 +850,8 @@ dependencies = [
 
 [[package]]
 name = "qp-poseidon-constants"
-version = "1.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4d56b56652e9f44a43de9593e75d7c3e0c3a352e10675cf3024e5b3175711cd3"
+version = "1.0.3"
+source = "git+https://github.com/Quantus-Network/qp-poseidon-constants.git?branch=illuzen%2Fconsolidate-constants#57b4754d8e1f74f0470236098195e32e4639c6d6"
 dependencies = [
  "p3-field",
  "p3-goldilocks",
@@ -863,9 +862,9 @@ dependencies = [
 
 [[package]]
 name = "qp-poseidon-core"
-version = "1.0.1"
+version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e658a373a7fb22babeda9ffcc8af0a894e6e3c008272ed735509eccb7769ead3"
+checksum = "0f65766d6de64eff741c7f402002a3322f5e563d53e0e9040aeab4921ff24f2b"
 dependencies = [
  "p3-field",
  "p3-goldilocks",
@@ -1085,7 +1084,7 @@ checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
 
 [[package]]
 name = "starky"
-version = "1.1.4"
+version = "1.1.5"
 dependencies = [
  "ahash",
  "anyhow",

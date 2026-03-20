@@ -17,16 +17,12 @@ use plonky2_field::goldilocks_field::GoldilocksField as GL;
 use qp_poseidon_constants::create_poseidon;
 
 use crate::field::types::{Field, PrimeField64};
-use crate::gates::poseidon2::{Poseidon2Gate, P2_WIDTH};
+use crate::gates::poseidon2::{Poseidon2Gate, SPONGE_RATE, SPONGE_WIDTH};
 use crate::hash::hash_types::{HashOut, RichField, NUM_HASH_OUT_ELTS};
 use crate::hash::hashing::{hash_n_to_hash_no_pad_p2, PlonkyPermutation};
 use crate::iop::target::{BoolTarget, Target};
 use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::config::{AlgebraicHasher, Hasher};
-
-// ---------- Params (match your Poseidon2Core exactly) ----------
-const SPONGE_WIDTH: usize = 12;
-const SPONGE_RATE: usize = 4; // 4-felt output, 4-felt rate, 8-felt capacity
 
 /// ---------- Internal helper: p3 permutation on Goldilocks ----------
 #[inline(always)]
@@ -178,10 +174,10 @@ impl<F: RichField + P2Permuter> AlgebraicHasher<F> for Poseidon2Hash {
         let row = b.add_gate(gate_type, vec![]);
 
         let inp = inputs.as_ref();
-        assert_eq!(inp.len(), P2_WIDTH);
+        assert_eq!(inp.len(), SPONGE_WIDTH);
 
         // connect inputs
-        for i in 0..P2_WIDTH {
+        for i in 0..SPONGE_WIDTH {
             b.connect(
                 inp[i],
                 Target::wire(row, Poseidon2Gate::<F, D>::wire_input(i)),
@@ -189,7 +185,7 @@ impl<F: RichField + P2Permuter> AlgebraicHasher<F> for Poseidon2Hash {
         }
 
         // collect outputs
-        let state: [Target; P2_WIDTH] =
+        let state: [Target; SPONGE_WIDTH] =
             core::array::from_fn(|i| Target::wire(row, Poseidon2Gate::<F, D>::wire_output(i)));
 
         Poseidon2Permutation { state }

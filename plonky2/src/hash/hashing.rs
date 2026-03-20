@@ -6,6 +6,7 @@ use alloc::vec;
 use alloc::vec::Vec;
 
 use crate::field::extension::Extendable;
+use crate::gates::poseidon2::SPONGE_RATE;
 use crate::hash::hash_types::{HashOutTarget, RichField, NUM_HASH_OUT_ELTS};
 use crate::iop::target::Target;
 use crate::plonk::circuit_builder::CircuitBuilder;
@@ -69,38 +70,37 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         &mut self,
         inputs: Vec<Target>,
     ) -> HashOutTarget {
-        const RATE: usize = 4; // must match your gate
         let zero = self.zero();
         let one = self.one();
 
         // Start from all-zero state.
         let mut st = H::AlgebraicPermutation::new(core::iter::repeat(zero));
 
-        if RATE == 0 {
+        if SPONGE_RATE == 0 {
             // Defensive
             return HashOutTarget::from_vec(vec![zero; NUM_HASH_OUT_ELTS]);
         }
 
-        // Absorb input in RATE-sized chunks with additive absorption.
+        // Absorb input in SPONGE_RATE-sized chunks with additive absorption.
         let mut idx = 0usize;
         while idx < inputs.len() {
             let remaining = inputs.len() - idx;
-            let take = remaining.min(RATE);
+            let take = remaining.min(SPONGE_RATE);
 
-            // Build one block of length RATE.
-            let mut blk = vec![zero; RATE];
+            // Build one block of length SPONGE_RATE.
+            let mut blk = vec![zero; SPONGE_RATE];
             for i in 0..take {
                 blk[i] = inputs[idx + i];
             }
 
             // If this is the final (possibly partial) block and it's not full,
             // append the single '1' delimiter then zero-fill the rest.
-            if idx + take == inputs.len() && take < RATE {
+            if idx + take == inputs.len() && take < SPONGE_RATE {
                 blk[take] = one;
             }
 
             // Additive absorption then permute.
-            for i in 0..RATE {
+            for i in 0..SPONGE_RATE {
                 let sum = self.add(st.as_ref()[i], blk[i]);
                 st.set_elt(sum, i);
             }
@@ -109,12 +109,12 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             idx += take;
         }
 
-        // If inputs were an exact multiple of RATE (including empty),
+        // If inputs were an exact multiple of SPONGE_RATE (including empty),
         // absorb one full padding block [1, 0, 0, 0].
-        if inputs.len() % RATE == 0 {
-            let mut blk = vec![zero; RATE];
+        if inputs.len() % SPONGE_RATE == 0 {
+            let mut blk = vec![zero; SPONGE_RATE];
             blk[0] = one;
-            for i in 0..RATE {
+            for i in 0..SPONGE_RATE {
                 let sum = self.add(st.as_ref()[i], blk[i]);
                 st.set_elt(sum, i);
             }
