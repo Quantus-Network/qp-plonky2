@@ -50,6 +50,7 @@ qp-plonky2-core = { version = "1.1.5", path = "../core", default-features = fals
 criterion = { version = "0.5.1", default-features = false }
 rand = { version = "0.8", features = ["small_rng"] }
 plonky2-field = { package = "qp-plonky2-field", version = "1.1.5", path = "../field", features = ["rand"] }
+plonky2 = { package = "qp-plonky2", version = "1.1.5", path = "../plonky2" }
 serde_cbor = { version = "0.11.2", default-features = true }
 
 [lints]

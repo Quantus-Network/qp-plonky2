@@ -144,3 +144,56 @@ pub fn hash_no_pad_bytes(input: &[GL]) -> [u8; 32] {
     }
     out
 }
+
+#[cfg(test)]
+mod tests {
+    extern crate alloc;
+    use alloc::vec::Vec;
+
+    use super::*;
+    use plonky2_field::types::Field;
+
+    /// Verify that the verifier's Poseidon2 hash matches the prover's.
+    #[test]
+    fn verifier_poseidon2_matches_prover() {
+        use plonky2::hash::poseidon2::Poseidon2Hash as ProverPoseidon2Hash;
+        use plonky2::plonk::config::Hasher as ProverHasher;
+
+        // Test various input lengths to exercise padding logic
+        let test_lengths = [0, 1, 2, 3, 4, 5, 7, 8, 9, 12, 15, 16, 17, 32];
+
+        for len in test_lengths {
+            let input: Vec<GL> = (0..len)
+                .map(|i| GL::from_canonical_u64(i as u64 + 1))
+                .collect();
+
+            let verifier_hash = Poseidon2Hash::hash_no_pad(&input);
+            let prover_hash = ProverPoseidon2Hash::hash_no_pad(&input);
+
+            assert_eq!(
+                verifier_hash, prover_hash,
+                "Hash mismatch for input length {}!\n  Verifier: {:?}\n  Prover:   {:?}",
+                len, verifier_hash.elements, prover_hash.elements
+            );
+        }
+    }
+
+    /// Test that RATE constant matches between verifier and prover
+    #[test]
+    fn verifier_rate_matches_prover() {
+        use plonky2::hash::poseidon2::Poseidon2Permutation as ProverPerm;
+        use qp_plonky2_core::hashing::PlonkyPermutation;
+
+        assert_eq!(
+            <Poseidon2Permutation<GL> as PlonkyPermutation<GL>>::RATE,
+            <ProverPerm<GL> as PlonkyPermutation<GL>>::RATE,
+            "RATE mismatch between verifier and prover!"
+        );
+
+        assert_eq!(
+            <Poseidon2Permutation<GL> as PlonkyPermutation<GL>>::WIDTH,
+            <ProverPerm<GL> as PlonkyPermutation<GL>>::WIDTH,
+            "WIDTH mismatch between verifier and prover!"
+        );
+    }
+}

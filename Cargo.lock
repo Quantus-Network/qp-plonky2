@@ -838,6 +838,7 @@ dependencies = [
  "p3-poseidon2",
  "p3-symmetric",
  "plonky2_util",
+ "qp-plonky2",
  "qp-plonky2-core",
  "qp-plonky2-field",
  "qp-poseidon-constants",
