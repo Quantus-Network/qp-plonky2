@@ -3,9 +3,9 @@ name = "qp-plonky2"
 description = "Recursive SNARKs based on PLONK and FRI"
 version = "1.1.5"
 authors = [
-    "Daniel Lubarov <daniel@lubarov.com>",
-    "William Borgeaud <williamborgeaud@gmail.com>",
-    "Nicholas Ward <npward@berkeley.edu>",
+  "Daniel Lubarov <daniel@lubarov.com>",
+  "William Borgeaud <williamborgeaud@gmail.com>",
+  "Nicholas Ward <npward@berkeley.edu>",
 ]
 readme = "README.md"
 edition.workspace = true
@@ -17,16 +17,22 @@ categories.workspace = true
 
 [features]
 default = [
-    "gate_testing",
-    "parallel",
-    "rand_chacha",
-    "timing",
-    "getrandom",
-    "rand",
+  "gate_testing",
+  "parallel",
+  "rand_chacha",
+  "timing",
+  "getrandom",
+  "rand",
 ]
 gate_testing = []
 parallel = ["hashbrown/rayon", "plonky2_maybe_rayon/parallel"]
-std = ["anyhow/std", "rand/std", "itertools/use_std", "plonky2-verifier/std", "qp-plonky2-core/std"]
+std = [
+  "anyhow/std",
+  "rand/std",
+  "itertools/use_std",
+  "plonky2-verifier/std",
+  "qp-plonky2-core/std",
+]
 timing = ["std", "dep:web-time"]
 rand = ["plonky2-field/rand", "qp-plonky2-core/rand"]
 
@@ -60,7 +66,7 @@ qp-plonky2-core = { version = "1.1.5", path = "../core", default-features = fals
 
 [target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
 getrandom = { version = "0.2", default-features = false, features = [
-    "js",
+  "js",
 ], optional = true }
 
 [dev-dependencies]

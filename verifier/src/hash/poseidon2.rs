@@ -150,8 +150,9 @@ mod tests {
     extern crate alloc;
     use alloc::vec::Vec;
 
-    use super::*;
     use plonky2_field::types::Field;
+
+    use super::*;
 
     /// Verify that the verifier's Poseidon2 hash matches the prover's.
     #[test]
