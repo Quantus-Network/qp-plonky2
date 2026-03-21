@@ -3,6 +3,8 @@ use alloc::{format, string::String, vec::Vec};
 use core::marker::PhantomData;
 use core::ops::Range;
 
+use qp_plonky2_core::poseidon::{Poseidon, SPONGE_WIDTH};
+
 use crate::field::extension::algebra::ExtensionAlgebra;
 use crate::field::extension::{Extendable, FieldExtension};
 use crate::field::types::Field;
@@ -12,7 +14,6 @@ use crate::hash::hash_types::RichField;
 use crate::plonk::circuit_data::CommonCircuitData;
 use crate::plonk::vars::{EvaluationVars, EvaluationVarsBase};
 use crate::util::serialization::{Buffer, IoResult};
-use qp_plonky2_core::poseidon::{Poseidon, SPONGE_WIDTH};
 
 /// Poseidon MDS Gate
 #[derive(Debug, Default)]

@@ -1,14 +1,32 @@
 [workspace]
-members = ["core", "field", "maybe_rayon", "plonky2", "starky", "util", "verifier"]
-default-members = ["core", "field", "maybe_rayon", "plonky2", "starky", "util", "verifier"]
+members = [
+  "core",
+  "field",
+  "maybe_rayon",
+  "plonky2",
+  "starky",
+  "util",
+  "verifier",
+]
+default-members = [
+  "core",
+  "field",
+  "maybe_rayon",
+  "plonky2",
+  "starky",
+  "util",
+  "verifier",
+]
 resolver = "2"
 
 [workspace.dependencies]
-ahash = { version = "0.8.7", default-features = false, features = ["compile-time-rng"] } # NOTE: Be sure to keep this version the same as the dependency in `hashbrown`.
+ahash = { version = "0.8.7", default-features = false, features = [
+  "compile-time-rng",
+] } # NOTE: Be sure to keep this version the same as the dependency in `hashbrown`.
 anyhow = { version = "1.0.40", default-features = false }
 hashbrown = { version = "0.14.3", default-features = false, features = [
-    "ahash",
-    "serde",
+  "ahash",
+  "serde",
 ] } # NOTE: When upgrading, see `ahash` dependency.
 itertools = { version = "0.11.0", default-features = false }
 log = { version = "0.4.14", default-features = false }
@@ -37,3 +55,7 @@ categories = ["cryptography"]
 
 [workspace.lints.clippy]
 too_long_first_doc_paragraph = "allow"
+
+# Git deps until new constants/features are published
+[patch.crates-io]
+qp-poseidon-core = { git = "https://github.com/Quantus-Network/qp-poseidon.git", branch = "illuzen/injectivity" }

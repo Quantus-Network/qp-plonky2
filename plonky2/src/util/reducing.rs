@@ -6,6 +6,9 @@
 #[cfg(not(feature = "std"))]
 use alloc::{vec, vec::Vec};
 
+// Re-export ReducingFactor from core
+pub use qp_plonky2_core::reducing::ReducingFactor;
+
 use crate::field::extension::Extendable;
 use crate::gates::arithmetic_extension::ArithmeticExtensionGate;
 use crate::gates::reducing::ReducingGate;
@@ -14,9 +17,6 @@ use crate::hash::hash_types::RichField;
 use crate::iop::ext_target::ExtensionTarget;
 use crate::iop::target::Target;
 use crate::plonk::circuit_builder::CircuitBuilder;
-
-// Re-export ReducingFactor from core
-pub use qp_plonky2_core::reducing::ReducingFactor;
 
 #[derive(Debug, Clone)]
 pub struct ReducingFactorTarget<const D: usize> {

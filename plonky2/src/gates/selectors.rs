@@ -6,14 +6,14 @@
 #[cfg(not(feature = "std"))]
 use alloc::{vec, vec::Vec};
 
+// Re-export selector types from core
+pub use qp_plonky2_core::selectors::{LookupSelectors, SelectorsInfo, UNUSED_SELECTOR};
+
 use crate::field::extension::Extendable;
 use crate::field::polynomial::PolynomialValues;
 use crate::gates::gate::{GateInstance, GateRef};
 use crate::hash::hash_types::RichField;
 use crate::plonk::circuit_builder::LookupWire;
-
-// Re-export selector types from core
-pub use qp_plonky2_core::selectors::{LookupSelectors, SelectorsInfo, UNUSED_SELECTOR};
 
 /// Returns selector polynomials for each LUT. We have two constraint domains (remember that gates are stored upside down):
 /// - [last_lut_row, first_lut_row] (Sum and RE transition constraints),

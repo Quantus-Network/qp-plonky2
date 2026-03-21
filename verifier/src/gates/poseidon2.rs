@@ -14,8 +14,9 @@ use core::marker::PhantomData;
 
 use plonky2_field::extension::Extendable;
 use qp_poseidon_constants::{
-    POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW, POSEIDON2_INTERNAL_CONSTANTS_RAW,
-    POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
+    POSEIDON2_EXTERNAL_ROUNDS, POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW,
+    POSEIDON2_INTERNAL_CONSTANTS_RAW, POSEIDON2_INTERNAL_ROUNDS, POSEIDON2_MATRIX_DIAG_12_RAW,
+    POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW, SPONGE_WIDTH,
 };
 
 use crate::field::types::Field;
@@ -25,13 +26,7 @@ use crate::plonk::circuit_data::CommonCircuitData;
 use crate::plonk::vars::EvaluationVars;
 use crate::util::serialization::{Buffer, IoResult};
 
-/// WIDTH=12, RATE=4 (capacity 8).
-pub const P2_WIDTH: usize = 12;
-pub const P2_RATE: usize = 4;
-pub const P2_INTERNAL_ROUNDS: usize = 22;
-pub const P2_EXT_ROUNDS: usize = 8; // 4 init + 4 terminal
-
-/// Poseidon2 over Goldilocks with `WIDTH = 12`, `RATE = 4` (capacity 8).
+/// Poseidon2 over Goldilocks with `WIDTH = 12`, `RATE = 8` (capacity 4).
 ///
 /// ## Structure (matches p3-goldilocks)
 ///
@@ -79,26 +74,26 @@ pub const P2_EXT_ROUNDS: usize = 8; // 4 init + 4 terminal
 #[derive(Clone, Debug, Default)]
 pub struct Poseidon2Params<F: RichField + Extendable<D>, const D: usize> {
     /// 4 external rounds (initial phase), each a WIDTH-sized RC vector.
-    pub ext_init: [[F; P2_WIDTH]; 4],
+    pub ext_init: [[F; SPONGE_WIDTH]; 4],
     /// 4 external rounds (terminal phase), each a WIDTH-sized RC vector.
-    pub ext_term: [[F; P2_WIDTH]; 4],
+    pub ext_term: [[F; SPONGE_WIDTH]; 4],
     /// 22 internal round constants added to lane 0.
-    pub int_rc: [F; P2_INTERNAL_ROUNDS],
+    pub int_rc: [F; POSEIDON2_INTERNAL_ROUNDS],
     /// Fixed GL diagonal used in the internal mixing.
-    pub diag: [F; P2_WIDTH],
+    pub diag: [F; SPONGE_WIDTH],
 }
 
 impl<F: RichField + Extendable<D>, const D: usize> Poseidon2Params<F, D> {
     /// Create params from p3-style raw constants (as u64), exactly like your dump.
     pub fn from_p3_constants_u64(
-        initial: [[u64; P2_WIDTH]; 4],
-        terminal: [[u64; P2_WIDTH]; 4],
-        internal: [u64; P2_INTERNAL_ROUNDS],
+        initial: [[u64; SPONGE_WIDTH]; 4],
+        terminal: [[u64; SPONGE_WIDTH]; 4],
+        internal: [u64; POSEIDON2_INTERNAL_ROUNDS],
     ) -> Self {
         // map helpers
         let map_u = |x: u64| F::from_canonical_u64(x);
-        let map_rounds = |src: [[u64; P2_WIDTH]; 4]| {
-            core::array::from_fn::<[F; P2_WIDTH], 4, _>(|r| {
+        let map_rounds = |src: [[u64; SPONGE_WIDTH]; 4]| {
+            core::array::from_fn::<[F; SPONGE_WIDTH], 4, _>(|r| {
                 core::array::from_fn(|i| map_u(src[r][i]))
             })
         };
@@ -106,26 +101,13 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2Params<F, D> {
         let ext_init = map_rounds(initial);
         let ext_term = map_rounds(terminal);
 
-        let mut int_rc = [F::ZERO; P2_INTERNAL_ROUNDS];
-        for i in 0..P2_INTERNAL_ROUNDS {
+        let mut int_rc = [F::ZERO; POSEIDON2_INTERNAL_ROUNDS];
+        for i in 0..POSEIDON2_INTERNAL_ROUNDS {
             int_rc[i] = map_u(internal[i]);
         }
 
-        // Goldilocks Poseidon2 diag for WIDTH=12 (matches p3-goldilocks MATRIX_DIAG_12_GOLDILOCKS)
-        let diag = [
-            F::from_canonical_u64(0xc3b6c08e23ba9300),
-            F::from_canonical_u64(0xd84b5de94a324fb6),
-            F::from_canonical_u64(0x0d0c371c5b35b84f),
-            F::from_canonical_u64(0x7964f570e7188037),
-            F::from_canonical_u64(0x5daf18bbd996604b),
-            F::from_canonical_u64(0x6743bc47b9595257),
-            F::from_canonical_u64(0x5528b9362c59bb70),
-            F::from_canonical_u64(0xac45e25b7127b68b),
-            F::from_canonical_u64(0xa2077d7dfbb606b5),
-            F::from_canonical_u64(0xf3faac6faee378ae),
-            F::from_canonical_u64(0x0c6388b51545e883),
-            F::from_canonical_u64(0xd27dbb6944917b60),
-        ];
+        // Goldilocks Poseidon2 diagonal from canonical constants
+        let diag = core::array::from_fn(|i| F::from_canonical_u64(POSEIDON2_MATRIX_DIAG_12_RAW[i]));
 
         Self {
             ext_init,
@@ -148,9 +130,9 @@ fn apply_mat4_base<F: Field>(a: F, x: F, c: F, d: F) -> [F; 4] {
 }
 
 #[inline(always)]
-fn mds_light_base<F: Field>(s: &mut [F; P2_WIDTH]) {
+fn mds_light_base<F: Field>(s: &mut [F; SPONGE_WIDTH]) {
     // 1) 4×4 per block
-    for k in (0..P2_WIDTH).step_by(4) {
+    for k in (0..SPONGE_WIDTH).step_by(4) {
         let [y0, y1, y2, y3] = apply_mat4_base(s[k], s[k + 1], s[k + 2], s[k + 3]);
         s[k] = y0;
         s[k + 1] = y1;
@@ -163,7 +145,7 @@ fn mds_light_base<F: Field>(s: &mut [F; P2_WIDTH]) {
         sums[k] = s[k] + s[4 + k] + s[8 + k];
     }
     // 3) add sums[i%4]
-    for i in 0..P2_WIDTH {
+    for i in 0..SPONGE_WIDTH {
         s[i] += sums[i % 4];
     }
 }
@@ -188,13 +170,13 @@ pub struct Poseidon2Gate<F: RichField + Extendable<D>, const D: usize> {
 
 impl<F: RichField + Extendable<D>, const D: usize> Poseidon2Gate<F, D> {
     pub const W_IN: usize = 0;
-    pub const W_OUT: usize = P2_WIDTH;
+    pub const W_OUT: usize = SPONGE_WIDTH;
 
     // S-box input wires for external (full) rounds
-    pub const W_EXT_SBOX: usize = 2 * P2_WIDTH;
+    pub const W_EXT_SBOX: usize = 2 * SPONGE_WIDTH;
 
     // S-box input wires for internal rounds (lane 0 only)
-    pub const W_INT_SBOX: usize = Self::W_EXT_SBOX + P2_EXT_ROUNDS * P2_WIDTH;
+    pub const W_INT_SBOX: usize = Self::W_EXT_SBOX + POSEIDON2_EXTERNAL_ROUNDS * SPONGE_WIDTH;
 
     pub const fn wire_input(i: usize) -> usize {
         Self::W_IN + i
@@ -205,20 +187,20 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2Gate<F, D> {
 
     #[inline]
     pub const fn wire_ext_sbox(round: usize, lane: usize) -> usize {
-        debug_assert!(round < P2_EXT_ROUNDS);
-        debug_assert!(lane < P2_WIDTH);
-        Self::W_EXT_SBOX + round * P2_WIDTH + lane
+        debug_assert!(round < POSEIDON2_EXTERNAL_ROUNDS);
+        debug_assert!(lane < SPONGE_WIDTH);
+        Self::W_EXT_SBOX + round * SPONGE_WIDTH + lane
     }
 
     #[inline]
     pub const fn wire_int_sbox(round: usize) -> usize {
-        debug_assert!(round < P2_INTERNAL_ROUNDS);
+        debug_assert!(round < POSEIDON2_INTERNAL_ROUNDS);
         Self::W_INT_SBOX + round
     }
 
     pub const fn end() -> usize {
         // 12 in + 12 out + 8*12 external s-box inputs + 22 internal s-box inputs = 142
-        Self::W_INT_SBOX + P2_INTERNAL_ROUNDS
+        Self::W_INT_SBOX + POSEIDON2_INTERNAL_ROUNDS
     }
     pub fn new() -> Self {
         Self {
@@ -234,7 +216,7 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2Gate<F, D> {
 
 impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for Poseidon2Gate<F, D> {
     fn id(&self) -> String {
-        format!("{self:?}<WIDTH={P2_WIDTH}>")
+        format!("{self:?}<WIDTH={SPONGE_WIDTH}>")
     }
 
     fn serialize(&self, _dst: &mut Vec<u8>, _cd: &CommonCircuitData<F, D>) -> IoResult<()> {
@@ -255,7 +237,7 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for Po
 
     fn num_constraints(&self) -> usize {
         // One constraint per S-box input (external + internal), plus output equality.
-        P2_EXT_ROUNDS * P2_WIDTH + P2_INTERNAL_ROUNDS + P2_WIDTH
+        POSEIDON2_EXTERNAL_ROUNDS * SPONGE_WIDTH + POSEIDON2_INTERNAL_ROUNDS + SPONGE_WIDTH
         // = 8*12 + 22 + 12 = 130
     }
 
@@ -268,7 +250,8 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for Po
         let mut constr = Vec::with_capacity(self.num_constraints());
 
         // 0) load inputs into extension state
-        let mut state: [F::Extension; P2_WIDTH] = core::array::from_fn(|i| lw[Self::wire_input(i)]);
+        let mut state: [F::Extension; SPONGE_WIDTH] =
+            core::array::from_fn(|i| lw[Self::wire_input(i)]);
 
         // 1) initial preamble (light MDS)
         mds_light_base::<F::Extension>(&mut state);
@@ -283,17 +266,17 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for Po
         // 2) 4 initial external rounds
         for r in 0..4 {
             // add RCs
-            for i in 0..P2_WIDTH {
+            for i in 0..SPONGE_WIDTH {
                 state[i] += ext_c::<F, D>(ext_init[r][i]);
             }
             // constrain S-box inputs and update state = sbox_in
-            for i in 0..P2_WIDTH {
+            for i in 0..SPONGE_WIDTH {
                 let sbox_in = lw[Self::wire_ext_sbox(ext_round_idx, i)];
                 constr.push(state[i] - sbox_in);
                 state[i] = sbox_in;
             }
             // apply S-box x^7 on all lanes
-            for i in 0..P2_WIDTH {
+            for i in 0..SPONGE_WIDTH {
                 state[i] = sbox7(state[i]);
             }
             // light MDS
@@ -302,7 +285,7 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for Po
         }
 
         // 3) 22 internal rounds (lane 0 sbox + internal mix)
-        for r in 0..P2_INTERNAL_ROUNDS {
+        for r in 0..POSEIDON2_INTERNAL_ROUNDS {
             // lane 0: add RC
             state[0] += ext_c::<F, D>(int_rc[r]);
 
@@ -314,10 +297,10 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for Po
 
             // internal mixing: y[i] = diag[i]*x[i] + sum(x)
             let mut sum = state[0];
-            for i in 1..P2_WIDTH {
+            for i in 1..SPONGE_WIDTH {
                 sum += state[i];
             }
-            for i in 0..P2_WIDTH {
+            for i in 0..SPONGE_WIDTH {
                 let d_i = ext_c::<F, D>(diag[i]);
                 state[i] = d_i * state[i] + sum;
             }
@@ -326,17 +309,17 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for Po
         // 4) 4 terminal external rounds
         for r in 0..4 {
             // add RCs
-            for i in 0..P2_WIDTH {
+            for i in 0..SPONGE_WIDTH {
                 state[i] += ext_c::<F, D>(ext_term[r][i]);
             }
             // constrain S-box inputs and update state = sbox_in
-            for i in 0..P2_WIDTH {
+            for i in 0..SPONGE_WIDTH {
                 let sbox_in = lw[Self::wire_ext_sbox(ext_round_idx, i)];
                 constr.push(state[i] - sbox_in);
                 state[i] = sbox_in;
             }
             // apply S-box x^7 on all lanes
-            for i in 0..P2_WIDTH {
+            for i in 0..SPONGE_WIDTH {
                 state[i] = sbox7(state[i]);
             }
             mds_light_base::<F::Extension>(&mut state);
@@ -344,7 +327,7 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for Po
         }
 
         // 5) outputs equal final state
-        for i in 0..P2_WIDTH {
+        for i in 0..SPONGE_WIDTH {
             let out = lw[Self::wire_output(i)];
             constr.push(out - state[i]);
         }

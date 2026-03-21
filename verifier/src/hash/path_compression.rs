@@ -11,13 +11,13 @@ mod tests {
     #[cfg(not(feature = "std"))]
     use alloc::{vec, vec::Vec};
 
+    use qp_plonky2_core::merkle_tree::MerkleTree;
     use rand::rngs::SmallRng;
     use rand::{Rng, SeedableRng};
 
     use super::*;
     use crate::field::types::Sample;
     use crate::plonk::config::{GenericConfig, PoseidonGoldilocksConfig};
-    use qp_plonky2_core::merkle_tree::MerkleTree;
 
     #[test]
     fn test_path_compression() {

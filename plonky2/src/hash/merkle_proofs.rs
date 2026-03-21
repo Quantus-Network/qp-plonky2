@@ -8,6 +8,10 @@ use alloc::{vec, vec::Vec};
 use core::ops::RangeInclusive;
 
 use itertools::Itertools;
+// Re-export MerkleProof and verification functions from core
+pub use qp_plonky2_core::merkle_proofs::{
+    verify_batch_merkle_proof_to_cap, verify_merkle_proof, verify_merkle_proof_to_cap, MerkleProof,
+};
 
 use crate::field::extension::Extendable;
 use crate::hash::hash_types::{HashOutTarget, MerkleCapTarget, RichField, NUM_HASH_OUT_ELTS};
@@ -16,11 +20,6 @@ use crate::iop::target::{BoolTarget, Target};
 use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::circuit_data::VerifierCircuitTarget;
 use crate::plonk::config::AlgebraicHasher;
-
-// Re-export MerkleProof and verification functions from core
-pub use qp_plonky2_core::merkle_proofs::{
-    verify_batch_merkle_proof_to_cap, verify_merkle_proof, verify_merkle_proof_to_cap, MerkleProof,
-};
 
 /// Circuit representation of a Merkle proof.
 #[derive(Clone, Debug, Eq, PartialEq)]

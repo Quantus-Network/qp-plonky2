@@ -5,17 +5,17 @@
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
 
+// Re-export base types from core
+pub use qp_plonky2_core::{
+    flatten_target, unflatten_target, ExtensionAlgebraTarget, ExtensionTarget,
+};
+
 use crate::field::extension::algebra::ExtensionAlgebra;
 use crate::field::extension::{Extendable, FieldExtension, OEF};
 use crate::field::types::Field;
 use crate::hash::hash_types::RichField;
 use crate::iop::target::Target;
 use crate::plonk::circuit_builder::CircuitBuilder;
-
-// Re-export base types from core
-pub use qp_plonky2_core::{
-    flatten_target, unflatten_target, ExtensionAlgebraTarget, ExtensionTarget,
-};
 
 /// Extension trait for ExtensionTarget with methods requiring CircuitBuilder.
 pub trait ExtensionTargetFrobenius<const D: usize> {

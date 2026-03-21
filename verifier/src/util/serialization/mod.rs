@@ -13,6 +13,13 @@ use std::sync::Arc;
 pub use gate_serialization::default::DefaultGateSerializer;
 pub use gate_serialization::GateSerializer;
 use hashbrown::HashMap;
+use qp_plonky2_core::fri_proof::{
+    CompressedFriProof, CompressedFriQueryRounds, FriInitialTreeProof, FriProof, FriQueryRound,
+    FriQueryStep,
+};
+use qp_plonky2_core::merkle_proofs::MerkleProof;
+use qp_plonky2_core::merkle_tree::MerkleCap;
+use qp_plonky2_core::{FriConfig, FriParams, FriReductionStrategy};
 
 use crate::field::extension::{Extendable, FieldExtension};
 use crate::field::polynomial::PolynomialCoeffs;
@@ -28,13 +35,6 @@ use crate::plonk::plonk_common::salt_size;
 use crate::plonk::proof::{
     CompressedProof, CompressedProofWithPublicInputs, OpeningSet, Proof, ProofWithPublicInputs,
 };
-use qp_plonky2_core::fri_proof::{
-    CompressedFriProof, CompressedFriQueryRounds, FriInitialTreeProof, FriProof, FriQueryRound,
-    FriQueryStep,
-};
-use qp_plonky2_core::merkle_proofs::MerkleProof;
-use qp_plonky2_core::merkle_tree::MerkleCap;
-use qp_plonky2_core::{FriConfig, FriParams, FriReductionStrategy};
 
 /// A no_std compatible variant of `std::io::Error`
 #[derive(Debug)]
