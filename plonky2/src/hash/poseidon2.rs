@@ -246,7 +246,7 @@ mod tests {
     #[test]
     fn poseidon2_hash_matches_cpu_edge_lengths() {
         // Exercise the padding logic carefully: empty, short, full blocks, and beyond.
-        // RATE = 4, so we hit: 0,1,2,3,4,5,7,8,9,12,16,17
+        // RATE = 8, so we hit: 0,1,2,3,4,5,7,8,9,12,16,17
         let lens: [usize; 12] = [0, 1, 2, 3, 4, 5, 7, 8, 9, 12, 16, 17];
         let mut rng = ChaCha8Rng::seed_from_u64(0xC0FFEE);
 

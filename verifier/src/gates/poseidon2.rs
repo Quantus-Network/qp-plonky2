@@ -26,7 +26,7 @@ use crate::plonk::circuit_data::CommonCircuitData;
 use crate::plonk::vars::EvaluationVars;
 use crate::util::serialization::{Buffer, IoResult};
 
-/// Poseidon2 over Goldilocks with `WIDTH = 12`, `RATE = 4` (capacity 8).
+/// Poseidon2 over Goldilocks with `WIDTH = 12`, `RATE = 8` (capacity 4).
 ///
 /// ## Structure (matches p3-goldilocks)
 ///
