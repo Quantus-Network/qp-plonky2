@@ -1,56 +1,17 @@
 mod allocator;
 
-use criterion::{black_box, criterion_group, criterion_main, BatchSize, Criterion};
-use plonky2::field::goldilocks_field::GoldilocksField;
-use plonky2::field::types::{Field, Sample};
-use plonky2::hash::hash_types::{BytesHash, RichField};
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use plonky2::field::types::Field;
 use plonky2::hash::hashing::PlonkyPermutation;
-use plonky2::hash::keccak::KeccakHash;
-use plonky2::hash::poseidon::{Poseidon, PoseidonHash, SPONGE_WIDTH};
-use plonky2::hash::poseidon2::{P2Permuter, Poseidon2Hash, Poseidon2Permutation};
+use plonky2::hash::poseidon::{PoseidonHash, SPONGE_WIDTH};
+use plonky2::hash::poseidon2::Poseidon2Hash;
 use plonky2::iop::target::{BoolTarget, Target};
 use plonky2::iop::witness::{PartialWitness, WitnessWrite};
 use plonky2::plonk::circuit_builder::CircuitBuilder;
 use plonky2::plonk::circuit_data::CircuitConfig;
-use plonky2::plonk::config::{AlgebraicHasher, GenericConfig, Hasher, PoseidonGoldilocksConfig};
+use plonky2::plonk::config::{AlgebraicHasher, GenericConfig, PoseidonGoldilocksConfig};
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
-use tynm::type_name;
-
-pub(crate) fn bench_keccak<F: RichField>(c: &mut Criterion) {
-    c.bench_function("keccak256", |b| {
-        b.iter_batched(
-            || (BytesHash::<32>::rand(), BytesHash::<32>::rand()),
-            |(left, right)| <KeccakHash<32> as Hasher<F>>::two_to_one(left, right),
-            BatchSize::SmallInput,
-        )
-    });
-}
-
-pub(crate) fn bench_poseidon<F: Poseidon>(c: &mut Criterion) {
-    c.bench_function(
-        &format!("poseidon<{}, {SPONGE_WIDTH}>", type_name::<F>()),
-        |b| {
-            b.iter_batched(
-                || F::rand_array::<SPONGE_WIDTH>(),
-                |state| F::poseidon(state),
-                BatchSize::SmallInput,
-            )
-        },
-    );
-}
-pub(crate) fn bench_poseidon2<F: Poseidon + P2Permuter>(c: &mut Criterion) {
-    c.bench_function(
-        &format!("poseidon2<{}, {SPONGE_WIDTH}>", type_name::<F>()),
-        |b| {
-            b.iter_batched(
-                || F::rand_array::<SPONGE_WIDTH>(),
-                |state| Poseidon2Permutation::new(state).permute(),
-                BatchSize::SmallInput,
-            )
-        },
-    );
-}
 const D: usize = 2;
 type C = PoseidonGoldilocksConfig;
 type F = <C as GenericConfig<D>>::F;
@@ -158,11 +119,7 @@ fn bench_poseidon2_air(c: &mut Criterion) {
     });
 }
 
-// Keep your other hash-function benchmarks if you want them too
 fn criterion_benchmark(c: &mut Criterion) {
-    // bench_poseidon::<GoldilocksField>(c);
-    // bench_keccak::<GoldilocksField>(c);
-    // bench_poseidon2::<GoldilocksField>(c);
     bench_poseidon2_air(c);
     bench_poseidon_air(c);
 }
