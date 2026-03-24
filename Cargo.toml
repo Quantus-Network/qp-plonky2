@@ -55,3 +55,6 @@ categories = ["cryptography"]
 
 [workspace.lints.clippy]
 too_long_first_doc_paragraph = "allow"
+
+[patch.crates-io]
+qp-poseidon-core = { git = "https://github.com/Quantus-Network/qp-poseidon.git", branch = "illuzen/injective-to-felts" }

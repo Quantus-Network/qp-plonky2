@@ -195,7 +195,7 @@ impl<F: RichField + P2Permuter> AlgebraicHasher<F> for Poseidon2Hash {
 #[cfg(test)]
 mod tests {
     use plonky2_field::goldilocks_field::GoldilocksField as F;
-    use qp_poseidon_core::hash_variable_length;
+    use qp_poseidon_core::hash_to_bytes;
     use rand_chacha::rand_core::{RngCore, SeedableRng};
     use rand_chacha::ChaCha8Rng;
 
@@ -304,7 +304,7 @@ mod tests {
             }
 
             // p3 (qp_poseidon_core) reference
-            let p3_bytes = hash_variable_length(inputs_p3);
+            let p3_bytes = hash_to_bytes(&inputs_p3);
 
             assert_eq!(cpu_bytes, p3_bytes, "Poseidon2 mismatch for len={len}");
         }
