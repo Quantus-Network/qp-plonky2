@@ -216,7 +216,7 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2Gate<F, D> {
 
 impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for Poseidon2Gate<F, D> {
     fn id(&self) -> String {
-        format!("{self:?}<WIDTH={SPONGE_WIDTH}>")
+        format!("Poseidon2Gate<WIDTH={SPONGE_WIDTH}>")
     }
 
     fn serialize(&self, _dst: &mut Vec<u8>, _cd: &CommonCircuitData<F, D>) -> IoResult<()> {

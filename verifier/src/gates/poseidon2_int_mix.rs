@@ -96,7 +96,7 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D>
     for Poseidon2IntMixGate<F, D>
 {
     fn id(&self) -> String {
-        format!("{self:?}<WIDTH={SPONGE_WIDTH}>")
+        format!("Poseidon2IntMixGate<WIDTH={SPONGE_WIDTH}>")
     }
 
     fn serialize(

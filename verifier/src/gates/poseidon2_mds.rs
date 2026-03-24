@@ -117,7 +117,7 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D>
     for Poseidon2MdsGate<F, D>
 {
     fn id(&self) -> String {
-        format!("{self:?}<WIDTH={SPONGE_WIDTH}>")
+        format!("Poseidon2MdsGate<WIDTH={SPONGE_WIDTH}>")
     }
 
     fn serialize(
