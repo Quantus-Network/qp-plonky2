@@ -4,14 +4,13 @@ use core::mem::MaybeUninit;
 use core::slice;
 
 use plonky2_maybe_rayon::*;
+// Re-export MerkleCap from core for unified type across crates
+pub use qp_plonky2_core::MerkleCap;
 
 use crate::hash::hash_types::RichField;
 use crate::hash::merkle_proofs::MerkleProof;
 use crate::plonk::config::Hasher;
 use crate::util::log2_strict;
-
-// Re-export MerkleCap from core for unified type across crates
-pub use qp_plonky2_core::MerkleCap;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct MerkleTree<F: RichField, H: Hasher<F>> {

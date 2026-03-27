@@ -17,16 +17,12 @@ use plonky2_field::goldilocks_field::GoldilocksField as GL;
 use qp_poseidon_constants::create_poseidon;
 
 use crate::field::types::{Field, PrimeField64};
-use crate::gates::poseidon2::{Poseidon2Gate, P2_WIDTH};
+use crate::gates::poseidon2::{Poseidon2Gate, SPONGE_RATE, SPONGE_WIDTH};
 use crate::hash::hash_types::{HashOut, RichField, NUM_HASH_OUT_ELTS};
 use crate::hash::hashing::{hash_n_to_hash_no_pad_p2, PlonkyPermutation};
 use crate::iop::target::{BoolTarget, Target};
 use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::config::{AlgebraicHasher, Hasher};
-
-// ---------- Params (match your Poseidon2Core exactly) ----------
-const SPONGE_WIDTH: usize = 12;
-const SPONGE_RATE: usize = 4; // 4-felt output, 4-felt rate, 8-felt capacity
 
 /// ---------- Internal helper: p3 permutation on Goldilocks ----------
 #[inline(always)]
@@ -178,10 +174,10 @@ impl<F: RichField + P2Permuter> AlgebraicHasher<F> for Poseidon2Hash {
         let row = b.add_gate(gate_type, vec![]);
 
         let inp = inputs.as_ref();
-        assert_eq!(inp.len(), P2_WIDTH);
+        assert_eq!(inp.len(), SPONGE_WIDTH);
 
         // connect inputs
-        for i in 0..P2_WIDTH {
+        for i in 0..SPONGE_WIDTH {
             b.connect(
                 inp[i],
                 Target::wire(row, Poseidon2Gate::<F, D>::wire_input(i)),
@@ -189,7 +185,7 @@ impl<F: RichField + P2Permuter> AlgebraicHasher<F> for Poseidon2Hash {
         }
 
         // collect outputs
-        let state: [Target; P2_WIDTH] =
+        let state: [Target; SPONGE_WIDTH] =
             core::array::from_fn(|i| Target::wire(row, Poseidon2Gate::<F, D>::wire_output(i)));
 
         Poseidon2Permutation { state }
@@ -199,7 +195,7 @@ impl<F: RichField + P2Permuter> AlgebraicHasher<F> for Poseidon2Hash {
 #[cfg(test)]
 mod tests {
     use plonky2_field::goldilocks_field::GoldilocksField as F;
-    use qp_poseidon_core::hash_variable_length;
+    use qp_poseidon_core::hash_to_bytes;
     use rand_chacha::rand_core::{RngCore, SeedableRng};
     use rand_chacha::ChaCha8Rng;
 
@@ -250,8 +246,13 @@ mod tests {
     #[test]
     fn poseidon2_hash_matches_cpu_edge_lengths() {
         // Exercise the padding logic carefully: empty, short, full blocks, and beyond.
-        // RATE = 4, so we hit: 0,1,2,3,4,5,7,8,9,12,16,17
-        let lens: [usize; 12] = [0, 1, 2, 3, 4, 5, 7, 8, 9, 12, 16, 17];
+        // RATE = 8, so we test boundaries around multiples of 8:
+        // - 0: empty (needs full padding block)
+        // - 1,2,3,4: small values
+        // - 7,8,9: around 1×RATE boundary
+        // - 15,16,17: around 2×RATE boundary
+        // - 23,24,25: around 3×RATE boundary
+        let lens: [usize; 14] = [0, 1, 2, 3, 4, 7, 8, 9, 15, 16, 17, 23, 24, 25];
         let mut rng = ChaCha8Rng::seed_from_u64(0xC0FFEE);
 
         for &len in &lens {
@@ -303,7 +304,7 @@ mod tests {
             }
 
             // p3 (qp_poseidon_core) reference
-            let p3_bytes = hash_variable_length(inputs_p3);
+            let p3_bytes = hash_to_bytes(&inputs_p3);
 
             assert_eq!(cpu_bytes, p3_bytes, "Poseidon2 mismatch for len={len}");
         }

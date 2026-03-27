@@ -98,11 +98,6 @@ pub fn hash_n_to_hash_no_pad<F: RichField, P: PlonkyPermutation<F>>(inputs: &[F]
 pub fn hash_n_to_hash_no_pad_p2<F: RichField, P: PlonkyPermutation<F>>(inputs: &[F]) -> HashOut<F> {
     let rate = P::RATE;
 
-    // Defensive: RATE should never be 0 for a real permutation.
-    if rate == 0 {
-        return HashOut::from_vec(vec![F::ZERO; NUM_HASH_OUT_ELTS]);
-    }
-
     // Append one '1' and zero-pad to a rate-aligned length.
     // This automatically adds a whole [1,0,...,0] block when inputs.len() % rate == 0,
     // including the empty-input case.

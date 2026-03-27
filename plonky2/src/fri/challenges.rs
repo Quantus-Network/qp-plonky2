@@ -3,6 +3,9 @@
 //! This module re-exports the FriChallenger trait from qp-plonky2-core
 //! and provides additional circuit-based FRI challenge generation for RecursiveChallenger.
 
+// Re-export FriChallenger trait from core
+pub use qp_plonky2_core::FriChallenger;
+
 use crate::field::extension::Extendable;
 use crate::fri::proof::FriChallengesTarget;
 use crate::fri::structure::FriOpeningsTarget;
@@ -13,9 +16,6 @@ use crate::iop::challenger::RecursiveChallenger;
 use crate::iop::target::Target;
 use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::config::AlgebraicHasher;
-
-// Re-export FriChallenger trait from core
-pub use qp_plonky2_core::FriChallenger;
 
 impl<F: RichField + Extendable<D>, H: AlgebraicHasher<F>, const D: usize>
     RecursiveChallenger<F, H, D>
