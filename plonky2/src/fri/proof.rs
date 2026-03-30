@@ -14,8 +14,9 @@ use crate::plonk::plonk_common::salt_size;
 
 // Re-export all FRI proof types from core
 pub use qp_plonky2_core::fri_proof::{
-    CompressedFriProof, CompressedFriQueryRounds, FriInitialTreeProof, FriProof, FriQueryRound,
-    FriQueryStep,
+    combine_final_poly_chunks, eval_final_polys_at_point, CompressedFriProof,
+    CompressedFriQueryRounds, FriBatchMaskProof, FriBatchMaskQuery, FriFinalPolys,
+    FriInitialTreeProof, FriProof, FriQueryRound, FriQueryStep,
 };
 
 // Re-export FriChallenges from core

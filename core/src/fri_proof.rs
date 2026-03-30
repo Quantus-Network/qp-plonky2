@@ -9,7 +9,8 @@ use serde::{Deserialize, Serialize};
 use crate::config::Hasher;
 use crate::field::extension::{flatten, unflatten, Extendable};
 use crate::field::polynomial::PolynomialCoeffs;
-use crate::fri::FriParams;
+use crate::field::types::Field;
+use crate::fri::{FriFinalPolyLayout, FriParams};
 use crate::fri_structure::FriChallenges;
 use crate::hash::path_compression::{compress_merkle_proofs, decompress_merkle_proofs};
 use crate::hash_types::RichField;
@@ -65,16 +66,94 @@ pub struct CompressedFriQueryRounds<F: RichField + Extendable<D>, H: Hasher<F>, 
     pub steps: Vec<HashMap<usize, FriQueryStep<F, H, D>>>,
 }
 
+/// Authenticated opening of the explicit batch-mask oracle at one queried FRI point.
+///
+/// The values are chunked according to `FriFinalPolyLayout` so the verifier can combine them into
+/// the logical `R(x)` using the same layout math as the final split polynomial path.
+#[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
+#[serde(bound = "")]
+pub struct FriBatchMaskQuery<F: RichField + Extendable<D>, H: Hasher<F>, const D: usize> {
+    pub values: Vec<F::Extension>,
+    pub merkle_proof: MerkleProof<F, H>,
+}
+
+/// Transcript-visible commitment and query openings for the explicit FRI batch-mask oracle.
+///
+/// This oracle must be observed before sampling `fri_alpha`; its authenticated query values are
+/// later added to the verifier's unmasked opening reduction at each FRI query point.
+#[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
+#[serde(bound = "")]
+pub struct FriBatchMaskProof<F: RichField + Extendable<D>, H: Hasher<F>, const D: usize> {
+    pub cap: MerkleCap<F, H>,
+    pub query_openings: Vec<FriBatchMaskQuery<F, H, D>>,
+}
+
+/// The reduced polynomial disclosed after the FRI commit phase.
+///
+/// `Split` keeps each coefficient chunk within the original degree cap while preserving a single
+/// logical polynomial via powers of `X^{chunk_degree}`.
+#[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
+#[serde(bound = "")]
+pub struct FriFinalPolys<F: RichField + Extendable<D>, const D: usize> {
+    pub layout: FriFinalPolyLayout,
+    pub chunks: Vec<PolynomialCoeffs<F::Extension>>,
+}
+
+impl<F: RichField + Extendable<D>, const D: usize> FriFinalPolys<F, D> {
+    pub fn from_single(chunk: PolynomialCoeffs<F::Extension>) -> Self {
+        Self {
+            layout: FriFinalPolyLayout::Single,
+            chunks: vec![chunk],
+        }
+    }
+}
+
+pub fn combine_final_poly_chunks<F: RichField + Extendable<D>, const D: usize>(
+    layout: &FriFinalPolyLayout,
+    values: &[F::Extension],
+    point: F::Extension,
+) -> F::Extension {
+    match layout {
+        FriFinalPolyLayout::Single => values[0],
+        FriFinalPolyLayout::Split {
+            chunk_degree_bits,
+            chunks,
+        } => {
+            debug_assert_eq!(*chunks, values.len());
+            let point_stride = point.exp_power_of_2(*chunk_degree_bits);
+            values
+                .iter()
+                .enumerate()
+                .map(|(i, value)| point_stride.exp_u64(i as u64) * *value)
+                .sum()
+        }
+    }
+}
+
+pub fn eval_final_polys_at_point<F: RichField + Extendable<D>, const D: usize>(
+    final_polys: &FriFinalPolys<F, D>,
+    point: F::Extension,
+) -> F::Extension {
+    let values = final_polys
+        .chunks
+        .iter()
+        .map(|chunk| chunk.eval(point))
+        .collect::<Vec<_>>();
+    combine_final_poly_chunks::<F, D>(&final_polys.layout, &values, point)
+}
+
 /// The full FRI proof.
 #[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
 #[serde(bound = "")]
 pub struct FriProof<F: RichField + Extendable<D>, H: Hasher<F>, const D: usize> {
     /// A Merkle cap for each reduced polynomial in the commit phase.
     pub commit_phase_merkle_caps: Vec<MerkleCap<F, H>>,
+    /// Explicit batch-mask oracle commitment and per-query openings, if enabled by the FRI params.
+    pub batch_mask_proof: Option<FriBatchMaskProof<F, H, D>>,
     /// Query rounds proofs
     pub query_round_proofs: Vec<FriQueryRound<F, H, D>>,
-    /// The final polynomial in coefficient form.
-    pub final_poly: PolynomialCoeffs<F::Extension>,
+    /// The final reduced polynomial, kept either raw or as degree-bounded chunks.
+    pub final_polys: FriFinalPolys<F, D>,
     /// Witness showing that the prover did PoW.
     pub pow_witness: F,
 }
@@ -85,10 +164,12 @@ pub struct FriProof<F: RichField + Extendable<D>, H: Hasher<F>, const D: usize> 
 pub struct CompressedFriProof<F: RichField + Extendable<D>, H: Hasher<F>, const D: usize> {
     /// A Merkle cap for each reduced polynomial in the commit phase.
     pub commit_phase_merkle_caps: Vec<MerkleCap<F, H>>,
+    /// Explicit batch-mask oracle commitment and per-query openings, if enabled by the FRI params.
+    pub batch_mask_proof: Option<FriBatchMaskProof<F, H, D>>,
     /// Compressed query rounds proof.
     pub query_round_proofs: CompressedFriQueryRounds<F, H, D>,
-    /// The final polynomial in coefficient form.
-    pub final_poly: PolynomialCoeffs<F::Extension>,
+    /// The final reduced polynomial, kept either raw or as degree-bounded chunks.
+    pub final_polys: FriFinalPolys<F, D>,
     /// Witness showing that the prover did PoW.
     pub pow_witness: F,
 }
@@ -98,8 +179,9 @@ impl<F: RichField + Extendable<D>, H: Hasher<F>, const D: usize> FriProof<F, H, 
     pub fn compress(self, indices: &[usize], params: &FriParams) -> CompressedFriProof<F, H, D> {
         let FriProof {
             commit_phase_merkle_caps,
+            batch_mask_proof,
             query_round_proofs,
-            final_poly,
+            final_polys,
             pow_witness,
             ..
         } = self;
@@ -188,8 +270,9 @@ impl<F: RichField + Extendable<D>, H: Hasher<F>, const D: usize> FriProof<F, H, 
 
         CompressedFriProof {
             commit_phase_merkle_caps,
+            batch_mask_proof,
             query_round_proofs: compressed_query_proofs,
-            final_poly,
+            final_polys,
             pow_witness,
         }
     }
@@ -205,8 +288,9 @@ impl<F: RichField + Extendable<D>, H: Hasher<F>, const D: usize> CompressedFriPr
     ) -> FriProof<F, H, D> {
         let CompressedFriProof {
             commit_phase_merkle_caps,
+            batch_mask_proof,
             query_round_proofs,
-            final_poly,
+            final_polys,
             pow_witness,
             ..
         } = self;
@@ -316,9 +400,47 @@ impl<F: RichField + Extendable<D>, H: Hasher<F>, const D: usize> CompressedFriPr
 
         FriProof {
             commit_phase_merkle_caps,
+            batch_mask_proof,
             query_round_proofs: decompressed_query_proofs,
-            final_poly,
+            final_polys,
             pow_witness,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{eval_final_polys_at_point, FriFinalPolys};
+    use crate::field::extension::{Extendable, FieldExtension};
+    use crate::field::goldilocks_field::GoldilocksField;
+    use crate::field::polynomial::PolynomialCoeffs;
+    use crate::field::types::Field;
+    use crate::fri::FriFinalPolyLayout;
+
+    const D: usize = 2;
+    type F = GoldilocksField;
+    type FE = <F as Extendable<D>>::Extension;
+
+    #[test]
+    fn eval_split_final_polys_reconstructs_logical_polynomial() {
+        let chunk0 = PolynomialCoeffs::new(vec![
+            <FE as FieldExtension<D>>::from_basefield(F::ONE),
+            <FE as FieldExtension<D>>::from_basefield(F::from_canonical_u64(2)),
+        ]);
+        let chunk1 = PolynomialCoeffs::new(vec![
+            <FE as FieldExtension<D>>::from_basefield(F::from_canonical_u64(3)),
+            <FE as FieldExtension<D>>::from_basefield(F::from_canonical_u64(4)),
+        ]);
+        let final_polys = FriFinalPolys::<F, D> {
+            layout: FriFinalPolyLayout::Split {
+                chunk_degree_bits: 2,
+                chunks: 2,
+            },
+            chunks: vec![chunk0.clone(), chunk1.clone()],
+        };
+        let point = <FE as FieldExtension<D>>::from_basefield(F::from_canonical_u64(7));
+
+        let expected = chunk0.eval(point) + point.exp_u64(4) * chunk1.eval(point);
+        assert_eq!(eval_final_polys_at_point(&final_polys, point), expected);
     }
 }

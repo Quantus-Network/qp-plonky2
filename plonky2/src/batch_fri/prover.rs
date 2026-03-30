@@ -9,9 +9,11 @@ use plonky2_util::{log2_strict, reverse_index_bits_in_place};
 
 use crate::field::extension::{unflatten, Extendable};
 use crate::field::polynomial::{PolynomialCoeffs, PolynomialValues};
-use crate::fri::proof::{FriInitialTreeProof, FriProof, FriQueryRound, FriQueryStep};
+use crate::fri::proof::{FriFinalPolys, FriInitialTreeProof, FriProof, FriQueryRound, FriQueryStep};
 use crate::fri::prover::{fri_proof_of_work, FriCommitedTrees};
 use crate::fri::FriParams;
+#[cfg(test)]
+use crate::fri::FriFinalPolyLayout;
 use crate::hash::batch_merkle_tree::BatchMerkleTree;
 use crate::hash::hash_types::RichField;
 use crate::hash::merkle_tree::MerkleTree;
@@ -79,8 +81,9 @@ pub fn batch_fri_proof<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>,
 
     FriProof {
         commit_phase_merkle_caps: trees.iter().map(|t| t.cap.clone()).collect(),
+        batch_mask_proof: None,
         query_round_proofs,
-        final_poly: final_coeffs,
+        final_polys: FriFinalPolys::from_single(final_coeffs),
         pow_witness,
     }
 }
@@ -257,8 +260,10 @@ mod tests {
                 num_query_rounds: 10,
             },
             leaf_hiding: false,
+            batch_masking: None,
             degree_bits: k,
             reduction_arity_bits,
+            final_poly_layout: FriFinalPolyLayout::Single,
         };
 
         let n = 1 << k;
@@ -313,7 +318,7 @@ mod tests {
 
         let fri_challenges = verifier_challenger.fri_challenges::<C, D>(
             &proof.commit_phase_merkle_caps,
-            &proof.final_poly,
+            &proof.final_polys,
             proof.pow_witness,
             k,
             &fri_params.config,
@@ -356,8 +361,10 @@ mod tests {
                 num_query_rounds: 10,
             },
             leaf_hiding: false,
+            batch_masking: None,
             degree_bits: k0,
             reduction_arity_bits,
+            final_poly_layout: FriFinalPolyLayout::Single,
         };
 
         let n0 = 1 << k0;
@@ -439,7 +446,7 @@ mod tests {
         ];
         let fri_challenges = verifier_challenger.fri_challenges::<C, D>(
             &proof.commit_phase_merkle_caps,
-            &proof.final_poly,
+            &proof.final_polys,
             proof.pow_witness,
             k0,
             &fri_params.config,

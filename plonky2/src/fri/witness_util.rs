@@ -21,8 +21,14 @@ where
 {
     witness.set_target(fri_proof_target.pow_witness, fri_proof.pow_witness)?;
 
+    if fri_proof.final_polys.chunks.len() != 1 {
+        return Err(anyhow!(
+            "recursive FRI targets still expect a single final polynomial chunk"
+        ));
+    }
+
     let target_len = fri_proof_target.final_poly.0.len();
-    let coeffs_len = fri_proof.final_poly.coeffs.len();
+    let coeffs_len = fri_proof.final_polys.chunks[0].coeffs.len();
 
     if target_len < coeffs_len {
         return Err(anyhow!(
@@ -34,7 +40,7 @@ where
     for i in 0..coeffs_len {
         witness.set_extension_target(
             fri_proof_target.final_poly.0[i],
-            fri_proof.final_poly.coeffs[i],
+            fri_proof.final_polys.chunks[0].coeffs[i],
         )?;
     }
 

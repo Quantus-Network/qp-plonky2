@@ -169,6 +169,53 @@ fn test_one_lookup_polyfri() -> anyhow::Result<()> {
     Ok(())
 }
 
+#[cfg(feature = "rand")]
+#[test]
+fn test_one_lookup_polyfri_batch_mask_cap_tamper_fails() -> anyhow::Result<()> {
+    init_logger();
+
+    let tip5_table = TIP5_TABLE.to_vec();
+    let table: LookupTable = Arc::new((0..256).zip_eq(tip5_table).collect());
+    let config = CircuitConfig::standard_recursion_zk_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+
+    let initial_a = builder.add_virtual_target();
+    let initial_b = builder.add_virtual_target();
+
+    let table_index = builder.add_lookup_table_from_pairs(table);
+    let output_a = builder.add_lookup_from_index(initial_a, table_index);
+    let output_b = builder.add_lookup_from_index(initial_b, table_index);
+
+    builder.register_public_input(initial_a);
+    builder.register_public_input(initial_b);
+    builder.register_public_input(output_a);
+    builder.register_public_input(output_b);
+
+    let mut pw = PartialWitness::new();
+    pw.set_target(initial_a, F::from_canonical_usize(1))?;
+    pw.set_target(initial_b, F::from_canonical_usize(2))?;
+
+    let data = builder.build::<C>();
+    let mut timing = TimingTree::new("prove one lookup with PolyFri batch-mask tamper", Level::Debug);
+    let proof = prove(&data.prover_only, &data.common, pw, &mut timing)?;
+    data.verify(proof.clone())?;
+
+    let mut corrupted_proof = proof;
+    corrupted_proof
+        .proof
+        .opening_proof
+        .batch_mask_proof
+        .as_mut()
+        .expect("PolyFri proofs must carry an explicit batch-mask proof")
+        .cap
+        .0[0]
+        .elements[0] += F::ONE;
+
+    assert!(data.verify(corrupted_proof).is_err());
+
+    Ok(())
+}
+
 // Tests one lookup in two different lookup tables.
 #[test]
 fn test_two_luts() -> anyhow::Result<()> {

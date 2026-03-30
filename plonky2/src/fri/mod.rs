@@ -25,7 +25,8 @@ pub mod witness_util;
 
 // Re-export FRI types from core
 pub use qp_plonky2_core::{
-    FriChallenger, FriConfig, FriConfigObserve, FriParams, FriParamsObserve, FriReductionStrategy,
+    FriBatchMaskingParams, FriChallenger, FriConfig, FriConfigObserve, FriFinalPolyLayout,
+    FriParams, FriParamsObserve, FriReductionStrategy,
 };
 
 /// Trait for observing FRI configuration in a RecursiveChallenger (circuit target version).

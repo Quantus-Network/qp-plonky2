@@ -490,6 +490,41 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "rand")]
+    fn test_proof_compression_polyfri() -> Result<()> {
+        const D: usize = 2;
+        type C = PoseidonGoldilocksConfig;
+        type F = <C as GenericConfig<D>>::F;
+
+        let config = CircuitConfig::standard_recursion_zk_config();
+        let pw = PartialWitness::new();
+        let mut builder = CircuitBuilder::<F, D>::new(config);
+
+        let x = F::rand();
+        let y = F::rand();
+        let z = x * y;
+        let xt = builder.constant(x);
+        let yt = builder.constant(y);
+        let zt = builder.constant(z);
+        let comp_zt = builder.mul(xt, yt);
+        builder.connect(zt, comp_zt);
+        for _ in 0..32 {
+            builder.add_gate(NoopGate, vec![]);
+        }
+        let data = builder.build::<C>();
+        let proof = data.prove(pw)?;
+        verify(proof.clone(), &data.verifier_only, &data.common)?;
+
+        // PolyFri compression must preserve the transcript-visible batch-mask proof objects.
+        let compressed_proof = data.compress(proof.clone())?;
+        let decompressed = data.decompress(compressed_proof.clone())?;
+        assert_eq!(proof, decompressed);
+
+        verify(proof, &data.verifier_only, &data.common)?;
+        data.verify_compressed(compressed_proof)
+    }
+
+    #[test]
     fn test_proof_compression_lookup() -> Result<()> {
         const D: usize = 2;
         type C = PoseidonGoldilocksConfig;

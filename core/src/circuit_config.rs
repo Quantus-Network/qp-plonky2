@@ -52,8 +52,10 @@ impl PolyFriZkConfig {
             wire_mask_degree: 0,
             z_mask_degree: 1,
             quotient_mask_degree: 0,
-            fri_batch_mask_degree: 0,
-            commit_batch_mask_before_alpha: false,
+            // Phase 2 commits an explicit batch-mask oracle before `fri_alpha`, so native PolyFri
+            // keeps the masked FRI reduction transcript-visible and verifier-consistent.
+            fri_batch_mask_degree: 1,
+            commit_batch_mask_before_alpha: true,
         }
     }
 }

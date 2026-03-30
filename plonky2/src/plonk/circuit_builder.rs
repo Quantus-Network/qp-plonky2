@@ -18,7 +18,7 @@ use crate::field::fft::fft_root_table;
 use crate::field::polynomial::PolynomialValues;
 use crate::field::types::Field;
 use crate::fri::oracle::PolynomialBatch;
-use crate::fri::{FriConfig, FriParams};
+use crate::fri::{FriBatchMaskingParams, FriConfig, FriFinalPolyLayout, FriParams};
 use crate::gadgets::arithmetic::BaseArithmeticOperation;
 use crate::gadgets::arithmetic_extension::ExtensionArithmeticOperation;
 use crate::gadgets::polynomial::PolynomialCoeffsExtTarget;
@@ -56,6 +56,7 @@ use crate::util::context_tree::ContextTree;
 use crate::util::partial_products::num_partial_products;
 use crate::util::timing::TimingTree;
 use crate::util::{log2_ceil, log2_strict, transpose, transpose_poly_values};
+use qp_plonky2_core::circuit_config::ZkMode;
 
 /// Number of random coins needed for lookups (for each challenge).
 /// A coin is a randomly sampled extension field element from the verifier,
@@ -843,9 +844,26 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     }
 
     fn fri_params(&self, degree_bits: usize) -> FriParams {
-        self.config
+        let mut fri_params = self
+            .config
             .fri_config
-            .fri_params(degree_bits, self.config.uses_leaf_hiding())
+            .fri_params(degree_bits, self.config.uses_leaf_hiding());
+
+        if let ZkMode::PolyFri(poly_fri) = &self.config.zk_config.mode {
+            fri_params.batch_masking = Some(FriBatchMaskingParams {
+                mask_degree: poly_fri.fri_batch_mask_degree,
+                explicit_pre_alpha_commitment: poly_fri.commit_batch_mask_before_alpha,
+            });
+            // The explicit batch-mask oracle and the disclosed final FRI polynomial share the same
+            // split layout so the verifier can reconstruct `R(x)` and the final low-degree tail
+            // with one chunk-combination rule.
+            fri_params.final_poly_layout = FriFinalPolyLayout::Split {
+                chunk_degree_bits: fri_params.final_poly_bits(),
+                chunks: 2,
+            };
+        }
+
+        fri_params
     }
 
     /// The number of (base field) `arithmetic` operations that can be performed in a single gate.

@@ -10,8 +10,8 @@ use hashbrown::HashMap;
 use plonky2_field::extension::Extendable;
 use plonky2_field::polynomial::PolynomialCoeffs;
 
-use crate::fri::proof::{FriProof, FriProofTarget};
-use crate::fri::{FriConfig, FriParams, FriReductionStrategy};
+use crate::fri::proof::{FriFinalPolys, FriProof, FriProofTarget};
+use crate::fri::{FriConfig, FriFinalPolyLayout, FriParams, FriReductionStrategy};
 use crate::gadgets::polynomial::PolynomialCoeffsExtTarget;
 use crate::gates::noop::NoopGate;
 use crate::gates::selectors::SelectorsInfo;
@@ -203,8 +203,9 @@ where
                 openings: OpeningSet::default(),
                 opening_proof: FriProof {
                     commit_phase_merkle_caps: vec![],
+                    batch_mask_proof: None,
                     query_round_proofs: vec![],
-                    final_poly: PolynomialCoeffs { coeffs: vec![] },
+                    final_polys: FriFinalPolys::from_single(PolynomialCoeffs { coeffs: vec![] }),
                     pow_witness: F::ZERO,
                 },
             },
@@ -230,8 +231,10 @@ where
                         num_query_rounds: 0,
                     },
                     leaf_hiding: false,
+                    batch_masking: None,
                     degree_bits: 0,
                     reduction_arity_bits: vec![],
+                    final_poly_layout: FriFinalPolyLayout::Single,
                 },
                 fri_oracle_layouts: vec![],
                 gates: vec![],

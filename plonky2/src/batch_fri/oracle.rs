@@ -15,6 +15,8 @@ use crate::fri::oracle::PolynomialBatch;
 use crate::fri::proof::FriProof;
 use crate::fri::structure::{FriBatchInfo, FriCoefficient, FriInstanceInfo, FriOpeningExpression};
 use crate::fri::FriParams;
+#[cfg(test)]
+use crate::fri::FriFinalPolyLayout;
 use crate::hash::batch_merkle_tree::BatchMerkleTree;
 use crate::hash::hash_types::RichField;
 use crate::iop::challenger::Challenger;
@@ -324,8 +326,10 @@ mod test {
                 num_query_rounds: 10,
             },
             leaf_hiding: false,
+            batch_masking: None,
             degree_bits: k0,
             reduction_arity_bits,
+            final_poly_layout: FriFinalPolyLayout::Single,
         };
 
         let n0 = 1 << k0;
@@ -474,7 +478,7 @@ mod test {
 
         let fri_challenges = verifier_challenger.fri_challenges::<C, D>(
             &proof.commit_phase_merkle_caps,
-            &proof.final_poly,
+            &proof.final_polys,
             proof.pow_witness,
             k0,
             &fri_params.config,

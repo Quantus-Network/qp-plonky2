@@ -62,7 +62,8 @@ pub use poseidon::{
 // Circuit and FRI configuration types
 pub use circuit_config::{CircuitConfig, PolyFriZkConfig, ZkConfig, ZkMode};
 pub use fri::{
-    FriChallenger, FriConfig, FriConfigObserve, FriParams, FriParamsObserve, FriReductionStrategy,
+    FriBatchMaskingParams, FriChallenger, FriConfig, FriConfigObserve, FriFinalPolyLayout,
+    FriParams, FriParamsObserve, FriReductionStrategy,
 };
 pub use fri_structure::{
     FriBatchInfo, FriChallenges, FriCoefficient, FriInstanceInfo, FriOpeningBatch,
@@ -76,8 +77,9 @@ pub use selectors::{LookupSelectors, SelectorsInfo, UNUSED_SELECTOR};
 
 // FRI proof types
 pub use fri_proof::{
-    CompressedFriProof, CompressedFriQueryRounds, FriInitialTreeProof, FriProof, FriQueryRound,
-    FriQueryStep,
+    combine_final_poly_chunks, eval_final_polys_at_point, CompressedFriProof,
+    CompressedFriQueryRounds, FriBatchMaskProof, FriBatchMaskQuery, FriFinalPolys,
+    FriInitialTreeProof, FriProof, FriQueryRound, FriQueryStep,
 };
 pub use fri_validate_shape::{validate_batch_fri_proof_shape, validate_fri_proof_shape};
 pub use fri_verifier::{

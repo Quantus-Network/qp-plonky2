@@ -4,7 +4,6 @@ use alloc::{vec, vec::Vec};
 use hashbrown::HashSet;
 
 use crate::field::extension::Extendable;
-use crate::field::polynomial::PolynomialCoeffs;
 use crate::hash::hash_types::RichField;
 use crate::plonk::circuit_data::CommonCircuitData;
 use crate::plonk::config::{GenericConfig, Hasher};
@@ -13,9 +12,10 @@ use crate::plonk::proof::{
     ProofChallenges, ProofWithPublicInputs,
 };
 use crate::util::reverse_bits;
-use qp_plonky2_core::fri_proof::{CompressedFriProof, FriProof};
+use qp_plonky2_core::fri_proof::{CompressedFriProof, FriFinalPolys, FriProof};
 use qp_plonky2_core::fri_verifier::{
-    compute_evaluation, fri_combine_initial, PrecomputedReducedOpenings,
+    compute_evaluation, eval_batch_mask_at_query_point, eval_masked_final_at_query_point,
+    fri_combine_initial, PrecomputedReducedOpenings,
 };
 use qp_plonky2_core::merkle_tree::MerkleCap;
 use qp_plonky2_core::Challenger;
@@ -27,8 +27,9 @@ fn get_challenges<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, cons
     plonk_zs_partial_products_cap: &MerkleCap<F, C::Hasher>,
     quotient_polys_cap: &MerkleCap<F, C::Hasher>,
     openings: &OpeningSet<F, D>,
+    batch_mask_cap: Option<&MerkleCap<F, C::Hasher>>,
     commit_phase_merkle_caps: &[MerkleCap<F, C::Hasher>],
-    final_poly: &PolynomialCoeffs<F::Extension>,
+    final_polys: &FriFinalPolys<F, D>,
     pow_witness: F,
     circuit_digest: &<<C as GenericConfig<D>>::Hasher as Hasher<C::F>>::Hash,
     common_data: &CommonCircuitData<F, D>,
@@ -74,6 +75,9 @@ fn get_challenges<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, cons
     let plonk_zeta = challenger.get_extension_challenge::<D>();
 
     challenger.observe_openings(&openings.to_fri_openings());
+    if let Some(batch_mask_cap) = batch_mask_cap {
+        challenger.observe_cap::<C::Hasher>(batch_mask_cap);
+    }
 
     Ok(ProofChallenges {
         plonk_betas,
@@ -83,7 +87,7 @@ fn get_challenges<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, cons
         plonk_zeta,
         fri_challenges: challenger.fri_challenges::<C, D>(
             commit_phase_merkle_caps,
-            final_poly,
+            final_polys,
             pow_witness,
             common_data.degree_bits(),
             &config.fri_config,
@@ -122,7 +126,8 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
             opening_proof:
                 FriProof {
                     commit_phase_merkle_caps,
-                    final_poly,
+                    batch_mask_proof,
+                    final_polys,
                     pow_witness,
                     ..
                 },
@@ -134,8 +139,9 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
             plonk_zs_partial_products_cap,
             quotient_polys_cap,
             openings,
+            batch_mask_proof.as_ref().map(|proof| &proof.cap),
             commit_phase_merkle_caps,
-            final_poly,
+            final_polys,
             *pow_witness,
             circuit_digest,
             common_data,
@@ -161,7 +167,8 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
             opening_proof:
                 CompressedFriProof {
                     commit_phase_merkle_caps,
-                    final_poly,
+                    batch_mask_proof,
+                    final_polys,
                     pow_witness,
                     ..
                 },
@@ -173,8 +180,9 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
             plonk_zs_partial_products_cap,
             quotient_polys_cap,
             openings,
+            batch_mask_proof.as_ref().map(|proof| &proof.cap),
             commit_phase_merkle_caps,
-            final_poly,
+            final_polys,
             *pow_witness,
             circuit_digest,
             common_data,
@@ -209,10 +217,10 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         let log_n = common_data.degree_bits() + common_data.config.fri_config.rate_bits;
         // Simulate the proof verification and collect the inferred elements.
         // The content of the loop is basically the same as the `fri_verifier_query_round` function.
-        for &(mut x_index) in fri_query_indices {
+        for (query_round_index, &(mut x_index)) in fri_query_indices.iter().enumerate() {
             let mut subgroup_x = F::MULTIPLICATIVE_GROUP_GENERATOR
                 * F::primitive_root_of_unity(log_n).exp_u64(reverse_bits(x_index, log_n) as u64);
-            let mut old_eval = fri_combine_initial::<F, C, D>(
+            let expected_unmasked_final = fri_combine_initial::<F, C, D>(
                 &common_data.get_fri_instance(*plonk_zeta),
                 &self
                     .proof
@@ -224,6 +232,20 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
                 &precomputed_reduced_evals,
                 &common_data.fri_params,
             );
+            let batch_mask_eval = self
+                .proof
+                .opening_proof
+                .batch_mask_proof
+                .as_ref()
+                .map(|batch_mask_proof| {
+                    eval_batch_mask_at_query_point(
+                        &batch_mask_proof.query_openings[query_round_index],
+                        subgroup_x.into(),
+                        &common_data.fri_params,
+                    )
+                });
+            let mut old_eval =
+                eval_masked_final_at_query_point::<F, D>(expected_unmasked_final, batch_mask_eval);
             for (i, &arity_bits) in common_data
                 .fri_params
                 .reduction_arity_bits

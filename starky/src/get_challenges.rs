@@ -3,9 +3,8 @@ use alloc::vec::Vec;
 use core::cmp::min;
 
 use plonky2::field::extension::Extendable;
-use plonky2::field::polynomial::PolynomialCoeffs;
 use plonky2::field::types::Field;
-use plonky2::fri::proof::{FriProof, FriProofTarget};
+use plonky2::fri::proof::{FriFinalPolys, FriProof, FriProofTarget};
 use plonky2::fri::prover::final_poly_coeff_len;
 use plonky2::fri::FriChallenger;
 use plonky2::fri::FriParams;
@@ -46,7 +45,7 @@ fn get_challenges<F, C, S: Stark<F, D>, const D: usize>(
     ctl_vars: Option<&[CtlCheckVars<F, F::Extension, F::Extension, D>]>,
     openings: &StarkOpeningSet<F, D>,
     commit_phase_merkle_caps: &[MerkleCap<F, C::Hasher>],
-    final_poly: &PolynomialCoeffs<F::Extension>,
+    final_polys: &FriFinalPolys<F, D>,
     pow_witness: F,
     config: &StarkConfig,
     degree_bits: usize,
@@ -189,7 +188,7 @@ where
         stark_zeta,
         fri_challenges: challenger.fri_challenges::<C, D>(
             commit_phase_merkle_caps,
-            final_poly,
+            final_polys,
             pow_witness,
             degree_bits,
             &config.fri_config,
@@ -289,7 +288,7 @@ where
             opening_proof:
                 FriProof {
                     commit_phase_merkle_caps,
-                    final_poly,
+                    final_polys,
                     pow_witness,
                     ..
                 },
@@ -312,7 +311,7 @@ where
             ctl_vars,
             openings,
             commit_phase_merkle_caps,
-            final_poly,
+            final_polys,
             *pow_witness,
             config,
             degree_bits,
