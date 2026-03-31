@@ -815,7 +815,9 @@ pub(crate) fn eval_vanishing_poly_circuit<F: RichField + Extendable<D>, const D:
     deltas: &[Target],
 ) -> Vec<ExtensionTarget<D>> {
     let has_lookup = common_data.num_lookup_polys != 0;
-    let max_degree = common_data.quotient_degree_factor;
+    // Recursive verification must use the same masked accumulator chunking rule as native
+    // verification, or the partial-product windows and opening targets disagree under PolyFri.
+    let max_degree = common_data.permutation_partial_product_degree();
     let num_prods = common_data.num_partial_products;
 
     let constraint_terms = with_context!(

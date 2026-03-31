@@ -360,9 +360,9 @@ pub trait Read {
             layout: common_data.fri_params.final_poly_layout.clone(),
             chunks: (0..common_data.fri_params.final_poly_chunks())
                 .map(|_| {
-                    Ok(PolynomialCoeffs::new(
-                        self.read_field_ext_vec::<F, D>(common_data.fri_params.final_poly_len())?,
-                    ))
+                    Ok(PolynomialCoeffs::new(self.read_field_ext_vec::<F, D>(
+                        common_data.fri_params.final_poly_len(),
+                    )?))
                 })
                 .collect::<IoResult<Vec<_>>>()?,
         };
@@ -429,7 +429,6 @@ pub trait Read {
             z_mask_degree: self.read_usize()?,
             quotient_mask_degree: self.read_usize()?,
             fri_batch_mask_degree: self.read_usize()?,
-            commit_batch_mask_before_alpha: self.read_bool()?,
         })
     }
 
@@ -475,7 +474,6 @@ pub trait Read {
         let batch_masking = if self.read_bool()? {
             Some(FriBatchMaskingParams {
                 mask_degree: self.read_usize()?,
-                explicit_pre_alpha_commitment: self.read_bool()?,
             })
         } else {
             None
@@ -746,9 +744,9 @@ pub trait Read {
             layout: common_data.fri_params.final_poly_layout.clone(),
             chunks: (0..common_data.fri_params.final_poly_chunks())
                 .map(|_| {
-                    Ok(PolynomialCoeffs::new(
-                        self.read_field_ext_vec::<F, D>(common_data.fri_params.final_poly_len())?,
-                    ))
+                    Ok(PolynomialCoeffs::new(self.read_field_ext_vec::<F, D>(
+                        common_data.fri_params.final_poly_len(),
+                    )?))
                 })
                 .collect::<IoResult<Vec<_>>>()?,
         };
@@ -785,7 +783,10 @@ pub trait Read {
             })
             .collect::<IoResult<Vec<_>>>()?;
 
-        Ok(Some(FriBatchMaskProof { cap, query_openings }))
+        Ok(Some(FriBatchMaskProof {
+            cap,
+            query_openings,
+        }))
     }
 
     /// Reads a value of type [`CompressedProof`] from `self` with `common_data`.
@@ -1136,7 +1137,6 @@ pub trait Write {
         self.write_bool(batch_masking.is_some())?;
         if let Some(batch_masking) = batch_masking {
             self.write_usize(batch_masking.mask_degree)?;
-            self.write_bool(batch_masking.explicit_pre_alpha_commitment)?;
         }
         match final_poly_layout {
             FriFinalPolyLayout::Single => {
@@ -1160,7 +1160,6 @@ pub trait Write {
         self.write_usize(config.z_mask_degree)?;
         self.write_usize(config.quotient_mask_degree)?;
         self.write_usize(config.fri_batch_mask_degree)?;
-        self.write_bool(config.commit_batch_mask_before_alpha)?;
 
         Ok(())
     }

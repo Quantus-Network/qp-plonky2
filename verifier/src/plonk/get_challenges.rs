@@ -232,18 +232,18 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
                 &precomputed_reduced_evals,
                 &common_data.fri_params,
             );
-            let batch_mask_eval = self
-                .proof
-                .opening_proof
-                .batch_mask_proof
-                .as_ref()
-                .map(|batch_mask_proof| {
-                    eval_batch_mask_at_query_point(
-                        &batch_mask_proof.query_openings[query_round_index],
-                        subgroup_x.into(),
-                        &common_data.fri_params,
-                    )
-                });
+            let batch_mask_eval =
+                self.proof
+                    .opening_proof
+                    .batch_mask_proof
+                    .as_ref()
+                    .map(|batch_mask_proof| {
+                        eval_batch_mask_at_query_point(
+                            &batch_mask_proof.query_openings[query_round_index],
+                            subgroup_x.into(),
+                            &common_data.fri_params,
+                        )
+                    });
             let mut old_eval =
                 eval_masked_final_at_query_point::<F, D>(expected_unmasked_final, batch_mask_eval);
             for (i, &arity_bits) in common_data

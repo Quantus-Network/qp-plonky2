@@ -6,11 +6,14 @@ use itertools::Itertools;
 
 use crate::field::extension::Extendable;
 use crate::fri::proof::{
-    FriChallengesTarget, FriInitialTreeProofTarget, FriProofTarget, FriQueryRoundTarget,
-    FriQueryStepTarget,
+    FriBatchMaskProofTarget, FriBatchMaskQueryTarget, FriChallengesTarget, FriFinalPolysTarget,
+    FriInitialTreeProofTarget, FriProofTarget, FriQueryRoundTarget, FriQueryStepTarget,
 };
-use crate::fri::structure::{FriBatchInfoTarget, FriInstanceInfoTarget, FriOpeningsTarget};
-use crate::fri::{FriConfig, FriParams};
+use crate::fri::structure::{
+    FriBatchInfoTarget, FriCoefficientTarget, FriInstanceInfoTarget, FriOpeningExpressionTarget,
+    FriOpeningsTarget,
+};
+use crate::fri::{FriConfig, FriFinalPolyLayout, FriParams};
 use crate::gates::coset_interpolation::CosetInterpolationGate;
 use crate::gates::gate::Gate;
 use crate::gates::random_access::RandomAccessGate;
@@ -105,7 +108,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
 
     pub fn verify_fri_proof<C: GenericConfig<D, F = F>>(
         &mut self,
-        instance: &FriInstanceInfoTarget<D>,
+        instance: &FriInstanceInfoTarget<F, D>,
         openings: &FriOpeningsTarget<D>,
         challenges: &FriChallengesTarget<D>,
         initial_merkle_caps: &[MerkleCapTarget],
@@ -119,10 +122,15 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         }
 
         debug_assert_eq!(
-            params.final_poly_len(),
-            proof.final_poly.len(),
-            "Final polynomial has wrong degree."
+            params.final_poly_chunks(),
+            proof.final_polys.chunks.len(),
+            "Final polynomial has wrong chunk count."
         );
+        debug_assert!(proof
+            .final_polys
+            .chunks
+            .iter()
+            .all(|chunk| chunk.len() == params.final_poly_len()));
 
         // Size of the LDE domain.
         let n = params.lde_size();
@@ -171,6 +179,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
                     &precomputed_reduced_evals,
                     initial_merkle_caps,
                     proof,
+                    i,
                     challenges.fri_query_indices[i],
                     n,
                     round_proof,
@@ -188,7 +197,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     /// has fewer.
     pub fn verify_fri_proof_with_multiple_degree_bits<C: GenericConfig<D, F = F>>(
         &mut self,
-        instance: &FriInstanceInfoTarget<D>,
+        instance: &FriInstanceInfoTarget<F, D>,
         openings: &FriOpeningsTarget<D>,
         challenges: &FriChallengesTarget<D>,
         initial_merkle_caps: &[MerkleCapTarget],
@@ -205,10 +214,15 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         }
 
         debug_assert_eq!(
-            params.final_poly_len(),
-            proof.final_poly.len(),
-            "Final polynomial has wrong degree."
+            params.final_poly_chunks(),
+            proof.final_polys.chunks.len(),
+            "Final polynomial has wrong chunk count."
         );
+        debug_assert!(proof
+            .final_polys
+            .chunks
+            .iter()
+            .all(|chunk| chunk.len() == params.final_poly_len()));
 
         // Size of the LDE domain.
         let log_n = params.config.rate_bits + params.degree_bits;
@@ -260,6 +274,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
                     &precomputed_reduced_evals,
                     initial_merkle_caps,
                     proof,
+                    i,
                     challenges.fri_query_indices[i],
                     min_log_n_to_support..=log_n,
                     current_log_n,
@@ -331,9 +346,107 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         }
     }
 
+    pub(crate) fn eval_opening_expression_target(
+        &mut self,
+        instance: &FriInstanceInfoTarget<F, D>,
+        expression: &FriOpeningExpressionTarget<F, D>,
+        proof: &FriInitialTreeProofTarget,
+        point: ExtensionTarget<D>,
+        params: &FriParams,
+    ) -> ExtensionTarget<D> {
+        let terms = expression
+            .terms
+            .iter()
+            .map(|term| {
+                let coefficient = match &term.coefficient {
+                    FriCoefficientTarget::One => self.one_extension(),
+                    FriCoefficientTarget::PointPower(power) => {
+                        self.exp_u64_extension(point, *power as u64)
+                    }
+                    FriCoefficientTarget::Constant(constant) => self.constant_extension(*constant),
+                };
+                let poly_blinding = instance.oracles[term.polynomial.oracle_index].blinding;
+                let salted = params.leaf_hiding && poly_blinding;
+                let raw_eval = proof.unsalted_eval(
+                    term.polynomial.oracle_index,
+                    term.polynomial.polynomial_index,
+                    salted,
+                );
+                let raw_eval_ext = self.convert_to_ext(raw_eval);
+                self.mul_extension(coefficient, raw_eval_ext)
+            })
+            .collect_vec();
+        self.add_many_extension(&terms)
+    }
+
+    pub(crate) fn combine_final_poly_chunks_target(
+        &mut self,
+        layout: &FriFinalPolyLayout,
+        values: &[ExtensionTarget<D>],
+        point: ExtensionTarget<D>,
+    ) -> ExtensionTarget<D> {
+        match layout {
+            FriFinalPolyLayout::Single => values[0],
+            FriFinalPolyLayout::Split {
+                chunk_degree_bits,
+                chunks,
+            } => {
+                debug_assert_eq!(*chunks, values.len());
+                let point_stride = self.exp_power_of_2_extension(point, *chunk_degree_bits);
+                let mut weight = self.one_extension();
+                let mut sum = self.zero_extension();
+                for value in values {
+                    let weighted_value = self.mul_extension(weight, *value);
+                    sum = self.add_extension(sum, weighted_value);
+                    weight = self.mul_extension(weight, point_stride);
+                }
+                sum
+            }
+        }
+    }
+
+    pub(crate) fn eval_batch_mask_at_query_point_target(
+        &mut self,
+        query: &FriBatchMaskQueryTarget<D>,
+        subgroup_x: ExtensionTarget<D>,
+        params: &FriParams,
+    ) -> ExtensionTarget<D> {
+        self.combine_final_poly_chunks_target(
+            &params.batch_mask_layout(),
+            &query.values,
+            subgroup_x,
+        )
+    }
+
+    pub(crate) fn eval_masked_final_at_query_point_target(
+        &mut self,
+        expected_unmasked_final: ExtensionTarget<D>,
+        batch_mask_eval: Option<ExtensionTarget<D>>,
+    ) -> ExtensionTarget<D> {
+        if let Some(batch_mask_eval) = batch_mask_eval {
+            self.add_extension(expected_unmasked_final, batch_mask_eval)
+        } else {
+            expected_unmasked_final
+        }
+    }
+
+    pub(crate) fn eval_final_polys_at_point_target(
+        &mut self,
+        final_polys: &FriFinalPolysTarget<D>,
+        point: ExtensionTarget<D>,
+        params: &FriParams,
+    ) -> ExtensionTarget<D> {
+        let values = final_polys
+            .chunks
+            .iter()
+            .map(|chunk| chunk.eval(self, point))
+            .collect_vec();
+        self.combine_final_poly_chunks_target(&params.final_poly_layout, &values, point)
+    }
+
     fn fri_combine_initial(
         &mut self,
-        instance: &FriInstanceInfoTarget<D>,
+        instance: &FriInstanceInfoTarget<F, D>,
         proof: &FriInitialTreeProofTarget,
         alpha: ExtensionTarget<D>,
         subgroup_x: Target,
@@ -356,16 +469,14 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             .iter()
             .zip(&precomputed_reduced_evals.reduced_openings_at_point)
         {
-            let FriBatchInfoTarget { point, polynomials } = batch;
-            let evals = polynomials
+            let FriBatchInfoTarget { point, openings } = batch;
+            let evals = openings
                 .iter()
-                .map(|p| {
-                    let poly_blinding = instance.oracles[p.oracle_index].blinding;
-                    let salted = params.leaf_hiding && poly_blinding;
-                    proof.unsalted_eval(p.oracle_index, p.polynomial_index, salted)
+                .map(|expression| {
+                    self.eval_opening_expression_target(instance, expression, proof, *point, params)
                 })
                 .collect_vec();
-            let reduced_evals = alpha.reduce_base(&evals, self);
+            let reduced_evals = alpha.reduce(&evals, self);
             let numerator = self.sub_extension(reduced_evals, *reduced_openings);
             let denominator = self.sub_extension(subgroup_x, *point);
             sum = alpha.shift(sum, self);
@@ -377,11 +488,12 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
 
     fn fri_verifier_query_round<C: GenericConfig<D, F = F>>(
         &mut self,
-        instance: &FriInstanceInfoTarget<D>,
+        instance: &FriInstanceInfoTarget<F, D>,
         challenges: &FriChallengesTarget<D>,
         precomputed_reduced_evals: &PrecomputedReducedOpeningsTarget<D>,
         initial_merkle_caps: &[MerkleCapTarget],
         proof: &FriProofTarget<D>,
+        query_round_index: usize,
         x_index: Target,
         n: usize,
         round_proof: &FriQueryRoundTarget<D>,
@@ -420,7 +532,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
 
         // old_eval is the last derived evaluation; it will be checked for consistency with its
         // committed "parent" value in the next iteration.
-        let mut old_eval = with_context!(
+        let expected_unmasked_final = with_context!(
             self,
             "combine initial oracles",
             self.fri_combine_initial(
@@ -432,6 +544,26 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
                 params,
             )
         );
+        let batch_mask_eval = if let Some(batch_mask_proof) = &proof.batch_mask_proof {
+            let query_opening = &batch_mask_proof.query_openings[query_round_index];
+            with_context!(
+                self,
+                "verify batch-mask Merkle proof",
+                self.verify_merkle_proof_to_cap_with_cap_index::<C::Hasher>(
+                    flatten_target(&query_opening.values),
+                    &x_index_bits,
+                    cap_index,
+                    &batch_mask_proof.cap,
+                    &query_opening.merkle_proof,
+                )
+            );
+            let subgroup_x_ext = self.convert_to_ext(subgroup_x);
+            Some(self.eval_batch_mask_at_query_point_target(query_opening, subgroup_x_ext, params))
+        } else {
+            None
+        };
+        let mut old_eval =
+            self.eval_masked_final_at_query_point_target(expected_unmasked_final, batch_mask_eval);
 
         for (i, &arity_bits) in params.reduction_arity_bits.iter().enumerate() {
             let evals = &round_proof.steps[i].evals;
@@ -481,21 +613,25 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         let eval = with_context!(
             self,
             &format!(
-                "evaluate final polynomial of length {}",
-                proof.final_poly.len()
+                "evaluate {} final polynomial chunks",
+                proof.final_polys.chunks.len()
             ),
-            proof.final_poly.eval_scalar(self, subgroup_x)
+            {
+                let subgroup_x_ext = self.convert_to_ext(subgroup_x);
+                self.eval_final_polys_at_point_target(&proof.final_polys, subgroup_x_ext, params)
+            }
         );
         self.connect_extension(eval, old_eval);
     }
 
     fn fri_verifier_query_round_with_multiple_degree_bits<C: GenericConfig<D, F = F>>(
         &mut self,
-        instance: &FriInstanceInfoTarget<D>,
+        instance: &FriInstanceInfoTarget<F, D>,
         challenges: &FriChallengesTarget<D>,
         precomputed_reduced_evals: &PrecomputedReducedOpeningsTarget<D>,
         initial_merkle_caps: &[MerkleCapTarget],
         proof: &FriProofTarget<D>,
+        query_round_index: usize,
         x_index: Target,
         log_n_range: RangeInclusive<usize>,
         log_n: Target,
@@ -555,7 +691,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
 
         // old_eval is the last derived evaluation; it will be checked for consistency with its
         // committed "parent" value in the next iteration.
-        let mut old_eval = with_context!(
+        let expected_unmasked_final = with_context!(
             self,
             "combine initial oracles",
             self.fri_combine_initial(
@@ -567,6 +703,30 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
                 params,
             )
         );
+        let batch_mask_eval = if let Some(batch_mask_proof) = &proof.batch_mask_proof {
+            let one = self.one();
+            let query_opening = &batch_mask_proof.query_openings[query_round_index];
+            with_context!(
+                self,
+                "verify batch-mask Merkle proof",
+                self.verify_merkle_proof_to_cap_with_cap_indices::<C::Hasher>(
+                    one,
+                    flatten_target(&query_opening.values),
+                    &x_index_bits,
+                    log_n_range.clone(),
+                    n_index,
+                    cap_index,
+                    &batch_mask_proof.cap,
+                    &query_opening.merkle_proof,
+                )
+            );
+            let subgroup_x_ext = self.convert_to_ext(subgroup_x);
+            Some(self.eval_batch_mask_at_query_point_target(query_opening, subgroup_x_ext, params))
+        } else {
+            None
+        };
+        let mut old_eval =
+            self.eval_masked_final_at_query_point_target(expected_unmasked_final, batch_mask_eval);
 
         let mut index_in_degree_sub_one_bits_vec = {
             let mut degree_bits_len = degree_sub_one_bits_vec.len();
@@ -630,10 +790,13 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         let eval = with_context!(
             self,
             &format!(
-                "evaluate final polynomial of length {}",
-                proof.final_poly.len()
+                "evaluate {} final polynomial chunks",
+                proof.final_polys.chunks.len()
             ),
-            proof.final_poly.eval_scalar(self, subgroup_x)
+            {
+                let subgroup_x_ext = self.convert_to_ext(subgroup_x);
+                self.eval_final_polys_at_point_target(&proof.final_polys, subgroup_x_ext, params)
+            }
         );
         self.connect_extension(eval, old_eval);
     }
@@ -668,16 +831,42 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         let commit_phase_merkle_caps = (0..params.reduction_arity_bits.len())
             .map(|_| self.add_virtual_cap(cap_height))
             .collect();
+        let batch_mask_proof = params
+            .batch_masking
+            .as_ref()
+            .map(|_| self.add_virtual_fri_batch_mask_proof(params));
         let query_round_proofs = (0..num_queries)
             .map(|_| self.add_virtual_fri_query(num_leaves_per_oracle, params))
             .collect();
-        let final_poly = self.add_virtual_poly_coeff_ext(params.final_poly_len());
+        let final_polys = FriFinalPolysTarget {
+            chunks: (0..params.final_poly_chunks())
+                .map(|_| self.add_virtual_poly_coeff_ext(params.final_poly_len()))
+                .collect(),
+        };
         let pow_witness = self.add_virtual_target();
         FriProofTarget {
             commit_phase_merkle_caps,
+            batch_mask_proof,
             query_round_proofs,
-            final_poly,
+            final_polys,
             pow_witness,
+        }
+    }
+
+    fn add_virtual_fri_batch_mask_proof(
+        &mut self,
+        params: &FriParams,
+    ) -> FriBatchMaskProofTarget<D> {
+        let cap_height = params.config.cap_height;
+        let merkle_proof_len = params.lde_bits() - cap_height;
+        FriBatchMaskProofTarget {
+            cap: self.add_virtual_cap(cap_height),
+            query_openings: (0..params.config.num_query_rounds)
+                .map(|_| FriBatchMaskQueryTarget {
+                    values: self.add_virtual_extension_targets(params.batch_mask_layout().chunks()),
+                    merkle_proof: self.add_virtual_merkle_proof(merkle_proof_len),
+                })
+                .collect(),
         }
     }
 

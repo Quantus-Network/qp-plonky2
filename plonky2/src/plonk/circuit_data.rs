@@ -506,15 +506,11 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
         &self,
         builder: &mut CircuitBuilder<F, D>,
         zeta: ExtensionTarget<D>,
-    ) -> FriInstanceInfoTarget<D> {
-        assert!(
-            !self.config.uses_poly_fri_zk(),
-            "Phase 1 defers target-side PolyFri opening expressions until the recursive FRI plumbing is updated."
-        );
+    ) -> FriInstanceInfoTarget<F, D> {
         // All polynomials are opened at zeta.
         let zeta_batch = FriBatchInfoTarget {
             point: zeta,
-            polynomials: self.fri_all_polys(),
+            openings: self.fri_all_openings(),
         };
 
         // The Z polynomials are also opened at g * zeta.
@@ -522,7 +518,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
         let zeta_next = builder.mul_const_extension(g, zeta);
         let zeta_next_batch = FriBatchInfoTarget {
             point: zeta_next,
-            polynomials: self.fri_next_batch_polys(),
+            openings: self.fri_next_batch_openings(),
         };
 
         let openings = vec![zeta_batch, zeta_next_batch];
@@ -547,20 +543,8 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
         .collect()
     }
 
-    fn fri_preprocessed_polys(&self) -> Vec<FriPolynomialInfo> {
-        FriPolynomialInfo::from_range(
-            PlonkOracle::CONSTANTS_SIGMAS.index,
-            0..self.num_preprocessed_polys(),
-        )
-    }
-
     pub(crate) const fn num_preprocessed_polys(&self) -> usize {
         self.sigmas_range().end
-    }
-
-    fn fri_wire_polys(&self) -> Vec<FriPolynomialInfo> {
-        let num_wire_polys = self.config.num_wires;
-        FriPolynomialInfo::from_range(PlonkOracle::WIRES.index, 0..num_wire_polys)
     }
 
     fn fri_oracle_openings<I>(
@@ -623,28 +607,13 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
         self.config.num_challenges * self.num_lookup_polys
     }
 
-    fn fri_zs_partial_products_polys(&self) -> Vec<FriPolynomialInfo> {
-        FriPolynomialInfo::from_range(
-            PlonkOracle::ZS_PARTIAL_PRODUCTS.index,
-            0..self.num_zs_partial_products_polys(),
-        )
-    }
-
     fn fri_zs_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
         self.fri_oracle_openings(PlonkOracle::ZS_PARTIAL_PRODUCTS, self.zs_range())
-    }
-
-    fn fri_zs_polys(&self) -> Vec<FriPolynomialInfo> {
-        FriPolynomialInfo::from_range(PlonkOracle::ZS_PARTIAL_PRODUCTS.index, self.zs_range())
     }
 
     /// Returns polynomials that require evaluation at `zeta` and `g * zeta`.
     fn fri_next_batch_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
         [self.fri_zs_openings(), self.fri_lookup_openings()].concat()
-    }
-
-    fn fri_next_batch_polys(&self) -> Vec<FriPolynomialInfo> {
-        [self.fri_zs_polys(), self.fri_lookup_polys()].concat()
     }
 
     fn fri_quotient_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
@@ -660,19 +629,8 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
         )
     }
 
-    fn fri_lookup_polys(&self) -> Vec<FriPolynomialInfo> {
-        FriPolynomialInfo::from_range(
-            PlonkOracle::ZS_PARTIAL_PRODUCTS.index,
-            self.num_zs_partial_products_polys()
-                ..self.num_zs_partial_products_polys() + self.num_all_lookup_polys(),
-        )
-    }
     pub(crate) const fn num_quotient_polys(&self) -> usize {
         self.config.num_challenges * self.quotient_degree_factor
-    }
-
-    fn fri_quotient_polys(&self) -> Vec<FriPolynomialInfo> {
-        FriPolynomialInfo::from_range(PlonkOracle::QUOTIENT.index, 0..self.num_quotient_polys())
     }
 
     fn fri_all_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
@@ -682,17 +640,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
             self.fri_zs_partial_products_openings(),
             self.fri_quotient_openings(),
             self.fri_lookup_openings(),
-        ]
-        .concat()
-    }
-
-    fn fri_all_polys(&self) -> Vec<FriPolynomialInfo> {
-        [
-            self.fri_preprocessed_polys(),
-            self.fri_wire_polys(),
-            self.fri_zs_partial_products_polys(),
-            self.fri_quotient_polys(),
-            self.fri_lookup_polys(),
         ]
         .concat()
     }

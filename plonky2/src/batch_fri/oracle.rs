@@ -14,9 +14,9 @@ use crate::batch_fri::prover::batch_fri_proof;
 use crate::fri::oracle::PolynomialBatch;
 use crate::fri::proof::FriProof;
 use crate::fri::structure::{FriBatchInfo, FriCoefficient, FriInstanceInfo, FriOpeningExpression};
-use crate::fri::FriParams;
 #[cfg(test)]
 use crate::fri::FriFinalPolyLayout;
+use crate::fri::FriParams;
 use crate::hash::batch_merkle_tree::BatchMerkleTree;
 use crate::hash::hash_types::RichField;
 use crate::iop::challenger::Challenger;
@@ -512,17 +512,17 @@ mod test {
             batches: vec![
                 FriBatchInfoTarget {
                     point: zeta_target,
-                    polynomials: vec![FriPolynomialInfo {
+                    openings: vec![FriOpeningExpression::raw(FriPolynomialInfo {
                         oracle_index: 0,
                         polynomial_index: 0,
-                    }],
+                    })],
                 },
                 FriBatchInfoTarget {
                     point: eta_target,
-                    polynomials: vec![FriPolynomialInfo {
+                    openings: vec![FriOpeningExpression::raw(FriPolynomialInfo {
                         oracle_index: 0,
                         polynomial_index: 0,
-                    }],
+                    })],
                 },
             ],
         };
@@ -534,23 +534,23 @@ mod test {
             batches: vec![
                 FriBatchInfoTarget {
                     point: zeta_target,
-                    polynomials: vec![
-                        FriPolynomialInfo {
+                    openings: vec![
+                        FriOpeningExpression::raw(FriPolynomialInfo {
                             oracle_index: 0,
                             polynomial_index: 1,
-                        },
-                        FriPolynomialInfo {
+                        }),
+                        FriOpeningExpression::raw(FriPolynomialInfo {
                             oracle_index: 0,
                             polynomial_index: 2,
-                        },
+                        }),
                     ],
                 },
                 FriBatchInfoTarget {
                     point: eta_target,
-                    polynomials: vec![FriPolynomialInfo {
+                    openings: vec![FriOpeningExpression::raw(FriPolynomialInfo {
                         oracle_index: 0,
                         polynomial_index: 2,
-                    }],
+                    })],
                 },
             ],
         };
@@ -561,10 +561,10 @@ mod test {
             }],
             batches: vec![FriBatchInfoTarget {
                 point: zeta_target,
-                polynomials: vec![FriPolynomialInfo {
+                openings: vec![FriOpeningExpression::raw(FriPolynomialInfo {
                     oracle_index: 0,
                     polynomial_index: 3,
-                }],
+                })],
             }],
         };
 
@@ -609,7 +609,7 @@ mod test {
         let fri_challenges_target = challenger.fri_challenges(
             &mut builder,
             &fri_proof_target.commit_phase_merkle_caps,
-            &fri_proof_target.final_poly,
+            &fri_proof_target.final_polys,
             fri_proof_target.pow_witness,
             &fri_params.config,
         );

@@ -8,7 +8,9 @@ use anyhow::ensure;
 use crate::config::GenericConfig;
 use crate::field::extension::Extendable;
 use crate::fri::FriParams;
-use crate::fri_proof::{FriBatchMaskProof, FriBatchMaskQuery, FriProof, FriQueryRound, FriQueryStep};
+use crate::fri_proof::{
+    FriBatchMaskProof, FriBatchMaskQuery, FriProof, FriQueryRound, FriQueryStep,
+};
 use crate::fri_structure::FriInstanceInfo;
 use crate::hash_types::RichField;
 use crate::plonk_common::salt_size;
@@ -48,7 +50,13 @@ where
     }
 
     match (&params.batch_masking, batch_mask_proof) {
-        (Some(_), Some(FriBatchMaskProof { cap, query_openings })) => {
+        (
+            Some(_),
+            Some(FriBatchMaskProof {
+                cap,
+                query_openings,
+            }),
+        ) => {
             ensure!(cap.height() == cap_height);
             ensure!(query_openings.len() == params.config.num_query_rounds);
             for query_opening in query_openings {

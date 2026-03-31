@@ -4,10 +4,9 @@
 //! and provides additional circuit-based FRI challenge generation for RecursiveChallenger.
 
 use crate::field::extension::Extendable;
-use crate::fri::proof::FriChallengesTarget;
+use crate::fri::proof::{FriChallengesTarget, FriFinalPolysTarget};
 use crate::fri::structure::FriOpeningsTarget;
 use crate::fri::FriConfig;
-use crate::gadgets::polynomial::PolynomialCoeffsExtTarget;
 use crate::hash::hash_types::{MerkleCapTarget, RichField};
 use crate::iop::challenger::RecursiveChallenger;
 use crate::iop::target::Target;
@@ -30,7 +29,7 @@ impl<F: RichField + Extendable<D>, H: AlgebraicHasher<F>, const D: usize>
         &mut self,
         builder: &mut CircuitBuilder<F, D>,
         commit_phase_merkle_caps: &[MerkleCapTarget],
-        final_poly: &PolynomialCoeffsExtTarget<D>,
+        final_polys: &FriFinalPolysTarget<D>,
         pow_witness: Target,
         inner_fri_config: &FriConfig,
     ) -> FriChallengesTarget<D> {
@@ -47,7 +46,9 @@ impl<F: RichField + Extendable<D>, H: AlgebraicHasher<F>, const D: usize>
             })
             .collect();
 
-        self.observe_extension_elements(&final_poly.0);
+        for chunk in &final_polys.chunks {
+            self.observe_extension_elements(&chunk.0);
+        }
 
         self.observe_element(pow_witness);
         let fri_pow_response = self.get_challenge(builder);

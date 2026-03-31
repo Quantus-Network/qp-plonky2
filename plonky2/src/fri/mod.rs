@@ -90,6 +90,12 @@ impl FriParamsObserveTarget for FriParams {
         self.config.observe_target(builder, challenger);
 
         challenger.observe_element(builder.constant(F::from_bool(self.leaf_hiding)));
+        challenger.observe_element(builder.constant(F::from_bool(self.batch_masking.is_some())));
+        if let Some(batch_masking) = &self.batch_masking {
+            challenger.observe_element(
+                builder.constant(F::from_canonical_usize(batch_masking.mask_degree)),
+            );
+        }
         challenger.observe_element(builder.constant(F::from_canonical_usize(self.degree_bits)));
         challenger.observe_elements(
             &builder.constants(
@@ -100,5 +106,19 @@ impl FriParamsObserveTarget for FriParams {
                     .collect::<Vec<_>>(),
             ),
         );
+        match self.final_poly_layout {
+            FriFinalPolyLayout::Single => {
+                challenger.observe_element(builder.zero());
+            }
+            FriFinalPolyLayout::Split {
+                chunk_degree_bits,
+                chunks,
+            } => {
+                challenger.observe_element(builder.one());
+                challenger
+                    .observe_element(builder.constant(F::from_canonical_usize(chunk_degree_bits)));
+                challenger.observe_element(builder.constant(F::from_canonical_usize(chunks)));
+            }
+        }
     }
 }

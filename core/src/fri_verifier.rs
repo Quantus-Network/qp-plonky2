@@ -260,7 +260,11 @@ fn fri_verifier_query_round<
             &batch_mask_proof.cap,
             &query_opening.merkle_proof,
         )?;
-        Some(eval_batch_mask_at_query_point(query_opening, subgroup_x.into(), params))
+        Some(eval_batch_mask_at_query_point(
+            query_opening,
+            subgroup_x.into(),
+            params,
+        ))
     } else {
         None
     };

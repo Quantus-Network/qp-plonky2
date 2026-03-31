@@ -852,7 +852,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         if let ZkMode::PolyFri(poly_fri) = &self.config.zk_config.mode {
             fri_params.batch_masking = Some(FriBatchMaskingParams {
                 mask_degree: poly_fri.fri_batch_mask_degree,
-                explicit_pre_alpha_commitment: poly_fri.commit_batch_mask_before_alpha,
             });
             // The explicit batch-mask oracle and the disclosed final FRI polynomial share the same
             // split layout so the verifier can reconstruct `R(x)` and the final low-degree tail

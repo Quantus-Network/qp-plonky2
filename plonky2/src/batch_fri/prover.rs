@@ -9,11 +9,13 @@ use plonky2_util::{log2_strict, reverse_index_bits_in_place};
 
 use crate::field::extension::{unflatten, Extendable};
 use crate::field::polynomial::{PolynomialCoeffs, PolynomialValues};
-use crate::fri::proof::{FriFinalPolys, FriInitialTreeProof, FriProof, FriQueryRound, FriQueryStep};
+use crate::fri::proof::{
+    FriFinalPolys, FriInitialTreeProof, FriProof, FriQueryRound, FriQueryStep,
+};
 use crate::fri::prover::{fri_proof_of_work, FriCommitedTrees};
-use crate::fri::FriParams;
 #[cfg(test)]
 use crate::fri::FriFinalPolyLayout;
+use crate::fri::FriParams;
 use crate::hash::batch_merkle_tree::BatchMerkleTree;
 use crate::hash::hash_types::RichField;
 use crate::hash::merkle_tree::MerkleTree;

@@ -5,9 +5,9 @@ use itertools::Itertools;
 
 use crate::field::extension::Extendable;
 use crate::fri::proof::{
+    FriBatchMaskProofTarget, FriBatchMaskQueryTarget, FriFinalPolysTarget,
     FriInitialTreeProofTarget, FriProofTarget, FriQueryRoundTarget, FriQueryStepTarget,
 };
-use crate::gadgets::polynomial::PolynomialCoeffsExtTarget;
 use crate::hash::hash_types::{HashOutTarget, MerkleCapTarget, RichField};
 use crate::hash::merkle_proofs::MerkleProofTarget;
 use crate::iop::ext_target::ExtensionTarget;
@@ -234,17 +234,82 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
                 &proof0.commit_phase_merkle_caps,
                 &proof1.commit_phase_merkle_caps,
             ),
+            batch_mask_proof: self.select_optional_batch_mask_proof(
+                b,
+                &proof0.batch_mask_proof,
+                &proof1.batch_mask_proof,
+            ),
             query_round_proofs: self.select_vec_query_round(
                 b,
                 &proof0.query_round_proofs,
                 &proof1.query_round_proofs,
             ),
-            final_poly: PolynomialCoeffsExtTarget(self.select_vec_ext(
-                b,
-                &proof0.final_poly.0,
-                &proof1.final_poly.0,
-            )),
+            final_polys: self.select_final_polys(b, &proof0.final_polys, &proof1.final_polys),
             pow_witness: self.select(b, proof0.pow_witness, proof1.pow_witness),
+        }
+    }
+
+    fn select_optional_batch_mask_proof(
+        &mut self,
+        b: BoolTarget,
+        proof0: &Option<FriBatchMaskProofTarget<D>>,
+        proof1: &Option<FriBatchMaskProofTarget<D>>,
+    ) -> Option<FriBatchMaskProofTarget<D>> {
+        match (proof0, proof1) {
+            (Some(proof0), Some(proof1)) => Some(self.select_batch_mask_proof(b, proof0, proof1)),
+            (None, None) => None,
+            _ => {
+                panic!("Conditional recursion requires both proofs to agree on batch-mask presence")
+            }
+        }
+    }
+
+    fn select_batch_mask_proof(
+        &mut self,
+        b: BoolTarget,
+        proof0: &FriBatchMaskProofTarget<D>,
+        proof1: &FriBatchMaskProofTarget<D>,
+    ) -> FriBatchMaskProofTarget<D> {
+        FriBatchMaskProofTarget {
+            cap: self.select_cap(b, &proof0.cap, &proof1.cap),
+            query_openings: proof0
+                .query_openings
+                .iter()
+                .zip_eq(&proof1.query_openings)
+                .map(|(query0, query1)| self.select_batch_mask_query(b, query0, query1))
+                .collect(),
+        }
+    }
+
+    fn select_batch_mask_query(
+        &mut self,
+        b: BoolTarget,
+        query0: &FriBatchMaskQueryTarget<D>,
+        query1: &FriBatchMaskQueryTarget<D>,
+    ) -> FriBatchMaskQueryTarget<D> {
+        FriBatchMaskQueryTarget {
+            values: self.select_vec_ext(b, &query0.values, &query1.values),
+            merkle_proof: self.select_merkle_proof(b, &query0.merkle_proof, &query1.merkle_proof),
+        }
+    }
+
+    fn select_final_polys(
+        &mut self,
+        b: BoolTarget,
+        polys0: &FriFinalPolysTarget<D>,
+        polys1: &FriFinalPolysTarget<D>,
+    ) -> FriFinalPolysTarget<D> {
+        FriFinalPolysTarget {
+            chunks: polys0
+                .chunks
+                .iter()
+                .zip_eq(&polys1.chunks)
+                .map(|(chunk0, chunk1)| {
+                    crate::gadgets::polynomial::PolynomialCoeffsExtTarget(
+                        self.select_vec_ext(b, &chunk0.0, &chunk1.0),
+                    )
+                })
+                .collect(),
         }
     }
 

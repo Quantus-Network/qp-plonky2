@@ -5,13 +5,14 @@ use hashbrown::HashSet;
 
 use super::circuit_builder::NUM_COINS_LOOKUP;
 use crate::field::extension::Extendable;
-use crate::fri::proof::{CompressedFriProof, FriChallenges, FriFinalPolys, FriProof, FriProofTarget};
+use crate::fri::proof::{
+    CompressedFriProof, FriChallenges, FriFinalPolys, FriFinalPolysTarget, FriProof, FriProofTarget,
+};
 use crate::fri::verifier::{
     compute_evaluation, eval_batch_mask_at_query_point, eval_masked_final_at_query_point,
     fri_combine_initial, PrecomputedReducedOpenings,
 };
 use crate::fri::{FriChallenger, FriParamsObserve, FriParamsObserveTarget};
-use crate::gadgets::polynomial::PolynomialCoeffsExtTarget;
 use crate::hash::hash_types::{HashOutTarget, MerkleCapTarget, RichField};
 use crate::hash::merkle_tree::MerkleCap;
 use crate::iop::challenger::{Challenger, RecursiveChallenger};
@@ -236,18 +237,18 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
                 &precomputed_reduced_evals,
                 &common_data.fri_params,
             );
-            let batch_mask_eval = self
-                .proof
-                .opening_proof
-                .batch_mask_proof
-                .as_ref()
-                .map(|batch_mask_proof| {
-                    eval_batch_mask_at_query_point(
-                        &batch_mask_proof.query_openings[query_round_index],
-                        subgroup_x.into(),
-                        &common_data.fri_params,
-                    )
-                });
+            let batch_mask_eval =
+                self.proof
+                    .opening_proof
+                    .batch_mask_proof
+                    .as_ref()
+                    .map(|batch_mask_proof| {
+                        eval_batch_mask_at_query_point(
+                            &batch_mask_proof.query_openings[query_round_index],
+                            subgroup_x.into(),
+                            &common_data.fri_params,
+                        )
+                    });
             let mut old_eval =
                 eval_masked_final_at_query_point::<F, D>(expected_unmasked_final, batch_mask_eval);
             for (i, &arity_bits) in common_data
@@ -291,8 +292,9 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         plonk_zs_partial_products_cap: &MerkleCapTarget,
         quotient_polys_cap: &MerkleCapTarget,
         openings: &OpeningSetTarget<D>,
+        batch_mask_cap: Option<&MerkleCapTarget>,
         commit_phase_merkle_caps: &[MerkleCapTarget],
-        final_poly: &PolynomialCoeffsExtTarget<D>,
+        final_polys: &FriFinalPolysTarget<D>,
         pow_witness: Target,
         inner_circuit_digest: HashOutTarget,
         inner_common_data: &CommonCircuitData<F, D>,
@@ -342,6 +344,9 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         let plonk_zeta = challenger.get_extension_challenge(self);
 
         challenger.observe_openings(&openings.to_fri_openings());
+        if let Some(batch_mask_cap) = batch_mask_cap {
+            challenger.observe_cap(batch_mask_cap);
+        }
 
         ProofChallengesTarget {
             plonk_betas,
@@ -352,7 +357,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             fri_challenges: challenger.fri_challenges(
                 self,
                 commit_phase_merkle_caps,
-                final_poly,
+                final_polys,
                 pow_witness,
                 &inner_common_data.config.fri_config,
             ),
@@ -379,7 +384,8 @@ impl<const D: usize> ProofWithPublicInputsTarget<D> {
             opening_proof:
                 FriProofTarget {
                     commit_phase_merkle_caps,
-                    final_poly,
+                    batch_mask_proof,
+                    final_polys,
                     pow_witness,
                     ..
                 },
@@ -391,8 +397,9 @@ impl<const D: usize> ProofWithPublicInputsTarget<D> {
             plonk_zs_partial_products_cap,
             quotient_polys_cap,
             openings,
+            batch_mask_proof.as_ref().map(|proof| &proof.cap),
             commit_phase_merkle_caps,
-            final_poly,
+            final_polys,
             *pow_witness,
             inner_circuit_digest,
             inner_common_data,

@@ -190,7 +190,7 @@ pub trait Stark<F: RichField + Extendable<D>, const D: usize>: Sync {
         num_ctl_helper_polys: usize,
         num_ctl_zs: usize,
         config: &StarkConfig,
-    ) -> FriInstanceInfoTarget<D> {
+    ) -> FriInstanceInfoTarget<F, D> {
         let mut oracles = vec![];
         let trace_info = FriPolynomialInfo::from_range(oracles.len(), 0..Self::COLUMNS);
         oracles.push(FriOracleInfo {
@@ -226,18 +226,25 @@ pub trait Stark<F: RichField + Extendable<D>, const D: usize>: Sync {
 
         let zeta_batch = FriBatchInfoTarget {
             point: zeta,
-            polynomials: [
+            openings: [
                 trace_info.clone(),
                 auxiliary_polys_info.clone(),
                 quotient_info,
             ]
-            .concat(),
+            .concat()
+            .into_iter()
+            .map(FriOpeningExpression::raw)
+            .collect(),
         };
         let g_ext = builder.convert_to_ext(g);
         let zeta_next = builder.mul_extension(g_ext, zeta);
         let zeta_next_batch = FriBatchInfoTarget {
             point: zeta_next,
-            polynomials: [trace_info, auxiliary_polys_info].concat(),
+            openings: [trace_info, auxiliary_polys_info]
+                .concat()
+                .into_iter()
+                .map(FriOpeningExpression::raw)
+                .collect(),
         };
 
         let mut batches = vec![zeta_batch, zeta_next_batch];
@@ -249,7 +256,10 @@ pub trait Stark<F: RichField + Extendable<D>, const D: usize>: Sync {
             );
             let ctl_first_batch = FriBatchInfoTarget {
                 point: builder.one_extension(),
-                polynomials: ctl_zs_info,
+                openings: ctl_zs_info
+                    .into_iter()
+                    .map(FriOpeningExpression::raw)
+                    .collect(),
             };
 
             batches.push(ctl_first_batch);

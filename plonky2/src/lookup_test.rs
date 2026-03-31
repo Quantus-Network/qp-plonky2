@@ -196,7 +196,10 @@ fn test_one_lookup_polyfri_batch_mask_cap_tamper_fails() -> anyhow::Result<()> {
     pw.set_target(initial_b, F::from_canonical_usize(2))?;
 
     let data = builder.build::<C>();
-    let mut timing = TimingTree::new("prove one lookup with PolyFri batch-mask tamper", Level::Debug);
+    let mut timing = TimingTree::new(
+        "prove one lookup with PolyFri batch-mask tamper",
+        Level::Debug,
+    );
     let proof = prove(&data.prover_only, &data.common, pw, &mut timing)?;
     data.verify(proof.clone())?;
 

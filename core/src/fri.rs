@@ -229,7 +229,7 @@ impl FriFinalPolyLayout {
     }
 }
 
-/// Optional batch-masking parameters for the FRI opening reduction.
+/// Batch-masking parameters for the FRI opening reduction.
 ///
 /// Phase 2 commits a separate batch-mask oracle before sampling `fri_alpha`. The oracle uses the
 /// same logical final-polynomial layout as the masked FRI codeword so prover and verifier share
@@ -237,7 +237,6 @@ impl FriFinalPolyLayout {
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct FriBatchMaskingParams {
     pub mask_degree: usize,
-    pub explicit_pre_alpha_commitment: bool,
 }
 
 impl FriConfig {
@@ -280,8 +279,8 @@ pub struct FriParams {
 
     /// Optional masking of the FRI batch reduction polynomial.
     ///
-    /// When present, the mask commitment must be observed before `fri_alpha` is sampled and its
-    /// query openings must use the same logical layout as `final_poly_layout`.
+    /// When present, the prover must commit the explicit batch-mask oracle before sampling
+    /// `fri_alpha`, and its query openings must use the same logical layout as `final_poly_layout`.
     pub batch_masking: Option<FriBatchMaskingParams>,
 
     /// The degree of the purported codeword, measured in bits.
@@ -385,9 +384,6 @@ impl FriParamsObserve for FriParams {
         challenger.observe_element(F::from_bool(self.batch_masking.is_some()));
         if let Some(batch_masking) = &self.batch_masking {
             challenger.observe_element(F::from_canonical_usize(batch_masking.mask_degree));
-            challenger.observe_element(F::from_bool(
-                batch_masking.explicit_pre_alpha_commitment,
-            ));
         }
         challenger.observe_element(F::from_canonical_usize(self.degree_bits));
         challenger.observe_elements(

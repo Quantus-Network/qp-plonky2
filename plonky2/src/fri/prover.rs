@@ -20,8 +20,8 @@ use crate::iop::challenger::Challenger;
 use crate::plonk::config::GenericConfig;
 use crate::plonk::plonk_common::reduce_with_powers;
 use crate::timed;
-use crate::util::{reverse_index_bits_in_place, transpose};
 use crate::util::timing::TimingTree;
+use crate::util::{reverse_index_bits_in_place, transpose};
 
 /// The LDE input for the final FRI composition polynomial.
 ///
@@ -349,11 +349,7 @@ fn decompose_final_polynomial<F: RichField + Extendable<D>, const D: usize>(
     }
 }
 
-fn observe_final_polys<
-    F: RichField + Extendable<D>,
-    C: GenericConfig<D, F = F>,
-    const D: usize,
->(
+fn observe_final_polys<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>(
     challenger: &mut Challenger<F, C::Hasher>,
     final_polys: &FriFinalPolys<F, D>,
     final_poly_coeff_len: Option<usize>,
@@ -438,7 +434,9 @@ fn fri_prover_query_rounds<
         .collect::<Vec<_>>();
     let query_round_proofs = query_indices
         .par_iter()
-        .map(|&x_index| fri_prover_query_round::<F, C, D>(initial_merkle_trees, trees, x_index, fri_params))
+        .map(|&x_index| {
+            fri_prover_query_round::<F, C, D>(initial_merkle_trees, trees, x_index, fri_params)
+        })
         .collect();
     (query_indices, query_round_proofs)
 }

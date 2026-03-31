@@ -10,9 +10,8 @@ use hashbrown::HashMap;
 use plonky2_field::extension::Extendable;
 use plonky2_field::polynomial::PolynomialCoeffs;
 
-use crate::fri::proof::{FriFinalPolys, FriProof, FriProofTarget};
+use crate::fri::proof::{FriFinalPolys, FriFinalPolysTarget, FriProof, FriProofTarget};
 use crate::fri::{FriConfig, FriFinalPolyLayout, FriParams, FriReductionStrategy};
-use crate::gadgets::polynomial::PolynomialCoeffsExtTarget;
 use crate::gates::noop::NoopGate;
 use crate::gates::selectors::SelectorsInfo;
 use crate::hash::hash_types::{HashOutTarget, MerkleCapTarget, RichField};
@@ -94,10 +93,6 @@ where
     C::InnerHasher: crate::plonk::config::AlgebraicHasher<F>,
 {
     let config = common_data.config.clone();
-    assert!(
-        !common_data.config.uses_poly_fri_zk(),
-        "Dummy recursion sizing only supports the Disabled no-zk mode."
-    );
 
     // Number of `NoopGate`s to add to get a circuit of size `degree` in the end.
     // Need to account for public input hashing, a `PublicInputGate` and a `ConstantGate`.
@@ -187,8 +182,9 @@ where
                 openings: OpeningSetTarget::default(),
                 opening_proof: FriProofTarget {
                     commit_phase_merkle_caps: vec![],
+                    batch_mask_proof: None,
                     query_round_proofs: vec![],
-                    final_poly: PolynomialCoeffsExtTarget(vec![]),
+                    final_polys: FriFinalPolysTarget { chunks: vec![] },
                     pow_witness: Target::default(),
                 },
             },

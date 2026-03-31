@@ -154,10 +154,7 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
             }
         };
 
-        DecomposedPolynomial {
-            layout,
-            coeffs,
-        }
+        DecomposedPolynomial { layout, coeffs }
     }
 
     fn add_poly_coeffs(
@@ -223,11 +220,7 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         timing: &mut TimingTree,
         force_zero_batch_mask: bool,
     ) -> BatchReductionResult<F, C, D> {
-        let batch_mask_oracle = fri_params.batch_masking.as_ref().map(|batch_masking| {
-            assert!(
-                batch_masking.explicit_pre_alpha_commitment,
-                "PolyFri only supports explicit pre-alpha batch-mask commitments",
-            );
+        let batch_mask_oracle = fri_params.batch_masking.as_ref().map(|_| {
             let batch_mask_oracle = build_batch_mask_oracle::<F, C, D>(
                 fri_params,
                 fri_params.config.cap_height,
@@ -519,12 +512,7 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         timing: &mut TimingTree,
     ) -> FriProof<F, C::Hasher, D> {
         Self::prove_openings_masked_with_options(
-            instance,
-            oracles,
-            challenger,
-            fri_params,
-            false,
-            timing,
+            instance, oracles, challenger, fri_params, false, timing,
         )
     }
 }
@@ -571,10 +559,7 @@ mod tests {
                 num_query_rounds: 4,
             },
             leaf_hiding: false,
-            batch_masking: Some(FriBatchMaskingParams {
-                mask_degree: 1,
-                explicit_pre_alpha_commitment: true,
-            }),
+            batch_masking: Some(FriBatchMaskingParams { mask_degree: 1 }),
             degree_bits: 4,
             reduction_arity_bits: vec![1, 1],
             final_poly_layout: FriFinalPolyLayout::Split {
@@ -669,8 +654,12 @@ mod tests {
         baseline.observe_openings(&openings);
 
         let mut with_zero_cap = baseline.clone();
-        let zero_mask_oracle =
-            crate::fri::prover::build_batch_mask_oracle::<F, C, D>(&fri_params, 0, true, &mut timing);
+        let zero_mask_oracle = crate::fri::prover::build_batch_mask_oracle::<F, C, D>(
+            &fri_params,
+            0,
+            true,
+            &mut timing,
+        );
         with_zero_cap.observe_cap(&zero_mask_oracle.cap);
         let expected_unmasked = PolynomialBatch::<F, C, D>::reduce_openings_to_unmasked_final_poly(
             &instance,
@@ -760,8 +749,8 @@ mod tests {
             &precomputed,
             &fri_params,
         );
-        let batch_mask_query = &proof.batch_mask_proof.as_ref().unwrap().query_openings
-            [query_round_index];
+        let batch_mask_query =
+            &proof.batch_mask_proof.as_ref().unwrap().query_openings[query_round_index];
         let batch_mask_eval =
             eval_batch_mask_at_query_point(batch_mask_query, subgroup_x.into(), &fri_params);
         let expected_masked_final = eval_masked_final_at_query_point::<F, D>(
@@ -805,19 +794,21 @@ mod tests {
         )?;
 
         let mut corrupted_proof = proof.clone();
-        corrupted_proof.batch_mask_proof.as_mut().unwrap().query_openings[0].values[0] +=
-            FE::ONE;
-        assert!(
-            verify_fri_proof::<F, C, D>(
-                &instance,
-                &openings,
-                &fri_challenges,
-                &[oracle.merkle_tree.cap.clone()],
-                &corrupted_proof,
-                &fri_params,
-            )
-            .is_err()
-        );
+        corrupted_proof
+            .batch_mask_proof
+            .as_mut()
+            .unwrap()
+            .query_openings[0]
+            .values[0] += FE::ONE;
+        assert!(verify_fri_proof::<F, C, D>(
+            &instance,
+            &openings,
+            &fri_challenges,
+            &[oracle.merkle_tree.cap.clone()],
+            &corrupted_proof,
+            &fri_params,
+        )
+        .is_err());
 
         Ok(())
     }
@@ -842,21 +833,23 @@ mod tests {
         let fri_challenges = compute_fri_challenges(&oracle, &openings, &proof, &fri_params);
 
         let mut corrupted_proof = proof.clone();
-        corrupted_proof.batch_mask_proof.as_mut().unwrap().query_openings[0]
+        corrupted_proof
+            .batch_mask_proof
+            .as_mut()
+            .unwrap()
+            .query_openings[0]
             .merkle_proof
             .siblings[0]
             .elements[0] += F::ONE;
-        assert!(
-            verify_fri_proof::<F, C, D>(
-                &instance,
-                &openings,
-                &fri_challenges,
-                &[oracle.merkle_tree.cap.clone()],
-                &corrupted_proof,
-                &fri_params,
-            )
-            .is_err()
-        );
+        assert!(verify_fri_proof::<F, C, D>(
+            &instance,
+            &openings,
+            &fri_challenges,
+            &[oracle.merkle_tree.cap.clone()],
+            &corrupted_proof,
+            &fri_params,
+        )
+        .is_err());
 
         Ok(())
     }

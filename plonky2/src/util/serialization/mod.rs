@@ -24,9 +24,10 @@ use crate::field::polynomial::PolynomialCoeffs;
 use crate::field::types::{Field64, PrimeField64};
 use crate::fri::oracle::PolynomialBatch;
 use crate::fri::proof::{
-    CompressedFriProof, CompressedFriQueryRounds, FriBatchMaskProof, FriBatchMaskQuery,
-    FriFinalPolys, FriInitialTreeProof, FriInitialTreeProofTarget, FriProof, FriProofTarget,
-    FriQueryRound, FriQueryRoundTarget, FriQueryStep, FriQueryStepTarget,
+    CompressedFriProof, CompressedFriQueryRounds, FriBatchMaskProof, FriBatchMaskProofTarget,
+    FriBatchMaskQuery, FriBatchMaskQueryTarget, FriFinalPolys, FriFinalPolysTarget,
+    FriInitialTreeProof, FriInitialTreeProofTarget, FriProof, FriProofTarget, FriQueryRound,
+    FriQueryRoundTarget, FriQueryStep, FriQueryStepTarget,
 };
 use crate::fri::{
     FriBatchMaskingParams, FriConfig, FriFinalPolyLayout, FriParams, FriReductionStrategy,
@@ -584,9 +585,9 @@ pub trait Read {
             layout: common_data.fri_params.final_poly_layout.clone(),
             chunks: (0..common_data.fri_params.final_poly_chunks())
                 .map(|_| {
-                    Ok(PolynomialCoeffs::new(
-                        self.read_field_ext_vec::<F, D>(common_data.fri_params.final_poly_len())?,
-                    ))
+                    Ok(PolynomialCoeffs::new(self.read_field_ext_vec::<F, D>(
+                        common_data.fri_params.final_poly_len(),
+                    )?))
                 })
                 .collect::<IoResult<Vec<_>>>()?,
         };
@@ -607,14 +608,20 @@ pub trait Read {
         let commit_phase_merkle_caps = (0..length)
             .map(|_| self.read_target_merkle_cap())
             .collect::<Result<Vec<_>, _>>()?;
+        let batch_mask_proof = self.read_optional_target_batch_mask_proof::<D>()?;
         let query_round_proofs = self.read_target_fri_query_rounds::<D>()?;
-        let final_poly = PolynomialCoeffsExtTarget(self.read_target_ext_vec::<D>()?);
+        let final_polys = FriFinalPolysTarget {
+            chunks: (0..self.read_usize()?)
+                .map(|_| Ok(PolynomialCoeffsExtTarget(self.read_target_ext_vec::<D>()?)))
+                .collect::<IoResult<Vec<_>>>()?,
+        };
         let pow_witness = self.read_target()?;
 
         Ok(FriProofTarget {
             commit_phase_merkle_caps,
+            batch_mask_proof,
             query_round_proofs,
-            final_poly,
+            final_polys,
             pow_witness,
         })
     }
@@ -672,7 +679,6 @@ pub trait Read {
             z_mask_degree: self.read_usize()?,
             quotient_mask_degree: self.read_usize()?,
             fri_batch_mask_degree: self.read_usize()?,
-            commit_batch_mask_before_alpha: self.read_bool()?,
         })
     }
 
@@ -718,7 +724,6 @@ pub trait Read {
         let batch_masking = if self.read_bool()? {
             Some(FriBatchMaskingParams {
                 mask_degree: self.read_usize()?,
-                explicit_pre_alpha_commitment: self.read_bool()?,
             })
         } else {
             None
@@ -1181,9 +1186,9 @@ pub trait Read {
             layout: common_data.fri_params.final_poly_layout.clone(),
             chunks: (0..common_data.fri_params.final_poly_chunks())
                 .map(|_| {
-                    Ok(PolynomialCoeffs::new(
-                        self.read_field_ext_vec::<F, D>(common_data.fri_params.final_poly_len())?,
-                    ))
+                    Ok(PolynomialCoeffs::new(self.read_field_ext_vec::<F, D>(
+                        common_data.fri_params.final_poly_len(),
+                    )?))
                 })
                 .collect::<IoResult<Vec<_>>>()?,
         };
@@ -1220,7 +1225,33 @@ pub trait Read {
             })
             .collect::<IoResult<Vec<_>>>()?;
 
-        Ok(Some(FriBatchMaskProof { cap, query_openings }))
+        Ok(Some(FriBatchMaskProof {
+            cap,
+            query_openings,
+        }))
+    }
+
+    fn read_optional_target_batch_mask_proof<const D: usize>(
+        &mut self,
+    ) -> IoResult<Option<FriBatchMaskProofTarget<D>>> {
+        if !self.read_bool()? {
+            return Ok(None);
+        }
+
+        let cap = self.read_target_merkle_cap()?;
+        let query_openings = (0..self.read_usize()?)
+            .map(|_| {
+                Ok(FriBatchMaskQueryTarget {
+                    values: self.read_target_ext_vec::<D>()?,
+                    merkle_proof: self.read_target_merkle_proof()?,
+                })
+            })
+            .collect::<IoResult<Vec<_>>>()?;
+
+        Ok(Some(FriBatchMaskProofTarget {
+            cap,
+            query_openings,
+        }))
     }
 
     /// Reads a value of type [`CompressedProof`] from `self` with `common_data`.
@@ -1727,8 +1758,12 @@ pub trait Write {
         for cap in &fpt.commit_phase_merkle_caps {
             self.write_target_merkle_cap(cap)?;
         }
+        self.write_optional_target_batch_mask_proof::<D>(&fpt.batch_mask_proof)?;
         self.write_target_fri_query_rounds::<D>(&fpt.query_round_proofs)?;
-        self.write_target_ext_vec::<D>(&fpt.final_poly.0)?;
+        self.write_usize(fpt.final_polys.chunks.len())?;
+        for chunk in &fpt.final_polys.chunks {
+            self.write_target_ext_vec::<D>(&chunk.0)?;
+        }
         self.write_target(fpt.pow_witness)
     }
 
@@ -1799,7 +1834,6 @@ pub trait Write {
         self.write_bool(batch_masking.is_some())?;
         if let Some(batch_masking) = batch_masking {
             self.write_usize(batch_masking.mask_degree)?;
-            self.write_bool(batch_masking.explicit_pre_alpha_commitment)?;
         }
         match final_poly_layout {
             FriFinalPolyLayout::Single => {
@@ -1823,7 +1857,6 @@ pub trait Write {
         self.write_usize(config.z_mask_degree)?;
         self.write_usize(config.quotient_mask_degree)?;
         self.write_usize(config.fri_batch_mask_degree)?;
-        self.write_bool(config.commit_batch_mask_before_alpha)?;
 
         Ok(())
     }
@@ -2266,6 +2299,22 @@ pub trait Write {
             for query_opening in &batch_mask_proof.query_openings {
                 self.write_field_ext_vec::<F, D>(&query_opening.values)?;
                 self.write_merkle_proof(&query_opening.merkle_proof)?;
+            }
+        }
+        Ok(())
+    }
+
+    fn write_optional_target_batch_mask_proof<const D: usize>(
+        &mut self,
+        batch_mask_proof: &Option<FriBatchMaskProofTarget<D>>,
+    ) -> IoResult<()> {
+        self.write_bool(batch_mask_proof.is_some())?;
+        if let Some(batch_mask_proof) = batch_mask_proof {
+            self.write_target_merkle_cap(&batch_mask_proof.cap)?;
+            self.write_usize(batch_mask_proof.query_openings.len())?;
+            for query_opening in &batch_mask_proof.query_openings {
+                self.write_target_ext_vec::<D>(&query_opening.values)?;
+                self.write_target_merkle_proof(&query_opening.merkle_proof)?;
             }
         }
         Ok(())
