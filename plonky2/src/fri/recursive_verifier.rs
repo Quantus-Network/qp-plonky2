@@ -354,6 +354,44 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         point: ExtensionTarget<D>,
         params: &FriParams,
     ) -> ExtensionTarget<D> {
+        let mut point_power_cache = Vec::new();
+        self.eval_opening_expression_target_with_point_powers(
+            instance,
+            expression,
+            proof,
+            point,
+            params,
+            &mut point_power_cache,
+        )
+    }
+
+    fn cached_point_power_target(
+        &mut self,
+        point: ExtensionTarget<D>,
+        power: usize,
+        point_power_cache: &mut Vec<(usize, ExtensionTarget<D>)>,
+    ) -> ExtensionTarget<D> {
+        if let Some((_, cached_power)) = point_power_cache
+            .iter()
+            .find(|(cached_power, _)| *cached_power == power)
+        {
+            *cached_power
+        } else {
+            let power_value = self.exp_u64_extension(point, power as u64);
+            point_power_cache.push((power, power_value));
+            power_value
+        }
+    }
+
+    fn eval_opening_expression_target_with_point_powers(
+        &mut self,
+        instance: &FriInstanceInfoTarget<F, D>,
+        expression: &FriOpeningExpressionTarget<F, D>,
+        proof: &FriInitialTreeProofTarget,
+        point: ExtensionTarget<D>,
+        params: &FriParams,
+        point_power_cache: &mut Vec<(usize, ExtensionTarget<D>)>,
+    ) -> ExtensionTarget<D> {
         let terms = expression
             .terms
             .iter()
@@ -361,7 +399,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
                 let coefficient = match &term.coefficient {
                     FriCoefficientTarget::One => self.one_extension(),
                     FriCoefficientTarget::PointPower(power) => {
-                        self.exp_u64_extension(point, *power as u64)
+                        self.cached_point_power_target(point, *power, point_power_cache)
                     }
                     FriCoefficientTarget::Constant(constant) => self.constant_extension(*constant),
                 };
@@ -470,10 +508,18 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             .zip(&precomputed_reduced_evals.reduced_openings_at_point)
         {
             let FriBatchInfoTarget { point, openings } = batch;
+            let mut point_power_cache = Vec::new();
             let evals = openings
                 .iter()
                 .map(|expression| {
-                    self.eval_opening_expression_target(instance, expression, proof, *point, params)
+                    self.eval_opening_expression_target_with_point_powers(
+                        instance,
+                        expression,
+                        proof,
+                        *point,
+                        params,
+                        &mut point_power_cache,
+                    )
                 })
                 .collect_vec();
             let reduced_evals = alpha.reduce(&evals, self);

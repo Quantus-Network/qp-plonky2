@@ -88,6 +88,61 @@ pub struct FriBatchMaskProof<F: RichField + Extendable<D>, H: Hasher<F>, const D
     pub query_openings: Vec<FriBatchMaskQuery<F, H, D>>,
 }
 
+fn compress_batch_mask_proof<F: RichField + Extendable<D>, H: Hasher<F>, const D: usize>(
+    batch_mask_proof: Option<FriBatchMaskProof<F, H, D>>,
+    indices: &[usize],
+    cap_height: usize,
+) -> Option<FriBatchMaskProof<F, H, D>> {
+    batch_mask_proof.map(|mut batch_mask_proof| {
+        debug_assert_eq!(batch_mask_proof.query_openings.len(), indices.len());
+        let proofs = batch_mask_proof
+            .query_openings
+            .iter()
+            .map(|query_opening| query_opening.merkle_proof.clone())
+            .collect::<Vec<_>>();
+        let compressed_proofs = compress_merkle_proofs(cap_height, indices, &proofs);
+        for (query_opening, compressed_proof) in batch_mask_proof
+            .query_openings
+            .iter_mut()
+            .zip(compressed_proofs)
+        {
+            query_opening.merkle_proof = compressed_proof;
+        }
+        batch_mask_proof
+    })
+}
+
+fn decompress_batch_mask_proof<F: RichField + Extendable<D>, H: Hasher<F>, const D: usize>(
+    batch_mask_proof: Option<FriBatchMaskProof<F, H, D>>,
+    indices: &[usize],
+    height: usize,
+    cap_height: usize,
+) -> Option<FriBatchMaskProof<F, H, D>> {
+    batch_mask_proof.map(|mut batch_mask_proof| {
+        debug_assert_eq!(batch_mask_proof.query_openings.len(), indices.len());
+        let leaves = batch_mask_proof
+            .query_openings
+            .iter()
+            .map(|query_opening| flatten(&query_opening.values))
+            .collect::<Vec<_>>();
+        let compressed_proofs = batch_mask_proof
+            .query_openings
+            .iter()
+            .map(|query_opening| query_opening.merkle_proof.clone())
+            .collect::<Vec<_>>();
+        let decompressed_proofs =
+            decompress_merkle_proofs(&leaves, indices, &compressed_proofs, height, cap_height);
+        for (query_opening, decompressed_proof) in batch_mask_proof
+            .query_openings
+            .iter_mut()
+            .zip(decompressed_proofs)
+        {
+            query_opening.merkle_proof = decompressed_proof;
+        }
+        batch_mask_proof
+    })
+}
+
 /// The reduced polynomial disclosed after the FRI commit phase.
 ///
 /// `Split` keeps each coefficient chunk within the original degree cap while preserving a single
@@ -121,11 +176,13 @@ pub fn combine_final_poly_chunks<F: RichField + Extendable<D>, const D: usize>(
         } => {
             debug_assert_eq!(*chunks, values.len());
             let point_stride = point.exp_power_of_2(*chunk_degree_bits);
-            values
-                .iter()
-                .enumerate()
-                .map(|(i, value)| point_stride.exp_u64(i as u64) * *value)
-                .sum()
+            let mut weight = F::Extension::ONE;
+            let mut sum = F::Extension::ZERO;
+            for value in values {
+                sum += weight * *value;
+                weight *= point_stride;
+            }
+            sum
         }
     }
 }
@@ -270,7 +327,7 @@ impl<F: RichField + Extendable<D>, H: Hasher<F>, const D: usize> FriProof<F, H, 
 
         CompressedFriProof {
             commit_phase_merkle_caps,
-            batch_mask_proof,
+            batch_mask_proof: compress_batch_mask_proof(batch_mask_proof, indices, cap_height),
             query_round_proofs: compressed_query_proofs,
             final_polys,
             pow_witness,
@@ -400,7 +457,12 @@ impl<F: RichField + Extendable<D>, H: Hasher<F>, const D: usize> CompressedFriPr
 
         FriProof {
             commit_phase_merkle_caps,
-            batch_mask_proof,
+            batch_mask_proof: decompress_batch_mask_proof(
+                batch_mask_proof,
+                indices,
+                params.lde_bits(),
+                cap_height,
+            ),
             query_round_proofs: decompressed_query_proofs,
             final_polys,
             pow_witness,

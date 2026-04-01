@@ -657,3 +657,131 @@ pub struct VerifierCircuitTarget {
     /// seed Fiat-Shamir.
     pub circuit_digest: HashOutTarget,
 }
+
+#[cfg(test)]
+mod tests {
+    #[cfg(not(feature = "std"))]
+    use alloc::sync::Arc;
+    #[cfg(feature = "std")]
+    use std::sync::Arc;
+
+    use itertools::Itertools;
+
+    use super::{CircuitConfig, CommonCircuitData};
+    use crate::field::types::Field;
+    use crate::gates::lookup::LookupGate;
+    use crate::gates::lookup_table::LookupTable;
+    use crate::gates::noop::NoopGate;
+    use crate::plonk::circuit_builder::CircuitBuilder;
+    use crate::plonk::config::{GenericConfig, PoseidonGoldilocksConfig};
+    use crate::util::partial_products::num_partial_products;
+
+    const D: usize = 2;
+    type C = PoseidonGoldilocksConfig;
+    type F = <C as GenericConfig<D>>::F;
+
+    fn permutation_effective_degree(uses_poly_fri: bool, chunk_degree: usize) -> usize {
+        chunk_degree + usize::from(uses_poly_fri)
+    }
+
+    fn lookup_effective_degree(uses_poly_fri: bool, chunk_degree: usize) -> usize {
+        chunk_degree + 1 + usize::from(uses_poly_fri)
+    }
+
+    fn build_common(config: CircuitConfig) -> CommonCircuitData<F, D> {
+        let mut builder = CircuitBuilder::<F, D>::new(config);
+        builder.add_gate(NoopGate, vec![]);
+        builder.build::<C>().common
+    }
+
+    fn build_lookup_common(config: CircuitConfig) -> CommonCircuitData<F, D> {
+        let table: LookupTable = Arc::new((0..4).zip_eq(1..5).collect());
+        let mut builder = CircuitBuilder::<F, D>::new(config);
+        let input = builder.constant(F::ONE);
+        let table_index = builder.add_lookup_table_from_pairs(table);
+        let _ = builder.add_lookup_from_index(input, table_index);
+        builder.build::<C>().common
+    }
+
+    #[test]
+    fn permutation_partial_product_degree_disabled_boundary() {
+        let common = build_common(CircuitConfig::standard_recursion_config());
+        let degree = common.permutation_partial_product_degree();
+
+        assert_eq!(degree, common.quotient_degree_factor);
+        assert_eq!(
+            common.num_partial_products,
+            num_partial_products(common.config.num_routed_wires, degree)
+        );
+        assert_eq!(
+            permutation_effective_degree(false, degree),
+            common.quotient_degree_factor,
+        );
+        assert!(
+            permutation_effective_degree(false, degree + 1) > common.quotient_degree_factor,
+            "raising the permutation chunk degree by one would exceed the quotient degree bound",
+        );
+    }
+
+    #[test]
+    fn permutation_partial_product_degree_polyfri_boundary() {
+        let common = build_common(CircuitConfig::standard_recursion_zk_config());
+        let degree = common.permutation_partial_product_degree();
+
+        assert_eq!(degree, common.quotient_degree_factor - 1);
+        assert_eq!(
+            common.num_partial_products,
+            num_partial_products(common.config.num_routed_wires, degree)
+        );
+        assert_eq!(
+            permutation_effective_degree(true, degree),
+            common.quotient_degree_factor,
+        );
+        assert!(
+            permutation_effective_degree(true, degree + 1) > common.quotient_degree_factor,
+            "raising the masked permutation chunk degree by one would exceed the quotient degree bound",
+        );
+    }
+
+    #[test]
+    fn lookup_accumulator_degree_disabled_boundary() {
+        let common = build_lookup_common(CircuitConfig::standard_recursion_config());
+        let degree = common.lookup_accumulator_degree();
+
+        assert!(common.num_lookup_polys > 0);
+        assert_eq!(degree, common.quotient_degree_factor - 1);
+        assert_eq!(
+            common.num_lookup_polys,
+            LookupGate::num_slots(&common.config).div_ceil(degree) + 1,
+        );
+        assert_eq!(
+            lookup_effective_degree(false, degree),
+            common.quotient_degree_factor
+        );
+        assert!(
+            lookup_effective_degree(false, degree + 1) > common.quotient_degree_factor,
+            "raising the lookup accumulator degree by one would exceed the quotient degree bound",
+        );
+    }
+
+    #[test]
+    fn lookup_accumulator_degree_polyfri_boundary() {
+        let common = build_lookup_common(CircuitConfig::standard_recursion_zk_config());
+        let degree = common.lookup_accumulator_degree();
+
+        assert!(common.num_lookup_polys > 0);
+        assert_eq!(degree, common.quotient_degree_factor - 2);
+        assert_eq!(
+            common.num_lookup_polys,
+            LookupGate::num_slots(&common.config).div_ceil(degree) + 1,
+        );
+        assert_eq!(
+            lookup_effective_degree(true, degree),
+            common.quotient_degree_factor
+        );
+        assert!(
+            lookup_effective_degree(true, degree + 1) > common.quotient_degree_factor,
+            "raising the masked lookup accumulator degree by one would exceed the quotient degree bound",
+        );
+    }
+}

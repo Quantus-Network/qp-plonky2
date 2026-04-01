@@ -24,6 +24,23 @@ use crate::merkle_tree::MerkleCap;
 use crate::reducing::ReducingFactor;
 use crate::util::{log2_strict, reverse_bits, reverse_index_bits_in_place};
 
+fn cached_point_power<F: RichField + Extendable<D>, const D: usize>(
+    point: F::Extension,
+    power: usize,
+    point_power_cache: &mut Vec<(usize, F::Extension)>,
+) -> F::Extension {
+    if let Some((_, cached_power)) = point_power_cache
+        .iter()
+        .find(|(cached_power, _)| *cached_power == power)
+    {
+        *cached_power
+    } else {
+        let power_value = point.exp_u64(power as u64);
+        point_power_cache.push((power, power_value));
+        power_value
+    }
+}
+
 /// Computes P'(x^arity) from {P(x*g^i)}_(i=0..arity), where g is a `arity`-th root of unity
 /// and P' is the FRI reduced polynomial.
 pub fn compute_evaluation<F: Field + Extendable<D>, const D: usize>(
@@ -152,9 +169,17 @@ pub fn fri_combine_initial<
         .zip(&precomputed_reduced_evals.reduced_openings_at_point)
     {
         let FriBatchInfo { point, openings } = batch;
-        let evals = openings
-            .iter()
-            .map(|expression| eval_opening_expression(instance, expression, proof, *point, params));
+        let mut point_power_cache = Vec::new();
+        let evals = openings.iter().map(|expression| {
+            eval_opening_expression_with_point_powers(
+                instance,
+                expression,
+                proof,
+                *point,
+                params,
+                &mut point_power_cache,
+            )
+        });
         let reduced_evals = alpha.reduce(evals);
         let numerator = reduced_evals - *reduced_openings;
         let denominator = subgroup_x - *point;
@@ -195,13 +220,38 @@ where
     F: RichField + Extendable<D>,
     H: Hasher<F>,
 {
+    let mut point_power_cache = Vec::new();
+    eval_opening_expression_with_point_powers(
+        instance,
+        expression,
+        proof,
+        point,
+        params,
+        &mut point_power_cache,
+    )
+}
+
+fn eval_opening_expression_with_point_powers<F, H, const D: usize>(
+    instance: &FriInstanceInfo<F, D>,
+    expression: &FriOpeningExpression<F, D>,
+    proof: &FriInitialTreeProof<F, H>,
+    point: F::Extension,
+    params: &FriParams,
+    point_power_cache: &mut Vec<(usize, F::Extension)>,
+) -> F::Extension
+where
+    F: RichField + Extendable<D>,
+    H: Hasher<F>,
+{
     expression
         .terms
         .iter()
         .map(|term| {
             let coefficient = match &term.coefficient {
                 FriCoefficient::One => F::Extension::ONE,
-                FriCoefficient::PointPower(power) => point.exp_u64(*power as u64),
+                FriCoefficient::PointPower(power) => {
+                    cached_point_power::<F, D>(point, *power, point_power_cache)
+                }
                 FriCoefficient::Constant(constant) => *constant,
             };
             let poly_blinding = instance.oracles[term.polynomial.oracle_index].blinding;

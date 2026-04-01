@@ -1,6 +1,7 @@
 #[cfg(not(feature = "std"))]
 use alloc::{format, vec::Vec};
 
+use hashbrown::HashMap;
 use itertools::Itertools;
 use plonky2_field::types::Field;
 use plonky2_maybe_rayon::*;
@@ -78,28 +79,88 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize> D
 impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
     PolynomialBatch<F, C, D>
 {
-    fn eval_coefficient(coefficient: &FriCoefficient<F, D>, point: F::Extension) -> F::Extension {
+    fn cached_point_power(
+        point: F::Extension,
+        power: usize,
+        point_power_cache: &mut Vec<(usize, F::Extension)>,
+    ) -> F::Extension {
+        if let Some((_, cached_power)) = point_power_cache
+            .iter()
+            .find(|(cached_power, _)| *cached_power == power)
+        {
+            *cached_power
+        } else {
+            let power_value = point.exp_u64(power as u64);
+            point_power_cache.push((power, power_value));
+            power_value
+        }
+    }
+
+    fn eval_coefficient(
+        coefficient: &FriCoefficient<F, D>,
+        point: F::Extension,
+        point_power_cache: &mut Vec<(usize, F::Extension)>,
+    ) -> F::Extension {
         match coefficient {
             FriCoefficient::One => F::Extension::ONE,
-            FriCoefficient::PointPower(power) => point.exp_u64(*power as u64),
+            FriCoefficient::PointPower(power) => {
+                Self::cached_point_power(point, *power, point_power_cache)
+            }
             FriCoefficient::Constant(constant) => *constant,
         }
+    }
+
+    fn repeated_opening_expression_polys(
+        instance: &FriInstanceInfo<F, D>,
+    ) -> HashMap<(usize, usize), usize> {
+        let mut counts = HashMap::new();
+        for batch in &instance.batches {
+            for expression in &batch.openings {
+                for term in &expression.terms {
+                    let key = (
+                        term.polynomial.oracle_index,
+                        term.polynomial.polynomial_index,
+                    );
+                    *counts.entry(key).or_insert(0) += 1;
+                }
+            }
+        }
+        counts.retain(|_, count| *count > 1);
+        counts
     }
 
     fn opening_expression_poly(
         expression: &FriOpeningExpression<F, D>,
         oracles: &[&Self],
         point: F::Extension,
+        point_power_cache: &mut Vec<(usize, F::Extension)>,
+        repeated_poly_counts: &HashMap<(usize, usize), usize>,
+        converted_poly_cache: &mut HashMap<(usize, usize), PolynomialCoeffs<F::Extension>>,
     ) -> PolynomialCoeffs<F::Extension> {
         expression
             .terms
             .iter()
             .map(|term| {
-                let coefficient = Self::eval_coefficient(&term.coefficient, point);
-                let poly = &oracles[term.polynomial.oracle_index].polynomials
-                    [term.polynomial.polynomial_index];
-                let mut scaled = poly.to_extension::<D>();
-                scaled *= coefficient;
+                let coefficient =
+                    Self::eval_coefficient(&term.coefficient, point, point_power_cache);
+                let key = (
+                    term.polynomial.oracle_index,
+                    term.polynomial.polynomial_index,
+                );
+                let poly = &oracles[key.0].polynomials[key.1];
+                let mut scaled = if repeated_poly_counts.contains_key(&key) {
+                    converted_poly_cache
+                        .entry(key)
+                        .or_insert_with(|| poly.to_extension::<D>())
+                        .clone()
+                } else if coefficient == F::Extension::ONE {
+                    poly.to_extension::<D>()
+                } else {
+                    poly.mul_extension::<D>(coefficient)
+                };
+                if repeated_poly_counts.contains_key(&key) && coefficient != F::Extension::ONE {
+                    scaled *= coefficient;
+                }
                 scaled
             })
             .sum()
@@ -114,17 +175,25 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         assert!(D > 1, "Not implemented for D=1.");
         let alpha = challenger.get_extension_challenge::<D>();
         let mut alpha = ReducingFactor::new(alpha);
+        let repeated_poly_counts = Self::repeated_opening_expression_polys(instance);
+        let mut converted_poly_cache = HashMap::with_capacity(repeated_poly_counts.len());
 
         let mut final_poly = PolynomialCoeffs::empty();
         for FriBatchInfo { point, openings } in &instance.batches {
+            let mut point_power_cache = Vec::new();
             let composition_poly = timed!(
                 timing,
                 &format!("reduce batch of {} opening expressions", openings.len()),
-                alpha.reduce_polys(
-                    openings
-                        .iter()
-                        .map(|expr| Self::opening_expression_poly(expr, oracles, *point))
-                )
+                alpha.reduce_polys(openings.iter().map(|expr| {
+                    Self::opening_expression_poly(
+                        expr,
+                        oracles,
+                        *point,
+                        &mut point_power_cache,
+                        &repeated_poly_counts,
+                        &mut converted_poly_cache,
+                    )
+                }))
             );
             let mut quotient = composition_poly.divide_by_linear(*point);
             quotient.coeffs.push(F::Extension::ZERO); // pad back to power of two

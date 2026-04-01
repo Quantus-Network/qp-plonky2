@@ -17,6 +17,23 @@ use crate::plonk::config::GenericConfig;
 use crate::timed;
 use crate::util::timing::TimingTree;
 
+fn cached_point_power<F: Field>(
+    point: F,
+    power: usize,
+    point_power_cache: &mut Vec<(usize, F)>,
+) -> F {
+    if let Some((_, cached_power)) = point_power_cache
+        .iter()
+        .find(|(cached_power, _)| *cached_power == power)
+    {
+        *cached_power
+    } else {
+        let power_value = point.exp_u64(power as u64);
+        point_power_cache.push((power, power_value));
+        power_value
+    }
+}
+
 /// How a logical polynomial is represented inside the raw committed batch.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum LogicalPolynomialLayout {
@@ -55,7 +72,12 @@ pub struct SplitMaskPlan {
 impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
     LogicalPolynomialBatch<F, C, D>
 {
-    pub fn logical_eval(&self, logical_index: usize, point: F::Extension) -> F::Extension {
+    fn logical_eval_with_point_powers(
+        &self,
+        logical_index: usize,
+        point: F::Extension,
+        point_power_cache: &mut Vec<(usize, F::Extension)>,
+    ) -> F::Extension {
         match &self.logical_layouts[logical_index] {
             LogicalPolynomialLayout::Raw { raw_index } => self.raw.polynomials[*raw_index]
                 .to_extension::<D>()
@@ -71,14 +93,20 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
                 let high = self.raw.polynomials[*high_index]
                     .to_extension::<D>()
                     .eval(point);
-                low + point.exp_u64(*split_power as u64) * high
+                low + cached_point_power(point, *split_power, point_power_cache) * high
             }
         }
     }
 
+    pub fn logical_eval(&self, logical_index: usize, point: F::Extension) -> F::Extension {
+        let mut point_power_cache = Vec::new();
+        self.logical_eval_with_point_powers(logical_index, point, &mut point_power_cache)
+    }
+
     pub fn logical_evals(&self, point: F::Extension) -> Vec<F::Extension> {
+        let mut point_power_cache = Vec::new();
         (0..self.logical_layouts.len())
-            .map(|i| self.logical_eval(i, point))
+            .map(|i| self.logical_eval_with_point_powers(i, point, &mut point_power_cache))
             .collect()
     }
 
@@ -92,6 +120,7 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
     /// while the committed leaf still stores only raw split-mask pieces.
     pub fn get_lde_values(&self, index: usize, step: usize, point: F) -> Vec<F> {
         let raw_values = self.raw.get_lde_values(index, step);
+        let mut point_power_cache = Vec::new();
         self.logical_layouts
             .iter()
             .map(|layout| match layout {
@@ -102,7 +131,8 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
                     split_power,
                 } => {
                     raw_values[*low_index]
-                        + point.exp_u64(*split_power as u64) * raw_values[*high_index]
+                        + cached_point_power(point, *split_power, &mut point_power_cache)
+                            * raw_values[*high_index]
                 }
             })
             .collect()
