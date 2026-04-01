@@ -4,14 +4,15 @@
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
 
-use crate::field::extension::Extendable;
-use crate::hash::hash_types::RichField;
-use crate::iop::ext_target::ExtensionTarget;
 // Re-export base FRI structure types from core
 pub use qp_plonky2_core::{
     FriBatchInfo, FriCoefficient, FriInstanceInfo, FriOpeningBatch, FriOpeningExpression,
     FriOpeningTerm, FriOpenings, FriOracleInfo, FriPolynomialInfo,
 };
+
+use crate::field::extension::Extendable;
+use crate::hash::hash_types::RichField;
+use crate::iop::ext_target::ExtensionTarget;
 
 pub type FriPolynomialInfoTarget = FriPolynomialInfo;
 pub type FriCoefficientTarget<F, const D: usize> = FriCoefficient<F, D>;

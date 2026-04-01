@@ -8,6 +8,7 @@ use core::mem::swap;
 use anyhow::{ensure, Result};
 use hashbrown::HashMap;
 use plonky2_maybe_rayon::*;
+use qp_plonky2_core::{PolyFriZkConfig, ZkMode};
 
 use super::circuit_builder::{LookupChallenges, LookupWire};
 use crate::field::extension::Extendable;
@@ -39,7 +40,6 @@ use crate::timed;
 use crate::util::partial_products::{partial_products_and_z_gx, quotient_chunk_products};
 use crate::util::timing::TimingTree;
 use crate::util::{log2_ceil, transpose};
-use qp_plonky2_core::{PolyFriZkConfig, ZkMode};
 
 /// Set all the lookup gate wires (including multiplicities) and pad unused LU slots.
 /// Warning: rows are in descending order: the first gate to appear is the last LU gate, and

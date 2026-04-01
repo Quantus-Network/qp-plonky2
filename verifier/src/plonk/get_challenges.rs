@@ -2,6 +2,13 @@
 use alloc::{vec, vec::Vec};
 
 use hashbrown::HashSet;
+use qp_plonky2_core::fri_proof::{CompressedFriProof, FriFinalPolys, FriProof};
+use qp_plonky2_core::fri_verifier::{
+    compute_evaluation, eval_batch_mask_at_query_point, eval_masked_final_at_query_point,
+    fri_combine_initial, PrecomputedReducedOpenings,
+};
+use qp_plonky2_core::merkle_tree::MerkleCap;
+use qp_plonky2_core::{Challenger, FriChallenger, FriChallenges, FriParamsObserve};
 
 use crate::field::extension::Extendable;
 use crate::hash::hash_types::RichField;
@@ -12,13 +19,6 @@ use crate::plonk::proof::{
     ProofChallenges, ProofWithPublicInputs,
 };
 use crate::util::reverse_bits;
-use qp_plonky2_core::fri_proof::{CompressedFriProof, FriFinalPolys, FriProof};
-use qp_plonky2_core::fri_verifier::{
-    compute_evaluation, eval_batch_mask_at_query_point, eval_masked_final_at_query_point,
-    fri_combine_initial, PrecomputedReducedOpenings,
-};
-use qp_plonky2_core::merkle_tree::MerkleCap;
-use qp_plonky2_core::{Challenger, FriChallenger, FriChallenges, FriParamsObserve};
 
 fn get_challenges<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>(
     public_inputs_hash: <<C as GenericConfig<D>>::InnerHasher as Hasher<F>>::Hash,

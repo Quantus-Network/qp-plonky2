@@ -18,6 +18,7 @@ pub use gate_serialization::GateSerializer;
 pub use generator_serialization::default::DefaultGeneratorSerializer;
 pub use generator_serialization::WitnessGeneratorSerializer;
 use hashbrown::HashMap;
+use qp_plonky2_core::{PolyFriZkConfig, ZkConfig, ZkMode};
 
 use crate::field::extension::{Extendable, FieldExtension};
 use crate::field::polynomial::PolynomialCoeffs;
@@ -55,7 +56,6 @@ use crate::plonk::proof::{
     CompressedProof, CompressedProofWithPublicInputs, OpeningSet, OpeningSetTarget, Proof,
     ProofTarget, ProofWithPublicInputs, ProofWithPublicInputsTarget,
 };
-use qp_plonky2_core::{PolyFriZkConfig, ZkConfig, ZkMode};
 
 /// A no_std compatible variant of `std::io::Error`
 #[derive(Debug)]

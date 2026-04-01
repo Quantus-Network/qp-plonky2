@@ -438,8 +438,7 @@ mod tests {
 
     use anyhow::Result;
     use itertools::Itertools;
-    use plonky2_field::types::Field;
-    use plonky2_field::types::Sample;
+    use plonky2_field::types::{Field, Sample};
 
     use super::*;
     use crate::fri::FriReductionStrategy;

@@ -5,6 +5,7 @@
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
 use core::ops::Range;
+
 use serde::Serialize;
 
 use crate::field::extension::Extendable;

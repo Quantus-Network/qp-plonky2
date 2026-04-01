@@ -9,6 +9,7 @@ use std::{collections::BTreeMap, sync::Arc};
 use hashbrown::{HashMap, HashSet};
 use itertools::Itertools;
 use log::{debug, warn, Level};
+use qp_plonky2_core::circuit_config::ZkMode;
 #[cfg(feature = "timing")]
 use web_time::Instant;
 
@@ -56,7 +57,6 @@ use crate::util::context_tree::ContextTree;
 use crate::util::partial_products::num_partial_products;
 use crate::util::timing::TimingTree;
 use crate::util::{log2_ceil, log2_strict, transpose, transpose_poly_values};
-use qp_plonky2_core::circuit_config::ZkMode;
 
 /// Number of random coins needed for lookups (for each challenge).
 /// A coin is a randomly sampled extension field element from the verifier,
