@@ -2,18 +2,19 @@
 use alloc::{format, string::String, vec::Vec};
 use core::marker::PhantomData;
 
+use qp_poseidon_constants::SPONGE_WIDTH;
+
 use crate::field::extension::algebra::ExtensionAlgebra;
 use crate::field::extension::{Extendable, FieldExtension};
 use crate::field::types::Field;
 use crate::gates::gate::VerificationGate;
-use crate::gates::poseidon2::P2_WIDTH;
 use crate::gates::util::StridedConstraintConsumer;
 use crate::hash::hash_types::RichField;
 use crate::plonk::circuit_data::CommonCircuitData;
 use crate::plonk::vars::{EvaluationVars, EvaluationVarsBase};
 use crate::util::serialization::{Buffer, IoResult};
 
-/// Poseidon2 light-MDS Gate (width = P2_WIDTH).
+/// Poseidon2 light-MDS Gate (width = SPONGE_WIDTH).
 ///
 /// This enforces one *light* MDS layer:
 ///   1. Apply the 4×4 matrix to each block of 4 elements (3 blocks total).
@@ -27,24 +28,24 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2MdsGate<F, D> {
     }
 
     pub(crate) const fn wires_input(i: usize) -> core::ops::Range<usize> {
-        assert!(i < P2_WIDTH);
+        assert!(i < SPONGE_WIDTH);
         i * D..(i + 1) * D
     }
 
     pub(crate) const fn wires_output(i: usize) -> core::ops::Range<usize> {
-        assert!(i < P2_WIDTH);
-        (P2_WIDTH + i) * D..(P2_WIDTH + i + 1) * D
+        assert!(i < SPONGE_WIDTH);
+        (SPONGE_WIDTH + i) * D..(SPONGE_WIDTH + i + 1) * D
     }
 
     /// Light-MDS on extension field elements (for `eval_unfiltered_base_one`).
-    fn mds_light_field<T: Field>(state: &[T; P2_WIDTH]) -> [T; P2_WIDTH] {
+    fn mds_light_field<T: Field>(state: &[T; SPONGE_WIDTH]) -> [T; SPONGE_WIDTH] {
         let two = T::from_canonical_u64(2);
         let three = T::from_canonical_u64(3);
 
-        let mut tmp = [T::ZERO; P2_WIDTH];
+        let mut tmp = [T::ZERO; SPONGE_WIDTH];
 
         // 3 blocks of size 4: [0..4), [4..8), [8..12)
-        for k in (0..P2_WIDTH).step_by(4) {
+        for k in (0..SPONGE_WIDTH).step_by(4) {
             let a = state[k];
             let x = state[k + 1];
             let c = state[k + 2];
@@ -69,8 +70,8 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2MdsGate<F, D> {
         }
 
         // Add sums to each lane based on its column index mod 4.
-        let mut out = [T::ZERO; P2_WIDTH];
-        for i in 0..P2_WIDTH {
+        let mut out = [T::ZERO; SPONGE_WIDTH];
+        for i in 0..SPONGE_WIDTH {
             out[i] = tmp[i] + sums[i % 4];
         }
 
@@ -79,14 +80,14 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2MdsGate<F, D> {
 
     /// Light-MDS on extension algebra elements (for `eval_unfiltered`).
     fn mds_light_algebra(
-        state: &[ExtensionAlgebra<F::Extension, D>; P2_WIDTH],
-    ) -> [ExtensionAlgebra<F::Extension, D>; P2_WIDTH] {
+        state: &[ExtensionAlgebra<F::Extension, D>; SPONGE_WIDTH],
+    ) -> [ExtensionAlgebra<F::Extension, D>; SPONGE_WIDTH] {
         let two = F::Extension::from_canonical_u64(2);
         let three = F::Extension::from_canonical_u64(3);
 
-        let mut tmp = [ExtensionAlgebra::ZERO; P2_WIDTH];
+        let mut tmp = [ExtensionAlgebra::ZERO; SPONGE_WIDTH];
 
-        for k in (0..P2_WIDTH).step_by(4) {
+        for k in (0..SPONGE_WIDTH).step_by(4) {
             let a = state[k];
             let x = state[k + 1];
             let c = state[k + 2];
@@ -103,8 +104,8 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2MdsGate<F, D> {
             sums[i] = tmp[i] + tmp[4 + i] + tmp[8 + i];
         }
 
-        let mut out = [ExtensionAlgebra::ZERO; P2_WIDTH];
-        for i in 0..P2_WIDTH {
+        let mut out = [ExtensionAlgebra::ZERO; SPONGE_WIDTH];
+        for i in 0..SPONGE_WIDTH {
             out[i] = tmp[i] + sums[i % 4];
         }
 
@@ -116,7 +117,7 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D>
     for Poseidon2MdsGate<F, D>
 {
     fn id(&self) -> String {
-        format!("{self:?}<WIDTH={P2_WIDTH}>")
+        format!("Poseidon2MdsGate<WIDTH={SPONGE_WIDTH}>")
     }
 
     fn serialize(
@@ -132,7 +133,7 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D>
     }
 
     fn eval_unfiltered(&self, vars: EvaluationVars<F, D>) -> Vec<F::Extension> {
-        let inputs: [_; P2_WIDTH] = (0..P2_WIDTH)
+        let inputs: [_; SPONGE_WIDTH] = (0..SPONGE_WIDTH)
             .map(|i| vars.get_local_ext_algebra(Self::wires_input(i)))
             .collect::<Vec<_>>()
             .try_into()
@@ -140,7 +141,7 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D>
 
         let computed_outputs = Self::mds_light_algebra(&inputs);
 
-        (0..P2_WIDTH)
+        (0..SPONGE_WIDTH)
             .map(|i| vars.get_local_ext_algebra(Self::wires_output(i)))
             .zip(computed_outputs)
             .flat_map(|(out, computed_out)| (out - computed_out).to_basefield_array())
@@ -152,7 +153,7 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D>
         vars: EvaluationVarsBase<F>,
         mut yield_constr: StridedConstraintConsumer<F>,
     ) {
-        let inputs: [_; P2_WIDTH] = (0..P2_WIDTH)
+        let inputs: [_; SPONGE_WIDTH] = (0..SPONGE_WIDTH)
             .map(|i| vars.get_local_ext(Self::wires_input(i)))
             .collect::<Vec<_>>()
             .try_into()
@@ -161,7 +162,7 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D>
         let computed_outputs = Self::mds_light_field(&inputs);
 
         yield_constr.many(
-            (0..P2_WIDTH)
+            (0..SPONGE_WIDTH)
                 .map(|i| vars.get_local_ext(Self::wires_output(i)))
                 .zip(computed_outputs)
                 .flat_map(|(out, computed_out)| (out - computed_out).to_basefield_array()),
@@ -169,7 +170,7 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D>
     }
 
     fn num_wires(&self) -> usize {
-        2 * D * P2_WIDTH
+        2 * D * SPONGE_WIDTH
     }
 
     fn num_constants(&self) -> usize {
@@ -181,6 +182,6 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D>
     }
 
     fn num_constraints(&self) -> usize {
-        P2_WIDTH * D
+        SPONGE_WIDTH * D
     }
 }

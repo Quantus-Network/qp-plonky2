@@ -15,7 +15,6 @@ use crate::gates::lookup::LookupGate;
 use crate::gates::lookup_table::LookupTableGate;
 use crate::gates::selectors::LookupSelectors;
 use crate::hash::hash_types::RichField;
-
 use crate::plonk::circuit_data::CommonCircuitData;
 use crate::plonk::plonk_common;
 use crate::plonk::vars::{EvaluationVars, EvaluationVarsBaseBatch};

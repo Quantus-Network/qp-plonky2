@@ -3,6 +3,12 @@
 //! Core types and functions are re-exported from qp-plonky2-core.
 //! Circuit-specific functions are defined locally.
 
+// Re-export common types and functions from core
+pub use qp_plonky2_core::plonk_common::{
+    eval_l_0, eval_zero_poly, reduce_with_powers, reduce_with_powers_multi, salt_size, PlonkOracle,
+    SALT_SIZE,
+};
+
 use crate::field::extension::Extendable;
 use crate::gates::arithmetic_base::ArithmeticGate;
 use crate::hash::hash_types::RichField;
@@ -10,12 +16,6 @@ use crate::iop::ext_target::ExtensionTarget;
 use crate::iop::target::Target;
 use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::util::reducing::ReducingFactorTarget;
-
-// Re-export common types and functions from core
-pub use qp_plonky2_core::plonk_common::{
-    eval_l_0, eval_zero_poly, reduce_with_powers, reduce_with_powers_multi, salt_size, PlonkOracle,
-    SALT_SIZE,
-};
 
 /// Evaluates the Lagrange basis L_0(x), which has L_0(1) = 1 and vanishes at all other points in
 /// the order-`n` subgroup.

@@ -2,8 +2,7 @@
 
 use serde::Serialize;
 
-use crate::fri::FriConfig;
-use crate::fri::FriReductionStrategy;
+use crate::fri::{FriConfig, FriReductionStrategy};
 
 /// Zero-knowledge settings for a circuit.
 ///

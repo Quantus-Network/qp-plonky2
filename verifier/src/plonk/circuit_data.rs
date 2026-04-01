@@ -7,6 +7,10 @@ use alloc::{vec, vec::Vec};
 use core::ops::{Range, RangeFrom};
 
 use anyhow::Result;
+use qp_plonky2_core::merkle_tree::MerkleCap;
+// Re-export CircuitConfig from core
+pub use qp_plonky2_core::CircuitConfig;
+use qp_plonky2_core::FriParams;
 use serde::Serialize;
 
 use crate::field::extension::Extendable;
@@ -23,11 +27,6 @@ use crate::plonk::plonk_common::PlonkOracle;
 use crate::plonk::proof::{CompressedProofWithPublicInputs, ProofWithPublicInputs};
 use crate::plonk::verifier::verify;
 use crate::util::serialization::{Buffer, GateSerializer, IoResult, Read, Write};
-use qp_plonky2_core::merkle_tree::MerkleCap;
-use qp_plonky2_core::FriParams;
-
-// Re-export CircuitConfig from core
-pub use qp_plonky2_core::CircuitConfig;
 
 /// Circuit data required by the verifier.
 #[derive(Debug, Clone, PartialEq, Eq)]

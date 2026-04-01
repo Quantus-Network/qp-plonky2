@@ -18,8 +18,7 @@ use qp_plonky2_core::fri_verifier::{
     fri_combine_initial, PrecomputedReducedOpenings,
 };
 use qp_plonky2_core::merkle_tree::MerkleCap;
-use qp_plonky2_core::Challenger;
-use qp_plonky2_core::{FriChallenger, FriChallenges, FriParamsObserve};
+use qp_plonky2_core::{Challenger, FriChallenger, FriChallenges, FriParamsObserve};
 
 fn get_challenges<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>(
     public_inputs_hash: <<C as GenericConfig<D>>::InnerHasher as Hasher<F>>::Hash,

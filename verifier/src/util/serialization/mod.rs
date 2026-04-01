@@ -13,6 +13,16 @@ use std::sync::Arc;
 pub use gate_serialization::default::DefaultGateSerializer;
 pub use gate_serialization::GateSerializer;
 use hashbrown::HashMap;
+use qp_plonky2_core::fri_proof::{
+    CompressedFriProof, CompressedFriQueryRounds, FriBatchMaskProof, FriBatchMaskQuery,
+    FriFinalPolys, FriInitialTreeProof, FriProof, FriQueryRound, FriQueryStep,
+};
+use qp_plonky2_core::merkle_proofs::MerkleProof;
+use qp_plonky2_core::merkle_tree::MerkleCap;
+use qp_plonky2_core::{
+    FriBatchMaskingParams, FriConfig, FriFinalPolyLayout, FriParams, FriReductionStrategy,
+    PolyFriZkConfig, ZkConfig, ZkMode,
+};
 
 use crate::field::extension::{Extendable, FieldExtension};
 use crate::field::polynomial::PolynomialCoeffs;
@@ -28,16 +38,6 @@ use crate::plonk::config::{GenericConfig, GenericHashOut, Hasher};
 use crate::plonk::plonk_common::{salt_size, PlonkOracle};
 use crate::plonk::proof::{
     CompressedProof, CompressedProofWithPublicInputs, OpeningSet, Proof, ProofWithPublicInputs,
-};
-use qp_plonky2_core::fri_proof::{
-    CompressedFriProof, CompressedFriQueryRounds, FriBatchMaskProof, FriBatchMaskQuery,
-    FriFinalPolys, FriInitialTreeProof, FriProof, FriQueryRound, FriQueryStep,
-};
-use qp_plonky2_core::merkle_proofs::MerkleProof;
-use qp_plonky2_core::merkle_tree::MerkleCap;
-use qp_plonky2_core::{
-    FriBatchMaskingParams, FriConfig, FriFinalPolyLayout, FriParams, FriReductionStrategy,
-    PolyFriZkConfig, ZkConfig, ZkMode,
 };
 
 /// A no_std compatible variant of `std::io::Error`
