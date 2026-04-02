@@ -1,5 +1,5 @@
 #[cfg(not(feature = "std"))]
-use alloc::vec;
+use alloc::{vec, vec::Vec};
 
 use crate::field::extension::Extendable;
 use crate::hash::hash_types::{HashOutTarget, RichField};
