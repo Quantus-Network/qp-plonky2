@@ -137,18 +137,6 @@ impl<F: RichField + P2Permuter> Hasher<F> for Poseidon2Hash {
     }
 }
 
-#[allow(dead_code)]
-pub fn hash_no_pad_bytes(input: &[GL]) -> [u8; 32] {
-    let h = Poseidon2Hash::hash_no_pad(input);
-    let mut out = [0u8; 32];
-    // Little-endian u64 per felt, concatenated.
-    for (i, elt) in h.elements.iter().enumerate() {
-        let w = elt.to_canonical_u64().to_le_bytes();
-        out[i * 8..(i + 1) * 8].copy_from_slice(&w);
-    }
-    out
-}
-
 #[cfg(test)]
 mod tests {
     extern crate alloc;
