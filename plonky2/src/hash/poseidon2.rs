@@ -7,9 +7,10 @@ use alloc::vec;
 #[cfg(not(feature = "std"))]
 use core::fmt::Debug;
 
+use once_cell::sync::Lazy;
 use p3_field::integers::QuotientMap;
 use p3_field::{PrimeCharacteristicRing, PrimeField64 as P3PrimeField64};
-use p3_goldilocks::Goldilocks as P3G;
+use p3_goldilocks::{Goldilocks as P3G, Poseidon2Goldilocks};
 use p3_symmetric::Permutation;
 use plonky2_field::extension::Extendable;
 // We only support Goldilocks for now, which matches your Poseidon2Core.
@@ -24,6 +25,10 @@ use crate::iop::target::{BoolTarget, Target};
 use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::config::{AlgebraicHasher, Hasher};
 
+/// Static Poseidon2 instance, initialized once and reused across all calls.
+/// The instance is determined entirely by compile-time constants and is safe to share.
+static POSEIDON2: Lazy<Poseidon2Goldilocks<12>> = Lazy::new(create_poseidon);
+
 /// ---------- Internal helper: p3 permutation on Goldilocks ----------
 #[inline(always)]
 fn p2_permute_gl(mut state: [GL; SPONGE_WIDTH]) -> [GL; SPONGE_WIDTH] {
@@ -34,9 +39,8 @@ fn p2_permute_gl(mut state: [GL; SPONGE_WIDTH]) -> [GL; SPONGE_WIDTH] {
         s_p3[i] = unsafe { P3G::from_canonical_unchecked(state[i].to_canonical_u64()) };
     }
 
-    let poseidon2 = create_poseidon();
     let mut st = s_p3;
-    poseidon2.permute_mut(&mut st);
+    POSEIDON2.permute_mut(&mut st);
 
     // Back to plonky2 GL
     for i in 0..SPONGE_WIDTH {
