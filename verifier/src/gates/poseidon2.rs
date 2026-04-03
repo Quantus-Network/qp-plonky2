@@ -237,8 +237,10 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for Po
 
     fn num_constraints(&self) -> usize {
         // One constraint per S-box input (external + internal), plus output equality.
-        POSEIDON2_EXTERNAL_ROUNDS * SPONGE_WIDTH + POSEIDON2_INTERNAL_ROUNDS + SPONGE_WIDTH
-        // = 8*12 + 22 + 12 = 130
+        // Round 0 is elided: state is degree-1 (input wires through linear MDS preamble
+        // + constants), so sbox7 produces degree 7 without a checkpoint.
+        (POSEIDON2_EXTERNAL_ROUNDS - 1) * SPONGE_WIDTH + POSEIDON2_INTERNAL_ROUNDS + SPONGE_WIDTH
+        // = 7*12 + 22 + 12 = 118
     }
 
     fn degree(&self) -> usize {
@@ -269,11 +271,16 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for Po
             for i in 0..SPONGE_WIDTH {
                 state[i] += ext_c::<F, D>(ext_init[r][i]);
             }
-            // constrain S-box inputs and update state = sbox_in
-            for i in 0..SPONGE_WIDTH {
-                let sbox_in = lw[Self::wire_ext_sbox(ext_round_idx, i)];
-                constr.push(state[i] - sbox_in);
-                state[i] = sbox_in;
+            // Round 0: state is degree-1 (input wires through linear
+            // MDS preamble + constants), so sbox7 produces degree 7
+            // without a checkpoint.
+            if ext_round_idx != 0 {
+                // constrain S-box inputs and update state = sbox_in
+                for i in 0..SPONGE_WIDTH {
+                    let sbox_in = lw[Self::wire_ext_sbox(ext_round_idx, i)];
+                    constr.push(state[i] - sbox_in);
+                    state[i] = sbox_in;
+                }
             }
             // apply S-box x^7 on all lanes
             for i in 0..SPONGE_WIDTH {
