@@ -62,6 +62,23 @@ pub(crate) fn check_partial_products<F: Field>(
         .chain(partials.iter())
         .chain(iter::once(&z_gx));
     let chunk_size = max_degree;
+    let numerator_chunks = numerators.chunks(chunk_size);
+    let denominator_chunks = denominators.chunks(chunk_size);
+    let num_numerator_chunks = numerator_chunks.len();
+    let num_denominator_chunks = denominator_chunks.len();
+    let num_product_windows = partials.len() + 1;
+    assert_eq!(
+        num_numerator_chunks, num_denominator_chunks,
+        "numerator and denominator chunk counts disagree: {num_numerator_chunks} vs {num_denominator_chunks}"
+    );
+    assert_eq!(
+        num_numerator_chunks, num_product_windows,
+        "partial product window count disagrees with chunk count: chunks={num_numerator_chunks}, partials={}, max_degree={}, numerators={}, denominators={}",
+        partials.len(),
+        max_degree,
+        numerators.len(),
+        denominators.len(),
+    );
     numerators
         .chunks(chunk_size)
         .zip_eq(denominators.chunks(chunk_size))

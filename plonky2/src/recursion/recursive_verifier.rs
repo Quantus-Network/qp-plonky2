@@ -1,5 +1,5 @@
 #[cfg(not(feature = "std"))]
-use alloc::vec;
+use alloc::{vec, vec::Vec};
 
 use crate::field::extension::Extendable;
 use crate::hash::hash_types::{HashOutTarget, RichField};
@@ -148,27 +148,30 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     }
 
     fn add_virtual_proof(&mut self, common_data: &CommonCircuitData<F, D>) -> ProofTarget<D> {
-        let config = &common_data.config;
         let fri_params = &common_data.fri_params;
         let cap_height = fri_params.config.cap_height;
-
-        let salt = salt_size(common_data.fri_params.hiding);
-        let num_leaves_per_oracle = &mut vec![
-            common_data.num_preprocessed_polys(),
-            config.num_wires + salt,
-            common_data.num_zs_partial_products_polys() + common_data.num_all_lookup_polys() + salt,
+        let oracle_blinding = [
+            crate::plonk::plonk_common::PlonkOracle::CONSTANTS_SIGMAS.blinding,
+            crate::plonk::plonk_common::PlonkOracle::WIRES.blinding,
+            crate::plonk::plonk_common::PlonkOracle::ZS_PARTIAL_PRODUCTS.blinding,
+            crate::plonk::plonk_common::PlonkOracle::QUOTIENT.blinding,
         ];
-
-        if common_data.num_quotient_polys() > 0 {
-            num_leaves_per_oracle.push(common_data.num_quotient_polys() + salt);
-        }
+        debug_assert_eq!(common_data.fri_oracle_layouts.len(), oracle_blinding.len());
+        let num_leaves_per_oracle = common_data
+            .fri_oracle_layouts
+            .iter()
+            .zip(oracle_blinding)
+            .map(|(layout, blinding)| {
+                layout.raw_polys + salt_size(common_data.fri_params.leaf_hiding && blinding)
+            })
+            .collect::<Vec<_>>();
 
         ProofTarget {
             wires_cap: self.add_virtual_cap(cap_height),
             plonk_zs_partial_products_cap: self.add_virtual_cap(cap_height),
             quotient_polys_cap: self.add_virtual_cap(cap_height),
             openings: self.add_opening_set(common_data),
-            opening_proof: self.add_virtual_fri_proof(num_leaves_per_oracle, fri_params),
+            opening_proof: self.add_virtual_fri_proof(&num_leaves_per_oracle, fri_params),
         }
     }
 
@@ -226,7 +229,7 @@ mod tests {
         const D: usize = 2;
         type C = PoseidonGoldilocksConfig;
         type F = <C as GenericConfig<D>>::F;
-        let config = CircuitConfig::standard_recursion_zk_config();
+        let config = CircuitConfig::standard_recursion_config();
 
         let (proof, vd, common_data) = dummy_proof::<F, C, D>(&config, 4_000)?;
         let (proof, vd, common_data) =
@@ -239,6 +242,23 @@ mod tests {
     #[test]
     #[cfg(feature = "rand")]
     fn test_recursive_verifier_one_lookup() -> Result<()> {
+        init_logger();
+        const D: usize = 2;
+        type C = PoseidonGoldilocksConfig;
+        type F = <C as GenericConfig<D>>::F;
+        let config = CircuitConfig::standard_recursion_config();
+
+        let (proof, vd, common_data) = dummy_lookup_proof::<F, C, D>(&config, 10)?;
+        let (proof, vd, common_data) =
+            recursive_proof::<F, C, C, D>(proof, vd, common_data, &config, None, true, true)?;
+        test_serialization(&proof, &vd, &common_data)?;
+
+        Ok(())
+    }
+
+    #[test]
+    #[cfg(feature = "rand")]
+    fn test_recursive_verifier_one_lookup_polyfri() -> Result<()> {
         init_logger();
         const D: usize = 2;
         type C = PoseidonGoldilocksConfig;

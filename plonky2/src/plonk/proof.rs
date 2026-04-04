@@ -25,6 +25,7 @@ use crate::iop::target::Target;
 use crate::plonk::circuit_data::{CommonCircuitData, VerifierOnlyCircuitData};
 use crate::plonk::config::{GenericConfig, Hasher};
 use crate::plonk::verifier::verify_with_challenges;
+use crate::plonk::zk::LogicalPolynomialBatch;
 use crate::util::serialization::{Buffer, Read, Write};
 
 #[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
@@ -291,30 +292,32 @@ impl<F: RichField + Extendable<D>, const D: usize> OpeningSet<F, D> {
         zeta: F::Extension,
         g: F::Extension,
         constants_sigmas_commitment: &PolynomialBatch<F, C, D>,
-        wires_commitment: &PolynomialBatch<F, C, D>,
-        zs_partial_products_lookup_commitment: &PolynomialBatch<F, C, D>,
-        quotient_polys_commitment: &PolynomialBatch<F, C, D>,
+        wires_commitment: &LogicalPolynomialBatch<F, C, D>,
+        zs_partial_products_lookup_commitment: &LogicalPolynomialBatch<F, C, D>,
+        quotient_polys_commitment: &LogicalPolynomialBatch<F, C, D>,
         common_data: &CommonCircuitData<F, D>,
     ) -> Self {
-        let eval_commitment = |z: F::Extension, c: &PolynomialBatch<F, C, D>| {
+        let eval_raw_commitment = |z: F::Extension, c: &PolynomialBatch<F, C, D>| {
             c.polynomials
                 .par_iter()
                 .map(|p| p.to_extension().eval(z))
                 .collect::<Vec<_>>()
         };
-        let constants_sigmas_eval = eval_commitment(zeta, constants_sigmas_commitment);
+        let eval_logical_commitment =
+            |z: F::Extension, c: &LogicalPolynomialBatch<F, C, D>| c.logical_evals(z);
+        let constants_sigmas_eval = eval_raw_commitment(zeta, constants_sigmas_commitment);
 
         // `zs_partial_products_lookup_eval` contains the permutation argument polynomials as well as lookup polynomials.
         let zs_partial_products_lookup_eval =
-            eval_commitment(zeta, zs_partial_products_lookup_commitment);
+            eval_logical_commitment(zeta, zs_partial_products_lookup_commitment);
         let zs_partial_products_lookup_next_eval =
-            eval_commitment(g * zeta, zs_partial_products_lookup_commitment);
-        let quotient_polys = eval_commitment(zeta, quotient_polys_commitment);
+            eval_logical_commitment(g * zeta, zs_partial_products_lookup_commitment);
+        let quotient_polys = eval_logical_commitment(zeta, quotient_polys_commitment);
 
         Self {
             constants: constants_sigmas_eval[common_data.constants_range()].to_vec(),
             plonk_sigmas: constants_sigmas_eval[common_data.sigmas_range()].to_vec(),
-            wires: eval_commitment(zeta, wires_commitment),
+            wires: eval_logical_commitment(zeta, wires_commitment),
             plonk_zs: zs_partial_products_lookup_eval[common_data.zs_range()].to_vec(),
             plonk_zs_next: zs_partial_products_lookup_next_eval[common_data.zs_range()].to_vec(),
             partial_products: zs_partial_products_lookup_eval[common_data.partial_products_range()]
@@ -435,7 +438,7 @@ mod tests {
 
     use anyhow::Result;
     use itertools::Itertools;
-    use plonky2_field::types::Sample;
+    use plonky2_field::types::{Field, Sample};
 
     use super::*;
     use crate::fri::FriReductionStrategy;
@@ -443,9 +446,45 @@ mod tests {
     use crate::gates::noop::NoopGate;
     use crate::iop::witness::PartialWitness;
     use crate::plonk::circuit_builder::CircuitBuilder;
-    use crate::plonk::circuit_data::CircuitConfig;
+    use crate::plonk::circuit_data::{CircuitConfig, CircuitData};
     use crate::plonk::config::PoseidonGoldilocksConfig;
     use crate::plonk::verifier::verify;
+
+    #[cfg(feature = "rand")]
+    fn build_polyfri_compression_fixture() -> Result<(
+        CircuitData<<PoseidonGoldilocksConfig as GenericConfig<2>>::F, PoseidonGoldilocksConfig, 2>,
+        ProofWithPublicInputs<
+            <PoseidonGoldilocksConfig as GenericConfig<2>>::F,
+            PoseidonGoldilocksConfig,
+            2,
+        >,
+    )> {
+        const D: usize = 2;
+        type C = PoseidonGoldilocksConfig;
+        type F = <C as GenericConfig<D>>::F;
+
+        let config = CircuitConfig::standard_recursion_zk_config();
+        let pw = PartialWitness::new();
+        let mut builder = CircuitBuilder::<F, D>::new(config);
+
+        let x = F::rand();
+        let y = F::rand();
+        let z = x * y;
+        let xt = builder.constant(x);
+        let yt = builder.constant(y);
+        let zt = builder.constant(z);
+        let comp_zt = builder.mul(xt, yt);
+        builder.connect(zt, comp_zt);
+        for _ in 0..32 {
+            builder.add_gate(NoopGate, vec![]);
+        }
+
+        let data = builder.build::<C>();
+        let proof = data.prove(pw)?;
+        verify(proof.clone(), &data.verifier_only, &data.common)?;
+
+        Ok((data, proof))
+    }
 
     #[test]
     #[cfg(feature = "rand")]
@@ -484,6 +523,88 @@ mod tests {
 
         verify(proof, &data.verifier_only, &data.common)?;
         data.verify_compressed(compressed_proof)
+    }
+
+    #[test]
+    #[cfg(feature = "rand")]
+    fn test_proof_compression_polyfri() -> Result<()> {
+        let (data, proof) = build_polyfri_compression_fixture()?;
+
+        // PolyFri compression must preserve the transcript-visible batch-mask proof objects.
+        let compressed_proof = data.compress(proof.clone())?;
+        assert!(compressed_proof
+            .proof
+            .opening_proof
+            .batch_mask_proof
+            .is_some());
+
+        let compressed_proof_bytes = compressed_proof.to_bytes();
+        let compressed_proof_from_bytes = CompressedProofWithPublicInputs::from_bytes(
+            compressed_proof_bytes.clone(),
+            &data.common,
+        )?;
+        assert_eq!(compressed_proof, compressed_proof_from_bytes);
+
+        let mut legacy_style = compressed_proof.clone();
+        legacy_style.proof.opening_proof.batch_mask_proof =
+            proof.proof.opening_proof.batch_mask_proof.clone();
+        assert!(
+            compressed_proof_bytes.len() < legacy_style.to_bytes().len(),
+            "compressing batch-mask Merkle paths should shrink representative masked proofs",
+        );
+
+        let decompressed = data.decompress(compressed_proof.clone())?;
+        assert_eq!(proof, decompressed);
+
+        verify(proof, &data.verifier_only, &data.common)?;
+        data.verify_compressed(compressed_proof)
+    }
+
+    #[test]
+    #[cfg(feature = "rand")]
+    fn test_compressed_polyfri_batch_mask_value_tamper_fails() -> Result<()> {
+        const D: usize = 2;
+        type C = PoseidonGoldilocksConfig;
+        type F = <C as GenericConfig<D>>::F;
+
+        let (data, proof) = build_polyfri_compression_fixture()?;
+        let mut compressed_proof = data.compress(proof)?;
+        compressed_proof
+            .proof
+            .opening_proof
+            .batch_mask_proof
+            .as_mut()
+            .expect("PolyFri compressed proofs must carry the explicit batch-mask proof")
+            .query_openings[0]
+            .values[0] += <F as Extendable<D>>::Extension::ONE;
+
+        assert!(data.verify_compressed(compressed_proof).is_err());
+        Ok(())
+    }
+
+    #[test]
+    #[cfg(feature = "rand")]
+    fn test_compressed_polyfri_batch_mask_path_tamper_fails() -> Result<()> {
+        type C = PoseidonGoldilocksConfig;
+        type F = <C as GenericConfig<2>>::F;
+
+        let (data, proof) = build_polyfri_compression_fixture()?;
+        let mut compressed_proof = data.compress(proof)?;
+        let sibling = compressed_proof
+            .proof
+            .opening_proof
+            .batch_mask_proof
+            .as_mut()
+            .expect("PolyFri compressed proofs must carry the explicit batch-mask proof")
+            .query_openings
+            .iter_mut()
+            .flat_map(|query_opening| query_opening.merkle_proof.siblings.iter_mut())
+            .next()
+            .expect("compressed batch-mask proof should retain at least one sibling");
+        sibling.elements[0] += F::ONE;
+
+        assert!(data.verify_compressed(compressed_proof).is_err());
+        Ok(())
     }
 
     #[test]

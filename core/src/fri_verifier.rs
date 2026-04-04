@@ -10,14 +10,19 @@ use crate::field::extension::{flatten, Extendable, FieldExtension};
 use crate::field::interpolation::{barycentric_weights, interpolate};
 use crate::field::types::Field;
 use crate::fri::FriParams;
-use crate::fri_proof::{FriInitialTreeProof, FriProof, FriQueryRound};
-use crate::fri_structure::{FriBatchInfo, FriChallenges, FriInstanceInfo, FriOpenings};
+use crate::fri_proof::{
+    combine_final_poly_chunks, eval_final_polys_at_point, FriBatchMaskQuery, FriInitialTreeProof,
+    FriProof, FriQueryRound,
+};
+use crate::fri_structure::{
+    FriBatchInfo, FriChallenges, FriCoefficient, FriInstanceInfo, FriOpeningExpression, FriOpenings,
+};
 use crate::fri_validate_shape::validate_fri_proof_shape;
 use crate::hash_types::RichField;
 use crate::merkle_proofs::verify_merkle_proof_to_cap;
 use crate::merkle_tree::MerkleCap;
 use crate::reducing::ReducingFactor;
-use crate::util::{log2_strict, reverse_bits, reverse_index_bits_in_place};
+use crate::util::{cached_point_power, log2_strict, reverse_bits, reverse_index_bits_in_place};
 
 /// Computes P'(x^arity) from {P(x*g^i)}_(i=0..arity), where g is a `arity`-th root of unity
 /// and P' is the FRI reduced polynomial.
@@ -89,10 +94,11 @@ pub fn verify_fri_proof<
 
     let precomputed_reduced_evals =
         PrecomputedReducedOpenings::from_os_and_alpha(openings, challenges.fri_alpha);
-    for (&x_index, round_proof) in challenges
+    for (query_round_index, (&x_index, round_proof)) in challenges
         .fri_query_indices
         .iter()
         .zip(&proof.query_round_proofs)
+        .enumerate()
     {
         fri_verifier_query_round::<F, C, D>(
             instance,
@@ -100,6 +106,7 @@ pub fn verify_fri_proof<
             &precomputed_reduced_evals,
             initial_merkle_caps,
             proof,
+            query_round_index,
             x_index,
             n,
             round_proof,
@@ -144,15 +151,18 @@ pub fn fri_combine_initial<
         .iter()
         .zip(&precomputed_reduced_evals.reduced_openings_at_point)
     {
-        let FriBatchInfo { point, polynomials } = batch;
-        let evals = polynomials
-            .iter()
-            .map(|p| {
-                let poly_blinding = instance.oracles[p.oracle_index].blinding;
-                let salted = params.hiding && poly_blinding;
-                proof.unsalted_eval(p.oracle_index, p.polynomial_index, salted)
-            })
-            .map(F::Extension::from_basefield);
+        let FriBatchInfo { point, openings } = batch;
+        let mut point_power_cache = Vec::new();
+        let evals = openings.iter().map(|expression| {
+            eval_opening_expression_with_point_powers(
+                instance,
+                expression,
+                proof,
+                *point,
+                params,
+                &mut point_power_cache,
+            )
+        });
         let reduced_evals = alpha.reduce(evals);
         let numerator = reduced_evals - *reduced_openings;
         let denominator = subgroup_x - *point;
@@ -161,6 +171,82 @@ pub fn fri_combine_initial<
     }
 
     sum
+}
+
+pub fn eval_batch_mask_at_query_point<
+    F: RichField + Extendable<D>,
+    H: Hasher<F>,
+    const D: usize,
+>(
+    query: &FriBatchMaskQuery<F, H, D>,
+    subgroup_x: F::Extension,
+    params: &FriParams,
+) -> F::Extension {
+    combine_final_poly_chunks::<F, D>(&params.batch_mask_layout(), &query.values, subgroup_x)
+}
+
+pub fn eval_masked_final_at_query_point<F: RichField + Extendable<D>, const D: usize>(
+    expected_unmasked_final: F::Extension,
+    batch_mask_eval: Option<F::Extension>,
+) -> F::Extension {
+    expected_unmasked_final + batch_mask_eval.unwrap_or(F::Extension::ZERO)
+}
+
+pub fn eval_opening_expression<F, H, const D: usize>(
+    instance: &FriInstanceInfo<F, D>,
+    expression: &FriOpeningExpression<F, D>,
+    proof: &FriInitialTreeProof<F, H>,
+    point: F::Extension,
+    params: &FriParams,
+) -> F::Extension
+where
+    F: RichField + Extendable<D>,
+    H: Hasher<F>,
+{
+    let mut point_power_cache = Vec::new();
+    eval_opening_expression_with_point_powers(
+        instance,
+        expression,
+        proof,
+        point,
+        params,
+        &mut point_power_cache,
+    )
+}
+
+fn eval_opening_expression_with_point_powers<F, H, const D: usize>(
+    instance: &FriInstanceInfo<F, D>,
+    expression: &FriOpeningExpression<F, D>,
+    proof: &FriInitialTreeProof<F, H>,
+    point: F::Extension,
+    params: &FriParams,
+    point_power_cache: &mut Vec<(usize, F::Extension)>,
+) -> F::Extension
+where
+    F: RichField + Extendable<D>,
+    H: Hasher<F>,
+{
+    expression
+        .terms
+        .iter()
+        .map(|term| {
+            let coefficient = match &term.coefficient {
+                FriCoefficient::One => F::Extension::ONE,
+                FriCoefficient::PointPower(power) => {
+                    cached_point_power(point, *power, point_power_cache)
+                }
+                FriCoefficient::Constant(constant) => *constant,
+            };
+            let poly_blinding = instance.oracles[term.polynomial.oracle_index].blinding;
+            let salted = params.leaf_hiding && poly_blinding;
+            let raw_eval = proof.unsalted_eval(
+                term.polynomial.oracle_index,
+                term.polynomial.polynomial_index,
+                salted,
+            );
+            coefficient * F::Extension::from_basefield(raw_eval)
+        })
+        .sum()
 }
 
 fn fri_verifier_query_round<
@@ -173,6 +259,7 @@ fn fri_verifier_query_round<
     precomputed_reduced_evals: &PrecomputedReducedOpenings<F, D>,
     initial_merkle_caps: &[MerkleCap<F, C::Hasher>],
     proof: &FriProof<F, C::Hasher, D>,
+    query_round_index: usize,
     mut x_index: usize,
     n: usize,
     round_proof: &FriQueryRound<F, C::Hasher, D>,
@@ -190,7 +277,7 @@ fn fri_verifier_query_round<
 
     // old_eval is the last derived evaluation; it will be checked for consistency with its
     // committed "parent" value in the next iteration.
-    let mut old_eval = fri_combine_initial::<F, C, D>(
+    let expected_unmasked_final = fri_combine_initial::<F, C, D>(
         instance,
         &round_proof.initial_trees_proof,
         challenges.fri_alpha,
@@ -198,6 +285,24 @@ fn fri_verifier_query_round<
         precomputed_reduced_evals,
         params,
     );
+    let batch_mask_eval = if let Some(batch_mask_proof) = &proof.batch_mask_proof {
+        let query_opening = &batch_mask_proof.query_openings[query_round_index];
+        verify_merkle_proof_to_cap::<F, C::Hasher>(
+            flatten(&query_opening.values),
+            x_index,
+            &batch_mask_proof.cap,
+            &query_opening.merkle_proof,
+        )?;
+        Some(eval_batch_mask_at_query_point(
+            query_opening,
+            subgroup_x.into(),
+            params,
+        ))
+    } else {
+        None
+    };
+    let mut old_eval =
+        eval_masked_final_at_query_point::<F, D>(expected_unmasked_final, batch_mask_eval);
 
     for (i, &arity_bits) in params.reduction_arity_bits.iter().enumerate() {
         let arity = 1 << arity_bits;
@@ -235,7 +340,7 @@ fn fri_verifier_query_round<
     // Final check of FRI. After all the reductions, we check that the final polynomial is equal
     // to the one sent by the prover.
     ensure!(
-        proof.final_poly.eval(subgroup_x.into()) == old_eval,
+        eval_final_polys_at_point(&proof.final_polys, subgroup_x.into()) == old_eval,
         "Final polynomial evaluation is invalid."
     );
 
