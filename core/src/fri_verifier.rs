@@ -22,24 +22,7 @@ use crate::hash_types::RichField;
 use crate::merkle_proofs::verify_merkle_proof_to_cap;
 use crate::merkle_tree::MerkleCap;
 use crate::reducing::ReducingFactor;
-use crate::util::{log2_strict, reverse_bits, reverse_index_bits_in_place};
-
-fn cached_point_power<F: RichField + Extendable<D>, const D: usize>(
-    point: F::Extension,
-    power: usize,
-    point_power_cache: &mut Vec<(usize, F::Extension)>,
-) -> F::Extension {
-    if let Some((_, cached_power)) = point_power_cache
-        .iter()
-        .find(|(cached_power, _)| *cached_power == power)
-    {
-        *cached_power
-    } else {
-        let power_value = point.exp_u64(power as u64);
-        point_power_cache.push((power, power_value));
-        power_value
-    }
-}
+use crate::util::{cached_point_power, log2_strict, reverse_bits, reverse_index_bits_in_place};
 
 /// Computes P'(x^arity) from {P(x*g^i)}_(i=0..arity), where g is a `arity`-th root of unity
 /// and P' is the FRI reduced polynomial.
@@ -250,7 +233,7 @@ where
             let coefficient = match &term.coefficient {
                 FriCoefficient::One => F::Extension::ONE,
                 FriCoefficient::PointPower(power) => {
-                    cached_point_power::<F, D>(point, *power, point_power_cache)
+                    cached_point_power(point, *power, point_power_cache)
                 }
                 FriCoefficient::Constant(constant) => *constant,
             };

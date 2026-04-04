@@ -404,10 +404,13 @@ fn z_mask_plan<F: RichField + Extendable<D>, const D: usize>(
 fn quotient_mask_plan<F: RichField + Extendable<D>, const D: usize>(
     common_data: &CommonCircuitData<F, D>,
 ) -> Option<SplitMaskPlan> {
-    let _ = common_data;
+    if let ZkMode::PolyFri(poly_fri) = &common_data.config.zk_config.mode {
+        let _reserved_for_future_use = poly_fri.quotient_mask_degree;
+    }
     // Phase 1 keeps quotient chunks on the raw path so the native verifier's
     // quotient identity remains unchanged while witness-side batches move to
-    // split masking.
+    // split masking. Quotient masking is covered later by the explicit Phase-2
+    // FRI batch mask, so `quotient_mask_degree` is currently a reserved knob.
     None
 }
 

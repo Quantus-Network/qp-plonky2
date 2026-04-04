@@ -38,6 +38,11 @@ pub enum ZkMode {
 pub struct PolyFriZkConfig {
     pub wire_mask_degree: usize,
     pub z_mask_degree: usize,
+    /// Reserved for future quotient-oracle split masking.
+    ///
+    /// Native PolyFri currently leaves quotient chunks on the raw Phase-1 path because their
+    /// opened values are determined by the other disclosed openings. Zero knowledge for that
+    /// contribution comes from the explicit Phase-2 FRI batch mask instead.
     pub quotient_mask_degree: usize,
     pub fri_batch_mask_degree: usize,
 }

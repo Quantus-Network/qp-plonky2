@@ -19,8 +19,8 @@ pub mod timing;
 
 // Re-export utility functions from core
 pub use qp_plonky2_core::util::{
-    assume, branch_hint, log2_ceil, log2_strict, reverse_bits, reverse_index_bits,
-    reverse_index_bits_in_place,
+    assume, branch_hint, cached_point_power, log2_ceil, log2_strict, reverse_bits,
+    reverse_index_bits, reverse_index_bits_in_place,
 };
 
 pub(crate) fn transpose_poly_values<F: Field>(polys: Vec<PolynomialValues<F>>) -> Vec<Vec<F>> {

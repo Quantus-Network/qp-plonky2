@@ -23,7 +23,9 @@ use crate::plonk::config::GenericConfig;
 use crate::timed;
 use crate::util::reducing::ReducingFactor;
 use crate::util::timing::TimingTree;
-use crate::util::{log2_strict, reverse_bits, reverse_index_bits_in_place, transpose};
+use crate::util::{
+    cached_point_power, log2_strict, reverse_bits, reverse_index_bits_in_place, transpose,
+};
 
 /// Four (~64 bit) field elements gives ~128 bit security.
 pub const SALT_SIZE: usize = 4;
@@ -79,23 +81,6 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize> D
 impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
     PolynomialBatch<F, C, D>
 {
-    fn cached_point_power(
-        point: F::Extension,
-        power: usize,
-        point_power_cache: &mut Vec<(usize, F::Extension)>,
-    ) -> F::Extension {
-        if let Some((_, cached_power)) = point_power_cache
-            .iter()
-            .find(|(cached_power, _)| *cached_power == power)
-        {
-            *cached_power
-        } else {
-            let power_value = point.exp_u64(power as u64);
-            point_power_cache.push((power, power_value));
-            power_value
-        }
-    }
-
     fn eval_coefficient(
         coefficient: &FriCoefficient<F, D>,
         point: F::Extension,
@@ -104,7 +89,7 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         match coefficient {
             FriCoefficient::One => F::Extension::ONE,
             FriCoefficient::PointPower(power) => {
-                Self::cached_point_power(point, *power, point_power_cache)
+                cached_point_power(point, *power, point_power_cache)
             }
             FriCoefficient::Constant(constant) => *constant,
         }
@@ -408,8 +393,7 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
             return Self::lde_blinded_values(polynomials, rate_bits, fft_root_table);
             #[cfg(not(feature = "rand"))]
             {
-                assert!(false, "Cannot set blinding without rand feature");
-                [].into()
+                panic!("Cannot set blinding without rand feature");
             }
         } else {
             Self::lde_unblinded_values(polynomials, rate_bits, fft_root_table)

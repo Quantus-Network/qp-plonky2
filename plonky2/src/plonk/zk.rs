@@ -15,24 +15,8 @@ use crate::fri::oracle::PolynomialBatch;
 use crate::hash::hash_types::RichField;
 use crate::plonk::config::GenericConfig;
 use crate::timed;
+use crate::util::cached_point_power;
 use crate::util::timing::TimingTree;
-
-fn cached_point_power<F: Field>(
-    point: F,
-    power: usize,
-    point_power_cache: &mut Vec<(usize, F)>,
-) -> F {
-    if let Some((_, cached_power)) = point_power_cache
-        .iter()
-        .find(|(cached_power, _)| *cached_power == power)
-    {
-        *cached_power
-    } else {
-        let power_value = point.exp_u64(power as u64);
-        point_power_cache.push((power, power_value));
-        power_value
-    }
-}
 
 /// How a logical polynomial is represented inside the raw committed batch.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -256,11 +240,7 @@ pub fn sample_mask_polys<F: RichField>(
     #[cfg(not(feature = "rand"))]
     {
         let _ = (count, mask_degree);
-        assert!(
-            false,
-            "Cannot enable PolyFri split masking without rand feature"
-        );
-        Vec::new()
+        panic!("Cannot enable PolyFri split masking without rand feature");
     }
 }
 

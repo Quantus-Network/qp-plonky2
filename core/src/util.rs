@@ -2,6 +2,10 @@
 //!
 //! Re-exports from plonky2_util for consistency, with additional helper functions.
 
+#[cfg(not(feature = "std"))]
+use alloc::vec::Vec;
+
+use plonky2_field::types::Field;
 pub use plonky2_util::{
     assume, branch_hint, log2_ceil, log2_strict, reverse_index_bits, reverse_index_bits_in_place,
 };
@@ -15,6 +19,24 @@ pub const fn reverse_bits(n: usize, num_bits: usize) -> usize {
     n.reverse_bits()
         .overflowing_shr(usize::BITS - num_bits as u32)
         .0
+}
+
+/// Reuse `point^power` evaluations across multiple opening-expression terms at one point.
+pub fn cached_point_power<F: Field>(
+    point: F,
+    power: usize,
+    point_power_cache: &mut Vec<(usize, F)>,
+) -> F {
+    if let Some((_, cached_power)) = point_power_cache
+        .iter()
+        .find(|(cached_power, _)| *cached_power == power)
+    {
+        *cached_power
+    } else {
+        let power_value = point.exp_u64(power as u64);
+        point_power_cache.push((power, power_value));
+        power_value
+    }
 }
 
 #[cfg(test)]

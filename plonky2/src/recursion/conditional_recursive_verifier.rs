@@ -33,6 +33,11 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         C::Hasher: AlgebraicHasher<F>,
         C::InnerHasher: AlgebraicHasher<F>,
     {
+        assert_eq!(
+            proof_with_pis0.proof.opening_proof.batch_mask_proof.is_some(),
+            proof_with_pis1.proof.opening_proof.batch_mask_proof.is_some(),
+            "Conditional recursion requires both proof targets to agree on FRI batch-mask presence; mixed PolyFri/non-PolyFri proofs cannot share one conditional verifier circuit",
+        );
         let selected_proof =
             self.select_proof_with_pis(condition, proof_with_pis0, proof_with_pis1);
         let selected_verifier_data =
@@ -258,9 +263,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         match (proof0, proof1) {
             (Some(proof0), Some(proof1)) => Some(self.select_batch_mask_proof(b, proof0, proof1)),
             (None, None) => None,
-            _ => {
-                panic!("Conditional recursion requires both proofs to agree on batch-mask presence")
-            }
+            _ => unreachable!("Batch-mask presence is checked before conditional proof selection"),
         }
     }
 
