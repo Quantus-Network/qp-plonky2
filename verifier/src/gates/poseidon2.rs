@@ -172,11 +172,14 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2Gate<F, D> {
     pub const W_IN: usize = 0;
     pub const W_OUT: usize = SPONGE_WIDTH;
 
-    // S-box input wires for external (full) rounds
+    // S-box input wires for external (full) rounds.
+    // Round 0 is elided (no checkpoint needed - state is degree-1), so we only
+    // need wires for rounds 1-7 (7 rounds total).
     pub const W_EXT_SBOX: usize = 2 * SPONGE_WIDTH;
 
     // S-box input wires for internal rounds (lane 0 only)
-    pub const W_INT_SBOX: usize = Self::W_EXT_SBOX + POSEIDON2_EXTERNAL_ROUNDS * SPONGE_WIDTH;
+    // Offset accounts for 7 external rounds (round 0 elided)
+    pub const W_INT_SBOX: usize = Self::W_EXT_SBOX + (POSEIDON2_EXTERNAL_ROUNDS - 1) * SPONGE_WIDTH;
 
     pub const fn wire_input(i: usize) -> usize {
         Self::W_IN + i
@@ -185,11 +188,14 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2Gate<F, D> {
         Self::W_OUT + i
     }
 
+    /// Returns the wire index for an external round S-box checkpoint.
+    /// `round` is the logical round index (1-7), where round 0 is elided.
     #[inline]
     pub const fn wire_ext_sbox(round: usize, lane: usize) -> usize {
-        debug_assert!(round < POSEIDON2_EXTERNAL_ROUNDS);
+        debug_assert!(round > 0 && round < POSEIDON2_EXTERNAL_ROUNDS);
         debug_assert!(lane < SPONGE_WIDTH);
-        Self::W_EXT_SBOX + round * SPONGE_WIDTH + lane
+        // Subtract 1 from round since round 0 has no wires
+        Self::W_EXT_SBOX + (round - 1) * SPONGE_WIDTH + lane
     }
 
     #[inline]
@@ -199,7 +205,7 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2Gate<F, D> {
     }
 
     pub const fn end() -> usize {
-        // 12 in + 12 out + 8*12 external s-box inputs + 22 internal s-box inputs = 142
+        // 12 in + 12 out + 7*12 external s-box inputs (round 0 elided) + 22 internal = 130
         Self::W_INT_SBOX + POSEIDON2_INTERNAL_ROUNDS
     }
     pub fn new() -> Self {
