@@ -9,12 +9,17 @@ use plonky2::iop::target::{BoolTarget, Target};
 use plonky2::iop::witness::{PartialWitness, WitnessWrite};
 use plonky2::plonk::circuit_builder::CircuitBuilder;
 use plonky2::plonk::circuit_data::CircuitConfig;
-use plonky2::plonk::config::{AlgebraicHasher, GenericConfig, PoseidonGoldilocksConfig};
+use plonky2::plonk::config::{
+    AlgebraicHasher, GenericConfig, Poseidon2GoldilocksConfig, PoseidonGoldilocksConfig,
+};
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
 const D: usize = 2;
-type C = PoseidonGoldilocksConfig;
-type F = <C as GenericConfig<D>>::F;
+// Poseidon1 config - uses PoseidonHash for Merkle trees
+type C1 = PoseidonGoldilocksConfig;
+// Poseidon2 config - uses Poseidon2Hash for Merkle trees
+type C2 = Poseidon2GoldilocksConfig;
+type F = <C1 as GenericConfig<D>>::F;
 
 const NUM_PERMS: usize = 100; // Number of permutations to perform in the circuit
 
@@ -44,7 +49,7 @@ fn bench_poseidon_air(c: &mut Criterion) {
         .map(|_| [(); SPONGE_WIDTH].map(|_| builder.add_virtual_target()))
         .collect();
 
-    // Perform permutations
+    // Perform permutations using Poseidon1 gates
     for input_t in input_targets.iter() {
         let perm = <PoseidonHash as AlgebraicHasher<F>>::AlgebraicPermutation::new(
             input_t.iter().cloned(),
@@ -55,7 +60,8 @@ fn bench_poseidon_air(c: &mut Criterion) {
         builder.register_public_inputs(&out.squeeze());
     }
 
-    let data = builder.build::<C>();
+    // Build with Poseidon1 config (uses PoseidonHash for Merkle trees)
+    let data = builder.build::<C1>();
 
     // 2) Build witness ONCE
     let mut base_pw = PartialWitness::new();
@@ -66,7 +72,7 @@ fn bench_poseidon_air(c: &mut Criterion) {
     }
 
     // 3) Pure prover benchmark: only data.prove(...)
-    c.bench_function("poseidon_prove", |b| {
+    c.bench_function("poseidon1_prove", |b| {
         b.iter(|| {
             let pw = base_pw.clone();
             let proof = data.prove(pw).unwrap();
@@ -88,7 +94,7 @@ fn bench_poseidon2_air(c: &mut Criterion) {
         .map(|_| [(); SPONGE_WIDTH].map(|_| builder.add_virtual_target()))
         .collect();
 
-    // Perform permutations
+    // Perform permutations using Poseidon2 gates
     for input_t in input_targets.iter() {
         let perm = <Poseidon2Hash as AlgebraicHasher<F>>::AlgebraicPermutation::new(
             input_t.iter().cloned(),
@@ -99,7 +105,8 @@ fn bench_poseidon2_air(c: &mut Criterion) {
         builder.register_public_inputs(&out.squeeze());
     }
 
-    let data = builder.build::<C>();
+    // Build with Poseidon2 config (uses Poseidon2Hash for Merkle trees)
+    let data = builder.build::<C2>();
 
     // 2) Build witness ONCE
     let mut base_pw = PartialWitness::new();

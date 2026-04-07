@@ -28,7 +28,11 @@ std = [
 [dependencies]
 # Use workspace versions for most deps
 ahash = { workspace = true }
-once_cell = { version = "1.21", default-features = false, features = ["alloc", "race", "critical-section"] }
+once_cell = { version = "1.21", default-features = false, features = [
+  "alloc",
+  "race",
+  "critical-section",
+] }
 critical-section = { version = "1.2", default-features = false }
 anyhow = { workspace = true }
 hashbrown = { workspace = true }
