@@ -348,44 +348,20 @@ pub fn benchmark_function(
         common_data.degree(),
         common_data.degree_bits()
     );
-    match layers {
-        0 => {
-            let (proof, vd, common_data) = &inner;
-            test_serialization(proof, vd, common_data)?;
-        }
-        1 => {
-            let middle = recursive_proof::<F, C, C, D>(&inner, config, None)?;
-            let (proof, vd, common_data) = &middle;
-            info!(
-                "Single recursion {} degree {} = 2^{}",
-                name,
-                common_data.degree(),
-                common_data.degree_bits()
-            );
-            test_serialization(proof, vd, common_data)?;
-        }
-        2 => {
-            let middle = recursive_proof::<F, C, C, D>(&inner, config, None)?;
-            let (_, _, common_data) = &middle;
-            info!(
-                "Single recursion {} degree {} = 2^{}",
-                name,
-                common_data.degree(),
-                common_data.degree_bits()
-            );
-
-            let outer = recursive_proof::<F, C, C, D>(&middle, config, None)?;
-            let (proof, vd, common_data) = &outer;
-            info!(
-                "Double recursion {} degree {} = 2^{}",
-                name,
-                common_data.degree(),
-                common_data.degree_bits()
-            );
-            test_serialization(proof, vd, common_data)?;
-        }
-        _ => return Err(anyhow!("Only 0, 1, or 2 recursion layers are supported")),
+    let mut current = inner;
+    for layer in 1..=layers {
+        current = recursive_proof::<F, C, C, D>(&current, config, None)?;
+        let (_, _, common_data) = &current;
+        info!(
+            "Recursive layer {} {} degree {} = 2^{}",
+            layer,
+            name,
+            common_data.degree(),
+            common_data.degree_bits()
+        );
     }
+    let (proof, vd, common_data) = &current;
+    test_serialization(proof, vd, common_data)?;
 
     Ok(())
 }
@@ -421,14 +397,7 @@ fn main() -> Result<()> {
             config.zk_config.leaf_hiding = true;
             config
         }
-        ZkBenchMode::PolyFri => {
-            if options.layers != 0 {
-                return Err(anyhow!(
-                    "Phase 1 supports PolyFri only on the native prover path; rerun with --layers 0."
-                ));
-            }
-            CircuitConfig::standard_recursion_zk_config()
-        }
+        ZkBenchMode::PolyFri => CircuitConfig::standard_recursion_zk_config(),
     };
     info!("Benchmark zk mode: {:?}", options.zk_mode);
 

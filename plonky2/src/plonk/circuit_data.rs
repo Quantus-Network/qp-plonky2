@@ -665,6 +665,7 @@ mod tests {
     use std::sync::Arc;
 
     use itertools::Itertools;
+    use qp_plonky2_core::ZkMode;
 
     use super::{CircuitConfig, CommonCircuitData};
     use crate::field::types::Field;
@@ -782,5 +783,45 @@ mod tests {
             lookup_effective_degree(true, degree + 1) > common.quotient_degree_factor,
             "raising the masked lookup accumulator degree by one would exceed the quotient degree bound",
         );
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid PolyFri config: `wire_mask_degree`")]
+    fn polyfri_wire_mask_degree_is_validated_up_front() {
+        let mut config = CircuitConfig::standard_recursion_zk_config();
+        if let ZkMode::PolyFri(poly_fri) = &mut config.zk_config.mode {
+            poly_fri.wire_mask_degree = usize::MAX;
+        }
+        let _ = build_common(config);
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid PolyFri config: `fri_batch_mask_degree`")]
+    fn polyfri_batch_mask_degree_is_validated_up_front() {
+        let mut config = CircuitConfig::standard_recursion_zk_config();
+        if let ZkMode::PolyFri(poly_fri) = &mut config.zk_config.mode {
+            poly_fri.fri_batch_mask_degree = usize::MAX;
+        }
+        let _ = build_common(config);
+    }
+
+    #[test]
+    #[should_panic(
+        expected = "Invalid PolyFri config: `max_quotient_degree_factor` must be at least 2"
+    )]
+    fn polyfri_permutation_budget_is_validated_up_front() {
+        let mut config = CircuitConfig::standard_recursion_zk_config();
+        config.max_quotient_degree_factor = 1;
+        let _ = build_common(config);
+    }
+
+    #[test]
+    #[should_panic(
+        expected = "Invalid PolyFri config: `max_quotient_degree_factor` must be at least 3 when lookups are enabled"
+    )]
+    fn polyfri_lookup_budget_is_validated_up_front() {
+        let mut config = CircuitConfig::standard_recursion_zk_config();
+        config.max_quotient_degree_factor = 2;
+        let _ = build_lookup_common(config);
     }
 }

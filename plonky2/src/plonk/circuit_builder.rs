@@ -862,6 +862,18 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             };
         }
 
+        let batch_mask_chunk_degree = match fri_params.batch_mask_layout() {
+            FriFinalPolyLayout::Single => 1 << fri_params.degree_bits,
+            FriFinalPolyLayout::Split {
+                chunk_degree_bits, ..
+            } => 1 << chunk_degree_bits,
+        };
+        self.config.validate_poly_fri_params(
+            1 << degree_bits,
+            batch_mask_chunk_degree,
+            self.num_luts() != 0,
+        );
+
         fri_params
     }
 

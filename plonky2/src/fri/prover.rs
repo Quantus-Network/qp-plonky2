@@ -275,7 +275,7 @@ fn fri_committed_trees<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>,
     let mut trees = Vec::with_capacity(fri_params.reduction_arity_bits.len());
 
     let mut shift = F::MULTIPLICATIVE_GROUP_GENERATOR;
-    for arity_bits in &fri_params.reduction_arity_bits {
+    for (step, arity_bits) in fri_params.reduction_arity_bits.iter().enumerate() {
         let arity = 1 << arity_bits;
 
         reverse_index_bits_in_place(&mut values.values);
@@ -298,6 +298,9 @@ fn fri_committed_trees<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>,
                 .map(|chunk| reduce_with_powers(chunk, beta))
                 .collect::<Vec<_>>(),
         );
+        if step + 1 == fri_params.reduction_arity_bits.len() {
+            continue;
+        }
         shift = shift.exp_u64(arity as u64);
         values = coeffs.coset_fft(shift.into())
     }

@@ -43,7 +43,10 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         let g = F::primitive_root_of_unity(arity_bits);
         let g_inv = g.exp_u64((arity as u64) - 1);
 
-        // The evaluation vector needs to be reordered first.
+        // Commit-phase leaves are stored in bit-reversed order, so first undo that permutation.
+        // Then recover the actual start of this queried coset: the opened chunk may begin at
+        // `x * g^j`, while interpolation expects the values ordered over `{coset_start, coset_start *
+        // g, coset_start * g^2, ...}`.
         let mut evals = evals.to_vec();
         reverse_index_bits_in_place(&mut evals);
         // Want `g^(arity - rev_x_index_within_coset)` as in the out-of-circuit version. Compute it

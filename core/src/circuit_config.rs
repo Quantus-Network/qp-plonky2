@@ -48,6 +48,18 @@ pub struct PolyFriZkConfig {
 }
 
 impl PolyFriZkConfig {
+    fn assert_degree_fits(
+        knob_name: &str,
+        mask_degree: usize,
+        split_degree: usize,
+        split_name: &str,
+    ) {
+        assert!(
+            mask_degree < split_degree,
+            "Invalid PolyFri config: `{knob_name}` must be less than the {split_name} ({split_degree}), got {mask_degree}",
+        );
+    }
+
     pub const fn standard_recursion() -> Self {
         Self {
             // Phase 1 masks only the explicit PLONK opening points. Wires and quotient chunks are
@@ -156,5 +168,55 @@ impl CircuitConfig {
 
     pub const fn uses_leaf_hiding(&self) -> bool {
         self.zk_config.leaf_hiding
+    }
+
+    /// Validate PolyFri-specific degree knobs once the builder knows the concrete trace/FRI sizes.
+    pub fn validate_poly_fri_params(
+        &self,
+        trace_degree: usize,
+        batch_mask_chunk_degree: usize,
+        has_lookup: bool,
+    ) {
+        let ZkMode::PolyFri(poly_fri) = &self.zk_config.mode else {
+            return;
+        };
+
+        PolyFriZkConfig::assert_degree_fits(
+            "wire_mask_degree",
+            poly_fri.wire_mask_degree,
+            trace_degree,
+            "trace degree",
+        );
+        PolyFriZkConfig::assert_degree_fits(
+            "z_mask_degree",
+            poly_fri.z_mask_degree,
+            trace_degree,
+            "trace degree",
+        );
+        PolyFriZkConfig::assert_degree_fits(
+            "quotient_mask_degree",
+            poly_fri.quotient_mask_degree,
+            trace_degree,
+            "trace degree",
+        );
+        PolyFriZkConfig::assert_degree_fits(
+            "fri_batch_mask_degree",
+            poly_fri.fri_batch_mask_degree,
+            batch_mask_chunk_degree,
+            "FRI batch-mask chunk degree",
+        );
+
+        assert!(
+            self.max_quotient_degree_factor >= 2,
+            "Invalid PolyFri config: `max_quotient_degree_factor` must be at least 2 so masked permutation chunks retain positive degree, got {}",
+            self.max_quotient_degree_factor,
+        );
+        if has_lookup {
+            assert!(
+                self.max_quotient_degree_factor >= 3,
+                "Invalid PolyFri config: `max_quotient_degree_factor` must be at least 3 when lookups are enabled so masked lookup accumulators retain positive degree, got {}",
+                self.max_quotient_degree_factor,
+            );
+        }
     }
 }

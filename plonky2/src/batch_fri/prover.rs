@@ -104,7 +104,7 @@ pub(crate) fn batch_fri_committed_trees<
     let mut shift = F::MULTIPLICATIVE_GROUP_GENERATOR;
     let mut polynomial_index = 1;
     let mut final_values = values[0].clone();
-    for arity_bits in &fri_params.reduction_arity_bits {
+    for (step, arity_bits) in fri_params.reduction_arity_bits.iter().enumerate() {
         let arity = 1 << arity_bits;
 
         reverse_index_bits_in_place(&mut final_values.values);
@@ -124,6 +124,9 @@ pub(crate) fn batch_fri_committed_trees<
                 .map(|chunk| reduce_with_powers(chunk, beta))
                 .collect::<Vec<_>>(),
         );
+        if step + 1 == fri_params.reduction_arity_bits.len() {
+            continue;
+        }
         shift = shift.exp_u64(arity as u64);
         final_values = final_coeffs.coset_fft(shift.into());
         if polynomial_index != values.len() && final_values.len() == values[polynomial_index].len()
