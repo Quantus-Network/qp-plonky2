@@ -85,7 +85,7 @@ struct Options {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum ZkBenchMode {
     Disabled,
-    LeafHiding,
+    RowBlinding,
     PolyFri,
 }
 
@@ -392,12 +392,8 @@ fn main() -> Result<()> {
 
     let config = match options.zk_mode {
         ZkBenchMode::Disabled => CircuitConfig::standard_recursion_config(),
-        ZkBenchMode::LeafHiding => {
-            let mut config = CircuitConfig::standard_recursion_config();
-            config.zk_config.leaf_hiding = true;
-            config
-        }
-        ZkBenchMode::PolyFri => CircuitConfig::standard_recursion_zk_config(),
+        ZkBenchMode::RowBlinding => CircuitConfig::standard_recursion_zk_config(),
+        ZkBenchMode::PolyFri => CircuitConfig::standard_recursion_polyfri_zk_config(),
     };
     info!("Benchmark zk mode: {:?}", options.zk_mode);
 
@@ -457,10 +453,10 @@ fn parse_range_usize(src: &str) -> Result<RangeInclusive<usize>, ParseIntError> 
 fn parse_zk_bench_mode(src: &str) -> Result<ZkBenchMode> {
     match src {
         "disabled" => Ok(ZkBenchMode::Disabled),
-        "leaf-hiding" => Ok(ZkBenchMode::LeafHiding),
+        "row-blinding" | "leaf-hiding" => Ok(ZkBenchMode::RowBlinding),
         "polyfri" => Ok(ZkBenchMode::PolyFri),
         _ => Err(anyhow!(
-            "invalid zk mode `{src}`; expected one of: disabled, leaf-hiding, polyfri"
+            "invalid zk mode `{src}`; expected one of: disabled, row-blinding, polyfri"
         )),
     }
 }

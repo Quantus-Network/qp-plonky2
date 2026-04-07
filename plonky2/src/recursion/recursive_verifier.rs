@@ -258,12 +258,29 @@ mod tests {
 
     #[test]
     #[cfg(feature = "rand")]
-    fn test_recursive_verifier_one_lookup_polyfri() -> Result<()> {
+    fn test_recursive_verifier_one_lookup_row_blinding() -> Result<()> {
         init_logger();
         const D: usize = 2;
         type C = PoseidonGoldilocksConfig;
         type F = <C as GenericConfig<D>>::F;
         let config = CircuitConfig::standard_recursion_zk_config();
+
+        let (proof, vd, common_data) = dummy_lookup_proof::<F, C, D>(&config, 10)?;
+        let (proof, vd, common_data) =
+            recursive_proof::<F, C, C, D>(proof, vd, common_data, &config, None, true, true)?;
+        test_serialization(&proof, &vd, &common_data)?;
+
+        Ok(())
+    }
+
+    #[test]
+    #[cfg(feature = "rand")]
+    fn test_recursive_verifier_one_lookup_polyfri() -> Result<()> {
+        init_logger();
+        const D: usize = 2;
+        type C = PoseidonGoldilocksConfig;
+        type F = <C as GenericConfig<D>>::F;
+        let config = CircuitConfig::standard_recursion_polyfri_zk_config();
 
         let (proof, vd, common_data) = dummy_lookup_proof::<F, C, D>(&config, 10)?;
         let (proof, vd, common_data) =

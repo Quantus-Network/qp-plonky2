@@ -686,6 +686,7 @@ pub trait Read {
         let mode = match self.read_u8()? {
             0 => ZkMode::Disabled,
             1 => ZkMode::PolyFri(self.read_poly_fri_zk_config()?),
+            2 => ZkMode::RowBlinding,
             _ => return Err(IoError),
         };
         let leaf_hiding = self.read_bool()?;
@@ -1868,6 +1869,7 @@ pub trait Write {
                 self.write_u8(1)?;
                 self.write_poly_fri_zk_config(config)?;
             }
+            ZkMode::RowBlinding => self.write_u8(2)?,
         }
         self.write_bool(zk_config.leaf_hiding)?;
 

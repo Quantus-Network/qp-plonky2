@@ -21,19 +21,34 @@ impl ZkConfig {
             leaf_hiding: false,
         }
     }
+
+    pub const fn row_blinding() -> Self {
+        Self {
+            mode: ZkMode::RowBlinding,
+            leaf_hiding: true,
+        }
+    }
+
+    pub const fn poly_fri(poly_fri: PolyFriZkConfig) -> Self {
+        Self {
+            mode: ZkMode::PolyFri(poly_fri),
+            leaf_hiding: true,
+        }
+    }
 }
 
 /// Supported zero-knowledge modes.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub enum ZkMode {
     Disabled,
+    RowBlinding,
     PolyFri(PolyFriZkConfig),
 }
 
 /// Poly/FRI split-mask tuning knobs.
 ///
-/// These degrees control the prover-side masking polynomials. They replace builder-side row
-/// blinding so proof generation keeps the native trace degree unchanged.
+/// These degrees control the prover-side masking polynomials. Unlike row blinding, they keep the
+/// native trace degree unchanged and move zero-knowledge masking into the oracle commitments.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct PolyFriZkConfig {
     pub wire_mask_degree: usize,
@@ -97,8 +112,9 @@ pub struct CircuitConfig {
     /// The number of challenge points to generate, for IOPs that have soundness errors of (roughly)
     /// `degree / |F|`.
     pub num_challenges: usize,
-    /// Zero-knowledge controls. `Disabled` reproduces the historical no-zk mode, while `PolyFri`
-    /// enables the split-mask prover design without reintroducing builder-side blinding rows.
+    /// Zero-knowledge controls. `Disabled` reproduces the historical no-zk mode, `RowBlinding`
+    /// restores the legacy builder-side blinding strategy, and `PolyFri` enables the split-mask
+    /// prover design.
     pub zk_config: ZkConfig,
     /// A cap on the quotient polynomial's degree factor. The actual degree factor is derived
     /// systematically, but will never exceed this value.
@@ -152,18 +168,30 @@ impl CircuitConfig {
         }
     }
 
-    pub fn standard_recursion_zk_config() -> Self {
-        CircuitConfig {
-            zk_config: ZkConfig {
-                mode: ZkMode::PolyFri(PolyFriZkConfig::standard_recursion()),
-                leaf_hiding: true,
-            },
+    pub fn standard_recursion_row_blinding_zk_config() -> Self {
+        Self {
+            zk_config: ZkConfig::row_blinding(),
             ..Self::standard_recursion_config()
         }
     }
 
-    pub fn uses_poly_fri_zk(&self) -> bool {
+    pub fn standard_recursion_zk_config() -> Self {
+        Self::standard_recursion_row_blinding_zk_config()
+    }
+
+    pub fn standard_recursion_polyfri_zk_config() -> Self {
+        Self {
+            zk_config: ZkConfig::poly_fri(PolyFriZkConfig::standard_recursion()),
+            ..Self::standard_recursion_config()
+        }
+    }
+
+    pub const fn uses_poly_fri_zk(&self) -> bool {
         matches!(&self.zk_config.mode, ZkMode::PolyFri(_))
+    }
+
+    pub const fn uses_row_blinding_zk(&self) -> bool {
+        matches!(&self.zk_config.mode, ZkMode::RowBlinding)
     }
 
     pub const fn uses_leaf_hiding(&self) -> bool {
@@ -218,5 +246,31 @@ impl CircuitConfig {
                 self.max_quotient_degree_factor,
             );
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{CircuitConfig, ZkMode};
+
+    #[test]
+    fn standard_helpers_select_expected_zk_modes() {
+        let disabled = CircuitConfig::standard_recursion_config();
+        assert_eq!(disabled.zk_config.mode, ZkMode::Disabled);
+        assert!(!disabled.uses_leaf_hiding());
+        assert!(!disabled.uses_row_blinding_zk());
+        assert!(!disabled.uses_poly_fri_zk());
+
+        let row_blinding = CircuitConfig::standard_recursion_zk_config();
+        assert_eq!(row_blinding.zk_config.mode, ZkMode::RowBlinding);
+        assert!(row_blinding.uses_leaf_hiding());
+        assert!(row_blinding.uses_row_blinding_zk());
+        assert!(!row_blinding.uses_poly_fri_zk());
+
+        let polyfri = CircuitConfig::standard_recursion_polyfri_zk_config();
+        assert!(matches!(polyfri.zk_config.mode, ZkMode::PolyFri(_)));
+        assert!(polyfri.uses_leaf_hiding());
+        assert!(!polyfri.uses_row_blinding_zk());
+        assert!(polyfri.uses_poly_fri_zk());
     }
 }

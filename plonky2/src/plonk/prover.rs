@@ -382,6 +382,7 @@ fn split_mask_plan_from_mode<F: RichField + Extendable<D>, const D: usize>(
 ) -> Option<SplitMaskPlan> {
     match &common_data.config.zk_config.mode {
         ZkMode::Disabled => None,
+        ZkMode::RowBlinding => None,
         ZkMode::PolyFri(poly_fri) => Some(SplitMaskPlan {
             split_power: common_data.degree(),
             mask_degree: select_degree(poly_fri),

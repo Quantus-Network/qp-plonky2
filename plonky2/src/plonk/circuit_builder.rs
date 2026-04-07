@@ -8,6 +8,8 @@ use std::{collections::BTreeMap, sync::Arc};
 
 use hashbrown::{HashMap, HashSet};
 use itertools::Itertools;
+#[cfg(feature = "rand")]
+use log::info;
 use log::{debug, warn, Level};
 use qp_plonky2_core::circuit_config::ZkMode;
 #[cfg(feature = "timing")]
@@ -891,22 +893,123 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         ArithmeticExtensionGate::<D>::new_from_config(&self.config).num_ops
     }
 
+    /// The number of polynomial values that will be revealed per opening, both for the "regular"
+    /// polynomials and for the Z polynomials. Because calculating these values involves a recursive
+    /// dependence (the amount of blinding depends on the degree, which depends on the blinding),
+    /// this function takes in an estimate of the degree.
+    fn num_blinding_gates(&self, degree_estimate: usize) -> (usize, usize) {
+        let degree_bits_estimate = log2_strict(degree_estimate);
+        let fri_queries = self.config.fri_config.num_query_rounds;
+        let arities: Vec<usize> = self
+            .fri_params(degree_bits_estimate)
+            .reduction_arity_bits
+            .iter()
+            .map(|x| 1 << x)
+            .collect();
+        let total_fri_folding_points: usize = arities.iter().map(|x| x - 1).sum::<usize>();
+        let final_poly_coeffs: usize = degree_estimate / arities.iter().product::<usize>();
+        let fri_openings = fri_queries * (1 + D * total_fri_folding_points + D * final_poly_coeffs);
+
+        // We add D for openings at zeta.
+        let regular_poly_openings = D + fri_openings;
+        // We add 2 * D for openings at zeta and g * zeta.
+        let z_openings = 2 * D + fri_openings;
+
+        (regular_poly_openings, z_openings)
+    }
+
+    /// The number of polynomial values that will be revealed per opening, both for the "regular"
+    /// polynomials (which are opened at only one location) and for the Z polynomials (which are
+    /// opened at two).
+    fn blinding_counts(&self) -> (usize, usize) {
+        let num_gates = self.gate_instances.len();
+        let mut degree_estimate = 1 << log2_ceil(num_gates);
+
+        loop {
+            let (regular_poly_openings, z_openings) = self.num_blinding_gates(degree_estimate);
+
+            // For most polynomials, we add one random element to offset each opened value.
+            // But blinding Z is separate. For that, we add two random elements with a copy
+            // constraint between them.
+            let total_blinding_count = regular_poly_openings + 2 * z_openings;
+
+            if num_gates + total_blinding_count <= degree_estimate {
+                return (regular_poly_openings, z_openings);
+            }
+
+            // The blinding gates do not fit within our estimated degree; increase our estimate.
+            degree_estimate *= 2;
+        }
+    }
+
     /// Pad the witness trace to the next power of two without adding any zero-knowledge rows.
-    ///
-    /// Poly/FRI masking happens after witness generation, so the builder's only degree-management
-    /// responsibility is preserving the power-of-two trace size expected by the downstream FFT/FRI
-    /// code.
     fn pad_to_power_of_two(&mut self) {
         while !self.gate_instances.len().is_power_of_two() {
             self.add_gate(NoopGate, vec![]);
         }
     }
 
+    #[cfg(feature = "rand")]
+    fn blind(&mut self) {
+        let (regular_poly_openings, z_openings) = self.blinding_counts();
+        info!(
+            "Adding {} blinding terms for witness polynomials, and {}*2 for Z polynomials",
+            regular_poly_openings, z_openings
+        );
+
+        let num_routed_wires = self.config.num_routed_wires;
+        let num_wires = self.config.num_wires;
+
+        // For each "regular" blinding factor, we simply add a no-op gate, and insert a random
+        // value for each wire.
+        for _ in 0..regular_poly_openings {
+            let row = self.add_gate(NoopGate, vec![]);
+            for w in 0..num_wires {
+                self.add_simple_generator(RandomValueGenerator {
+                    target: Target::Wire(Wire { row, column: w }),
+                });
+            }
+        }
+
+        // For each Z-polynomial blinding factor, we add two new gates with the same random value,
+        // and enforce a copy constraint between them.
+        // See https://mirprotocol.org/blog/Adding-zero-knowledge-to-Plonk-Halo
+        for _ in 0..z_openings {
+            let gate_1 = self.add_gate(NoopGate, vec![]);
+            let gate_2 = self.add_gate(NoopGate, vec![]);
+
+            for w in 0..num_routed_wires {
+                self.add_simple_generator(RandomValueGenerator {
+                    target: Target::Wire(Wire {
+                        row: gate_1,
+                        column: w,
+                    }),
+                });
+                self.generate_copy(
+                    Target::Wire(Wire {
+                        row: gate_1,
+                        column: w,
+                    }),
+                    Target::Wire(Wire {
+                        row: gate_2,
+                        column: w,
+                    }),
+                );
+            }
+        }
+    }
+
     fn finalize_degree(&mut self) {
         match &self.config.zk_config.mode {
-            // Phase 1 keeps the trace degree stable in both supported modes by moving all masking to
-            // polynomial commitments instead of appending witness rows.
-            _ => self.pad_to_power_of_two(),
+            ZkMode::Disabled | ZkMode::PolyFri(_) => self.pad_to_power_of_two(),
+            ZkMode::RowBlinding => {
+                #[cfg(feature = "rand")]
+                self.blind();
+                #[cfg(not(feature = "rand"))]
+                assert!(false, "Cannot use RowBlinding without rand feature");
+
+                self.pad_to_power_of_two();
+            }
         }
     }
 

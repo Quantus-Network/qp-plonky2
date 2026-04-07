@@ -667,8 +667,9 @@ mod tests {
     use itertools::Itertools;
     use qp_plonky2_core::ZkMode;
 
-    use super::{CircuitConfig, CommonCircuitData};
+    use super::{CircuitConfig, CommonCircuitData, FriOracleRepresentation};
     use crate::field::types::Field;
+    use crate::fri::FriFinalPolyLayout;
     use crate::gates::lookup::LookupGate;
     use crate::gates::lookup_table::LookupTable;
     use crate::gates::noop::NoopGate;
@@ -725,7 +726,7 @@ mod tests {
 
     #[test]
     fn permutation_partial_product_degree_polyfri_boundary() {
-        let common = build_common(CircuitConfig::standard_recursion_zk_config());
+        let common = build_common(CircuitConfig::standard_recursion_polyfri_zk_config());
         let degree = common.permutation_partial_product_degree();
 
         assert_eq!(degree, common.quotient_degree_factor - 1);
@@ -766,7 +767,7 @@ mod tests {
 
     #[test]
     fn lookup_accumulator_degree_polyfri_boundary() {
-        let common = build_lookup_common(CircuitConfig::standard_recursion_zk_config());
+        let common = build_lookup_common(CircuitConfig::standard_recursion_polyfri_zk_config());
         let degree = common.lookup_accumulator_degree();
 
         assert!(common.num_lookup_polys > 0);
@@ -788,7 +789,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "Invalid PolyFri config: `wire_mask_degree`")]
     fn polyfri_wire_mask_degree_is_validated_up_front() {
-        let mut config = CircuitConfig::standard_recursion_zk_config();
+        let mut config = CircuitConfig::standard_recursion_polyfri_zk_config();
         if let ZkMode::PolyFri(poly_fri) = &mut config.zk_config.mode {
             poly_fri.wire_mask_degree = usize::MAX;
         }
@@ -798,7 +799,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "Invalid PolyFri config: `fri_batch_mask_degree`")]
     fn polyfri_batch_mask_degree_is_validated_up_front() {
-        let mut config = CircuitConfig::standard_recursion_zk_config();
+        let mut config = CircuitConfig::standard_recursion_polyfri_zk_config();
         if let ZkMode::PolyFri(poly_fri) = &mut config.zk_config.mode {
             poly_fri.fri_batch_mask_degree = usize::MAX;
         }
@@ -810,7 +811,7 @@ mod tests {
         expected = "Invalid PolyFri config: `max_quotient_degree_factor` must be at least 2"
     )]
     fn polyfri_permutation_budget_is_validated_up_front() {
-        let mut config = CircuitConfig::standard_recursion_zk_config();
+        let mut config = CircuitConfig::standard_recursion_polyfri_zk_config();
         config.max_quotient_degree_factor = 1;
         let _ = build_common(config);
     }
@@ -820,8 +821,63 @@ mod tests {
         expected = "Invalid PolyFri config: `max_quotient_degree_factor` must be at least 3 when lookups are enabled"
     )]
     fn polyfri_lookup_budget_is_validated_up_front() {
-        let mut config = CircuitConfig::standard_recursion_zk_config();
+        let mut config = CircuitConfig::standard_recursion_polyfri_zk_config();
         config.max_quotient_degree_factor = 2;
         let _ = build_lookup_common(config);
+    }
+
+    #[test]
+    fn row_blinding_uses_legacy_degree_budgets() {
+        let common = build_lookup_common(CircuitConfig::standard_recursion_zk_config());
+
+        assert_eq!(
+            common.permutation_partial_product_degree(),
+            common.quotient_degree_factor
+        );
+        assert_eq!(
+            common.lookup_accumulator_degree(),
+            common.quotient_degree_factor - 1
+        );
+    }
+
+    #[test]
+    fn row_blinding_keeps_raw_layouts_but_adds_builder_rows() {
+        let disabled = build_common(CircuitConfig::standard_recursion_config());
+        let row_blinding = build_common(CircuitConfig::standard_recursion_zk_config());
+        let polyfri = build_common(CircuitConfig::standard_recursion_polyfri_zk_config());
+
+        assert_eq!(disabled.degree(), polyfri.degree());
+        assert!(
+            row_blinding.degree() > disabled.degree(),
+            "legacy row blinding should append witness rows before final padding",
+        );
+
+        assert_eq!(
+            row_blinding.fri_oracle_layouts[1].representation,
+            FriOracleRepresentation::Raw,
+        );
+        assert_eq!(
+            row_blinding.fri_oracle_layouts[2].representation,
+            FriOracleRepresentation::Raw,
+        );
+        assert_eq!(row_blinding.fri_params.batch_masking, None);
+        assert_eq!(
+            row_blinding.fri_params.final_poly_layout,
+            FriFinalPolyLayout::Single
+        );
+
+        assert!(matches!(
+            polyfri.fri_oracle_layouts[1].representation,
+            FriOracleRepresentation::SplitMask { .. }
+        ));
+        assert!(matches!(
+            polyfri.fri_oracle_layouts[2].representation,
+            FriOracleRepresentation::SplitMask { .. }
+        ));
+        assert!(polyfri.fri_params.batch_masking.is_some());
+        assert!(matches!(
+            polyfri.fri_params.final_poly_layout,
+            FriFinalPolyLayout::Split { .. }
+        ));
     }
 }

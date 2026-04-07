@@ -472,6 +472,9 @@ impl<F: RichField + Extendable<D>, H: Hasher<F>, const D: usize> CompressedFriPr
 
 #[cfg(test)]
 mod tests {
+    #[cfg(not(feature = "std"))]
+    use alloc::vec;
+
     use super::{eval_final_polys_at_point, FriFinalPolys};
     use crate::field::extension::{Extendable, FieldExtension};
     use crate::field::goldilocks_field::GoldilocksField;
