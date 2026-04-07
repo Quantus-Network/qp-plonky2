@@ -766,6 +766,7 @@ dependencies = [
  "ahash",
  "anyhow",
  "criterion",
+ "critical-section",
  "env_logger",
  "getrandom",
  "hashbrown",

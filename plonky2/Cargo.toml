@@ -39,7 +39,8 @@ rand = ["plonky2-field/rand", "qp-plonky2-core/rand"]
 [dependencies]
 ahash = { workspace = true }
 anyhow = { workspace = true }
-once_cell = { version = "1.21", default-features = false, features = ["alloc", "race"] }
+once_cell = { version = "1.21", default-features = false, features = ["alloc", "race", "critical-section"] }
+critical-section = { version = "1.2", default-features = false, features = ["std"] }
 hashbrown = { workspace = true }
 itertools = { workspace = true }
 keccak-hash = { version = "0.8.0", default-features = false }

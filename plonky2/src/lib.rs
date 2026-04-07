@@ -7,6 +7,8 @@
 #[cfg(not(feature = "std"))]
 pub extern crate alloc;
 
+/// Re-export Poseidon2 config from plonk module
+pub use crate::plonk::config::Poseidon2GoldilocksConfig;
 /// Re-export of `plonky2_field`.
 #[doc(inline)]
 pub use plonky2_field as field;
