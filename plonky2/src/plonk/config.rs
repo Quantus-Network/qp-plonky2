@@ -8,12 +8,11 @@
 
 use plonky2_field::extension::quadratic::QuadraticExtension;
 use plonky2_field::goldilocks_field::GoldilocksField;
-use serde::Serialize;
-
 // Re-export core config types - these are the canonical definitions
 pub use qp_plonky2_core::config::{
     GenericConfig, GenericHashOut, Hasher, KeccakGoldilocksConfig, PoseidonGoldilocksConfig,
 };
+use serde::Serialize;
 
 use crate::field::extension::Extendable;
 use crate::hash::hash_types::{HashOut, RichField};
