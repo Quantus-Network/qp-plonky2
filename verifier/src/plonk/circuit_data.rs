@@ -183,6 +183,27 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
         self.quotient_degree_factor * self.degree()
     }
 
+    /// PolyFri masks the permutation accumulator family, so the partial-product chunk size drops
+    /// by one to keep the masked accumulator checks within the existing quotient degree bound.
+    pub fn permutation_partial_product_degree(&self) -> usize {
+        if self.config.uses_poly_fri_zk() {
+            self.quotient_degree_factor - 1
+        } else {
+            self.quotient_degree_factor
+        }
+    }
+
+    /// Lookup running-sum accumulators already consume one degree in the filtered constraints.
+    /// PolyFri masking adds one more effective degree, so their chunk size drops by one more to
+    /// stay within the unchanged quotient bound.
+    pub fn lookup_accumulator_degree(&self) -> usize {
+        if self.config.uses_poly_fri_zk() {
+            self.quotient_degree_factor - 2
+        } else {
+            self.quotient_degree_factor - 1
+        }
+    }
+
     /// Range of the constants polynomials in the `constants_sigmas_commitment`.
     pub const fn constants_range(&self) -> Range<usize> {
         0..self.num_constants

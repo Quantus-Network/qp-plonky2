@@ -211,6 +211,92 @@ fn test_one_lookup_polyfri() -> anyhow::Result<()> {
     Ok(())
 }
 
+/// Test that PolyFri proofs can be serialized, deserialized, and verified using the
+/// standalone verifier crate (same path as on-chain verification).
+#[cfg(feature = "rand")]
+#[test]
+fn test_polyfri_proof_serialization_roundtrip() -> anyhow::Result<()> {
+    // Use prover crate's serializer for serialization
+    // Use the standalone verifier crate types - this is the same code path as on-chain verification
+    use plonky2_verifier::plonk::circuit_data::{CommonCircuitData, VerifierCircuitData};
+    use plonky2_verifier::plonk::proof::ProofWithPublicInputs;
+    use plonky2_verifier::util::serialization::DefaultGateSerializer as VerifierGateSerializer;
+
+    use crate::util::serialization::DefaultGateSerializer as ProverGateSerializer;
+
+    init_logger();
+
+    let tip5_table = TIP5_TABLE.to_vec();
+    let table: LookupTable = Arc::new((0..256).zip_eq(tip5_table).collect());
+    let config = CircuitConfig::standard_recursion_polyfri_zk_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+
+    let initial_a = builder.add_virtual_target();
+    let initial_b = builder.add_virtual_target();
+
+    let table_index = builder.add_lookup_table_from_pairs(table);
+    let output_a = builder.add_lookup_from_index(initial_a, table_index);
+    let output_b = builder.add_lookup_from_index(initial_b, table_index);
+
+    builder.register_public_input(initial_a);
+    builder.register_public_input(initial_b);
+    builder.register_public_input(output_a);
+    builder.register_public_input(output_b);
+
+    let mut pw = PartialWitness::new();
+    pw.set_target(initial_a, F::from_canonical_usize(1))?;
+    pw.set_target(initial_b, F::from_canonical_usize(2))?;
+
+    let data = builder.build::<C>();
+    let mut timing = TimingTree::new("prove polyfri serialization roundtrip", Level::Debug);
+    let proof = prove(&data.prover_only, &data.common, pw, &mut timing)?;
+    timing.print();
+
+    // Verify directly first (using prover crate's verify)
+    data.verify(proof.clone())?;
+
+    // Serialize common data using prover's serializer
+    let prover_gate_serializer = ProverGateSerializer;
+    let common_bytes = data
+        .common
+        .to_bytes(&prover_gate_serializer)
+        .expect("serialize common");
+
+    // Serialize verifier data
+    let verifier_bytes = data.verifier_only.to_bytes().expect("serialize verifier");
+
+    // Serialize proof
+    let proof_bytes = proof.to_bytes();
+
+    // Deserialize using the VERIFIER CRATE types (not prover crate)
+    // This is the same code path used by on-chain verification
+    let verifier_gate_serializer = VerifierGateSerializer;
+    let common_deserialized =
+        CommonCircuitData::<F, D>::from_bytes(common_bytes, &verifier_gate_serializer)
+            .expect("deserialize common");
+
+    // Deserialize verifier data using verifier crate
+    let verifier_deserialized = plonky2_verifier::plonk::circuit_data::VerifierOnlyCircuitData::<
+        C,
+        D,
+    >::from_bytes(verifier_bytes)
+    .expect("deserialize verifier");
+
+    // Deserialize proof using verifier crate
+    let proof_deserialized =
+        ProofWithPublicInputs::<F, C, D>::from_bytes(proof_bytes, &common_deserialized)
+            .expect("deserialize proof");
+
+    // Verify with verifier crate's VerifierCircuitData - this exercises the verifier's vanishing_poly.rs
+    let verifier_data = VerifierCircuitData {
+        verifier_only: verifier_deserialized,
+        common: common_deserialized,
+    };
+    verifier_data.verify(proof_deserialized)?;
+
+    Ok(())
+}
+
 #[cfg(feature = "rand")]
 #[test]
 fn test_one_lookup_polyfri_batch_mask_cap_tamper_fails() -> anyhow::Result<()> {
