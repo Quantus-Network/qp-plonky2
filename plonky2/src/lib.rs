@@ -19,6 +19,9 @@ pub use plonky2_verifier::{
     VerifierOnlyCircuitData, C, D, F,
 };
 
+/// Re-export Poseidon2 config from plonk module
+pub use crate::plonk::config::Poseidon2GoldilocksConfig;
+
 pub mod batch_fri;
 pub mod fri;
 pub mod gadgets;

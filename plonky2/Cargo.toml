@@ -1,7 +1,7 @@
 [package]
 name = "qp-plonky2"
 description = "Recursive SNARKs based on PLONK and FRI"
-version = "1.1.6"
+version = "1.3.0"
 authors = [
   "Daniel Lubarov <daniel@lubarov.com>",
   "William Borgeaud <williamborgeaud@gmail.com>",
@@ -39,6 +39,14 @@ rand = ["plonky2-field/rand", "qp-plonky2-core/rand"]
 [dependencies]
 ahash = { workspace = true }
 anyhow = { workspace = true }
+once_cell = { version = "1.21", default-features = false, features = [
+  "alloc",
+  "race",
+  "critical-section",
+] }
+critical-section = { version = "1.2", default-features = false, features = [
+  "std",
+] }
 hashbrown = { workspace = true }
 itertools = { workspace = true }
 keccak-hash = { version = "0.8.0", default-features = false }
@@ -57,11 +65,11 @@ web-time = { version = "1.0.0", optional = true }
 qp-poseidon-constants = { version = "1.0" }
 
 # Local dependencies
-plonky2-field = { package = "qp-plonky2-field", version = "1.1.6", path = "../field", default-features = false }
-plonky2-verifier = { package = "qp-plonky2-verifier", version = "1.1.6", path = "../verifier", default-features = false }
+plonky2-field = { package = "qp-plonky2-field", version = "1.3.0", path = "../field", default-features = false }
+plonky2-verifier = { package = "qp-plonky2-verifier", version = "1.3.0", path = "../verifier", default-features = false }
 plonky2_maybe_rayon = { version = "1.0.0", path = "../maybe_rayon", default-features = false }
 plonky2_util = { version = "1.0.0", path = "../util", default-features = false }
-qp-plonky2-core = { version = "1.1.6", path = "../core", default-features = false }
+qp-plonky2-core = { version = "1.3.0", path = "../core", default-features = false }
 
 
 [target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
