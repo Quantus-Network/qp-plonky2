@@ -10,9 +10,8 @@ use hashbrown::HashMap;
 use plonky2_field::extension::Extendable;
 use plonky2_field::polynomial::PolynomialCoeffs;
 
-use crate::fri::proof::{FriProof, FriProofTarget};
-use crate::fri::{FriConfig, FriParams, FriReductionStrategy};
-use crate::gadgets::polynomial::PolynomialCoeffsExtTarget;
+use crate::fri::proof::{FriFinalPolys, FriFinalPolysTarget, FriProof, FriProofTarget};
+use crate::fri::{FriConfig, FriFinalPolyLayout, FriParams, FriReductionStrategy};
 use crate::gates::noop::NoopGate;
 use crate::gates::selectors::SelectorsInfo;
 use crate::hash::hash_types::{HashOutTarget, MerkleCapTarget, RichField};
@@ -94,10 +93,6 @@ where
     C::InnerHasher: crate::plonk::config::AlgebraicHasher<F>,
 {
     let config = common_data.config.clone();
-    assert!(
-        !common_data.config.zero_knowledge,
-        "Degree calculation can be off if zero-knowledge is on."
-    );
 
     // Number of `NoopGate`s to add to get a circuit of size `degree` in the end.
     // Need to account for public input hashing, a `PublicInputGate` and a `ConstantGate`.
@@ -187,8 +182,9 @@ where
                 openings: OpeningSetTarget::default(),
                 opening_proof: FriProofTarget {
                     commit_phase_merkle_caps: vec![],
+                    batch_mask_proof: None,
                     query_round_proofs: vec![],
-                    final_poly: PolynomialCoeffsExtTarget(vec![]),
+                    final_polys: FriFinalPolysTarget { chunks: vec![] },
                     pow_witness: Target::default(),
                 },
             },
@@ -203,8 +199,9 @@ where
                 openings: OpeningSet::default(),
                 opening_proof: FriProof {
                     commit_phase_merkle_caps: vec![],
+                    batch_mask_proof: None,
                     query_round_proofs: vec![],
-                    final_poly: PolynomialCoeffs { coeffs: vec![] },
+                    final_polys: FriFinalPolys::from_single(PolynomialCoeffs { coeffs: vec![] }),
                     pow_witness: F::ZERO,
                 },
             },
@@ -229,10 +226,13 @@ where
                         reduction_strategy: FriReductionStrategy::MinSize(None),
                         num_query_rounds: 0,
                     },
-                    hiding: false,
+                    leaf_hiding: false,
+                    batch_masking: None,
                     degree_bits: 0,
                     reduction_arity_bits: vec![],
+                    final_poly_layout: FriFinalPolyLayout::Single,
                 },
+                fri_oracle_layouts: vec![],
                 gates: vec![],
                 selectors_info: SelectorsInfo {
                     selector_indices: vec![],

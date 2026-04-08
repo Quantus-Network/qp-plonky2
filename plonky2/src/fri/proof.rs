@@ -7,8 +7,9 @@ use alloc::vec::Vec;
 
 // Re-export all FRI proof types from core
 pub use qp_plonky2_core::fri_proof::{
-    CompressedFriProof, CompressedFriQueryRounds, FriInitialTreeProof, FriProof, FriQueryRound,
-    FriQueryStep,
+    combine_final_poly_chunks, eval_final_polys_at_point, CompressedFriProof,
+    CompressedFriQueryRounds, FriBatchMaskProof, FriBatchMaskQuery, FriFinalPolys,
+    FriInitialTreeProof, FriProof, FriQueryRound, FriQueryStep,
 };
 // Re-export FriChallenges from core
 pub use qp_plonky2_core::FriChallenges;
@@ -56,12 +57,33 @@ pub struct FriQueryRoundTarget<const D: usize> {
     pub steps: Vec<FriQueryStepTarget<D>>,
 }
 
+/// Target version of an authenticated batch-mask query opening.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct FriBatchMaskQueryTarget<const D: usize> {
+    pub values: Vec<ExtensionTarget<D>>,
+    pub merkle_proof: MerkleProofTarget,
+}
+
+/// Target version of the transcript-visible batch-mask proof.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct FriBatchMaskProofTarget<const D: usize> {
+    pub cap: MerkleCapTarget,
+    pub query_openings: Vec<FriBatchMaskQueryTarget<D>>,
+}
+
+/// Target version of the disclosed final polynomial chunks.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct FriFinalPolysTarget<const D: usize> {
+    pub chunks: Vec<PolynomialCoeffsExtTarget<D>>,
+}
+
 /// Target version of FriProof for circuit building.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FriProofTarget<const D: usize> {
     pub commit_phase_merkle_caps: Vec<MerkleCapTarget>,
+    pub batch_mask_proof: Option<FriBatchMaskProofTarget<D>>,
     pub query_round_proofs: Vec<FriQueryRoundTarget<D>>,
-    pub final_poly: PolynomialCoeffsExtTarget<D>,
+    pub final_polys: FriFinalPolysTarget<D>,
     pub pow_witness: Target,
 }
 

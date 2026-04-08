@@ -70,7 +70,6 @@ pub(crate) fn eval_vanishing_poly<F: RichField + Extendable<D>, const D: usize>(
     deltas: &[F],
 ) -> Vec<F::Extension> {
     let has_lookup = common_data.num_lookup_polys != 0;
-    let max_degree = common_data.quotient_degree_factor;
     let num_prods = common_data.num_partial_products;
 
     let constraint_terms = evaluate_gate_constraints::<F, D>(common_data, vars);
@@ -146,7 +145,7 @@ pub(crate) fn eval_vanishing_poly<F: RichField + Extendable<D>, const D: usize>(
             current_partial_products,
             z_x,
             z_gx,
-            max_degree,
+            common_data.permutation_partial_product_degree(),
         );
         vanishing_partial_products_terms.extend(partial_product_checks);
     }
@@ -199,7 +198,6 @@ pub(crate) fn eval_vanishing_poly_base_batch<F: RichField + Extendable<D>, const
     assert_eq!(partial_products_batch.len(), n);
     assert_eq!(s_sigmas_batch.len(), n);
 
-    let max_degree = common_data.quotient_degree_factor;
     let num_prods = common_data.num_partial_products;
 
     let num_gate_constraints = common_data.num_gate_constraints;
@@ -306,7 +304,7 @@ pub(crate) fn eval_vanishing_poly_base_batch<F: RichField + Extendable<D>, const
                 current_partial_products,
                 z_x,
                 z_gx,
-                max_degree,
+                common_data.permutation_partial_product_degree(),
             );
             vanishing_partial_products_terms.extend(partial_product_checks);
 
@@ -350,7 +348,7 @@ pub fn check_lookup_constraints<F: RichField + Extendable<D>, const D: usize>(
 ) -> Vec<F::Extension> {
     let num_lu_slots = LookupGate::num_slots(&common_data.config);
     let num_lut_slots = LookupTableGate::num_slots(&common_data.config);
-    let lu_degree = common_data.quotient_degree_factor - 1;
+    let lu_degree = common_data.lookup_accumulator_degree();
     let num_sldc_polys = local_lookup_zs.len() - 1;
     let lut_degree = num_lut_slots.div_ceil(num_sldc_polys);
 
@@ -523,7 +521,7 @@ pub fn check_lookup_constraints_batch<F: RichField + Extendable<D>, const D: usi
 ) -> Vec<F> {
     let num_lu_slots = LookupGate::num_slots(&common_data.config);
     let num_lut_slots = LookupTableGate::num_slots(&common_data.config);
-    let lu_degree = common_data.quotient_degree_factor - 1;
+    let lu_degree = common_data.lookup_accumulator_degree();
     let num_sldc_polys = local_lookup_zs.len() - 1;
     let lut_degree = num_lut_slots.div_ceil(num_sldc_polys);
 
@@ -817,7 +815,9 @@ pub(crate) fn eval_vanishing_poly_circuit<F: RichField + Extendable<D>, const D:
     deltas: &[Target],
 ) -> Vec<ExtensionTarget<D>> {
     let has_lookup = common_data.num_lookup_polys != 0;
-    let max_degree = common_data.quotient_degree_factor;
+    // Recursive verification must use the same masked accumulator chunking rule as native
+    // verification, or the partial-product windows and opening targets disagree under PolyFri.
+    let max_degree = common_data.permutation_partial_product_degree();
     let num_prods = common_data.num_partial_products;
 
     let constraint_terms = with_context!(
@@ -945,7 +945,7 @@ pub fn check_lookup_constraints_circuit<F: RichField + Extendable<D>, const D: u
 ) -> Vec<ExtensionTarget<D>> {
     let num_lu_slots = LookupGate::num_slots(&common_data.config);
     let num_lut_slots = LookupTableGate::num_slots(&common_data.config);
-    let lu_degree = common_data.quotient_degree_factor - 1;
+    let lu_degree = common_data.lookup_accumulator_degree();
     let num_sldc_polys = local_lookup_zs.len() - 1;
     let lut_degree = num_lut_slots.div_ceil(num_sldc_polys);
 

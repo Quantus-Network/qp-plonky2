@@ -6,11 +6,14 @@ use itertools::Itertools;
 use plonky2_field::extension::{flatten, Extendable, FieldExtension};
 use plonky2_field::types::Field;
 
-use crate::fri::proof::{FriChallenges, FriInitialTreeProof, FriProof, FriQueryRound};
+use crate::fri::proof::{
+    eval_final_polys_at_point, FriChallenges, FriInitialTreeProof, FriProof, FriQueryRound,
+};
 use crate::fri::structure::{FriBatchInfo, FriInstanceInfo, FriOpenings};
 use crate::fri::validate_shape::validate_batch_fri_proof_shape;
 use crate::fri::verifier::{
-    compute_evaluation, fri_verify_proof_of_work, PrecomputedReducedOpenings,
+    compute_evaluation, eval_opening_expression, fri_verify_proof_of_work,
+    PrecomputedReducedOpenings,
 };
 use crate::fri::FriParams;
 use crate::hash::hash_types::RichField;
@@ -128,15 +131,10 @@ fn batch_fri_combine_initial<
         .iter()
         .zip(&precomputed_reduced_evals.reduced_openings_at_point)
     {
-        let FriBatchInfo { point, polynomials } = batch;
-        let evals = polynomials
-            .iter()
-            .map(|p| {
-                let poly_blinding = instances[index].oracles[p.oracle_index].blinding;
-                let salted = params.hiding && poly_blinding;
-                proof.unsalted_eval(p.oracle_index, p.polynomial_index, salted)
-            })
-            .map(F::Extension::from_basefield);
+        let FriBatchInfo { point, openings } = batch;
+        let evals = openings.iter().map(|expression| {
+            eval_opening_expression(&instances[index], expression, proof, *point, params)
+        });
         let reduced_evals = alpha.reduce(evals);
         let numerator = reduced_evals - *reduced_openings;
         let denominator = subgroup_x - *point;
@@ -243,7 +241,7 @@ fn batch_fri_verifier_query_round<
     // Final check of FRI. After all the reductions, we check that the final polynomial is equal
     // to the one sent by the prover.
     ensure!(
-        proof.final_poly.eval(subgroup_x.into()) == old_eval,
+        eval_final_polys_at_point(&proof.final_polys, subgroup_x.into()) == old_eval,
         "Final polynomial evaluation is invalid."
     );
 

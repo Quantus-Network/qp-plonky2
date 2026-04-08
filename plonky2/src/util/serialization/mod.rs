@@ -18,16 +18,22 @@ pub use gate_serialization::GateSerializer;
 pub use generator_serialization::default::DefaultGeneratorSerializer;
 pub use generator_serialization::WitnessGeneratorSerializer;
 use hashbrown::HashMap;
+use qp_plonky2_core::{PolyFriZkConfig, ZkConfig, ZkMode};
 
 use crate::field::extension::{Extendable, FieldExtension};
 use crate::field::polynomial::PolynomialCoeffs;
 use crate::field::types::{Field64, PrimeField64};
 use crate::fri::oracle::PolynomialBatch;
 use crate::fri::proof::{
-    CompressedFriProof, CompressedFriQueryRounds, FriInitialTreeProof, FriInitialTreeProofTarget,
-    FriProof, FriProofTarget, FriQueryRound, FriQueryRoundTarget, FriQueryStep, FriQueryStepTarget,
+    CompressedFriProof, CompressedFriQueryRounds, FriBatchMaskProof, FriBatchMaskProofTarget,
+    FriBatchMaskQuery, FriBatchMaskQueryTarget, FriFinalPolys, FriFinalPolysTarget,
+    FriInitialTreeProof, FriInitialTreeProofTarget, FriProof, FriProofTarget, FriQueryRound,
+    FriQueryRoundTarget, FriQueryStep, FriQueryStepTarget,
 };
-use crate::fri::{FriConfig, FriParams, FriReductionStrategy};
+use crate::fri::structure::{FriOracleLayout, FriOracleRepresentation};
+use crate::fri::{
+    FriBatchMaskingParams, FriConfig, FriFinalPolyLayout, FriParams, FriReductionStrategy,
+};
 use crate::gadgets::polynomial::PolynomialCoeffsExtTarget;
 use crate::gates::gate::GateRef;
 use crate::gates::lookup::Lookup;
@@ -45,7 +51,7 @@ use crate::plonk::circuit_data::{
     VerifierCircuitData, VerifierCircuitTarget, VerifierOnlyCircuitData,
 };
 use crate::plonk::config::{GenericConfig, GenericHashOut, Hasher};
-use crate::plonk::plonk_common::salt_size;
+use crate::plonk::plonk_common::{salt_size, PlonkOracle};
 use crate::plonk::proof::{
     CompressedProof, CompressedProofWithPublicInputs, OpeningSet, OpeningSetTarget, Proof,
     ProofTarget, ProofWithPublicInputs, ProofWithPublicInputsTarget,
@@ -435,29 +441,30 @@ pub trait Read {
         F: RichField + Extendable<D>,
         C: GenericConfig<D, F = F>,
     {
-        let config = &common_data.config;
-        let salt = salt_size(common_data.fri_params.hiding);
+        let salt = salt_size(common_data.fri_params.leaf_hiding);
         let mut evals_proofs = Vec::with_capacity(4);
 
-        let constants_sigmas_v =
-            self.read_field_vec(common_data.num_constants + config.num_routed_wires)?;
+        let constants_sigmas_v = self.read_field_vec(
+            common_data.fri_oracle_layouts[PlonkOracle::CONSTANTS_SIGMAS.index].raw_polys,
+        )?;
         let constants_sigmas_p = self.read_merkle_proof()?;
         evals_proofs.push((constants_sigmas_v, constants_sigmas_p));
 
-        let wires_v = self.read_field_vec(config.num_wires + salt)?;
+        let wires_v = self.read_field_vec(
+            common_data.fri_oracle_layouts[PlonkOracle::WIRES.index].raw_polys + salt,
+        )?;
         let wires_p = self.read_merkle_proof()?;
         evals_proofs.push((wires_v, wires_p));
 
         let zs_partial_v = self.read_field_vec(
-            config.num_challenges
-                * (1 + common_data.num_partial_products + common_data.num_lookup_polys)
-                + salt,
+            common_data.fri_oracle_layouts[PlonkOracle::ZS_PARTIAL_PRODUCTS.index].raw_polys + salt,
         )?;
         let zs_partial_p = self.read_merkle_proof()?;
         evals_proofs.push((zs_partial_v, zs_partial_p));
 
-        let quotient_v =
-            self.read_field_vec(config.num_challenges * common_data.quotient_degree_factor + salt)?;
+        let quotient_v = self.read_field_vec(
+            common_data.fri_oracle_layouts[PlonkOracle::QUOTIENT.index].raw_polys + salt,
+        )?;
         let quotient_p = self.read_merkle_proof()?;
         evals_proofs.push((quotient_v, quotient_p));
 
@@ -572,15 +579,24 @@ pub trait Read {
         let commit_phase_merkle_caps = (0..common_data.fri_params.reduction_arity_bits.len())
             .map(|_| self.read_merkle_cap(config.fri_config.cap_height))
             .collect::<Result<Vec<_>, _>>()?;
+        let batch_mask_proof = self.read_optional_batch_mask_proof::<F, C, D>(common_data)?;
         let query_round_proofs = self.read_fri_query_rounds::<F, C, D>(common_data)?;
-        let final_poly = PolynomialCoeffs::new(
-            self.read_field_ext_vec::<F, D>(common_data.fri_params.final_poly_len())?,
-        );
+        let final_polys = FriFinalPolys {
+            layout: common_data.fri_params.final_poly_layout.clone(),
+            chunks: (0..common_data.fri_params.final_poly_chunks())
+                .map(|_| {
+                    Ok(PolynomialCoeffs::new(self.read_field_ext_vec::<F, D>(
+                        common_data.fri_params.final_poly_len(),
+                    )?))
+                })
+                .collect::<IoResult<Vec<_>>>()?,
+        };
         let pow_witness = self.read_field()?;
         Ok(FriProof {
             commit_phase_merkle_caps,
+            batch_mask_proof,
             query_round_proofs,
-            final_poly,
+            final_polys,
             pow_witness,
         })
     }
@@ -592,14 +608,20 @@ pub trait Read {
         let commit_phase_merkle_caps = (0..length)
             .map(|_| self.read_target_merkle_cap())
             .collect::<Result<Vec<_>, _>>()?;
+        let batch_mask_proof = self.read_optional_target_batch_mask_proof::<D>()?;
         let query_round_proofs = self.read_target_fri_query_rounds::<D>()?;
-        let final_poly = PolynomialCoeffsExtTarget(self.read_target_ext_vec::<D>()?);
+        let final_polys = FriFinalPolysTarget {
+            chunks: (0..self.read_usize()?)
+                .map(|_| Ok(PolynomialCoeffsExtTarget(self.read_target_ext_vec::<D>()?)))
+                .collect::<IoResult<Vec<_>>>()?,
+        };
         let pow_witness = self.read_target()?;
 
         Ok(FriProofTarget {
             commit_phase_merkle_caps,
+            batch_mask_proof,
             query_round_proofs,
-            final_poly,
+            final_polys,
             pow_witness,
         })
     }
@@ -651,6 +673,25 @@ pub trait Read {
         })
     }
 
+    fn read_poly_fri_zk_config(&mut self) -> IoResult<PolyFriZkConfig> {
+        Ok(PolyFriZkConfig {
+            wire_mask_degree: self.read_usize()?,
+            z_mask_degree: self.read_usize()?,
+            fri_batch_mask_degree: self.read_usize()?,
+        })
+    }
+
+    fn read_zk_config(&mut self) -> IoResult<ZkConfig> {
+        let mode = match self.read_u8()? {
+            0 => ZkMode::Disabled,
+            1 => ZkMode::PolyFri(self.read_poly_fri_zk_config()?),
+            2 => ZkMode::RowBlinding,
+            _ => return Err(IoError),
+        };
+        let leaf_hiding = self.read_bool()?;
+        Ok(ZkConfig { mode, leaf_hiding })
+    }
+
     fn read_circuit_config(&mut self) -> IoResult<CircuitConfig> {
         let num_wires = self.read_usize()?;
         let num_routed_wires = self.read_usize()?;
@@ -659,7 +700,7 @@ pub trait Read {
         let num_challenges = self.read_usize()?;
         let max_quotient_degree_factor = self.read_usize()?;
         let use_base_arithmetic_gate = self.read_bool()?;
-        let zero_knowledge = self.read_bool()?;
+        let zk_config = self.read_zk_config()?;
         let fri_config = self.read_fri_config()?;
 
         Ok(CircuitConfig {
@@ -670,7 +711,7 @@ pub trait Read {
             num_challenges,
             max_quotient_degree_factor,
             use_base_arithmetic_gate,
-            zero_knowledge,
+            zk_config,
             fri_config,
         })
     }
@@ -679,13 +720,30 @@ pub trait Read {
         let config = self.read_fri_config()?;
         let reduction_arity_bits = self.read_usize_vec()?;
         let degree_bits = self.read_usize()?;
-        let hiding = self.read_bool()?;
+        let leaf_hiding = self.read_bool()?;
+        let batch_masking = if self.read_bool()? {
+            Some(FriBatchMaskingParams {
+                mask_degree: self.read_usize()?,
+            })
+        } else {
+            None
+        };
+        let final_poly_layout = match self.read_u8()? {
+            0 => FriFinalPolyLayout::Single,
+            1 => FriFinalPolyLayout::Split {
+                chunk_degree_bits: self.read_usize()?,
+                chunks: self.read_usize()?,
+            },
+            _ => return Err(IoError),
+        };
 
         Ok(FriParams {
             config,
             reduction_arity_bits,
             degree_bits,
-            hiding,
+            leaf_hiding,
+            batch_masking,
+            final_poly_layout,
         })
     }
 
@@ -714,6 +772,23 @@ pub trait Read {
         Ok(SelectorsInfo {
             selector_indices,
             groups,
+        })
+    }
+
+    fn read_fri_oracle_layout(&mut self) -> IoResult<FriOracleLayout> {
+        let raw_polys = self.read_usize()?;
+        let logical_polys = self.read_usize()?;
+        let representation = match self.read_u8()? {
+            0 => FriOracleRepresentation::Raw,
+            1 => FriOracleRepresentation::SplitMask {
+                split_power: self.read_usize()?,
+            },
+            _ => return Err(IoError),
+        };
+        Ok(FriOracleLayout {
+            raw_polys,
+            logical_polys,
+            representation,
         })
     }
 
@@ -751,6 +826,10 @@ pub trait Read {
     ) -> IoResult<CommonCircuitData<F, D>> {
         let config = self.read_circuit_config()?;
         let fri_params = self.read_fri_params()?;
+        let fri_oracle_layouts_len = self.read_usize()?;
+        let fri_oracle_layouts = (0..fri_oracle_layouts_len)
+            .map(|_| self.read_fri_oracle_layout())
+            .collect::<IoResult<Vec<_>>>()?;
 
         let selectors_info = self.read_selectors_info()?;
         let quotient_degree_factor = self.read_usize()?;
@@ -780,6 +859,7 @@ pub trait Read {
         let mut common_data = CommonCircuitData {
             config,
             fri_params,
+            fri_oracle_layouts,
             gates: vec![],
             selectors_info,
             quotient_degree_factor,
@@ -1100,17 +1180,78 @@ pub trait Read {
         let commit_phase_merkle_caps = (0..common_data.fri_params.reduction_arity_bits.len())
             .map(|_| self.read_merkle_cap(config.fri_config.cap_height))
             .collect::<Result<Vec<_>, _>>()?;
+        let batch_mask_proof = self.read_optional_batch_mask_proof::<F, C, D>(common_data)?;
         let query_round_proofs = self.read_compressed_fri_query_rounds::<F, C, D>(common_data)?;
-        let final_poly = PolynomialCoeffs::new(
-            self.read_field_ext_vec::<F, D>(common_data.fri_params.final_poly_len())?,
-        );
+        let final_polys = FriFinalPolys {
+            layout: common_data.fri_params.final_poly_layout.clone(),
+            chunks: (0..common_data.fri_params.final_poly_chunks())
+                .map(|_| {
+                    Ok(PolynomialCoeffs::new(self.read_field_ext_vec::<F, D>(
+                        common_data.fri_params.final_poly_len(),
+                    )?))
+                })
+                .collect::<IoResult<Vec<_>>>()?,
+        };
         let pow_witness = self.read_field()?;
         Ok(CompressedFriProof {
             commit_phase_merkle_caps,
+            batch_mask_proof,
             query_round_proofs,
-            final_poly,
+            final_polys,
             pow_witness,
         })
+    }
+
+    fn read_optional_batch_mask_proof<F, C, const D: usize>(
+        &mut self,
+        common_data: &CommonCircuitData<F, D>,
+    ) -> IoResult<Option<FriBatchMaskProof<F, C::Hasher, D>>>
+    where
+        F: RichField + Extendable<D>,
+        C: GenericConfig<D, F = F>,
+    {
+        if !self.read_bool()? {
+            return Ok(None);
+        }
+
+        let cap = self.read_merkle_cap(common_data.fri_params.config.cap_height)?;
+        let query_openings = (0..common_data.fri_params.config.num_query_rounds)
+            .map(|_| {
+                Ok(FriBatchMaskQuery {
+                    values: self
+                        .read_field_ext_vec::<F, D>(common_data.fri_params.final_poly_chunks())?,
+                    merkle_proof: self.read_merkle_proof()?,
+                })
+            })
+            .collect::<IoResult<Vec<_>>>()?;
+
+        Ok(Some(FriBatchMaskProof {
+            cap,
+            query_openings,
+        }))
+    }
+
+    fn read_optional_target_batch_mask_proof<const D: usize>(
+        &mut self,
+    ) -> IoResult<Option<FriBatchMaskProofTarget<D>>> {
+        if !self.read_bool()? {
+            return Ok(None);
+        }
+
+        let cap = self.read_target_merkle_cap()?;
+        let query_openings = (0..self.read_usize()?)
+            .map(|_| {
+                Ok(FriBatchMaskQueryTarget {
+                    values: self.read_target_ext_vec::<D>()?,
+                    merkle_proof: self.read_target_merkle_proof()?,
+                })
+            })
+            .collect::<IoResult<Vec<_>>>()?;
+
+        Ok(Some(FriBatchMaskProofTarget {
+            cap,
+            query_openings,
+        }))
     }
 
     /// Reads a value of type [`CompressedProof`] from `self` with `common_data`.
@@ -1602,8 +1743,11 @@ pub trait Write {
         for cap in &fp.commit_phase_merkle_caps {
             self.write_merkle_cap(cap)?;
         }
+        self.write_optional_batch_mask_proof::<F, C, D>(&fp.batch_mask_proof)?;
         self.write_fri_query_rounds::<F, C, D>(&fp.query_round_proofs)?;
-        self.write_field_ext_vec::<F, D>(&fp.final_poly.coeffs)?;
+        for chunk in &fp.final_polys.chunks {
+            self.write_field_ext_vec::<F, D>(&chunk.coeffs)?;
+        }
         self.write_field(fp.pow_witness)
     }
 
@@ -1614,8 +1758,12 @@ pub trait Write {
         for cap in &fpt.commit_phase_merkle_caps {
             self.write_target_merkle_cap(cap)?;
         }
+        self.write_optional_target_batch_mask_proof::<D>(&fpt.batch_mask_proof)?;
         self.write_target_fri_query_rounds::<D>(&fpt.query_round_proofs)?;
-        self.write_target_ext_vec::<D>(&fpt.final_poly.0)?;
+        self.write_usize(fpt.final_polys.chunks.len())?;
+        for chunk in &fpt.final_polys.chunks {
+            self.write_target_ext_vec::<D>(&chunk.0)?;
+        }
         self.write_target(fpt.pow_witness)
     }
 
@@ -1674,13 +1822,54 @@ pub trait Write {
             config,
             reduction_arity_bits,
             degree_bits,
-            hiding,
+            leaf_hiding,
+            batch_masking,
+            final_poly_layout,
         } = fri_params;
 
         self.write_fri_config(config)?;
         self.write_usize_vec(reduction_arity_bits.as_slice())?;
         self.write_usize(*degree_bits)?;
-        self.write_bool(*hiding)?;
+        self.write_bool(*leaf_hiding)?;
+        self.write_bool(batch_masking.is_some())?;
+        if let Some(batch_masking) = batch_masking {
+            self.write_usize(batch_masking.mask_degree)?;
+        }
+        match final_poly_layout {
+            FriFinalPolyLayout::Single => {
+                self.write_u8(0)?;
+            }
+            FriFinalPolyLayout::Split {
+                chunk_degree_bits,
+                chunks,
+            } => {
+                self.write_u8(1)?;
+                self.write_usize(*chunk_degree_bits)?;
+                self.write_usize(*chunks)?;
+            }
+        }
+
+        Ok(())
+    }
+
+    fn write_poly_fri_zk_config(&mut self, config: &PolyFriZkConfig) -> IoResult<()> {
+        self.write_usize(config.wire_mask_degree)?;
+        self.write_usize(config.z_mask_degree)?;
+        self.write_usize(config.fri_batch_mask_degree)?;
+
+        Ok(())
+    }
+
+    fn write_zk_config(&mut self, zk_config: &ZkConfig) -> IoResult<()> {
+        match &zk_config.mode {
+            ZkMode::Disabled => self.write_u8(0)?,
+            ZkMode::PolyFri(config) => {
+                self.write_u8(1)?;
+                self.write_poly_fri_zk_config(config)?;
+            }
+            ZkMode::RowBlinding => self.write_u8(2)?,
+        }
+        self.write_bool(zk_config.leaf_hiding)?;
 
         Ok(())
     }
@@ -1694,7 +1883,7 @@ pub trait Write {
             num_challenges,
             max_quotient_degree_factor,
             use_base_arithmetic_gate,
-            zero_knowledge,
+            zk_config,
             fri_config,
         } = config;
 
@@ -1705,7 +1894,7 @@ pub trait Write {
         self.write_usize(*num_challenges)?;
         self.write_usize(*max_quotient_degree_factor)?;
         self.write_bool(*use_base_arithmetic_gate)?;
-        self.write_bool(*zero_knowledge)?;
+        self.write_zk_config(zk_config)?;
         self.write_fri_config(fri_config)?;
 
         Ok(())
@@ -1761,6 +1950,20 @@ pub trait Write {
         Ok(())
     }
 
+    fn write_fri_oracle_layout(&mut self, layout: &FriOracleLayout) -> IoResult<()> {
+        self.write_usize(layout.raw_polys)?;
+        self.write_usize(layout.logical_polys)?;
+        match layout.representation {
+            FriOracleRepresentation::Raw => self.write_u8(0)?,
+            FriOracleRepresentation::SplitMask { split_power } => {
+                self.write_u8(1)?;
+                self.write_usize(split_power)?;
+            }
+        }
+
+        Ok(())
+    }
+
     fn write_common_circuit_data<F: RichField + Extendable<D>, const D: usize>(
         &mut self,
         common_data: &CommonCircuitData<F, D>,
@@ -1769,6 +1972,7 @@ pub trait Write {
         let CommonCircuitData {
             config,
             fri_params,
+            fri_oracle_layouts,
             gates,
             selectors_info,
             quotient_degree_factor,
@@ -1784,6 +1988,10 @@ pub trait Write {
 
         self.write_circuit_config(config)?;
         self.write_fri_params(fri_params)?;
+        self.write_usize(fri_oracle_layouts.len())?;
+        for layout in fri_oracle_layouts {
+            self.write_fri_oracle_layout(layout)?;
+        }
 
         self.write_selectors_info(selectors_info)?;
         self.write_usize(*quotient_degree_factor)?;
@@ -2069,9 +2277,47 @@ pub trait Write {
         for cap in &fp.commit_phase_merkle_caps {
             self.write_merkle_cap(cap)?;
         }
+        self.write_optional_batch_mask_proof::<F, C, D>(&fp.batch_mask_proof)?;
         self.write_compressed_fri_query_rounds::<F, C, D>(&fp.query_round_proofs)?;
-        self.write_field_ext_vec::<F, D>(&fp.final_poly.coeffs)?;
+        for chunk in &fp.final_polys.chunks {
+            self.write_field_ext_vec::<F, D>(&chunk.coeffs)?;
+        }
         self.write_field(fp.pow_witness)
+    }
+
+    fn write_optional_batch_mask_proof<F, C, const D: usize>(
+        &mut self,
+        batch_mask_proof: &Option<FriBatchMaskProof<F, C::Hasher, D>>,
+    ) -> IoResult<()>
+    where
+        F: RichField + Extendable<D>,
+        C: GenericConfig<D, F = F>,
+    {
+        self.write_bool(batch_mask_proof.is_some())?;
+        if let Some(batch_mask_proof) = batch_mask_proof {
+            self.write_merkle_cap(&batch_mask_proof.cap)?;
+            for query_opening in &batch_mask_proof.query_openings {
+                self.write_field_ext_vec::<F, D>(&query_opening.values)?;
+                self.write_merkle_proof(&query_opening.merkle_proof)?;
+            }
+        }
+        Ok(())
+    }
+
+    fn write_optional_target_batch_mask_proof<const D: usize>(
+        &mut self,
+        batch_mask_proof: &Option<FriBatchMaskProofTarget<D>>,
+    ) -> IoResult<()> {
+        self.write_bool(batch_mask_proof.is_some())?;
+        if let Some(batch_mask_proof) = batch_mask_proof {
+            self.write_target_merkle_cap(&batch_mask_proof.cap)?;
+            self.write_usize(batch_mask_proof.query_openings.len())?;
+            for query_opening in &batch_mask_proof.query_openings {
+                self.write_target_ext_vec::<D>(&query_opening.values)?;
+                self.write_target_merkle_proof(&query_opening.merkle_proof)?;
+            }
+        }
+        Ok(())
     }
 
     /// Writes a value `proof` of type [`CompressedProof`] to `self.`

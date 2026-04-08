@@ -8,6 +8,7 @@ use core::mem::swap;
 use anyhow::{ensure, Result};
 use hashbrown::HashMap;
 use plonky2_maybe_rayon::*;
+use qp_plonky2_core::{PolyFriZkConfig, ZkMode};
 
 use super::circuit_builder::{LookupChallenges, LookupWire};
 use crate::field::extension::Extendable;
@@ -31,6 +32,10 @@ use crate::plonk::plonk_common::PlonkOracle;
 use crate::plonk::proof::{OpeningSet, Proof, ProofWithPublicInputs};
 use crate::plonk::vanishing_poly::{eval_vanishing_poly_base_batch, get_lut_poly};
 use crate::plonk::vars::EvaluationVarsBaseBatch;
+use crate::plonk::zk::{
+    commit_coeffs_with_split_mask, commit_values_with_split_mask, LogicalPolynomialBatch,
+    SplitMaskPlan,
+};
 use crate::timed;
 use crate::util::partial_products::{partial_products_and_z_gx, quotient_chunk_products};
 use crate::util::timing::TimingTree;
@@ -174,10 +179,11 @@ where
     let wires_commitment = timed!(
         timing,
         "compute wires commitment",
-        PolynomialBatch::<F, C, D>::from_values(
+        commit_values_with_split_mask::<F, C, D>(
             wires_values,
+            wire_mask_plan(common_data).as_ref(),
             config.fri_config.rate_bits,
-            config.zero_knowledge && PlonkOracle::WIRES.blinding,
+            config.uses_leaf_hiding() && PlonkOracle::WIRES.blinding,
             config.fri_config.cap_height,
             timing,
             prover_data.fft_root_table.as_ref(),
@@ -193,7 +199,7 @@ where
     challenger.observe_hash::<C::Hasher>(prover_data.circuit_digest);
     challenger.observe_hash::<C::InnerHasher>(public_inputs_hash);
 
-    challenger.observe_cap::<C::Hasher>(&wires_commitment.merkle_tree.cap);
+    challenger.observe_cap::<C::Hasher>(&wires_commitment.raw.merkle_tree.cap);
 
     // We need 4 values per challenge: 2 for the combos, 1 for (X-combo) in the accumulators and 1 to prove that the lookup table was computed correctly.
     // We can reuse betas and gammas for two of them.
@@ -244,17 +250,23 @@ where
     let partial_products_zs_and_lookup_commitment = timed!(
         timing,
         "commit to partial products, Z's and, if any, lookup polynomials",
-        PolynomialBatch::from_values(
+        commit_values_with_split_mask::<F, C, D>(
             zs_partial_products_lookups,
+            z_mask_plan(common_data).as_ref(),
             config.fri_config.rate_bits,
-            config.zero_knowledge && PlonkOracle::ZS_PARTIAL_PRODUCTS.blinding,
+            config.uses_leaf_hiding() && PlonkOracle::ZS_PARTIAL_PRODUCTS.blinding,
             config.fri_config.cap_height,
             timing,
             prover_data.fft_root_table.as_ref(),
         )
     );
 
-    challenger.observe_cap::<C::Hasher>(&partial_products_zs_and_lookup_commitment.merkle_tree.cap);
+    challenger.observe_cap::<C::Hasher>(
+        &partial_products_zs_and_lookup_commitment
+            .raw
+            .merkle_tree
+            .cap,
+    );
 
     let alphas = challenger.get_n_challenges(num_challenges);
 
@@ -289,20 +301,23 @@ where
             .collect()
     );
 
+    // Quotient chunks stay on the raw path - their opened values are fully determined by other
+    // openings, so ZK for that contribution comes from the Phase-2 FRI batch mask instead.
     let quotient_polys_commitment = timed!(
         timing,
         "commit to quotient polys",
-        PolynomialBatch::<F, C, D>::from_coeffs(
+        commit_coeffs_with_split_mask::<F, C, D>(
             all_quotient_poly_chunks,
+            None,
             config.fri_config.rate_bits,
-            config.zero_knowledge && PlonkOracle::QUOTIENT.blinding,
+            config.uses_leaf_hiding() && PlonkOracle::QUOTIENT.blinding,
             config.fri_config.cap_height,
             timing,
             prover_data.fft_root_table.as_ref(),
         )
     );
 
-    challenger.observe_cap::<C::Hasher>(&quotient_polys_commitment.merkle_tree.cap);
+    challenger.observe_cap::<C::Hasher>(&quotient_polys_commitment.raw.merkle_tree.cap);
 
     let zeta = challenger.get_extension_challenge::<D>();
     // To avoid leaking witness data, we want to ensure that our opening locations, `zeta` and
@@ -333,26 +348,27 @@ where
     let opening_proof = timed!(
         timing,
         "compute opening proofs",
-        PolynomialBatch::<F, C, D>::prove_openings(
+        PolynomialBatch::<F, C, D>::prove_openings_masked(
             &instance,
             &[
                 &prover_data.constants_sigmas_commitment,
-                &wires_commitment,
-                &partial_products_zs_and_lookup_commitment,
-                &quotient_polys_commitment,
+                &wires_commitment.raw,
+                &partial_products_zs_and_lookup_commitment.raw,
+                &quotient_polys_commitment.raw,
             ],
             &mut challenger,
             &common_data.fri_params,
-            None,
-            None,
             timing,
         )
     );
 
     let proof = Proof::<F, C, D> {
-        wires_cap: wires_commitment.merkle_tree.cap,
-        plonk_zs_partial_products_cap: partial_products_zs_and_lookup_commitment.merkle_tree.cap,
-        quotient_polys_cap: quotient_polys_commitment.merkle_tree.cap,
+        wires_cap: wires_commitment.raw.merkle_tree.cap,
+        plonk_zs_partial_products_cap: partial_products_zs_and_lookup_commitment
+            .raw
+            .merkle_tree
+            .cap,
+        quotient_polys_cap: quotient_polys_commitment.raw.merkle_tree.cap,
         openings,
         opening_proof,
     };
@@ -360,6 +376,32 @@ where
         proof,
         public_inputs,
     })
+}
+
+fn split_mask_plan_from_mode<F: RichField + Extendable<D>, const D: usize>(
+    common_data: &CommonCircuitData<F, D>,
+    select_degree: impl FnOnce(&PolyFriZkConfig) -> usize,
+) -> Option<SplitMaskPlan> {
+    match &common_data.config.zk_config.mode {
+        ZkMode::Disabled => None,
+        ZkMode::RowBlinding => None,
+        ZkMode::PolyFri(poly_fri) => Some(SplitMaskPlan {
+            split_power: common_data.degree(),
+            mask_degree: select_degree(poly_fri),
+        }),
+    }
+}
+
+fn wire_mask_plan<F: RichField + Extendable<D>, const D: usize>(
+    common_data: &CommonCircuitData<F, D>,
+) -> Option<SplitMaskPlan> {
+    split_mask_plan_from_mode(common_data, |cfg| cfg.wire_mask_degree)
+}
+
+fn z_mask_plan<F: RichField + Extendable<D>, const D: usize>(
+    common_data: &CommonCircuitData<F, D>,
+) -> Option<SplitMaskPlan> {
+    split_mask_plan_from_mode(common_data, |cfg| cfg.z_mask_degree)
 }
 
 /// Compute the partial products used in the `Z` polynomials.
@@ -401,7 +443,7 @@ fn wires_permutation_partial_products_and_zs<
     prover_data: &ProverOnlyCircuitData<F, C, D>,
     common_data: &CommonCircuitData<F, D>,
 ) -> Vec<PolynomialValues<F>> {
-    let degree = common_data.quotient_degree_factor;
+    let degree = common_data.permutation_partial_product_degree();
     let subgroup = &prover_data.subgroup;
     let k_is = &common_data.k_is;
     let num_prods = common_data.num_partial_products;
@@ -468,7 +510,7 @@ fn compute_lookup_polys<
 ) -> Vec<PolynomialValues<F>> {
     let degree = common_data.degree();
     let num_lu_slots = LookupGate::num_slots(&common_data.config);
-    let max_lookup_degree = common_data.config.max_quotient_degree_factor - 1;
+    let max_lookup_degree = common_data.lookup_accumulator_degree();
     let num_partial_lookups = num_lu_slots.div_ceil(max_lookup_degree);
     let num_lut_slots = LookupTableGate::num_slots(&common_data.config);
     let max_lookup_table_degree = num_lut_slots.div_ceil(num_partial_lookups);
@@ -616,8 +658,8 @@ fn compute_quotient_polys<
     common_data: &CommonCircuitData<F, D>,
     prover_data: &'a ProverOnlyCircuitData<F, C, D>,
     public_inputs_hash: &<<C as GenericConfig<D>>::InnerHasher as Hasher<F>>::Hash,
-    wires_commitment: &'a PolynomialBatch<F, C, D>,
-    zs_partial_products_and_lookup_commitment: &'a PolynomialBatch<F, C, D>,
+    wires_commitment: &'a LogicalPolynomialBatch<F, C, D>,
+    zs_partial_products_and_lookup_commitment: &'a LogicalPolynomialBatch<F, C, D>,
     betas: &[F],
     gammas: &[F],
     deltas: &[F],
@@ -698,14 +740,14 @@ fn compute_quotient_polys<
                 (BATCH_SIZE * batch_i..BATCH_SIZE * batch_i + xs_batch.len()).collect();
 
             let mut shifted_xs_batch = Vec::with_capacity(xs_batch.len());
-            let mut local_zs_batch = Vec::with_capacity(xs_batch.len());
-            let mut next_zs_batch = Vec::with_capacity(xs_batch.len());
+            let mut local_zs_batch = Vec::<Vec<F>>::with_capacity(xs_batch.len());
+            let mut next_zs_batch = Vec::<Vec<F>>::with_capacity(xs_batch.len());
 
-            let mut local_lookup_batch = Vec::with_capacity(xs_batch.len());
-            let mut next_lookup_batch = Vec::with_capacity(xs_batch.len());
+            let mut local_lookup_batch = Vec::<Vec<F>>::with_capacity(xs_batch.len());
+            let mut next_lookup_batch = Vec::<Vec<F>>::with_capacity(xs_batch.len());
 
-            let mut partial_products_batch = Vec::with_capacity(xs_batch.len());
-            let mut s_sigmas_batch = Vec::with_capacity(xs_batch.len());
+            let mut partial_products_batch = Vec::<Vec<F>>::with_capacity(xs_batch.len());
+            let mut s_sigmas_batch = Vec::<Vec<F>>::with_capacity(xs_batch.len());
 
             let mut local_constants_batch_refs = Vec::with_capacity(xs_batch.len());
             let mut local_wires_batch_refs = Vec::with_capacity(xs_batch.len());
@@ -713,16 +755,17 @@ fn compute_quotient_polys<
             for (&i, &x) in indices_batch.iter().zip(xs_batch) {
                 let shifted_x = F::coset_shift() * x;
                 let i_next = (i + next_step) % lde_size;
+                let shifted_x_next = F::coset_shift() * points[i_next];
                 let local_constants_sigmas = prover_data
                     .constants_sigmas_commitment
                     .get_lde_values(i, step);
                 let local_constants = &local_constants_sigmas[common_data.constants_range()];
                 let s_sigmas = &local_constants_sigmas[common_data.sigmas_range()];
-                let local_wires = wires_commitment.get_lde_values(i, step);
+                let local_wires = wires_commitment.get_lde_values(i, step, shifted_x);
                 let local_zs_partial_and_lookup =
-                    zs_partial_products_and_lookup_commitment.get_lde_values(i, step);
-                let next_zs_partial_and_lookup =
-                    zs_partial_products_and_lookup_commitment.get_lde_values(i_next, step);
+                    zs_partial_products_and_lookup_commitment.get_lde_values(i, step, shifted_x);
+                let next_zs_partial_and_lookup = zs_partial_products_and_lookup_commitment
+                    .get_lde_values(i_next, step, shifted_x_next);
 
                 let local_zs = &local_zs_partial_and_lookup[common_data.zs_range()];
 
@@ -737,8 +780,8 @@ fn compute_quotient_polys<
                     let next_lookup_zs = &next_zs_partial_and_lookup[common_data.lookup_range()];
                     debug_assert_eq!(local_lookup_zs.len(), common_data.num_all_lookup_polys());
 
-                    local_lookup_batch.push(local_lookup_zs);
-                    next_lookup_batch.push(next_lookup_zs);
+                    local_lookup_batch.push(local_lookup_zs.to_vec());
+                    next_lookup_batch.push(next_lookup_zs.to_vec());
                 }
 
                 debug_assert_eq!(local_wires.len(), common_data.config.num_wires);
@@ -748,10 +791,10 @@ fn compute_quotient_polys<
                 local_wires_batch_refs.push(local_wires);
 
                 shifted_xs_batch.push(shifted_x);
-                local_zs_batch.push(local_zs);
-                next_zs_batch.push(next_zs);
-                partial_products_batch.push(partial_products);
-                s_sigmas_batch.push(s_sigmas);
+                local_zs_batch.push(local_zs.to_vec());
+                next_zs_batch.push(next_zs.to_vec());
+                partial_products_batch.push(partial_products.to_vec());
+                s_sigmas_batch.push(s_sigmas.to_vec());
             }
 
             // NB (JN): I'm not sure how (in)efficient the below is. It needs measuring.
@@ -777,18 +820,33 @@ fn compute_quotient_polys<
                 &local_wires_batch,
                 public_inputs_hash,
             );
+            let local_zs_batch_refs = local_zs_batch.iter().map(Vec::as_slice).collect::<Vec<_>>();
+            let next_zs_batch_refs = next_zs_batch.iter().map(Vec::as_slice).collect::<Vec<_>>();
+            let local_lookup_batch_refs = local_lookup_batch
+                .iter()
+                .map(Vec::as_slice)
+                .collect::<Vec<_>>();
+            let next_lookup_batch_refs = next_lookup_batch
+                .iter()
+                .map(Vec::as_slice)
+                .collect::<Vec<_>>();
+            let partial_products_batch_refs = partial_products_batch
+                .iter()
+                .map(Vec::as_slice)
+                .collect::<Vec<_>>();
+            let s_sigmas_batch_refs = s_sigmas_batch.iter().map(Vec::as_slice).collect::<Vec<_>>();
 
             let mut quotient_values_batch = eval_vanishing_poly_base_batch::<F, D>(
                 common_data,
                 &indices_batch,
                 &shifted_xs_batch,
                 vars_batch,
-                &local_zs_batch,
-                &next_zs_batch,
-                &local_lookup_batch,
-                &next_lookup_batch,
-                &partial_products_batch,
-                &s_sigmas_batch,
+                &local_zs_batch_refs,
+                &next_zs_batch_refs,
+                &local_lookup_batch_refs,
+                &next_lookup_batch_refs,
+                &partial_products_batch_refs,
+                &s_sigmas_batch_refs,
                 betas,
                 gammas,
                 deltas,

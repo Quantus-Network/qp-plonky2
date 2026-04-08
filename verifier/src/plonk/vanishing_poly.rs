@@ -105,7 +105,7 @@ pub(crate) fn eval_vanishing_poly<F: RichField + Extendable<D>, const D: usize>(
     deltas: &[F],
 ) -> Vec<F::Extension> {
     let has_lookup = common_data.num_lookup_polys != 0;
-    let max_degree = common_data.quotient_degree_factor;
+    let max_degree = common_data.permutation_partial_product_degree();
     let num_prods = common_data.num_partial_products;
 
     let constraint_terms = evaluate_gate_constraints::<F, D>(common_data, vars);
@@ -219,7 +219,7 @@ pub fn check_lookup_constraints<F: RichField + Extendable<D>, const D: usize>(
 ) -> Vec<F::Extension> {
     let num_lu_slots = LookupGate::num_slots(&common_data.config);
     let num_lut_slots = LookupTableGate::num_slots(&common_data.config);
-    let lu_degree = common_data.quotient_degree_factor - 1;
+    let lu_degree = common_data.lookup_accumulator_degree();
     let num_sldc_polys = local_lookup_zs.len() - 1;
     let lut_degree = num_lut_slots.div_ceil(num_sldc_polys);
 
