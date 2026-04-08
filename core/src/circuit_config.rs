@@ -53,12 +53,6 @@ pub enum ZkMode {
 pub struct PolyFriZkConfig {
     pub wire_mask_degree: usize,
     pub z_mask_degree: usize,
-    /// Reserved for future quotient-oracle split masking.
-    ///
-    /// Native PolyFri currently leaves quotient chunks on the raw Phase-1 path because their
-    /// opened values are determined by the other disclosed openings. Zero knowledge for that
-    /// contribution comes from the explicit Phase-2 FRI batch mask instead.
-    pub quotient_mask_degree: usize,
     pub fri_batch_mask_degree: usize,
 }
 
@@ -77,11 +71,10 @@ impl PolyFriZkConfig {
 
     pub const fn standard_recursion() -> Self {
         Self {
-            // Phase 1 masks only the explicit PLONK opening points. Wires and quotient chunks are
-            // opened at one point, while the permutation/lookup oracle also opens at `g * zeta`.
+            // Phase 1 masks only the explicit PLONK opening points. Wires are opened at one point,
+            // while the permutation/lookup oracle also opens at `g * zeta`.
             wire_mask_degree: 0,
             z_mask_degree: 1,
-            quotient_mask_degree: 0,
             // Phase 2 commits an explicit batch-mask oracle before `fri_alpha`, so native PolyFri
             // keeps the masked FRI reduction transcript-visible and verifier-consistent.
             fri_batch_mask_degree: 1,
@@ -218,12 +211,6 @@ impl CircuitConfig {
         PolyFriZkConfig::assert_degree_fits(
             "z_mask_degree",
             poly_fri.z_mask_degree,
-            trace_degree,
-            "trace degree",
-        );
-        PolyFriZkConfig::assert_degree_fits(
-            "quotient_mask_degree",
-            poly_fri.quotient_mask_degree,
             trace_degree,
             "trace degree",
         );

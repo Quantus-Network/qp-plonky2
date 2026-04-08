@@ -27,12 +27,12 @@ use qp_plonky2_core::{
 use crate::field::extension::{Extendable, FieldExtension};
 use crate::field::polynomial::PolynomialCoeffs;
 use crate::field::types::{Field64, PrimeField64};
+use crate::fri::structure::{FriOracleLayout, FriOracleRepresentation};
 use crate::gates::gate::GateRef;
 use crate::gates::selectors::SelectorsInfo;
 use crate::hash::hash_types::RichField;
 use crate::plonk::circuit_data::{
-    CircuitConfig, CommonCircuitData, FriOracleLayout, FriOracleRepresentation,
-    VerifierCircuitData, VerifierOnlyCircuitData,
+    CircuitConfig, CommonCircuitData, VerifierCircuitData, VerifierOnlyCircuitData,
 };
 use crate::plonk::config::{GenericConfig, GenericHashOut, Hasher};
 use crate::plonk::plonk_common::{salt_size, PlonkOracle};
@@ -427,7 +427,6 @@ pub trait Read {
         Ok(PolyFriZkConfig {
             wire_mask_degree: self.read_usize()?,
             z_mask_degree: self.read_usize()?,
-            quotient_mask_degree: self.read_usize()?,
             fri_batch_mask_degree: self.read_usize()?,
         })
     }
@@ -1159,7 +1158,6 @@ pub trait Write {
     fn write_poly_fri_zk_config(&mut self, config: &PolyFriZkConfig) -> IoResult<()> {
         self.write_usize(config.wire_mask_degree)?;
         self.write_usize(config.z_mask_degree)?;
-        self.write_usize(config.quotient_mask_degree)?;
         self.write_usize(config.fri_batch_mask_degree)?;
 
         Ok(())

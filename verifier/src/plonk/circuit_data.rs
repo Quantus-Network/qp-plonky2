@@ -16,7 +16,8 @@ use serde::Serialize;
 use crate::field::extension::Extendable;
 use crate::field::types::Field;
 use crate::fri::structure::{
-    FriBatchInfo, FriInstanceInfo, FriOpeningExpression, FriOracleInfo, FriPolynomialInfo,
+    FriBatchInfo, FriInstanceInfo, FriOpeningExpression, FriOracleInfo, FriOracleLayout,
+    FriOracleRepresentation, FriPolynomialInfo,
 };
 use crate::gates::gate::GateRef;
 use crate::gates::lookup_table::LookupTable;
@@ -137,19 +138,6 @@ pub struct CommonVerifierData<F: RichField + Extendable<D>, const D: usize> {
 
     /// The stored lookup tables.
     pub luts: Vec<LookupTable>,
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Serialize)]
-pub struct FriOracleLayout {
-    pub raw_polys: usize,
-    pub logical_polys: usize,
-    pub representation: FriOracleRepresentation,
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Serialize)]
-pub enum FriOracleRepresentation {
-    Raw,
-    SplitMask { split_power: usize },
 }
 
 impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {

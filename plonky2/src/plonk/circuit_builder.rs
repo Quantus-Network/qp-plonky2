@@ -21,6 +21,7 @@ use crate::field::fft::fft_root_table;
 use crate::field::polynomial::PolynomialValues;
 use crate::field::types::Field;
 use crate::fri::oracle::PolynomialBatch;
+use crate::fri::structure::{FriOracleLayout, FriOracleRepresentation};
 use crate::fri::{FriBatchMaskingParams, FriConfig, FriFinalPolyLayout, FriParams};
 use crate::gadgets::arithmetic::BaseArithmeticOperation;
 use crate::gadgets::arithmetic_extension::ExtensionArithmeticOperation;
@@ -46,9 +47,8 @@ use crate::iop::generator::{
 use crate::iop::target::{BoolTarget, Target};
 use crate::iop::wire::Wire;
 use crate::plonk::circuit_data::{
-    CircuitConfig, CircuitData, CommonCircuitData, FriOracleLayout, FriOracleRepresentation,
-    MockCircuitData, ProverCircuitData, ProverOnlyCircuitData, VerifierCircuitData,
-    VerifierCircuitTarget, VerifierOnlyCircuitData,
+    CircuitConfig, CircuitData, CommonCircuitData, MockCircuitData, ProverCircuitData,
+    ProverOnlyCircuitData, VerifierCircuitData, VerifierCircuitTarget, VerifierOnlyCircuitData,
 };
 use crate::plonk::config::{AlgebraicHasher, GenericConfig, GenericHashOut, Hasher};
 use crate::plonk::copy_constraint::CopyConstraint;
@@ -1006,7 +1006,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
                 #[cfg(feature = "rand")]
                 self.blind();
                 #[cfg(not(feature = "rand"))]
-                assert!(false, "Cannot use RowBlinding without rand feature");
+                panic!("Cannot use RowBlinding without rand feature");
 
                 self.pad_to_power_of_two();
             }

@@ -7,7 +7,8 @@ use alloc::vec::Vec;
 // Re-export base FRI structure types from core
 pub use qp_plonky2_core::{
     FriBatchInfo, FriCoefficient, FriInstanceInfo, FriOpeningBatch, FriOpeningExpression,
-    FriOpeningTerm, FriOpenings, FriOracleInfo, FriPolynomialInfo,
+    FriOpeningTerm, FriOpenings, FriOracleInfo, FriOracleLayout, FriOracleRepresentation,
+    FriPolynomialInfo,
 };
 
 use crate::field::extension::Extendable;

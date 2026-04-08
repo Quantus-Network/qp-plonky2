@@ -29,7 +29,7 @@ use crate::field::types::Field;
 use crate::fri::oracle::PolynomialBatch;
 use crate::fri::structure::{
     FriBatchInfo, FriBatchInfoTarget, FriInstanceInfo, FriInstanceInfoTarget, FriOpeningExpression,
-    FriOracleInfo, FriPolynomialInfo,
+    FriOracleInfo, FriOracleLayout, FriOracleRepresentation, FriPolynomialInfo,
 };
 use crate::fri::FriParams;
 // Re-export CircuitConfig from core
@@ -369,19 +369,6 @@ pub struct CommonCircuitData<F: RichField + Extendable<D>, const D: usize> {
 
     /// The stored lookup tables.
     pub luts: Vec<LookupTable>,
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Serialize)]
-pub struct FriOracleLayout {
-    pub raw_polys: usize,
-    pub logical_polys: usize,
-    pub representation: FriOracleRepresentation,
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Serialize)]
-pub enum FriOracleRepresentation {
-    Raw,
-    SplitMask { split_power: usize },
 }
 
 impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {

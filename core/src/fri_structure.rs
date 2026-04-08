@@ -132,3 +132,21 @@ pub struct FriChallenges<F: RichField + Extendable<D>, const D: usize> {
     /// Indices at which the oracle is queried in FRI.
     pub fri_query_indices: Vec<usize>,
 }
+
+/// Raw-vs-logical oracle layout metadata used to reconstruct PolyFri logical openings
+/// from committed raw polynomials.
+#[derive(Debug, Clone, Eq, PartialEq, Serialize)]
+pub struct FriOracleLayout {
+    pub raw_polys: usize,
+    pub logical_polys: usize,
+    pub representation: FriOracleRepresentation,
+}
+
+/// Representation of how a logical polynomial is stored in the commitment.
+#[derive(Debug, Clone, Eq, PartialEq, Serialize)]
+pub enum FriOracleRepresentation {
+    /// The polynomial is stored as-is.
+    Raw,
+    /// The polynomial is split into low and high parts, masked for zero-knowledge.
+    SplitMask { split_power: usize },
+}

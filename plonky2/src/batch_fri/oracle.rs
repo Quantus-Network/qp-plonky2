@@ -24,7 +24,7 @@ use crate::plonk::config::GenericConfig;
 use crate::timed;
 use crate::util::reducing::ReducingFactor;
 use crate::util::timing::TimingTree;
-use crate::util::{reverse_bits, transpose};
+use crate::util::{cached_point_power, reverse_bits, transpose};
 
 /// Represents a batch FRI oracle, i.e. a batch of polynomials with different degrees which have
 /// been Merkle-ized in a [`BatchMerkleTree`].
@@ -42,10 +42,16 @@ pub struct BatchFriOracle<F: RichField + Extendable<D>, C: GenericConfig<D, F = 
 impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
     BatchFriOracle<F, C, D>
 {
-    fn eval_coefficient(coefficient: &FriCoefficient<F, D>, point: F::Extension) -> F::Extension {
+    fn eval_coefficient(
+        coefficient: &FriCoefficient<F, D>,
+        point: F::Extension,
+        point_power_cache: &mut Vec<(usize, F::Extension)>,
+    ) -> F::Extension {
         match coefficient {
             FriCoefficient::One => F::Extension::ONE,
-            FriCoefficient::PointPower(power) => point.exp_u64(*power as u64),
+            FriCoefficient::PointPower(power) => {
+                cached_point_power(point, *power, point_power_cache)
+            }
             FriCoefficient::Constant(constant) => *constant,
         }
     }
@@ -54,12 +60,14 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         expression: &FriOpeningExpression<F, D>,
         oracles: &[&Self],
         point: F::Extension,
+        point_power_cache: &mut Vec<(usize, F::Extension)>,
     ) -> PolynomialCoeffs<F::Extension> {
         expression
             .terms
             .iter()
             .map(|term| {
-                let coefficient = Self::eval_coefficient(&term.coefficient, point);
+                let coefficient =
+                    Self::eval_coefficient(&term.coefficient, point, point_power_cache);
                 let poly = &oracles[term.polynomial.oracle_index].polynomials
                     [term.polynomial.polynomial_index];
                 let mut scaled = poly.to_extension::<D>();
@@ -181,14 +189,16 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
             // There are usually two batches for the openings at `zeta` and `g * zeta`.
             // The oracles used in Plonky2 are given in `FRI_ORACLES` in `plonky2/src/plonk/plonk_common.rs`.
             for FriBatchInfo { point, openings } in &instance.batches {
+                let mut point_power_cache = Vec::new();
                 let composition_poly = timed!(
                     timing,
                     &format!("reduce batch of {} opening expressions", openings.len()),
-                    alpha.reduce_polys(
-                        openings
-                            .iter()
-                            .map(|expr| Self::opening_expression_poly(expr, oracles, *point))
-                    )
+                    alpha.reduce_polys(openings.iter().map(|expr| Self::opening_expression_poly(
+                        expr,
+                        oracles,
+                        *point,
+                        &mut point_power_cache
+                    )))
                 );
                 let mut quotient = composition_poly.divide_by_linear(*point);
                 quotient.coeffs.push(F::Extension::ZERO); // pad back to power of two

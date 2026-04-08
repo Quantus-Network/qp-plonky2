@@ -301,12 +301,14 @@ where
             .collect()
     );
 
+    // Quotient chunks stay on the raw path - their opened values are fully determined by other
+    // openings, so ZK for that contribution comes from the Phase-2 FRI batch mask instead.
     let quotient_polys_commitment = timed!(
         timing,
         "commit to quotient polys",
         commit_coeffs_with_split_mask::<F, C, D>(
             all_quotient_poly_chunks,
-            quotient_mask_plan(common_data).as_ref(),
+            None,
             config.fri_config.rate_bits,
             config.uses_leaf_hiding() && PlonkOracle::QUOTIENT.blinding,
             config.fri_config.cap_height,
@@ -400,19 +402,6 @@ fn z_mask_plan<F: RichField + Extendable<D>, const D: usize>(
     common_data: &CommonCircuitData<F, D>,
 ) -> Option<SplitMaskPlan> {
     split_mask_plan_from_mode(common_data, |cfg| cfg.z_mask_degree)
-}
-
-fn quotient_mask_plan<F: RichField + Extendable<D>, const D: usize>(
-    common_data: &CommonCircuitData<F, D>,
-) -> Option<SplitMaskPlan> {
-    if let ZkMode::PolyFri(poly_fri) = &common_data.config.zk_config.mode {
-        let _reserved_for_future_use = poly_fri.quotient_mask_degree;
-    }
-    // Phase 1 keeps quotient chunks on the raw path so the native verifier's
-    // quotient identity remains unchanged while witness-side batches move to
-    // split masking. Quotient masking is covered later by the explicit Phase-2
-    // FRI batch mask, so `quotient_mask_degree` is currently a reserved knob.
-    None
 }
 
 /// Compute the partial products used in the `Z` polynomials.
