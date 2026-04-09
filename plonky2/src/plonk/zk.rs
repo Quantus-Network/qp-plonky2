@@ -4,6 +4,8 @@
 //! `M(X) = f(X) + (X^n - 1) * r(X)`, so public proof objects never expose the raw split pieces.
 
 #[cfg(not(feature = "std"))]
+use alloc::vec;
+#[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
 
 use crate::field::extension::Extendable;
