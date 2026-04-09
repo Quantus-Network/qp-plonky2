@@ -511,8 +511,8 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
 
     /// Expression-aware opening proof entrypoint used by the PolyFri prover path.
     ///
-    /// The instance metadata decides whether each logical opening is raw or reconstructed from
-    /// split-mask pieces; the oracle inputs stay as raw committed batches.
+    /// The instance metadata now names the public logical openings directly. Any prover-private
+    /// split-mask helper must be collapsed before it reaches the committed oracle batches.
     pub(crate) fn prove_openings_masked_with_options(
         instance: &FriInstanceInfo<F, D>,
         oracles: &[&Self],

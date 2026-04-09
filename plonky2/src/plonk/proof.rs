@@ -441,6 +441,7 @@ mod tests {
     use plonky2_field::types::{Field, Sample};
 
     use super::*;
+    use crate::field::extension::Extendable;
     use crate::fri::FriReductionStrategy;
     use crate::gates::lookup_table::LookupTable;
     use crate::gates::noop::NoopGate;
@@ -448,6 +449,7 @@ mod tests {
     use crate::plonk::circuit_builder::CircuitBuilder;
     use crate::plonk::circuit_data::{CircuitConfig, CircuitData};
     use crate::plonk::config::PoseidonGoldilocksConfig;
+    use crate::plonk::plonk_common::{salt_size, PlonkOracle};
     use crate::plonk::verifier::verify;
 
     #[cfg(feature = "rand")]
@@ -562,6 +564,67 @@ mod tests {
 
     #[test]
     #[cfg(feature = "rand")]
+    fn test_polyfri_initial_leaf_widths_are_logical_not_split() -> Result<()> {
+        let (data, proof) = build_polyfri_compression_fixture()?;
+
+        let query_round = &proof.proof.opening_proof.query_round_proofs[0];
+        let wires_leaf = &query_round.initial_trees_proof.evals_proofs[PlonkOracle::WIRES.index].0;
+        let zs_leaf =
+            &query_round.initial_trees_proof.evals_proofs[PlonkOracle::ZS_PARTIAL_PRODUCTS.index].0;
+
+        let expected_wires_leaf_len = data.common.fri_oracle_layouts[PlonkOracle::WIRES.index]
+            .logical_polys
+            + salt_size(data.common.fri_params.leaf_hiding && PlonkOracle::WIRES.blinding);
+        let expected_zs_leaf_len =
+            data.common.fri_oracle_layouts[PlonkOracle::ZS_PARTIAL_PRODUCTS.index].logical_polys
+                + salt_size(
+                    data.common.fri_params.leaf_hiding && PlonkOracle::ZS_PARTIAL_PRODUCTS.blinding,
+                );
+
+        assert_eq!(wires_leaf.len(), expected_wires_leaf_len);
+        assert_eq!(zs_leaf.len(), expected_zs_leaf_len);
+
+        Ok(())
+    }
+
+    #[test]
+    #[cfg(feature = "rand")]
+    fn test_polyfri_initial_leaf_value_tamper_fails() -> Result<()> {
+        const D: usize = 2;
+        type C = PoseidonGoldilocksConfig;
+        let (data, mut proof) = build_polyfri_compression_fixture()?;
+
+        proof.proof.opening_proof.query_round_proofs[0]
+            .initial_trees_proof
+            .evals_proofs[PlonkOracle::WIRES.index]
+            .0[0] += <<C as GenericConfig<D>>::F as crate::field::types::Field>::ONE;
+
+        assert!(data.verify(proof).is_err());
+        Ok(())
+    }
+
+    #[test]
+    #[cfg(feature = "rand")]
+    fn test_polyfri_batch_mask_query_value_tamper_fails() -> Result<()> {
+        const D: usize = 2;
+        type C = PoseidonGoldilocksConfig;
+        let (data, mut proof) = build_polyfri_compression_fixture()?;
+
+        proof
+            .proof
+            .opening_proof
+            .batch_mask_proof
+            .as_mut()
+            .expect("PolyFri proofs must carry an explicit batch-mask proof")
+            .query_openings[0]
+            .values[0] += <<C as GenericConfig<D>>::F as Extendable<D>>::Extension::ONE;
+
+        assert!(data.verify(proof).is_err());
+        Ok(())
+    }
+
+    #[test]
+    #[cfg(feature = "rand")]
     fn test_compressed_polyfri_batch_mask_value_tamper_fails() -> Result<()> {
         const D: usize = 2;
         type C = PoseidonGoldilocksConfig;
@@ -601,7 +664,7 @@ mod tests {
             .flat_map(|query_opening| query_opening.merkle_proof.siblings.iter_mut())
             .next()
             .expect("compressed batch-mask proof should retain at least one sibling");
-        sibling.elements[0] += F::ONE;
+        sibling.elements[0] += <F as Field>::ONE;
 
         assert!(data.verify_compressed(compressed_proof).is_err());
         Ok(())

@@ -17,7 +17,7 @@ use crate::field::extension::Extendable;
 use crate::field::types::Field;
 use crate::fri::structure::{
     FriBatchInfo, FriInstanceInfo, FriOpeningExpression, FriOracleInfo, FriOracleLayout,
-    FriOracleRepresentation, FriPolynomialInfo,
+    FriPolynomialInfo,
 };
 use crate::gates::gate::GateRef;
 use crate::gates::lookup_table::LookupTable;
@@ -101,10 +101,18 @@ impl<C: GenericConfig<D>, const D: usize> VerifierOnlyCircuitData<C, D> {
 pub struct CommonVerifierData<F: RichField + Extendable<D>, const D: usize> {
     pub config: CircuitConfig,
 
+    /// Trace degree bits of the underlying PLONK circuit.
+    pub trace_degree_bits: usize,
+
     pub fri_params: FriParams,
 
-    /// Raw-vs-logical oracle layout metadata used by the native verifier to reconstruct PolyFri
-    /// logical openings from the committed raw polynomials.
+    /// Shared public degree bits for the initial phase-1 FRI oracle commitments in PolyFri mode.
+    pub public_initial_degree_bits: usize,
+
+    /// Raw-vs-logical oracle layout metadata used by prover-private helpers and tests.
+    ///
+    /// Public FRI instance generation now emits only logical masked openings, so this metadata is
+    /// no longer consulted when building the public proof shape.
     pub fri_oracle_layouts: Vec<FriOracleLayout>,
 
     /// The types of gates used in this circuit, along with their prefixes.
@@ -156,7 +164,22 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
     }
 
     pub const fn degree_bits(&self) -> usize {
-        self.fri_params.degree_bits
+        self.trace_degree_bits
+    }
+
+    /// Degree bits for the public initial FRI codeword used by masked phase-1 oracles.
+    pub const fn public_initial_degree_bits(&self) -> usize {
+        self.public_initial_degree_bits
+    }
+
+    /// Degree of the public initial FRI codeword used by masked phase-1 oracles.
+    pub const fn public_initial_degree(&self) -> usize {
+        1 << self.public_initial_degree_bits()
+    }
+
+    /// LDE size of the public initial codeword used by masked phase-1 oracles.
+    pub const fn public_initial_lde_size(&self) -> usize {
+        self.public_initial_degree() << self.config.fri_config.rate_bits
     }
 
     pub const fn degree(&self) -> usize {
@@ -266,7 +289,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
         ]
         .into_iter()
         .map(|oracle| FriOracleInfo {
-            num_polys: self.fri_oracle_layouts[oracle.index].raw_polys,
+            num_polys: self.fri_oracle_layouts[oracle.index].logical_polys,
             blinding: oracle.blinding,
         })
         .collect()
@@ -284,27 +307,13 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
     where
         I: IntoIterator<Item = usize>,
     {
-        let layout = &self.fri_oracle_layouts[oracle.index];
         logical_indices
             .into_iter()
-            .map(|logical_index| match layout.representation {
-                FriOracleRepresentation::Raw => FriOpeningExpression::raw(FriPolynomialInfo {
+            .map(|logical_index| {
+                FriOpeningExpression::raw(FriPolynomialInfo {
                     oracle_index: oracle.index,
                     polynomial_index: logical_index,
-                }),
-                FriOracleRepresentation::SplitMask { split_power } => {
-                    FriOpeningExpression::split_mask(
-                        FriPolynomialInfo {
-                            oracle_index: oracle.index,
-                            polynomial_index: 2 * logical_index,
-                        },
-                        FriPolynomialInfo {
-                            oracle_index: oracle.index,
-                            polynomial_index: 2 * logical_index + 1,
-                        },
-                        split_power,
-                    )
-                }
+                })
             })
             .collect()
     }

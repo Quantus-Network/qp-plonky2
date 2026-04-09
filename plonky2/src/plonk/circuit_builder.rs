@@ -11,7 +11,7 @@ use itertools::Itertools;
 #[cfg(feature = "rand")]
 use log::info;
 use log::{debug, warn, Level};
-use qp_plonky2_core::circuit_config::ZkMode;
+use qp_plonky2_core::{PolyFriZkConfig, ZkMode};
 #[cfg(feature = "timing")]
 use web_time::Instant;
 
@@ -850,8 +850,29 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             .config
             .fri_config
             .fri_params(degree_bits, self.config.uses_leaf_hiding());
+        if let ZkMode::PolyFri(poly_fri) = &self.config.zk_config.mode {
+            let trace_degree = 1 << degree_bits;
+            assert!(
+                poly_fri.wire_mask_degree < trace_degree,
+                "Invalid PolyFri config: `wire_mask_degree` must be less than the trace degree ({trace_degree}), got {}",
+                poly_fri.wire_mask_degree,
+            );
+            assert!(
+                poly_fri.z_mask_degree < trace_degree,
+                "Invalid PolyFri config: `z_mask_degree` must be less than the trace degree ({trace_degree}), got {}",
+                poly_fri.z_mask_degree,
+            );
+        }
+        let public_initial_degree_bits = match &self.config.zk_config.mode {
+            ZkMode::PolyFri(poly_fri) => PolyFriZkConfig::public_initial_degree_bits(
+                1 << degree_bits,
+                poly_fri.wire_mask_degree.max(poly_fri.z_mask_degree),
+            ),
+            _ => degree_bits,
+        };
 
         if let ZkMode::PolyFri(poly_fri) = &self.config.zk_config.mode {
+            fri_params.degree_bits = public_initial_degree_bits;
             fri_params.batch_masking = Some(FriBatchMaskingParams {
                 mask_degree: poly_fri.fri_batch_mask_degree,
             });
@@ -872,9 +893,26 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         };
         self.config.validate_poly_fri_params(
             1 << degree_bits,
+            public_initial_degree_bits,
             batch_mask_chunk_degree,
             self.num_luts() != 0,
         );
+
+        if self.config.uses_poly_fri_zk() {
+            assert!(
+                fri_params.total_arities()
+                    <= fri_params.degree_bits + self.config.fri_config.rate_bits
+                        - self.config.fri_config.cap_height,
+                "FRI total reduction arity is too large.",
+            );
+        } else {
+            assert!(
+                fri_params.total_arities()
+                    <= degree_bits + self.config.fri_config.rate_bits
+                        - self.config.fri_config.cap_height,
+                "FRI total reduction arity is too large.",
+            );
+        }
 
         fri_params
     }
@@ -1189,11 +1227,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         debug!("Degree after final padding: {}", degree);
         let degree_bits = log2_strict(degree);
         let fri_params = self.fri_params(degree_bits);
-        assert!(
-            fri_params.total_arities() <= degree_bits + rate_bits - cap_height,
-            "FRI total reduction arity is too large.",
-        );
-
+        let public_initial_degree_bits = fri_params.degree_bits;
         let quotient_degree_factor = self.config.max_quotient_degree_factor;
         let mut gates = self.gates.iter().cloned().collect::<Vec<_>>();
         // Gates need to be sorted by their degrees (and ID to make the ordering deterministic) to compute the selector polynomials.
@@ -1226,19 +1260,32 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             self.sigma_vecs(&k_is, &subgroup)
         );
 
-        // Precompute FFT roots.
-        let max_fft_points = 1 << (degree_bits + max(rate_bits, log2_ceil(quotient_degree_factor)));
+        // Precompute FFT roots for the larger PolyFri masked logical commitments. Trace-domain
+        // batches compute exact FFT roots on demand so they are never coupled to the public size.
+        let max_fft_degree_bits = max(degree_bits, public_initial_degree_bits);
+        let max_fft_points =
+            1 << (max_fft_degree_bits + max(rate_bits, log2_ceil(quotient_degree_factor)));
         let fft_root_table = fft_root_table(max_fft_points);
 
         let constants_sigmas_commitment = if commit_to_sigma {
             let constants_sigmas_vecs = [constant_vecs, sigma_vecs.clone()].concat();
-            PolynomialBatch::<F, C, D>::from_values(
-                constants_sigmas_vecs,
+            let constants_sigmas_coeffs = constants_sigmas_vecs
+                .into_iter()
+                .map(|poly| {
+                    let mut coeffs = poly.ifft();
+                    coeffs
+                        .pad(1 << public_initial_degree_bits)
+                        .expect("Public PolyFri degree must dominate the trace degree");
+                    coeffs
+                })
+                .collect::<Vec<_>>();
+            PolynomialBatch::<F, C, D>::from_coeffs(
+                constants_sigmas_coeffs,
                 rate_bits,
                 PlonkOracle::CONSTANTS_SIGMAS.blinding,
                 cap_height,
                 &mut timing,
-                Some(&fft_root_table),
+                None,
             )
         } else {
             PolynomialBatch::<F, C, D>::default()
@@ -1339,7 +1386,9 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
 
         let common = CommonCircuitData {
             config,
+            trace_degree_bits: degree_bits,
             fri_params,
+            public_initial_degree_bits,
             fri_oracle_layouts: vec![
                 FriOracleLayout {
                     raw_polys: num_constants + sigma_vecs.len(),
@@ -1348,11 +1397,9 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
                 },
                 if uses_poly_fri_zk {
                     FriOracleLayout {
-                        raw_polys: 2 * wires_logical_polys,
+                        raw_polys: wires_logical_polys,
                         logical_polys: wires_logical_polys,
-                        representation: FriOracleRepresentation::SplitMask {
-                            split_power: degree,
-                        },
+                        representation: FriOracleRepresentation::Raw,
                     }
                 } else {
                     FriOracleLayout {
@@ -1363,11 +1410,9 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
                 },
                 if uses_poly_fri_zk {
                     FriOracleLayout {
-                        raw_polys: 2 * zs_lookup_logical_polys,
+                        raw_polys: zs_lookup_logical_polys,
                         logical_polys: zs_lookup_logical_polys,
-                        representation: FriOracleRepresentation::SplitMask {
-                            split_power: degree,
-                        },
+                        representation: FriOracleRepresentation::Raw,
                     }
                 } else {
                     FriOracleLayout {
@@ -1377,8 +1422,9 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
                     }
                 },
                 FriOracleLayout {
-                    // Phase 1 keeps the native verifier algebra unchanged, so the quotient oracle
-                    // stays raw even when witness-side oracles use split masking.
+                    // The quotient oracle remains raw; phase-1 masking only applies to witness-
+                    // side logical commitments, while the explicit phase-2 batch mask handles the
+                    // reduction transcript.
                     raw_polys: quotient_logical_polys,
                     logical_polys: quotient_logical_polys,
                     representation: FriOracleRepresentation::Raw,
