@@ -182,6 +182,7 @@ where
         commit_values_with_split_mask::<F, C, D>(
             wires_values,
             wire_mask_plan(common_data).as_ref(),
+            Some(common_data.public_initial_degree()),
             config.fri_config.rate_bits,
             config.uses_leaf_hiding() && PlonkOracle::WIRES.blinding,
             config.fri_config.cap_height,
@@ -253,6 +254,7 @@ where
         commit_values_with_split_mask::<F, C, D>(
             zs_partial_products_lookups,
             z_mask_plan(common_data).as_ref(),
+            Some(common_data.public_initial_degree()),
             config.fri_config.rate_bits,
             config.uses_leaf_hiding() && PlonkOracle::ZS_PARTIAL_PRODUCTS.blinding,
             config.fri_config.cap_height,
@@ -309,11 +311,12 @@ where
         commit_coeffs_with_split_mask::<F, C, D>(
             all_quotient_poly_chunks,
             None,
+            Some(common_data.public_initial_degree()),
             config.fri_config.rate_bits,
             config.uses_leaf_hiding() && PlonkOracle::QUOTIENT.blinding,
             config.fri_config.cap_height,
             timing,
-            prover_data.fft_root_table.as_ref(),
+            None,
         )
     );
 
@@ -678,7 +681,10 @@ fn compute_quotient_polys<
 
     // We reuse the LDE computed in `PolynomialBatch` and extract every `step` points to get
     // an LDE matching `max_filtered_constraint_degree`.
-    let step = 1 << (common_data.config.fri_config.rate_bits - quotient_degree_bits);
+    let step = 1
+        << (common_data.public_initial_degree_bits() - common_data.degree_bits()
+            + common_data.config.fri_config.rate_bits
+            - quotient_degree_bits);
     // When opening the `Z`s polys at the "next" point in Plonk, need to look at the point `next_step`
     // steps away since we work on an LDE of degree `max_filtered_constraint_degree`.
     let next_step = 1 << quotient_degree_bits;

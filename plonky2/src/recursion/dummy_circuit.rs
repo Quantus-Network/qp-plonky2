@@ -218,6 +218,7 @@ where
         let verifier_data = VerifierCircuitData {
             common: CommonCircuitData {
                 config: CircuitConfig::default(),
+                trace_degree_bits: 0,
                 fri_params: FriParams {
                     config: FriConfig {
                         rate_bits: 0,
@@ -232,6 +233,7 @@ where
                     reduction_arity_bits: vec![],
                     final_poly_layout: FriFinalPolyLayout::Single,
                 },
+                public_initial_degree_bits: 0,
                 fri_oracle_layouts: vec![],
                 gates: vec![],
                 selectors_info: SelectorsInfo {

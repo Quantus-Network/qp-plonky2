@@ -1,8 +1,7 @@
-//! Split-mask helpers for PLONK polynomial commitments.
+//! Masked polynomial helpers for PLONK commitments.
 //!
-//! Phase 1 keeps the native trace degree fixed by committing two degree-`< n` pieces per masked
-//! logical polynomial instead of appending witness rows. The verifier continues to reason about the
-//! logical polynomial `low(X) + X^n * high(X)`.
+//! PolyFri phase 1 commits the logical masked polynomial directly,
+//! `M(X) = f(X) + (X^n - 1) * r(X)`, so public proof objects never expose the raw split pieces.
 
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
@@ -19,6 +18,9 @@ use crate::util::cached_point_power;
 use crate::util::timing::TimingTree;
 
 /// How a logical polynomial is represented inside the raw committed batch.
+///
+/// `SplitMask` remains only for prover-private helper paths and tests. Public PolyFri
+/// commitments now use `Raw` for the masked logical polynomial itself.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum LogicalPolynomialLayout {
     Raw {
@@ -44,10 +46,21 @@ pub struct LogicalPolynomialBatch<
     pub logical_layouts: Vec<LogicalPolynomialLayout>,
 }
 
-/// Prover-side plan for split masking.
+impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize> Default
+    for LogicalPolynomialBatch<F, C, D>
+{
+    fn default() -> Self {
+        Self {
+            raw: PolynomialBatch::default(),
+            logical_layouts: Vec::new(),
+        }
+    }
+}
+
+/// Prover-side plan for logical masking.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct SplitMaskPlan {
-    /// Trace-domain size `n` so the logical polynomial is reconstructed as `low(X) + X^n * high(X)`.
+    /// Trace-domain size `n` used in the vanishing-term mask `f(X) + (X^n - 1) * r(X)`.
     pub split_power: usize,
     /// Degree bound for the sampled mask polynomial `r(X)`.
     pub mask_degree: usize,
@@ -98,10 +111,10 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         self.raw.polynomials.len()
     }
 
-    /// Reconstruct the logical LDE values at a queried coset point from the raw committed leaf.
+    /// Reconstruct the logical LDE values at a queried coset point.
     ///
-    /// This lets quotient evaluation consume the same logical polynomials that the verifier opens,
-    /// while the committed leaf still stores only raw split-mask pieces.
+    /// PolyFri now commits masked logical polynomials directly, but the helper still accepts the
+    /// legacy split layout for prover-private code paths and tests.
     pub fn get_lde_values(&self, index: usize, step: usize, point: F) -> Vec<F> {
         let raw_values = self.raw.get_lde_values(index, step);
         let mut point_power_cache = Vec::new();
@@ -126,6 +139,7 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
 pub fn commit_values_with_split_mask<F, C, const D: usize>(
     values: Vec<PolynomialValues<F>>,
     mask_plan: Option<&SplitMaskPlan>,
+    target_len: Option<usize>,
     rate_bits: usize,
     leaf_hiding: bool,
     cap_height: usize,
@@ -138,7 +152,7 @@ where
 {
     let coeffs = timed!(
         timing,
-        "IFFT for split-mask commit",
+        "IFFT for masked commit",
         values
             .into_iter()
             .map(PolynomialValues::ifft)
@@ -148,6 +162,7 @@ where
     commit_coeffs_with_split_mask(
         coeffs,
         mask_plan,
+        target_len,
         rate_bits,
         leaf_hiding,
         cap_height,
@@ -159,6 +174,7 @@ where
 pub fn commit_coeffs_with_split_mask<F, C, const D: usize>(
     coeffs: Vec<PolynomialCoeffs<F>>,
     mask_plan: Option<&SplitMaskPlan>,
+    target_len: Option<usize>,
     rate_bits: usize,
     leaf_hiding: bool,
     cap_height: usize,
@@ -174,6 +190,18 @@ where
             let logical_layouts = (0..coeffs.len())
                 .map(|raw_index| LogicalPolynomialLayout::Raw { raw_index })
                 .collect();
+            let target_len = target_len.unwrap_or_else(|| {
+                coeffs
+                    .iter()
+                    .map(|poly| poly.len())
+                    .max()
+                    .expect("masked commitment requires at least one polynomial")
+                    .next_power_of_two()
+            });
+            let mut coeffs = coeffs;
+            for poly in &mut coeffs {
+                poly.pad(target_len).unwrap();
+            }
             let raw = PolynomialBatch::from_coeffs(
                 coeffs,
                 rate_bits,
@@ -190,27 +218,31 @@ where
         Some(mask_plan) => {
             let masks = timed!(
                 timing,
-                "sample split masks",
+                "sample phase-1 masks",
                 sample_mask_polys(coeffs.len(), mask_plan.mask_degree)
             );
 
-            let mut raw_coeffs = Vec::with_capacity(coeffs.len() * 2);
+            let mut masked_coeffs = Vec::with_capacity(coeffs.len());
             let mut logical_layouts = Vec::with_capacity(coeffs.len());
-            for (f, r) in coeffs.into_iter().zip(masks) {
-                let low_index = raw_coeffs.len();
-                let high_index = low_index + 1;
-                let (low, high) = split_mask_coeffs(f, r, mask_plan.split_power);
-                raw_coeffs.push(low);
-                raw_coeffs.push(high);
-                logical_layouts.push(LogicalPolynomialLayout::SplitMask {
-                    low_index,
-                    high_index,
-                    split_power: mask_plan.split_power,
-                });
+            for (raw_index, (f, r)) in coeffs.into_iter().zip(masks).enumerate() {
+                masked_coeffs.push(mask_with_vanishing(f, r, mask_plan.split_power));
+                logical_layouts.push(LogicalPolynomialLayout::Raw { raw_index });
+            }
+
+            let target_len = target_len.unwrap_or_else(|| {
+                masked_coeffs
+                    .iter()
+                    .map(|poly| poly.len())
+                    .max()
+                    .expect("masked commitment requires at least one polynomial")
+                    .next_power_of_two()
+            });
+            for poly in &mut masked_coeffs {
+                poly.pad(target_len).unwrap();
             }
 
             let raw = PolynomialBatch::from_coeffs(
-                raw_coeffs,
+                masked_coeffs,
                 rate_bits,
                 leaf_hiding,
                 cap_height,
@@ -244,6 +276,33 @@ pub fn sample_mask_polys<F: RichField>(
     }
 }
 
+/// Return the masked logical polynomial `f(X) + (X^n - 1) * r(X)`.
+pub fn mask_with_vanishing<F: Field>(
+    f: PolynomialCoeffs<F>,
+    r: PolynomialCoeffs<F>,
+    split_power: usize,
+) -> PolynomialCoeffs<F> {
+    assert!(
+        f.len() <= split_power,
+        "Masked logical polynomial exceeds the trace-degree bound"
+    );
+    assert!(
+        r.len() <= split_power,
+        "Mask polynomial exceeds the trace-degree bound"
+    );
+
+    let mut coeffs = vec![F::ZERO; split_power + r.len()];
+    for (i, coeff) in f.coeffs.into_iter().enumerate() {
+        coeffs[i] += coeff;
+    }
+    for (i, coeff) in r.coeffs.into_iter().enumerate() {
+        coeffs[i] -= coeff;
+        coeffs[i + split_power] += coeff;
+    }
+
+    PolynomialCoeffs::new(coeffs)
+}
+
 pub fn split_mask_coeffs<F: Field>(
     mut f: PolynomialCoeffs<F>,
     mut r: PolynomialCoeffs<F>,
@@ -269,7 +328,8 @@ pub fn split_mask_coeffs<F: Field>(
 #[cfg(test)]
 mod tests {
     use super::{
-        split_mask_coeffs, LogicalPolynomialBatch, LogicalPolynomialLayout, SplitMaskPlan,
+        mask_with_vanishing, split_mask_coeffs, LogicalPolynomialBatch, LogicalPolynomialLayout,
+        SplitMaskPlan,
     };
     use crate::field::extension::Extendable;
     use crate::field::goldilocks_field::GoldilocksField;
@@ -299,6 +359,21 @@ mod tests {
             assert_eq!(low_coeff + high_coeff, original);
             assert_eq!(high_coeff, mask);
         }
+    }
+
+    #[test]
+    fn mask_with_vanishing_matches_expected_identity() {
+        let n = 8;
+        let f = PolynomialCoeffs::new(vec![F::from_canonical_u64(4), F::ONE, F::TWO]);
+        let r = PolynomialCoeffs::new(vec![F::from_canonical_u64(3), F::from_canonical_u64(5)]);
+
+        let masked = mask_with_vanishing(f.clone(), r.clone(), n);
+        let off_subgroup = F::coset_shift().into();
+        let expected = f.to_extension::<D>().eval(off_subgroup)
+            + (off_subgroup.exp_u64(n as u64) - <F as Extendable<D>>::Extension::ONE)
+                * r.to_extension::<D>().eval(off_subgroup);
+
+        assert_eq!(masked.to_extension::<D>().eval(off_subgroup), expected);
     }
 
     #[test]
@@ -341,7 +416,7 @@ mod tests {
 
     #[test]
     #[cfg(feature = "rand")]
-    fn commit_coeffs_split_mask_exposes_logical_polynomials() {
+    fn commit_coeffs_split_mask_exposes_masked_logical_polynomials() {
         let n = 8;
         let coeffs = vec![
             PolynomialCoeffs::new(vec![F::ONE, F::TWO]),
@@ -356,6 +431,7 @@ mod tests {
         let batch = super::commit_coeffs_with_split_mask::<F, C, D>(
             coeffs,
             Some(&plan),
+            None,
             1,
             false,
             0,
@@ -364,7 +440,11 @@ mod tests {
         );
 
         assert_eq!(batch.logical_layouts.len(), originals.len());
-        assert_eq!(batch.raw_polys_len(), originals.len() * 2);
+        assert_eq!(batch.raw_polys_len(), originals.len());
+        assert!(batch
+            .logical_layouts
+            .iter()
+            .all(|layout| matches!(layout, LogicalPolynomialLayout::Raw { .. })));
 
         let subgroup_gen = F::primitive_root_of_unity(3);
         for i in 0..n {

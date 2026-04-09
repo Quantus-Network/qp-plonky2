@@ -825,7 +825,9 @@ pub trait Read {
         gate_serializer: &dyn GateSerializer<F, D>,
     ) -> IoResult<CommonCircuitData<F, D>> {
         let config = self.read_circuit_config()?;
+        let trace_degree_bits = self.read_usize()?;
         let fri_params = self.read_fri_params()?;
+        let public_initial_degree_bits = self.read_usize()?;
         let fri_oracle_layouts_len = self.read_usize()?;
         let fri_oracle_layouts = (0..fri_oracle_layouts_len)
             .map(|_| self.read_fri_oracle_layout())
@@ -858,7 +860,9 @@ pub trait Read {
         // to pass it as argument when reading the gates.
         let mut common_data = CommonCircuitData {
             config,
+            trace_degree_bits,
             fri_params,
+            public_initial_degree_bits,
             fri_oracle_layouts,
             gates: vec![],
             selectors_info,
@@ -1971,7 +1975,9 @@ pub trait Write {
     ) -> IoResult<()> {
         let CommonCircuitData {
             config,
+            trace_degree_bits,
             fri_params,
+            public_initial_degree_bits,
             fri_oracle_layouts,
             gates,
             selectors_info,
@@ -1987,7 +1993,9 @@ pub trait Write {
         } = common_data;
 
         self.write_circuit_config(config)?;
+        self.write_usize(*trace_degree_bits)?;
         self.write_fri_params(fri_params)?;
+        self.write_usize(*public_initial_degree_bits)?;
         self.write_usize(fri_oracle_layouts.len())?;
         for layout in fri_oracle_layouts {
             self.write_fri_oracle_layout(layout)?;

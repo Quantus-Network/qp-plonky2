@@ -29,7 +29,7 @@ use crate::field::types::Field;
 use crate::fri::oracle::PolynomialBatch;
 use crate::fri::structure::{
     FriBatchInfo, FriBatchInfoTarget, FriInstanceInfo, FriInstanceInfoTarget, FriOpeningExpression,
-    FriOracleInfo, FriOracleLayout, FriOracleRepresentation, FriPolynomialInfo,
+    FriOracleInfo, FriOracleLayout, FriPolynomialInfo,
 };
 use crate::fri::FriParams;
 // Re-export CircuitConfig from core
@@ -332,10 +332,20 @@ impl<C: GenericConfig<D>, const D: usize> VerifierOnlyCircuitData<C, D> {
 pub struct CommonCircuitData<F: RichField + Extendable<D>, const D: usize> {
     pub config: CircuitConfig,
 
+    /// Trace degree bits of the underlying PLONK circuit.
+    pub trace_degree_bits: usize,
+
     pub fri_params: FriParams,
 
-    /// Raw-vs-logical oracle layout metadata used to reconstruct PolyFri logical openings without
-    /// exposing split components in the proof.
+    /// Shared public degree bits for the initial phase-1 FRI oracle commitments in PolyFri mode.
+    /// This may be larger than the trace degree if logical masking lifts the committed polynomial
+    /// degree above the native trace domain.
+    pub public_initial_degree_bits: usize,
+
+    /// Raw-vs-logical oracle layout metadata used by prover-private helpers and tests.
+    ///
+    /// Public FRI instance generation now emits only logical masked openings, so this metadata is
+    /// no longer consulted when building the public proof shape.
     pub fri_oracle_layouts: Vec<FriOracleLayout>,
 
     /// The types of gates used in this circuit, along with their prefixes.
@@ -386,8 +396,24 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
         buffer.read_common_circuit_data(gate_serializer)
     }
 
+    /// Trace degree bits used by the PLONK identity checks and subgroup arithmetic.
     pub const fn degree_bits(&self) -> usize {
-        self.fri_params.degree_bits
+        self.trace_degree_bits
+    }
+
+    /// Degree bits for the public initial FRI codeword used by masked phase-1 oracles.
+    pub const fn public_initial_degree_bits(&self) -> usize {
+        self.public_initial_degree_bits
+    }
+
+    /// Degree of the public initial FRI codeword used by masked phase-1 oracles.
+    pub const fn public_initial_degree(&self) -> usize {
+        1 << self.public_initial_degree_bits()
+    }
+
+    /// LDE size of the public initial codeword used by masked phase-1 oracles.
+    pub const fn public_initial_lde_size(&self) -> usize {
+        self.public_initial_degree() << self.config.fri_config.rate_bits
     }
 
     pub const fn degree(&self) -> usize {
@@ -523,7 +549,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
         ]
         .into_iter()
         .map(|oracle| FriOracleInfo {
-            num_polys: self.fri_oracle_layouts[oracle.index].raw_polys,
+            num_polys: self.fri_oracle_layouts[oracle.index].logical_polys,
             blinding: oracle.blinding,
         })
         .collect()
@@ -541,27 +567,13 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
     where
         I: IntoIterator<Item = usize>,
     {
-        let layout = &self.fri_oracle_layouts[oracle.index];
         logical_indices
             .into_iter()
-            .map(|logical_index| match layout.representation {
-                FriOracleRepresentation::Raw => FriOpeningExpression::raw(FriPolynomialInfo {
+            .map(|logical_index| {
+                FriOpeningExpression::raw(FriPolynomialInfo {
                     oracle_index: oracle.index,
                     polynomial_index: logical_index,
-                }),
-                FriOracleRepresentation::SplitMask { split_power } => {
-                    FriOpeningExpression::split_mask(
-                        FriPolynomialInfo {
-                            oracle_index: oracle.index,
-                            polynomial_index: 2 * logical_index,
-                        },
-                        FriPolynomialInfo {
-                            oracle_index: oracle.index,
-                            polynomial_index: 2 * logical_index + 1,
-                        },
-                        split_power,
-                    )
-                }
+                })
             })
             .collect()
     }
@@ -654,12 +666,15 @@ mod tests {
     use itertools::Itertools;
     use qp_plonky2_core::ZkMode;
 
-    use super::{CircuitConfig, CommonCircuitData, FriOracleRepresentation};
+    use super::{CircuitConfig, CommonCircuitData};
+    use crate::field::extension::Extendable;
     use crate::field::types::Field;
+    use crate::fri::structure::{FriCoefficient, FriOpeningExpression, FriOracleRepresentation};
     use crate::fri::FriFinalPolyLayout;
     use crate::gates::lookup::LookupGate;
     use crate::gates::lookup_table::LookupTable;
     use crate::gates::noop::NoopGate;
+    use crate::hash::hash_types::RichField;
     use crate::plonk::circuit_builder::CircuitBuilder;
     use crate::plonk::config::{GenericConfig, PoseidonGoldilocksConfig};
     use crate::util::partial_products::num_partial_products;
@@ -689,6 +704,20 @@ mod tests {
         let table_index = builder.add_lookup_table_from_pairs(table);
         let _ = builder.add_lookup_from_index(input, table_index);
         builder.build::<C>().common
+    }
+
+    fn assert_raw_opening_expression<F: RichField + Extendable<D>, const D: usize>(
+        expression: &FriOpeningExpression<F, D>,
+    ) {
+        assert_eq!(
+            expression.terms.len(),
+            1,
+            "PolyFri public openings must stay in logical form"
+        );
+        assert!(matches!(
+            &expression.terms[0].coefficient,
+            FriCoefficient::One
+        ));
     }
 
     #[test]
@@ -855,16 +884,49 @@ mod tests {
 
         assert!(matches!(
             polyfri.fri_oracle_layouts[1].representation,
-            FriOracleRepresentation::SplitMask { .. }
+            FriOracleRepresentation::Raw
         ));
         assert!(matches!(
             polyfri.fri_oracle_layouts[2].representation,
-            FriOracleRepresentation::SplitMask { .. }
+            FriOracleRepresentation::Raw
         ));
+        assert_eq!(
+            polyfri.fri_oracle_layouts[1].raw_polys, polyfri.fri_oracle_layouts[1].logical_polys,
+            "PolyFri wires must expose only logical polynomials"
+        );
+        assert_eq!(
+            polyfri.fri_oracle_layouts[2].raw_polys, polyfri.fri_oracle_layouts[2].logical_polys,
+            "PolyFri permutation/lookup oracles must expose only logical polynomials"
+        );
         assert!(polyfri.fri_params.batch_masking.is_some());
         assert!(matches!(
             polyfri.fri_params.final_poly_layout,
             FriFinalPolyLayout::Split { .. }
         ));
+    }
+
+    #[test]
+    fn polyfri_fri_instance_uses_raw_logical_openings() {
+        let common = build_lookup_common(CircuitConfig::standard_recursion_polyfri_zk_config());
+        let all_openings = common.fri_all_openings();
+        let wire_openings = common.fri_wire_openings();
+        let zs_openings = common.fri_zs_partial_products_openings();
+
+        assert!(matches!(
+            common.fri_oracle_layouts[1].representation,
+            FriOracleRepresentation::Raw
+        ));
+        assert!(matches!(
+            common.fri_oracle_layouts[2].representation,
+            FriOracleRepresentation::Raw
+        ));
+
+        for opening in all_openings
+            .iter()
+            .chain(wire_openings.iter())
+            .chain(zs_openings.iter())
+        {
+            assert_raw_opening_expression(opening);
+        }
     }
 }

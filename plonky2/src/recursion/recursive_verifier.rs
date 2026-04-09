@@ -162,7 +162,9 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             .iter()
             .zip(oracle_blinding)
             .map(|(layout, blinding)| {
-                layout.raw_polys + salt_size(common_data.fri_params.leaf_hiding && blinding)
+                // Recursive FRI proofs authenticate the public logical leaf shape, not the raw
+                // split representation. The only extra leaf slots come from optional salting.
+                layout.logical_polys + salt_size(common_data.fri_params.leaf_hiding && blinding)
             })
             .collect::<Vec<_>>();
 
@@ -218,6 +220,7 @@ mod tests {
     use crate::iop::witness::{PartialWitness, WitnessWrite};
     use crate::plonk::circuit_data::{CircuitConfig, VerifierOnlyCircuitData};
     use crate::plonk::config::{KeccakGoldilocksConfig, PoseidonGoldilocksConfig};
+    use crate::plonk::plonk_common::{salt_size, PlonkOracle};
     use crate::plonk::proof::{CompressedProofWithPublicInputs, ProofWithPublicInputs};
     use crate::plonk::prover::prove;
     use crate::util::timing::TimingTree;
@@ -286,6 +289,39 @@ mod tests {
         let (proof, vd, common_data) =
             recursive_proof::<F, C, C, D>(proof, vd, common_data, &config, None, true, true)?;
         test_serialization(&proof, &vd, &common_data)?;
+
+        Ok(())
+    }
+
+    #[test]
+    #[cfg(feature = "rand")]
+    fn test_recursive_polyfri_virtual_proof_leaf_widths_are_logical() -> Result<()> {
+        init_logger();
+        const D: usize = 2;
+        type C = PoseidonGoldilocksConfig;
+        type F = <C as GenericConfig<D>>::F;
+        let config = CircuitConfig::standard_recursion_polyfri_zk_config();
+
+        let (_, _, common_data) = dummy_lookup_proof::<F, C, D>(&config, 10)?;
+        let mut builder = CircuitBuilder::<F, D>::new(config);
+        let proof_target = builder.add_virtual_proof(&common_data);
+        let query_round = &proof_target.opening_proof.query_round_proofs[0];
+
+        let wires_leaf = &query_round.initial_trees_proof.evals_proofs[PlonkOracle::WIRES.index].0;
+        let zs_leaf =
+            &query_round.initial_trees_proof.evals_proofs[PlonkOracle::ZS_PARTIAL_PRODUCTS.index].0;
+        let expected_wires_leaf_len = common_data.fri_oracle_layouts[PlonkOracle::WIRES.index]
+            .logical_polys
+            + salt_size(common_data.fri_params.leaf_hiding && PlonkOracle::WIRES.blinding);
+        let expected_zs_leaf_len =
+            common_data.fri_oracle_layouts[PlonkOracle::ZS_PARTIAL_PRODUCTS.index].logical_polys
+                + salt_size(
+                    common_data.fri_params.leaf_hiding && PlonkOracle::ZS_PARTIAL_PRODUCTS.blinding,
+                );
+
+        assert_eq!(wires_leaf.len(), expected_wires_leaf_len);
+        assert_eq!(zs_leaf.len(), expected_zs_leaf_len);
+        assert!(proof_target.opening_proof.batch_mask_proof.is_some());
 
         Ok(())
     }

@@ -29,6 +29,9 @@ pub struct FriQueryStepTarget<const D: usize> {
 }
 
 /// Target version of FriInitialTreeProof for circuit building.
+///
+/// In PolyFri mode these leaves are the public logical openings that the verifier authenticates;
+/// any prover-private split representation must be collapsed before it reaches this target.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FriInitialTreeProofTarget {
     pub evals_proofs: Vec<(Vec<Target>, MerkleProofTarget)>,

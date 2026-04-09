@@ -7,7 +7,7 @@ use crate::fri::{FriConfig, FriReductionStrategy};
 /// Zero-knowledge settings for a circuit.
 ///
 /// Leaf hiding remains an explicit knob because Merkle salting is orthogonal to whether we also
-/// mask PLONK polynomials with the split-mask Poly/FRI design.
+/// mask PLONK polynomials with the PolyFri logical-mask design.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct ZkConfig {
     pub mode: ZkMode,
@@ -45,10 +45,11 @@ pub enum ZkMode {
     PolyFri(PolyFriZkConfig),
 }
 
-/// Poly/FRI split-mask tuning knobs.
+/// Poly/FRI logical-mask tuning knobs.
 ///
 /// These degrees control the prover-side masking polynomials. Unlike row blinding, they keep the
-/// native trace degree unchanged and move zero-knowledge masking into the oracle commitments.
+/// native trace degree unchanged and move zero-knowledge masking into the oracle commitments via
+/// logical masked polynomials `M(X) = f(X) + (X^n - 1)r(X)`.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct PolyFriZkConfig {
     pub wire_mask_degree: usize,
@@ -67,6 +68,18 @@ impl PolyFriZkConfig {
             mask_degree < split_degree,
             "Invalid PolyFri config: `{knob_name}` must be less than the {split_name} ({split_degree}), got {mask_degree}",
         );
+    }
+
+    /// Returns the public initial FRI degree bits needed to hold the logical masked polynomial.
+    ///
+    /// Phase 1 masks commit to `M(X) = f(X) + (X^n - 1)r(X)`, so the public initial codeword
+    /// must be large enough for the masked logical degree rather than the raw trace degree alone.
+    pub fn public_initial_degree_bits(trace_degree: usize, max_mask_degree: usize) -> usize {
+        let required_degree = trace_degree
+            .checked_add(max_mask_degree)
+            .and_then(|degree| degree.checked_add(1))
+            .expect("PolyFri public initial degree overflowed usize");
+        required_degree.next_power_of_two().trailing_zeros() as usize
     }
 
     pub const fn standard_recursion() -> Self {
@@ -106,8 +119,8 @@ pub struct CircuitConfig {
     /// `degree / |F|`.
     pub num_challenges: usize,
     /// Zero-knowledge controls. `Disabled` reproduces the historical no-zk mode, `RowBlinding`
-    /// restores the legacy builder-side blinding strategy, and `PolyFri` enables the split-mask
-    /// prover design.
+    /// restores the legacy builder-side blinding strategy, and `PolyFri` enables logical masked
+    /// phase-1 commitments together with the explicit batch-mask path for phase 2.
     pub zk_config: ZkConfig,
     /// A cap on the quotient polynomial's degree factor. The actual degree factor is derived
     /// systematically, but will never exceed this value.
@@ -195,6 +208,7 @@ impl CircuitConfig {
     pub fn validate_poly_fri_params(
         &self,
         trace_degree: usize,
+        public_initial_degree_bits: usize,
         batch_mask_chunk_degree: usize,
         has_lookup: bool,
     ) {
@@ -213,6 +227,13 @@ impl CircuitConfig {
             poly_fri.z_mask_degree,
             trace_degree,
             "trace degree",
+        );
+        let max_phase1_mask_degree = poly_fri.wire_mask_degree.max(poly_fri.z_mask_degree);
+        let expected_public_initial_degree_bits =
+            PolyFriZkConfig::public_initial_degree_bits(trace_degree, max_phase1_mask_degree);
+        assert!(
+            public_initial_degree_bits == expected_public_initial_degree_bits,
+            "Invalid PolyFri config: public initial degree bits must be {expected_public_initial_degree_bits} for trace degree {trace_degree} and max phase-1 mask degree {max_phase1_mask_degree}, got {public_initial_degree_bits}",
         );
         PolyFriZkConfig::assert_degree_fits(
             "fri_batch_mask_degree",
@@ -238,7 +259,7 @@ impl CircuitConfig {
 
 #[cfg(test)]
 mod tests {
-    use super::{CircuitConfig, ZkMode};
+    use super::{CircuitConfig, PolyFriZkConfig, ZkMode};
 
     #[test]
     fn standard_helpers_select_expected_zk_modes() {
@@ -259,5 +280,22 @@ mod tests {
         assert!(polyfri.uses_leaf_hiding());
         assert!(!polyfri.uses_row_blinding_zk());
         assert!(polyfri.uses_poly_fri_zk());
+    }
+
+    #[test]
+    fn polyfri_public_initial_degree_bits_rounds_up_for_masked_polys() {
+        assert_eq!(PolyFriZkConfig::public_initial_degree_bits(8, 0), 4);
+        assert_eq!(PolyFriZkConfig::public_initial_degree_bits(8, 7), 4);
+        assert_eq!(PolyFriZkConfig::public_initial_degree_bits(8, 8), 5);
+    }
+
+    #[test]
+    fn validate_polyfri_params_accepts_derived_public_degree() {
+        let config = CircuitConfig::standard_recursion_polyfri_zk_config();
+        let trace_degree = 1 << 3;
+        let public_initial_degree_bits =
+            PolyFriZkConfig::public_initial_degree_bits(trace_degree, 1);
+
+        config.validate_poly_fri_params(trace_degree, public_initial_degree_bits, 2, false);
     }
 }
