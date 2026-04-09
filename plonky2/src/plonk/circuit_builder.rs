@@ -850,6 +850,19 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             .config
             .fri_config
             .fri_params(degree_bits, self.config.uses_leaf_hiding());
+        if let ZkMode::PolyFri(poly_fri) = &self.config.zk_config.mode {
+            let trace_degree = 1 << degree_bits;
+            assert!(
+                poly_fri.wire_mask_degree < trace_degree,
+                "Invalid PolyFri config: `wire_mask_degree` must be less than the trace degree ({trace_degree}), got {}",
+                poly_fri.wire_mask_degree,
+            );
+            assert!(
+                poly_fri.z_mask_degree < trace_degree,
+                "Invalid PolyFri config: `z_mask_degree` must be less than the trace degree ({trace_degree}), got {}",
+                poly_fri.z_mask_degree,
+            );
+        }
         let public_initial_degree_bits = match &self.config.zk_config.mode {
             ZkMode::PolyFri(poly_fri) => PolyFriZkConfig::public_initial_degree_bits(
                 1 << degree_bits,
@@ -1214,13 +1227,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         debug!("Degree after final padding: {}", degree);
         let degree_bits = log2_strict(degree);
         let fri_params = self.fri_params(degree_bits);
-        let public_initial_degree_bits = match &self.config.zk_config.mode {
-            ZkMode::PolyFri(poly_fri) => PolyFriZkConfig::public_initial_degree_bits(
-                degree,
-                poly_fri.wire_mask_degree.max(poly_fri.z_mask_degree),
-            ),
-            _ => degree_bits,
-        };
+        let public_initial_degree_bits = fri_params.degree_bits;
         let quotient_degree_factor = self.config.max_quotient_degree_factor;
         let mut gates = self.gates.iter().cloned().collect::<Vec<_>>();
         // Gates need to be sorted by their degrees (and ID to make the ordering deterministic) to compute the selector polynomials.
