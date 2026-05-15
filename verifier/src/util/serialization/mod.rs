@@ -53,6 +53,15 @@ impl Display for IoError {
 /// A no_std compatible variant of `std::io::Result`
 pub type IoResult<T> = Result<T, IoError>;
 
+/// Creates a Vec with the requested capacity, returning IoError if allocation fails.
+/// This prevents panics from malicious/malformed input specifying huge lengths.
+#[inline]
+fn try_with_capacity<T>(capacity: usize) -> IoResult<Vec<T>> {
+    let mut vec = Vec::new();
+    vec.try_reserve(capacity).map_err(|_| IoError)?;
+    Ok(vec)
+}
+
 /// A `Read` which is able to report how many bytes are remaining.
 pub trait Remaining: Read {
     /// Returns the number of bytes remaining in the buffer.
@@ -116,7 +125,7 @@ pub trait Read {
     #[inline]
     fn read_usize_vec(&mut self) -> IoResult<Vec<usize>> {
         let len = self.read_usize()?;
-        let mut res = Vec::with_capacity(len);
+        let mut res = try_with_capacity(len)?;
         for _ in 0..len {
             res.push(self.read_usize()?);
         }
@@ -506,7 +515,7 @@ pub trait Read {
     fn read_selectors_info(&mut self) -> IoResult<SelectorsInfo> {
         let selector_indices = self.read_usize_vec()?;
         let groups_len = self.read_usize()?;
-        let mut groups = Vec::with_capacity(groups_len);
+        let mut groups = try_with_capacity(groups_len)?;
         for _ in 0..groups_len {
             let start = self.read_usize()?;
             let end = self.read_usize()?;
@@ -549,6 +558,12 @@ pub trait Read {
             .map(|_| self.read_fri_oracle_layout())
             .collect::<IoResult<Vec<_>>>()?;
 
+        // Validate fri_oracle_layouts has enough entries for all PlonkOracle indices
+        // (CONSTANTS_SIGMAS=0, WIRES=1, ZS_PARTIAL_PRODUCTS=2, QUOTIENT=3)
+        if fri_oracle_layouts.len() < 4 {
+            return Err(IoError);
+        }
+
         let selectors_info = self.read_selectors_info()?;
         let quotient_degree_factor = self.read_usize()?;
         let num_gate_constraints = self.read_usize()?;
@@ -563,14 +578,14 @@ pub trait Read {
         let num_lookup_polys = self.read_usize()?;
         let num_lookup_selectors = self.read_usize()?;
         let length = self.read_usize()?;
-        let mut luts = Vec::with_capacity(length);
+        let mut luts = try_with_capacity(length)?;
 
         for _ in 0..length {
             luts.push(Arc::new(self.read_lut()?));
         }
 
         let gates_len = self.read_usize()?;
-        let mut gates = Vec::with_capacity(gates_len);
+        let mut gates = try_with_capacity(gates_len)?;
 
         // We construct the common data without gates first,
         // to pass it as argument when reading the gates.
@@ -703,7 +718,7 @@ pub trait Read {
         }
         let initial_trees_proofs = HashMap::from_iter(pairs);
 
-        let mut steps = Vec::with_capacity(common_data.fri_params.reduction_arity_bits.len());
+        let mut steps = try_with_capacity(common_data.fri_params.reduction_arity_bits.len())?;
         for &a in &common_data.fri_params.reduction_arity_bits {
             indices.iter_mut().for_each(|x| {
                 *x >>= a;
@@ -841,7 +856,7 @@ pub trait Read {
     #[inline]
     fn read_lut(&mut self) -> IoResult<Vec<(u16, u16)>> {
         let length = self.read_usize()?;
-        let mut lut = Vec::with_capacity(length);
+        let mut lut = try_with_capacity(length)?;
         for _ in 0..length {
             lut.push((self.read_u16()?, self.read_u16()?));
         }
