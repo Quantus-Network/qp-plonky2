@@ -150,9 +150,11 @@ pub trait Read {
     where
         F: Field64,
     {
-        (0..length)
-            .map(|_| self.read_field())
-            .collect::<Result<Vec<_>, _>>()
+        let mut result = try_with_capacity(length)?;
+        for _ in 0..length {
+            result.push(self.read_field()?);
+        }
+        Ok(result)
     }
 
     /// Reads an element from the field extension of `F` from `self.`
@@ -179,7 +181,11 @@ pub trait Read {
     where
         F: RichField + Extendable<D>,
     {
-        (0..length).map(|_| self.read_field_ext::<F, D>()).collect()
+        let mut result = try_with_capacity(length)?;
+        for _ in 0..length {
+            result.push(self.read_field_ext::<F, D>()?);
+        }
+        Ok(result)
     }
 
     /// Reads a hash value from `self`.
@@ -201,12 +207,19 @@ pub trait Read {
         F: RichField,
         H: Hasher<F>,
     {
+        // Validate cap_height to prevent exponential allocation attacks.
+        // cap_height of 20 = 1M hashes, which is already very large.
+        // Typical values are 0-16 in practice.
+        const MAX_CAP_HEIGHT: usize = 20;
+        if cap_height > MAX_CAP_HEIGHT {
+            return Err(IoError);
+        }
         let cap_length = 1 << cap_height;
-        Ok(MerkleCap(
-            (0..cap_length)
-                .map(|_| self.read_hash::<F, H>())
-                .collect::<Result<Vec<_>, _>>()?,
-        ))
+        let mut result = try_with_capacity(cap_length)?;
+        for _ in 0..cap_length {
+            result.push(self.read_hash::<F, H>()?);
+        }
+        Ok(MerkleCap(result))
     }
 
     /// Reads a value of type [`OpeningSet`] from `self` with the given `common_data`.
@@ -554,14 +567,17 @@ pub trait Read {
         let fri_params = self.read_fri_params()?;
         let public_initial_degree_bits = self.read_usize()?;
         let fri_oracle_layouts_len = self.read_usize()?;
-        let fri_oracle_layouts = (0..fri_oracle_layouts_len)
-            .map(|_| self.read_fri_oracle_layout())
-            .collect::<IoResult<Vec<_>>>()?;
 
         // Validate fri_oracle_layouts has enough entries for all PlonkOracle indices
         // (CONSTANTS_SIGMAS=0, WIRES=1, ZS_PARTIAL_PRODUCTS=2, QUOTIENT=3)
-        if fri_oracle_layouts.len() < 4 {
+        // Validate BEFORE allocating to prevent allocation attacks.
+        if fri_oracle_layouts_len < 4 {
             return Err(IoError);
+        }
+
+        let mut fri_oracle_layouts = try_with_capacity(fri_oracle_layouts_len)?;
+        for _ in 0..fri_oracle_layouts_len {
+            fri_oracle_layouts.push(self.read_fri_oracle_layout()?);
         }
 
         let selectors_info = self.read_selectors_info()?;
