@@ -70,6 +70,15 @@ impl Display for IoError {
 /// A no_std compatible variant of `std::io::Result`
 pub type IoResult<T> = Result<T, IoError>;
 
+/// Creates a Vec with the requested capacity, returning IoError if allocation fails.
+/// This prevents panics from malicious/malformed input specifying huge lengths.
+#[inline]
+fn try_with_capacity<T>(capacity: usize) -> IoResult<Vec<T>> {
+    let mut vec = Vec::new();
+    vec.try_reserve(capacity).map_err(|_| IoError)?;
+    Ok(vec)
+}
+
 /// A `Read` which is able to report how many bytes are remaining.
 pub trait Remaining: Read {
     /// Returns the number of bytes remaining in the buffer.
@@ -107,9 +116,11 @@ pub trait Read {
     #[inline]
     fn read_target_bool_vec(&mut self) -> IoResult<Vec<BoolTarget>> {
         let length = self.read_usize()?;
-        (0..length)
-            .map(|_| self.read_target_bool())
-            .collect::<Result<Vec<_>, _>>()
+        let mut result = try_with_capacity(length)?;
+        for _ in 0..length {
+            result.push(self.read_target_bool()?);
+        }
+        Ok(result)
     }
 
     /// Reads a `u8` value from `self`.
@@ -148,7 +159,7 @@ pub trait Read {
     #[inline]
     fn read_usize_vec(&mut self) -> IoResult<Vec<usize>> {
         let len = self.read_usize()?;
-        let mut res = Vec::with_capacity(len);
+        let mut res = try_with_capacity(len)?;
         for _ in 0..len {
             res.push(self.read_usize()?);
         }
@@ -173,9 +184,11 @@ pub trait Read {
     where
         F: Field64,
     {
-        (0..length)
-            .map(|_| self.read_field())
-            .collect::<Result<Vec<_>, _>>()
+        let mut result = try_with_capacity(length)?;
+        for _ in 0..length {
+            result.push(self.read_field()?);
+        }
+        Ok(result)
     }
 
     /// Reads an element from the field extension of `F` from `self.`
@@ -202,7 +215,11 @@ pub trait Read {
     where
         F: RichField + Extendable<D>,
     {
-        (0..length).map(|_| self.read_field_ext::<F, D>()).collect()
+        let mut result = try_with_capacity(length)?;
+        for _ in 0..length {
+            result.push(self.read_field_ext::<F, D>()?);
+        }
+        Ok(result)
     }
 
     /// Reads a Target from `self.`
@@ -243,18 +260,22 @@ pub trait Read {
     #[inline]
     fn read_target_vec(&mut self) -> IoResult<Vec<Target>> {
         let length = self.read_usize()?;
-        (0..length)
-            .map(|_| self.read_target())
-            .collect::<Result<Vec<_>, _>>()
+        let mut result = try_with_capacity(length)?;
+        for _ in 0..length {
+            result.push(self.read_target()?);
+        }
+        Ok(result)
     }
 
     /// Reads a vector of ExtensionTarget from `self`.
     #[inline]
     fn read_target_ext_vec<const D: usize>(&mut self) -> IoResult<Vec<ExtensionTarget<D>>> {
         let length = self.read_usize()?;
-        (0..length)
-            .map(|_| self.read_target_ext::<D>())
-            .collect::<Result<Vec<_>, _>>()
+        let mut result = try_with_capacity(length)?;
+        for _ in 0..length {
+            result.push(self.read_target_ext::<D>()?);
+        }
+        Ok(result)
     }
 
     /// Reads a hash value from `self`.
@@ -287,9 +308,11 @@ pub trait Read {
         F: RichField,
         H: Hasher<F>,
     {
-        (0..length)
-            .map(|_| self.read_hash::<F, H>())
-            .collect::<Result<Vec<_>, _>>()
+        let mut result = try_with_capacity(length)?;
+        for _ in 0..length {
+            result.push(self.read_hash::<F, H>()?);
+        }
+        Ok(result)
     }
 
     /// Reads a value of type [`MerkleCap`] from `self` with the given `cap_height`.
@@ -299,23 +322,30 @@ pub trait Read {
         F: RichField,
         H: Hasher<F>,
     {
+        // Validate cap_height to prevent exponential allocation attacks.
+        // cap_height of 20 = 1M hashes, which is already very large.
+        // Typical values are 0-16 in practice.
+        const MAX_CAP_HEIGHT: usize = 20;
+        if cap_height > MAX_CAP_HEIGHT {
+            return Err(IoError);
+        }
         let cap_length = 1 << cap_height;
-        Ok(MerkleCap(
-            (0..cap_length)
-                .map(|_| self.read_hash::<F, H>())
-                .collect::<Result<Vec<_>, _>>()?,
-        ))
+        let mut result = try_with_capacity(cap_length)?;
+        for _ in 0..cap_length {
+            result.push(self.read_hash::<F, H>()?);
+        }
+        Ok(MerkleCap(result))
     }
 
     /// Reads a value of type [`MerkleCapTarget`] from `self`.
     #[inline]
     fn read_target_merkle_cap(&mut self) -> IoResult<MerkleCapTarget> {
         let length = self.read_usize()?;
-        Ok(MerkleCapTarget(
-            (0..length)
-                .map(|_| self.read_target_hash())
-                .collect::<Result<Vec<_>, _>>()?,
-        ))
+        let mut result = try_with_capacity(length)?;
+        for _ in 0..length {
+            result.push(self.read_target_hash()?);
+        }
+        Ok(MerkleCapTarget(result))
     }
 
     /// Reads a value of type [`MerkleTree`] from `self`.
@@ -326,7 +356,7 @@ pub trait Read {
         H: Hasher<F>,
     {
         let leaves_len = self.read_usize()?;
-        let mut leaves = Vec::with_capacity(leaves_len);
+        let mut leaves = try_with_capacity(leaves_len)?;
         for _ in 0..leaves_len {
             let leaf_len = self.read_usize()?;
             leaves.push(self.read_field_vec(leaf_len)?);
@@ -475,7 +505,7 @@ pub trait Read {
     #[inline]
     fn read_target_fri_initial_proof(&mut self) -> IoResult<FriInitialTreeProofTarget> {
         let len = self.read_usize()?;
-        let mut evals_proofs = Vec::with_capacity(len);
+        let mut evals_proofs = try_with_capacity(len)?;
 
         for _ in 0..len {
             evals_proofs.push((self.read_target_vec()?, self.read_target_merkle_proof()?));
@@ -550,13 +580,14 @@ pub trait Read {
         &mut self,
     ) -> IoResult<Vec<FriQueryRoundTarget<D>>> {
         let num_query_rounds = self.read_usize()?;
-        let mut fqrs = Vec::with_capacity(num_query_rounds);
+        let mut fqrs = try_with_capacity(num_query_rounds)?;
         for _ in 0..num_query_rounds {
             let initial_trees_proof = self.read_target_fri_initial_proof()?;
             let num_steps = self.read_usize()?;
-            let steps = (0..num_steps)
-                .map(|_| self.read_target_fri_query_step::<D>())
-                .collect::<Result<Vec<_>, _>>()?;
+            let mut steps = try_with_capacity(num_steps)?;
+            for _ in 0..num_steps {
+                steps.push(self.read_target_fri_query_step::<D>()?);
+            }
             fqrs.push(FriQueryRoundTarget {
                 initial_trees_proof,
                 steps,
@@ -605,16 +636,18 @@ pub trait Read {
     #[inline]
     fn read_target_fri_proof<const D: usize>(&mut self) -> IoResult<FriProofTarget<D>> {
         let length = self.read_usize()?;
-        let commit_phase_merkle_caps = (0..length)
-            .map(|_| self.read_target_merkle_cap())
-            .collect::<Result<Vec<_>, _>>()?;
+        let mut commit_phase_merkle_caps = try_with_capacity(length)?;
+        for _ in 0..length {
+            commit_phase_merkle_caps.push(self.read_target_merkle_cap()?);
+        }
         let batch_mask_proof = self.read_optional_target_batch_mask_proof::<D>()?;
         let query_round_proofs = self.read_target_fri_query_rounds::<D>()?;
-        let final_polys = FriFinalPolysTarget {
-            chunks: (0..self.read_usize()?)
-                .map(|_| Ok(PolynomialCoeffsExtTarget(self.read_target_ext_vec::<D>()?)))
-                .collect::<IoResult<Vec<_>>>()?,
-        };
+        let chunks_len = self.read_usize()?;
+        let mut chunks = try_with_capacity(chunks_len)?;
+        for _ in 0..chunks_len {
+            chunks.push(PolynomialCoeffsExtTarget(self.read_target_ext_vec::<D>()?));
+        }
+        let final_polys = FriFinalPolysTarget { chunks };
         let pow_witness = self.read_target()?;
 
         Ok(FriProofTarget {
@@ -762,7 +795,7 @@ pub trait Read {
     fn read_selectors_info(&mut self) -> IoResult<SelectorsInfo> {
         let selector_indices = self.read_usize_vec()?;
         let groups_len = self.read_usize()?;
-        let mut groups = Vec::with_capacity(groups_len);
+        let mut groups = try_with_capacity(groups_len)?;
         for _ in 0..groups_len {
             let start = self.read_usize()?;
             let end = self.read_usize()?;
@@ -800,7 +833,7 @@ pub trait Read {
         &mut self,
     ) -> IoResult<PolynomialBatch<F, C, D>> {
         let poly_len = self.read_usize()?;
-        let mut polynomials = Vec::with_capacity(poly_len);
+        let mut polynomials = try_with_capacity(poly_len)?;
         for _ in 0..poly_len {
             let plen = self.read_usize()?;
             polynomials.push(PolynomialCoeffs::new(self.read_field_vec(plen)?));
@@ -829,9 +862,18 @@ pub trait Read {
         let fri_params = self.read_fri_params()?;
         let public_initial_degree_bits = self.read_usize()?;
         let fri_oracle_layouts_len = self.read_usize()?;
-        let fri_oracle_layouts = (0..fri_oracle_layouts_len)
-            .map(|_| self.read_fri_oracle_layout())
-            .collect::<IoResult<Vec<_>>>()?;
+
+        // Validate fri_oracle_layouts has enough entries for all PlonkOracle indices
+        // (CONSTANTS_SIGMAS=0, WIRES=1, ZS_PARTIAL_PRODUCTS=2, QUOTIENT=3)
+        // Validate BEFORE allocating to prevent allocation attacks.
+        if fri_oracle_layouts_len < 4 {
+            return Err(IoError);
+        }
+
+        let mut fri_oracle_layouts = try_with_capacity(fri_oracle_layouts_len)?;
+        for _ in 0..fri_oracle_layouts_len {
+            fri_oracle_layouts.push(self.read_fri_oracle_layout()?);
+        }
 
         let selectors_info = self.read_selectors_info()?;
         let quotient_degree_factor = self.read_usize()?;
@@ -847,14 +889,14 @@ pub trait Read {
         let num_lookup_polys = self.read_usize()?;
         let num_lookup_selectors = self.read_usize()?;
         let length = self.read_usize()?;
-        let mut luts = Vec::with_capacity(length);
+        let mut luts = try_with_capacity(length)?;
 
         for _ in 0..length {
             luts.push(Arc::new(self.read_lut()?));
         }
 
         let gates_len = self.read_usize()?;
-        let mut gates = Vec::with_capacity(gates_len);
+        let mut gates = try_with_capacity(gates_len)?;
 
         // We construct the common data without gates first,
         // to pass it as argument when reading the gates.
@@ -916,7 +958,7 @@ pub trait Read {
         common_data: &CommonCircuitData<F, D>,
     ) -> IoResult<ProverOnlyCircuitData<F, C, D>> {
         let gen_len = self.read_usize()?;
-        let mut generators = Vec::with_capacity(gen_len);
+        let mut generators = try_with_capacity(gen_len)?;
         for _ in 0..gen_len {
             generators.push(self.read_generator(generator_serializer, common_data)?);
         }
@@ -929,7 +971,7 @@ pub trait Read {
 
         let constants_sigmas_commitment = self.read_polynomial_batch()?;
         let sigmas_len = self.read_usize()?;
-        let mut sigmas = Vec::with_capacity(sigmas_len);
+        let mut sigmas = try_with_capacity(sigmas_len)?;
         for _ in 0..sigmas_len {
             let sigma_len = self.read_usize()?;
             sigmas.push(self.read_field_vec(sigma_len)?);
@@ -946,7 +988,7 @@ pub trait Read {
         let fft_root_table = match is_some {
             true => {
                 let table_len = self.read_usize()?;
-                let mut table = Vec::with_capacity(table_len);
+                let mut table = try_with_capacity(table_len)?;
                 for _ in 0..table_len {
                     let len = self.read_usize()?;
                     table.push(self.read_field_vec(len)?);
@@ -959,7 +1001,7 @@ pub trait Read {
         let circuit_digest = self.read_hash::<F, <C as GenericConfig<D>>::Hasher>()?;
 
         let length = self.read_usize()?;
-        let mut lookup_rows = Vec::with_capacity(length);
+        let mut lookup_rows = try_with_capacity(length)?;
         for _ in 0..length {
             lookup_rows.push(LookupWire {
                 last_lu_gate: self.read_usize()?,
@@ -969,7 +1011,7 @@ pub trait Read {
         }
 
         let length = self.read_usize()?;
-        let mut lut_to_lookups = Vec::with_capacity(length);
+        let mut lut_to_lookups = try_with_capacity(length)?;
         for _ in 0..length {
             lut_to_lookups.push(self.read_target_lut()?);
         }
@@ -1145,7 +1187,7 @@ pub trait Read {
         }
         let initial_trees_proofs = HashMap::from_iter(pairs);
 
-        let mut steps = Vec::with_capacity(common_data.fri_params.reduction_arity_bits.len());
+        let mut steps = try_with_capacity(common_data.fri_params.reduction_arity_bits.len())?;
         for &a in &common_data.fri_params.reduction_arity_bits {
             indices.iter_mut().for_each(|x| {
                 *x >>= a;
@@ -1243,14 +1285,14 @@ pub trait Read {
         }
 
         let cap = self.read_target_merkle_cap()?;
-        let query_openings = (0..self.read_usize()?)
-            .map(|_| {
-                Ok(FriBatchMaskQueryTarget {
-                    values: self.read_target_ext_vec::<D>()?,
-                    merkle_proof: self.read_target_merkle_proof()?,
-                })
-            })
-            .collect::<IoResult<Vec<_>>>()?;
+        let num_query_openings = self.read_usize()?;
+        let mut query_openings = try_with_capacity(num_query_openings)?;
+        for _ in 0..num_query_openings {
+            query_openings.push(FriBatchMaskQueryTarget {
+                values: self.read_target_ext_vec::<D>()?,
+                merkle_proof: self.read_target_merkle_proof()?,
+            });
+        }
 
         Ok(Some(FriBatchMaskProofTarget {
             cap,
@@ -1306,7 +1348,7 @@ pub trait Read {
     #[inline]
     fn read_lut(&mut self) -> IoResult<Vec<(u16, u16)>> {
         let length = self.read_usize()?;
-        let mut lut = Vec::with_capacity(length);
+        let mut lut = try_with_capacity(length)?;
         for _ in 0..length {
             lut.push((self.read_u16()?, self.read_u16()?));
         }
@@ -1318,7 +1360,7 @@ pub trait Read {
     #[inline]
     fn read_target_lut(&mut self) -> IoResult<Lookup> {
         let length = self.read_usize()?;
-        let mut lut = Vec::with_capacity(length);
+        let mut lut = try_with_capacity(length)?;
         for _ in 0..length {
             lut.push((self.read_target()?, self.read_target()?));
         }
