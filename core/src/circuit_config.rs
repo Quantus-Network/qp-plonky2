@@ -218,6 +218,17 @@ impl CircuitConfig {
         self.zk_config.leaf_hiding
     }
 
+    /// Validate that the circuit config has valid parameters.
+    ///
+    /// This checks invariants that the PLONK protocol relies on for soundness.
+    pub fn validate(&self) {
+        assert!(
+            self.num_challenges >= 1,
+            "Invalid circuit config: `num_challenges` must not be 0 \
+            (PLONK constraint checks are keyed by challenges, so zero challenges means no verification)",
+        );
+    }
+
     /// Validate PolyFri-specific degree knobs once the builder knows the concrete trace/FRI sizes.
     pub fn validate_poly_fri_params(
         &self,
@@ -333,6 +344,22 @@ mod tests {
             wire_mask_degree: 0,
             z_mask_degree: 0, // Invalid - leaks witness relations
             fri_batch_mask_degree: 1,
+        };
+        config.validate();
+    }
+
+    #[test]
+    fn circuit_config_validate_accepts_valid_num_challenges() {
+        let config = CircuitConfig::standard_recursion_config();
+        config.validate(); // Should not panic (num_challenges = 2)
+    }
+
+    #[test]
+    #[should_panic(expected = "num_challenges` must not be 0")]
+    fn circuit_config_validate_rejects_zero_num_challenges() {
+        let config = CircuitConfig {
+            num_challenges: 0, // Invalid - voids soundness
+            ..CircuitConfig::standard_recursion_config()
         };
         config.validate();
     }

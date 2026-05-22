@@ -477,7 +477,7 @@ pub trait Read {
         let zk_config = self.read_zk_config()?;
         let fri_config = self.read_fri_config()?;
 
-        Ok(CircuitConfig {
+        let config = CircuitConfig {
             num_wires,
             num_routed_wires,
             num_constants,
@@ -487,7 +487,9 @@ pub trait Read {
             use_base_arithmetic_gate,
             zk_config,
             fri_config,
-        })
+        };
+        config.validate();
+        Ok(config)
     }
 
     fn read_fri_params(&mut self) -> IoResult<FriParams> {
