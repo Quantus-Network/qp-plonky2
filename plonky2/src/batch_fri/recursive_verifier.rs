@@ -348,6 +348,12 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             }
         }
 
+        assert_eq!(
+            batch_index,
+            instance.len(),
+            "Wrong number of folded instances."
+        );
+
         // Final check of FRI. After all the reductions, we check that the final polynomial is equal
         // to the one sent by the prover.
         let eval = with_context!(
