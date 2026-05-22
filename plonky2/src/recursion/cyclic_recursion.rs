@@ -378,4 +378,21 @@ mod tests {
         }
         current
     }
+
+    #[test]
+    #[should_panic(expected = "Cannot register public inputs after calling add_verifier_data_public_inputs")]
+    fn test_no_public_inputs_after_verifier_data() {
+        const D: usize = 2;
+        type F = <PoseidonGoldilocksConfig as GenericConfig<D>>::F;
+
+        let config = CircuitConfig::standard_recursion_config();
+        let mut builder = CircuitBuilder::<F, D>::new(config);
+
+        // Register verifier data as public inputs
+        let _verifier_data = builder.add_verifier_data_public_inputs();
+
+        // This should panic - cannot register more public inputs after verifier data
+        let target = builder.add_virtual_target();
+        builder.register_public_input(target);
+    }
 }
