@@ -76,12 +76,21 @@ impl PolyFriZkConfig {
     /// For the mask to provide zero-knowledge at two related points, `z_mask_degree` must be at
     /// least 1. With `z_mask_degree = 0`, the mask is constant and cancels out in the difference
     /// `M(zeta) - M(g*zeta)`, leaking witness-dependent information.
+    ///
+    /// Returns an error message if validation fails.
+    pub fn check_valid(&self) -> Result<(), &'static str> {
+        if self.z_mask_degree == 0 {
+            return Err("z_mask_degree must not be 0 (constant mask leaks witness relations)");
+        }
+        Ok(())
+    }
+
+    /// Validate that mask degrees meet the minimum requirements. Panics on failure.
+    ///
+    /// Use this at circuit build time where invalid config is a programmer error.
+    /// Use `check_valid()` for deserialization where invalid data should return an error.
     pub fn validate(&self) {
-        assert!(
-            self.z_mask_degree >= 1,
-            "Invalid PolyFri config: `z_mask_degree` must not be 0 \
-            (the Z polynomials are opened at two points, so a constant mask leaks witness relations)",
-        );
+        self.check_valid().expect("Invalid PolyFri config");
     }
 
     /// Returns the public initial FRI degree bits needed to hold the logical masked polynomial.
@@ -221,16 +230,25 @@ impl CircuitConfig {
     /// Validate that the circuit config has valid parameters.
     ///
     /// This checks invariants that the PLONK protocol relies on for soundness.
-    pub fn validate(&self) {
-        assert!(
-            self.num_challenges >= 1,
-            "Invalid circuit config: `num_challenges` must not be 0 \
-            (PLONK constraint checks are keyed by challenges, so zero challenges means no verification)",
-        );
+    /// Returns an error message if validation fails.
+    pub fn check_valid(&self) -> Result<(), &'static str> {
+        if self.num_challenges == 0 {
+            return Err("num_challenges must not be 0 (zero challenges means no verification)");
+        }
 
         if let ZkMode::PolyFri(poly_fri) = &self.zk_config.mode {
-            poly_fri.validate();
+            poly_fri.check_valid()?;
         }
+
+        Ok(())
+    }
+
+    /// Validate that the circuit config has valid parameters. Panics on failure.
+    ///
+    /// Use this at circuit build time where invalid config is a programmer error.
+    /// Use `check_valid()` for deserialization where invalid data should return an error.
+    pub fn validate(&self) {
+        self.check_valid().expect("Invalid circuit config");
     }
 
     /// Validate PolyFri-specific degree knobs once the builder knows the concrete trace/FRI sizes.
@@ -339,7 +357,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "z_mask_degree` must not be 0")]
+    #[should_panic(expected = "z_mask_degree must not be 0")]
     fn polyfri_validate_rejects_zero_z_mask_degree() {
         let config = PolyFriZkConfig {
             wire_mask_degree: 0,
@@ -356,7 +374,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "num_challenges` must not be 0")]
+    #[should_panic(expected = "num_challenges must not be 0")]
     fn circuit_config_validate_rejects_zero_num_challenges() {
         let config = CircuitConfig {
             num_challenges: 0, // Invalid - voids soundness

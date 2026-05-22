@@ -712,7 +712,7 @@ pub trait Read {
             z_mask_degree: self.read_usize()?,
             fri_batch_mask_degree: self.read_usize()?,
         };
-        config.validate();
+        config.check_valid().map_err(|_| IoError)?;
         Ok(config)
     }
 
@@ -749,7 +749,7 @@ pub trait Read {
             zk_config,
             fri_config,
         };
-        config.validate();
+        config.check_valid().map_err(|_| IoError)?;
         Ok(config)
     }
 
@@ -929,6 +929,7 @@ pub trait Read {
         }
 
         common_data.gates = gates;
+        common_data.check_valid().map_err(|_| IoError)?;
 
         Ok(common_data)
     }
