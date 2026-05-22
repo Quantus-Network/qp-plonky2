@@ -1352,6 +1352,9 @@ pub trait Read {
     #[inline]
     fn read_lut(&mut self) -> IoResult<Vec<(u16, u16)>> {
         let length = self.read_usize()?;
+        if length == 0 {
+            return Err(IoError);
+        }
         let mut lut = try_with_capacity(length)?;
         for _ in 0..length {
             lut.push((self.read_u16()?, self.read_u16()?));
