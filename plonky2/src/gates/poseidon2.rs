@@ -25,6 +25,7 @@ use qp_poseidon_constants::{
 
 use crate::field::types::Field;
 use crate::gates::gate::Gate;
+use crate::gates::util::StridedConstraintConsumer;
 use crate::hash::hash_types::RichField;
 use crate::iop::ext_target::ExtensionTarget;
 use crate::iop::generator::{GeneratedValues, SimpleGenerator, WitnessGeneratorRef};
@@ -33,7 +34,7 @@ use crate::iop::wire::Wire;
 use crate::iop::witness::{PartitionWitness, Witness, WitnessWrite};
 use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::circuit_data::CommonCircuitData;
-use crate::plonk::vars::{EvaluationTargets, EvaluationVars};
+use crate::plonk::vars::{EvaluationTargets, EvaluationVars, EvaluationVarsBase};
 use crate::util::serialization::{Buffer, IoResult, Read, Write};
 
 /// Poseidon2 over Goldilocks with `WIDTH = 12`, `RATE = 8` (capacity 4).
@@ -235,6 +236,17 @@ fn mds_light_ext<F: RichField + Extendable<D>, const D: usize>(
     // 3) add sums[i%4]
     for i in 0..SPONGE_WIDTH {
         s[i] = b.add_extension(s[i], sums[i % 4]);
+    }
+}
+
+#[inline(always)]
+fn internal_mix_base_inplace<F: Field>(x: &mut [F; SPONGE_WIDTH], diag: &[F; SPONGE_WIDTH]) {
+    let mut sum = x[0];
+    for i in 1..SPONGE_WIDTH {
+        sum += x[i];
+    }
+    for i in 0..SPONGE_WIDTH {
+        x[i] = diag[i] * x[i] + sum;
     }
 }
 
@@ -619,6 +631,94 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for Poseidon2Gate<
         constr
     }
 
+    fn eval_unfiltered_base_one(
+        &self,
+        vars: EvaluationVarsBase<F>,
+        mut yield_constr: StridedConstraintConsumer<F>,
+    ) {
+        let lw = vars.local_wires;
+
+        // 0) load inputs into state
+        let mut state: [F; SPONGE_WIDTH] = core::array::from_fn(|i| lw[Self::wire_input(i)]);
+
+        // 1) initial preamble (light MDS)
+        mds_light_base(&mut state);
+
+        let ext_init = &self.params.ext_init;
+        let ext_term = &self.params.ext_term;
+        let int_rc = &self.params.int_rc;
+        let diag = &self.params.diag;
+
+        let mut ext_round_idx = 0usize;
+
+        // 2) 4 initial external rounds
+        for r in 0..4 {
+            // add RCs
+            for i in 0..SPONGE_WIDTH {
+                state[i] += ext_init[r][i];
+            }
+            // Round 0: state is degree-1 (input wires through linear
+            // MDS preamble + constants), so sbox7 produces degree 7
+            // without a checkpoint.
+            if ext_round_idx != 0 {
+                // constrain S-box inputs and update state = sbox_in
+                for i in 0..SPONGE_WIDTH {
+                    let sbox_in = lw[Self::wire_ext_sbox(ext_round_idx, i)];
+                    yield_constr.one(state[i] - sbox_in);
+                    state[i] = sbox_in;
+                }
+            }
+            // apply S-box x^7 on all lanes
+            for i in 0..SPONGE_WIDTH {
+                state[i] = sbox7_base(state[i]);
+            }
+            // light MDS
+            mds_light_base(&mut state);
+            ext_round_idx += 1;
+        }
+
+        // 3) 22 internal rounds (lane 0 sbox + internal mix)
+        for r in 0..POSEIDON2_INTERNAL_ROUNDS {
+            // lane 0: add RC
+            state[0] += int_rc[r];
+
+            // constrain S-box input for lane 0 and update
+            let sbox_in = lw[Self::wire_int_sbox(r)];
+            yield_constr.one(state[0] - sbox_in);
+            state[0] = sbox_in;
+            state[0] = sbox7_base(state[0]);
+
+            // internal mixing: y[i] = diag[i]*x[i] + sum(x)
+            internal_mix_base_inplace(&mut state, diag);
+        }
+
+        // 4) 4 terminal external rounds
+        for r in 0..4 {
+            // add RCs
+            for i in 0..SPONGE_WIDTH {
+                state[i] += ext_term[r][i];
+            }
+            // constrain S-box inputs and update state = sbox_in
+            for i in 0..SPONGE_WIDTH {
+                let sbox_in = lw[Self::wire_ext_sbox(ext_round_idx, i)];
+                yield_constr.one(state[i] - sbox_in);
+                state[i] = sbox_in;
+            }
+            // apply S-box x^7 on all lanes
+            for i in 0..SPONGE_WIDTH {
+                state[i] = sbox7_base(state[i]);
+            }
+            mds_light_base(&mut state);
+            ext_round_idx += 1;
+        }
+
+        // 5) outputs equal final state
+        for i in 0..SPONGE_WIDTH {
+            let out = lw[Self::wire_output(i)];
+            yield_constr.one(out - state[i]);
+        }
+    }
+
     fn generators(&self, row: usize, _lc: &[F]) -> Vec<WitnessGeneratorRef<F, D>> {
         vec![WitnessGeneratorRef::new(
             Poseidon2FullGen::<F, D> {
@@ -771,6 +871,9 @@ mod tests {
 
     use super::*;
     use crate::gates::gate::Gate;
+    use crate::gates::poseidon::PoseidonGate;
+    use crate::hash::hash_types::HashOut;
+    use crate::plonk::vars::EvaluationVarsBaseBatch;
 
     #[test]
     fn test_num_constraints() {
@@ -792,5 +895,80 @@ mod tests {
         const D: usize = 2;
         let gate = Poseidon2Gate::<F, D>::new();
         assert_eq!(gate.num_wires(), 130);
+    }
+
+    /// Benchmark comparing Poseidon1 vs Poseidon2 gate constraint evaluation.
+    /// Run with: cargo test --release bench_gate_eval -- --nocapture --ignored
+    #[test]
+    #[ignore]
+    fn bench_gate_eval() {
+        type F = GoldilocksField;
+        const D: usize = 2;
+
+        let num_points = 1 << 14; // 16384 evaluation points
+        let iterations = 100;
+
+        let poseidon1_gate = PoseidonGate::<F, D>::new();
+        let poseidon2_gate = Poseidon2Gate::<F, D>::new();
+
+        let num_wires_1 = poseidon1_gate.num_wires();
+        let num_wires_2 = poseidon2_gate.num_wires();
+
+        println!(
+            "PoseidonGate: {} wires, {} constraints",
+            num_wires_1,
+            poseidon1_gate.num_constraints()
+        );
+        println!(
+            "Poseidon2Gate: {} wires, {} constraints",
+            num_wires_2,
+            poseidon2_gate.num_constraints()
+        );
+
+        // Generate wire values
+        let wires_1: Vec<F> = (0..num_points * num_wires_1)
+            .map(|i| F::from_canonical_u64(i as u64 * 12345678901234567))
+            .collect();
+        let wires_2: Vec<F> = (0..num_points * num_wires_2)
+            .map(|i| F::from_canonical_u64(i as u64 * 12345678901234567))
+            .collect();
+
+        let constants: Vec<F> = vec![];
+        let public_inputs_hash = HashOut::ZERO;
+
+        // Benchmark Poseidon1
+        let vars_batch_1 =
+            EvaluationVarsBaseBatch::new(num_points, &constants, &wires_1, &public_inputs_hash);
+
+        let start = std::time::Instant::now();
+        for _ in 0..iterations {
+            let _result = poseidon1_gate.eval_unfiltered_base_batch(vars_batch_1);
+        }
+        let elapsed_1 = start.elapsed();
+        println!(
+            "PoseidonGate:  {:?} for {} iterations ({:?} per iter)",
+            elapsed_1,
+            iterations,
+            elapsed_1 / iterations
+        );
+
+        // Benchmark Poseidon2
+        let vars_batch_2 =
+            EvaluationVarsBaseBatch::new(num_points, &constants, &wires_2, &public_inputs_hash);
+
+        let start = std::time::Instant::now();
+        for _ in 0..iterations {
+            let _result = poseidon2_gate.eval_unfiltered_base_batch(vars_batch_2);
+        }
+        let elapsed_2 = start.elapsed();
+        println!(
+            "Poseidon2Gate: {:?} for {} iterations ({:?} per iter)",
+            elapsed_2,
+            iterations,
+            elapsed_2 / iterations
+        );
+
+        let ratio = elapsed_2.as_nanos() as f64 / elapsed_1.as_nanos() as f64;
+        println!("\nPoseidon2/Poseidon1 ratio: {:.2}x", ratio);
     }
 }
