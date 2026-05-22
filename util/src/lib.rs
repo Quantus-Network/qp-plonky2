@@ -4,7 +4,7 @@
 extern crate alloc;
 
 use alloc::vec::Vec;
-use core::hint::unreachable_unchecked;
+
 use core::mem::size_of;
 use core::ptr::{swap, swap_nonoverlapping};
 
@@ -26,9 +26,6 @@ pub const fn log2_ceil(n: usize) -> usize {
 pub fn log2_strict(n: usize) -> usize {
     let res = n.trailing_zeros();
     assert!(n.wrapping_shr(res) == 1, "Not a power of two: {n}");
-    // Tell the optimizer about the semantics of `log2_strict`. i.e. it can replace `n` with
-    // `1 << res` and vice versa.
-    assume(n == 1 << res);
     res as usize
 }
 
@@ -247,15 +244,7 @@ const BIT_REVERSE_6BIT: &[u8] = &[
     0o07, 0o47, 0o27, 0o67, 0o17, 0o57, 0o37, 0o77,
 ];
 
-#[inline(always)]
-pub fn assume(p: bool) {
-    debug_assert!(p);
-    if !p {
-        unsafe {
-            unreachable_unchecked();
-        }
-    }
-}
+
 
 /// Try to force Rust to emit a branch. Example:
 ///     if x > 2 {
