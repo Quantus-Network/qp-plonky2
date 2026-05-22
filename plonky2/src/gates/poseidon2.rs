@@ -130,6 +130,13 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2Params<F, D> {
     }
 }
 
+// ============================================================================
+// Optimized helper functions using raw u64/u128 arithmetic
+// These mirror the Poseidon2 trait methods but work with RichField directly
+// ============================================================================
+
+use crate::field::types::PrimeField64;
+
 #[inline(always)]
 fn sbox7_base<F: Field>(x: F) -> F {
     let x2 = x.square();
@@ -138,17 +145,89 @@ fn sbox7_base<F: Field>(x: F) -> F {
     x3 * x4
 }
 
-/// Apply the 4x4 circulant matrix [2,3,1,1] to 4 elements.
-/// Uses additions instead of multiplications for 2x and 3x.
+/// Optimized light MDS using u128 accumulation to minimize reductions.
+/// Returns a new state array.
+#[inline(always)]
+fn mds_light_optimized<F: PrimeField64>(state: &[F; SPONGE_WIDTH]) -> [F; SPONGE_WIDTH] {
+    // Convert to raw u64
+    let s: [u64; SPONGE_WIDTH] = core::array::from_fn(|i| state[i].to_noncanonical_u64());
+
+    // Apply 4x4 blocks using u128 to defer reductions
+    #[inline(always)]
+    fn apply_mat4_u128(a: u64, b: u64, c: u64, d: u64) -> (u128, u128, u128, u128) {
+        let t = (a as u128) + (b as u128) + (c as u128) + (d as u128);
+        (
+            t + (a as u128) + (b as u128) + (b as u128), // 2a + 3b + c + d
+            t + (b as u128) + (c as u128) + (c as u128), // a + 2b + 3c + d
+            t + (c as u128) + (d as u128) + (d as u128), // a + b + 2c + 3d
+            t + (a as u128) + (a as u128) + (d as u128), // 3a + b + c + 2d
+        )
+    }
+
+    let (y0, y1, y2, y3) = apply_mat4_u128(s[0], s[1], s[2], s[3]);
+    let (y4, y5, y6, y7) = apply_mat4_u128(s[4], s[5], s[6], s[7]);
+    let (y8, y9, y10, y11) = apply_mat4_u128(s[8], s[9], s[10], s[11]);
+
+    // Compute sums per residue class (still in u128)
+    let sum0 = y0 + y4 + y8;
+    let sum1 = y1 + y5 + y9;
+    let sum2 = y2 + y6 + y10;
+    let sum3 = y3 + y7 + y11;
+
+    // Final values and reduce
+    [
+        F::from_noncanonical_u128(y0 + sum0),
+        F::from_noncanonical_u128(y1 + sum1),
+        F::from_noncanonical_u128(y2 + sum2),
+        F::from_noncanonical_u128(y3 + sum3),
+        F::from_noncanonical_u128(y4 + sum0),
+        F::from_noncanonical_u128(y5 + sum1),
+        F::from_noncanonical_u128(y6 + sum2),
+        F::from_noncanonical_u128(y7 + sum3),
+        F::from_noncanonical_u128(y8 + sum0),
+        F::from_noncanonical_u128(y9 + sum1),
+        F::from_noncanonical_u128(y10 + sum2),
+        F::from_noncanonical_u128(y11 + sum3),
+    ]
+}
+
+/// Optimized internal mix using u128 accumulation.
+#[inline(always)]
+#[unroll_for_loops]
+fn internal_mix_optimized<F: PrimeField64>(state: &[F; SPONGE_WIDTH]) -> [F; SPONGE_WIDTH] {
+    // Convert to raw u64
+    let s: [u64; SPONGE_WIDTH] = core::array::from_fn(|i| state[i].to_noncanonical_u64());
+
+    // Compute sum in u128
+    let mut sum = 0u128;
+    for i in 0..12 {
+        if i < SPONGE_WIDTH {
+            sum += s[i] as u128;
+        }
+    }
+
+    // Compute y[i] = diag[i] * s[i] + sum and reduce
+    core::array::from_fn(|i| {
+        let prod = (s[i] as u128) * (POSEIDON2_MATRIX_DIAG_12_RAW[i] as u128);
+        F::from_noncanonical_u128(prod + sum)
+    })
+}
+
+/// Apply S-box to all lanes using optimized squaring.
+#[inline(always)]
+#[unroll_for_loops]
+fn sbox_layer_optimized<F: Field>(state: &mut [F; SPONGE_WIDTH]) {
+    for i in 0..12 {
+        if i < SPONGE_WIDTH {
+            state[i] = sbox7_base(state[i]);
+        }
+    }
+}
+
+// Keep old functions for non-optimized paths (circuit evaluation, etc.)
 #[inline(always)]
 fn apply_mat4_base<F: Field>(a: F, b: F, c: F, d: F) -> [F; 4] {
-    // t = a + b + c + d (sum of all)
     let t = a + b + c + d;
-    // Each output is: t + one element (for the "2" position) + another element (for the "3" position)
-    // y0 = 2a + 3b + c + d = (a+b+c+d) + a + 2b = t + a + b + b
-    // y1 = a + 2b + 3c + d = (a+b+c+d) + b + 2c = t + b + c + c  
-    // y2 = a + b + 2c + 3d = (a+b+c+d) + c + 2d = t + c + d + d
-    // y3 = 3a + b + c + 2d = (a+b+c+d) + 2a + d = t + a + a + d
     let y0 = t + a + b + b;
     let y1 = t + b + c + c;
     let y2 = t + c + d + d;
@@ -158,18 +237,15 @@ fn apply_mat4_base<F: Field>(a: F, b: F, c: F, d: F) -> [F; 4] {
 
 #[inline(always)]
 fn mds_light_base<F: Field>(s: &mut [F; SPONGE_WIDTH]) {
-    // 1) 4×4 circulant per block (unrolled)
     let [y0, y1, y2, y3] = apply_mat4_base(s[0], s[1], s[2], s[3]);
     let [y4, y5, y6, y7] = apply_mat4_base(s[4], s[5], s[6], s[7]);
     let [y8, y9, y10, y11] = apply_mat4_base(s[8], s[9], s[10], s[11]);
 
-    // 2) sums per residue class mod 4
     let sum0 = y0 + y4 + y8;
     let sum1 = y1 + y5 + y9;
     let sum2 = y2 + y6 + y10;
     let sum3 = y3 + y7 + y11;
 
-    // 3) add sums to each lane (unrolled)
     s[0] = y0 + sum0;
     s[1] = y1 + sum1;
     s[2] = y2 + sum2;
@@ -253,23 +329,6 @@ fn mds_light_ext<F: RichField + Extendable<D>, const D: usize>(
     // 3) add sums[i%4]
     for i in 0..SPONGE_WIDTH {
         s[i] = b.add_extension(s[i], sums[i % 4]);
-    }
-}
-
-#[inline(always)]
-#[unroll_for_loops]
-fn internal_mix_base_inplace<F: Field>(x: &mut [F; SPONGE_WIDTH], diag: &[F; SPONGE_WIDTH]) {
-    let mut sum = x[0];
-    for i in 1..12 {
-        if i < SPONGE_WIDTH {
-            sum += x[i];
-        }
-    }
-    for i in 0..12 {
-        if i < SPONGE_WIDTH {
-            // Use multiply_accumulate: sum + diag[i] * x[i] (fused mul-add)
-            x[i] = sum.multiply_accumulate(diag[i], x[i]);
-        }
     }
 }
 
@@ -665,84 +724,94 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for Poseidon2Gate<
         // 0) load inputs into state
         let mut state: [F; SPONGE_WIDTH] = core::array::from_fn(|i| lw[Self::wire_input(i)]);
 
-        // 1) initial preamble (light MDS)
-        mds_light_base(&mut state);
-
-        // Use raw u64 constants for faster addition
-        let diag = &self.params.diag;
+        // 1) initial preamble (light MDS) - use optimized u128 version
+        state = mds_light_optimized(&state);
 
         let mut ext_round_idx = 0usize;
 
         // 2) 4 initial external rounds
         for r in 0..4 {
             // add RCs using raw u64 constants
-            for i in 0..SPONGE_WIDTH {
-                // SAFETY: POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW values are < ORDER
-                state[i] =
-                    unsafe { state[i].add_canonical_u64(POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW[r][i]) };
-            }
-            // Round 0: state is degree-1 (input wires through linear
-            // MDS preamble + constants), so sbox7 produces degree 7
-            // without a checkpoint.
-            if ext_round_idx != 0 {
-                // constrain S-box inputs and update state = sbox_in
-                for i in 0..SPONGE_WIDTH {
-                    let sbox_in = lw[Self::wire_ext_sbox(ext_round_idx, i)];
-                    yield_constr.one(state[i] - sbox_in);
-                    state[i] = sbox_in;
+            for i in 0..12 {
+                if i < SPONGE_WIDTH {
+                    // SAFETY: constants are canonical
+                    state[i] = unsafe {
+                        state[i].add_canonical_u64(POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW[r][i])
+                    };
                 }
             }
-            // apply S-box x^7 on all lanes
-            for i in 0..SPONGE_WIDTH {
-                state[i] = sbox7_base(state[i]);
+
+            // Round 0: state is degree-1, so sbox7 produces degree 7 without checkpoint
+            if ext_round_idx != 0 {
+                for i in 0..12 {
+                    if i < SPONGE_WIDTH {
+                        let sbox_in = lw[Self::wire_ext_sbox(ext_round_idx, i)];
+                        yield_constr.one(state[i] - sbox_in);
+                        state[i] = sbox_in;
+                    }
+                }
             }
-            // light MDS
-            mds_light_base(&mut state);
+
+            // apply S-box x^7 on all lanes
+            sbox_layer_optimized(&mut state);
+            // light MDS - use optimized u128 version
+            state = mds_light_optimized(&state);
             ext_round_idx += 1;
         }
 
         // 3) 22 internal rounds (lane 0 sbox + internal mix)
-        for r in 0..POSEIDON2_INTERNAL_ROUNDS {
-            // lane 0: add RC using raw u64
-            // SAFETY: POSEIDON2_INTERNAL_CONSTANTS_RAW values are < ORDER
-            state[0] = unsafe { state[0].add_canonical_u64(POSEIDON2_INTERNAL_CONSTANTS_RAW[r]) };
+        for r in 0..22 {
+            if r < POSEIDON2_INTERNAL_ROUNDS {
+                // lane 0: add RC
+                // SAFETY: constants are canonical
+                state[0] =
+                    unsafe { state[0].add_canonical_u64(POSEIDON2_INTERNAL_CONSTANTS_RAW[r]) };
 
-            // constrain S-box input for lane 0 and update
-            let sbox_in = lw[Self::wire_int_sbox(r)];
-            yield_constr.one(state[0] - sbox_in);
-            state[0] = sbox_in;
-            state[0] = sbox7_base(state[0]);
+                // constrain S-box input for lane 0
+                let sbox_in = lw[Self::wire_int_sbox(r)];
+                yield_constr.one(state[0] - sbox_in);
+                state[0] = sbox_in;
+                state[0] = sbox7_base(state[0]);
 
-            // internal mixing: y[i] = diag[i]*x[i] + sum(x)
-            internal_mix_base_inplace(&mut state, diag);
+                // internal mixing - use optimized u128 version
+                state = internal_mix_optimized(&state);
+            }
         }
 
         // 4) 4 terminal external rounds
         for r in 0..4 {
             // add RCs using raw u64 constants
-            for i in 0..SPONGE_WIDTH {
-                // SAFETY: POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW values are < ORDER
-                state[i] =
-                    unsafe { state[i].add_canonical_u64(POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW[r][i]) };
+            for i in 0..12 {
+                if i < SPONGE_WIDTH {
+                    // SAFETY: constants are canonical
+                    state[i] = unsafe {
+                        state[i].add_canonical_u64(POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW[r][i])
+                    };
+                }
             }
-            // constrain S-box inputs and update state = sbox_in
-            for i in 0..SPONGE_WIDTH {
-                let sbox_in = lw[Self::wire_ext_sbox(ext_round_idx, i)];
-                yield_constr.one(state[i] - sbox_in);
-                state[i] = sbox_in;
+
+            // constrain S-box inputs
+            for i in 0..12 {
+                if i < SPONGE_WIDTH {
+                    let sbox_in = lw[Self::wire_ext_sbox(ext_round_idx, i)];
+                    yield_constr.one(state[i] - sbox_in);
+                    state[i] = sbox_in;
+                }
             }
+
             // apply S-box x^7 on all lanes
-            for i in 0..SPONGE_WIDTH {
-                state[i] = sbox7_base(state[i]);
-            }
-            mds_light_base(&mut state);
+            sbox_layer_optimized(&mut state);
+            // light MDS - use optimized u128 version
+            state = mds_light_optimized(&state);
             ext_round_idx += 1;
         }
 
         // 5) outputs equal final state
-        for i in 0..SPONGE_WIDTH {
-            let out = lw[Self::wire_output(i)];
-            yield_constr.one(out - state[i]);
+        for i in 0..12 {
+            if i < SPONGE_WIDTH {
+                let out = lw[Self::wire_output(i)];
+                yield_constr.one(out - state[i]);
+            }
         }
     }
 
@@ -922,6 +991,86 @@ mod tests {
         const D: usize = 2;
         let gate = Poseidon2Gate::<F, D>::new();
         assert_eq!(gate.num_wires(), 130);
+    }
+
+    /// Verify that our optimized MDS and internal mix functions produce
+    /// the same results as the p3 reference implementation.
+    #[test]
+    fn test_optimized_functions_match_p3_reference() {
+        use crate::hash::poseidon2::P2Permuter;
+        use plonky2_field::types::{Field, Field64};
+
+        type F = GoldilocksField;
+
+        // Test with various input patterns
+        let test_cases: Vec<[F; SPONGE_WIDTH]> = vec![
+            // All zeros
+            [F::ZERO; SPONGE_WIDTH],
+            // All ones
+            [F::ONE; SPONGE_WIDTH],
+            // Sequential values
+            core::array::from_fn(|i| F::from_canonical_u64(i as u64)),
+            // Large random-ish values (but valid canonical)
+            core::array::from_fn(|i| F::from_canonical_u64(
+                (0xDEADBEEF12345678_u64.wrapping_mul(i as u64 + 1)) % F::ORDER
+            )),
+            // Another pattern
+            core::array::from_fn(|i| F::from_canonical_u64(
+                (0x123456789ABCDEF0_u64.wrapping_add(i as u64 * 0x1111111111111111)) % F::ORDER
+            )),
+        ];
+
+        for input in test_cases {
+            // Compute using our optimized gate computation path
+            // (simulates what eval_unfiltered_base_one does)
+            let mut our_state = input;
+
+            // Preamble MDS
+            our_state = mds_light_optimized(&our_state);
+
+            // 4 initial external rounds
+            for r in 0..4 {
+                for i in 0..SPONGE_WIDTH {
+                    our_state[i] = unsafe {
+                        our_state[i].add_canonical_u64(POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW[r][i])
+                    };
+                }
+                sbox_layer_optimized(&mut our_state);
+                our_state = mds_light_optimized(&our_state);
+            }
+
+            // 22 internal rounds
+            for r in 0..POSEIDON2_INTERNAL_ROUNDS {
+                our_state[0] = unsafe {
+                    our_state[0].add_canonical_u64(POSEIDON2_INTERNAL_CONSTANTS_RAW[r])
+                };
+                our_state[0] = sbox7_base(our_state[0]);
+                our_state = internal_mix_optimized(&our_state);
+            }
+
+            // 4 terminal external rounds
+            for r in 0..4 {
+                for i in 0..SPONGE_WIDTH {
+                    our_state[i] = unsafe {
+                        our_state[i].add_canonical_u64(POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW[r][i])
+                    };
+                }
+                sbox_layer_optimized(&mut our_state);
+                our_state = mds_light_optimized(&our_state);
+            }
+
+            // Compute using p3 reference
+            let p3_state = F::permute(input);
+
+            // Compare
+            for i in 0..SPONGE_WIDTH {
+                assert_eq!(
+                    our_state[i], p3_state[i],
+                    "Mismatch at index {} for input {:?}",
+                    i, input
+                );
+            }
+        }
     }
 
     /// Benchmark comparing Poseidon1 vs Poseidon2 gate constraint evaluation.
