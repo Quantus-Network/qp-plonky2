@@ -4,7 +4,7 @@
 //! configurations, one using the Poseidon hash function and one using truncated Keccak.
 
 #[cfg(not(feature = "std"))]
-use alloc::{vec, vec::Vec};
+use alloc::vec::Vec;
 use core::fmt::Debug;
 
 use serde::de::DeserializeOwned;
@@ -51,21 +51,6 @@ pub trait Hasher<F: RichField>: Sized + Copy + Debug + Eq + PartialEq {
         }
         padded_input.push(F::ONE);
         Self::hash_no_pad(&padded_input)
-    }
-
-    /// Hash the slice if necessary to reduce its length to ~256 bits. If it already fits, this is a
-    /// no-op.
-    fn hash_or_noop(inputs: &[F]) -> Self::Hash {
-        if inputs.len() * 8 <= Self::HASH_SIZE {
-            let mut inputs_bytes = vec![0u8; Self::HASH_SIZE];
-            for i in 0..inputs.len() {
-                inputs_bytes[i * 8..(i + 1) * 8]
-                    .copy_from_slice(&inputs[i].to_canonical_u64().to_le_bytes());
-            }
-            Self::Hash::from_bytes(&inputs_bytes)
-        } else {
-            Self::hash_no_pad(inputs)
-        }
     }
 
     fn two_to_one(left: Self::Hash, right: Self::Hash) -> Self::Hash;

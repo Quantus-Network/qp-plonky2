@@ -19,15 +19,6 @@ use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::config::AlgebraicHasher;
 
 impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
-    pub fn hash_or_noop<H: AlgebraicHasher<F>>(&mut self, inputs: Vec<Target>) -> HashOutTarget {
-        let zero = self.zero();
-        if inputs.len() <= NUM_HASH_OUT_ELTS {
-            HashOutTarget::from_partial(&inputs, zero)
-        } else {
-            self.hash_n_to_hash_no_pad::<H>(inputs)
-        }
-    }
-
     pub fn hash_n_to_hash_no_pad<H: AlgebraicHasher<F>>(
         &mut self,
         inputs: Vec<Target>,
