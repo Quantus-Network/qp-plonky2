@@ -93,11 +93,17 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     /// For a typical IVC use case, `condition` will be false for the very first proof in a chain,
     /// i.e. the base case.
     ///
-    /// Note that this does not enforce that the inner circuit uses the correct verification key.
-    /// This is not possible to check in this recursive circuit, since we do not know the
-    /// verification key until after we build it. Verifiers must separately call
-    /// `check_cyclic_proof_verifier_data`, in addition to verifying a recursive proof, to check
-    /// that the verification key matches.
+    /// # Security Requirements
+    ///
+    /// **IMPORTANT**: Verifiers of proofs from circuits using this method MUST use
+    /// [`CircuitData::verify_cyclic`](crate::plonk::circuit_data::CircuitData::verify_cyclic)
+    /// or [`VerifierCircuitData::verify_cyclic`](crate::plonk::circuit_data::VerifierCircuitData::verify_cyclic)
+    /// instead of the regular `verify()` method.
+    ///
+    /// This is because the in-circuit verification cannot check that the verifier data
+    /// embedded in public inputs matches the actual circuit (the verification key is not
+    /// known until after the circuit is built). The `verify_cyclic` method performs this
+    /// additional check to prevent proof substitution attacks.
     ///
     /// WARNING: Do not register any public input after calling this! TODO: relax this
     pub fn conditionally_verify_cyclic_proof<C: GenericConfig<D, F = F>>(
@@ -155,6 +161,16 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         Ok(())
     }
 
+    /// Like [`conditionally_verify_cyclic_proof`](Self::conditionally_verify_cyclic_proof), but
+    /// uses a dummy proof for the base case instead of requiring an explicit alternative proof.
+    ///
+    /// # Security Requirements
+    ///
+    /// **IMPORTANT**: Verifiers of proofs from circuits using this method MUST use
+    /// [`CircuitData::verify_cyclic`](crate::plonk::circuit_data::CircuitData::verify_cyclic)
+    /// or [`VerifierCircuitData::verify_cyclic`](crate::plonk::circuit_data::VerifierCircuitData::verify_cyclic)
+    /// instead of the regular `verify()` method. See
+    /// [`conditionally_verify_cyclic_proof`](Self::conditionally_verify_cyclic_proof) for details.
     pub fn conditionally_verify_cyclic_proof_or_dummy<C: GenericConfig<D, F = F> + 'static>(
         &mut self,
         condition: BoolTarget,
@@ -178,8 +194,26 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     }
 }
 
-/// Additional checks to be performed on a cyclic recursive proof in addition to verifying the proof.
-/// Checks that the purported verifier data in the public inputs match the real verifier data.
+/// Checks that the verifier data embedded in a cyclic proof's public inputs matches
+/// the expected verifier data for the circuit.
+///
+/// This check is required for cyclic recursive proofs to prevent proof substitution
+/// attacks. It verifies that the `circuit_digest` and `constants_sigmas_cap` stored
+/// in the proof's public inputs match the actual verifier data.
+///
+/// # Usage
+///
+/// This function is called automatically by
+/// [`CircuitData::verify_cyclic`](crate::plonk::circuit_data::CircuitData::verify_cyclic) and
+/// [`VerifierCircuitData::verify_cyclic`](crate::plonk::circuit_data::VerifierCircuitData::verify_cyclic).
+/// You should use those methods rather than calling this function directly.
+///
+/// # Security
+///
+/// Without this check, an attacker could build a different circuit with the same
+/// structure and create valid proofs that would be accepted by the base verification.
+/// This check ensures the proof was generated for the specific circuit the verifier
+/// expects.
 pub fn check_cyclic_proof_verifier_data<
     F: RichField + Extendable<D>,
     C: GenericConfig<D, F = F>,
@@ -326,12 +360,8 @@ mod tests {
         )?;
         pw.set_verifier_data_target(&verifier_data_target, &cyclic_circuit_data.verifier_only)?;
         let proof = cyclic_circuit_data.prove(pw)?;
-        check_cyclic_proof_verifier_data(
-            &proof,
-            &cyclic_circuit_data.verifier_only,
-            &cyclic_circuit_data.common,
-        )?;
-        cyclic_circuit_data.verify(proof.clone())?;
+        // Use verify_cyclic which includes the cyclic verifier data check
+        cyclic_circuit_data.verify_cyclic(proof.clone())?;
 
         // 1st recursive layer.
         let mut pw = PartialWitness::new();
@@ -339,12 +369,7 @@ mod tests {
         pw.set_proof_with_pis_target(&inner_cyclic_proof_with_pis, &proof)?;
         pw.set_verifier_data_target(&verifier_data_target, &cyclic_circuit_data.verifier_only)?;
         let proof = cyclic_circuit_data.prove(pw)?;
-        check_cyclic_proof_verifier_data(
-            &proof,
-            &cyclic_circuit_data.verifier_only,
-            &cyclic_circuit_data.common,
-        )?;
-        cyclic_circuit_data.verify(proof.clone())?;
+        cyclic_circuit_data.verify_cyclic(proof.clone())?;
 
         // 2nd recursive layer.
         let mut pw = PartialWitness::new();
@@ -352,11 +377,7 @@ mod tests {
         pw.set_proof_with_pis_target(&inner_cyclic_proof_with_pis, &proof)?;
         pw.set_verifier_data_target(&verifier_data_target, &cyclic_circuit_data.verifier_only)?;
         let proof = cyclic_circuit_data.prove(pw)?;
-        check_cyclic_proof_verifier_data(
-            &proof,
-            &cyclic_circuit_data.verifier_only,
-            &cyclic_circuit_data.common,
-        )?;
+        cyclic_circuit_data.verify_cyclic(proof.clone())?;
 
         // Verify that the proof correctly computes a repeated hash.
         let initial_hash = &proof.public_inputs[..4];
@@ -368,7 +389,8 @@ mod tests {
         );
         assert_eq!(hash, expected_hash);
 
-        cyclic_circuit_data.verify(proof)
+        // Final verification also uses verify_cyclic
+        cyclic_circuit_data.verify_cyclic(proof)
     }
 
     fn iterate_poseidon<F: RichField>(initial_state: [F; 4], n: usize) -> [F; 4] {

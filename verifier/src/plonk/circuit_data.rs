@@ -6,7 +6,7 @@
 use alloc::{vec, vec::Vec};
 use core::ops::{Range, RangeFrom};
 
-use anyhow::Result;
+use anyhow::{ensure, Result};
 use qp_plonky2_core::merkle_tree::MerkleCap;
 // Re-export CircuitConfig from core
 pub use qp_plonky2_core::CircuitConfig;
@@ -22,7 +22,7 @@ use crate::fri::structure::{
 use crate::gates::gate::GateRef;
 use crate::gates::lookup_table::LookupTable;
 use crate::gates::selectors::SelectorsInfo;
-use crate::hash::hash_types::RichField;
+use crate::hash::hash_types::{HashOut, RichField};
 use crate::plonk::config::{GenericConfig, Hasher};
 use crate::plonk::plonk_common::PlonkOracle;
 use crate::plonk::proof::{CompressedProofWithPublicInputs, ProofWithPublicInputs};
@@ -57,8 +57,45 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         buffer.read_verifier_circuit_data(gate_serializer)
     }
 
+    /// Verify a proof for this circuit.
+    ///
+    /// **IMPORTANT**: For cyclic recursive circuits, you MUST use
+    /// [`verify_cyclic`](Self::verify_cyclic) instead. This method does not verify that
+    /// the verifier data embedded in the proof's public inputs matches the actual circuit,
+    /// which is required for cyclic recursion security.
     pub fn verify(&self, proof_with_pis: ProofWithPublicInputs<F, C, D>) -> Result<()> {
         verify::<F, C, D>(proof_with_pis, &self.verifier_only, &self.common)
+    }
+
+    /// Verify a cyclic recursive proof.
+    ///
+    /// This method MUST be used instead of [`verify`](Self::verify) for circuits that use
+    /// cyclic recursion.
+    ///
+    /// In addition to standard proof verification, this checks that the verifier data
+    /// embedded in the proof's public inputs matches the actual verifier data for this
+    /// circuit. This prevents an attacker from substituting a valid proof chain built
+    /// with a different (but structurally identical) circuit.
+    ///
+    /// # Security
+    ///
+    /// Without this check, an attacker could:
+    /// 1. Build a malicious circuit with the same structure as the legitimate one
+    /// 2. Create a valid proof chain using their circuit
+    /// 3. Present it as a proof for the legitimate circuit
+    ///
+    /// The embedded verifier data check ensures the proof was actually generated for
+    /// this specific circuit.
+    pub fn verify_cyclic(&self, proof_with_pis: ProofWithPublicInputs<F, C, D>) -> Result<()>
+    where
+        C::Hasher: Hasher<F, Hash = HashOut<F>>,
+    {
+        self.verify(proof_with_pis.clone())?;
+        check_cyclic_proof_verifier_data(
+            &proof_with_pis,
+            &self.verifier_only,
+            &self.common,
+        )
     }
 
     pub fn verify_compressed(
@@ -90,6 +127,62 @@ impl<C: GenericConfig<D>, const D: usize> VerifierOnlyCircuitData<C, D> {
         let mut buffer = Buffer::new(&bytes);
         buffer.read_verifier_only_circuit_data()
     }
+
+    /// Extract verifier data from public inputs (for cyclic proof verification).
+    ///
+    /// The verifier data is stored at the end of public inputs in the format:
+    /// `[..., circuit_digest (4 elements), constants_sigmas_cap (4 * cap_len elements)]`
+    fn from_slice(slice: &[C::F], common_data: &CommonVerifierData<C::F, D>) -> Result<Self>
+    where
+        C::Hasher: Hasher<C::F, Hash = HashOut<C::F>>,
+    {
+        let cap_len = common_data.config.fri_config.num_cap_elements();
+        let len = slice.len();
+        ensure!(len >= 4 + 4 * cap_len, "Not enough public inputs for verifier data");
+        let constants_sigmas_cap = MerkleCap(
+            (0..cap_len)
+                .map(|i| HashOut {
+                    elements: core::array::from_fn(|j| slice[len - 4 * (cap_len - i) + j]),
+                })
+                .collect(),
+        );
+        let circuit_digest =
+            HashOut::from_partial(&slice[len - 4 - 4 * cap_len..len - 4 * cap_len]);
+
+        Ok(Self {
+            circuit_digest,
+            constants_sigmas_cap,
+        })
+    }
+}
+
+/// Checks that the verifier data embedded in a cyclic proof's public inputs matches
+/// the expected verifier data for the circuit.
+///
+/// This is called automatically by [`VerifierCircuitData::verify_cyclic`].
+pub fn check_cyclic_proof_verifier_data<
+    F: RichField + Extendable<D>,
+    C: GenericConfig<D, F = F>,
+    const D: usize,
+>(
+    proof: &ProofWithPublicInputs<F, C, D>,
+    verifier_data: &VerifierOnlyCircuitData<C, D>,
+    common_data: &CommonVerifierData<F, D>,
+) -> Result<()>
+where
+    C::Hasher: Hasher<F, Hash = HashOut<F>>,
+{
+    let pis = VerifierOnlyCircuitData::<C, D>::from_slice(&proof.public_inputs, common_data)?;
+    ensure!(
+        verifier_data.constants_sigmas_cap == pis.constants_sigmas_cap,
+        "Cyclic proof verifier data mismatch: constants_sigmas_cap does not match"
+    );
+    ensure!(
+        verifier_data.circuit_digest == pis.circuit_digest,
+        "Cyclic proof verifier data mismatch: circuit_digest does not match"
+    );
+
+    Ok(())
 }
 
 /// Verification-specific circuit data.
