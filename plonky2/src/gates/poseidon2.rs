@@ -13,6 +13,7 @@ use core::fmt::Debug;
 use core::marker::PhantomData;
 
 use plonky2_field::extension::Extendable;
+use unroll::unroll_for_loops;
 // Re-export sponge parameters from the canonical source (qp-poseidon-constants)
 pub use qp_poseidon_constants::{
     POSEIDON2_EXTERNAL_ROUNDS, POSEIDON2_INTERNAL_ROUNDS, POSEIDON2_OUTPUT, SPONGE_CAPACITY,
@@ -157,23 +158,30 @@ fn apply_mat4_base<F: Field>(a: F, b: F, c: F, d: F) -> [F; 4] {
 
 #[inline(always)]
 fn mds_light_base<F: Field>(s: &mut [F; SPONGE_WIDTH]) {
-    // 1) 4×4 per block
-    for k in (0..SPONGE_WIDTH).step_by(4) {
-        let [y0, y1, y2, y3] = apply_mat4_base(s[k], s[k + 1], s[k + 2], s[k + 3]);
-        s[k] = y0;
-        s[k + 1] = y1;
-        s[k + 2] = y2;
-        s[k + 3] = y3;
-    }
-    // 2) sums per residue class
-    let mut sums = [F::ZERO; 4];
-    for k in 0..4 {
-        sums[k] = s[k] + s[4 + k] + s[8 + k];
-    }
-    // 3) add sums[i%4]
-    for i in 0..SPONGE_WIDTH {
-        s[i] += sums[i % 4];
-    }
+    // 1) 4×4 circulant per block (unrolled)
+    let [y0, y1, y2, y3] = apply_mat4_base(s[0], s[1], s[2], s[3]);
+    let [y4, y5, y6, y7] = apply_mat4_base(s[4], s[5], s[6], s[7]);
+    let [y8, y9, y10, y11] = apply_mat4_base(s[8], s[9], s[10], s[11]);
+
+    // 2) sums per residue class mod 4
+    let sum0 = y0 + y4 + y8;
+    let sum1 = y1 + y5 + y9;
+    let sum2 = y2 + y6 + y10;
+    let sum3 = y3 + y7 + y11;
+
+    // 3) add sums to each lane (unrolled)
+    s[0] = y0 + sum0;
+    s[1] = y1 + sum1;
+    s[2] = y2 + sum2;
+    s[3] = y3 + sum3;
+    s[4] = y4 + sum0;
+    s[5] = y5 + sum1;
+    s[6] = y6 + sum2;
+    s[7] = y7 + sum3;
+    s[8] = y8 + sum0;
+    s[9] = y9 + sum1;
+    s[10] = y10 + sum2;
+    s[11] = y11 + sum3;
 }
 
 fn mds_light_any<Fx: Field>(s: &mut [Fx; SPONGE_WIDTH]) {
@@ -249,13 +257,19 @@ fn mds_light_ext<F: RichField + Extendable<D>, const D: usize>(
 }
 
 #[inline(always)]
+#[unroll_for_loops]
 fn internal_mix_base_inplace<F: Field>(x: &mut [F; SPONGE_WIDTH], diag: &[F; SPONGE_WIDTH]) {
     let mut sum = x[0];
-    for i in 1..SPONGE_WIDTH {
-        sum += x[i];
+    for i in 1..12 {
+        if i < SPONGE_WIDTH {
+            sum += x[i];
+        }
     }
-    for i in 0..SPONGE_WIDTH {
-        x[i] = diag[i] * x[i] + sum;
+    for i in 0..12 {
+        if i < SPONGE_WIDTH {
+            // Use multiply_accumulate: sum + diag[i] * x[i] (fused mul-add)
+            x[i] = sum.multiply_accumulate(diag[i], x[i]);
+        }
     }
 }
 
@@ -640,6 +654,7 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for Poseidon2Gate<
         constr
     }
 
+    #[unroll_for_loops]
     fn eval_unfiltered_base_one(
         &self,
         vars: EvaluationVarsBase<F>,
