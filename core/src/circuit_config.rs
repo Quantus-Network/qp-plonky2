@@ -236,6 +236,10 @@ impl CircuitConfig {
             return Err("num_challenges must not be 0 (zero challenges means no verification)");
         }
 
+        if self.num_constants == 0 {
+            return Err("num_constants must not be 0 (causes infinite loop in circuit build)");
+        }
+
         if let ZkMode::PolyFri(poly_fri) = &self.zk_config.mode {
             poly_fri.check_valid()?;
         }
@@ -378,6 +382,16 @@ mod tests {
     fn circuit_config_validate_rejects_zero_num_challenges() {
         let config = CircuitConfig {
             num_challenges: 0, // Invalid - voids soundness
+            ..CircuitConfig::standard_recursion_config()
+        };
+        config.validate();
+    }
+
+    #[test]
+    #[should_panic(expected = "num_constants must not be 0")]
+    fn circuit_config_validate_rejects_zero_num_constants() {
+        let config = CircuitConfig {
+            num_constants: 0, // Invalid - causes infinite loop
             ..CircuitConfig::standard_recursion_config()
         };
         config.validate();
