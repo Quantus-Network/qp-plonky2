@@ -243,6 +243,9 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     /// Assert that the configuration used to create this `CircuitBuilder` is consistent,
     /// i.e. that the different parameters meet the targeted security level.
     fn check_config(&self) {
+        // Validate basic config invariants required for soundness.
+        self.config.validate();
+
         let &CircuitConfig {
             security_bits,
             fri_config:

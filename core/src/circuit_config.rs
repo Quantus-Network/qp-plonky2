@@ -227,6 +227,10 @@ impl CircuitConfig {
             "Invalid circuit config: `num_challenges` must not be 0 \
             (PLONK constraint checks are keyed by challenges, so zero challenges means no verification)",
         );
+
+        if let ZkMode::PolyFri(poly_fri) = &self.zk_config.mode {
+            poly_fri.validate();
+        }
     }
 
     /// Validate PolyFri-specific degree knobs once the builder knows the concrete trace/FRI sizes.
@@ -240,9 +244,6 @@ impl CircuitConfig {
         let ZkMode::PolyFri(poly_fri) = &self.zk_config.mode else {
             return;
         };
-
-        // Validate minimum mask degrees for zero-knowledge.
-        poly_fri.validate();
 
         PolyFriZkConfig::assert_degree_fits(
             "wire_mask_degree",
