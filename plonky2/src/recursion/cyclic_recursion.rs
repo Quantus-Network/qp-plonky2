@@ -250,7 +250,6 @@ mod tests {
     use crate::plonk::circuit_builder::CircuitBuilder;
     use crate::plonk::circuit_data::{CircuitConfig, CommonCircuitData};
     use crate::plonk::config::{AlgebraicHasher, GenericConfig, PoseidonGoldilocksConfig};
-    use crate::recursion::cyclic_recursion::check_cyclic_proof_verifier_data;
     use crate::recursion::dummy_circuit::cyclic_base_proof;
 
     // Generates `CommonCircuitData` usable for recursion.
