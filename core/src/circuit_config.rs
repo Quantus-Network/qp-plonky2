@@ -70,6 +70,20 @@ impl PolyFriZkConfig {
         );
     }
 
+    /// Validate that mask degrees meet the minimum requirements for zero-knowledge.
+    ///
+    /// The Z polynomials (permutation/lookup accumulators) are opened at both `zeta` and `g * zeta`.
+    /// For the mask to provide zero-knowledge at two related points, `z_mask_degree` must be at
+    /// least 1. With `z_mask_degree = 0`, the mask is constant and cancels out in the difference
+    /// `M(zeta) - M(g*zeta)`, leaking witness-dependent information.
+    pub fn validate(&self) {
+        assert!(
+            self.z_mask_degree >= 1,
+            "Invalid PolyFri config: `z_mask_degree` must not be 0 \
+            (the Z polynomials are opened at two points, so a constant mask leaks witness relations)",
+        );
+    }
+
     /// Returns the public initial FRI degree bits needed to hold the logical masked polynomial.
     ///
     /// Phase 1 masks commit to `M(X) = f(X) + (X^n - 1)r(X)`, so the public initial codeword
@@ -216,6 +230,9 @@ impl CircuitConfig {
             return;
         };
 
+        // Validate minimum mask degrees for zero-knowledge.
+        poly_fri.validate();
+
         PolyFriZkConfig::assert_degree_fits(
             "wire_mask_degree",
             poly_fri.wire_mask_degree,
@@ -297,5 +314,26 @@ mod tests {
             PolyFriZkConfig::public_initial_degree_bits(trace_degree, 1);
 
         config.validate_poly_fri_params(trace_degree, public_initial_degree_bits, 2, false);
+    }
+
+    #[test]
+    fn polyfri_validate_accepts_valid_z_mask_degree() {
+        let config = PolyFriZkConfig {
+            wire_mask_degree: 0,
+            z_mask_degree: 1,
+            fri_batch_mask_degree: 1,
+        };
+        config.validate(); // Should not panic
+    }
+
+    #[test]
+    #[should_panic(expected = "z_mask_degree` must not be 0")]
+    fn polyfri_validate_rejects_zero_z_mask_degree() {
+        let config = PolyFriZkConfig {
+            wire_mask_degree: 0,
+            z_mask_degree: 0, // Invalid - leaks witness relations
+            fri_batch_mask_degree: 1,
+        };
+        config.validate();
     }
 }

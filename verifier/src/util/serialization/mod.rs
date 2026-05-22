@@ -446,11 +446,13 @@ pub trait Read {
     }
 
     fn read_poly_fri_zk_config(&mut self) -> IoResult<PolyFriZkConfig> {
-        Ok(PolyFriZkConfig {
+        let config = PolyFriZkConfig {
             wire_mask_degree: self.read_usize()?,
             z_mask_degree: self.read_usize()?,
             fri_batch_mask_degree: self.read_usize()?,
-        })
+        };
+        config.validate();
+        Ok(config)
     }
 
     fn read_zk_config(&mut self) -> IoResult<ZkConfig> {
