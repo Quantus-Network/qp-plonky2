@@ -131,18 +131,27 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2Params<F, D> {
 
 #[inline(always)]
 fn sbox7_base<F: Field>(x: F) -> F {
-    let x2 = x * x;
-    let x4 = x2 * x2;
-    (x * x2) * x4
+    let x2 = x.square();
+    let x4 = x2.square();
+    let x3 = x * x2;
+    x3 * x4
 }
+
+/// Apply the 4x4 circulant matrix [2,3,1,1] to 4 elements.
+/// Uses additions instead of multiplications for 2x and 3x.
 #[inline(always)]
-fn apply_mat4_base<F: Field>(a: F, x: F, c: F, d: F) -> [F; 4] {
-    let two = F::from_canonical_u64(2);
-    let three = F::from_canonical_u64(3);
-    let y0 = a * two + x * three + c + d;
-    let y1 = a + x * two + c * three + d;
-    let y2 = a + x + c * two + d * three;
-    let y3 = a * three + x + c + d * two;
+fn apply_mat4_base<F: Field>(a: F, b: F, c: F, d: F) -> [F; 4] {
+    // t = a + b + c + d (sum of all)
+    let t = a + b + c + d;
+    // Each output is: t + one element (for the "2" position) + another element (for the "3" position)
+    // y0 = 2a + 3b + c + d = (a+b+c+d) + a + 2b = t + a + b + b
+    // y1 = a + 2b + 3c + d = (a+b+c+d) + b + 2c = t + b + c + c  
+    // y2 = a + b + 2c + 3d = (a+b+c+d) + c + 2d = t + c + d + d
+    // y3 = 3a + b + c + 2d = (a+b+c+d) + 2a + d = t + a + a + d
+    let y0 = t + a + b + b;
+    let y1 = t + b + c + c;
+    let y2 = t + c + d + d;
+    let y3 = t + a + a + d;
     [y0, y1, y2, y3]
 }
 
@@ -644,18 +653,18 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for Poseidon2Gate<
         // 1) initial preamble (light MDS)
         mds_light_base(&mut state);
 
-        let ext_init = &self.params.ext_init;
-        let ext_term = &self.params.ext_term;
-        let int_rc = &self.params.int_rc;
+        // Use raw u64 constants for faster addition
         let diag = &self.params.diag;
 
         let mut ext_round_idx = 0usize;
 
         // 2) 4 initial external rounds
         for r in 0..4 {
-            // add RCs
+            // add RCs using raw u64 constants
             for i in 0..SPONGE_WIDTH {
-                state[i] += ext_init[r][i];
+                // SAFETY: POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW values are < ORDER
+                state[i] =
+                    unsafe { state[i].add_canonical_u64(POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW[r][i]) };
             }
             // Round 0: state is degree-1 (input wires through linear
             // MDS preamble + constants), so sbox7 produces degree 7
@@ -679,8 +688,9 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for Poseidon2Gate<
 
         // 3) 22 internal rounds (lane 0 sbox + internal mix)
         for r in 0..POSEIDON2_INTERNAL_ROUNDS {
-            // lane 0: add RC
-            state[0] += int_rc[r];
+            // lane 0: add RC using raw u64
+            // SAFETY: POSEIDON2_INTERNAL_CONSTANTS_RAW values are < ORDER
+            state[0] = unsafe { state[0].add_canonical_u64(POSEIDON2_INTERNAL_CONSTANTS_RAW[r]) };
 
             // constrain S-box input for lane 0 and update
             let sbox_in = lw[Self::wire_int_sbox(r)];
@@ -694,9 +704,11 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for Poseidon2Gate<
 
         // 4) 4 terminal external rounds
         for r in 0..4 {
-            // add RCs
+            // add RCs using raw u64 constants
             for i in 0..SPONGE_WIDTH {
-                state[i] += ext_term[r][i];
+                // SAFETY: POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW values are < ORDER
+                state[i] =
+                    unsafe { state[i].add_canonical_u64(POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW[r][i]) };
             }
             // constrain S-box inputs and update state = sbox_in
             for i in 0..SPONGE_WIDTH {
