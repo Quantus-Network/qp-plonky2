@@ -964,6 +964,7 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D>
 #[cfg(test)]
 mod tests {
     use plonky2_field::goldilocks_field::GoldilocksField;
+    use plonky2_field::types::Field64;
 
     use super::*;
     use crate::gates::gate::Gate;
