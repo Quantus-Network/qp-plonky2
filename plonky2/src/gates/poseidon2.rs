@@ -13,7 +13,6 @@ use core::fmt::Debug;
 use core::marker::PhantomData;
 
 use plonky2_field::extension::Extendable;
-use unroll::unroll_for_loops;
 // Re-export sponge parameters from the canonical source (qp-poseidon-constants)
 pub use qp_poseidon_constants::{
     POSEIDON2_EXTERNAL_ROUNDS, POSEIDON2_INTERNAL_ROUNDS, POSEIDON2_OUTPUT, SPONGE_CAPACITY,
@@ -23,6 +22,7 @@ use qp_poseidon_constants::{
     POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW, POSEIDON2_INTERNAL_CONSTANTS_RAW,
     POSEIDON2_MATRIX_DIAG_12_RAW, POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
 };
+use unroll::unroll_for_loops;
 
 use crate::field::types::Field;
 use crate::gates::gate::Gate;
@@ -997,8 +997,9 @@ mod tests {
     /// the same results as the p3 reference implementation.
     #[test]
     fn test_optimized_functions_match_p3_reference() {
-        use crate::hash::poseidon2::P2Permuter;
         use plonky2_field::types::{Field, Field64};
+
+        use crate::hash::poseidon2::P2Permuter;
 
         type F = GoldilocksField;
 
@@ -1011,13 +1012,17 @@ mod tests {
             // Sequential values
             core::array::from_fn(|i| F::from_canonical_u64(i as u64)),
             // Large random-ish values (but valid canonical)
-            core::array::from_fn(|i| F::from_canonical_u64(
-                (0xDEADBEEF12345678_u64.wrapping_mul(i as u64 + 1)) % F::ORDER
-            )),
+            core::array::from_fn(|i| {
+                F::from_canonical_u64(
+                    (0xDEADBEEF12345678_u64.wrapping_mul(i as u64 + 1)) % F::ORDER,
+                )
+            }),
             // Another pattern
-            core::array::from_fn(|i| F::from_canonical_u64(
-                (0x123456789ABCDEF0_u64.wrapping_add(i as u64 * 0x1111111111111111)) % F::ORDER
-            )),
+            core::array::from_fn(|i| {
+                F::from_canonical_u64(
+                    (0x123456789ABCDEF0_u64.wrapping_add(i as u64 * 0x1111111111111111)) % F::ORDER,
+                )
+            }),
         ];
 
         for input in test_cases {
@@ -1032,7 +1037,8 @@ mod tests {
             for r in 0..4 {
                 for i in 0..SPONGE_WIDTH {
                     our_state[i] = unsafe {
-                        our_state[i].add_canonical_u64(POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW[r][i])
+                        our_state[i]
+                            .add_canonical_u64(POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW[r][i])
                     };
                 }
                 sbox_layer_optimized(&mut our_state);
@@ -1041,9 +1047,8 @@ mod tests {
 
             // 22 internal rounds
             for r in 0..POSEIDON2_INTERNAL_ROUNDS {
-                our_state[0] = unsafe {
-                    our_state[0].add_canonical_u64(POSEIDON2_INTERNAL_CONSTANTS_RAW[r])
-                };
+                our_state[0] =
+                    unsafe { our_state[0].add_canonical_u64(POSEIDON2_INTERNAL_CONSTANTS_RAW[r]) };
                 our_state[0] = sbox7_base(our_state[0]);
                 our_state = internal_mix_optimized(&our_state);
             }
@@ -1052,7 +1057,8 @@ mod tests {
             for r in 0..4 {
                 for i in 0..SPONGE_WIDTH {
                     our_state[i] = unsafe {
-                        our_state[i].add_canonical_u64(POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW[r][i])
+                        our_state[i]
+                            .add_canonical_u64(POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW[r][i])
                     };
                 }
                 sbox_layer_optimized(&mut our_state);

@@ -4,17 +4,16 @@
 //! with highly optimized implementations for GoldilocksField using raw
 //! integer arithmetic to minimize field reductions.
 
-use unroll::unroll_for_loops;
-
-use crate::field::extension::FieldExtension;
-use crate::field::types::PrimeField64;
-
 // Re-export constants from qp-poseidon-constants
 pub use qp_poseidon_constants::{
     POSEIDON2_EXTERNAL_ROUNDS, POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW,
     POSEIDON2_INTERNAL_CONSTANTS_RAW, POSEIDON2_INTERNAL_ROUNDS, POSEIDON2_MATRIX_DIAG_12_RAW,
     POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW, SPONGE_CAPACITY, SPONGE_RATE, SPONGE_WIDTH,
 };
+use unroll::unroll_for_loops;
+
+use crate::field::extension::FieldExtension;
+use crate::field::types::PrimeField64;
 
 /// Optimized Poseidon2 permutation trait.
 ///
@@ -114,14 +113,17 @@ pub trait Poseidon2: PrimeField64 {
         // Apply 4x4 blocks using field arithmetic
         #[inline(always)]
         fn apply_mat4_field<F: Copy + core::ops::Add<Output = F>>(
-            a: F, b: F, c: F, d: F,
+            a: F,
+            b: F,
+            c: F,
+            d: F,
         ) -> [F; 4] {
             let t = a + b + c + d;
             [
-                t + a + b + b,  // 2a + 3b + c + d
-                t + b + c + c,  // a + 2b + 3c + d
-                t + c + d + d,  // a + b + 2c + 3d
-                t + a + a + d,  // 3a + b + c + 2d
+                t + a + b + b, // 2a + 3b + c + d
+                t + b + c + c, // a + 2b + 3c + d
+                t + c + d + d, // a + b + 2c + 3d
+                t + a + a + d, // 3a + b + c + 2d
             ]
         }
 
@@ -135,9 +137,18 @@ pub trait Poseidon2: PrimeField64 {
         let sum3 = y3 + y7 + y11;
 
         [
-            y0 + sum0, y1 + sum1, y2 + sum2, y3 + sum3,
-            y4 + sum0, y5 + sum1, y6 + sum2, y7 + sum3,
-            y8 + sum0, y9 + sum1, y10 + sum2, y11 + sum3,
+            y0 + sum0,
+            y1 + sum1,
+            y2 + sum2,
+            y3 + sum3,
+            y4 + sum0,
+            y5 + sum1,
+            y6 + sum2,
+            y7 + sum3,
+            y8 + sum0,
+            y9 + sum1,
+            y10 + sum2,
+            y11 + sum3,
         ]
     }
 
@@ -230,8 +241,7 @@ pub trait Poseidon2: PrimeField64 {
     #[inline(always)]
     fn add_internal_constant(state: &mut [Self; SPONGE_WIDTH], round: usize) {
         // SAFETY: Constants are canonical
-        state[0] =
-            unsafe { state[0].add_canonical_u64(POSEIDON2_INTERNAL_CONSTANTS_RAW[round]) };
+        state[0] = unsafe { state[0].add_canonical_u64(POSEIDON2_INTERNAL_CONSTANTS_RAW[round]) };
     }
 
     // =========================================================================
@@ -274,8 +284,9 @@ impl Poseidon2 for GoldilocksField {}
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use plonky2_field::types::Field;
+
+    use super::*;
 
     #[test]
     fn test_poseidon2_permutation() {
