@@ -91,11 +91,7 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         C::Hasher: Hasher<F, Hash = HashOut<F>>,
     {
         self.verify(proof_with_pis.clone())?;
-        check_cyclic_proof_verifier_data(
-            &proof_with_pis,
-            &self.verifier_only,
-            &self.common,
-        )
+        check_cyclic_proof_verifier_data(&proof_with_pis, &self.verifier_only, &self.common)
     }
 
     pub fn verify_compressed(
@@ -138,7 +134,10 @@ impl<C: GenericConfig<D>, const D: usize> VerifierOnlyCircuitData<C, D> {
     {
         let cap_len = common_data.config.fri_config.num_cap_elements();
         let len = slice.len();
-        ensure!(len >= 4 + 4 * cap_len, "Not enough public inputs for verifier data");
+        ensure!(
+            len >= 4 + 4 * cap_len,
+            "Not enough public inputs for verifier data"
+        );
         let constants_sigmas_cap = MerkleCap(
             (0..cap_len)
                 .map(|i| HashOut {

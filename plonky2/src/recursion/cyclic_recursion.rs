@@ -401,7 +401,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Cannot register public inputs after calling add_verifier_data_public_inputs")]
+    #[should_panic(
+        expected = "Cannot register public inputs after calling add_verifier_data_public_inputs"
+    )]
     fn test_no_public_inputs_after_verifier_data() {
         const D: usize = 2;
         type F = <PoseidonGoldilocksConfig as GenericConfig<D>>::F;
