@@ -103,14 +103,11 @@ impl<F: RichField + Extendable<D>, const B: usize, const D: usize> SimpleGenerat
         witness: &PartitionWitness<F>,
         out_buffer: &mut GeneratedValues<F>,
     ) -> Result<()> {
-        let sum = self
-            .limbs
-            .iter()
-            .map(|&t| witness.get_bool_target(t))
-            .rev()
-            .fold(F::ZERO, |acc, limb| {
-                acc * F::from_canonical_usize(B) + F::from_bool(limb)
-            });
+        let mut sum = F::ZERO;
+        for &t in self.limbs.iter().rev() {
+            let limb = witness.get_bool_target(t)?;
+            sum = sum * F::from_canonical_usize(B) + F::from_bool(limb);
+        }
 
         out_buffer.set_target(Target::wire(self.row, BaseSumGate::<B>::WIRE_SUM), sum)
     }
