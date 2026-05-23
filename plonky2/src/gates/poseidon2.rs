@@ -1109,10 +1109,11 @@ mod tests {
 
         // Generate wire values
         let wires_1: Vec<F> = (0..num_points * num_wires_1)
-            .map(|i| F::from_canonical_u64(i as u64 * 12345678901234567))
+            .map(|i| F::from_canonical_u64((i as u64).wrapping_mul(12345678901234567) % F::ORDER))
             .collect();
+        
         let wires_2: Vec<F> = (0..num_points * num_wires_2)
-            .map(|i| F::from_canonical_u64(i as u64 * 12345678901234567))
+            .map(|i| F::from_canonical_u64((i as u64).wrapping_mul(12345678901234567) % F::ORDER))
             .collect();
 
         let constants: Vec<F> = vec![];
