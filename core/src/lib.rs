@@ -34,7 +34,6 @@ pub mod merkle_tree;
 pub mod plonk;
 pub mod plonk_common;
 pub mod poseidon;
-pub mod poseidon2;
 pub mod poseidon_crandall;
 pub mod poseidon_goldilocks;
 pub mod proof;

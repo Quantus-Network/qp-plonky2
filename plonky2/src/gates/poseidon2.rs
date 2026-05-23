@@ -1153,4 +1153,144 @@ mod tests {
         let ratio = elapsed_2.as_nanos() as f64 / elapsed_1.as_nanos() as f64;
         println!("\nPoseidon2/Poseidon1 ratio: {:.2}x", ratio);
     }
+
+    /// Gate-level regression test for eval_unfiltered_base_batch.
+    ///
+    /// This test fills a valid Poseidon2Gate witness (all wires), calls
+    /// eval_unfiltered_base_batch, and asserts all yielded constraints are zero.
+    /// This directly tests the gate witness/checkpoint-wire constraint path.
+    #[test]
+    fn test_eval_unfiltered_base_batch_valid_witness() {
+        use plonky2_field::types::Field;
+
+        use crate::hash::poseidon2::P2Permuter;
+
+        type F = GoldilocksField;
+        const D: usize = 2;
+
+        let gate = Poseidon2Gate::<F, D>::new();
+        let num_wires = gate.num_wires();
+        let num_constraints = gate.num_constraints();
+
+        // Test with multiple input patterns
+        let test_inputs: Vec<[F; SPONGE_WIDTH]> = vec![
+            // All zeros
+            [F::ZERO; SPONGE_WIDTH],
+            // All ones
+            [F::ONE; SPONGE_WIDTH],
+            // Sequential values
+            core::array::from_fn(|i| F::from_canonical_u64(i as u64 + 1)),
+            // Large values
+            core::array::from_fn(|i| {
+                F::from_canonical_u64(0xDEADBEEF_u64.wrapping_mul(i as u64 + 1) % (1u64 << 63))
+            }),
+        ];
+
+        for input in test_inputs {
+            // Fill all wires correctly using the same logic as the witness generator
+            let mut wires = vec![F::ZERO; num_wires];
+
+            // Set input wires
+            for i in 0..SPONGE_WIDTH {
+                wires[Poseidon2Gate::<F, D>::wire_input(i)] = input[i];
+            }
+
+            // Run the permutation and fill checkpoint wires
+            let mut state = input;
+
+            // 0) preamble MDS
+            mds_light_base(&mut state);
+
+            let params = &gate.params;
+            let ext_init = &params.ext_init;
+            let ext_term = &params.ext_term;
+            let int_rc = &params.int_rc;
+            let diag = &params.diag;
+
+            let mut ext_round_idx = 0usize;
+
+            // 1) 4 initial external rounds
+            for r in 0..4 {
+                for i in 0..SPONGE_WIDTH {
+                    state[i] = state[i] + ext_init[r][i];
+                    let s_in = state[i];
+                    // Round 0 has no checkpoint wires
+                    if ext_round_idx != 0 {
+                        wires[Poseidon2Gate::<F, D>::wire_ext_sbox(ext_round_idx, i)] = s_in;
+                    }
+                    state[i] = sbox7_base(s_in);
+                }
+                mds_light_base(&mut state);
+                ext_round_idx += 1;
+            }
+
+            // 2) 22 internal rounds
+            for r in 0..POSEIDON2_INTERNAL_ROUNDS {
+                state[0] = state[0] + int_rc[r];
+                let s_in = state[0];
+                wires[Poseidon2Gate::<F, D>::wire_int_sbox(r)] = s_in;
+                state[0] = sbox7_base(s_in);
+                state = internal_mix_base(&state, diag);
+            }
+
+            // 3) 4 terminal external rounds
+            for r in 0..4 {
+                for i in 0..SPONGE_WIDTH {
+                    state[i] = state[i] + ext_term[r][i];
+                    let s_in = state[i];
+                    wires[Poseidon2Gate::<F, D>::wire_ext_sbox(ext_round_idx, i)] = s_in;
+                    state[i] = sbox7_base(s_in);
+                }
+                mds_light_base(&mut state);
+                ext_round_idx += 1;
+            }
+
+            // 4) Set output wires
+            for i in 0..SPONGE_WIDTH {
+                wires[Poseidon2Gate::<F, D>::wire_output(i)] = state[i];
+            }
+
+            // Verify outputs match p3 reference
+            let p3_output = F::permute(input);
+            for i in 0..SPONGE_WIDTH {
+                assert_eq!(
+                    wires[Poseidon2Gate::<F, D>::wire_output(i)],
+                    p3_output[i],
+                    "Output mismatch at lane {} for input {:?}",
+                    i,
+                    input
+                );
+            }
+
+            // Now call eval_unfiltered_base_batch and verify all constraints are zero
+            let constants: Vec<F> = vec![];
+            let public_inputs_hash = HashOut::ZERO;
+
+            // Use batch size of 1 to test a single evaluation point
+            let vars_batch =
+                EvaluationVarsBaseBatch::new(1, &constants, &wires, &public_inputs_hash);
+
+            // Collect constraint outputs
+            let constraints = gate.eval_unfiltered_base_batch(vars_batch);
+
+            // Assert we got the expected number of constraints
+            assert_eq!(
+                constraints.len(),
+                num_constraints,
+                "Wrong number of constraints returned"
+            );
+
+            // Assert all constraints are zero
+            for (i, &c) in constraints.iter().enumerate() {
+                assert_eq!(
+                    c,
+                    F::ZERO,
+                    "Constraint {} is non-zero ({:?}) for input {:?}",
+                    i,
+                    c,
+                    input
+                );
+            }
+        }
+    }
 }
