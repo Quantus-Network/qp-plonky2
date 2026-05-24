@@ -7,7 +7,7 @@ use keccak_hash::keccak;
 
 use crate::hash::hash_types::{BytesHash, RichField};
 use crate::hash::hashing::PlonkyPermutation;
-use crate::plonk::config::Hasher;
+use crate::plonk::config::{merkle_node_hash_input, Hasher};
 use crate::util::serialization::Write;
 
 pub const SPONGE_RATE: usize = 8;
@@ -116,11 +116,6 @@ impl<F: RichField, const N: usize> Hasher<F> for KeccakHash<N> {
     }
 
     fn two_to_one(left: Self::Hash, right: Self::Hash) -> Self::Hash {
-        let mut v = vec![0; N * 2];
-        v[0..N].copy_from_slice(&left.0);
-        v[N..].copy_from_slice(&right.0);
-        let mut arr = [0; N];
-        arr.copy_from_slice(&keccak(v).0[..N]);
-        BytesHash(arr)
+        Self::hash_no_pad(&merkle_node_hash_input::<F, Self>(left, right))
     }
 }

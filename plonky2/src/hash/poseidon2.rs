@@ -3,7 +3,7 @@
 extern crate alloc;
 
 #[cfg(not(feature = "std"))]
-use alloc::vec;
+use alloc::{vec, vec::Vec};
 #[cfg(not(feature = "std"))]
 use core::fmt::Debug;
 
@@ -19,11 +19,11 @@ use qp_poseidon_constants::create_poseidon;
 
 use crate::field::types::{Field, PrimeField64};
 use crate::gates::poseidon2::{Poseidon2Gate, SPONGE_RATE, SPONGE_WIDTH};
-use crate::hash::hash_types::{HashOut, RichField, NUM_HASH_OUT_ELTS};
+use crate::hash::hash_types::{HashOut, HashOutTarget, RichField, NUM_HASH_OUT_ELTS};
 use crate::hash::hashing::{hash_n_to_hash_no_pad_p2, PlonkyPermutation};
 use crate::iop::target::{BoolTarget, Target};
 use crate::plonk::circuit_builder::CircuitBuilder;
-use crate::plonk::config::{AlgebraicHasher, Hasher};
+use crate::plonk::config::{merkle_node_hash_input, AlgebraicHasher, Hasher};
 
 /// Static Poseidon2 instance, initialized once and reused across all calls.
 /// The instance is determined entirely by compile-time constants and is safe to share.
@@ -143,10 +143,7 @@ impl<F: RichField + P2Permuter> Hasher<F> for Poseidon2Hash {
 
     /// Keep CPU equivalence: concatenate 8 felts and call the same `hash_no_pad`.
     fn two_to_one(left: Self::Hash, right: Self::Hash) -> Self::Hash {
-        let mut input = [F::ZERO; 2 * NUM_HASH_OUT_ELTS];
-        input[..NUM_HASH_OUT_ELTS].copy_from_slice(&left.elements);
-        input[NUM_HASH_OUT_ELTS..].copy_from_slice(&right.elements);
-        Self::hash_no_pad(&input)
+        Self::hash_no_pad(&merkle_node_hash_input::<F, Self>(left, right))
     }
 }
 
@@ -193,6 +190,39 @@ impl<F: RichField + P2Permuter> AlgebraicHasher<F> for Poseidon2Hash {
             core::array::from_fn(|i| Target::wire(row, Poseidon2Gate::<F, D>::wire_output(i)));
 
         Poseidon2Permutation { state }
+    }
+
+    fn hash_merkle_leaf_circuit<const D: usize>(
+        builder: &mut CircuitBuilder<F, D>,
+        leaf_data: Vec<Target>,
+    ) -> HashOutTarget
+    where
+        F: RichField + Extendable<D>,
+    {
+        let mut encoded = Vec::with_capacity(leaf_data.len() + 2);
+        encoded.push(builder.constant(F::from_canonical_u64(
+            qp_plonky2_core::config::MERKLE_LEAF_DOMAIN_TAG,
+        )));
+        encoded.push(builder.constant(F::from_canonical_usize(leaf_data.len())));
+        encoded.extend_from_slice(&leaf_data);
+        builder.hash_n_to_hash_no_pad_p2::<Self>(encoded)
+    }
+
+    fn hash_merkle_node_circuit<const D: usize>(
+        builder: &mut CircuitBuilder<F, D>,
+        left: HashOutTarget,
+        right: HashOutTarget,
+    ) -> HashOutTarget
+    where
+        F: RichField + Extendable<D>,
+    {
+        let mut encoded = Vec::with_capacity(1 + 2 * NUM_HASH_OUT_ELTS);
+        encoded.push(builder.constant(F::from_canonical_u64(
+            qp_plonky2_core::config::MERKLE_NODE_DOMAIN_TAG,
+        )));
+        encoded.extend_from_slice(&left.elements);
+        encoded.extend_from_slice(&right.elements);
+        builder.hash_n_to_hash_no_pad_p2::<Self>(encoded)
     }
 }
 

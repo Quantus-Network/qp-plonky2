@@ -18,6 +18,9 @@ use crate::hashing::PlonkyPermutation;
 use crate::keccak::KeccakHash;
 use crate::poseidon::PoseidonHash;
 
+pub const MERKLE_LEAF_DOMAIN_TAG: u64 = 0x4d45524b4c454146;
+pub const MERKLE_NODE_DOMAIN_TAG: u64 = 0x4d45524b4e4f4445;
+
 pub trait GenericHashOut<F: RichField>:
     Copy + Clone + Debug + Eq + PartialEq + Send + Sync + Serialize + DeserializeOwned
 {
@@ -42,6 +45,14 @@ pub trait Hasher<F: RichField>: Sized + Copy + Debug + Eq + PartialEq {
     /// However, it is still collision-resistant in cases where the input has a fixed length.
     fn hash_no_pad(input: &[F]) -> Self::Hash;
 
+    fn hash_merkle_leaf(input: &[F]) -> Self::Hash {
+        let mut encoded = Vec::with_capacity(input.len() + 2);
+        encoded.push(F::from_canonical_u64(MERKLE_LEAF_DOMAIN_TAG));
+        encoded.push(F::from_canonical_usize(input.len()));
+        encoded.extend_from_slice(input);
+        Self::hash_no_pad(&encoded)
+    }
+
     /// Pad the message using the `pad10*1` rule, then hash it.
     fn hash_pad(input: &[F]) -> Self::Hash {
         let mut padded_input = input.to_vec();
@@ -54,6 +65,16 @@ pub trait Hasher<F: RichField>: Sized + Copy + Debug + Eq + PartialEq {
     }
 
     fn two_to_one(left: Self::Hash, right: Self::Hash) -> Self::Hash;
+}
+
+pub fn merkle_node_hash_input<F: RichField, H: Hasher<F>>(left: H::Hash, right: H::Hash) -> Vec<F> {
+    let left = left.to_vec();
+    let right = right.to_vec();
+    let mut input = Vec::with_capacity(1 + left.len() + right.len());
+    input.push(F::from_canonical_u64(MERKLE_NODE_DOMAIN_TAG));
+    input.extend_from_slice(&left);
+    input.extend_from_slice(&right);
+    input
 }
 
 /// Generic configuration trait.

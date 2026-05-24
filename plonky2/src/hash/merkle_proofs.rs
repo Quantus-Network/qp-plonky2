@@ -73,25 +73,13 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     ) {
         debug_assert!(H::AlgebraicPermutation::RATE >= NUM_HASH_OUT_ELTS);
 
-        let zero = self.zero();
-        let mut state: HashOutTarget = self.hash_n_to_hash_no_pad::<H>(leaf_data);
+        let mut state: HashOutTarget = H::hash_merkle_leaf_circuit(self, leaf_data);
         debug_assert_eq!(state.elements.len(), NUM_HASH_OUT_ELTS);
 
         for (&bit, &sibling) in leaf_index_bits.iter().zip(&proof.siblings) {
             debug_assert_eq!(sibling.elements.len(), NUM_HASH_OUT_ELTS);
 
-            let mut perm_inputs = H::AlgebraicPermutation::default();
-            perm_inputs.set_from_slice(&state.elements, 0);
-            perm_inputs.set_from_slice(&sibling.elements, NUM_HASH_OUT_ELTS);
-            // Ensure the rest of the state, if any, is zero:
-            perm_inputs.set_from_iter(core::iter::repeat(zero), 2 * NUM_HASH_OUT_ELTS);
-            let perm_outs = self.permute_swapped::<H>(perm_inputs, bit);
-            let hash_outs = perm_outs.squeeze()[0..NUM_HASH_OUT_ELTS]
-                .try_into()
-                .unwrap();
-            state = HashOutTarget {
-                elements: hash_outs,
-            };
+            state = H::hash_merkle_node_swapped_circuit(self, state, sibling, bit);
         }
 
         for i in 0..NUM_HASH_OUT_ELTS {
@@ -118,8 +106,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     ) {
         debug_assert!(H::AlgebraicPermutation::RATE >= NUM_HASH_OUT_ELTS);
 
-        let zero = self.zero();
-        let mut state: HashOutTarget = self.hash_n_to_hash_no_pad::<H>(leaf_data);
+        let mut state: HashOutTarget = H::hash_merkle_leaf_circuit(self, leaf_data);
         debug_assert_eq!(state.elements.len(), NUM_HASH_OUT_ELTS);
 
         let num_log_n = log_n_range.clone().count();
@@ -128,18 +115,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         for (&bit, &sibling) in leaf_index_bits.iter().zip(&proof.siblings) {
             debug_assert_eq!(sibling.elements.len(), NUM_HASH_OUT_ELTS);
 
-            let mut perm_inputs = H::AlgebraicPermutation::default();
-            perm_inputs.set_from_slice(&state.elements, 0);
-            perm_inputs.set_from_slice(&sibling.elements, NUM_HASH_OUT_ELTS);
-            // Ensure the rest of the state, if any, is zero:
-            perm_inputs.set_from_iter(core::iter::repeat(zero), 2 * NUM_HASH_OUT_ELTS);
-            let perm_outs = self.permute_swapped::<H>(perm_inputs, bit);
-            let hash_outs = perm_outs.squeeze()[0..NUM_HASH_OUT_ELTS]
-                .try_into()
-                .unwrap();
-            state = HashOutTarget {
-                elements: hash_outs,
-            };
+            state = H::hash_merkle_node_swapped_circuit(self, state, sibling, bit);
             // Store state at specific indices
             for n in 0..num_log_n - 1 {
                 final_states[n] = final_states[n + 1];
@@ -173,8 +149,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     ) {
         debug_assert!(H::AlgebraicPermutation::RATE >= NUM_HASH_OUT_ELTS);
 
-        let zero = self.zero();
-        let mut state: HashOutTarget = self.hash_n_to_hash_no_pad::<H>(leaf_data[0].clone());
+        let mut state: HashOutTarget = H::hash_merkle_leaf_circuit(self, leaf_data[0].clone());
         debug_assert_eq!(state.elements.len(), NUM_HASH_OUT_ELTS);
 
         let mut current_height = leaf_heights[0];
@@ -182,18 +157,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         for (&bit, &sibling) in leaf_index_bits.iter().zip(&proof.siblings) {
             debug_assert_eq!(sibling.elements.len(), NUM_HASH_OUT_ELTS);
 
-            let mut perm_inputs = H::AlgebraicPermutation::default();
-            perm_inputs.set_from_slice(&state.elements, 0);
-            perm_inputs.set_from_slice(&sibling.elements, NUM_HASH_OUT_ELTS);
-            // Ensure the rest of the state, if any, is zero:
-            perm_inputs.set_from_iter(core::iter::repeat(zero), 2 * NUM_HASH_OUT_ELTS);
-            let perm_outs = self.permute_swapped::<H>(perm_inputs, bit);
-            let hash_outs = perm_outs.squeeze()[0..NUM_HASH_OUT_ELTS]
-                .try_into()
-                .unwrap();
-            state = HashOutTarget {
-                elements: hash_outs,
-            };
+            state = H::hash_merkle_node_swapped_circuit(self, state, sibling, bit);
             current_height -= 1;
 
             if leaf_data_index < leaf_heights.len()
@@ -201,7 +165,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             {
                 let mut new_leaves = state.elements.to_vec();
                 new_leaves.extend_from_slice(&leaf_data[leaf_data_index]);
-                state = self.hash_n_to_hash_no_pad::<H>(new_leaves);
+                state = H::hash_merkle_leaf_circuit(self, new_leaves);
 
                 leaf_data_index += 1;
             }

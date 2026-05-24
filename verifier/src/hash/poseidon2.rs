@@ -17,7 +17,7 @@ use qp_poseidon_constants::{create_poseidon, SPONGE_RATE, SPONGE_WIDTH};
 
 use crate::field::types::{Field, PrimeField64};
 use crate::hash::hash_types::{HashOut, RichField, NUM_HASH_OUT_ELTS};
-use crate::plonk::config::Hasher;
+use crate::plonk::config::{merkle_node_hash_input, Hasher};
 
 /// Static Poseidon2 instance, initialized once and reused across all calls.
 /// The instance is determined entirely by compile-time constants and is safe to share.
@@ -130,10 +130,7 @@ impl<F: RichField + P2Permuter> Hasher<F> for Poseidon2Hash {
 
     /// Keep CPU equivalence: concatenate 8 felts and call the same `hash_no_pad`.
     fn two_to_one(left: Self::Hash, right: Self::Hash) -> Self::Hash {
-        let mut input = [F::ZERO; 2 * NUM_HASH_OUT_ELTS];
-        input[..NUM_HASH_OUT_ELTS].copy_from_slice(&left.elements);
-        input[NUM_HASH_OUT_ELTS..].copy_from_slice(&right.elements);
-        Self::hash_no_pad(&input)
+        Self::hash_no_pad(&merkle_node_hash_input::<F, Self>(left, right))
     }
 }
 

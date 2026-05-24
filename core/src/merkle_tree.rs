@@ -88,7 +88,7 @@ pub fn fill_subtree<F: RichField, H: Hasher<F>>(
 ) -> H::Hash {
     assert_eq!(leaves.len(), digests_buf.len() / 2 + 1);
     if digests_buf.is_empty() {
-        H::hash_no_pad(&leaves[0])
+        H::hash_merkle_leaf(&leaves[0])
     } else {
         // Layout is: left recursive output || left child digest
         //             || right child digest || right recursive output.
@@ -121,7 +121,7 @@ pub fn fill_digests_buf<F: RichField, H: Hasher<F>>(
     if digests_buf.is_empty() {
         debug_assert_eq!(cap_buf.len(), leaves.len());
         cap_buf.iter_mut().zip(leaves).for_each(|(cap_buf, leaf)| {
-            cap_buf.write(H::hash_no_pad(leaf));
+            cap_buf.write(H::hash_merkle_leaf(leaf));
         });
         return;
     }

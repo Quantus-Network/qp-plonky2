@@ -13,12 +13,15 @@ use plonky2::gates::exponentiation::ExponentiationGate;
 use plonky2::gates::gate::Gate;
 use plonky2::gates::reducing::ReducingGate;
 use plonky2::gates::reducing_extension::ReducingExtensionGate;
+use plonky2::hash::merkle_proofs::{verify_merkle_proof_to_cap, MerkleProof, MerkleProofTarget};
+use plonky2::hash::merkle_tree::{MerkleCap, MerkleTree};
+use plonky2::hash::poseidon::PoseidonHash;
 use plonky2::iop::ext_target::ExtensionTarget;
 use plonky2::iop::target::Target;
 use plonky2::iop::witness::{PartialWitness, Witness, WitnessWrite};
 use plonky2::plonk::circuit_builder::CircuitBuilder;
 use plonky2::plonk::circuit_data::{CircuitConfig, CommonCircuitData, ProverOnlyCircuitData};
-use plonky2::plonk::config::{GenericConfig, PoseidonGoldilocksConfig};
+use plonky2::plonk::config::{GenericConfig, Hasher, PoseidonGoldilocksConfig};
 use plonky2::util::serialization::{
     Buffer, DefaultGateSerializer, DefaultGeneratorSerializer, Write,
 };
@@ -377,4 +380,85 @@ fn matched_fri_degree_bits_deserialize() {
     data.common.check_valid().unwrap();
     let bytes = data.common.to_bytes(&serializer).unwrap();
     assert!(CommonCircuitData::<F, D>::from_bytes(bytes, &serializer).is_ok());
+}
+
+#[test]
+fn merkle_poseidon_zero_suffix_leaf_collision_rejected() -> anyhow::Result<()> {
+    let leaf = vec![
+        F::from_canonical_u64(1),
+        F::from_canonical_u64(2),
+        F::from_canonical_u64(3),
+        F::from_canonical_u64(4),
+        F::from_canonical_u64(5),
+    ];
+    let leaves = vec![leaf.clone(), vec![F::from_canonical_u64(9); 5]];
+    let tree = MerkleTree::<F, PoseidonHash>::new(leaves, 0);
+    let proof = tree.prove(0);
+
+    verify_merkle_proof_to_cap(leaf.clone(), 0, &tree.cap, &proof)?;
+
+    let mut zero_extended_leaf = leaf;
+    zero_extended_leaf.push(F::ZERO);
+    assert!(verify_merkle_proof_to_cap(zero_extended_leaf, 0, &tree.cap, &proof).is_err());
+
+    Ok(())
+}
+
+#[test]
+fn merkle_leaf_proof_reopens_as_digest_shaped_alias_rejected() {
+    let leaves = vec![
+        vec![F::from_canonical_u64(11), F::from_canonical_u64(12)],
+        vec![F::from_canonical_u64(21), F::from_canonical_u64(22)],
+    ];
+    let tree = MerkleTree::<F, PoseidonHash>::new(leaves.clone(), 0);
+    let left = PoseidonHash::hash_merkle_leaf(&leaves[0]);
+    let right = PoseidonHash::hash_merkle_leaf(&leaves[1]);
+    let mut node_preimage_as_leaf = left.elements.to_vec();
+    node_preimage_as_leaf.extend_from_slice(&right.elements);
+
+    let root_cap = MerkleCap::<F, PoseidonHash>(vec![tree.cap.0[0]]);
+    let empty_proof = MerkleProof::<F, PoseidonHash> { siblings: vec![] };
+
+    assert!(verify_merkle_proof_to_cap(node_preimage_as_leaf, 0, &root_cap, &empty_proof).is_err());
+}
+
+#[test]
+fn merkle_recursive_verifier_matches_native_leaf_hash() -> anyhow::Result<()> {
+    let leaves = vec![
+        vec![F::from_canonical_u64(1), F::from_canonical_u64(2)],
+        vec![F::from_canonical_u64(3), F::from_canonical_u64(4)],
+        vec![F::from_canonical_u64(5), F::from_canonical_u64(6)],
+        vec![F::from_canonical_u64(7), F::from_canonical_u64(8)],
+    ];
+    let tree = MerkleTree::<F, PoseidonHash>::new(leaves.clone(), 1);
+    let leaf_index = 2;
+    let proof = tree.prove(leaf_index);
+    verify_merkle_proof_to_cap(leaves[leaf_index].clone(), leaf_index, &tree.cap, &proof)?;
+
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let mut pw = PartialWitness::new();
+
+    let proof_t = MerkleProofTarget {
+        siblings: builder.add_virtual_hashes(proof.siblings.len()),
+    };
+    for (&target, &sibling) in proof_t.siblings.iter().zip(&proof.siblings) {
+        pw.set_hash_target(target, sibling)?;
+    }
+
+    let cap_t = builder.add_virtual_cap(1);
+    pw.set_cap_target::<PoseidonHash>(&cap_t, &tree.cap)?;
+
+    let leaf_targets = builder.add_virtual_targets(leaves[leaf_index].len());
+    for (&target, &value) in leaf_targets.iter().zip(&leaves[leaf_index]) {
+        pw.set_target(target, value)?;
+    }
+
+    let index = builder.constant(F::from_canonical_usize(leaf_index));
+    let index_bits = builder.split_le(index, 2);
+    builder.verify_merkle_proof_to_cap::<PoseidonHash>(leaf_targets, &index_bits, &cap_t, &proof_t);
+
+    let data = builder.build::<C>();
+    let proof = data.prove(pw)?;
+    data.verify(proof)
 }

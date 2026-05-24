@@ -5,5 +5,6 @@
 
 // Re-export all config types from core
 pub use qp_plonky2_core::config::{
-    GenericConfig, GenericHashOut, Hasher, KeccakGoldilocksConfig, PoseidonGoldilocksConfig,
+    merkle_node_hash_input, GenericConfig, GenericHashOut, Hasher, KeccakGoldilocksConfig,
+    PoseidonGoldilocksConfig, MERKLE_LEAF_DOMAIN_TAG, MERKLE_NODE_DOMAIN_TAG,
 };

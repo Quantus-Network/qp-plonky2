@@ -12,11 +12,11 @@ use std::vec::Vec;
 use plonky2_field::packed::PackedField;
 use unroll::unroll_for_loops;
 
-use crate::config::Hasher;
+use crate::config::{merkle_node_hash_input, Hasher};
 use crate::field::extension::{Extendable, FieldExtension};
 use crate::field::types::PrimeField64;
 use crate::hash_types::{HashOut, RichField};
-use crate::hashing::{compress, hash_n_to_hash_no_pad, PlonkyPermutation};
+use crate::hashing::{hash_n_to_hash_no_pad, PlonkyPermutation};
 
 pub const SPONGE_RATE: usize = 8;
 pub const SPONGE_CAPACITY: usize = 4;
@@ -710,7 +710,7 @@ impl<F: RichField> Hasher<F> for PoseidonHash {
     }
 
     fn two_to_one(left: Self::Hash, right: Self::Hash) -> Self::Hash {
-        compress::<F, Self::Permutation>(left, right)
+        Self::hash_no_pad(&merkle_node_hash_input::<F, Self>(left, right))
     }
 }
 
