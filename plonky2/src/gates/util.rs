@@ -18,9 +18,35 @@ pub struct StridedConstraintConsumer<'a, P: PackedField> {
 
 impl<'a, P: PackedField> StridedConstraintConsumer<'a, P> {
     pub fn new(buffer: &'a mut [P::Scalar], stride: usize, offset: usize) -> Self {
-        assert!(stride >= P::WIDTH);
-        assert!(offset < stride);
-        assert_eq!(buffer.len() % stride, 0);
+        assert!(
+            stride >= P::WIDTH,
+            "stride (got {}) must be at least P::WIDTH ({})",
+            stride,
+            P::WIDTH
+        );
+        assert_eq!(
+            buffer.len() % stride,
+            0,
+            "buffer.len() ({}) must be a multiple of stride (got {})",
+            buffer.len(),
+            stride
+        );
+        assert!(
+            offset < stride,
+            "offset (got {}) must be less than stride (got {})",
+            offset,
+            stride
+        );
+        let offset_end = offset
+            .checked_add(P::WIDTH)
+            .expect("offset + P::WIDTH overflow");
+        assert!(
+            offset_end <= stride,
+            "offset (got {}) + P::WIDTH ({}) cannot be greater than stride (got {})",
+            offset,
+            P::WIDTH,
+            stride
+        );
         let ptr_range = buffer.as_mut_ptr_range();
         // `wrapping_add` is needed to avoid undefined behavior. Plain `add` causes UB if 'the ...
         // resulting pointer [is neither] in bounds or one byte past the end of the same allocated

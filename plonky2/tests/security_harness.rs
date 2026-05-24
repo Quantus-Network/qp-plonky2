@@ -21,6 +21,7 @@ use plonky2::gates::exponentiation::ExponentiationGate;
 use plonky2::gates::gate::Gate;
 use plonky2::gates::reducing::ReducingGate;
 use plonky2::gates::reducing_extension::ReducingExtensionGate;
+use plonky2::gates::util::StridedConstraintConsumer;
 use plonky2::hash::merkle_proofs::{verify_merkle_proof_to_cap, MerkleProof, MerkleProofTarget};
 use plonky2::hash::merkle_tree::{MerkleCap, MerkleTree};
 use plonky2::hash::poseidon::PoseidonHash;
@@ -519,6 +520,45 @@ fn packed_strided_view_offset_overflow_rejected() {
 
     let packed_view = PackedStridedView::<P>::new(&packed_backing, P::WIDTH, 0);
     assert_eq!(packed_view.len(), 1);
+}
+
+#[test]
+fn strided_constraint_consumer_crosses_row_boundary_rejected() {
+    type P = <F as Packable>::Packing;
+
+    if P::WIDTH > 1 {
+        let stride = P::WIDTH * 2;
+        let offset = stride - 1;
+        let mut packed_buffer = vec![F::ZERO; stride];
+        let result = catch_unwind(AssertUnwindSafe(|| {
+            StridedConstraintConsumer::<P>::new(&mut packed_buffer, stride, offset);
+        }));
+        assert!(
+            result.is_err(),
+            "P::WIDTH={} stride={} offset={} must be rejected",
+            P::WIDTH,
+            stride,
+            offset
+        );
+    }
+
+    let mut scalar_buffer = vec![F::ZERO; 4];
+    let mut scalar_consumer = StridedConstraintConsumer::<F>::new(&mut scalar_buffer, 2, 1);
+    scalar_consumer.one(F::from_canonical_u64(7));
+    scalar_consumer.one(F::from_canonical_u64(9));
+    assert_eq!(scalar_buffer[1], F::from_canonical_u64(7));
+    assert_eq!(scalar_buffer[3], F::from_canonical_u64(9));
+
+    let mut packed_buffer = vec![F::ZERO; P::WIDTH * 2];
+    let mut packed_consumer = StridedConstraintConsumer::<P>::new(&mut packed_buffer, P::WIDTH, 0);
+    packed_consumer.one(P::from(F::from_canonical_u64(11)));
+    packed_consumer.one(P::from(F::from_canonical_u64(13)));
+    assert!(packed_buffer[..P::WIDTH]
+        .iter()
+        .all(|&x| x == F::from_canonical_u64(11)));
+    assert!(packed_buffer[P::WIDTH..]
+        .iter()
+        .all(|&x| x == F::from_canonical_u64(13)));
 }
 
 fn minimal_fri_auxiliary_case() -> (
