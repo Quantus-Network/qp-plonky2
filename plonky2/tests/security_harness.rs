@@ -1,5 +1,7 @@
 use std::panic::{catch_unwind, AssertUnwindSafe};
 
+use plonky2::field::packable::Packable;
+use plonky2::field::packed::PackedField;
 use plonky2::field::types::Field;
 use plonky2::field::zero_poly_coset::ZeroPolyOnCoset;
 use plonky2::fri::{
@@ -400,4 +402,29 @@ fn reversed_ranges_forge_oob_views_rejected() {
     assert_eq!(forward.len(), 2);
     assert_eq!(*forward.get(0).unwrap(), F::from_canonical_u64(2));
     assert_eq!(*forward.get(1).unwrap(), F::from_canonical_u64(3));
+}
+
+#[test]
+fn packed_strided_view_offset_overflow_rejected() {
+    let scalar_backing = vec![F::ONE];
+    let scalar_overflow = catch_unwind(AssertUnwindSafe(|| {
+        PackedStridedView::<F>::new(&scalar_backing, 1, usize::MAX);
+    }))
+    .is_err();
+    assert!(scalar_overflow);
+
+    let scalar_view = PackedStridedView::<F>::new(&scalar_backing, 1, 0);
+    assert_eq!(scalar_view.len(), 1);
+    assert_eq!(*scalar_view.get(0).unwrap(), F::ONE);
+
+    type P = <F as Packable>::Packing;
+    let packed_backing = vec![F::ONE; P::WIDTH];
+    let packed_overflow = catch_unwind(AssertUnwindSafe(|| {
+        PackedStridedView::<P>::new(&packed_backing, P::WIDTH, usize::MAX);
+    }))
+    .is_err();
+    assert!(packed_overflow);
+
+    let packed_view = PackedStridedView::<P>::new(&packed_backing, P::WIDTH, 0);
+    assert_eq!(packed_view.len(), 1);
 }
