@@ -6,6 +6,7 @@ pub mod gate_serialization;
 
 #[cfg(not(feature = "std"))]
 use alloc::{collections::BTreeMap, sync::Arc, vec, vec::Vec};
+use core::cmp::max;
 use core::convert::Infallible;
 use core::fmt::{Debug, Display, Formatter};
 use core::mem::size_of;
@@ -21,6 +22,7 @@ use hashbrown::HashMap;
 use qp_plonky2_core::{PolyFriZkConfig, ZkConfig, ZkMode};
 
 use crate::field::extension::{Extendable, FieldExtension};
+use crate::field::fft::{fft_root_table, FftRootTable};
 use crate::field::polynomial::PolynomialCoeffs;
 use crate::field::types::{Field64, PrimeField64};
 use crate::fri::oracle::PolynomialBatch;
@@ -56,6 +58,7 @@ use crate::plonk::proof::{
     CompressedProof, CompressedProofWithPublicInputs, OpeningSet, OpeningSetTarget, Proof,
     ProofTarget, ProofWithPublicInputs, ProofWithPublicInputsTarget,
 };
+use crate::util::log2_ceil;
 
 /// A no_std compatible variant of `std::io::Error`
 #[derive(Debug)]
@@ -77,6 +80,25 @@ fn try_with_capacity<T>(capacity: usize) -> IoResult<Vec<T>> {
     let mut vec = Vec::new();
     vec.try_reserve(capacity).map_err(|_| IoError)?;
     Ok(vec)
+}
+
+fn recompute_prover_fft_root_table<F: RichField + Extendable<D>, const D: usize>(
+    common_data: &CommonCircuitData<F, D>,
+) -> IoResult<FftRootTable<F>> {
+    let max_fft_degree_bits = max(
+        common_data.degree_bits(),
+        common_data.public_initial_degree_bits(),
+    );
+    let quotient_degree_bits = log2_ceil(common_data.quotient_degree_factor);
+    let fft_extra_bits = max(
+        common_data.config.fri_config.rate_bits,
+        quotient_degree_bits,
+    );
+    let fft_bits = max_fft_degree_bits
+        .checked_add(fft_extra_bits)
+        .ok_or(IoError)?;
+    let max_fft_points = 1usize.checked_shl(fft_bits as u32).ok_or(IoError)?;
+    Ok(fft_root_table(max_fft_points))
 }
 
 /// A `Read` which is able to report how many bytes are remaining.
@@ -989,19 +1011,22 @@ pub trait Read {
 
         let representative_map = self.read_usize_vec()?;
 
+        let recomputed_fft_root_table = recompute_prover_fft_root_table(common_data)?;
         let is_some = self.read_bool()?;
-        let fft_root_table = match is_some {
-            true => {
-                let table_len = self.read_usize()?;
-                let mut table = try_with_capacity(table_len)?;
-                for _ in 0..table_len {
-                    let len = self.read_usize()?;
-                    table.push(self.read_field_vec(len)?);
-                }
-                Some(table)
+        if is_some {
+            let table_len = self.read_usize()?;
+            if table_len != recomputed_fft_root_table.len() {
+                return Err(IoError);
             }
-            false => None,
-        };
+            for expected_row in &recomputed_fft_root_table {
+                let len = self.read_usize()?;
+                if len != expected_row.len() {
+                    return Err(IoError);
+                }
+                let _ = self.read_field_vec::<F>(len)?;
+            }
+        }
+        let fft_root_table = Some(recomputed_fft_root_table);
 
         let circuit_digest = self.read_hash::<F, <C as GenericConfig<D>>::Hasher>()?;
 

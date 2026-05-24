@@ -10,9 +10,9 @@ use plonky2::iop::ext_target::ExtensionTarget;
 use plonky2::iop::target::Target;
 use plonky2::iop::witness::{PartialWitness, Witness, WitnessWrite};
 use plonky2::plonk::circuit_builder::CircuitBuilder;
-use plonky2::plonk::circuit_data::CircuitConfig;
+use plonky2::plonk::circuit_data::{CircuitConfig, ProverOnlyCircuitData};
 use plonky2::plonk::config::{GenericConfig, PoseidonGoldilocksConfig};
-use plonky2::util::serialization::{Buffer, Write};
+use plonky2::util::serialization::{Buffer, DefaultGeneratorSerializer, Write};
 
 const D: usize = 2;
 type C = PoseidonGoldilocksConfig;
@@ -205,4 +205,43 @@ fn zero_coeff_reducing_gate_deserialization_rejected() -> anyhow::Result<()> {
     .is_err());
 
     Ok(())
+}
+
+fn simple_circuit_data() -> plonky2::plonk::circuit_data::CircuitData<F, C, D> {
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let one = builder.one();
+    builder.register_public_input(one);
+    builder.build::<C>()
+}
+
+#[test]
+fn malformed_fft_root_table_rejected() {
+    let mut data = simple_circuit_data();
+    data.prover_only.fft_root_table = Some(vec![vec![F::ONE]]);
+    let serializer = DefaultGeneratorSerializer::<C, D>::default();
+
+    let bytes = data
+        .prover_only
+        .to_bytes(&serializer, &data.common)
+        .unwrap();
+
+    assert!(
+        ProverOnlyCircuitData::<F, C, D>::from_bytes(&bytes, &serializer, &data.common).is_err()
+    );
+}
+
+#[test]
+fn valid_fft_root_table_roundtrip_recomputes() {
+    let data = simple_circuit_data();
+    let serializer = DefaultGeneratorSerializer::<C, D>::default();
+
+    let bytes = data
+        .prover_only
+        .to_bytes(&serializer, &data.common)
+        .unwrap();
+    let decoded =
+        ProverOnlyCircuitData::<F, C, D>::from_bytes(&bytes, &serializer, &data.common).unwrap();
+
+    assert!(decoded.fft_root_table.is_some());
 }
