@@ -5,6 +5,7 @@
 #[cfg(not(feature = "std"))]
 use alloc::{vec, vec::Vec};
 
+use anyhow::ensure;
 use log::debug;
 use serde::{Deserialize, Serialize};
 
@@ -227,6 +228,36 @@ impl FriFinalPolyLayout {
             Self::Split { chunks, .. } => *chunks,
         }
     }
+
+    pub fn check_valid(&self, degree_bits: usize, total_arities: usize) -> anyhow::Result<()> {
+        ensure!(
+            total_arities <= degree_bits,
+            "FRI reductions exceed degree bits"
+        );
+        let final_poly_bits = degree_bits - total_arities;
+        match self {
+            Self::Single => {}
+            Self::Split {
+                chunk_degree_bits,
+                chunks,
+            } => {
+                ensure!(*chunks > 0, "split final polynomial has no chunks");
+                ensure!(
+                    chunks.is_power_of_two(),
+                    "split final polynomial chunks must be a power of two"
+                );
+                let chunk_count_bits = chunks.trailing_zeros() as usize;
+                ensure!(
+                    chunk_degree_bits
+                        .checked_add(chunk_count_bits)
+                        .is_some_and(|bits| bits == final_poly_bits),
+                    "split final polynomial layout does not match reduced degree"
+                );
+            }
+        }
+
+        Ok(())
+    }
 }
 
 /// Batch-masking parameters for the FRI opening reduction.
@@ -330,6 +361,11 @@ impl FriParams {
         self.final_poly_layout.chunks()
     }
 
+    pub fn check_valid(&self) -> anyhow::Result<()> {
+        self.final_poly_layout
+            .check_valid(self.degree_bits, self.total_arities())
+    }
+
     /// Layout used for the explicit pre-alpha batch-mask oracle on the unreduced FRI batch
     /// polynomial.
     ///
@@ -340,7 +376,7 @@ impl FriParams {
         match self.final_poly_layout {
             FriFinalPolyLayout::Single => FriFinalPolyLayout::Single,
             FriFinalPolyLayout::Split { chunks, .. } => {
-                assert!(chunks.is_power_of_two());
+                debug_assert!(chunks.is_power_of_two());
                 FriFinalPolyLayout::Split {
                     chunk_degree_bits: self.degree_bits - chunks.trailing_zeros() as usize,
                     chunks,
