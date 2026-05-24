@@ -30,6 +30,7 @@ pub struct ReducingExtensionGate<const D: usize> {
 
 impl<const D: usize> ReducingExtensionGate<D> {
     pub const fn new(num_coeffs: usize) -> Self {
+        assert!(num_coeffs > 0);
         Self { num_coeffs }
     }
 
@@ -80,6 +81,9 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for ReducingExtens
         Self: Sized,
     {
         let num_coeffs = src.read_usize()?;
+        if num_coeffs == 0 {
+            return Err(crate::util::serialization::IoError);
+        }
         Ok(Self::new(num_coeffs))
     }
 

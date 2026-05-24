@@ -3,12 +3,16 @@ use std::panic::{catch_unwind, AssertUnwindSafe};
 use plonky2::field::types::Field;
 use plonky2::gates::coset_interpolation::CosetInterpolationGate;
 use plonky2::gates::exponentiation::ExponentiationGate;
+use plonky2::gates::gate::Gate;
+use plonky2::gates::reducing::ReducingGate;
+use plonky2::gates::reducing_extension::ReducingExtensionGate;
 use plonky2::iop::ext_target::ExtensionTarget;
 use plonky2::iop::target::Target;
 use plonky2::iop::witness::{PartialWitness, Witness, WitnessWrite};
 use plonky2::plonk::circuit_builder::CircuitBuilder;
 use plonky2::plonk::circuit_data::CircuitConfig;
 use plonky2::plonk::config::{GenericConfig, PoseidonGoldilocksConfig};
+use plonky2::util::serialization::{Buffer, Write};
 
 const D: usize = 2;
 type C = PoseidonGoldilocksConfig;
@@ -170,4 +174,35 @@ fn interpolation_generator_nonzero_shift_still_proves() -> anyhow::Result<()> {
     let data = add_zero_value_coset_interpolation_circuit(F::ONE);
     let proof = data.prove(PartialWitness::new())?;
     data.verify(proof)
+}
+
+#[test]
+fn zero_coeff_reducing_gate_rejected() {
+    let base_result = catch_unwind(AssertUnwindSafe(|| ReducingGate::<D>::new(0)));
+    assert!(base_result.is_err());
+
+    let extension_result = catch_unwind(AssertUnwindSafe(|| ReducingExtensionGate::<D>::new(0)));
+    assert!(extension_result.is_err());
+}
+
+#[test]
+fn zero_coeff_reducing_gate_deserialization_rejected() -> anyhow::Result<()> {
+    let config = CircuitConfig::standard_recursion_config();
+    let builder = CircuitBuilder::<F, D>::new(config);
+    let data = builder.build::<C>();
+
+    let mut bytes = Vec::new();
+    bytes.write_usize(0).unwrap();
+
+    let mut base_buffer = Buffer::new(&bytes);
+    assert!(<ReducingGate<D> as Gate<F, D>>::deserialize(&mut base_buffer, &data.common).is_err());
+
+    let mut extension_buffer = Buffer::new(&bytes);
+    assert!(<ReducingExtensionGate<D> as Gate<F, D>>::deserialize(
+        &mut extension_buffer,
+        &data.common
+    )
+    .is_err());
+
+    Ok(())
 }
