@@ -18,7 +18,8 @@ use plonky2::fri::{
 };
 use plonky2::gates::coset_interpolation::CosetInterpolationGate;
 use plonky2::gates::exponentiation::ExponentiationGate;
-use plonky2::gates::gate::Gate;
+use plonky2::gates::gate::{Gate, GateRef};
+use plonky2::gates::noop::NoopGate;
 use plonky2::gates::reducing::ReducingGate;
 use plonky2::gates::reducing_extension::ReducingExtensionGate;
 use plonky2::gates::util::StridedConstraintConsumer;
@@ -27,13 +28,15 @@ use plonky2::hash::merkle_tree::{MerkleCap, MerkleTree};
 use plonky2::hash::poseidon::PoseidonHash;
 use plonky2::hash::poseidon2::Poseidon2Hash;
 use plonky2::iop::ext_target::ExtensionTarget;
+use plonky2::iop::generator::WitnessGeneratorRef;
 use plonky2::iop::target::Target;
 use plonky2::iop::witness::{PartialWitness, Witness, WitnessWrite};
 use plonky2::plonk::circuit_builder::CircuitBuilder;
 use plonky2::plonk::circuit_data::{CircuitConfig, CommonCircuitData, ProverOnlyCircuitData};
 use plonky2::plonk::config::{GenericConfig, Hasher, PoseidonGoldilocksConfig};
+use plonky2::plonk::vars::{EvaluationTargets, EvaluationVars};
 use plonky2::util::serialization::{
-    Buffer, DefaultGateSerializer, DefaultGeneratorSerializer, Write,
+    Buffer, DefaultGateSerializer, DefaultGeneratorSerializer, IoResult, Write,
 };
 use plonky2::util::strided_view::PackedStridedView;
 
@@ -42,6 +45,113 @@ type C = PoseidonGoldilocksConfig;
 type F = <C as GenericConfig<D>>::F;
 type FF = <C as GenericConfig<D>>::FE;
 type H = <C as GenericConfig<D>>::Hasher;
+
+#[derive(Clone, Debug)]
+struct GateIdCollisionWeakGate;
+
+#[derive(Clone, Debug)]
+struct GateIdCollisionStrongGate;
+
+impl Gate<F, D> for GateIdCollisionWeakGate {
+    fn id(&self) -> String {
+        "GateIdCollision".to_string()
+    }
+
+    fn serialize(
+        &self,
+        _dst: &mut Vec<u8>,
+        _common_data: &CommonCircuitData<F, D>,
+    ) -> IoResult<()> {
+        Ok(())
+    }
+
+    fn deserialize(_src: &mut Buffer, _common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
+        Ok(Self)
+    }
+
+    fn eval_unfiltered(&self, vars: EvaluationVars<F, D>) -> Vec<FF> {
+        vec![vars.local_wires[0]]
+    }
+
+    fn eval_unfiltered_circuit(
+        &self,
+        _builder: &mut CircuitBuilder<F, D>,
+        vars: EvaluationTargets<D>,
+    ) -> Vec<ExtensionTarget<D>> {
+        vec![vars.local_wires[0]]
+    }
+
+    fn generators(&self, _row: usize, _local_constants: &[F]) -> Vec<WitnessGeneratorRef<F, D>> {
+        Vec::new()
+    }
+
+    fn num_wires(&self) -> usize {
+        1
+    }
+
+    fn num_constants(&self) -> usize {
+        0
+    }
+
+    fn degree(&self) -> usize {
+        1
+    }
+
+    fn num_constraints(&self) -> usize {
+        1
+    }
+}
+
+impl Gate<F, D> for GateIdCollisionStrongGate {
+    fn id(&self) -> String {
+        "GateIdCollision".to_string()
+    }
+
+    fn serialize(
+        &self,
+        _dst: &mut Vec<u8>,
+        _common_data: &CommonCircuitData<F, D>,
+    ) -> IoResult<()> {
+        Ok(())
+    }
+
+    fn deserialize(_src: &mut Buffer, _common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
+        Ok(Self)
+    }
+
+    fn eval_unfiltered(&self, vars: EvaluationVars<F, D>) -> Vec<FF> {
+        vec![vars.local_wires[0] - FF::ONE]
+    }
+
+    fn eval_unfiltered_circuit(
+        &self,
+        builder: &mut CircuitBuilder<F, D>,
+        vars: EvaluationTargets<D>,
+    ) -> Vec<ExtensionTarget<D>> {
+        let one = builder.constant_extension(FF::ONE);
+        vec![builder.sub_extension(vars.local_wires[0], one)]
+    }
+
+    fn generators(&self, _row: usize, _local_constants: &[F]) -> Vec<WitnessGeneratorRef<F, D>> {
+        Vec::new()
+    }
+
+    fn num_wires(&self) -> usize {
+        1
+    }
+
+    fn num_constants(&self) -> usize {
+        0
+    }
+
+    fn degree(&self) -> usize {
+        1
+    }
+
+    fn num_constraints(&self) -> usize {
+        1
+    }
+}
 
 #[test]
 fn malformed_low_high_generator_rejects_unsupported_widths() {
@@ -559,6 +669,41 @@ fn strided_constraint_consumer_crosses_row_boundary_rejected() {
     assert!(packed_buffer[P::WIDTH..]
         .iter()
         .all(|&x| x == F::from_canonical_u64(13)));
+}
+
+#[test]
+fn gate_id_collision_distinct_structures_rejected() {
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    builder.add_gate(GateIdCollisionWeakGate, vec![]);
+
+    let result = catch_unwind(AssertUnwindSafe(|| {
+        builder.add_gate(GateIdCollisionStrongGate, vec![]);
+    }));
+
+    assert!(result.is_err());
+}
+
+#[test]
+fn gate_id_collision_common_data_rejected() {
+    let config = CircuitConfig::standard_recursion_config();
+    let mut common_data = CircuitBuilder::<F, D>::new(config).build::<C>().common;
+    common_data.gates = vec![
+        GateRef::new(GateIdCollisionWeakGate),
+        GateRef::new(GateIdCollisionStrongGate),
+    ];
+
+    assert!(common_data.check_valid().is_err());
+}
+
+#[test]
+fn gate_id_collision_repeated_builtin_gate_still_builds() {
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    builder.add_gate(NoopGate, vec![]);
+    builder.add_gate(NoopGate, vec![]);
+
+    let _data = builder.build::<C>();
 }
 
 fn minimal_fri_auxiliary_case() -> (

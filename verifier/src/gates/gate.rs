@@ -1,6 +1,6 @@
 #[cfg(not(feature = "std"))]
 use alloc::{string::String, sync::Arc, vec, vec::Vec};
-use core::any::Any;
+use core::any::{type_name, Any, TypeId};
 use core::fmt::{Debug, Error, Formatter};
 use core::hash::{Hash, Hasher};
 use core::ops::Range;
@@ -56,6 +56,21 @@ pub trait VerificationGate<F: RichField + Extendable<D>, const D: usize>:
     ///
     /// This is used as differentiating tag in gate serializers.
     fn id(&self) -> String;
+
+    /// Returns the structural identity used to distinguish gate implementations that share a
+    /// human-readable [`VerificationGate::id`].
+    fn structural_signature(&self) -> VerificationGateStructuralSignature {
+        VerificationGateStructuralSignature {
+            type_id: TypeId::of::<Self>(),
+            type_name: type_name::<Self>(),
+            id: self.id(),
+            num_wires: self.num_wires(),
+            num_constants: self.num_constants(),
+            degree: self.degree(),
+            num_constraints: self.num_constraints(),
+            extra_constant_wires: self.extra_constant_wires(),
+        }
+    }
 
     /// Serializes this custom gate to the targeted byte buffer, with the provided [`CommonCircuitData`].
     fn serialize(&self, dst: &mut Vec<u8>, common_data: &CommonCircuitData<F, D>) -> IoResult<()>;
@@ -204,6 +219,19 @@ pub trait VerificationGate<F: RichField + Extendable<D>, const D: usize>:
     }
 }
 
+/// Structural gate identity used to reject ambiguous `VerificationGate::id()` collisions.
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+pub struct VerificationGateStructuralSignature {
+    pub type_id: TypeId,
+    pub type_name: &'static str,
+    pub id: String,
+    pub num_wires: usize,
+    pub num_constants: usize,
+    pub degree: usize,
+    pub num_constraints: usize,
+    pub extra_constant_wires: Vec<(usize, usize)>,
+}
+
 /// A wrapper trait over a `VerificationGate`, to allow for gate serialization.
 pub trait AnyVerificationGate<F: RichField + Extendable<D>, const D: usize>:
     VerificationGate<F, D>
@@ -219,7 +247,7 @@ impl<T: VerificationGate<F, D>, F: RichField + Extendable<D>, const D: usize>
     }
 }
 
-/// A wrapper around an `Arc<AnyVerificationGate>` which implements `PartialEq`, `Eq` and `Hash` based on gate IDs.
+/// A wrapper around an `Arc<AnyVerificationGate>` with structural equality and hashing.
 #[derive(Clone)]
 pub struct VerificationGateRef<F: RichField + Extendable<D>, const D: usize>(
     pub Arc<dyn AnyVerificationGate<F, D>>,
@@ -229,17 +257,21 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGateRef<F, D> {
     pub fn new<G: VerificationGate<F, D>>(gate: G) -> VerificationGateRef<F, D> {
         VerificationGateRef(Arc::new(gate))
     }
+
+    pub fn structural_signature(&self) -> VerificationGateStructuralSignature {
+        self.0.structural_signature()
+    }
 }
 
 impl<F: RichField + Extendable<D>, const D: usize> PartialEq for VerificationGateRef<F, D> {
     fn eq(&self, other: &Self) -> bool {
-        self.0.id() == other.0.id()
+        self.structural_signature() == other.structural_signature()
     }
 }
 
 impl<F: RichField + Extendable<D>, const D: usize> Hash for VerificationGateRef<F, D> {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.0.id().hash(state)
+        self.structural_signature().hash(state)
     }
 }
 
@@ -255,6 +287,25 @@ impl<F: RichField + Extendable<D>, const D: usize> Serialize for VerificationGat
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_str(&self.0.id())
     }
+}
+
+pub(crate) fn check_gate_id_collisions<F: RichField + Extendable<D>, const D: usize>(
+    gates: &[VerificationGateRef<F, D>],
+) -> Result<(), &'static str> {
+    let mut signatures = HashMap::new();
+    for gate in gates {
+        let id = gate.0.id();
+        let signature = gate.structural_signature();
+        if let Some(existing) = signatures.get(&id) {
+            if existing != &signature {
+                return Err("gate id collision with different structural signature");
+            }
+        } else {
+            signatures.insert(id, signature);
+        }
+    }
+
+    Ok(())
 }
 
 /// Map between gate parameters and available slots.

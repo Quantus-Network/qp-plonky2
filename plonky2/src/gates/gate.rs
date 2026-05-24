@@ -1,6 +1,6 @@
 #[cfg(not(feature = "std"))]
 use alloc::{string::String, sync::Arc, vec, vec::Vec};
-use core::any::Any;
+use core::any::{type_name, Any, TypeId};
 use core::fmt::{Debug, Error, Formatter};
 use core::hash::{Hash, Hasher};
 use core::ops::Range;
@@ -55,6 +55,21 @@ pub trait Gate<F: RichField + Extendable<D>, const D: usize>: 'static + Send + S
     ///
     /// This is used as differentiating tag in gate serializers.
     fn id(&self) -> String;
+
+    /// Returns the structural identity used to distinguish gate implementations that share a
+    /// human-readable [`Gate::id`].
+    fn structural_signature(&self) -> GateStructuralSignature {
+        GateStructuralSignature {
+            type_id: TypeId::of::<Self>(),
+            type_name: type_name::<Self>(),
+            id: self.id(),
+            num_wires: self.num_wires(),
+            num_constants: self.num_constants(),
+            degree: self.degree(),
+            num_constraints: self.num_constraints(),
+            extra_constant_wires: self.extra_constant_wires(),
+        }
+    }
 
     /// Serializes this custom gate to the targeted byte buffer, with the provided [`CommonCircuitData`].
     fn serialize(&self, dst: &mut Vec<u8>, common_data: &CommonCircuitData<F, D>) -> IoResult<()>;
@@ -253,6 +268,19 @@ pub trait Gate<F: RichField + Extendable<D>, const D: usize>: 'static + Send + S
     }
 }
 
+/// Structural gate identity used to reject ambiguous `Gate::id()` collisions.
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+pub struct GateStructuralSignature {
+    pub type_id: TypeId,
+    pub type_name: &'static str,
+    pub id: String,
+    pub num_wires: usize,
+    pub num_constants: usize,
+    pub degree: usize,
+    pub num_constraints: usize,
+    pub extra_constant_wires: Vec<(usize, usize)>,
+}
+
 /// A wrapper trait over a `Gate`, to allow for gate serialization.
 pub trait AnyGate<F: RichField + Extendable<D>, const D: usize>: Gate<F, D> {
     fn as_any(&self) -> &dyn Any;
@@ -264,7 +292,7 @@ impl<T: Gate<F, D>, F: RichField + Extendable<D>, const D: usize> AnyGate<F, D> 
     }
 }
 
-/// A wrapper around an `Arc<AnyGate>` which implements `PartialEq`, `Eq` and `Hash` based on gate IDs.
+/// A wrapper around an `Arc<AnyGate>` with structural equality and hashing.
 #[derive(Clone)]
 pub struct GateRef<F: RichField + Extendable<D>, const D: usize>(pub Arc<dyn AnyGate<F, D>>);
 
@@ -272,17 +300,21 @@ impl<F: RichField + Extendable<D>, const D: usize> GateRef<F, D> {
     pub fn new<G: Gate<F, D>>(gate: G) -> GateRef<F, D> {
         GateRef(Arc::new(gate))
     }
+
+    pub fn structural_signature(&self) -> GateStructuralSignature {
+        self.0.structural_signature()
+    }
 }
 
 impl<F: RichField + Extendable<D>, const D: usize> PartialEq for GateRef<F, D> {
     fn eq(&self, other: &Self) -> bool {
-        self.0.id() == other.0.id()
+        self.structural_signature() == other.structural_signature()
     }
 }
 
 impl<F: RichField + Extendable<D>, const D: usize> Hash for GateRef<F, D> {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.0.id().hash(state)
+        self.structural_signature().hash(state)
     }
 }
 
@@ -298,6 +330,25 @@ impl<F: RichField + Extendable<D>, const D: usize> Serialize for GateRef<F, D> {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_str(&self.0.id())
     }
+}
+
+pub(crate) fn check_gate_id_collisions<F: RichField + Extendable<D>, const D: usize>(
+    gates: &[GateRef<F, D>],
+) -> Result<(), &'static str> {
+    let mut signatures = HashMap::new();
+    for gate in gates {
+        let id = gate.0.id();
+        let signature = gate.structural_signature();
+        if let Some(existing) = signatures.get(&id) {
+            if existing != &signature {
+                return Err("gate id collision with different structural signature");
+            }
+        } else {
+            signatures.insert(id, signature);
+        }
+    }
+
+    Ok(())
 }
 
 /// Map between gate parameters and available slots.

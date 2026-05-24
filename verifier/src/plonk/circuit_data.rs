@@ -19,7 +19,7 @@ use crate::fri::structure::{
     FriBatchInfo, FriInstanceInfo, FriOpeningExpression, FriOracleInfo, FriOracleLayout,
     FriPolynomialInfo,
 };
-use crate::gates::gate::GateRef;
+use crate::gates::gate::{check_gate_id_collisions, GateRef};
 use crate::gates::lookup_table::LookupTable;
 use crate::gates::selectors::SelectorsInfo;
 use crate::hash::hash_types::{HashOut, RichField};
@@ -268,6 +268,8 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
         if self.luts.iter().any(|lut| lut.is_empty()) {
             return Err("lookup table is empty");
         }
+
+        check_gate_id_collisions(&self.gates)?;
 
         Ok(())
     }

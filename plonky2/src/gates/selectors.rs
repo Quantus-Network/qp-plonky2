@@ -6,6 +6,8 @@
 #[cfg(not(feature = "std"))]
 use alloc::{vec, vec::Vec};
 
+use hashbrown::HashMap;
+
 // Re-export selector types from core
 pub use qp_plonky2_core::selectors::{LookupSelectors, SelectorsInfo, UNUSED_SELECTOR};
 
@@ -95,7 +97,17 @@ pub(crate) fn selector_polynomials<F: RichField + Extendable<D>, const D: usize>
     let num_gates = gates.len();
     let max_gate_degree = gates.last().expect("No gates?").0.degree();
 
-    let index = |id| gates.iter().position(|g| g.0.id() == id).unwrap();
+    let gate_indices = gates
+        .iter()
+        .cloned()
+        .enumerate()
+        .map(|(i, gate)| (gate, i))
+        .collect::<HashMap<_, _>>();
+    let index = |gate| {
+        *gate_indices
+            .get(gate)
+            .expect("gate instance refers to an unknown gate")
+    };
 
     // Special case if we can use only one selector polynomial.
     if max_gate_degree + num_gates - 1 <= max_degree {
@@ -106,7 +118,7 @@ pub(crate) fn selector_polynomials<F: RichField + Extendable<D>, const D: usize>
             vec![PolynomialValues::new(
                 instances
                     .iter()
-                    .map(|g| F::from_canonical_usize(index(g.gate_ref.0.id())))
+                    .map(|g| F::from_canonical_usize(index(&g.gate_ref)))
                     .collect(),
             )],
             SelectorsInfo {
@@ -146,7 +158,7 @@ pub(crate) fn selector_polynomials<F: RichField + Extendable<D>, const D: usize>
     let mut polynomials = vec![PolynomialValues::zero(n); groups.len()];
     for (j, g) in instances.iter().enumerate() {
         let GateInstance { gate_ref, .. } = g;
-        let i = index(gate_ref.0.id());
+        let i = index(gate_ref);
         let gr = group(i);
         for g in 0..groups.len() {
             polynomials[g].values[j] = if g == gr {

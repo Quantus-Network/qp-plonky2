@@ -33,7 +33,7 @@ use crate::fri::structure::{
 };
 use crate::fri::FriParams;
 // Re-export CircuitConfig from core
-use crate::gates::gate::GateRef;
+use crate::gates::gate::{check_gate_id_collisions, GateRef};
 use crate::gates::lookup::Lookup;
 use crate::gates::lookup_table::LookupTable;
 use crate::gates::selectors::SelectorsInfo;
@@ -493,6 +493,8 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
         if self.luts.iter().any(|lut| lut.is_empty()) {
             return Err("lookup table is empty");
         }
+
+        check_gate_id_collisions(&self.gates)?;
 
         Ok(())
     }

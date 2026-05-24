@@ -29,7 +29,7 @@ use crate::gadgets::polynomial::PolynomialCoeffsExtTarget;
 use crate::gates::arithmetic_base::ArithmeticGate;
 use crate::gates::arithmetic_extension::ArithmeticExtensionGate;
 use crate::gates::constant::ConstantGate;
-use crate::gates::gate::{CurrentSlot, Gate, GateInstance, GateRef};
+use crate::gates::gate::{CurrentSlot, Gate, GateInstance, GateRef, GateStructuralSignature};
 use crate::gates::lookup::{Lookup, LookupGate};
 use crate::gates::lookup_table::LookupTable;
 use crate::gates::noop::NoopGate;
@@ -156,6 +156,8 @@ pub struct CircuitBuilder<F: RichField + Extendable<D>, const D: usize> {
     /// The types of gates used in this circuit.
     gates: HashSet<GateRef<F, D>>,
 
+    gate_signatures_by_id: HashMap<String, GateStructuralSignature>,
+
     /// The concrete placement of each gate.
     pub(crate) gate_instances: Vec<GateInstance<F, D>>,
 
@@ -218,6 +220,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             config,
             domain_separator: None,
             gates: HashSet::new(),
+            gate_signatures_by_id: HashMap::new(),
             gate_instances: Vec::new(),
             public_inputs: Vec::new(),
             virtual_target_index: 0,
@@ -485,6 +488,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
 
         // Register this gate type if we haven't seen it before.
         let gate_ref = GateRef::new(gate_type);
+        self.register_gate_identity(&gate_ref);
         self.gates.insert(gate_ref.clone());
 
         self.gate_instances.push(GateInstance {
@@ -515,7 +519,22 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     /// Adds a gate type to the set of gates to be used in this circuit. This can be useful
     /// in conditional recursion to uniformize the set of gates of the different circuits.
     pub fn add_gate_to_gate_set(&mut self, gate: GateRef<F, D>) {
+        self.register_gate_identity(&gate);
         self.gates.insert(gate);
+    }
+
+    fn register_gate_identity(&mut self, gate: &GateRef<F, D>) {
+        let id = gate.0.id();
+        let signature = gate.structural_signature();
+        if let Some(existing) = self.gate_signatures_by_id.get(&id) {
+            assert_eq!(
+                existing, &signature,
+                "Gate id collision for `{}`: existing signature {:?}, new signature {:?}",
+                id, existing, signature
+            );
+        } else {
+            self.gate_signatures_by_id.insert(id, signature);
+        }
     }
 
     /// Adds a generator which will copy `src` to `dst`.
