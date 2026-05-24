@@ -1,3 +1,4 @@
 finding	class	commit	status	notes
 64632	artifact-validation	12c3d8c73	fixed	Validated LowHighGenerator n_log at builder/deserialization/generator boundaries; focused tests: cargo test -p qp-plonky2 --test security_harness -- malformed_low_high_generator; cargo test -p qp-plonky2 range_check --lib.
 64640	runtime-dos	60a18629c	fixed	QuotientGeneratorExtension uses try_inverse and returns generator failure for zero extension denominators; focused tests: cargo test -p qp-plonky2 --test security_harness -- zero_denominator; cargo test -p qp-plonky2 arithmetic_extension --lib.
+64642	gadget-soundness	84f0a104b	fixed	exp_from_bits rejects exponent vectors beyond ExponentiationGate capacity and wire helpers assert in release; focused tests: cargo test -p qp-plonky2 --test security_harness --release -- oversized_exp_from_bits; cargo test -p qp-plonky2 --test security_harness -- exp_from_bits; cargo test -p qp-plonky2 exponentiation --lib.
