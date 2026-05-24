@@ -10,7 +10,7 @@ use crate::fri::proof::{
     eval_final_polys_at_point, FriChallenges, FriInitialTreeProof, FriProof, FriQueryRound,
 };
 use crate::fri::structure::{FriBatchInfo, FriInstanceInfo, FriOpenings};
-use crate::fri::validate_shape::validate_batch_fri_proof_shape;
+use crate::fri::validate_batch_fri_auxiliary_shape;
 use crate::fri::verifier::{
     compute_evaluation, eval_opening_expression, fri_verify_proof_of_work,
     PrecomputedReducedOpenings,
@@ -36,16 +36,18 @@ pub fn verify_batch_fri_proof<
     proof: &FriProof<F, C::Hasher, D>,
     params: &FriParams,
 ) -> anyhow::Result<()> {
-    validate_batch_fri_proof_shape::<F, C, D>(proof, instances, params)?;
+    validate_batch_fri_auxiliary_shape::<F, C, D>(
+        degree_bits,
+        instances,
+        openings,
+        challenges,
+        initial_merkle_cap,
+        proof,
+        params,
+    )?;
 
     // Check PoW.
     fri_verify_proof_of_work(challenges.fri_pow_response, &params.config)?;
-
-    // Check that parameters are coherent.
-    ensure!(
-        params.config.num_query_rounds == proof.query_round_proofs.len(),
-        "Number of query rounds does not match config."
-    );
 
     let mut precomputed_reduced_evals = Vec::with_capacity(openings.len());
     for opn in openings {
@@ -56,11 +58,9 @@ pub fn verify_batch_fri_proof<
         .iter()
         .map(|d| d + params.config.rate_bits)
         .collect_vec();
-    for (&x_index, round_proof) in challenges
-        .fri_query_indices
-        .iter()
-        .zip(&proof.query_round_proofs)
-    {
+    for query_round_index in 0..params.config.num_query_rounds {
+        let x_index = challenges.fri_query_indices[query_round_index];
+        let round_proof = &proof.query_round_proofs[query_round_index];
         batch_fri_verifier_query_round::<F, C, D>(
             &degree_bits,
             instances,
@@ -84,12 +84,13 @@ fn batch_fri_verify_initial_proof<F: RichField + Extendable<D>, H: Hasher<F>, co
     proof: &FriInitialTreeProof<F, H>,
     initial_merkle_caps: &[MerkleCap<F, H>],
 ) -> anyhow::Result<()> {
-    for (oracle_index, ((evals, merkle_proof), cap)) in proof
-        .evals_proofs
-        .iter()
-        .zip(initial_merkle_caps)
-        .enumerate()
-    {
+    ensure!(
+        proof.evals_proofs.len() == initial_merkle_caps.len(),
+        "FRI initial proof count does not match cap count"
+    );
+    for oracle_index in 0..proof.evals_proofs.len() {
+        let (evals, merkle_proof) = &proof.evals_proofs[oracle_index];
+        let cap = &initial_merkle_caps[oracle_index];
         let leaves = instances
             .iter()
             .scan(0, |leaf_index, inst| {
@@ -126,17 +127,15 @@ fn batch_fri_combine_initial<
     let mut alpha = ReducingFactor::new(alpha);
     let mut sum = F::Extension::ZERO;
 
-    for (batch, reduced_openings) in instances[index]
-        .batches
-        .iter()
-        .zip(&precomputed_reduced_evals.reduced_openings_at_point)
-    {
+    for batch_index in 0..instances[index].batches.len() {
+        let batch = &instances[index].batches[batch_index];
+        let reduced_openings = precomputed_reduced_evals.reduced_openings_at_point[batch_index];
         let FriBatchInfo { point, openings } = batch;
         let evals = openings.iter().map(|expression| {
             eval_opening_expression(&instances[index], expression, proof, *point, params)
         });
         let reduced_evals = alpha.reduce(evals);
-        let numerator = reduced_evals - *reduced_openings;
+        let numerator = reduced_evals - reduced_openings;
         let denominator = subgroup_x - *point;
         sum = alpha.shift(sum);
         sum += numerator / denominator;

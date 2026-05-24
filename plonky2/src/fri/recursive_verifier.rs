@@ -134,6 +134,43 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             .chunks
             .iter()
             .all(|chunk| chunk.len() == params.final_poly_len()));
+        assert_eq!(
+            challenges.fri_query_indices.len(),
+            params.config.num_query_rounds,
+            "FRI query index count does not match config"
+        );
+        assert_eq!(
+            proof.query_round_proofs.len(),
+            params.config.num_query_rounds,
+            "FRI query round proof count does not match config"
+        );
+        assert_eq!(
+            challenges.fri_betas.len(),
+            params.reduction_arity_bits.len(),
+            "FRI beta count does not match reduction arity count"
+        );
+        assert_eq!(
+            proof.commit_phase_merkle_caps.len(),
+            params.reduction_arity_bits.len(),
+            "FRI commit-phase cap count does not match reduction arity count"
+        );
+        assert_eq!(
+            initial_merkle_caps.len(),
+            instance.oracles.len(),
+            "FRI initial cap count does not match oracle count"
+        );
+        assert_eq!(
+            openings.batches.len(),
+            instance.batches.len(),
+            "FRI opening batch count does not match instance batch count"
+        );
+        for (opening_batch, instance_batch) in openings.batches.iter().zip(&instance.batches) {
+            assert_eq!(
+                opening_batch.values.len(),
+                instance_batch.openings.len(),
+                "FRI opening value count does not match expression count"
+            );
+        }
 
         // Size of the LDE domain.
         let n = params.lde_size();
@@ -142,13 +179,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             self,
             "check PoW",
             self.fri_verify_proof_of_work(challenges.fri_pow_response, &params.config)
-        );
-
-        // Check that parameters are coherent.
-        debug_assert_eq!(
-            params.config.num_query_rounds,
-            proof.query_round_proofs.len(),
-            "Number of query rounds does not match config."
         );
 
         let precomputed_reduced_evals = with_context!(
@@ -226,6 +256,43 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             .chunks
             .iter()
             .all(|chunk| chunk.len() == params.final_poly_len()));
+        assert_eq!(
+            challenges.fri_query_indices.len(),
+            params.config.num_query_rounds,
+            "FRI query index count does not match config"
+        );
+        assert_eq!(
+            proof.query_round_proofs.len(),
+            params.config.num_query_rounds,
+            "FRI query round proof count does not match config"
+        );
+        assert_eq!(
+            challenges.fri_betas.len(),
+            params.reduction_arity_bits.len(),
+            "FRI beta count does not match reduction arity count"
+        );
+        assert_eq!(
+            proof.commit_phase_merkle_caps.len(),
+            params.reduction_arity_bits.len(),
+            "FRI commit-phase cap count does not match reduction arity count"
+        );
+        assert_eq!(
+            initial_merkle_caps.len(),
+            instance.oracles.len(),
+            "FRI initial cap count does not match oracle count"
+        );
+        assert_eq!(
+            openings.batches.len(),
+            instance.batches.len(),
+            "FRI opening batch count does not match instance batch count"
+        );
+        for (opening_batch, instance_batch) in openings.batches.iter().zip(&instance.batches) {
+            assert_eq!(
+                opening_batch.values.len(),
+                instance_batch.openings.len(),
+                "FRI opening value count does not match expression count"
+            );
+        }
 
         // Size of the LDE domain.
         let log_n = params.config.rate_bits + params.degree_bits;
@@ -237,13 +304,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             self,
             "check PoW",
             self.fri_verify_proof_of_work(challenges.fri_pow_response, &params.config)
-        );
-
-        // Check that parameters are coherent.
-        debug_assert_eq!(
-            params.config.num_query_rounds,
-            proof.query_round_proofs.len(),
-            "Number of query rounds does not match config."
         );
 
         let precomputed_reduced_evals = with_context!(

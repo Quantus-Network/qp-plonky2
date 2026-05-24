@@ -45,18 +45,88 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             .chunks
             .iter()
             .all(|chunk| chunk.len() == params.final_poly_len()));
+        assert!(!instance.is_empty(), "FRI instance list cannot be empty");
+        assert_eq!(
+            degree_bits.len(),
+            instance.len(),
+            "FRI degree-bit count does not match instance count"
+        );
+        assert_eq!(
+            openings.len(),
+            instance.len(),
+            "FRI openings count does not match instance count"
+        );
+        assert_eq!(
+            challenges.fri_query_indices.len(),
+            params.config.num_query_rounds,
+            "FRI query index count does not match config"
+        );
+        assert_eq!(
+            proof.query_round_proofs.len(),
+            params.config.num_query_rounds,
+            "FRI query round proof count does not match config"
+        );
+        assert_eq!(
+            challenges.fri_betas.len(),
+            params.reduction_arity_bits.len(),
+            "FRI beta count does not match reduction arity count"
+        );
+        assert_eq!(
+            proof.commit_phase_merkle_caps.len(),
+            params.reduction_arity_bits.len(),
+            "FRI commit-phase cap count does not match reduction arity count"
+        );
+        let oracle_count = instance[0].oracles.len();
+        assert_eq!(
+            initial_merkle_caps.len(),
+            oracle_count,
+            "FRI initial cap count does not match oracle count"
+        );
+        for inst in instance {
+            assert_eq!(
+                inst.oracles.len(),
+                oracle_count,
+                "FRI instances must share the same oracle count"
+            );
+        }
+        for (inst, opening) in instance.iter().zip(openings) {
+            assert_eq!(
+                opening.batches.len(),
+                inst.batches.len(),
+                "FRI opening batch count does not match instance batch count"
+            );
+            for (opening_batch, instance_batch) in opening.batches.iter().zip(&inst.batches) {
+                assert_eq!(
+                    opening_batch.values.len(),
+                    instance_batch.openings.len(),
+                    "FRI opening value count does not match expression count"
+                );
+            }
+        }
+        let mut current_degree_bits = degree_bits[0] + params.config.rate_bits;
+        let mut next_instance = 1;
+        for &arity_bits in &params.reduction_arity_bits {
+            assert!(
+                current_degree_bits >= arity_bits,
+                "FRI reduction arity exceeds current degree bits"
+            );
+            current_degree_bits -= arity_bits;
+            if next_instance < degree_bits.len()
+                && current_degree_bits == degree_bits[next_instance] + params.config.rate_bits
+            {
+                next_instance += 1;
+            }
+        }
+        assert_eq!(
+            next_instance,
+            instance.len(),
+            "Wrong number of folded instances"
+        );
 
         with_context!(
             self,
             "check PoW",
             self.fri_verify_proof_of_work(challenges.fri_pow_response, &params.config)
-        );
-
-        // Check that parameters are coherent.
-        debug_assert_eq!(
-            params.config.num_query_rounds,
-            proof.query_round_proofs.len(),
-            "Number of query rounds does not match config."
         );
 
         let mut precomputed_reduced_evals = Vec::with_capacity(openings.len());

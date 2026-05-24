@@ -19,9 +19,14 @@ pub mod proof;
 pub mod prover;
 pub mod recursive_verifier;
 pub mod structure;
-pub(crate) mod validate_shape;
+pub mod validate_shape;
 pub mod verifier;
 pub mod witness_util;
+
+pub use validate_shape::{
+    validate_batch_fri_auxiliary_shape, validate_batch_fri_proof_shape,
+    validate_fri_auxiliary_shape,
+};
 
 // Re-export FRI types from core
 pub use qp_plonky2_core::{

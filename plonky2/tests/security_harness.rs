@@ -2,13 +2,19 @@ use std::panic::{catch_unwind, AssertUnwindSafe};
 
 use plonky2::field::packable::Packable;
 use plonky2::field::packed::PackedField;
+use plonky2::field::polynomial::PolynomialCoeffs;
 use plonky2::field::types::Field;
 use plonky2::field::zero_poly_coset::ZeroPolyOnCoset;
+use plonky2::fri::proof::{
+    FriChallenges, FriFinalPolys, FriInitialTreeProof, FriProof, FriQueryRound,
+};
 use plonky2::fri::{
     structure::{
-        FriBatchInfo, FriInstanceInfo, FriOpeningExpression, FriOracleInfo, FriPolynomialInfo,
+        FriBatchInfo, FriInstanceInfo, FriOpeningBatch, FriOpeningExpression, FriOpenings,
+        FriOracleInfo, FriPolynomialInfo,
     },
-    FriFinalPolyLayout, FriParams,
+    validate_batch_fri_auxiliary_shape, validate_fri_auxiliary_shape, FriConfig,
+    FriFinalPolyLayout, FriParams, FriReductionStrategy,
 };
 use plonky2::gates::coset_interpolation::CosetInterpolationGate;
 use plonky2::gates::exponentiation::ExponentiationGate;
@@ -33,6 +39,7 @@ const D: usize = 2;
 type C = PoseidonGoldilocksConfig;
 type F = <C as GenericConfig<D>>::F;
 type FF = <C as GenericConfig<D>>::FE;
+type H = <C as GenericConfig<D>>::Hasher;
 
 #[test]
 fn malformed_low_high_generator_rejects_unsupported_widths() {
@@ -511,4 +518,171 @@ fn packed_strided_view_offset_overflow_rejected() {
 
     let packed_view = PackedStridedView::<P>::new(&packed_backing, P::WIDTH, 0);
     assert_eq!(packed_view.len(), 1);
+}
+
+fn minimal_fri_auxiliary_case() -> (
+    FriParams,
+    FriInstanceInfo<F, D>,
+    FriOpenings<F, D>,
+    FriChallenges<F, D>,
+    Vec<MerkleCap<F, H>>,
+    FriProof<F, H, D>,
+) {
+    let params = FriParams {
+        config: FriConfig {
+            rate_bits: 0,
+            cap_height: 0,
+            proof_of_work_bits: 0,
+            reduction_strategy: FriReductionStrategy::Fixed(vec![]),
+            num_query_rounds: 1,
+        },
+        leaf_hiding: false,
+        batch_masking: None,
+        degree_bits: 0,
+        reduction_arity_bits: vec![],
+        final_poly_layout: FriFinalPolyLayout::Single,
+    };
+    let instance = FriInstanceInfo {
+        oracles: vec![FriOracleInfo {
+            num_polys: 1,
+            blinding: false,
+        }],
+        batches: vec![FriBatchInfo {
+            point: FF::ZERO,
+            openings: vec![FriOpeningExpression::raw(FriPolynomialInfo {
+                oracle_index: 0,
+                polynomial_index: 0,
+            })],
+        }],
+    };
+    let openings = FriOpenings {
+        batches: vec![FriOpeningBatch {
+            values: vec![FF::ZERO],
+        }],
+    };
+    let challenges = FriChallenges {
+        fri_alpha: FF::ONE,
+        fri_betas: vec![],
+        fri_pow_response: F::ZERO,
+        fri_query_indices: vec![0],
+    };
+    let initial_merkle_caps = vec![MerkleCap::<F, H>(vec![H::hash_merkle_leaf(&[F::ZERO])])];
+    let proof = FriProof {
+        commit_phase_merkle_caps: vec![],
+        batch_mask_proof: None,
+        query_round_proofs: vec![FriQueryRound {
+            initial_trees_proof: FriInitialTreeProof {
+                evals_proofs: vec![(vec![F::ZERO], MerkleProof { siblings: vec![] })],
+            },
+            steps: vec![],
+        }],
+        final_polys: FriFinalPolys {
+            layout: FriFinalPolyLayout::Single,
+            chunks: vec![PolynomialCoeffs::new(vec![FF::ZERO])],
+        },
+        pow_witness: F::ZERO,
+    };
+
+    (
+        params,
+        instance,
+        openings,
+        challenges,
+        initial_merkle_caps,
+        proof,
+    )
+}
+
+#[test]
+fn empty_query_indices_skip_all_standalone_fri_checks_rejected() {
+    let (params, instance, openings, mut challenges, initial_merkle_caps, proof) =
+        minimal_fri_auxiliary_case();
+    challenges.fri_query_indices.clear();
+
+    assert!(validate_fri_auxiliary_shape::<F, C, D>(
+        &instance,
+        &openings,
+        &challenges,
+        &initial_merkle_caps,
+        &proof,
+        &params,
+    )
+    .is_err());
+}
+
+#[test]
+fn empty_query_indices_skip_all_batch_fri_checks_rejected() {
+    let (params, instance, openings, mut challenges, initial_merkle_caps, proof) =
+        minimal_fri_auxiliary_case();
+    challenges.fri_query_indices.clear();
+
+    assert!(validate_batch_fri_auxiliary_shape::<F, C, D>(
+        &[params.degree_bits],
+        &[instance],
+        &[openings],
+        &challenges,
+        &initial_merkle_caps,
+        &proof,
+        &params,
+    )
+    .is_err());
+}
+
+#[test]
+fn short_fri_initial_merkle_caps_rejected() {
+    let (params, instance, openings, challenges, _initial_merkle_caps, proof) =
+        minimal_fri_auxiliary_case();
+
+    assert!(validate_fri_auxiliary_shape::<F, C, D>(
+        &instance,
+        &openings,
+        &challenges,
+        &[],
+        &proof,
+        &params,
+    )
+    .is_err());
+}
+
+#[test]
+fn short_fri_opening_batches_rejected() {
+    let (params, instance, mut openings, challenges, initial_merkle_caps, proof) =
+        minimal_fri_auxiliary_case();
+    openings.batches.clear();
+
+    assert!(validate_fri_auxiliary_shape::<F, C, D>(
+        &instance,
+        &openings,
+        &challenges,
+        &initial_merkle_caps,
+        &proof,
+        &params,
+    )
+    .is_err());
+}
+
+#[test]
+fn valid_fri_auxiliary_shapes_pass() {
+    let (params, instance, openings, challenges, initial_merkle_caps, proof) =
+        minimal_fri_auxiliary_case();
+
+    validate_fri_auxiliary_shape::<F, C, D>(
+        &instance,
+        &openings,
+        &challenges,
+        &initial_merkle_caps,
+        &proof,
+        &params,
+    )
+    .unwrap();
+    validate_batch_fri_auxiliary_shape::<F, C, D>(
+        &[params.degree_bits],
+        &[instance],
+        &[openings],
+        &challenges,
+        &initial_merkle_caps,
+        &proof,
+        &params,
+    )
+    .unwrap();
 }
