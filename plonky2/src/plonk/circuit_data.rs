@@ -485,6 +485,9 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
         if self.public_initial_degree_bits < self.trace_degree_bits {
             return Err("public_initial_degree_bits must be >= trace_degree_bits");
         }
+        if self.public_initial_degree_bits != self.fri_params.degree_bits {
+            return Err("public_initial_degree_bits must match FRI degree_bits");
+        }
 
         // All lookup tables must be non-empty.
         if self.luts.iter().any(|lut| lut.is_empty()) {
