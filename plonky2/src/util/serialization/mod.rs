@@ -775,14 +775,16 @@ pub trait Read {
             _ => return Err(IoError),
         };
 
-        Ok(FriParams {
+        let params = FriParams {
             config,
             reduction_arity_bits,
             degree_bits,
             leaf_hiding,
             batch_masking,
             final_poly_layout,
-        })
+        };
+        params.check_valid().map_err(|_| IoError)?;
+        Ok(params)
     }
 
     fn read_gate<F: RichField + Extendable<D>, const D: usize>(

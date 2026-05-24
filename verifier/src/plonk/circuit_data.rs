@@ -246,6 +246,9 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
     /// This checks that degree parameters are consistent and within bounds.
     pub fn check_valid(&self) -> Result<(), &'static str> {
         self.config.check_valid()?;
+        self.fri_params
+            .check_valid()
+            .map_err(|_| "invalid FRI params")?;
 
         // Quotient degree must fit within FRI rate.
         let quotient_degree_bits = crate::util::log2_ceil(self.quotient_degree_factor);

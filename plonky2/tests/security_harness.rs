@@ -2,8 +2,11 @@ use std::panic::{catch_unwind, AssertUnwindSafe};
 
 use plonky2::field::types::Field;
 use plonky2::field::zero_poly_coset::ZeroPolyOnCoset;
-use plonky2::fri::structure::{
-    FriBatchInfo, FriInstanceInfo, FriOpeningExpression, FriOracleInfo, FriPolynomialInfo,
+use plonky2::fri::{
+    structure::{
+        FriBatchInfo, FriInstanceInfo, FriOpeningExpression, FriOracleInfo, FriPolynomialInfo,
+    },
+    FriFinalPolyLayout, FriParams,
 };
 use plonky2::gates::coset_interpolation::CosetInterpolationGate;
 use plonky2::gates::exponentiation::ExponentiationGate;
@@ -305,4 +308,49 @@ fn valid_fri_oracle_metadata_references_pass() {
     };
 
     assert!(instance.check_references().is_ok());
+}
+
+fn fri_params_with_final_layout(final_poly_layout: FriFinalPolyLayout) -> FriParams {
+    FriParams {
+        config: CircuitConfig::standard_recursion_config().fri_config,
+        leaf_hiding: false,
+        batch_masking: None,
+        degree_bits: 8,
+        reduction_arity_bits: vec![2],
+        final_poly_layout,
+    }
+}
+
+#[test]
+fn malformed_split_final_poly_layout_rejected() {
+    assert!(fri_params_with_final_layout(FriFinalPolyLayout::Split {
+        chunk_degree_bits: 4,
+        chunks: 3,
+    })
+    .check_valid()
+    .is_err());
+
+    assert!(fri_params_with_final_layout(FriFinalPolyLayout::Split {
+        chunk_degree_bits: 4,
+        chunks: 0,
+    })
+    .check_valid()
+    .is_err());
+
+    assert!(fri_params_with_final_layout(FriFinalPolyLayout::Split {
+        chunk_degree_bits: 5,
+        chunks: 4,
+    })
+    .check_valid()
+    .is_err());
+}
+
+#[test]
+fn valid_split_final_poly_layout_passes() {
+    assert!(fri_params_with_final_layout(FriFinalPolyLayout::Split {
+        chunk_degree_bits: 4,
+        chunks: 4,
+    })
+    .check_valid()
+    .is_ok());
 }
