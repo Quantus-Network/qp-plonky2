@@ -60,11 +60,20 @@ impl<'a, P: PackedField> PackedStridedView<'a, P> {
             data.len(),
             stride
         );
+        assert!(
+            offset < stride,
+            "offset (got {}) must be less than stride (got {})",
+            offset,
+            stride
+        );
 
         // This requirement means that stride divides data into slices of `data.len() / stride`
         // elements. Every access must fit entirely within one of those slices.
+        let offset_end = offset
+            .checked_add(P::WIDTH)
+            .expect("offset + P::WIDTH overflow");
         assert!(
-            offset + P::WIDTH <= stride,
+            offset_end <= stride,
             "offset (got {}) + P::WIDTH ({}) cannot be greater than stride (got {})",
             offset,
             P::WIDTH,
