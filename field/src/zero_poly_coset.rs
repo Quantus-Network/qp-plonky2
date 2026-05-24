@@ -1,7 +1,11 @@
 use alloc::vec::Vec;
 
+use anyhow::{ensure, Result};
+
 use crate::packed::PackedField;
 use crate::types::Field;
+
+const MAX_ZERO_POLY_COSET_RATE_BITS: usize = 20;
 
 /// Precomputations of the evaluation of `Z_H(X) = X^n - 1` on a coset `gK` with `H <= K`.
 #[derive(Debug)]
@@ -19,18 +23,44 @@ pub struct ZeroPolyOnCoset<F: Field> {
 
 impl<F: Field> ZeroPolyOnCoset<F> {
     pub fn new(n_log: usize, rate_bits: usize) -> Self {
+        Self::try_new(n_log, rate_bits).expect("invalid ZeroPolyOnCoset parameters")
+    }
+
+    pub fn try_new(n_log: usize, rate_bits: usize) -> Result<Self> {
+        ensure!(n_log <= F::TWO_ADICITY, "n_log exceeds field two-adicity");
+        ensure!(
+            rate_bits <= F::TWO_ADICITY,
+            "rate_bits exceeds field two-adicity"
+        );
+        ensure!(
+            n_log
+                .checked_add(rate_bits)
+                .is_some_and(|bits| bits <= F::TWO_ADICITY),
+            "combined coset domain exceeds field two-adicity"
+        );
+        ensure!(
+            rate_bits <= MAX_ZERO_POLY_COSET_RATE_BITS,
+            "ZeroPolyOnCoset rate_bits exceeds resource bound"
+        );
+        let n = 1usize
+            .checked_shl(n_log as u32)
+            .ok_or_else(|| anyhow::anyhow!("n_log shift overflow"))?;
+        let rate = 1usize
+            .checked_shl(rate_bits as u32)
+            .ok_or_else(|| anyhow::anyhow!("rate_bits shift overflow"))?;
+
         let g_pow_n = F::coset_shift().exp_power_of_2(n_log);
         let evals = F::two_adic_subgroup(rate_bits)
             .into_iter()
             .map(|x| g_pow_n * x - F::ONE)
             .collect::<Vec<_>>();
         let inverses = F::batch_multiplicative_inverse(&evals);
-        Self {
-            n: F::from_canonical_usize(1 << n_log),
-            rate: 1 << rate_bits,
+        Ok(Self {
+            n: F::from_canonical_usize(n),
+            rate,
             evals,
             inverses,
-        }
+        })
     }
 
     /// Returns `Z_H(g * w^i)`.

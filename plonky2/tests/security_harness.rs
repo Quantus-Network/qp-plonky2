@@ -1,6 +1,7 @@
 use std::panic::{catch_unwind, AssertUnwindSafe};
 
 use plonky2::field::types::Field;
+use plonky2::field::zero_poly_coset::ZeroPolyOnCoset;
 use plonky2::gates::coset_interpolation::CosetInterpolationGate;
 use plonky2::gates::exponentiation::ExponentiationGate;
 use plonky2::gates::gate::Gate;
@@ -244,4 +245,23 @@ fn valid_fft_root_table_roundtrip_recomputes() {
         ProverOnlyCircuitData::<F, C, D>::from_bytes(&bytes, &serializer, &data.common).unwrap();
 
     assert!(decoded.fft_root_table.is_some());
+}
+
+#[test]
+fn zero_poly_on_coset_rejects_unsupported_domains() {
+    assert!(ZeroPolyOnCoset::<F>::try_new(1, F::TWO_ADICITY + 1).is_err());
+    assert!(ZeroPolyOnCoset::<F>::try_new(F::TWO_ADICITY, 1).is_err());
+}
+
+#[test]
+fn zero_poly_on_coset_rejects_resource_exhausting_rate() {
+    assert!(ZeroPolyOnCoset::<F>::try_new(1, 21).is_err());
+}
+
+#[test]
+fn zero_poly_on_coset_valid_domain_works() {
+    let z_h = ZeroPolyOnCoset::<F>::try_new(2, 1).unwrap();
+    let eval = z_h.eval(0);
+    let eval_inverse = z_h.eval_inverse(0);
+    assert_eq!(eval * eval_inverse, F::ONE);
 }

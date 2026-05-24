@@ -527,7 +527,7 @@ where
     let lagrange_last =
         PolynomialValues::selector(degree, degree - 1).lde_onto_coset(quotient_degree_bits);
 
-    let z_h_on_coset = ZeroPolyOnCoset::<F>::new(degree_bits, quotient_degree_bits);
+    let z_h_on_coset = ZeroPolyOnCoset::<F>::try_new(degree_bits, quotient_degree_bits).ok()?;
 
     // Retrieve the LDE values at index `i`.
     let get_trace_values_packed =
