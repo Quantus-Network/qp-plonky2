@@ -616,7 +616,7 @@ mod tests {
             degree_bits: 4,
             reduction_arity_bits: vec![1, 1],
             final_poly_layout: FriFinalPolyLayout::Split {
-                chunk_degree_bits: 2,
+                chunk_degree_bits: 1,
                 chunks: 2,
             },
         }

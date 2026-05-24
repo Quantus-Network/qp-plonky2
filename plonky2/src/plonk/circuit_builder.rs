@@ -906,9 +906,14 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             // The explicit batch-mask oracle and the disclosed final FRI polynomial share the same
             // split layout so the verifier can reconstruct `R(x)` and the final low-degree tail
             // with one chunk-combination rule.
+            const FINAL_POLY_CHUNKS: usize = 2;
+            let chunk_count_bits = FINAL_POLY_CHUNKS.trailing_zeros() as usize;
             fri_params.final_poly_layout = FriFinalPolyLayout::Split {
-                chunk_degree_bits: fri_params.final_poly_bits(),
-                chunks: 2,
+                chunk_degree_bits: fri_params
+                    .final_poly_bits()
+                    .checked_sub(chunk_count_bits)
+                    .expect("final polynomial is too small to split"),
+                chunks: FINAL_POLY_CHUNKS,
             };
         }
 
