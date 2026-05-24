@@ -1,6 +1,7 @@
 use std::panic::{catch_unwind, AssertUnwindSafe};
 
 use plonky2::field::types::Field;
+use plonky2::gates::exponentiation::ExponentiationGate;
 use plonky2::iop::witness::{PartialWitness, Witness, WitnessWrite};
 use plonky2::plonk::circuit_builder::CircuitBuilder;
 use plonky2::plonk::circuit_data::CircuitConfig;
@@ -75,4 +76,52 @@ fn nonzero_denominator_extension_division_still_proves() -> anyhow::Result<()> {
 
     let proof = data.prove(pw)?;
     data.verify(proof)
+}
+
+#[test]
+fn oversized_exp_from_bits_rejected() {
+    let result = catch_unwind(AssertUnwindSafe(|| {
+        let config = CircuitConfig::standard_recursion_config();
+        let capacity = ExponentiationGate::<F, D>::new_from_config(&config).num_power_bits;
+        let mut builder = CircuitBuilder::<F, D>::new(config);
+        let base = builder.constant(F::TWO);
+        let mut bits = Vec::new();
+        for _ in 0..=capacity {
+            bits.push(builder.constant_bool(false));
+        }
+        let _ = builder.exp_from_bits(base, bits.iter());
+    }));
+
+    assert!(result.is_err());
+}
+
+fn exp_from_bits_with_len_proves(bit_len: usize) -> anyhow::Result<()> {
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let base = builder.constant(F::TWO);
+    let mut bits = Vec::new();
+    for i in 0..bit_len {
+        bits.push(builder.constant_bool(i == 0));
+    }
+    let result = builder.exp_from_bits(base, bits.iter());
+    let expected = builder.constant(F::TWO);
+    builder.connect(result, expected);
+
+    let data = builder.build::<C>();
+    let proof = data.prove(PartialWitness::new())?;
+    data.verify(proof)
+}
+
+#[test]
+fn max_capacity_exp_from_bits_still_proves() -> anyhow::Result<()> {
+    let config = CircuitConfig::standard_recursion_config();
+    let capacity = ExponentiationGate::<F, D>::new_from_config(&config).num_power_bits;
+    exp_from_bits_with_len_proves(capacity)
+}
+
+#[test]
+fn below_capacity_exp_from_bits_still_proves() -> anyhow::Result<()> {
+    let config = CircuitConfig::standard_recursion_config();
+    let capacity = ExponentiationGate::<F, D>::new_from_config(&config).num_power_bits;
+    exp_from_bits_with_len_proves(capacity - 1)
 }

@@ -63,7 +63,7 @@ impl<F: RichField + Extendable<D>, const D: usize> ExponentiationGate<F, D> {
 
     /// The `i`th bit of the exponent, in little-endian order.
     pub(crate) const fn wire_power_bit(&self, i: usize) -> usize {
-        debug_assert!(i < self.num_power_bits);
+        assert!(i < self.num_power_bits);
         1 + i
     }
 
@@ -72,7 +72,7 @@ impl<F: RichField + Extendable<D>, const D: usize> ExponentiationGate<F, D> {
     }
 
     pub(crate) const fn wire_intermediate_value(&self, i: usize) -> usize {
-        debug_assert!(i < self.num_power_bits);
+        assert!(i < self.num_power_bits);
         2 + self.num_power_bits + i
     }
 }
