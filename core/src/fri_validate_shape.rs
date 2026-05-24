@@ -44,6 +44,10 @@ where
         pow_witness: _pow_witness,
     } = proof;
 
+    for inst in instances {
+        inst.check_references()?;
+    }
+
     let cap_height = params.config.cap_height;
     for cap in commit_phase_merkle_caps {
         ensure!(cap.height() == cap_height);
