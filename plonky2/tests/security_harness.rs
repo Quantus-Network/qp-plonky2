@@ -17,9 +17,11 @@ use plonky2::iop::ext_target::ExtensionTarget;
 use plonky2::iop::target::Target;
 use plonky2::iop::witness::{PartialWitness, Witness, WitnessWrite};
 use plonky2::plonk::circuit_builder::CircuitBuilder;
-use plonky2::plonk::circuit_data::{CircuitConfig, ProverOnlyCircuitData};
+use plonky2::plonk::circuit_data::{CircuitConfig, CommonCircuitData, ProverOnlyCircuitData};
 use plonky2::plonk::config::{GenericConfig, PoseidonGoldilocksConfig};
-use plonky2::util::serialization::{Buffer, DefaultGeneratorSerializer, Write};
+use plonky2::util::serialization::{
+    Buffer, DefaultGateSerializer, DefaultGeneratorSerializer, Write,
+};
 
 const D: usize = 2;
 type C = PoseidonGoldilocksConfig;
@@ -353,4 +355,26 @@ fn valid_split_final_poly_layout_passes() {
     })
     .check_valid()
     .is_ok());
+}
+
+#[test]
+fn mismatched_fri_degree_bits_rejected() {
+    let data = simple_circuit_data();
+    let mut common = data.common.clone();
+    common.fri_params.degree_bits += 1;
+    let serializer = DefaultGateSerializer;
+
+    assert!(common.check_valid().is_err());
+    let bytes = common.to_bytes(&serializer).unwrap();
+    assert!(CommonCircuitData::<F, D>::from_bytes(bytes, &serializer).is_err());
+}
+
+#[test]
+fn matched_fri_degree_bits_deserialize() {
+    let data = simple_circuit_data();
+    let serializer = DefaultGateSerializer;
+
+    data.common.check_valid().unwrap();
+    let bytes = data.common.to_bytes(&serializer).unwrap();
+    assert!(CommonCircuitData::<F, D>::from_bytes(bytes, &serializer).is_ok());
 }
