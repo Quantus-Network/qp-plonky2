@@ -6,6 +6,7 @@
 use alloc::vec::Vec;
 use core::ops::Range;
 
+use anyhow::ensure;
 use serde::Serialize;
 
 use crate::field::extension::Extendable;
@@ -18,6 +19,27 @@ pub struct FriInstanceInfo<F: RichField + Extendable<D>, const D: usize> {
     pub oracles: Vec<FriOracleInfo>,
     /// Batches of openings, where each batch is associated with a particular point.
     pub batches: Vec<FriBatchInfo<F, D>>,
+}
+
+impl<F: RichField + Extendable<D>, const D: usize> FriInstanceInfo<F, D> {
+    pub fn check_references(&self) -> anyhow::Result<()> {
+        for batch in &self.batches {
+            for expression in &batch.openings {
+                for term in &expression.terms {
+                    let oracle = self
+                        .oracles
+                        .get(term.polynomial.oracle_index)
+                        .ok_or_else(|| anyhow::anyhow!("FRI oracle index out of range"))?;
+                    ensure!(
+                        term.polynomial.polynomial_index < oracle.num_polys,
+                        "FRI polynomial index out of range"
+                    );
+                }
+            }
+        }
+
+        Ok(())
+    }
 }
 
 /// Information about a FRI oracle.

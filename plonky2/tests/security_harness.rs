@@ -2,6 +2,9 @@ use std::panic::{catch_unwind, AssertUnwindSafe};
 
 use plonky2::field::types::Field;
 use plonky2::field::zero_poly_coset::ZeroPolyOnCoset;
+use plonky2::fri::structure::{
+    FriBatchInfo, FriInstanceInfo, FriOpeningExpression, FriOracleInfo, FriPolynomialInfo,
+};
 use plonky2::gates::coset_interpolation::CosetInterpolationGate;
 use plonky2::gates::exponentiation::ExponentiationGate;
 use plonky2::gates::gate::Gate;
@@ -264,4 +267,42 @@ fn zero_poly_on_coset_valid_domain_works() {
     let eval = z_h.eval(0);
     let eval_inverse = z_h.eval_inverse(0);
     assert_eq!(eval * eval_inverse, F::ONE);
+}
+
+#[test]
+fn malformed_fri_oracle_metadata_rejected() {
+    let instance = FriInstanceInfo::<F, D> {
+        oracles: vec![FriOracleInfo {
+            num_polys: 1,
+            blinding: false,
+        }],
+        batches: vec![FriBatchInfo {
+            point: FF::ZERO,
+            openings: vec![FriOpeningExpression::raw(FriPolynomialInfo {
+                oracle_index: 0,
+                polynomial_index: 1,
+            })],
+        }],
+    };
+
+    assert!(instance.check_references().is_err());
+}
+
+#[test]
+fn valid_fri_oracle_metadata_references_pass() {
+    let instance = FriInstanceInfo::<F, D> {
+        oracles: vec![FriOracleInfo {
+            num_polys: 1,
+            blinding: false,
+        }],
+        batches: vec![FriBatchInfo {
+            point: FF::ZERO,
+            openings: vec![FriOpeningExpression::raw(FriPolynomialInfo {
+                oracle_index: 0,
+                polynomial_index: 0,
+            })],
+        }],
+    };
+
+    assert!(instance.check_references().is_ok());
 }
