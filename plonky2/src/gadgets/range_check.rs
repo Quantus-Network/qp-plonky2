@@ -5,7 +5,7 @@ use alloc::{
     vec::Vec,
 };
 
-use anyhow::Result;
+use anyhow::{ensure, Result};
 
 use crate::field::extension::Extendable;
 use crate::hash::hash_types::RichField;
@@ -32,6 +32,13 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     /// Returns `(a,b)` such that `x = a + 2^n_log * b` with `a < 2^n_log`.
     /// `x` is assumed to be range-checked for having `num_bits` bits.
     pub fn split_low_high(&mut self, x: Target, n_log: usize, num_bits: usize) -> (Target, Target) {
+        assert!(n_log <= num_bits, "n_log must not exceed num_bits");
+        assert!(n_log < u64::BITS as usize, "n_log must be less than 64");
+        assert!(
+            num_bits <= u64::BITS as usize,
+            "num_bits must be at most 64"
+        );
+
         let low = self.add_virtual_target();
         let high = self.add_virtual_target();
 
@@ -43,9 +50,13 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         });
 
         self.range_check(low, n_log);
-        self.range_check(high, num_bits - n_log);
+        let high_bits = num_bits - n_log;
+        self.range_check(high, high_bits);
 
-        let pow2 = self.constant(F::from_canonical_u64(1 << n_log));
+        let pow2 = 1u64
+            .checked_shl(n_log as u32)
+            .expect("n_log was validated to be less than 64");
+        let pow2 = self.constant(F::from_canonical_u64(pow2));
         let comp_x = self.mul_add(high, pow2, low);
         self.connect(x, comp_x);
 
@@ -81,8 +92,16 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D> for Low
         witness: &PartitionWitness<F>,
         out_buffer: &mut GeneratedValues<F>,
     ) -> Result<()> {
+        ensure!(
+            self.n_log < u64::BITS as usize,
+            "n_log must be less than 64"
+        );
         let integer_value = witness.get_target(self.integer).to_canonical_u64();
-        let low = integer_value & ((1 << self.n_log) - 1);
+        let low_mask = 1u64
+            .checked_shl(self.n_log as u32)
+            .expect("n_log was validated to be less than 64")
+            - 1;
+        let low = integer_value & low_mask;
         let high = integer_value >> self.n_log;
 
         out_buffer.set_target(self.low, F::from_canonical_u64(low))?;
@@ -99,6 +118,9 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D> for Low
     fn deserialize(src: &mut Buffer, _common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
         let integer = src.read_target()?;
         let n_log = src.read_usize()?;
+        if n_log >= u64::BITS as usize {
+            return Err(crate::util::serialization::IoError);
+        }
         let low = src.read_target()?;
         let high = src.read_target()?;
         Ok(Self {
