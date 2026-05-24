@@ -18,6 +18,7 @@ use plonky2::iop::target::Target;
 use plonky2::iop::witness::{PartialWitness, Witness, WitnessWrite};
 use plonky2::plonk::circuit_builder::CircuitBuilder;
 use plonky2::plonk::circuit_data::{CircuitConfig, CommonCircuitData, ProverOnlyCircuitData};
+use plonky2::util::strided_view::PackedStridedView;
 use plonky2::plonk::config::{GenericConfig, PoseidonGoldilocksConfig};
 use plonky2::util::serialization::{
     Buffer, DefaultGateSerializer, DefaultGeneratorSerializer, Write,
@@ -377,4 +378,26 @@ fn matched_fri_degree_bits_deserialize() {
     data.common.check_valid().unwrap();
     let bytes = data.common.to_bytes(&serializer).unwrap();
     assert!(CommonCircuitData::<F, D>::from_bytes(bytes, &serializer).is_ok());
+}
+
+#[test]
+fn reversed_ranges_forge_oob_views_rejected() {
+    let backing = vec![
+        F::from_canonical_u64(1),
+        F::from_canonical_u64(2),
+        F::from_canonical_u64(3),
+        F::from_canonical_u64(4),
+    ];
+    let view = PackedStridedView::<F>::new(&backing, 1, 0);
+
+    let reversed_exclusive = catch_unwind(AssertUnwindSafe(|| view.view(view.len()..0))).is_err();
+    let reversed_inclusive = catch_unwind(AssertUnwindSafe(|| view.view(view.len()..=0))).is_err();
+
+    assert!(reversed_exclusive);
+    assert!(reversed_inclusive);
+
+    let forward = view.view(1..3);
+    assert_eq!(forward.len(), 2);
+    assert_eq!(*forward.get(0).unwrap(), F::from_canonical_u64(2));
+    assert_eq!(*forward.get(1).unwrap(), F::from_canonical_u64(3));
 }
