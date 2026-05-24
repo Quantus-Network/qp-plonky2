@@ -6,7 +6,7 @@ use alloc::{
 };
 use core::borrow::Borrow;
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 
 use crate::field::extension::{Extendable, FieldExtension, OEF};
 use crate::field::types::{Field, Field64};
@@ -543,7 +543,10 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D>
     ) -> Result<()> {
         let num = witness.get_extension_target(self.numerator);
         let dem = witness.get_extension_target(self.denominator);
-        let quotient = num / dem;
+        let dem_inv = dem
+            .try_inverse()
+            .ok_or_else(|| anyhow!("extension denominator must be nonzero"))?;
+        let quotient = num * dem_inv;
         out_buffer.set_extension_target(self.quotient, quotient)
     }
 
