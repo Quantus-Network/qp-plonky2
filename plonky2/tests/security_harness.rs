@@ -1,7 +1,10 @@
 use std::panic::{catch_unwind, AssertUnwindSafe};
 
 use plonky2::field::types::Field;
+use plonky2::gates::coset_interpolation::CosetInterpolationGate;
 use plonky2::gates::exponentiation::ExponentiationGate;
+use plonky2::iop::ext_target::ExtensionTarget;
+use plonky2::iop::target::Target;
 use plonky2::iop::witness::{PartialWitness, Witness, WitnessWrite};
 use plonky2::plonk::circuit_builder::CircuitBuilder;
 use plonky2::plonk::circuit_data::CircuitConfig;
@@ -124,4 +127,47 @@ fn below_capacity_exp_from_bits_still_proves() -> anyhow::Result<()> {
     let config = CircuitConfig::standard_recursion_config();
     let capacity = ExponentiationGate::<F, D>::new_from_config(&config).num_power_bits;
     exp_from_bits_with_len_proves(capacity - 1)
+}
+
+fn add_zero_value_coset_interpolation_circuit(
+    shift_value: F,
+) -> plonky2::plonk::circuit_data::CircuitData<F, C, D> {
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let gate = CosetInterpolationGate::<F, D>::new(2);
+    let row = builder.num_gates();
+
+    let shift = builder.constant(shift_value);
+    builder.connect(shift, Target::wire(row, 0));
+
+    let zero_ext = builder.zero_extension();
+    for i in 0..4 {
+        let start = 1 + i * D;
+        builder.connect_extension(zero_ext, ExtensionTarget::from_range(row, start..start + D));
+    }
+
+    let evaluation_point = builder.constant_extension(FF::ONE);
+    builder.connect_extension(evaluation_point, ExtensionTarget::from_range(row, 9..11));
+
+    let evaluation_value = ExtensionTarget::from_range(row, 11..13);
+    builder.connect_extension(evaluation_value, zero_ext);
+
+    builder.add_gate(gate, vec![]);
+    builder.build::<C>()
+}
+
+#[test]
+fn interpolation_generator_zero_shift_returns_err() {
+    let data = add_zero_value_coset_interpolation_circuit(F::ZERO);
+    let result = catch_unwind(AssertUnwindSafe(|| data.prove(PartialWitness::new())));
+
+    assert!(result.is_ok(), "zero coset shift must not panic");
+    assert!(result.unwrap().is_err());
+}
+
+#[test]
+fn interpolation_generator_nonzero_shift_still_proves() -> anyhow::Result<()> {
+    let data = add_zero_value_coset_interpolation_circuit(F::ONE);
+    let proof = data.prove(PartialWitness::new())?;
+    data.verify(proof)
 }
