@@ -128,6 +128,13 @@ impl<'a, P: PackedField> PackedStridedView<'a, P> {
     pub const fn is_empty(&self) -> bool {
         self.len() == 0
     }
+
+    #[inline]
+    fn checked_stride_offset(&self, index: usize) -> usize {
+        self.stride
+            .checked_mul(index)
+            .expect("Invalid access: strided view offset overflow")
+    }
 }
 
 impl<P: PackedField> Index<usize> for PackedStridedView<'_, P> {
@@ -244,13 +251,16 @@ pub trait Viewable<F> {
 impl<P: PackedField> Viewable<Range<usize>> for PackedStridedView<'_, P> {
     type View = Self;
     fn view(&self, range: Range<usize>) -> Self::View {
+        assert!(range.start <= range.end, "Invalid access");
         assert!(range.start <= self.len(), "Invalid access");
         assert!(range.end <= self.len(), "Invalid access");
+        let length = range.end.checked_sub(range.start).expect("Invalid access");
+        let offset = self.checked_stride_offset(range.start);
         Self {
             // See comment in `PackedStridedView`. `self.start_ptr` will point more than one byte
             // past the end of the buffer if the offset is not 0 and the buffer has length 0.
-            start_ptr: self.start_ptr.wrapping_add(self.stride * range.start),
-            length: range.end - range.start,
+            start_ptr: self.start_ptr.wrapping_add(offset),
+            length,
             stride: self.stride,
             _phantom: PhantomData,
         }
@@ -261,11 +271,13 @@ impl<P: PackedField> Viewable<RangeFrom<usize>> for PackedStridedView<'_, P> {
     type View = Self;
     fn view(&self, range: RangeFrom<usize>) -> Self::View {
         assert!(range.start <= self.len(), "Invalid access");
+        let length = self.len().checked_sub(range.start).expect("Invalid access");
+        let offset = self.checked_stride_offset(range.start);
         Self {
             // See comment in `PackedStridedView`. `self.start_ptr` will point more than one byte
             // past the end of the buffer if the offset is not 0 and the buffer has length 0.
-            start_ptr: self.start_ptr.wrapping_add(self.stride * range.start),
-            length: self.len() - range.start,
+            start_ptr: self.start_ptr.wrapping_add(offset),
+            length,
             stride: self.stride,
             _phantom: PhantomData,
         }
@@ -282,13 +294,19 @@ impl<P: PackedField> Viewable<RangeFull> for PackedStridedView<'_, P> {
 impl<P: PackedField> Viewable<RangeInclusive<usize>> for PackedStridedView<'_, P> {
     type View = Self;
     fn view(&self, range: RangeInclusive<usize>) -> Self::View {
+        assert!(*range.start() <= *range.end(), "Invalid access");
         assert!(*range.start() <= self.len(), "Invalid access");
         assert!(*range.end() < self.len(), "Invalid access");
+        let length = (*range.end())
+            .checked_sub(*range.start())
+            .and_then(|length| length.checked_add(1))
+            .expect("Invalid access");
+        let offset = self.checked_stride_offset(*range.start());
         Self {
             // See comment in `PackedStridedView`. `self.start_ptr` will point more than one byte
             // past the end of the buffer if the offset is not 0 and the buffer has length 0.
-            start_ptr: self.start_ptr.wrapping_add(self.stride * range.start()),
-            length: range.end() - range.start() + 1,
+            start_ptr: self.start_ptr.wrapping_add(offset),
+            length,
             stride: self.stride,
             _phantom: PhantomData,
         }
@@ -312,9 +330,10 @@ impl<P: PackedField> Viewable<RangeToInclusive<usize>> for PackedStridedView<'_,
     type View = Self;
     fn view(&self, range: RangeToInclusive<usize>) -> Self::View {
         assert!(range.end < self.len(), "Invalid access");
+        let length = range.end.checked_add(1).expect("Invalid access");
         Self {
             start_ptr: self.start_ptr,
-            length: range.end + 1,
+            length,
             stride: self.stride,
             _phantom: PhantomData,
         }
