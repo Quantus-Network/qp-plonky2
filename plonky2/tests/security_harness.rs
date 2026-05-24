@@ -24,6 +24,7 @@ use plonky2::gates::reducing_extension::ReducingExtensionGate;
 use plonky2::hash::merkle_proofs::{verify_merkle_proof_to_cap, MerkleProof, MerkleProofTarget};
 use plonky2::hash::merkle_tree::{MerkleCap, MerkleTree};
 use plonky2::hash::poseidon::PoseidonHash;
+use plonky2::hash::poseidon2::Poseidon2Hash;
 use plonky2::iop::ext_target::ExtensionTarget;
 use plonky2::iop::target::Target;
 use plonky2::iop::witness::{PartialWitness, Witness, WitnessWrite};
@@ -685,4 +686,84 @@ fn valid_fri_auxiliary_shapes_pass() {
         &params,
     )
     .unwrap();
+}
+
+fn poseidon2_two_leaf_tree() -> (Vec<Vec<F>>, MerkleTree<F, Poseidon2Hash>) {
+    let leaves = vec![
+        vec![F::from_canonical_u64(31), F::from_canonical_u64(32)],
+        vec![F::from_canonical_u64(41), F::from_canonical_u64(42)],
+    ];
+    let tree = MerkleTree::<F, Poseidon2Hash>::new(leaves.clone(), 0);
+    (leaves, tree)
+}
+
+#[test]
+fn poseidon2_merkle_accepts_internal_digest_rejected() {
+    let (_leaves, tree) = poseidon2_two_leaf_tree();
+    let digest_as_leaf = tree.cap.0[0].elements.to_vec();
+    let root_cap = MerkleCap::<F, Poseidon2Hash>(vec![tree.cap.0[0]]);
+    let empty_proof = MerkleProof::<F, Poseidon2Hash> { siblings: vec![] };
+
+    assert!(verify_merkle_proof_to_cap(digest_as_leaf, 0, &root_cap, &empty_proof).is_err());
+}
+
+#[test]
+fn poseidon2_merkle_accepts_internal_node_preimage_rejected() {
+    let (leaves, tree) = poseidon2_two_leaf_tree();
+    let left = Poseidon2Hash::hash_merkle_leaf(&leaves[0]);
+    let right = Poseidon2Hash::hash_merkle_leaf(&leaves[1]);
+    let mut node_preimage_as_leaf = left.elements.to_vec();
+    node_preimage_as_leaf.extend_from_slice(&right.elements);
+    let root_cap = MerkleCap::<F, Poseidon2Hash>(vec![tree.cap.0[0]]);
+    let empty_proof = MerkleProof::<F, Poseidon2Hash> { siblings: vec![] };
+
+    assert!(verify_merkle_proof_to_cap(node_preimage_as_leaf, 0, &root_cap, &empty_proof).is_err());
+}
+
+#[test]
+fn poseidon2_merkle_valid_proof_verifies() -> anyhow::Result<()> {
+    let (leaves, tree) = poseidon2_two_leaf_tree();
+    let proof = tree.prove(1);
+
+    verify_merkle_proof_to_cap(leaves[1].clone(), 1, &tree.cap, &proof)
+}
+
+#[test]
+fn poseidon2_merkle_recursive_matches_native() -> anyhow::Result<()> {
+    let (leaves, tree) = poseidon2_two_leaf_tree();
+    let leaf_index = 1;
+    let proof = tree.prove(leaf_index);
+    verify_merkle_proof_to_cap(leaves[leaf_index].clone(), leaf_index, &tree.cap, &proof)?;
+
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let mut pw = PartialWitness::new();
+
+    let proof_t = MerkleProofTarget {
+        siblings: builder.add_virtual_hashes(proof.siblings.len()),
+    };
+    for (&target, &sibling) in proof_t.siblings.iter().zip(&proof.siblings) {
+        pw.set_hash_target(target, sibling)?;
+    }
+
+    let cap_t = builder.add_virtual_cap(0);
+    pw.set_cap_target::<Poseidon2Hash>(&cap_t, &tree.cap)?;
+
+    let leaf_targets = builder.add_virtual_targets(leaves[leaf_index].len());
+    for (&target, &value) in leaf_targets.iter().zip(&leaves[leaf_index]) {
+        pw.set_target(target, value)?;
+    }
+
+    let index = builder.constant(F::from_canonical_usize(leaf_index));
+    let index_bits = builder.split_le(index, 1);
+    builder.verify_merkle_proof_to_cap::<Poseidon2Hash>(
+        leaf_targets,
+        &index_bits,
+        &cap_t,
+        &proof_t,
+    );
+
+    let data = builder.build::<C>();
+    let proof = data.prove(pw)?;
+    data.verify(proof)
 }
