@@ -1,0 +1,2 @@
+finding	class	commit	status	notes
+64632	artifact-validation	12c3d8c73	fixed	Validated LowHighGenerator n_log at builder/deserialization/generator boundaries; focused tests: cargo test -p qp-plonky2 --test security_harness -- malformed_low_high_generator; cargo test -p qp-plonky2 range_check --lib.
