@@ -6,3 +6,4 @@ finding	severity	class	commit	status	notes
 64587	Medium	untrusted-artifact-validation	2976f3fa1	fixed	Forged proving key crashes prover
 64591	Medium	invalid-or-defense-in-depth	ecb873538	fixed	Recursive verifier rejects subgroup challenges
 64603	Medium	untrusted-artifact-validation	8e6d760b9	fixed	Unchecked metadata arithmetic DoS
+64604	Medium	gadget-constraint-soundness	775cb8e09	fixed	Unconstrained branch selector
