@@ -28,6 +28,7 @@ use plonky2::gates::arithmetic_extension::ArithmeticExtensionGate;
 use plonky2::gates::coset_interpolation::CosetInterpolationGate;
 use plonky2::gates::exponentiation::ExponentiationGate;
 use plonky2::gates::gate::{Gate, GateRef};
+use plonky2::gates::lookup::{LookupGate, LookupGenerator};
 use plonky2::gates::multiplication_extension::MulExtensionGate;
 use plonky2::gates::noop::NoopGate;
 use plonky2::gates::poseidon2::SPONGE_WIDTH;
@@ -45,7 +46,7 @@ use plonky2::hash::poseidon::PoseidonHash;
 use plonky2::hash::poseidon2::{Poseidon2Hash, Poseidon2Permutation};
 use plonky2::iop::challenger::Challenger;
 use plonky2::iop::ext_target::ExtensionTarget;
-use plonky2::iop::generator::WitnessGeneratorRef;
+use plonky2::iop::generator::{SimpleGenerator, WitnessGeneratorRef};
 use plonky2::iop::target::Target;
 use plonky2::iop::witness::{PartialWitness, Witness, WitnessWrite};
 use plonky2::plonk::circuit_builder::CircuitBuilder;
@@ -1535,6 +1536,51 @@ fn zero_slot_generator_rejected() -> anyhow::Result<()> {
     let mut narrow_lookup = CircuitConfig::standard_recursion_config();
     narrow_lookup.num_routed_wires = 2;
     assert!(narrow_lookup.check_lookup_widths().is_err());
+
+    Ok(())
+}
+
+#[test]
+fn lookup_deserializers_reject_unvalidated_indices() -> anyhow::Result<()> {
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let input = builder.add_virtual_target();
+    let table = std::sync::Arc::new(vec![(0u16, 10u16), (1u16, 11u16)]);
+    let table_index = builder.add_lookup_table_from_pairs(table);
+    let output = builder.add_lookup_from_index(input, table_index);
+    builder.register_public_input(output);
+
+    let data = builder.build::<C>();
+    let lut_count = data.common.luts.len();
+    let lookup_slots = data.common.config.num_routed_wires / 2;
+
+    let mut gate_bytes = Vec::new();
+    gate_bytes.write_usize(lookup_slots).unwrap();
+    gate_bytes.write_usize(lut_count).unwrap();
+    gate_bytes.extend_from_slice(&[0u8; 32]);
+    let mut gate_buffer = Buffer::new(&gate_bytes);
+    assert!(<LookupGate as Gate<F, D>>::deserialize(&mut gate_buffer, &data.common).is_err());
+
+    let mut generator_bytes = Vec::new();
+    generator_bytes.write_usize(0).unwrap();
+    generator_bytes.write_usize(0).unwrap();
+    generator_bytes.write_usize(lut_count).unwrap();
+    let mut generator_buffer = Buffer::new(&generator_bytes);
+    assert!(<LookupGenerator as SimpleGenerator<F, D>>::deserialize(
+        &mut generator_buffer,
+        &data.common
+    )
+    .is_err());
+
+    let mut row_bytes = Vec::new();
+    row_bytes.write_usize(data.common.degree()).unwrap();
+    row_bytes.write_usize(0).unwrap();
+    row_bytes.write_usize(0).unwrap();
+    let mut row_buffer = Buffer::new(&row_bytes);
+    assert!(
+        <LookupGenerator as SimpleGenerator<F, D>>::deserialize(&mut row_buffer, &data.common)
+            .is_err()
+    );
 
     Ok(())
 }

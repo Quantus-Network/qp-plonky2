@@ -246,11 +246,27 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D> for Loo
         let row = src.read_usize()?;
         let slot_nb = src.read_usize()?;
         let lut_index = src.read_usize()?;
+        let num_slots = LookupGate::num_slots(&common_data.config);
+        let degree = 1usize
+            .checked_shl(
+                common_data
+                    .trace_degree_bits
+                    .try_into()
+                    .unwrap_or(usize::BITS),
+            )
+            .ok_or(crate::util::serialization::IoError)?;
+        if num_slots == 0 || slot_nb >= num_slots || row >= degree {
+            return Err(crate::util::serialization::IoError);
+        }
+        let lut = common_data
+            .luts
+            .get(lut_index)
+            .ok_or(crate::util::serialization::IoError)?
+            .clone();
+        if lut.is_empty() {
+            return Err(crate::util::serialization::IoError);
+        }
 
-        Ok(Self {
-            row,
-            lut: common_data.luts[lut_index].clone(),
-            slot_nb,
-        })
+        Ok(Self { row, lut, slot_nb })
     }
 }

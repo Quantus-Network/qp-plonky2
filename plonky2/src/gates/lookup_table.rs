@@ -274,7 +274,20 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D> for Loo
         let last_lut_row = src.read_usize()?;
         let lut_index = src.read_usize()?;
         let expected_num_slots = LookupTableGate::num_slots(&common_data.config);
-        if expected_num_slots == 0 || num_slots != expected_num_slots || slot_nb >= num_slots {
+        let degree = 1usize
+            .checked_shl(
+                common_data
+                    .trace_degree_bits
+                    .try_into()
+                    .unwrap_or(usize::BITS),
+            )
+            .ok_or(crate::util::serialization::IoError)?;
+        if expected_num_slots == 0
+            || num_slots != expected_num_slots
+            || slot_nb >= num_slots
+            || row >= degree
+            || last_lut_row >= degree
+        {
             return Err(crate::util::serialization::IoError);
         }
         let lut = common_data
