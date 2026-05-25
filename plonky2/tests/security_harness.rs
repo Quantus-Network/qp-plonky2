@@ -10,7 +10,8 @@ use plonky2::field::polynomial::{PolynomialCoeffs, PolynomialValues};
 use plonky2::field::types::Field;
 use plonky2::field::zero_poly_coset::ZeroPolyOnCoset;
 use plonky2::fri::proof::{
-    FriChallenges, FriFinalPolys, FriInitialTreeProof, FriProof, FriQueryRound,
+    FriChallenges, FriFinalPolys, FriFinalPolysTarget, FriInitialTreeProof, FriProof,
+    FriProofTarget, FriQueryRound,
 };
 use plonky2::fri::{
     structure::{
@@ -39,6 +40,7 @@ use plonky2::iop::witness::{PartialWitness, Witness, WitnessWrite};
 use plonky2::plonk::circuit_builder::CircuitBuilder;
 use plonky2::plonk::circuit_data::{CircuitConfig, CommonCircuitData, ProverOnlyCircuitData};
 use plonky2::plonk::config::{GenericConfig, Hasher, PoseidonGoldilocksConfig};
+use plonky2::plonk::proof::{OpeningSetTarget, ProofTarget, ProofWithPublicInputsTarget};
 use plonky2::plonk::prover::prove;
 use plonky2::plonk::vars::{EvaluationTargets, EvaluationVars};
 use plonky2::recursion::cyclic_recursion::check_cyclic_proof_verifier_data;
@@ -830,6 +832,44 @@ fn unchecked_metadata_arithmetic_rejected() -> anyhow::Result<()> {
     assert!(cyclic_check.unwrap().is_err());
 
     Ok(())
+}
+
+fn empty_proof_with_pis_target(pow_witness: Target) -> ProofWithPublicInputsTarget<D> {
+    ProofWithPublicInputsTarget {
+        proof: ProofTarget {
+            wires_cap: plonky2::hash::hash_types::MerkleCapTarget(vec![]),
+            plonk_zs_partial_products_cap: plonky2::hash::hash_types::MerkleCapTarget(vec![]),
+            quotient_polys_cap: plonky2::hash::hash_types::MerkleCapTarget(vec![]),
+            openings: OpeningSetTarget::default(),
+            opening_proof: FriProofTarget {
+                commit_phase_merkle_caps: vec![],
+                batch_mask_proof: None,
+                query_round_proofs: vec![],
+                final_polys: FriFinalPolysTarget { chunks: vec![] },
+                pow_witness,
+            },
+        },
+        public_inputs: vec![],
+    }
+}
+
+#[test]
+fn unconstrained_branch_selector_rejected() {
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let condition = builder.add_virtual_bool_target_unsafe();
+    let zero = builder.zero();
+    let proof0 = empty_proof_with_pis_target(zero);
+    let proof1 = empty_proof_with_pis_target(zero);
+    let _ = builder.select_proof_with_pis(condition, &proof0, &proof1);
+
+    let data = builder.build::<C>();
+    let mut pw = PartialWitness::new();
+    pw.set_target(condition.target, F::TWO).unwrap();
+
+    let result = catch_unwind(AssertUnwindSafe(|| data.prove(pw)));
+    assert!(result.is_ok(), "non-boolean selector must not panic");
+    assert!(result.unwrap().is_err());
 }
 
 #[test]

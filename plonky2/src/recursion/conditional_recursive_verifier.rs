@@ -33,6 +33,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         C::Hasher: AlgebraicHasher<F>,
         C::InnerHasher: AlgebraicHasher<F>,
     {
+        self.assert_bool(condition);
         assert_eq!(
             proof_with_pis0.proof.opening_proof.batch_mask_proof.is_some(),
             proof_with_pis1.proof.opening_proof.batch_mask_proof.is_some(),
@@ -101,6 +102,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             public_inputs: public_inputs1,
         } = proof_with_pis1;
         with_context!(self, "select proof", {
+            self.assert_bool(b);
             let selected_wires_cap = self.select_cap(b, wires_cap0, wires_cap1);
             let selected_plonk_zs_partial_products_cap = self.select_cap(
                 b,
@@ -183,6 +185,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         vk0: &VerifierCircuitTarget,
         vk1: &VerifierCircuitTarget,
     ) -> VerifierCircuitTarget {
+        self.assert_bool(b);
         VerifierCircuitTarget {
             constants_sigmas_cap: self.select_cap(
                 b,
