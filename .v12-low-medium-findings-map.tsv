@@ -12,3 +12,4 @@ finding	severity	class	commit	status	notes
 64608	Medium	untrusted-artifact-validation	0cf34d74f	fixed	Unbounded verifier-target deserialization
 64610	Medium	runtime-dos-preconditions	45617b473	fixed	Unbounded context metadata DoS
 64626	Medium	untrusted-artifact-validation	b01081c26	fixed	Unchecked leaf index panics
+64630	Medium	runtime-dos-preconditions	a35babbe2	fixed	Unchecked leading-zero underflow
