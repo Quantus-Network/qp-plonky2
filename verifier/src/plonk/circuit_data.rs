@@ -258,6 +258,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
             .fri_config
             .required_proof_of_work_leading_zeros::<F>()
             .map_err(|_| "invalid FRI proof-of-work bits")?;
+        self.check_field_degree_bounds()?;
 
         // Quotient degree must fit within FRI rate.
         let quotient_degree_bits = crate::util::log2_ceil(self.quotient_degree_factor);
@@ -279,6 +280,45 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
         }
 
         check_gate_id_collisions(&self.gates)?;
+
+        Ok(())
+    }
+
+    fn check_field_degree_bounds(&self) -> Result<(), &'static str> {
+        if self.trace_degree_bits > F::TWO_ADICITY {
+            return Err("trace_degree_bits exceeds field two-adicity");
+        }
+        if self.public_initial_degree_bits > F::TWO_ADICITY {
+            return Err("public_initial_degree_bits exceeds field two-adicity");
+        }
+        if self.fri_params.degree_bits > F::TWO_ADICITY {
+            return Err("FRI degree_bits exceeds field two-adicity");
+        }
+
+        let trace_lde_bits = self
+            .trace_degree_bits
+            .checked_add(self.config.fri_config.rate_bits)
+            .ok_or("trace LDE degree overflow")?;
+        if trace_lde_bits > F::TWO_ADICITY {
+            return Err("trace LDE degree exceeds field two-adicity");
+        }
+
+        let public_lde_bits = self
+            .public_initial_degree_bits
+            .checked_add(self.config.fri_config.rate_bits)
+            .ok_or("public initial LDE degree overflow")?;
+        if public_lde_bits > F::TWO_ADICITY {
+            return Err("public initial LDE degree exceeds field two-adicity");
+        }
+
+        let fri_lde_bits = self
+            .fri_params
+            .degree_bits
+            .checked_add(self.fri_params.config.rate_bits)
+            .ok_or("FRI LDE degree overflow")?;
+        if fri_lde_bits > F::TWO_ADICITY {
+            return Err("FRI LDE degree exceeds field two-adicity");
+        }
 
         Ok(())
     }

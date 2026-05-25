@@ -835,6 +835,24 @@ fn matched_fri_degree_bits_deserialize() {
 }
 
 #[test]
+fn malformed_verifier_metadata_rejected() {
+    let data = simple_circuit_data();
+    let serializer = DefaultGateSerializer;
+    let mut common = data.common.clone();
+
+    common.public_initial_degree_bits = F::TWO_ADICITY;
+    common.fri_params.degree_bits = common.public_initial_degree_bits;
+
+    assert!(common.check_valid().is_err());
+    let bytes = common.to_bytes(&serializer).unwrap();
+    assert!(CommonCircuitData::<F, D>::from_bytes(bytes, &serializer).is_err());
+
+    data.common.check_valid().unwrap();
+    let bytes = data.common.to_bytes(&serializer).unwrap();
+    assert!(CommonCircuitData::<F, D>::from_bytes(bytes, &serializer).is_ok());
+}
+
+#[test]
 fn forged_proving_key_crashes_rejected() -> anyhow::Result<()> {
     let config = CircuitConfig::standard_recursion_polyfri_zk_config();
     let mut builder = CircuitBuilder::<F, D>::new(config);
