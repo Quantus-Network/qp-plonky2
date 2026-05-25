@@ -8,11 +8,11 @@ use alloc::{
 use core::marker::PhantomData;
 use core::ops::Range;
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, ensure, Result};
 
 use crate::field::extension::algebra::ExtensionAlgebra;
 use crate::field::extension::{Extendable, FieldExtension, OEF};
-use crate::field::interpolation::barycentric_weights;
+use crate::field::interpolation::try_barycentric_weights;
 use crate::field::types::Field;
 use crate::gates::gate::Gate;
 use crate::gates::util::StridedConstraintConsumer;
@@ -25,7 +25,7 @@ use crate::iop::witness::{PartitionWitness, Witness, WitnessWrite};
 use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::circuit_data::CommonCircuitData;
 use crate::plonk::vars::{EvaluationTargets, EvaluationVars, EvaluationVarsBase};
-use crate::util::serialization::{Buffer, IoResult, Read, Write};
+use crate::util::serialization::{Buffer, IoError, IoResult, Read, Write};
 
 /// One of the instantiations of `InterpolationGate`: allows constraints of variable
 /// degree, up to `1<<subgroup_bits`.
@@ -65,13 +65,25 @@ pub struct CosetInterpolationGate<F: RichField + Extendable<D>, const D: usize> 
 
 impl<F: RichField + Extendable<D>, const D: usize> CosetInterpolationGate<F, D> {
     pub fn new(subgroup_bits: usize) -> Self {
-        Self::with_max_degree(subgroup_bits, 1 << subgroup_bits)
+        let max_degree = checked_num_points::<F>(subgroup_bits)
+            .expect("invalid coset interpolation subgroup bits");
+        Self::with_max_degree(subgroup_bits, max_degree)
     }
 
     pub(crate) fn with_max_degree(subgroup_bits: usize, max_degree: usize) -> Self {
-        assert!(max_degree > 1, "need at least quadratic constraints");
+        Self::try_with_max_degree(subgroup_bits, max_degree)
+            .expect("invalid coset interpolation gate parameters")
+    }
 
-        let n_points = 1 << subgroup_bits;
+    pub(crate) fn try_with_max_degree(subgroup_bits: usize, max_degree: usize) -> Result<Self> {
+        ensure!(max_degree > 1, "need at least quadratic constraints");
+        ensure!(
+            subgroup_bits <= F::TWO_ADICITY,
+            "subgroup bits exceed field two-adicity"
+        );
+
+        let n_points = checked_num_points::<F>(subgroup_bits)?;
+        ensure!(n_points >= 2, "need at least two interpolation points");
 
         // Number of intermediate values required to compute interpolation with degree bound
         let n_intermediates = (n_points - 2) / (max_degree - 1);
@@ -80,19 +92,34 @@ impl<F: RichField + Extendable<D>, const D: usize> CosetInterpolationGate<F, D> 
         // Minimizing the degree this way allows the gate to be in a larger selector group
         let degree = (n_points - 2) / (n_intermediates + 1) + 2;
 
-        let barycentric_weights = barycentric_weights(
+        let barycentric_weights = try_barycentric_weights(
             &F::two_adic_subgroup(subgroup_bits)
                 .into_iter()
                 .map(|x| (x, F::ZERO))
                 .collect::<Vec<_>>(),
-        );
+        )?;
 
-        Self {
+        Ok(Self {
             subgroup_bits,
             degree,
             barycentric_weights,
             _phantom: PhantomData,
-        }
+        })
+    }
+
+    fn check_valid(&self) -> Result<()> {
+        let n_points = checked_num_points::<F>(self.subgroup_bits)?;
+        ensure!(n_points >= 2, "need at least two interpolation points");
+        ensure!(self.degree > 1, "need at least quadratic constraints");
+        ensure!(
+            self.degree <= n_points,
+            "interpolation gate degree exceeds point count"
+        );
+        ensure!(
+            self.barycentric_weights.len() == n_points,
+            "barycentric weight count must match interpolation point count"
+        );
+        Ok(())
     }
 
     const fn num_points(&self) -> usize {
@@ -194,12 +221,14 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for CosetInterpola
         let degree = src.read_usize()?;
         let length = src.read_usize()?;
         let barycentric_weights: Vec<F> = src.read_field_vec(length)?;
-        Ok(Self {
+        let gate = Self {
             subgroup_bits,
             degree,
             barycentric_weights,
             _phantom: PhantomData,
-        })
+        };
+        gate.check_valid().map_err(|_| IoError)?;
+        Ok(gate)
     }
 
     fn eval_unfiltered(&self, vars: EvaluationVars<F, D>) -> Vec<F::Extension> {
@@ -463,6 +492,7 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D>
         witness: &PartitionWitness<F>,
         out_buffer: &mut GeneratedValues<F>,
     ) -> Result<()> {
+        self.gate.check_valid()?;
         let local_wire = |column| Wire {
             row: self.row,
             column,
@@ -539,6 +569,16 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D>
         let gate = CosetInterpolationGate::deserialize(src, _common_data)?;
         Ok(Self::new(row, gate))
     }
+}
+
+fn checked_num_points<F: Field>(subgroup_bits: usize) -> Result<usize> {
+    ensure!(
+        subgroup_bits <= F::TWO_ADICITY,
+        "subgroup bits exceed field two-adicity"
+    );
+    1usize
+        .checked_shl(subgroup_bits.try_into().unwrap_or(usize::BITS))
+        .ok_or_else(|| anyhow!("interpolation subgroup size overflow"))
 }
 
 /// Interpolate the polynomial defined by its values on an arbitrary domain at the given point `x`.
@@ -670,6 +710,7 @@ mod tests {
 
     use super::*;
     use crate::field::goldilocks_field::GoldilocksField;
+    use crate::field::interpolation::barycentric_weights;
     use crate::field::types::Sample;
     use crate::gates::gate_testing::{test_eval_fns, test_low_degree};
     use crate::hash::hash_types::HashOut;

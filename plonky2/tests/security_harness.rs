@@ -4,6 +4,7 @@ use hashbrown::HashMap;
 use plonky2::batch_fri::oracle::BatchFriOracle;
 use plonky2::batch_fri::prover::batch_fri_proof;
 use plonky2::batch_fri::verifier::verify_batch_fri_proof;
+use plonky2::field::interpolation::{try_barycentric_weights, try_interpolant, try_interpolate2};
 use plonky2::field::packable::Packable;
 use plonky2::field::packed::PackedField;
 use plonky2::field::polynomial::{PolynomialCoeffs, PolynomialValues};
@@ -330,6 +331,29 @@ fn interpolation_generator_nonzero_shift_still_proves() -> anyhow::Result<()> {
     let data = add_zero_value_coset_interpolation_circuit(F::ONE);
     let proof = data.prove(PartialWitness::new())?;
     data.verify(proof)
+}
+
+#[test]
+fn malformed_interpolation_inputs_rejected() {
+    let duplicate = vec![(F::ONE, F::ZERO), (F::ONE, F::TWO)];
+    assert!(try_barycentric_weights(&duplicate).is_err());
+    assert!(try_interpolant(&duplicate).is_err());
+    assert!(try_interpolate2([(F::ONE, F::ZERO), (F::ONE, F::TWO)], F::ZERO).is_err());
+
+    let empty: Vec<(F, F)> = Vec::new();
+    assert!(try_barycentric_weights(&empty).is_err());
+    assert!(try_interpolant(&empty).is_err());
+
+    let data = simple_circuit_data();
+    let mut malformed_gate = Vec::new();
+    malformed_gate.write_usize(F::TWO_ADICITY + 1).unwrap();
+    malformed_gate.write_usize(2).unwrap();
+    malformed_gate.write_usize(0).unwrap();
+    let mut buffer = Buffer::new(&malformed_gate);
+    assert!(
+        <CosetInterpolationGate<F, D> as Gate<F, D>>::deserialize(&mut buffer, &data.common)
+            .is_err()
+    );
 }
 
 #[test]
