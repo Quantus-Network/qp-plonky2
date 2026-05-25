@@ -2050,6 +2050,39 @@ fn short_fri_opening_batches_rejected() {
 }
 
 #[test]
+fn commit_phase_cap_count_rejected() {
+    let (params, instance, openings, challenges, initial_merkle_caps, mut extra_cap_proof) =
+        minimal_fri_auxiliary_case();
+    extra_cap_proof
+        .commit_phase_merkle_caps
+        .push(initial_merkle_caps[0].clone());
+
+    assert!(validate_fri_auxiliary_shape::<F, C, D>(
+        &instance,
+        &openings,
+        &challenges,
+        &initial_merkle_caps,
+        &extra_cap_proof,
+        &params,
+    )
+    .is_err());
+
+    let (mut params, instance, openings, challenges, initial_merkle_caps, proof) =
+        minimal_fri_auxiliary_case();
+    params.reduction_arity_bits = vec![1];
+
+    assert!(validate_fri_auxiliary_shape::<F, C, D>(
+        &instance,
+        &openings,
+        &challenges,
+        &initial_merkle_caps,
+        &proof,
+        &params,
+    )
+    .is_err());
+}
+
+#[test]
 fn valid_fri_auxiliary_shapes_pass() {
     let (params, instance, openings, challenges, initial_merkle_caps, proof) =
         minimal_fri_auxiliary_case();
