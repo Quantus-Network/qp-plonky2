@@ -1,10 +1,8 @@
-use alloc::vec::Vec;
 use core::fmt::{self, Debug, Display, Formatter};
 use core::hash::{Hash, Hasher};
 use core::iter::{Product, Sum};
 use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
-use itertools::Itertools;
 use num::bigint::BigUint;
 use num::{Integer, One};
 use serde::{Deserialize, Serialize};
@@ -130,14 +128,12 @@ impl Field for Secp256K1Scalar {
     }
 
     fn from_noncanonical_biguint(val: BigUint) -> Self {
-        Self(
-            val.to_u64_digits()
-                .into_iter()
-                .pad_using(4, |_| 0)
-                .collect::<Vec<_>>()[..]
-                .try_into()
-                .expect("error converting to u64 array"),
-        )
+        let reduced = val.mod_floor(&Self::order());
+        let mut limbs = [0u64; 4];
+        for (dst, limb) in limbs.iter_mut().zip(reduced.to_u64_digits()) {
+            *dst = limb;
+        }
+        Self(limbs)
     }
 
     #[inline]
@@ -277,7 +273,27 @@ impl DivAssign for Secp256K1Scalar {
 
 #[cfg(test)]
 mod tests {
+    use num::bigint::BigUint;
+
+    use super::Secp256K1Scalar;
     use crate::test_field_arithmetic;
+    use crate::types::{Field, PrimeField};
 
     test_field_arithmetic!(crate::secp256k1_scalar::Secp256K1Scalar);
+
+    #[test]
+    fn oversized_biguint_reduces_mod_order() {
+        let order = Secp256K1Scalar::order();
+        let oversized = (&order * BigUint::from(3u32)) + BigUint::from(42u32);
+        let reduced = Secp256K1Scalar::from_noncanonical_biguint(oversized);
+        assert_eq!(reduced.to_canonical_biguint(), BigUint::from(42u32));
+
+        let multiple = Secp256K1Scalar::from_noncanonical_biguint(&order * BigUint::from(2u32));
+        assert_eq!(multiple, Secp256K1Scalar::ZERO);
+
+        let extra_limb = BigUint::from(1u32) << 320usize;
+        let expected = &extra_limb % &order;
+        let reduced_extra = Secp256K1Scalar::from_noncanonical_biguint(extra_limb);
+        assert_eq!(reduced_extra.to_canonical_biguint(), expected);
+    }
 }

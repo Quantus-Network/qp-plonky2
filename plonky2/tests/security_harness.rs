@@ -1,6 +1,7 @@
 use std::panic::{catch_unwind, AssertUnwindSafe};
 
 use hashbrown::HashMap;
+use num::bigint::BigUint;
 use plonky2::batch_fri::oracle::BatchFriOracle;
 use plonky2::batch_fri::prover::batch_fri_proof;
 use plonky2::batch_fri::verifier::verify_batch_fri_proof;
@@ -10,7 +11,9 @@ use plonky2::field::interpolation::{try_barycentric_weights, try_interpolant, tr
 use plonky2::field::packable::Packable;
 use plonky2::field::packed::PackedField;
 use plonky2::field::polynomial::{PolynomialCoeffs, PolynomialValues};
-use plonky2::field::types::Field;
+use plonky2::field::secp256k1_base::Secp256K1Base;
+use plonky2::field::secp256k1_scalar::Secp256K1Scalar;
+use plonky2::field::types::{Field, PrimeField};
 use plonky2::field::zero_poly_coset::ZeroPolyOnCoset;
 use plonky2::fri::proof::{
     FriChallenges, FriFinalPolys, FriFinalPolysTarget, FriInitialTreeProof, FriProof,
@@ -610,6 +613,45 @@ fn power_table_length_mismatch_rejected() {
     assert!(target_poly
         .try_eval_with_powers(&mut builder, &target_powers[..1])
         .is_err());
+}
+
+#[test]
+fn secp256k1_biguint_constructors_reduce_oversized_inputs() {
+    let base_order = Secp256K1Base::order();
+    let base_oversized = (&base_order * BigUint::from(5u32)) + BigUint::from(17u32);
+    let base_result = catch_unwind(AssertUnwindSafe(|| {
+        Secp256K1Base::from_noncanonical_biguint(base_oversized)
+    }));
+    assert!(
+        base_result.is_ok(),
+        "oversized base-field BigUint must not panic"
+    );
+    assert_eq!(
+        base_result.unwrap().to_canonical_biguint(),
+        BigUint::from(17u32)
+    );
+    assert_eq!(
+        Secp256K1Base::from_noncanonical_biguint(&base_order * BigUint::from(2u32)),
+        Secp256K1Base::ZERO
+    );
+
+    let scalar_order = Secp256K1Scalar::order();
+    let scalar_oversized = (&scalar_order * BigUint::from(7u32)) + BigUint::from(29u32);
+    let scalar_result = catch_unwind(AssertUnwindSafe(|| {
+        Secp256K1Scalar::from_noncanonical_biguint(scalar_oversized)
+    }));
+    assert!(
+        scalar_result.is_ok(),
+        "oversized scalar-field BigUint must not panic"
+    );
+    assert_eq!(
+        scalar_result.unwrap().to_canonical_biguint(),
+        BigUint::from(29u32)
+    );
+    assert_eq!(
+        Secp256K1Scalar::from_noncanonical_biguint(&scalar_order * BigUint::from(2u32)),
+        Secp256K1Scalar::ZERO
+    );
 }
 
 #[test]
