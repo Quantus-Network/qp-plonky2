@@ -568,6 +568,51 @@ fn empty_polynomial_fast_path_returns_zero_or_err() {
 }
 
 #[test]
+fn power_table_length_mismatch_rejected() {
+    let poly = PolynomialCoeffs::<F>::new(vec![F::ONE, F::ONE, F::ONE]);
+    let powers = [F::TWO, F::TWO * F::TWO];
+    assert_eq!(
+        poly.try_eval_with_powers(&powers).unwrap(),
+        F::ONE + F::TWO + F::TWO * F::TWO
+    );
+    assert!(poly.try_eval_with_powers(&powers[..1]).is_err());
+    assert!(poly
+        .try_eval_with_powers(&[powers[0], powers[1], powers[1] * F::TWO])
+        .is_err());
+    assert!(catch_unwind(AssertUnwindSafe(|| poly.eval_with_powers(&powers[..1]))).is_err());
+
+    let ext_poly = PolynomialCoeffs::<FF>::new(vec![FF::ONE, FF::ONE, FF::ONE]);
+    assert!(ext_poly
+        .try_eval_base_with_powers::<D>(&powers[..1])
+        .is_err());
+
+    let algebra_poly = PolynomialCoeffsAlgebra::<FF, D>::new(vec![
+        ExtensionAlgebra::<FF, D>::one(),
+        ExtensionAlgebra::<FF, D>::one(),
+        ExtensionAlgebra::<FF, D>::one(),
+    ]);
+    let algebra_powers = [
+        ExtensionAlgebra::<FF, D>::one(),
+        ExtensionAlgebra::<FF, D>::one(),
+    ];
+    assert!(algebra_poly
+        .try_eval_with_powers(&algebra_powers[..1])
+        .is_err());
+    assert!(algebra_poly.try_eval_base_with_powers(&[FF::ONE]).is_err());
+
+    let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+    let one = builder.constant_ext_algebra(ExtensionAlgebra::<FF, D>::one());
+    let target_poly = PolynomialCoeffsExtAlgebraTarget::<D>(vec![one, one, one]);
+    let target_powers = [one, one];
+    assert!(target_poly
+        .try_eval_with_powers(&mut builder, &target_powers)
+        .is_ok());
+    assert!(target_poly
+        .try_eval_with_powers(&mut builder, &target_powers[..1])
+        .is_err());
+}
+
+#[test]
 fn zero_poly_on_coset_rejects_unsupported_domains() {
     assert!(ZeroPolyOnCoset::<F>::try_new(1, F::TWO_ADICITY + 1).is_err());
     assert!(ZeroPolyOnCoset::<F>::try_new(F::TWO_ADICITY, 1).is_err());

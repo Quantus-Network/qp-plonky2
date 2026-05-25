@@ -175,12 +175,18 @@ impl<F: OEF<D>, const D: usize> PolynomialCoeffsAlgebra<F, D> {
             );
             return Ok(ExtensionAlgebra::ZERO);
         }
-        debug_assert_eq!(self.coeffs.len(), powers.len() + 1);
+        let expected_powers = self.coeffs.len() - 1;
+        ensure!(
+            powers.len() == expected_powers,
+            "polynomial power table length mismatch: expected {}, got {}",
+            expected_powers,
+            powers.len()
+        );
         let acc = self.coeffs[0];
         Ok(self.coeffs[1..]
             .iter()
-            .zip(powers)
-            .fold(acc, |acc, (&x, &c)| acc + c * x))
+            .enumerate()
+            .fold(acc, |acc, (i, &c)| acc + c * powers[i]))
     }
 
     /// Evaluate the polynomial at a point given its powers. The first power is the point itself, not 1.
@@ -208,12 +214,18 @@ impl<F: OEF<D>, const D: usize> PolynomialCoeffsAlgebra<F, D> {
             );
             return Ok(ExtensionAlgebra::ZERO);
         }
-        debug_assert_eq!(self.coeffs.len(), powers.len() + 1);
+        let expected_powers = self.coeffs.len() - 1;
+        ensure!(
+            powers.len() == expected_powers,
+            "polynomial power table length mismatch: expected {}, got {}",
+            expected_powers,
+            powers.len()
+        );
         let acc = self.coeffs[0];
         Ok(self.coeffs[1..]
             .iter()
-            .zip(powers)
-            .fold(acc, |acc, (&x, &c)| acc + x.scalar_mul(c)))
+            .enumerate()
+            .fold(acc, |acc, (i, &c)| acc + c.scalar_mul(powers[i])))
     }
 
     /// Evaluate the polynomial at a point given its powers. The first power is the point itself, not 1.

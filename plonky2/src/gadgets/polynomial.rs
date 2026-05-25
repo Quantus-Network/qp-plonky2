@@ -92,12 +92,17 @@ impl<const D: usize> PolynomialCoeffsExtAlgebraTarget<D> {
             );
             return Ok(builder.zero_ext_algebra());
         }
-        debug_assert_eq!(self.0.len(), powers.len() + 1);
+        let expected_powers = self.0.len() - 1;
+        ensure!(
+            powers.len() == expected_powers,
+            "polynomial power table length mismatch: expected {}, got {}",
+            expected_powers,
+            powers.len()
+        );
         let acc = self.0[0];
-        Ok(self.0[1..]
-            .iter()
-            .zip(powers)
-            .fold(acc, |acc, (&x, &c)| builder.mul_add_ext_algebra(c, x, acc)))
+        Ok(self.0[1..].iter().enumerate().fold(acc, |acc, (i, &c)| {
+            builder.mul_add_ext_algebra(c, powers[i], acc)
+        }))
     }
 
     /// Evaluate the polynomial at a point given its powers. The first power is the point itself, not 1.
