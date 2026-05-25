@@ -244,6 +244,10 @@ impl CircuitConfig {
             return Err("num_constants must not be 0 (causes infinite loop in circuit build)");
         }
 
+        if self.fri_config.proof_of_work_bits > 64 {
+            return Err("proof_of_work_bits must be at most 64");
+        }
+
         if let ZkMode::PolyFri(poly_fri) = &self.zk_config.mode {
             poly_fri.check_valid()?;
         }

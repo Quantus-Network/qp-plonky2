@@ -1023,6 +1023,47 @@ fn unchecked_leaf_index_returns_err_not_panic() -> anyhow::Result<()> {
 }
 
 #[test]
+fn leading_zero_underflow_rejected() -> anyhow::Result<()> {
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let all_zero = builder.add_virtual_target();
+    let unconstrained_width = builder.add_virtual_target();
+
+    assert!(builder.try_assert_leading_zeros(all_zero, 65).is_err());
+    assert!(builder.try_assert_leading_zeros(all_zero, 64).is_ok());
+    assert!(builder
+        .try_assert_leading_zeros(unconstrained_width, 0)
+        .is_ok());
+
+    let data = builder.build::<C>();
+    let mut pw = PartialWitness::new();
+    pw.set_target(all_zero, F::ZERO)?;
+    pw.set_target(unconstrained_width, F::from_canonical_u64(42))?;
+    let proof = data.prove(pw)?;
+    data.verify(proof)?;
+
+    let mut invalid_config = CircuitConfig::standard_recursion_config();
+    invalid_config.fri_config.proof_of_work_bits = 65;
+    assert!(invalid_config.check_valid().is_err());
+    assert!(invalid_config
+        .fri_config
+        .required_proof_of_work_leading_zeros::<F>()
+        .is_err());
+
+    let mut valid_config = CircuitConfig::standard_recursion_config();
+    valid_config.fri_config.proof_of_work_bits = 0;
+    let field_padding = u64::BITS as u32 - F::order().bits() as u32;
+    assert_eq!(
+        valid_config
+            .fri_config
+            .required_proof_of_work_leading_zeros::<F>()?,
+        field_padding
+    );
+
+    Ok(())
+}
+
+#[test]
 fn merkle_poseidon_zero_suffix_leaf_collision_rejected() -> anyhow::Result<()> {
     let leaf = vec![
         F::from_canonical_u64(1),

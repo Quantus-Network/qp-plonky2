@@ -275,6 +275,24 @@ impl FriConfig {
         1.0 / ((1 << self.rate_bits) as f64)
     }
 
+    pub fn required_proof_of_work_leading_zeros<F: RichField>(&self) -> anyhow::Result<u32> {
+        let field_bits = F::order().bits();
+        ensure!(
+            field_bits <= u64::BITS as u64,
+            "proof-of-work field order exceeds 64 bits"
+        );
+        let field_padding = u64::BITS as u32 - field_bits as u32;
+        let required = self
+            .proof_of_work_bits
+            .checked_add(field_padding)
+            .ok_or_else(|| anyhow::anyhow!("proof-of-work leading-zero requirement overflowed"))?;
+        ensure!(
+            required <= u64::BITS,
+            "proof-of-work leading-zero requirement exceeds 64 bits"
+        );
+        Ok(required)
+    }
+
     pub fn fri_params(&self, degree_bits: usize, leaf_hiding: bool) -> FriParams {
         let reduction_arity_bits = self.reduction_strategy.reduction_arity_bits(
             degree_bits,

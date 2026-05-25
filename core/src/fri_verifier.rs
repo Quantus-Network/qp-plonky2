@@ -60,9 +60,9 @@ pub fn fri_verify_proof_of_work<F: RichField + Extendable<D>, const D: usize>(
     fri_pow_response: F,
     config: &crate::fri::FriConfig,
 ) -> Result<()> {
+    let required_leading_zeros = config.required_proof_of_work_leading_zeros::<F>()?;
     ensure!(
-        fri_pow_response.to_canonical_u64().leading_zeros()
-            >= config.proof_of_work_bits + (64 - F::order().bits()) as u32,
+        fri_pow_response.to_canonical_u64().leading_zeros() >= required_leading_zeros,
         "Invalid proof of work witness."
     );
 

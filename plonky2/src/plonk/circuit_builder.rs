@@ -251,6 +251,10 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         self.config
             .check_reducing_widths::<D>()
             .expect("Invalid circuit config");
+        self.config
+            .fri_config
+            .required_proof_of_work_leading_zeros::<F>()
+            .expect("Invalid FRI proof-of-work bits");
 
         let &CircuitConfig {
             security_bits,

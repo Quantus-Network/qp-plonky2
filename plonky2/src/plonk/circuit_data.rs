@@ -476,6 +476,10 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
         self.fri_params
             .check_valid()
             .map_err(|_| "invalid FRI params")?;
+        self.config
+            .fri_config
+            .required_proof_of_work_leading_zeros::<F>()
+            .map_err(|_| "invalid FRI proof-of-work bits")?;
 
         // Quotient degree must fit within FRI rate.
         let quotient_degree_bits = log2_ceil(self.quotient_degree_factor);

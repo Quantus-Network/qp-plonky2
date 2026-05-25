@@ -47,8 +47,22 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     }
 
     /// Asserts that `x`'s big-endian bit representation has at least `leading_zeros` leading zeros.
+    pub fn try_assert_leading_zeros(&mut self, x: Target, leading_zeros: u32) -> Result<()> {
+        ensure!(
+            leading_zeros <= u64::BITS,
+            "leading_zeros must be at most 64"
+        );
+        self.range_check(x, (u64::BITS - leading_zeros) as usize);
+        Ok(())
+    }
+
+    /// Asserts that `x`'s big-endian bit representation has at least `leading_zeros` leading zeros.
+    ///
+    /// Panics if `leading_zeros > 64`. Use [`Self::try_assert_leading_zeros`] for untrusted
+    /// widths.
     pub(crate) fn assert_leading_zeros(&mut self, x: Target, leading_zeros: u32) {
-        self.range_check(x, (64 - leading_zeros) as usize);
+        self.try_assert_leading_zeros(x, leading_zeros)
+            .expect("leading_zeros must be at most 64");
     }
 
     /// Takes an iterator of bits `(b_i)` and returns `sum b_i * 2^i`, i.e.,

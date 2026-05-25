@@ -103,10 +103,10 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         fri_pow_response: Target,
         config: &FriConfig,
     ) {
-        self.assert_leading_zeros(
-            fri_pow_response,
-            config.proof_of_work_bits + (64 - F::order().bits()) as u32,
-        );
+        let required_leading_zeros = config
+            .required_proof_of_work_leading_zeros::<F>()
+            .expect("Invalid FRI proof-of-work bits");
+        self.assert_leading_zeros(fri_pow_response, required_leading_zeros);
     }
 
     pub fn verify_fri_proof<C: GenericConfig<D, F = F>>(
