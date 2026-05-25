@@ -1618,6 +1618,33 @@ fn empty_lookup_tables_rejected() {
 }
 
 #[test]
+fn zero_lookup_slot_counts_rejected() -> anyhow::Result<()> {
+    let mut narrow_config = CircuitConfig::standard_recursion_config();
+    narrow_config.num_routed_wires = 2;
+    assert!(narrow_config.check_lookup_widths().is_err());
+    assert!(catch_unwind(AssertUnwindSafe(|| {
+        let _ = CircuitBuilder::<F, D>::new(narrow_config);
+    }))
+    .is_err());
+
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let input = builder.add_virtual_target();
+    let table_index = builder
+        .try_add_lookup_table_from_pairs(std::sync::Arc::new(vec![(0u16, 10u16), (1u16, 11u16)]))
+        .unwrap();
+    let output = builder.add_lookup_from_index(input, table_index);
+    builder.register_public_input(output);
+
+    let data = builder.build::<C>();
+    let mut pw = PartialWitness::new();
+    pw.set_target(input, F::ONE)?;
+    let proof = data.prove(pw)?;
+    assert_eq!(proof.public_inputs, vec![F::from_canonical_u16(11)]);
+    data.verify(proof)
+}
+
+#[test]
 fn merkle_poseidon_zero_suffix_leaf_collision_rejected() -> anyhow::Result<()> {
     let leaf = vec![
         F::from_canonical_u64(1),

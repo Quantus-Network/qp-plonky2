@@ -818,10 +818,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         inputs: &[u16],
     ) -> Result<usize, &'static str> {
         let lut = Arc::new(Self::get_lut_from_fn::<u16>(f, inputs));
-        if lut.is_empty() {
-            return Err("lookup table must not be empty");
-        }
-        Ok(self.insert_lookup_table(lut))
+        self.try_update_luts_from_pairs(lut)
     }
 
     /// Given a function `f: fn(u16) -> u16`, adds a LUT to the circuit builder.
@@ -848,7 +845,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             .zip_eq(table.iter().copied())
             .collect();
         let lut: LookupTable = Arc::new(pairs);
-        Ok(self.insert_lookup_table(lut))
+        self.try_update_luts_from_pairs(lut)
     }
 
     /// Adds a table to the vector of LUTs in the circuit builder, given a list of inputs and table values.
@@ -862,6 +859,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         &mut self,
         table: LookupTable,
     ) -> Result<usize, &'static str> {
+        self.config.check_lookup_widths()?;
         if table.is_empty() {
             return Err("lookup table must not be empty");
         }
