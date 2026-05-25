@@ -32,3 +32,4 @@ finding	severity	class	commit	status	notes
 64707	Medium	untrusted-artifact-validation	4932fe0eb	fixed	Malformed compressed proofs panic instead of returning errors
 64708	Medium	merkle-hash-binding	86bb5cd5d	test-only-covered	Short Merkle leaves are not uniquely committed; root fixed by c5f8b727a
 64709	Medium	merkle-hash-binding	a1bf921e8	fixed	Poseidon2 recursive Merkle hashing ignores branch direction
+64710	Medium	merkle-hash-binding	23787a213	fixed	Generic circuit hashing does not implement Poseidon2 semantics
