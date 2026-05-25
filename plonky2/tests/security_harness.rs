@@ -418,6 +418,23 @@ fn verifier_cap_height_mismatch_returns_err() -> anyhow::Result<()> {
 }
 
 #[test]
+fn malformed_merkle_caps_rejected() {
+    let digest = PoseidonHash::hash_merkle_leaf(&[F::ZERO]);
+    let empty = MerkleCap::<F, PoseidonHash>(vec![]);
+    let wrong_height = MerkleCap::<F, PoseidonHash>(vec![digest]);
+    let non_power_of_two = MerkleCap::<F, PoseidonHash>(vec![digest, digest, digest]);
+    let valid = MerkleCap::<F, PoseidonHash>(vec![digest, digest]);
+
+    assert!(qp_plonky2_core::validate_merkle_cap_height(&empty, 0, "test cap").is_err());
+    assert!(qp_plonky2_core::validate_merkle_cap_height(&wrong_height, 1, "test cap").is_err());
+    assert!(
+        qp_plonky2_core::validate_merkle_cap_power_of_two(&non_power_of_two, "test cap").is_err()
+    );
+    qp_plonky2_core::validate_merkle_cap_height(&valid, 1, "test cap").unwrap();
+    qp_plonky2_core::validate_merkle_cap_power_of_two(&valid, "test cap").unwrap();
+}
+
+#[test]
 fn malformed_fft_root_table_rejected() {
     let mut data = simple_circuit_data();
     data.prover_only.fft_root_table = Some(vec![vec![F::ONE]]);
