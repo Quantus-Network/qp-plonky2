@@ -20,3 +20,4 @@ finding	severity	class	commit	status	notes
 64656	Medium	untrusted-artifact-validation	5f2123e09	fixed	Forged lookup rows trigger panics
 64663	Medium	runtime-dos-preconditions	bc93cacce	test-only-covered	Invalid widths trigger reduction panic; root fixed by 06041ed09
 64671	Medium	untrusted-artifact-validation	492b97332	fixed	Zero-slot generator divide-by-zero
+64677	Medium	runtime-dos-preconditions	4d7c909a2	fixed	Malformed inputs trigger panics
