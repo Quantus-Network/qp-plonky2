@@ -1586,6 +1586,38 @@ fn lookup_deserializers_reject_unvalidated_indices() -> anyhow::Result<()> {
 }
 
 #[test]
+fn empty_lookup_tables_rejected() {
+    fn identity_u16(x: u16) -> u16 {
+        x
+    }
+
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+
+    assert!(builder
+        .try_add_lookup_table_from_pairs(std::sync::Arc::new(vec![]))
+        .is_err());
+    assert!(builder.try_add_lookup_table_from_table(&[], &[]).is_err());
+    assert!(builder
+        .try_add_lookup_table_from_fn(identity_u16, &[])
+        .is_err());
+
+    let table_index = builder
+        .try_add_lookup_table_from_pairs(std::sync::Arc::new(vec![(0u16, 1u16)]))
+        .unwrap();
+    assert_eq!(table_index, 0);
+
+    let data = simple_circuit_data();
+    let serializer = DefaultGateSerializer;
+    let mut common = data.common.clone();
+    common.luts = vec![std::sync::Arc::new(vec![])];
+
+    assert!(common.check_valid().is_err());
+    let bytes = common.to_bytes(&serializer).unwrap();
+    assert!(CommonCircuitData::<F, D>::from_bytes(bytes, &serializer).is_err());
+}
+
+#[test]
 fn merkle_poseidon_zero_suffix_leaf_collision_rejected() -> anyhow::Result<()> {
     let leaf = vec![
         F::from_canonical_u64(1),

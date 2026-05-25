@@ -47,19 +47,48 @@ pub const OTHER_TABLE: [u16; 256] = [
 pub const SMALLER_TABLE: [u16; 8] = [2, 24, 56, 100, 128, 16, 20, 49];
 
 impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
+    /// Fallible version of [`Self::add_lookup_table_from_pairs`] for untrusted table inputs.
+    pub fn try_add_lookup_table_from_pairs(
+        &mut self,
+        table: LookupTable,
+    ) -> Result<usize, &'static str> {
+        self.try_update_luts_from_pairs(table)
+    }
+
     /// Adds a lookup table to the list of stored lookup tables `self.luts` based on a table of (input, output) pairs. It returns the index of the LUT within `self.luts`.
     pub fn add_lookup_table_from_pairs(&mut self, table: LookupTable) -> usize {
-        self.update_luts_from_pairs(table)
+        self.try_add_lookup_table_from_pairs(table)
+            .expect("lookup table must not be empty")
+    }
+
+    /// Fallible version of [`Self::add_lookup_table_from_table`] for untrusted table inputs.
+    pub fn try_add_lookup_table_from_table(
+        &mut self,
+        inps: &[u16],
+        outs: &[u16],
+    ) -> Result<usize, &'static str> {
+        self.try_update_luts_from_table(inps, outs)
     }
 
     /// Adds a lookup table to the list of stored lookup tables `self.luts` based on a table, represented as a slice `&[u16]` of inputs and a slice `&[u16]` of outputs. It returns the index of the LUT within `self.luts`.
     pub fn add_lookup_table_from_table(&mut self, inps: &[u16], outs: &[u16]) -> usize {
-        self.update_luts_from_table(inps, outs)
+        self.try_add_lookup_table_from_table(inps, outs)
+            .expect("lookup table inputs and outputs must be non-empty and equally long")
+    }
+
+    /// Fallible version of [`Self::add_lookup_table_from_fn`] for untrusted table inputs.
+    pub fn try_add_lookup_table_from_fn(
+        &mut self,
+        f: fn(u16) -> u16,
+        inputs: &[u16],
+    ) -> Result<usize, &'static str> {
+        self.try_update_luts_from_fn(f, inputs)
     }
 
     /// Adds a lookup table to the list of stored lookup tables `self.luts` based on a function. It returns the index of the LUT within `self.luts`.
     pub fn add_lookup_table_from_fn(&mut self, f: fn(u16) -> u16, inputs: &[u16]) -> usize {
-        self.update_luts_from_fn(f, inputs)
+        self.try_add_lookup_table_from_fn(f, inputs)
+            .expect("lookup table must not be empty")
     }
 
     /// Adds a lookup (input, output) pair to the stored lookups. Takes a `Target` input and returns a `Target` output.

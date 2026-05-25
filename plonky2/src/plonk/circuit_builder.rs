@@ -800,11 +800,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         inputs.iter().map(|&input| (input, f(input))).collect()
     }
 
-    /// Given a function `f: fn(u16) -> u16`, adds a LUT to the circuit builder.
-    pub fn update_luts_from_fn(&mut self, f: fn(u16) -> u16, inputs: &[u16]) -> usize {
-        let lut = Arc::new(Self::get_lut_from_fn::<u16>(f, inputs));
-
-        // If the LUT `lut` is already stored in `self.luts`, return its index. Otherwise, append `table` to `self.luts` and return its index.
+    fn insert_lookup_table(&mut self, lut: LookupTable) -> usize {
         if let Some(idx) = self.is_stored(lut.clone()) {
             idx
         } else {
@@ -815,43 +811,67 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         }
     }
 
-    /// Adds a table to the vector of LUTs in the circuit builder, given a list of inputs and table values.
-    pub fn update_luts_from_table(&mut self, inputs: &[u16], table: &[u16]) -> usize {
-        assert!(
-            inputs.len() == table.len(),
-            "Inputs and table have incompatible lengths: {} and {}",
-            inputs.len(),
-            table.len()
-        );
+    /// Fallible version of [`Self::update_luts_from_fn`] for untrusted table inputs.
+    pub fn try_update_luts_from_fn(
+        &mut self,
+        f: fn(u16) -> u16,
+        inputs: &[u16],
+    ) -> Result<usize, &'static str> {
+        let lut = Arc::new(Self::get_lut_from_fn::<u16>(f, inputs));
+        if lut.is_empty() {
+            return Err("lookup table must not be empty");
+        }
+        Ok(self.insert_lookup_table(lut))
+    }
+
+    /// Given a function `f: fn(u16) -> u16`, adds a LUT to the circuit builder.
+    pub fn update_luts_from_fn(&mut self, f: fn(u16) -> u16, inputs: &[u16]) -> usize {
+        self.try_update_luts_from_fn(f, inputs)
+            .expect("lookup table must not be empty")
+    }
+
+    /// Fallible version of [`Self::update_luts_from_table`] for untrusted table inputs.
+    pub fn try_update_luts_from_table(
+        &mut self,
+        inputs: &[u16],
+        table: &[u16],
+    ) -> Result<usize, &'static str> {
+        if inputs.len() != table.len() {
+            return Err("lookup table inputs and outputs must have equal lengths");
+        }
+        if inputs.is_empty() {
+            return Err("lookup table must not be empty");
+        }
         let pairs = inputs
             .iter()
             .copied()
             .zip_eq(table.iter().copied())
             .collect();
         let lut: LookupTable = Arc::new(pairs);
+        Ok(self.insert_lookup_table(lut))
+    }
 
-        // If the LUT `lut` is already stored in `self.luts`, return its index. Otherwise, append `table` to `self.luts` and return its index.
-        if let Some(idx) = self.is_stored(lut.clone()) {
-            idx
-        } else {
-            self.luts.push(lut);
-            self.lut_to_lookups.push(vec![]);
-            assert!(self.luts.len() == self.lut_to_lookups.len());
-            self.luts.len() - 1
+    /// Adds a table to the vector of LUTs in the circuit builder, given a list of inputs and table values.
+    pub fn update_luts_from_table(&mut self, inputs: &[u16], table: &[u16]) -> usize {
+        self.try_update_luts_from_table(inputs, table)
+            .expect("lookup table inputs and outputs must be non-empty and equally long")
+    }
+
+    /// Fallible version of [`Self::update_luts_from_pairs`] for untrusted table inputs.
+    pub fn try_update_luts_from_pairs(
+        &mut self,
+        table: LookupTable,
+    ) -> Result<usize, &'static str> {
+        if table.is_empty() {
+            return Err("lookup table must not be empty");
         }
+        Ok(self.insert_lookup_table(table))
     }
 
     /// Adds a table to the vector of LUTs in the circuit builder.
     pub fn update_luts_from_pairs(&mut self, table: LookupTable) -> usize {
-        // If the LUT `table` is already stored in `self.luts`, return its index. Otherwise, append `table` to `self.luts` and return its index.
-        if let Some(idx) = self.is_stored(table.clone()) {
-            idx
-        } else {
-            self.luts.push(table);
-            self.lut_to_lookups.push(vec![]);
-            assert!(self.luts.len() == self.lut_to_lookups.len());
-            self.luts.len() - 1
-        }
+        self.try_update_luts_from_pairs(table)
+            .expect("lookup table must not be empty")
     }
 
     /// Find an available slot, of the form `(row, op)` for gate `G` using parameters `params`
