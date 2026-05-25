@@ -26,9 +26,29 @@ pub struct PolynomialValues<F: Field> {
 
 impl<F: Field> PolynomialValues<F> {
     pub fn new(values: Vec<F>) -> Self {
-        // Check that a subgroup exists of this size, which should be a power of two.
-        debug_assert!(log2_strict(values.len()) <= F::TWO_ADICITY);
-        PolynomialValues { values }
+        Self::try_new(values).expect("invalid polynomial evaluation domain")
+    }
+
+    pub fn try_new(values: Vec<F>) -> Result<Self> {
+        Self::check_domain_len(values.len())?;
+        Ok(PolynomialValues { values })
+    }
+
+    pub fn check_valid(&self) -> Result<()> {
+        Self::check_domain_len(self.values.len())
+    }
+
+    fn check_domain_len(len: usize) -> Result<()> {
+        ensure!(len > 0, "polynomial evaluation domain is empty");
+        ensure!(
+            len.is_power_of_two(),
+            "polynomial evaluation domain length is not a power of two"
+        );
+        ensure!(
+            log2_strict(len) <= F::TWO_ADICITY,
+            "polynomial evaluation domain exceeds field two-adicity"
+        );
+        Ok(())
     }
 
     pub fn constant(value: F, len: usize) -> Self {
@@ -472,6 +492,20 @@ mod tests {
                 coeffs: vec![F::ONE, F::TWO]
             }
         );
+    }
+
+    #[test]
+    fn polynomial_values_reject_malformed_domains() {
+        type F = GoldilocksField;
+
+        assert!(PolynomialValues::<F>::try_new(vec![]).is_err());
+        assert!(PolynomialValues::<F>::try_new(vec![F::ZERO; 3]).is_err());
+        assert!(PolynomialValues::<F>::try_new(vec![F::ZERO; 4]).is_ok());
+
+        let malformed = PolynomialValues::<F> {
+            values: vec![F::ZERO; 3],
+        };
+        assert!(malformed.check_valid().is_err());
     }
 
     #[test]

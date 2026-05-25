@@ -467,6 +467,39 @@ fn zero_poly_on_coset_valid_domain_works() {
 }
 
 #[test]
+fn malformed_domains_rejected_before_fft() {
+    assert!(PolynomialValues::<F>::try_new(vec![]).is_err());
+    assert!(PolynomialValues::<F>::try_new(vec![F::ZERO; 3]).is_err());
+
+    let mut timing = TimingTree::default();
+    let malformed = PolynomialValues::<F> {
+        values: vec![F::ZERO; 3],
+    };
+    assert!(
+        plonky2::fri::oracle::PolynomialBatch::<F, C, D>::try_from_values(
+            vec![malformed.clone()],
+            1,
+            false,
+            0,
+            &mut timing,
+            None,
+        )
+        .is_err()
+    );
+    assert!(BatchFriOracle::<F, C, D>::try_from_values(
+        vec![malformed],
+        1,
+        false,
+        0,
+        &mut timing,
+        &[None],
+    )
+    .is_err());
+
+    assert!(PolynomialValues::<F>::try_new(vec![F::ZERO; 4]).is_ok());
+}
+
+#[test]
 fn subgroup_size_validation_rejects_invalid_sizes() {
     assert!(try_get_unique_coset_shifts::<F>(0, 1).is_err());
     if usize::BITS > 32 {

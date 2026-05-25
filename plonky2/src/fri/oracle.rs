@@ -1,6 +1,7 @@
 #[cfg(not(feature = "std"))]
 use alloc::{format, vec, vec::Vec};
 
+use anyhow::{ensure, Result};
 use hashbrown::HashMap;
 use itertools::Itertools;
 use plonky2_field::types::Field;
@@ -333,20 +334,44 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         timing: &mut TimingTree,
         fft_root_table: Option<&FftRootTable<F>>,
     ) -> Self {
-        let coeffs = timed!(
-            timing,
-            "IFFT",
-            values.into_par_iter().map(|v| v.ifft()).collect::<Vec<_>>()
-        );
-
-        Self::from_coeffs(
-            coeffs,
+        Self::try_from_values(
+            values,
             rate_bits,
             blinding,
             cap_height,
             timing,
             fft_root_table,
         )
+        .expect("invalid polynomial values")
+    }
+
+    /// Fallible variant of [`Self::from_values`] for values supplied across a trust boundary.
+    pub fn try_from_values(
+        values: Vec<PolynomialValues<F>>,
+        rate_bits: usize,
+        blinding: bool,
+        cap_height: usize,
+        timing: &mut TimingTree,
+        fft_root_table: Option<&FftRootTable<F>>,
+    ) -> Result<Self> {
+        ensure!(!values.is_empty(), "polynomial value batch is empty");
+        for values in &values {
+            values.check_valid()?;
+        }
+        let coeffs = timed!(
+            timing,
+            "IFFT",
+            values.into_par_iter().map(|v| v.ifft()).collect::<Vec<_>>()
+        );
+
+        Ok(Self::from_coeffs(
+            coeffs,
+            rate_bits,
+            blinding,
+            cap_height,
+            timing,
+            fft_root_table,
+        ))
     }
 
     /// Creates a list polynomial commitment for the polynomials `polynomials`.
