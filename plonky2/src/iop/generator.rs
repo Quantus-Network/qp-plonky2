@@ -44,6 +44,8 @@ pub fn generate_partial_witness<
     );
 
     for (t, v) in inputs.target_values.into_iter() {
+        validate_target(common_data, t)
+            .map_err(|_| anyhow!("witness target {:?} is outside the circuit domain", t))?;
         witness.set_target(t, v)?;
     }
 
@@ -76,6 +78,12 @@ pub fn generate_partial_witness<
             // targets' representatives.
             let mut new_target_reps = Vec::with_capacity(buffer.target_values.len());
             for (t, v) in buffer.target_values.drain(..) {
+                validate_target(common_data, t).map_err(|_| {
+                    anyhow!(
+                        "generated witness target {:?} is outside the circuit domain",
+                        t
+                    )
+                })?;
                 let reps = witness.set_target_returning_rep(t, v)?;
                 new_target_reps.extend(reps);
             }

@@ -512,6 +512,18 @@ fn generator_deserialization_bounds_rejected() {
 }
 
 #[test]
+fn unvalidated_witness_targets_return_err() {
+    let data = simple_circuit_data();
+    let mut pw = PartialWitness::new();
+    pw.set_target(Target::wire(data.common.degree(), 0), F::ONE)
+        .unwrap();
+
+    let result = catch_unwind(AssertUnwindSafe(|| data.prove(pw)));
+    assert!(result.is_ok(), "invalid witness target must not panic");
+    assert!(result.unwrap().is_err());
+}
+
+#[test]
 fn zero_poly_on_coset_rejects_unsupported_domains() {
     assert!(ZeroPolyOnCoset::<F>::try_new(1, F::TWO_ADICITY + 1).is_err());
     assert!(ZeroPolyOnCoset::<F>::try_new(F::TWO_ADICITY, 1).is_err());
