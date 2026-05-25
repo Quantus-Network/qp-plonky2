@@ -45,3 +45,4 @@ finding	severity	class	commit	status	notes
 64721	Medium	gadget-constraint-soundness	1a64dad7b	fixed	Power-table length mismatches silently truncate polynomial evaluation
 64722	Medium	runtime-dos-preconditions	3dbfa152f	fixed	secp256k1 field bigint constructors panic on oversized inputs
 64725	Medium	merkle-hash-binding	783cb705a	test-only-covered	Merkle leaf commitments already length-bound by c5f8b727a
+64726	Medium	untrusted-artifact-validation	0d3afd726	fixed	Unvalidated prover-data deserialization causes witness-generation panics
