@@ -3,3 +3,4 @@ finding	severity	class	commit	status	notes
 64576	Medium	untrusted-artifact-validation	5d3b6c17b	fixed	Malformed metadata causes panics
 64578	Medium	fri-plonk-soundness	674e6396e	fixed	PolyFri parameters are ignored
 64579	Medium	runtime-dos-preconditions	2093f2022	fixed	Empty inputs trigger prover panic
+64587	Medium	untrusted-artifact-validation	2976f3fa1	fixed	Forged proving key crashes prover
