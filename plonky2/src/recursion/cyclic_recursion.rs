@@ -3,7 +3,7 @@
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
 
-use anyhow::{ensure, Result};
+use anyhow::{anyhow, ensure, Result};
 
 use crate::field::extension::Extendable;
 use crate::hash::hash_types::{HashOut, HashOutTarget, MerkleCapTarget, RichField};
@@ -23,18 +23,20 @@ impl<C: GenericConfig<D>, const D: usize> VerifierOnlyCircuitData<C, D> {
         C::Hasher: AlgebraicHasher<C::F>,
     {
         // The structure of the public inputs is `[..., circuit_digest, constants_sigmas_cap]`.
-        let cap_len = common_data.config.fri_config.num_cap_elements();
+        let (cap_len, verifier_data_len) =
+            checked_verifier_data_public_input_len(common_data.config.fri_config.cap_height)?;
         let len = slice.len();
-        ensure!(len >= 4 + 4 * cap_len, "Not enough public inputs");
+        ensure!(len >= verifier_data_len, "Not enough public inputs");
+        let verifier_data_start = len - verifier_data_len;
+        let cap_start = verifier_data_start + 4;
         let constants_sigmas_cap = MerkleCap(
             (0..cap_len)
                 .map(|i| HashOut {
-                    elements: core::array::from_fn(|j| slice[len - 4 * (cap_len - i) + j]),
+                    elements: core::array::from_fn(|j| slice[cap_start + 4 * i + j]),
                 })
                 .collect(),
         );
-        let circuit_digest =
-            HashOut::from_partial(&slice[len - 4 - 4 * cap_len..len - 4 * cap_len]);
+        let circuit_digest = HashOut::from_partial(&slice[verifier_data_start..cap_start]);
 
         Ok(Self {
             circuit_digest,
@@ -65,18 +67,21 @@ impl VerifierCircuitTarget {
         slice: &[Target],
         common_data: &CommonCircuitData<F, D>,
     ) -> Result<Self> {
-        let cap_len = common_data.config.fri_config.num_cap_elements();
+        let (cap_len, verifier_data_len) =
+            checked_verifier_data_public_input_len(common_data.config.fri_config.cap_height)?;
         let len = slice.len();
-        ensure!(len >= 4 + 4 * cap_len, "Not enough public inputs");
+        ensure!(len >= verifier_data_len, "Not enough public inputs");
+        let verifier_data_start = len - verifier_data_len;
+        let cap_start = verifier_data_start + 4;
         let constants_sigmas_cap = MerkleCapTarget(
             (0..cap_len)
                 .map(|i| HashOutTarget {
-                    elements: core::array::from_fn(|j| slice[len - 4 * (cap_len - i) + j]),
+                    elements: core::array::from_fn(|j| slice[cap_start + 4 * i + j]),
                 })
                 .collect(),
         );
         let circuit_digest = HashOutTarget {
-            elements: core::array::from_fn(|i| slice[len - 4 - 4 * cap_len + i]),
+            elements: core::array::from_fn(|i| slice[verifier_data_start + i]),
         };
 
         Ok(Self {
@@ -84,6 +89,23 @@ impl VerifierCircuitTarget {
             constants_sigmas_cap,
         })
     }
+}
+
+fn checked_verifier_data_public_input_len(cap_height: usize) -> Result<(usize, usize)> {
+    ensure!(
+        cap_height < usize::BITS as usize,
+        "FRI cap height exceeds usize capacity"
+    );
+    let cap_len = 1usize
+        .checked_shl(cap_height as u32)
+        .ok_or_else(|| anyhow!("FRI cap length overflow"))?;
+    let cap_public_inputs = cap_len
+        .checked_mul(4)
+        .ok_or_else(|| anyhow!("cyclic verifier cap public-input length overflow"))?;
+    let verifier_data_len = 4usize
+        .checked_add(cap_public_inputs)
+        .ok_or_else(|| anyhow!("cyclic verifier public-input length overflow"))?;
+    Ok((cap_len, verifier_data_len))
 }
 
 impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {

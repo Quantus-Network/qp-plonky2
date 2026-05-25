@@ -5,7 +5,7 @@ use alloc::{
     vec::Vec,
 };
 
-use anyhow::Result;
+use anyhow::{anyhow, ensure, Result};
 use hashbrown::HashMap;
 use plonky2_field::extension::Extendable;
 use plonky2_field::polynomial::PolynomialCoeffs;
@@ -39,7 +39,7 @@ use crate::util::serialization::{Buffer, DefaultGateSerializer, IoResult, Read, 
 pub fn cyclic_base_proof<F, C, const D: usize>(
     common_data: &CommonCircuitData<F, D>,
     verifier_data: &VerifierOnlyCircuitData<C, D>,
-    mut nonzero_public_inputs: HashMap<usize, F>,
+    nonzero_public_inputs: HashMap<usize, F>,
 ) -> ProofWithPublicInputs<F, C, D>
 where
     F: RichField + Extendable<D>,
@@ -47,9 +47,27 @@ where
     C::Hasher: AlgebraicHasher<C::F>,
     C::InnerHasher: AlgebraicHasher<F>,
 {
-    let pis_len = common_data.num_public_inputs;
-    let cap_elements = common_data.config.fri_config.num_cap_elements();
-    let start_vk_pis = pis_len - 4 - 4 * cap_elements;
+    try_cyclic_base_proof(common_data, verifier_data, nonzero_public_inputs)
+        .expect("invalid cyclic recursion metadata")
+}
+
+/// Fallible variant of [`cyclic_base_proof`] for untrusted or deserialized recursion metadata.
+pub fn try_cyclic_base_proof<F, C, const D: usize>(
+    common_data: &CommonCircuitData<F, D>,
+    verifier_data: &VerifierOnlyCircuitData<C, D>,
+    mut nonzero_public_inputs: HashMap<usize, F>,
+) -> Result<ProofWithPublicInputs<F, C, D>>
+where
+    F: RichField + Extendable<D>,
+    C: GenericConfig<D, F = F>,
+    C::Hasher: AlgebraicHasher<C::F>,
+    C::InnerHasher: AlgebraicHasher<F>,
+{
+    let (start_vk_pis, cap_elements) = cyclic_verifier_public_input_layout(common_data)?;
+    ensure!(
+        verifier_data.constants_sigmas_cap.0.len() == cap_elements,
+        "verifier cap length does not match cyclic metadata"
+    );
 
     // Add the cyclic verifier data public inputs.
     nonzero_public_inputs.extend((start_vk_pis..).zip(verifier_data.circuit_digest.elements));
@@ -61,11 +79,8 @@ where
 
     // TODO: A bit wasteful to build a dummy circuit here. We could potentially use a proof that
     // just consists of zeros, apart from public inputs.
-    dummy_proof::<F, C, D>(
-        &dummy_circuit::<F, C, D>(common_data),
-        nonzero_public_inputs,
-    )
-    .unwrap()
+    let dummy = try_dummy_circuit::<F, C, D>(common_data)?;
+    dummy_proof::<F, C, D>(&dummy, nonzero_public_inputs)
 }
 
 /// Generate a proof for a dummy circuit. The `public_inputs` parameter let the caller specify
@@ -92,12 +107,31 @@ pub fn dummy_circuit<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, c
 where
     C::InnerHasher: crate::plonk::config::AlgebraicHasher<F>,
 {
+    try_dummy_circuit::<F, C, D>(common_data).expect("invalid dummy circuit metadata")
+}
+
+/// Fallible variant of [`dummy_circuit`] for untrusted or deserialized recursion metadata.
+pub fn try_dummy_circuit<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>(
+    common_data: &CommonCircuitData<F, D>,
+) -> Result<CircuitData<F, C, D>>
+where
+    C::InnerHasher: crate::plonk::config::AlgebraicHasher<F>,
+{
+    common_data
+        .check_valid()
+        .map_err(|err| anyhow!("invalid common circuit data: {err}"))?;
     let config = common_data.config.clone();
 
     // Number of `NoopGate`s to add to get a circuit of size `degree` in the end.
     // Need to account for public input hashing, a `PublicInputGate` and a `ConstantGate`.
-    let degree = common_data.degree();
-    let num_noop_gate = degree - common_data.num_public_inputs.div_ceil(8) - 2;
+    let degree = checked_trace_degree(common_data)?;
+    let public_input_gate_count = common_data.num_public_inputs.div_ceil(8);
+    let non_noop_gate_count = public_input_gate_count
+        .checked_add(2)
+        .ok_or_else(|| anyhow!("dummy circuit gate count overflow"))?;
+    let num_noop_gate = degree
+        .checked_sub(non_noop_gate_count)
+        .ok_or_else(|| anyhow!("dummy circuit degree is too small for public-input metadata"))?;
 
     let mut builder = CircuitBuilder::<F, D>::new(config);
     for _ in 0..num_noop_gate {
@@ -111,8 +145,50 @@ where
     }
 
     let circuit = builder.build::<C>();
-    assert_eq!(&circuit.common, common_data);
-    circuit
+    ensure!(
+        &circuit.common == common_data,
+        "dummy circuit metadata did not round-trip"
+    );
+    Ok(circuit)
+}
+
+fn checked_trace_degree<F: RichField + Extendable<D>, const D: usize>(
+    common_data: &CommonCircuitData<F, D>,
+) -> Result<usize> {
+    ensure!(
+        common_data.trace_degree_bits < usize::BITS as usize,
+        "trace degree bits exceed usize capacity"
+    );
+    1usize
+        .checked_shl(common_data.trace_degree_bits as u32)
+        .ok_or_else(|| anyhow!("trace degree overflow"))
+}
+
+fn checked_cap_elements(cap_height: usize) -> Result<usize> {
+    ensure!(
+        cap_height < usize::BITS as usize,
+        "FRI cap height exceeds usize capacity"
+    );
+    1usize
+        .checked_shl(cap_height as u32)
+        .ok_or_else(|| anyhow!("FRI cap length overflow"))
+}
+
+fn cyclic_verifier_public_input_layout<F: RichField + Extendable<D>, const D: usize>(
+    common_data: &CommonCircuitData<F, D>,
+) -> Result<(usize, usize)> {
+    let cap_elements = checked_cap_elements(common_data.config.fri_config.cap_height)?;
+    let cap_public_inputs = cap_elements
+        .checked_mul(4)
+        .ok_or_else(|| anyhow!("cyclic verifier cap public-input length overflow"))?;
+    let verifier_data_inputs = 4usize
+        .checked_add(cap_public_inputs)
+        .ok_or_else(|| anyhow!("cyclic verifier public-input length overflow"))?;
+    let start = common_data
+        .num_public_inputs
+        .checked_sub(verifier_data_inputs)
+        .ok_or_else(|| anyhow!("not enough public inputs for cyclic verifier data"))?;
+    Ok((start, cap_elements))
 }
 
 impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
@@ -124,7 +200,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         C::Hasher: AlgebraicHasher<F>,
         C::InnerHasher: AlgebraicHasher<F>,
     {
-        let dummy_circuit = dummy_circuit::<F, C, D>(common_data);
+        let dummy_circuit = try_dummy_circuit::<F, C, D>(common_data)?;
         let dummy_proof_with_pis = dummy_proof::<F, C, D>(&dummy_circuit, HashMap::new())?;
         let dummy_proof_with_pis_target = self.add_virtual_proof_with_pis(common_data);
         let dummy_verifier_data_target =
@@ -148,7 +224,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         C::Hasher: AlgebraicHasher<F>,
         C::InnerHasher: AlgebraicHasher<F>,
     {
-        let dummy_circuit = dummy_circuit::<F, C, D>(common_data);
+        let dummy_circuit = try_dummy_circuit::<F, C, D>(common_data)?;
         let dummy_proof_with_pis_target = self.add_virtual_proof_with_pis(common_data);
         let dummy_verifier_data_target = self.constant_verifier_data(&dummy_circuit.verifier_only);
 

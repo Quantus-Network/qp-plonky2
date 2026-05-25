@@ -1,5 +1,6 @@
 use std::panic::{catch_unwind, AssertUnwindSafe};
 
+use hashbrown::HashMap;
 use plonky2::batch_fri::oracle::BatchFriOracle;
 use plonky2::batch_fri::prover::batch_fri_proof;
 use plonky2::batch_fri::verifier::verify_batch_fri_proof;
@@ -40,6 +41,8 @@ use plonky2::plonk::circuit_data::{CircuitConfig, CommonCircuitData, ProverOnlyC
 use plonky2::plonk::config::{GenericConfig, Hasher, PoseidonGoldilocksConfig};
 use plonky2::plonk::prover::prove;
 use plonky2::plonk::vars::{EvaluationTargets, EvaluationVars};
+use plonky2::recursion::cyclic_recursion::check_cyclic_proof_verifier_data;
+use plonky2::recursion::dummy_circuit::{try_cyclic_base_proof, try_dummy_circuit};
 use plonky2::util::serialization::{
     Buffer, DefaultGateSerializer, DefaultGeneratorSerializer, IoResult, Write,
 };
@@ -777,6 +780,54 @@ fn forged_proving_key_crashes_rejected() -> anyhow::Result<()> {
         poly_fri.wire_mask_degree = usize::MAX;
     }
     assert!(extreme_common.check_valid().is_err());
+
+    Ok(())
+}
+
+#[test]
+fn unchecked_metadata_arithmetic_rejected() -> anyhow::Result<()> {
+    let config = CircuitConfig::standard_recursion_config();
+
+    let mut public_input_builder = CircuitBuilder::<F, D>::new(config.clone());
+    for _ in 0..80 {
+        public_input_builder.add_virtual_public_input();
+    }
+    let public_input_data = public_input_builder.build::<C>();
+    let mut tiny_degree_common = public_input_data.common.clone();
+    tiny_degree_common.trace_degree_bits = 1;
+
+    let dummy_result = catch_unwind(AssertUnwindSafe(|| {
+        try_dummy_circuit::<F, C, D>(&tiny_degree_common)
+    }));
+    assert!(
+        dummy_result.is_ok(),
+        "malformed dummy metadata must not panic"
+    );
+    assert!(dummy_result.unwrap().is_err());
+
+    let no_pi_data = CircuitBuilder::<F, D>::new(config).build::<C>();
+    let base_result = catch_unwind(AssertUnwindSafe(|| {
+        try_cyclic_base_proof::<F, C, D>(
+            &no_pi_data.common,
+            &no_pi_data.verifier_only,
+            HashMap::new(),
+        )
+    }));
+    assert!(
+        base_result.is_ok(),
+        "malformed cyclic base-proof metadata must not panic"
+    );
+    assert!(base_result.unwrap().is_err());
+
+    let proof = no_pi_data.prove(PartialWitness::new())?;
+    let cyclic_check = catch_unwind(AssertUnwindSafe(|| {
+        check_cyclic_proof_verifier_data(&proof, &no_pi_data.verifier_only, &no_pi_data.common)
+    }));
+    assert!(
+        cyclic_check.is_ok(),
+        "short cyclic proof public inputs must not panic"
+    );
+    assert!(cyclic_check.unwrap().is_err());
 
     Ok(())
 }
