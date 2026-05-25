@@ -56,7 +56,7 @@ use plonky2::iop::target::Target;
 use plonky2::iop::witness::{PartialWitness, Witness, WitnessWrite};
 use plonky2::plonk::circuit_builder::CircuitBuilder;
 use plonky2::plonk::circuit_data::{
-    CircuitConfig, CommonCircuitData, ProverOnlyCircuitData, VerifierCircuitTarget,
+    CircuitConfig, CircuitData, CommonCircuitData, ProverOnlyCircuitData, VerifierCircuitTarget,
 };
 use plonky2::plonk::config::{AlgebraicHasher, GenericConfig, Hasher, PoseidonGoldilocksConfig};
 use plonky2::plonk::plonk_common::PlonkOracle;
@@ -473,6 +473,80 @@ fn valid_fft_root_table_roundtrip_recomputes() {
         ProverOnlyCircuitData::<F, C, D>::from_bytes(&bytes, &serializer, &data.common).unwrap();
 
     assert!(decoded.fft_root_table.is_some());
+}
+
+fn prover_data_with_generator() -> (CircuitData<F, C, D>, Target) {
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let x = builder.add_virtual_target();
+    let (low, _high) = builder.split_low_high(x, 3, 6);
+    builder.register_public_input(low);
+    (builder.build::<C>(), x)
+}
+
+#[test]
+fn unvalidated_prover_data_internal_maps_rejected() -> anyhow::Result<()> {
+    let serializer = DefaultGeneratorSerializer::<C, D>::default();
+    let (data, x) = prover_data_with_generator();
+
+    let bytes = data
+        .prover_only
+        .to_bytes(&serializer, &data.common)
+        .unwrap();
+    let decoded =
+        ProverOnlyCircuitData::<F, C, D>::from_bytes(&bytes, &serializer, &data.common).unwrap();
+    let roundtrip = CircuitData {
+        prover_only: decoded,
+        verifier_only: data.verifier_only.clone(),
+        common: data.common.clone(),
+    };
+    let mut pw = PartialWitness::new();
+    pw.set_target(x, F::from_canonical_u64(45))?;
+    let proof = roundtrip.prove(pw)?;
+    roundtrip.verify(proof)?;
+
+    let (mut bad_representative_len, _) = prover_data_with_generator();
+    bad_representative_len
+        .prover_only
+        .representative_map
+        .clear();
+    let bytes = bad_representative_len
+        .prover_only
+        .to_bytes(&serializer, &bad_representative_len.common)
+        .unwrap();
+    assert!(ProverOnlyCircuitData::<F, C, D>::from_bytes(
+        &bytes,
+        &serializer,
+        &bad_representative_len.common
+    )
+    .is_err());
+
+    let (mut bad_representative_root, _) = prover_data_with_generator();
+    bad_representative_root.prover_only.representative_map[0] =
+        bad_representative_root.prover_only.representative_map.len();
+    let bytes = bad_representative_root
+        .prover_only
+        .to_bytes(&serializer, &bad_representative_root.common)
+        .unwrap();
+    assert!(ProverOnlyCircuitData::<F, C, D>::from_bytes(
+        &bytes,
+        &serializer,
+        &bad_representative_root.common
+    )
+    .is_err());
+
+    let (mut bad_watches, _) = prover_data_with_generator();
+    bad_watches.prover_only.generator_indices_by_watches.clear();
+    let bytes = bad_watches
+        .prover_only
+        .to_bytes(&serializer, &bad_watches.common)
+        .unwrap();
+    assert!(
+        ProverOnlyCircuitData::<F, C, D>::from_bytes(&bytes, &serializer, &bad_watches.common)
+            .is_err()
+    );
+
+    Ok(())
 }
 
 #[test]

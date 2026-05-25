@@ -1068,6 +1068,9 @@ pub trait Read {
             lut_to_lookups,
         };
         prover_only
+            .check_internal_maps(common_data)
+            .map_err(|_| IoError)?;
+        prover_only
             .check_lookup_metadata(common_data)
             .map_err(|_| IoError)?;
 

@@ -369,6 +369,60 @@ pub struct ProverOnlyCircuitData<
 impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
     ProverOnlyCircuitData<F, C, D>
 {
+    pub fn check_internal_maps(&self, common_data: &CommonCircuitData<F, D>) -> Result<()> {
+        let degree = 1usize
+            .checked_shl(common_data.degree_bits().try_into().unwrap_or(usize::BITS))
+            .ok_or_else(|| anyhow::anyhow!("prover metadata degree bits exceed usize width"))?;
+        let num_wires = common_data.config.num_wires;
+        let wire_targets = degree
+            .checked_mul(num_wires)
+            .ok_or_else(|| anyhow::anyhow!("prover wire target count overflow"))?;
+        let representative_len = self.representative_map.len();
+
+        ensure!(
+            representative_len >= wire_targets,
+            "representative map is shorter than the wire target domain"
+        );
+        for (index, &representative) in self.representative_map.iter().enumerate() {
+            ensure!(
+                representative < representative_len,
+                "representative map entry {index} points out of range"
+            );
+            ensure!(
+                self.representative_map[representative] == representative,
+                "representative map entry {index} does not point to a root"
+            );
+        }
+
+        for &target in &self.public_inputs {
+            prover_target_index(target, num_wires, degree, representative_len)?;
+        }
+
+        let mut expected_generator_indices_by_watches = BTreeMap::new();
+        for (generator_index, generator) in self.generators.iter().enumerate() {
+            for watch in generator.0.watch_list() {
+                let watch_index =
+                    prover_target_index(watch, num_wires, degree, representative_len)?;
+                let watch_representative = self.representative_map[watch_index];
+                expected_generator_indices_by_watches
+                    .entry(watch_representative)
+                    .or_insert_with(Vec::new)
+                    .push(generator_index);
+            }
+        }
+        for indices in expected_generator_indices_by_watches.values_mut() {
+            indices.dedup();
+            indices.shrink_to_fit();
+        }
+
+        ensure!(
+            self.generator_indices_by_watches == expected_generator_indices_by_watches,
+            "generator watch index map does not match deserialized generators"
+        );
+
+        Ok(())
+    }
+
     pub fn check_lookup_metadata(&self, common_data: &CommonCircuitData<F, D>) -> Result<()> {
         let degree = 1usize
             .checked_shl(common_data.degree_bits().try_into().unwrap_or(usize::BITS))
@@ -468,8 +522,8 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
             );
 
             for &(input, output) in lookups {
-                validate_prover_target(input, num_wires, degree, self.representative_map.len())?;
-                validate_prover_target(output, num_wires, degree, self.representative_map.len())?;
+                prover_target_index(input, num_wires, degree, self.representative_map.len())?;
+                prover_target_index(output, num_wires, degree, self.representative_map.len())?;
             }
         }
 
@@ -496,12 +550,12 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
     }
 }
 
-fn validate_prover_target(
+fn prover_target_index(
     target: Target,
     num_wires: usize,
     degree: usize,
     representative_len: usize,
-) -> Result<()> {
+) -> Result<usize> {
     let index = match target {
         Target::Wire(wire) => {
             ensure!(wire.row < degree, "wire target row is outside the trace");
@@ -524,7 +578,7 @@ fn validate_prover_target(
         "prover target index is outside the representative map"
     );
 
-    Ok(())
+    Ok(index)
 }
 
 /// Circuit data required by the verifier, but not the prover.
