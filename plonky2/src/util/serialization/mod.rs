@@ -1054,7 +1054,7 @@ pub trait Read {
             lut_to_lookups.push(self.read_target_lut()?);
         }
 
-        Ok(ProverOnlyCircuitData {
+        let prover_only = ProverOnlyCircuitData {
             generators,
             generator_indices_by_watches,
             constants_sigmas_commitment,
@@ -1066,7 +1066,12 @@ pub trait Read {
             circuit_digest,
             lookup_rows,
             lut_to_lookups,
-        })
+        };
+        prover_only
+            .check_lookup_metadata(common_data)
+            .map_err(|_| IoError)?;
+
+        Ok(prover_only)
     }
 
     fn read_prover_circuit_data<

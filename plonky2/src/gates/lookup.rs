@@ -95,10 +95,18 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for LookupGate {
         let lut_index = src.read_usize()?;
         let mut lut_hash = [0u8; 32];
         src.read_exact(&mut lut_hash)?;
+        if num_slots != Self::num_slots(&common_data.config) {
+            return Err(crate::util::serialization::IoError);
+        }
+        let lut = common_data
+            .luts
+            .get(lut_index)
+            .ok_or(crate::util::serialization::IoError)?
+            .clone();
 
         Ok(Self {
             num_slots,
-            lut: common_data.luts[lut_index].clone(),
+            lut,
             lut_hash,
         })
     }

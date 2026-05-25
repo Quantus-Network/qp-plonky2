@@ -140,6 +140,7 @@ where
     common_data
         .check_valid()
         .map_err(|err| anyhow::anyhow!("invalid common circuit data: {err}"))?;
+    prover_data.check_lookup_metadata(common_data)?;
     let partition_witness = timed!(
         timing,
         &format!("run {} generators", prover_data.generators.len()),
@@ -166,6 +167,7 @@ where
     common_data
         .check_valid()
         .map_err(|err| anyhow::anyhow!("invalid common circuit data: {err}"))?;
+    prover_data.check_lookup_metadata(common_data)?;
     let has_lookup = !common_data.luts.is_empty();
     let config = &common_data.config;
     let num_challenges = config.num_challenges;

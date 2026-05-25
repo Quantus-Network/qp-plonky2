@@ -1194,6 +1194,37 @@ fn insufficient_routed_wires_rejected() {
 }
 
 #[test]
+fn forged_lookup_rows_returns_err_not_panic() -> anyhow::Result<()> {
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let input = builder.add_virtual_target();
+    let table = std::sync::Arc::new(vec![(0u16, 10u16), (1u16, 11u16)]);
+    let table_index = builder.add_lookup_table_from_pairs(table);
+    let output = builder.add_lookup_from_index(input, table_index);
+    builder.register_public_input(input);
+    builder.register_public_input(output);
+
+    let mut data = builder.build::<C>();
+    let mut valid = PartialWitness::new();
+    valid.set_target(input, F::ONE)?;
+
+    let proof = data.prove(valid.clone())?;
+    assert_eq!(proof.public_inputs, vec![F::ONE, F::from_canonical_u16(11)]);
+    data.verify(proof)?;
+
+    let degree = data.common.degree();
+    assert!(!data.prover_only.lookup_rows.is_empty());
+    data.prover_only.lookup_rows[0].first_lut_gate = degree;
+
+    let mut timing = TimingTree::default();
+    let err = prove(&data.prover_only, &data.common, valid, &mut timing)
+        .expect_err("forged lookup rows must be rejected");
+    assert!(err.to_string().contains("lookup table 0"));
+
+    Ok(())
+}
+
+#[test]
 fn merkle_poseidon_zero_suffix_leaf_collision_rejected() -> anyhow::Result<()> {
     let leaf = vec![
         F::from_canonical_u64(1),

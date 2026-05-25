@@ -18,7 +18,7 @@ use core::ops::{Range, RangeFrom};
 #[cfg(feature = "std")]
 use std::collections::BTreeMap;
 
-use anyhow::Result;
+use anyhow::{ensure, Result};
 pub use qp_plonky2_core::CircuitConfig;
 use qp_plonky2_core::ZkMode;
 use serde::Serialize;
@@ -35,8 +35,8 @@ use crate::fri::structure::{
 use crate::fri::FriParams;
 // Re-export CircuitConfig from core
 use crate::gates::gate::{check_gate_id_collisions, GateRef};
-use crate::gates::lookup::Lookup;
-use crate::gates::lookup_table::LookupTable;
+use crate::gates::lookup::{Lookup, LookupGate};
+use crate::gates::lookup_table::{LookupTable, LookupTableGate};
 use crate::gates::selectors::SelectorsInfo;
 use crate::hash::hash_types::{HashOutTarget, MerkleCapTarget, RichField};
 use crate::hash::merkle_tree::MerkleCap;
@@ -369,6 +369,113 @@ pub struct ProverOnlyCircuitData<
 impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
     ProverOnlyCircuitData<F, C, D>
 {
+    pub fn check_lookup_metadata(&self, common_data: &CommonCircuitData<F, D>) -> Result<()> {
+        let degree = 1usize
+            .checked_shl(common_data.degree_bits().try_into().unwrap_or(usize::BITS))
+            .ok_or_else(|| anyhow::anyhow!("lookup metadata degree bits exceed usize width"))?;
+        let num_wires = common_data.config.num_wires;
+        let num_luts = common_data.luts.len();
+
+        if num_luts == 0 {
+            ensure!(
+                self.lookup_rows.is_empty(),
+                "lookup rows present but common data has no lookup tables"
+            );
+            ensure!(
+                self.lut_to_lookups.is_empty(),
+                "lookup targets present but common data has no lookup tables"
+            );
+            return Ok(());
+        }
+
+        ensure!(
+            common_data.num_lookup_polys != 0,
+            "lookup tables require lookup polynomials"
+        );
+        ensure!(
+            common_data.num_lookup_selectors != 0,
+            "lookup tables require lookup selectors"
+        );
+        ensure!(
+            self.lookup_rows.len() == num_luts,
+            "lookup row count {} does not match lookup table count {}",
+            self.lookup_rows.len(),
+            num_luts
+        );
+        ensure!(
+            self.lut_to_lookups.len() == num_luts,
+            "lookup target count {} does not match lookup table count {}",
+            self.lut_to_lookups.len(),
+            num_luts
+        );
+
+        let num_lookup_slots = LookupGate::num_slots(&common_data.config);
+        let num_lut_slots = LookupTableGate::num_slots(&common_data.config);
+        ensure!(
+            num_lookup_slots != 0,
+            "lookup gate capacity must be non-zero"
+        );
+        ensure!(
+            num_lut_slots != 0,
+            "lookup table gate capacity must be non-zero"
+        );
+
+        for (lut_index, lookup_wire) in self.lookup_rows.iter().enumerate() {
+            let LookupWire {
+                last_lu_gate,
+                last_lut_gate,
+                first_lut_gate,
+            } = *lookup_wire;
+            let lut = &common_data.luts[lut_index];
+            let lookups = &self.lut_to_lookups[lut_index];
+
+            ensure!(!lut.is_empty(), "lookup table {lut_index} is empty");
+            ensure!(
+                !lookups.is_empty(),
+                "lookup table {lut_index} has no lookup targets"
+            );
+            ensure!(
+                last_lu_gate < last_lut_gate,
+                "lookup table {lut_index} has empty or inverted lookup rows"
+            );
+            ensure!(
+                last_lut_gate <= first_lut_gate,
+                "lookup table {lut_index} has empty or inverted table rows"
+            );
+            ensure!(
+                first_lut_gate
+                    .checked_add(1)
+                    .is_some_and(|next_row| next_row < degree),
+                "lookup table {lut_index} table rows exceed trace degree"
+            );
+
+            let actual_lookup_rows = last_lut_gate - last_lu_gate;
+            let expected_lookup_rows = lookups.len().div_ceil(num_lookup_slots);
+            ensure!(
+                actual_lookup_rows == expected_lookup_rows,
+                "lookup table {lut_index} row count {} does not match {} lookup targets",
+                actual_lookup_rows,
+                lookups.len()
+            );
+
+            let actual_lut_rows = first_lut_gate - last_lut_gate + 1;
+            let expected_lut_rows = lut.len().div_ceil(num_lut_slots);
+            ensure!(
+                actual_lut_rows == expected_lut_rows,
+                "lookup table {lut_index} table row count {} does not match {} table entries",
+                actual_lut_rows,
+                lut.len()
+            );
+
+            for &(input, output) in lookups {
+                validate_prover_target(input, num_wires, degree, self.representative_map.len())?;
+                validate_prover_target(output, num_wires, degree, self.representative_map.len())?;
+            }
+        }
+
+        Ok(())
+    }
+
     pub fn to_bytes(
         &self,
         generator_serializer: &dyn WitnessGeneratorSerializer<F, D>,
@@ -387,6 +494,37 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         let mut buffer = Buffer::new(bytes);
         buffer.read_prover_only_circuit_data(generator_serializer, common_data)
     }
+}
+
+fn validate_prover_target(
+    target: Target,
+    num_wires: usize,
+    degree: usize,
+    representative_len: usize,
+) -> Result<()> {
+    let index = match target {
+        Target::Wire(wire) => {
+            ensure!(wire.row < degree, "wire target row is outside the trace");
+            ensure!(
+                wire.column < num_wires,
+                "wire target column is outside the trace"
+            );
+            wire.row
+                .checked_mul(num_wires)
+                .and_then(|row_offset| row_offset.checked_add(wire.column))
+        }
+        Target::VirtualTarget { index } => degree
+            .checked_mul(num_wires)
+            .and_then(|wire_targets| wire_targets.checked_add(index)),
+    }
+    .ok_or_else(|| anyhow::anyhow!("prover target index overflow"))?;
+
+    ensure!(
+        index < representative_len,
+        "prover target index is outside the representative map"
+    );
+
+    Ok(())
 }
 
 /// Circuit data required by the verifier, but not the prover.
