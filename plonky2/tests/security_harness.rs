@@ -1534,6 +1534,19 @@ fn merkle_poseidon_zero_suffix_leaf_collision_rejected() -> anyhow::Result<()> {
 }
 
 #[test]
+fn short_merkle_leaves_are_length_bound() -> anyhow::Result<()> {
+    let leaf = vec![F::from_canonical_u64(7)];
+    let leaves = vec![leaf.clone(), vec![F::from_canonical_u64(8)]];
+    let tree = MerkleTree::<F, PoseidonHash>::new(leaves, 0);
+    let proof = tree.prove(0);
+
+    verify_merkle_proof_to_cap(leaf.clone(), 0, &tree.cap, &proof)?;
+    assert!(verify_merkle_proof_to_cap(vec![leaf[0], F::ZERO], 0, &tree.cap, &proof).is_err());
+
+    Ok(())
+}
+
+#[test]
 fn trailing_zero_hash_len_delimited_distinguishes_lengths() {
     type P = <PoseidonHash as Hasher<F>>::Permutation;
 
