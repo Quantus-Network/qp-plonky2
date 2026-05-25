@@ -137,6 +137,9 @@ where
     C::Hasher: Hasher<F>,
     C::InnerHasher: Hasher<F>,
 {
+    common_data
+        .check_valid()
+        .map_err(|err| anyhow::anyhow!("invalid common circuit data: {err}"))?;
     let partition_witness = timed!(
         timing,
         &format!("run {} generators", prover_data.generators.len()),
@@ -160,6 +163,9 @@ where
     C::Hasher: Hasher<F>,
     C::InnerHasher: Hasher<F>,
 {
+    common_data
+        .check_valid()
+        .map_err(|err| anyhow::anyhow!("invalid common circuit data: {err}"))?;
     let has_lookup = !common_data.luts.is_empty();
     let config = &common_data.config;
     let num_challenges = config.num_challenges;

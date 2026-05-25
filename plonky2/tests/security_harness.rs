@@ -38,12 +38,14 @@ use plonky2::iop::witness::{PartialWitness, Witness, WitnessWrite};
 use plonky2::plonk::circuit_builder::CircuitBuilder;
 use plonky2::plonk::circuit_data::{CircuitConfig, CommonCircuitData, ProverOnlyCircuitData};
 use plonky2::plonk::config::{GenericConfig, Hasher, PoseidonGoldilocksConfig};
+use plonky2::plonk::prover::prove;
 use plonky2::plonk::vars::{EvaluationTargets, EvaluationVars};
 use plonky2::util::serialization::{
     Buffer, DefaultGateSerializer, DefaultGeneratorSerializer, IoResult, Write,
 };
 use plonky2::util::strided_view::PackedStridedView;
 use plonky2::util::timing::TimingTree;
+use qp_plonky2_core::ZkMode;
 
 const D: usize = 2;
 type C = PoseidonGoldilocksConfig;
@@ -744,6 +746,39 @@ fn matched_fri_degree_bits_deserialize() {
     data.common.check_valid().unwrap();
     let bytes = data.common.to_bytes(&serializer).unwrap();
     assert!(CommonCircuitData::<F, D>::from_bytes(bytes, &serializer).is_ok());
+}
+
+#[test]
+fn forged_proving_key_crashes_rejected() -> anyhow::Result<()> {
+    let config = CircuitConfig::standard_recursion_polyfri_zk_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let one = builder.one();
+    builder.register_public_input(one);
+    let data = builder.build::<C>();
+
+    let mut forged_common = data.common.clone();
+    forged_common.public_initial_degree_bits = forged_common.trace_degree_bits;
+    forged_common.fri_params.degree_bits = forged_common.public_initial_degree_bits;
+    assert!(forged_common.check_valid().is_err());
+
+    let prove_result = catch_unwind(AssertUnwindSafe(|| {
+        prove::<F, C, D>(
+            &data.prover_only,
+            &forged_common,
+            PartialWitness::new(),
+            &mut TimingTree::default(),
+        )
+    }));
+    assert!(prove_result.is_ok(), "forged proving key must not panic");
+    assert!(prove_result.unwrap().is_err());
+
+    let mut extreme_common = data.common.clone();
+    if let ZkMode::PolyFri(poly_fri) = &mut extreme_common.config.zk_config.mode {
+        poly_fri.wire_mask_degree = usize::MAX;
+    }
+    assert!(extreme_common.check_valid().is_err());
+
+    Ok(())
 }
 
 #[test]

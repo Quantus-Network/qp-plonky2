@@ -20,6 +20,7 @@ use std::collections::BTreeMap;
 
 use anyhow::Result;
 pub use qp_plonky2_core::CircuitConfig;
+use qp_plonky2_core::ZkMode;
 use serde::Serialize;
 
 use super::circuit_builder::LookupWire;
@@ -488,6 +489,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
         if self.public_initial_degree_bits != self.fri_params.degree_bits {
             return Err("public_initial_degree_bits must match FRI degree_bits");
         }
+        self.check_poly_fri_proving_params()?;
 
         // All lookup tables must be non-empty.
         if self.luts.iter().any(|lut| lut.is_empty()) {
@@ -495,6 +497,84 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
         }
 
         check_gate_id_collisions(&self.gates)?;
+
+        Ok(())
+    }
+
+    fn checked_degree_from_bits(bits: usize) -> Result<usize, &'static str> {
+        1usize
+            .checked_shl(bits.try_into().unwrap_or(usize::BITS))
+            .ok_or("degree bits exceed usize width")
+    }
+
+    fn checked_public_initial_degree_bits(
+        trace_degree: usize,
+        max_mask_degree: usize,
+    ) -> Result<usize, &'static str> {
+        let required_degree = trace_degree
+            .checked_add(max_mask_degree)
+            .and_then(|degree| degree.checked_add(1))
+            .ok_or("PolyFri public initial degree overflow")?;
+        let rounded = required_degree
+            .checked_next_power_of_two()
+            .ok_or("PolyFri public initial degree overflow")?;
+        Ok(rounded.trailing_zeros() as usize)
+    }
+
+    fn check_mask_degree(
+        knob_name: &'static str,
+        mask_degree: usize,
+        split_degree: usize,
+    ) -> Result<(), &'static str> {
+        if mask_degree >= split_degree {
+            return match knob_name {
+                "wire_mask_degree" => Err("wire_mask_degree must be less than trace degree"),
+                "z_mask_degree" => Err("z_mask_degree must be less than trace degree"),
+                "fri_batch_mask_degree" => {
+                    Err("fri_batch_mask_degree must be less than FRI batch-mask chunk degree")
+                }
+                _ => Err("PolyFri mask degree exceeds split degree"),
+            };
+        }
+        Ok(())
+    }
+
+    fn check_poly_fri_proving_params(&self) -> Result<(), &'static str> {
+        let ZkMode::PolyFri(poly_fri) = &self.config.zk_config.mode else {
+            return Ok(());
+        };
+
+        let trace_degree = Self::checked_degree_from_bits(self.trace_degree_bits)?;
+        Self::check_mask_degree("wire_mask_degree", poly_fri.wire_mask_degree, trace_degree)?;
+        Self::check_mask_degree("z_mask_degree", poly_fri.z_mask_degree, trace_degree)?;
+
+        let max_phase1_mask_degree = poly_fri.wire_mask_degree.max(poly_fri.z_mask_degree);
+        let expected_public_initial_degree_bits =
+            Self::checked_public_initial_degree_bits(trace_degree, max_phase1_mask_degree)?;
+        if self.public_initial_degree_bits != expected_public_initial_degree_bits {
+            return Err("invalid PolyFri public_initial_degree_bits");
+        }
+
+        let batch_mask_chunk_degree = match self.fri_params.batch_mask_layout() {
+            crate::fri::FriFinalPolyLayout::Single => {
+                Self::checked_degree_from_bits(self.fri_params.degree_bits)?
+            }
+            crate::fri::FriFinalPolyLayout::Split {
+                chunk_degree_bits, ..
+            } => Self::checked_degree_from_bits(chunk_degree_bits)?,
+        };
+        Self::check_mask_degree(
+            "fri_batch_mask_degree",
+            poly_fri.fri_batch_mask_degree,
+            batch_mask_chunk_degree,
+        )?;
+
+        if self.config.max_quotient_degree_factor < 2 {
+            return Err("max_quotient_degree_factor too small for PolyFri");
+        }
+        if self.num_lookup_polys != 0 && self.config.max_quotient_degree_factor < 3 {
+            return Err("max_quotient_degree_factor too small for PolyFri lookups");
+        }
 
         Ok(())
     }
