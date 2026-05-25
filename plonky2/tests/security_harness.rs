@@ -38,7 +38,9 @@ use plonky2::iop::generator::WitnessGeneratorRef;
 use plonky2::iop::target::Target;
 use plonky2::iop::witness::{PartialWitness, Witness, WitnessWrite};
 use plonky2::plonk::circuit_builder::CircuitBuilder;
-use plonky2::plonk::circuit_data::{CircuitConfig, CommonCircuitData, ProverOnlyCircuitData};
+use plonky2::plonk::circuit_data::{
+    CircuitConfig, CommonCircuitData, ProverOnlyCircuitData, VerifierCircuitTarget,
+};
 use plonky2::plonk::config::{GenericConfig, Hasher, PoseidonGoldilocksConfig};
 use plonky2::plonk::proof::{OpeningSetTarget, ProofTarget, ProofWithPublicInputsTarget};
 use plonky2::plonk::prover::prove;
@@ -48,6 +50,7 @@ use plonky2::recursion::dummy_circuit::{try_cyclic_base_proof, try_dummy_circuit
 use plonky2::util::reducing::ReducingFactorTarget;
 use plonky2::util::serialization::{
     Buffer, DefaultGateSerializer, DefaultGeneratorSerializer, IoResult, Write,
+    MAX_DESERIALIZED_MERKLE_CAP_LEN,
 };
 use plonky2::util::strided_view::PackedStridedView;
 use plonky2::util::timing::TimingTree;
@@ -921,6 +924,33 @@ fn malformed_config_panics_reductions_rejected() -> anyhow::Result<()> {
     let data = builder.build::<C>();
     let proof = data.prove(PartialWitness::new())?;
     data.verify(proof)
+}
+
+#[test]
+fn verifier_target_deserialization_rejects_oversized_cap() {
+    let mut malicious = Vec::new();
+    malicious
+        .write_usize(MAX_DESERIALIZED_MERKLE_CAP_LEN + 1)
+        .unwrap();
+    assert!(VerifierCircuitTarget::from_bytes(malicious).is_err());
+
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config.clone());
+    let verifier_target = builder.add_virtual_verifier_data(config.fri_config.cap_height);
+    let common = builder.build::<C>().common;
+
+    let bytes = verifier_target.to_bytes().unwrap();
+    let decoded =
+        VerifierCircuitTarget::from_bytes_with_common_data::<F, D>(bytes, &common).unwrap();
+    assert_eq!(decoded, verifier_target);
+
+    let mut wrong_len = verifier_target.clone();
+    wrong_len.constants_sigmas_cap.0.pop();
+    let wrong_len_bytes = wrong_len.to_bytes().unwrap();
+    assert!(
+        VerifierCircuitTarget::from_bytes_with_common_data::<F, D>(wrong_len_bytes, &common)
+            .is_err()
+    );
 }
 
 #[test]

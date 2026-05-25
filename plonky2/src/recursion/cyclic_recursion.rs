@@ -4,6 +4,7 @@
 use alloc::vec::Vec;
 
 use anyhow::{anyhow, ensure, Result};
+use qp_plonky2_core::checked_merkle_cap_len;
 
 use crate::field::extension::Extendable;
 use crate::hash::hash_types::{HashOut, HashOutTarget, MerkleCapTarget, RichField};
@@ -15,7 +16,7 @@ use crate::plonk::circuit_data::{
 };
 use crate::plonk::config::{AlgebraicHasher, GenericConfig};
 use crate::plonk::proof::{ProofWithPublicInputs, ProofWithPublicInputsTarget};
-use crate::util::serialization::{Buffer, IoResult, Read, Write};
+use crate::util::serialization::{Buffer, IoError, IoResult, Read, Write};
 
 impl<C: GenericConfig<D>, const D: usize> VerifierOnlyCircuitData<C, D> {
     fn from_slice(slice: &[C::F], common_data: &CommonCircuitData<C::F, D>) -> Result<Self>
@@ -61,6 +62,19 @@ impl VerifierCircuitTarget {
             constants_sigmas_cap,
             circuit_digest,
         })
+    }
+
+    pub fn from_bytes_with_common_data<F: RichField + Extendable<D>, const D: usize>(
+        bytes: Vec<u8>,
+        common_data: &CommonCircuitData<F, D>,
+    ) -> IoResult<Self> {
+        let target = Self::from_bytes(bytes)?;
+        let expected_len = checked_merkle_cap_len(common_data.config.fri_config.cap_height)
+            .map_err(|_| IoError)?;
+        if target.constants_sigmas_cap.0.len() != expected_len {
+            return Err(IoError);
+        }
+        Ok(target)
     }
 
     fn from_slice<F: RichField + Extendable<D>, const D: usize>(

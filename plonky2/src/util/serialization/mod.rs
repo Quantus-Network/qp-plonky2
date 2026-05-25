@@ -73,6 +73,13 @@ impl Display for IoError {
 /// A no_std compatible variant of `std::io::Result`
 pub type IoResult<T> = Result<T, IoError>;
 
+/// Maximum Merkle cap height accepted from serialized artifacts.
+///
+/// Height 20 corresponds to 1,048,576 cap hashes, which is already far above normal verifier
+/// target usage and matches the native Merkle-cap deserialization ceiling.
+pub const MAX_DESERIALIZED_MERKLE_CAP_HEIGHT: usize = 20;
+pub const MAX_DESERIALIZED_MERKLE_CAP_LEN: usize = 1 << MAX_DESERIALIZED_MERKLE_CAP_HEIGHT;
+
 /// Creates a Vec with the requested capacity, returning IoError if allocation fails.
 /// This prevents panics from malicious/malformed input specifying huge lengths.
 #[inline]
@@ -344,11 +351,7 @@ pub trait Read {
         F: RichField,
         H: Hasher<F>,
     {
-        // Validate cap_height to prevent exponential allocation attacks.
-        // cap_height of 20 = 1M hashes, which is already very large.
-        // Typical values are 0-16 in practice.
-        const MAX_CAP_HEIGHT: usize = 20;
-        if cap_height > MAX_CAP_HEIGHT {
+        if cap_height > MAX_DESERIALIZED_MERKLE_CAP_HEIGHT {
             return Err(IoError);
         }
         let cap_length = 1 << cap_height;
@@ -363,6 +366,9 @@ pub trait Read {
     #[inline]
     fn read_target_merkle_cap(&mut self) -> IoResult<MerkleCapTarget> {
         let length = self.read_usize()?;
+        if length > MAX_DESERIALIZED_MERKLE_CAP_LEN {
+            return Err(IoError);
+        }
         let mut result = try_with_capacity(length)?;
         for _ in 0..length {
             result.push(self.read_target_hash()?);

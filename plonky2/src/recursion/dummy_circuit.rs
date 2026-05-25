@@ -9,6 +9,7 @@ use anyhow::{anyhow, ensure, Result};
 use hashbrown::HashMap;
 use plonky2_field::extension::Extendable;
 use plonky2_field::polynomial::PolynomialCoeffs;
+use qp_plonky2_core::checked_merkle_cap_len;
 
 use crate::fri::proof::{FriFinalPolys, FriFinalPolysTarget, FriProof, FriProofTarget};
 use crate::fri::{FriConfig, FriFinalPolyLayout, FriParams, FriReductionStrategy};
@@ -379,6 +380,12 @@ where
     fn deserialize(src: &mut Buffer, _common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
         let verifier_data_target = src.read_target_verifier_circuit()?;
         let verifier_data = src.read_verifier_circuit_data(&DefaultGateSerializer)?;
+        let expected_cap_len =
+            checked_merkle_cap_len(verifier_data.common.config.fri_config.cap_height)
+                .map_err(|_| crate::util::serialization::IoError)?;
+        if verifier_data_target.constants_sigmas_cap.0.len() != expected_cap_len {
+            return Err(crate::util::serialization::IoError);
+        }
         let proof_with_pis_target = src.read_target_proof_with_public_inputs()?;
         let proof_with_pis = src.read_proof_with_public_inputs(&verifier_data.common)?;
         Ok(Self {
