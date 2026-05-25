@@ -13,7 +13,7 @@ use crate::fri_proof::{
 };
 use crate::fri_structure::{FriChallenges, FriInstanceInfo, FriOpenings};
 use crate::hash_types::RichField;
-use crate::merkle_tree::MerkleCap;
+use crate::merkle_tree::{validate_merkle_cap_height, MerkleCap};
 use crate::plonk_common::salt_size;
 
 pub fn validate_fri_proof_shape<F, C, const D: usize>(
@@ -57,7 +57,7 @@ where
         "FRI query round proof count does not match config"
     );
     for cap in commit_phase_merkle_caps {
-        ensure!(cap.height() == cap_height);
+        validate_merkle_cap_height(cap, cap_height, "FRI commit-phase cap")?;
     }
 
     match (&params.batch_masking, batch_mask_proof) {
@@ -68,7 +68,7 @@ where
                 query_openings,
             }),
         ) => {
-            ensure!(cap.height() == cap_height);
+            validate_merkle_cap_height(cap, cap_height, "FRI batch-mask cap")?;
             ensure!(query_openings.len() == params.config.num_query_rounds);
             for query_opening in query_openings {
                 let FriBatchMaskQuery {
@@ -227,6 +227,9 @@ where
         initial_merkle_caps.len() == oracle_count,
         "FRI initial cap count does not match oracle count"
     );
+    for cap in initial_merkle_caps {
+        validate_merkle_cap_height(cap, params.config.cap_height, "FRI initial cap")?;
+    }
     for instance in instances {
         ensure!(
             instance.oracles.len() == oracle_count,

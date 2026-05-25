@@ -2,6 +2,7 @@
 
 use anyhow::{ensure, Result};
 use qp_plonky2_core::fri_verifier::verify_fri_proof;
+use qp_plonky2_core::validate_merkle_cap_height;
 
 use crate::field::extension::Extendable;
 use crate::field::types::Field;
@@ -19,6 +20,12 @@ pub fn verify<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D:
     verifier_data: &VerifierOnlyCircuitData<C, D>,
     common_data: &CommonCircuitData<F, D>,
 ) -> Result<()> {
+    let cap_height = common_data.fri_params.config.cap_height;
+    validate_merkle_cap_height(
+        &verifier_data.constants_sigmas_cap,
+        cap_height,
+        "constants/sigmas cap",
+    )?;
     validate_proof_with_pis_shape(&proof_with_pis, common_data)?;
 
     let public_inputs_hash = proof_with_pis.get_public_inputs_hash();
@@ -48,6 +55,12 @@ pub(crate) fn verify_with_challenges<
     verifier_data: &VerifierOnlyCircuitData<C, D>,
     common_data: &CommonCircuitData<F, D>,
 ) -> Result<()> {
+    let cap_height = common_data.fri_params.config.cap_height;
+    validate_merkle_cap_height(
+        &verifier_data.constants_sigmas_cap,
+        cap_height,
+        "constants/sigmas cap",
+    )?;
     let local_constants = &proof.openings.constants;
     let local_wires = &proof.openings.wires;
     let vars = EvaluationVars {

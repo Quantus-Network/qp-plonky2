@@ -350,6 +350,26 @@ fn simple_circuit_data() -> plonky2::plonk::circuit_data::CircuitData<F, C, D> {
 }
 
 #[test]
+fn verifier_cap_height_mismatch_returns_err() -> anyhow::Result<()> {
+    let data = simple_circuit_data();
+    let proof = data.prove(PartialWitness::new())?;
+    let mut verifier_data = data.verifier_data();
+
+    assert!(verifier_data.verifier_only.constants_sigmas_cap.len() > 1);
+    verifier_data
+        .verifier_only
+        .constants_sigmas_cap
+        .0
+        .truncate(1);
+
+    let result = catch_unwind(AssertUnwindSafe(|| verifier_data.verify(proof)));
+    assert!(result.is_ok(), "malformed verifier cap must not panic");
+    assert!(result.unwrap().is_err());
+
+    Ok(())
+}
+
+#[test]
 fn malformed_fft_root_table_rejected() {
     let mut data = simple_circuit_data();
     data.prover_only.fft_root_table = Some(vec![vec![F::ONE]]);

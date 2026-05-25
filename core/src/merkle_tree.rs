@@ -3,6 +3,7 @@ use alloc::vec::Vec;
 use core::mem::MaybeUninit;
 use core::slice;
 
+use anyhow::{ensure, Result};
 use plonky2_util::log2_strict;
 use serde::{Deserialize, Serialize};
 
@@ -39,6 +40,37 @@ impl<F: RichField, H: Hasher<F>> MerkleCap<F, H> {
     pub fn flatten(&self) -> Vec<F> {
         self.0.iter().flat_map(|&h| h.to_vec()).collect()
     }
+}
+
+pub fn checked_merkle_cap_len(cap_height: usize) -> Result<usize> {
+    1usize
+        .checked_shl(cap_height.try_into().unwrap_or(usize::BITS))
+        .ok_or_else(|| anyhow::anyhow!("Merkle cap height is too large"))
+}
+
+pub fn validate_merkle_cap_height<F: RichField, H: Hasher<F>>(
+    cap: &MerkleCap<F, H>,
+    cap_height: usize,
+    label: &str,
+) -> Result<()> {
+    let expected_len = checked_merkle_cap_len(cap_height)?;
+    ensure!(
+        cap.len() == expected_len,
+        "{label} length does not match cap height"
+    );
+    Ok(())
+}
+
+pub fn validate_merkle_cap_power_of_two<F: RichField, H: Hasher<F>>(
+    cap: &MerkleCap<F, H>,
+    label: &str,
+) -> Result<()> {
+    ensure!(!cap.is_empty(), "{label} cannot be empty");
+    ensure!(
+        cap.len().is_power_of_two(),
+        "{label} length is not a power of two"
+    );
+    Ok(())
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]

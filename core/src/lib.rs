@@ -84,7 +84,8 @@ pub use iop::{
 pub use keccak::{KeccakHash, KeccakPermutation};
 pub use merkle_proofs::MerkleProof;
 pub use merkle_tree::{
-    capacity_up_to_mut, fill_digests_buf, fill_subtree, merkle_tree_prove, MerkleCap, MerkleTree,
+    capacity_up_to_mut, checked_merkle_cap_len, fill_digests_buf, fill_subtree, merkle_tree_prove,
+    validate_merkle_cap_height, validate_merkle_cap_power_of_two, MerkleCap, MerkleTree,
 };
 pub use plonk_common::{
     eval_l_0, eval_zero_poly, reduce_with_powers, reduce_with_powers_multi, salt_size, PlonkOracle,

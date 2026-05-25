@@ -1,4 +1,5 @@
 use anyhow::ensure;
+use qp_plonky2_core::validate_merkle_cap_height;
 
 use crate::field::extension::Extendable;
 use crate::hash::hash_types::RichField;
@@ -56,9 +57,13 @@ where
         lookup_zs_next,
     } = openings;
     let cap_height = common_data.fri_params.config.cap_height;
-    ensure!(wires_cap.height() == cap_height);
-    ensure!(plonk_zs_partial_products_cap.height() == cap_height);
-    ensure!(quotient_polys_cap.height() == cap_height);
+    validate_merkle_cap_height(wires_cap, cap_height, "wires cap")?;
+    validate_merkle_cap_height(
+        plonk_zs_partial_products_cap,
+        cap_height,
+        "PLONK Zs/partial-products cap",
+    )?;
+    validate_merkle_cap_height(quotient_polys_cap, cap_height, "quotient-polys cap")?;
     ensure!(constants.len() == common_data.num_constants);
     ensure!(plonk_sigmas.len() == config.num_routed_wires);
     ensure!(wires.len() == config.num_wires);

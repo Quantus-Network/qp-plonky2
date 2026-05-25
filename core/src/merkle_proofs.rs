@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::config::{GenericHashOut, Hasher};
 use crate::hash_types::RichField;
-use crate::merkle_tree::MerkleCap;
+use crate::merkle_tree::{validate_merkle_cap_power_of_two, MerkleCap};
 
 #[derive(Clone, Debug, Serialize, Deserialize, Eq, PartialEq)]
 #[serde(bound = "")]
@@ -63,11 +63,20 @@ pub fn verify_batch_merkle_proof_to_cap<F: RichField, H: Hasher<F>>(
     merkle_cap: &MerkleCap<F, H>,
     proof: &MerkleProof<F, H>,
 ) -> Result<()> {
-    assert_eq!(leaf_data.len(), leaf_heights.len());
+    ensure!(
+        leaf_data.len() == leaf_heights.len(),
+        "Merkle proof leaf data and height counts differ"
+    );
+    ensure!(!leaf_data.is_empty(), "Merkle proof cannot have no leaves");
+    validate_merkle_cap_power_of_two(merkle_cap, "Merkle cap")?;
     let mut current_digest = H::hash_merkle_leaf(&leaf_data[0]);
     let mut current_height = leaf_heights[0];
     let mut leaf_data_index = 1;
     for &sibling_digest in &proof.siblings {
+        ensure!(
+            current_height > 0,
+            "Merkle proof is longer than leaf height"
+        );
         let bit = leaf_index & 1;
         leaf_index >>= 1;
         current_digest = if bit == 1 {
@@ -84,7 +93,14 @@ pub fn verify_batch_merkle_proof_to_cap<F: RichField, H: Hasher<F>>(
             leaf_data_index += 1;
         }
     }
-    assert_eq!(leaf_data_index, leaf_data.len());
+    ensure!(
+        leaf_data_index == leaf_data.len(),
+        "Merkle proof did not consume every leaf"
+    );
+    ensure!(
+        leaf_index < merkle_cap.len(),
+        "Merkle proof cap index out of range"
+    );
     ensure!(
         current_digest == merkle_cap.0[leaf_index],
         "Invalid Merkle proof."
