@@ -8,3 +8,4 @@ finding	severity	class	commit	status	notes
 64603	Medium	untrusted-artifact-validation	8e6d760b9	fixed	Unchecked metadata arithmetic DoS
 64604	Medium	gadget-constraint-soundness	775cb8e09	fixed	Unconstrained branch selector
 64605	Medium	runtime-dos-preconditions	51b68f13c	fixed	Malformed matrix panics
+64606	Medium	runtime-dos-preconditions	06041ed09	fixed	Malformed config panics reductions
