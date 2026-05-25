@@ -932,6 +932,45 @@ fn malformed_config_panics_reductions_rejected() -> anyhow::Result<()> {
 }
 
 #[test]
+fn invalid_widths_reduction_rejected() -> anyhow::Result<()> {
+    let mut malformed = CircuitConfig::standard_recursion_config();
+    malformed.num_wires = 7;
+    malformed.num_routed_wires = 7;
+
+    assert_eq!(
+        ReducingGate::<D>::max_coeffs_len(malformed.num_wires, malformed.num_routed_wires),
+        Some(1)
+    );
+    assert_eq!(
+        ReducingExtensionGate::<D>::max_coeffs_len(malformed.num_wires, malformed.num_routed_wires),
+        None
+    );
+    assert!(malformed.check_reducing_widths::<D>().is_err());
+
+    let builder_result = catch_unwind(AssertUnwindSafe(|| {
+        let _ = CircuitBuilder::<F, D>::new(malformed);
+    }));
+    assert!(
+        builder_result.is_err(),
+        "zero-capacity extension reducing gates must be rejected at builder construction"
+    );
+
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let alpha = builder.constant_extension(FF::from_canonical_u64(3));
+    let mut reducer = ReducingFactorTarget::new(alpha);
+    let extension_terms = (0..80)
+        .map(|i| builder.constant_extension(FF::from_canonical_usize(i)))
+        .collect::<Vec<_>>();
+    let reduced = reducer.reduce(&extension_terms, &mut builder);
+    builder.register_public_inputs(&reduced.to_target_array());
+
+    let data = builder.build::<C>();
+    let proof = data.prove(PartialWitness::new())?;
+    data.verify(proof)
+}
+
+#[test]
 fn verifier_target_deserialization_rejects_oversized_cap() {
     let mut malicious = Vec::new();
     malicious
