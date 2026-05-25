@@ -63,6 +63,11 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         oracles: &[&Self],
         fri_params: &FriParams,
     ) -> Result<()> {
+        fri_params.check_valid()?;
+        ensure!(
+            fri_params.batch_masking.is_none(),
+            "Batch FRI prover does not support explicit PolyFri batch masking"
+        );
         ensure!(!instances.is_empty(), "FRI instance list cannot be empty");
         ensure!(
             degree_bits.len() == instances.len(),
@@ -342,7 +347,7 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
             final_lde_polynomial_values.push(lde_final_values);
         }
 
-        Ok(batch_fri_proof::<F, C, D>(
+        batch_fri_proof::<F, C, D>(
             &oracles
                 .iter()
                 .map(|o| &o.batch_merkle_tree)
@@ -352,7 +357,7 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
             challenger,
             fri_params,
             timing,
-        ))
+        )
     }
 
     /// Fetches LDE values at the `index * step`th point.

@@ -1,6 +1,7 @@
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
 
+use anyhow::{ensure, Result};
 use plonky2_field::extension::flatten;
 #[allow(unused_imports)]
 use plonky2_field::types::Field;
@@ -13,9 +14,7 @@ use crate::fri::proof::{
     FriFinalPolys, FriInitialTreeProof, FriProof, FriQueryRound, FriQueryStep,
 };
 use crate::fri::prover::{fri_proof_of_work, FriCommitedTrees};
-#[cfg(test)]
-use crate::fri::FriFinalPolyLayout;
-use crate::fri::FriParams;
+use crate::fri::{FriFinalPolyLayout, FriParams};
 use crate::hash::batch_merkle_tree::BatchMerkleTree;
 use crate::hash::hash_types::RichField;
 use crate::hash::merkle_tree::MerkleTree;
@@ -33,17 +32,37 @@ pub fn batch_fri_proof<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>,
     challenger: &mut Challenger<F, C::Hasher>,
     fri_params: &FriParams,
     timing: &mut TimingTree,
-) -> FriProof<F, C::Hasher, D> {
+) -> Result<FriProof<F, C::Hasher, D>> {
+    validate_batch_fri_prover_params(fri_params)?;
     let n = lde_polynomial_coeffs.len();
-    assert_eq!(lde_polynomial_values[0].len(), n);
+    ensure!(n > 0, "Batch FRI codeword cannot be empty");
+    ensure!(
+        n.is_power_of_two(),
+        "Batch FRI codeword length must be a power of two"
+    );
+    ensure!(
+        !lde_polynomial_values.is_empty(),
+        "Batch FRI needs at least one LDE polynomial"
+    );
+    ensure!(
+        lde_polynomial_values[0].len() == n,
+        "Batch FRI leading LDE length does not match coefficients"
+    );
     // The polynomial vectors should be sorted by degree, from largest to smallest, with no duplicate degrees.
-    assert!(lde_polynomial_values
-        .windows(2)
-        .all(|pair| { pair[0].len() > pair[1].len() }));
+    ensure!(
+        lde_polynomial_values
+            .windows(2)
+            .all(|pair| { pair[0].len() > pair[1].len() }),
+        "Batch FRI LDE polynomials must have strictly decreasing lengths"
+    );
     // Check that reduction_arity_bits covers all polynomials
     let mut cur_n = log2_strict(n);
     let mut cur_poly_index = 1;
     for arity_bits in &fri_params.reduction_arity_bits {
+        ensure!(
+            cur_n >= *arity_bits,
+            "Batch FRI reduction arity exceeds current degree bits"
+        );
         cur_n -= arity_bits;
         if cur_poly_index < lde_polynomial_values.len()
             && cur_n == log2_strict(lde_polynomial_values[cur_poly_index].len())
@@ -51,10 +70,13 @@ pub fn batch_fri_proof<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>,
             cur_poly_index += 1;
         }
     }
-    assert_eq!(cur_poly_index, lde_polynomial_values.len());
+    ensure!(
+        cur_poly_index == lde_polynomial_values.len(),
+        "Batch FRI reductions did not consume every LDE polynomial"
+    );
 
     // Commit phase
-    let (trees, final_coeffs) = timed!(
+    let committed_trees = timed!(
         timing,
         "fold codewords in the commitment phase",
         batch_fri_committed_trees::<F, C, D>(
@@ -64,6 +86,10 @@ pub fn batch_fri_proof<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>,
             fri_params,
         )
     );
+    let (trees, final_coeffs) = committed_trees?;
+    let final_polys =
+        decompose_batch_final_polynomial::<F, D>(final_coeffs, &fri_params.final_poly_layout)?;
+    observe_batch_final_polys::<F, C, D>(challenger, &final_polys);
 
     // PoW phase
     let pow_witness = timed!(
@@ -81,12 +107,60 @@ pub fn batch_fri_proof<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>,
         fri_params,
     );
 
-    FriProof {
+    Ok(FriProof {
         commit_phase_merkle_caps: trees.iter().map(|t| t.cap.clone()).collect(),
         batch_mask_proof: None,
         query_round_proofs,
-        final_polys: FriFinalPolys::from_single(final_coeffs),
+        final_polys,
         pow_witness,
+    })
+}
+
+fn validate_batch_fri_prover_params(fri_params: &FriParams) -> Result<()> {
+    fri_params.check_valid()?;
+    ensure!(
+        fri_params.batch_masking.is_none(),
+        "Batch FRI prover does not support explicit PolyFri batch masking"
+    );
+    Ok(())
+}
+
+fn decompose_batch_final_polynomial<F: RichField + Extendable<D>, const D: usize>(
+    final_coeffs: PolynomialCoeffs<F::Extension>,
+    layout: &FriFinalPolyLayout,
+) -> Result<FriFinalPolys<F, D>> {
+    match layout {
+        FriFinalPolyLayout::Single => Ok(FriFinalPolys::from_single(final_coeffs)),
+        FriFinalPolyLayout::Split {
+            chunk_degree_bits,
+            chunks,
+        } => {
+            let chunk_len = 1usize
+                .checked_shl((*chunk_degree_bits).try_into().unwrap_or(usize::BITS))
+                .ok_or_else(|| anyhow::anyhow!("Batch FRI split final chunk width is too large"))?;
+            let total_len = chunk_len
+                .checked_mul(*chunks)
+                .ok_or_else(|| anyhow::anyhow!("Batch FRI split final layout is too large"))?;
+            let mut padded = final_coeffs;
+            padded.pad(total_len)?;
+            Ok(FriFinalPolys {
+                layout: layout.clone(),
+                chunks: padded.chunks(chunk_len),
+            })
+        }
+    }
+}
+
+fn observe_batch_final_polys<
+    F: RichField + Extendable<D>,
+    C: GenericConfig<D, F = F>,
+    const D: usize,
+>(
+    challenger: &mut Challenger<F, C::Hasher>,
+    final_polys: &FriFinalPolys<F, D>,
+) {
+    for chunk in &final_polys.chunks {
+        challenger.observe_extension_elements(&chunk.coeffs);
     }
 }
 
@@ -99,13 +173,15 @@ pub(crate) fn batch_fri_committed_trees<
     values: &[PolynomialValues<F::Extension>],
     challenger: &mut Challenger<F, C::Hasher>,
     fri_params: &FriParams,
-) -> FriCommitedTrees<F, C, D> {
+) -> Result<FriCommitedTrees<F, C, D>> {
     let mut trees = Vec::with_capacity(fri_params.reduction_arity_bits.len());
     let mut shift = F::MULTIPLICATIVE_GROUP_GENERATOR;
     let mut polynomial_index = 1;
     let mut final_values = values[0].clone();
     for (step, arity_bits) in fri_params.reduction_arity_bits.iter().enumerate() {
-        let arity = 1 << arity_bits;
+        let arity = 1usize
+            .checked_shl((*arity_bits).try_into().unwrap_or(usize::BITS))
+            .ok_or_else(|| anyhow::anyhow!("Batch FRI reduction arity is too large"))?;
 
         reverse_index_bits_in_place(&mut final_values.values);
         let chunked_values = final_values.values.par_chunks(arity).map(flatten).collect();
@@ -117,6 +193,10 @@ pub(crate) fn batch_fri_committed_trees<
         let beta = challenger.get_extension_challenge::<D>();
         // P(x) = sum_{i<r} x^i * P_i(x^r) becomes sum_{i<r} beta^i * P_i(x).
         // TODO: Optimize the folding process. Consider folding the functions directly in the value domain.
+        ensure!(
+            final_coeffs.len() % arity == 0,
+            "Batch FRI coefficients do not divide evenly by the reduction arity"
+        );
         final_coeffs = PolynomialCoeffs::new(
             final_coeffs
                 .coeffs
@@ -143,15 +223,21 @@ pub(crate) fn batch_fri_committed_trees<
         }
         final_coeffs = final_values.clone().coset_ifft(shift.into());
     }
-    assert_eq!(polynomial_index, values.len());
+    ensure!(
+        polynomial_index == values.len(),
+        "Batch FRI commit phase did not consume every LDE polynomial"
+    );
 
     // The coefficients being removed here should always be zero.
+    ensure!(
+        fri_params.config.rate_bits < usize::BITS as usize,
+        "Batch FRI rate bits exceed usize width"
+    );
     final_coeffs
         .coeffs
         .truncate(final_coeffs.len() >> fri_params.config.rate_bits);
 
-    challenger.observe_extension_elements(&final_coeffs.coeffs);
-    (trees, final_coeffs)
+    Ok((trees, final_coeffs))
 }
 
 fn batch_fri_prover_query_rounds<
@@ -319,7 +405,7 @@ mod tests {
             &mut challenger,
             &fri_params,
             &mut timing,
-        );
+        )?;
 
         let fri_challenges = verifier_challenger.fri_challenges::<C, D>(
             &proof.commit_phase_merkle_caps,
@@ -427,7 +513,7 @@ mod tests {
             &mut challenger,
             &fri_params,
             &mut timing,
-        );
+        )?;
 
         let get_test_fri_instance = |polynomial_index: usize| -> FriInstanceInfo<F, D> {
             FriInstanceInfo {

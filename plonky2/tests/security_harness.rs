@@ -1,6 +1,7 @@
 use std::panic::{catch_unwind, AssertUnwindSafe};
 
 use plonky2::batch_fri::oracle::BatchFriOracle;
+use plonky2::batch_fri::verifier::verify_batch_fri_proof;
 use plonky2::field::packable::Packable;
 use plonky2::field::packed::PackedField;
 use plonky2::field::polynomial::{PolynomialCoeffs, PolynomialValues};
@@ -14,8 +15,8 @@ use plonky2::fri::{
         FriBatchInfo, FriInstanceInfo, FriOpeningBatch, FriOpeningExpression, FriOpenings,
         FriOracleInfo, FriPolynomialInfo,
     },
-    validate_batch_fri_auxiliary_shape, validate_fri_auxiliary_shape, FriConfig,
-    FriFinalPolyLayout, FriParams, FriReductionStrategy,
+    validate_batch_fri_auxiliary_shape, validate_fri_auxiliary_shape, FriBatchMaskingParams,
+    FriChallenger, FriConfig, FriFinalPolyLayout, FriParams, FriReductionStrategy,
 };
 use plonky2::gates::coset_interpolation::CosetInterpolationGate;
 use plonky2::gates::exponentiation::ExponentiationGate;
@@ -562,6 +563,91 @@ fn malformed_batch_fri_metadata_returns_err() {
     assert!(oracle
         .get_lde_values_packed::<F>(0, usize::MAX, 2, 0, 1)
         .is_err());
+}
+
+#[test]
+fn polyfri_parameters_split_final_poly_not_hardcoded_single() -> anyhow::Result<()> {
+    let oracle = small_batch_fri_oracle();
+    let mut params = small_batch_fri_params();
+    params.final_poly_layout = FriFinalPolyLayout::Split {
+        chunk_degree_bits: 0,
+        chunks: 2,
+    };
+
+    let mut challenger = Challenger::<F, H>::new();
+    challenger.observe_cap(&oracle.batch_merkle_tree.cap);
+    let zeta = challenger.get_extension_challenge::<D>();
+    let opening = oracle.polynomials[0].to_extension::<D>().eval(zeta);
+    challenger.observe_extension_element::<D>(&opening);
+    let mut verifier_challenger = challenger.clone();
+    let mut timing = TimingTree::default();
+
+    let instance = FriInstanceInfo {
+        oracles: vec![FriOracleInfo {
+            num_polys: 1,
+            blinding: false,
+        }],
+        batches: vec![FriBatchInfo {
+            point: zeta,
+            openings: vec![FriOpeningExpression::raw(FriPolynomialInfo {
+                oracle_index: 0,
+                polynomial_index: 0,
+            })],
+        }],
+    };
+    let proof = BatchFriOracle::prove_openings(
+        &[2],
+        std::slice::from_ref(&instance),
+        &[&oracle],
+        &mut challenger,
+        &params,
+        &mut timing,
+    )?;
+
+    assert_eq!(proof.final_polys.layout, params.final_poly_layout);
+    assert_eq!(proof.final_polys.chunks.len(), 2);
+    assert!(proof
+        .final_polys
+        .chunks
+        .iter()
+        .all(|chunk| chunk.len() == 1));
+    assert!(proof.batch_mask_proof.is_none());
+
+    let fri_challenges = verifier_challenger.fri_challenges::<C, D>(
+        &proof.commit_phase_merkle_caps,
+        &proof.final_polys,
+        proof.pow_witness,
+        params.degree_bits,
+        &params.config,
+        None,
+        None,
+    );
+    verify_batch_fri_proof::<F, C, D>(
+        &[2],
+        std::slice::from_ref(&instance),
+        &[FriOpenings {
+            batches: vec![FriOpeningBatch {
+                values: vec![opening],
+            }],
+        }],
+        &fri_challenges,
+        &[oracle.batch_merkle_tree.cap.clone()],
+        &proof,
+        &params,
+    )?;
+
+    params.batch_masking = Some(FriBatchMaskingParams { mask_degree: 0 });
+    let unsupported = BatchFriOracle::prove_openings(
+        &[2],
+        std::slice::from_ref(&instance),
+        &[&oracle],
+        &mut challenger,
+        &params,
+        &mut timing,
+    );
+    assert!(unsupported.is_err());
+
+    Ok(())
 }
 
 fn fri_params_with_final_layout(final_poly_layout: FriFinalPolyLayout) -> FriParams {
