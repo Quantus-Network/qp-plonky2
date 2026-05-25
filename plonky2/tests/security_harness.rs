@@ -1,6 +1,7 @@
 use std::panic::{catch_unwind, AssertUnwindSafe};
 
 use plonky2::batch_fri::oracle::BatchFriOracle;
+use plonky2::batch_fri::prover::batch_fri_proof;
 use plonky2::batch_fri::verifier::verify_batch_fri_proof;
 use plonky2::field::packable::Packable;
 use plonky2::field::packed::PackedField;
@@ -563,6 +564,34 @@ fn malformed_batch_fri_metadata_returns_err() {
     assert!(oracle
         .get_lde_values_packed::<F>(0, usize::MAX, 2, 0, 1)
         .is_err());
+}
+
+#[test]
+fn empty_batch_fri_inputs_return_err() {
+    let params = small_batch_fri_params();
+    let mut challenger = Challenger::<F, H>::new();
+    let mut timing = TimingTree::default();
+
+    let empty_all = catch_unwind(AssertUnwindSafe(|| {
+        batch_fri_proof::<F, C, D>(
+            &[],
+            PolynomialCoeffs::empty(),
+            &[],
+            &mut challenger,
+            &params,
+            &mut timing,
+        )
+    }));
+    assert!(empty_all.is_ok(), "empty batch FRI inputs must not panic");
+    assert!(empty_all.unwrap().is_err());
+
+    let coeffs = PolynomialCoeffs::new(vec![FF::ZERO; 4]);
+    let values = vec![PolynomialValues::new(vec![FF::ZERO; 4])];
+    let empty_trees = catch_unwind(AssertUnwindSafe(|| {
+        batch_fri_proof::<F, C, D>(&[], coeffs, &values, &mut challenger, &params, &mut timing)
+    }));
+    assert!(empty_trees.is_ok(), "empty committed trees must not panic");
+    assert!(empty_trees.unwrap().is_err());
 }
 
 #[test]

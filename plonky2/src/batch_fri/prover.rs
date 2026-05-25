@@ -34,6 +34,10 @@ pub fn batch_fri_proof<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>,
     timing: &mut TimingTree,
 ) -> Result<FriProof<F, C::Hasher, D>> {
     validate_batch_fri_prover_params(fri_params)?;
+    ensure!(
+        !initial_merkle_trees.is_empty(),
+        "Batch FRI needs at least one committed tree"
+    );
     let n = lde_polynomial_coeffs.len();
     ensure!(n > 0, "Batch FRI codeword cannot be empty");
     ensure!(
