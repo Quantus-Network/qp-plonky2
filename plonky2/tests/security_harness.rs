@@ -23,6 +23,7 @@ use plonky2::fri::{
     validate_batch_fri_auxiliary_shape, validate_fri_auxiliary_shape, FriBatchMaskingParams,
     FriChallenger, FriConfig, FriFinalPolyLayout, FriParams, FriReductionStrategy,
 };
+use plonky2::gates::arithmetic_base::ArithmeticGate;
 use plonky2::gates::arithmetic_extension::ArithmeticExtensionGate;
 use plonky2::gates::coset_interpolation::CosetInterpolationGate;
 use plonky2::gates::exponentiation::ExponentiationGate;
@@ -1773,6 +1774,23 @@ fn gate_id_collision_common_data_rejected() {
     ];
 
     assert!(common_data.check_valid().is_err());
+}
+
+#[test]
+fn malformed_gate_metadata_rejected() {
+    let data = simple_circuit_data();
+    let serializer = DefaultGateSerializer;
+    let mut common = data.common.clone();
+    let malformed_num_ops = common.config.num_wires / 4 + 1;
+    common.gates = vec![GateRef::new(ArithmeticGate {
+        num_ops: malformed_num_ops,
+    })];
+
+    assert!(common.check_valid().is_err());
+    let bytes = common.to_bytes(&serializer).unwrap();
+    assert!(CommonCircuitData::<F, D>::from_bytes(bytes, &serializer).is_err());
+
+    data.common.check_valid().unwrap();
 }
 
 #[test]

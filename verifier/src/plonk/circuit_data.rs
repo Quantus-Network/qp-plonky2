@@ -280,6 +280,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
             return Err("lookup table is empty");
         }
 
+        self.check_gate_shapes()?;
         check_gate_id_collisions(&self.gates)?;
 
         Ok(())
@@ -344,6 +345,35 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
         self.check_oracle_layout(PlonkOracle::WIRES, self.config.num_wires)?;
         self.check_oracle_layout(PlonkOracle::ZS_PARTIAL_PRODUCTS, zs_lookup)?;
         self.check_oracle_layout(PlonkOracle::QUOTIENT, quotient)?;
+        Ok(())
+    }
+
+    fn check_gate_shapes(&self) -> Result<(), &'static str> {
+        for gate in &self.gates {
+            let num_wires = gate.0.num_wires();
+            if num_wires > self.config.num_wires {
+                return Err("gate uses more wires than the circuit config provides");
+            }
+
+            let num_constants = gate.0.num_constants();
+            if num_constants > self.config.num_constants {
+                return Err("gate uses more constants than the circuit config provides");
+            }
+
+            let num_constraints = gate.0.num_constraints();
+            if num_constraints > self.num_gate_constraints {
+                return Err("gate constraint count exceeds common metadata");
+            }
+
+            for (constant_index, wire_index) in gate.0.extra_constant_wires() {
+                if constant_index >= self.config.num_constants {
+                    return Err("gate extra constant index exceeds circuit constants");
+                }
+                if wire_index >= self.config.num_routed_wires {
+                    return Err("gate extra constant wire exceeds routed wires");
+                }
+            }
+        }
         Ok(())
     }
 
