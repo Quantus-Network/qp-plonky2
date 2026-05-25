@@ -1,2 +1,3 @@
 finding	severity	class	commit	status	notes
 64550	Medium	untrusted-artifact-validation	f6eaccba9	fixed	Malformed verifier cap panics FRI checks
+64576	Medium	untrusted-artifact-validation	5d3b6c17b	fixed	Malformed metadata causes panics
