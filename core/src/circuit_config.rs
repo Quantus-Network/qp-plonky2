@@ -287,6 +287,16 @@ impl CircuitConfig {
         Ok(())
     }
 
+    pub fn check_lookup_widths(&self) -> Result<(), &'static str> {
+        if self.num_routed_wires / 2 == 0 {
+            return Err("not enough routed wires for lookup gate");
+        }
+        if self.num_routed_wires / 3 == 0 {
+            return Err("not enough routed wires for lookup table gate");
+        }
+        Ok(())
+    }
+
     /// Validate that the circuit config has valid parameters. Panics on failure.
     ///
     /// Use this at circuit build time where invalid config is a programmer error.

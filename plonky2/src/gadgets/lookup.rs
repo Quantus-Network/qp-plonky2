@@ -78,6 +78,11 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     /// We call this function at the end of circuit building right before the PI gate to add all `LookupTableGate` and `LookupGate`.
     /// It also updates `self.lookup_rows` accordingly.
     pub fn add_all_lookups(&mut self) {
+        if self.num_luts() != 0 {
+            self.config
+                .check_lookup_widths()
+                .expect("Invalid lookup circuit config");
+        }
         for lut_index in 0..self.num_luts() {
             assert!(
                 !self.get_lut_lookups(lut_index).is_empty(),

@@ -9,7 +9,7 @@ use alloc::{
 #[cfg(feature = "std")]
 use std::sync::Arc;
 
-use anyhow::Result;
+use anyhow::{ensure, Result};
 use itertools::Itertools;
 use keccak_hash::keccak;
 
@@ -110,7 +110,8 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for LookupTableGat
         let lut_index = src.read_usize()?;
         let mut lut_hash = [0u8; 32];
         src.read_exact(&mut lut_hash)?;
-        if num_slots != Self::num_slots(&common_data.config) {
+        let expected_num_slots = Self::num_slots(&common_data.config);
+        if expected_num_slots == 0 || num_slots != expected_num_slots {
             return Err(crate::util::serialization::IoError);
         }
         let lut = common_data
@@ -219,8 +220,20 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D> for Loo
         _witness: &PartitionWitness<F>,
         out_buffer: &mut GeneratedValues<F>,
     ) -> Result<()> {
-        let first_row = self.last_lut_row + self.lut.len().div_ceil(self.num_slots) - 1;
-        let slot = (first_row - self.row) * self.num_slots + self.slot_nb;
+        ensure!(self.num_slots != 0, "LookupTableGenerator has zero slots");
+        let lut_rows = self.lut.len().div_ceil(self.num_slots);
+        let first_row = self
+            .last_lut_row
+            .checked_add(lut_rows)
+            .and_then(|row| row.checked_sub(1))
+            .ok_or_else(|| anyhow::anyhow!("LookupTableGenerator row range overflow"))?;
+        let row_offset = first_row
+            .checked_sub(self.row)
+            .ok_or_else(|| anyhow::anyhow!("LookupTableGenerator row outside table range"))?;
+        let slot = row_offset
+            .checked_mul(self.num_slots)
+            .and_then(|offset| offset.checked_add(self.slot_nb))
+            .ok_or_else(|| anyhow::anyhow!("LookupTableGenerator slot overflow"))?;
 
         let slot_input_target =
             Target::wire(self.row, LookupTableGate::wire_ith_looked_inp(self.slot_nb));
@@ -260,10 +273,22 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D> for Loo
         let num_slots = src.read_usize()?;
         let last_lut_row = src.read_usize()?;
         let lut_index = src.read_usize()?;
+        let expected_num_slots = LookupTableGate::num_slots(&common_data.config);
+        if expected_num_slots == 0 || num_slots != expected_num_slots || slot_nb >= num_slots {
+            return Err(crate::util::serialization::IoError);
+        }
+        let lut = common_data
+            .luts
+            .get(lut_index)
+            .ok_or(crate::util::serialization::IoError)?
+            .clone();
+        if lut.is_empty() {
+            return Err(crate::util::serialization::IoError);
+        }
 
         Ok(Self {
             row,
-            lut: common_data.luts[lut_index].clone(),
+            lut,
             slot_nb,
             num_slots,
             last_lut_row,

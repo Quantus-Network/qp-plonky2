@@ -612,6 +612,9 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
         self.config.check_valid()?;
         self.config.check_reducing_widths::<D>()?;
         self.config.check_extension_gate_widths::<D>()?;
+        if !self.luts.is_empty() || self.num_lookup_polys != 0 || self.num_lookup_selectors != 0 {
+            self.config.check_lookup_widths()?;
+        }
         self.fri_params
             .check_valid()
             .map_err(|_| "invalid FRI params")?;

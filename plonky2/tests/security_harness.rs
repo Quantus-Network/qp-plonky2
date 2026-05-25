@@ -1264,6 +1264,46 @@ fn forged_lookup_rows_returns_err_not_panic() -> anyhow::Result<()> {
 }
 
 #[test]
+fn zero_slot_generator_rejected() -> anyhow::Result<()> {
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let input = builder.add_virtual_target();
+    let table = std::sync::Arc::new(vec![(0u16, 10u16), (1u16, 11u16)]);
+    let table_index = builder.add_lookup_table_from_pairs(table);
+    let output = builder.add_lookup_from_index(input, table_index);
+    builder.register_public_input(output);
+
+    let data = builder.build::<C>();
+    let mut valid = PartialWitness::new();
+    valid.set_target(input, F::ONE)?;
+    let proof = data.prove(valid)?;
+    assert_eq!(proof.public_inputs, vec![F::from_canonical_u16(11)]);
+    data.verify(proof)?;
+
+    let rows = data.prover_only.lookup_rows[0].clone();
+    let mut forged = Vec::new();
+    forged.write_usize(rows.last_lut_gate).unwrap();
+    forged.write_usize(0).unwrap();
+    forged.write_usize(0).unwrap();
+    forged.write_usize(rows.last_lut_gate).unwrap();
+    forged.write_usize(0).unwrap();
+    let mut buffer = Buffer::new(&forged);
+    assert!(
+        <plonky2::gates::lookup_table::LookupTableGenerator as plonky2::iop::generator::SimpleGenerator<
+            F,
+            D,
+        >>::deserialize(&mut buffer, &data.common)
+        .is_err()
+    );
+
+    let mut narrow_lookup = CircuitConfig::standard_recursion_config();
+    narrow_lookup.num_routed_wires = 2;
+    assert!(narrow_lookup.check_lookup_widths().is_err());
+
+    Ok(())
+}
+
+#[test]
 fn merkle_poseidon_zero_suffix_leaf_collision_rejected() -> anyhow::Result<()> {
     let leaf = vec![
         F::from_canonical_u64(1),
