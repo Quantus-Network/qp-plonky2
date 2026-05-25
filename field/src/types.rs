@@ -5,6 +5,7 @@ use core::hash::Hash;
 use core::iter::{Product, Sum};
 use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
+use anyhow::{ensure, Result};
 use num::bigint::BigUint;
 use num::{Integer, One, ToPrimitive, Zero};
 use plonky2_util::bits_u64;
@@ -295,18 +296,35 @@ pub trait Field:
     }
 
     fn cyclic_subgroup_unknown_order(generator: Self) -> Vec<Self> {
-        let mut subgroup = Vec::new();
-        for power in generator.powers() {
-            if power.is_one() && !subgroup.is_empty() {
-                break;
-            }
-            subgroup.push(power);
-        }
-        subgroup
+        Self::try_cyclic_subgroup_unknown_order(generator)
+            .expect("invalid multiplicative subgroup generator")
+    }
+
+    fn try_cyclic_subgroup_unknown_order(generator: Self) -> Result<Vec<Self>> {
+        let order = Self::try_generator_order(generator)?;
+        Ok(Self::cyclic_subgroup_known_order(generator, order))
     }
 
     fn generator_order(generator: Self) -> usize {
-        generator.powers().skip(1).position(|y| y.is_one()).unwrap() + 1
+        Self::try_generator_order(generator).expect("invalid multiplicative subgroup generator")
+    }
+
+    fn try_generator_order(generator: Self) -> Result<usize> {
+        ensure!(
+            !generator.is_zero(),
+            "multiplicative subgroup generator must be nonzero"
+        );
+        let group_order = (Self::order() - 1u32)
+            .to_usize()
+            .ok_or_else(|| anyhow::anyhow!("multiplicative group order exceeds usize"))?;
+        for (i, power) in generator.powers().skip(1).take(group_order).enumerate() {
+            if power.is_one() {
+                return Ok(i + 1);
+            }
+        }
+        Err(anyhow::anyhow!(
+            "generator did not return to one within the multiplicative group order"
+        ))
     }
 
     /// Computes a coset of a multiplicative subgroup whose order is known in advance.
@@ -648,5 +666,22 @@ mod tests {
                 assert_eq!(iter.next(), Some(expect_next));
             }
         }
+    }
+
+    #[test]
+    fn generator_order_rejects_zero() {
+        type F = GoldilocksField;
+
+        assert!(F::try_generator_order(F::ZERO).is_err());
+        assert!(F::try_cyclic_subgroup_unknown_order(F::ZERO).is_err());
+
+        let order = F::try_generator_order(F::primitive_root_of_unity(5)).unwrap();
+        assert_eq!(order, 1 << 5);
+        assert_eq!(
+            F::try_cyclic_subgroup_unknown_order(F::primitive_root_of_unity(3))
+                .unwrap()
+                .len(),
+            1 << 3
+        );
     }
 }

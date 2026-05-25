@@ -479,6 +479,23 @@ fn subgroup_size_validation_rejects_invalid_sizes() {
 }
 
 #[test]
+fn zero_generator_hangs_rejected() {
+    assert!(F::try_generator_order(F::ZERO).is_err());
+    assert!(F::try_cyclic_subgroup_unknown_order(F::ZERO).is_err());
+
+    assert_eq!(
+        F::try_generator_order(F::primitive_root_of_unity(4)).unwrap(),
+        1 << 4
+    );
+    assert_eq!(
+        F::try_cyclic_subgroup_unknown_order(F::primitive_root_of_unity(3))
+            .unwrap()
+            .len(),
+        1 << 3
+    );
+}
+
+#[test]
 fn malformed_fri_oracle_metadata_rejected() {
     let instance = FriInstanceInfo::<F, D> {
         oracles: vec![FriOracleInfo {
