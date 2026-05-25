@@ -17,3 +17,4 @@ finding	severity	class	commit	status	notes
 64634	Medium	gadget-constraint-soundness	58641cce6	fixed	Zero-bit checks add no constraint
 64638	Medium	gadget-constraint-soundness	eee642d34	fixed	Out-of-range indices alias last element
 64641	Medium	runtime-dos-preconditions	db4bcebfd	fixed	Insufficient routed wires panic
+64656	Medium	untrusted-artifact-validation	5f2123e09	fixed	Forged lookup rows trigger panics
