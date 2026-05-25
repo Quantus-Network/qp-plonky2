@@ -1,0 +1,2 @@
+finding	severity	class	commit	status	notes
+64550	Medium	untrusted-artifact-validation	f6eaccba9	fixed	Malformed verifier cap panics FRI checks
