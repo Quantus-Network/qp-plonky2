@@ -43,3 +43,4 @@ finding	severity	class	commit	status	notes
 64719	Medium	runtime-dos-preconditions	13227feb2	fixed	Unvalidated witness targets can panic the prover
 64720	Medium	runtime-dos-preconditions	0f0a12880	fixed	Empty polynomial coefficients cause release-mode panics
 64721	Medium	gadget-constraint-soundness	1a64dad7b	fixed	Power-table length mismatches silently truncate polynomial evaluation
+64722	Medium	runtime-dos-preconditions	3dbfa152f	fixed	secp256k1 field bigint constructors panic on oversized inputs
