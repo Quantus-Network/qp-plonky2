@@ -14,6 +14,7 @@ use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::config::AlgebraicHasher;
 
 pub mod challenges;
+pub mod lazy_oracle;
 pub mod oracle;
 pub mod proof;
 pub mod prover;

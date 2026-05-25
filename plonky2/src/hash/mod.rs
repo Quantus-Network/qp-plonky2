@@ -5,6 +5,7 @@ pub mod batch_merkle_tree;
 pub mod hash_types;
 pub mod hashing;
 pub mod keccak;
+pub mod lazy_merkle_tree;
 pub mod merkle_proofs;
 pub mod merkle_tree;
 pub mod path_compression;
