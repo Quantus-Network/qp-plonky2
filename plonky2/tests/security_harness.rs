@@ -1864,6 +1864,33 @@ fn short_merkle_leaves_are_length_bound() -> anyhow::Result<()> {
 }
 
 #[test]
+fn merkle_leaf_commitments_length_bind_payloads() -> anyhow::Result<()> {
+    let leaf = vec![F::from_canonical_u64(1), F::from_canonical_u64(2)];
+    let mut zero_extended_leaf = leaf.clone();
+    zero_extended_leaf.push(F::ZERO);
+
+    let leaf_hash = PoseidonHash::hash_merkle_leaf(&leaf);
+    let extended_hash = PoseidonHash::hash_merkle_leaf(&zero_extended_leaf);
+    assert_ne!(leaf_hash, extended_hash);
+
+    let leaves = vec![
+        leaf.clone(),
+        vec![F::from_canonical_u64(3), F::from_canonical_u64(4)],
+    ];
+    let tree = MerkleTree::<F, PoseidonHash>::new(leaves, 0);
+    let proof = tree.prove(0);
+    verify_merkle_proof_to_cap(leaf, 0, &tree.cap, &proof)?;
+    assert!(verify_merkle_proof_to_cap(zero_extended_leaf, 0, &tree.cap, &proof).is_err());
+
+    let internal_node = PoseidonHash::two_to_one(leaf_hash, extended_hash);
+    assert_ne!(
+        PoseidonHash::hash_merkle_leaf(&internal_node.elements),
+        internal_node
+    );
+    Ok(())
+}
+
+#[test]
 fn trailing_zero_hash_len_delimited_distinguishes_lengths() {
     type P = <PoseidonHash as Hasher<F>>::Permutation;
 
