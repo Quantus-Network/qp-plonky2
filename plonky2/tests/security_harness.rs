@@ -904,6 +904,74 @@ fn malformed_verifier_metadata_rejected() {
 }
 
 #[test]
+fn malformed_compressed_proofs_return_err() -> anyhow::Result<()> {
+    let mut config = CircuitConfig::standard_recursion_config();
+    config.fri_config.reduction_strategy = FriReductionStrategy::Fixed(vec![1, 1]);
+    config.fri_config.num_query_rounds = 50;
+
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let x = builder.constant(F::from_canonical_u64(3));
+    let y = builder.constant(F::from_canonical_u64(5));
+    let product = builder.mul(x, y);
+    let expected = builder.constant(F::from_canonical_u64(15));
+    builder.connect(product, expected);
+    for _ in 0..100 {
+        builder.add_gate(NoopGate, vec![]);
+    }
+    let data = builder.build::<C>();
+    let proof = data.prove(PartialWitness::new())?;
+    let compressed = data.compress(proof)?;
+
+    data.verify_compressed(compressed.clone())?;
+    assert!(!compressed
+        .proof
+        .opening_proof
+        .query_round_proofs
+        .steps
+        .is_empty());
+
+    let mut missing_initial = compressed.clone();
+    missing_initial
+        .proof
+        .opening_proof
+        .query_round_proofs
+        .initial_trees_proofs
+        .clear();
+    let result = catch_unwind(AssertUnwindSafe(|| data.verify_compressed(missing_initial)));
+    assert!(
+        result.is_ok(),
+        "missing compressed initial proof must not panic"
+    );
+    assert!(result.unwrap().is_err());
+
+    let mut missing_step = compressed.clone();
+    missing_step.proof.opening_proof.query_round_proofs.steps[0].clear();
+    let result = catch_unwind(AssertUnwindSafe(|| data.verify_compressed(missing_step)));
+    assert!(
+        result.is_ok(),
+        "missing compressed step proof must not panic"
+    );
+    assert!(result.unwrap().is_err());
+
+    let mut mismatched_indices = compressed;
+    mismatched_indices
+        .proof
+        .opening_proof
+        .query_round_proofs
+        .indices[0] ^= 1;
+    let result = catch_unwind(AssertUnwindSafe(|| {
+        data.verify_compressed(mismatched_indices)
+    }));
+    assert!(
+        result.is_ok(),
+        "mismatched compressed query indices must not panic"
+    );
+    assert!(result.unwrap().is_err());
+
+    Ok(())
+}
+
+#[test]
 fn forged_proving_key_crashes_rejected() -> anyhow::Result<()> {
     let config = CircuitConfig::standard_recursion_polyfri_zk_config();
     let mut builder = CircuitBuilder::<F, D>::new(config);

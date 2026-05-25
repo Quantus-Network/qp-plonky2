@@ -193,7 +193,7 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         &self,
         challenges: &ProofChallenges<F, D>,
         common_data: &CommonCircuitData<F, D>,
-    ) -> FriInferredElements<F, D> {
+    ) -> anyhow::Result<FriInferredElements<F, D>> {
         let ProofChallenges {
             plonk_zeta,
             fri_challenges:
@@ -205,6 +205,32 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
                 },
             ..
         } = challenges;
+        let query_round_proofs = &self.proof.opening_proof.query_round_proofs;
+        let fri_instance = common_data.get_fri_instance(*plonk_zeta);
+        anyhow::ensure!(
+            !fri_query_indices.is_empty(),
+            "compressed FRI proof has no query indices"
+        );
+        anyhow::ensure!(
+            query_round_proofs.indices.len() == fri_query_indices.len()
+                && query_round_proofs
+                    .indices
+                    .iter()
+                    .zip(fri_query_indices)
+                    .all(|(stored, challenge)| stored == challenge),
+            "compressed FRI query indices do not match inferred challenge indices"
+        );
+        anyhow::ensure!(
+            query_round_proofs.steps.len() == common_data.fri_params.reduction_arity_bits.len(),
+            "compressed FRI step count does not match FRI reductions"
+        );
+        if let Some(batch_mask_proof) = &self.proof.opening_proof.batch_mask_proof {
+            anyhow::ensure!(
+                batch_mask_proof.query_openings.len() == fri_query_indices.len(),
+                "compressed FRI batch-mask opening count does not match query count"
+            );
+        }
+
         let mut fri_inferred_elements = Vec::new();
         // Holds the indices that have already been seen at each reduction depth.
         let mut seen_indices_by_depth =
@@ -220,13 +246,17 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         for (query_round_index, &(mut x_index)) in fri_query_indices.iter().enumerate() {
             let mut subgroup_x = F::MULTIPLICATIVE_GROUP_GENERATOR
                 * F::primitive_root_of_unity(log_n).exp_u64(reverse_bits(x_index, log_n) as u64);
+            let initial_trees_proof = query_round_proofs
+                .initial_trees_proofs
+                .get(&x_index)
+                .ok_or_else(|| anyhow::anyhow!("compressed FRI initial tree proof missing"))?;
+            anyhow::ensure!(
+                initial_trees_proof.evals_proofs.len() == fri_instance.oracles.len(),
+                "compressed FRI initial tree proof oracle count mismatch"
+            );
             let expected_unmasked_final = fri_combine_initial::<F, C, D>(
-                &common_data.get_fri_instance(*plonk_zeta),
-                &self
-                    .proof
-                    .opening_proof
-                    .query_round_proofs
-                    .initial_trees_proofs[&x_index],
+                &fri_instance,
+                initial_trees_proof,
                 *fri_alpha,
                 subgroup_x,
                 &precomputed_reduced_evals,
@@ -238,8 +268,12 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
                     .batch_mask_proof
                     .as_ref()
                     .map(|batch_mask_proof| {
+                        let query_opening = batch_mask_proof
+                            .query_openings
+                            .get(query_round_index)
+                            .expect("batch-mask opening count checked above");
                         eval_batch_mask_at_query_point(
-                            &batch_mask_proof.query_openings[query_round_index],
+                            query_opening,
                             subgroup_x.into(),
                             &common_data.fri_params,
                         )
@@ -259,9 +293,14 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
                 }
                 fri_inferred_elements.push(old_eval);
                 let arity = 1 << arity_bits;
-                let mut evals = self.proof.opening_proof.query_round_proofs.steps[i][&coset_index]
-                    .evals
-                    .clone();
+                let step = query_round_proofs.steps[i]
+                    .get(&coset_index)
+                    .ok_or_else(|| anyhow::anyhow!("compressed FRI step proof missing"))?;
+                anyhow::ensure!(
+                    step.evals.len() + 1 == arity,
+                    "compressed FRI step eval count does not match arity"
+                );
+                let mut evals = step.evals.clone();
                 let x_index_within_coset = x_index & (arity - 1);
                 evals.insert(x_index_within_coset, old_eval);
                 old_eval = compute_evaluation(
@@ -269,12 +308,14 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
                     x_index_within_coset,
                     arity_bits,
                     &evals,
-                    fri_betas[i],
+                    *fri_betas
+                        .get(i)
+                        .ok_or_else(|| anyhow::anyhow!("compressed FRI beta missing"))?,
                 );
                 subgroup_x = subgroup_x.exp_power_of_2(arity_bits);
                 x_index = coset_index;
             }
         }
-        FriInferredElements(fri_inferred_elements)
+        Ok(FriInferredElements(fri_inferred_elements))
     }
 }
