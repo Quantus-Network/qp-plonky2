@@ -741,6 +741,10 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         }
     }
 
+    pub fn try_push_context(&mut self, level: log::Level, ctx: &str) -> Result<(), &'static str> {
+        self.context_log.try_push(ctx, level, self.num_gates())
+    }
+
     pub fn push_context(&mut self, level: log::Level, ctx: &str) {
         self.context_log.push(ctx, level, self.num_gates());
     }

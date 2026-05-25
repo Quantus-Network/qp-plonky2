@@ -954,6 +954,39 @@ fn verifier_target_deserialization_rejects_oversized_cap() {
 }
 
 #[test]
+fn context_metadata_bounds_rejected_or_truncated() -> anyhow::Result<()> {
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+
+    for _ in 0..64 {
+        builder.try_push_context(log::Level::Debug, "ctx").unwrap();
+    }
+    assert!(builder
+        .try_push_context(log::Level::Debug, "one-context-too-deep")
+        .is_err());
+    for _ in 0..64 {
+        builder.pop_context();
+    }
+
+    let long_name = "x".repeat(100_000);
+    builder
+        .try_push_context(log::Level::Debug, &long_name)
+        .unwrap();
+    let a = builder.add_virtual_target();
+    let b = builder.add_virtual_target();
+    builder.connect(a, b);
+    builder.pop_context();
+
+    let data = builder.build::<C>();
+    let mut pw = PartialWitness::new();
+    pw.set_target(a, F::from_canonical_u64(7))?;
+    pw.set_target(b, F::from_canonical_u64(7))?;
+
+    let proof = data.prove(pw)?;
+    data.verify(proof)
+}
+
+#[test]
 fn merkle_poseidon_zero_suffix_leaf_collision_rejected() -> anyhow::Result<()> {
     let leaf = vec![
         F::from_canonical_u64(1),
