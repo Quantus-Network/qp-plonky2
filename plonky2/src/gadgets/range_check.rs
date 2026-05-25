@@ -147,4 +147,10 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D> for Low
             high,
         })
     }
+
+    fn validate(&self, common_data: &CommonCircuitData<F, D>) -> IoResult<()> {
+        crate::iop::generator::validate_target(common_data, self.integer)?;
+        crate::iop::generator::validate_target(common_data, self.low)?;
+        crate::iop::generator::validate_target(common_data, self.high)
+    }
 }

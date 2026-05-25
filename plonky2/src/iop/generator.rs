@@ -19,7 +19,7 @@ use crate::iop::wire::Wire;
 use crate::iop::witness::{PartialWitness, PartitionWitness, Witness, WitnessWrite};
 use crate::plonk::circuit_data::{CommonCircuitData, ProverOnlyCircuitData};
 use crate::plonk::config::GenericConfig;
-use crate::util::serialization::{Buffer, IoResult, Read, Write};
+use crate::util::serialization::{Buffer, IoError, IoResult, Read, Write};
 
 /// Given a `PartitionWitness` that has only inputs set, populates the rest of the witness using the
 /// given set of generators.
@@ -231,6 +231,48 @@ pub trait SimpleGenerator<F: RichField + Extendable<D>, const D: usize>:
     fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self>
     where
         Self: Sized;
+
+    fn validate(&self, common_data: &CommonCircuitData<F, D>) -> IoResult<()> {
+        for target in self.dependencies() {
+            validate_target(common_data, target)?;
+        }
+        Ok(())
+    }
+}
+
+pub(crate) fn checked_degree<F: RichField + Extendable<D>, const D: usize>(
+    common_data: &CommonCircuitData<F, D>,
+) -> IoResult<usize> {
+    1usize
+        .checked_shl(
+            common_data
+                .trace_degree_bits
+                .try_into()
+                .unwrap_or(usize::BITS),
+        )
+        .ok_or(IoError)
+}
+
+pub(crate) fn validate_wire_coordinates<F: RichField + Extendable<D>, const D: usize>(
+    common_data: &CommonCircuitData<F, D>,
+    row: usize,
+    column: usize,
+) -> IoResult<()> {
+    let degree = checked_degree(common_data)?;
+    if row >= degree || column >= common_data.config.num_wires {
+        return Err(IoError);
+    }
+    Ok(())
+}
+
+pub(crate) fn validate_target<F: RichField + Extendable<D>, const D: usize>(
+    common_data: &CommonCircuitData<F, D>,
+    target: Target,
+) -> IoResult<()> {
+    match target {
+        Target::Wire(Wire { row, column }) => validate_wire_coordinates(common_data, row, column),
+        Target::VirtualTarget { .. } => Ok(()),
+    }
 }
 
 #[derive(Debug)]
@@ -267,8 +309,10 @@ impl<F: RichField + Extendable<D>, SG: SimpleGenerator<F, D>, const D: usize> Wi
     }
 
     fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
+        let inner = SG::deserialize(src, common_data)?;
+        inner.validate(common_data)?;
         Ok(Self {
-            inner: SG::deserialize(src, common_data)?,
+            inner,
             _phantom: PhantomData,
         })
     }
@@ -309,6 +353,11 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D> for Cop
         let dst = source.read_target()?;
         Ok(Self { src, dst })
     }
+
+    fn validate(&self, common_data: &CommonCircuitData<F, D>) -> IoResult<()> {
+        validate_target(common_data, self.src)?;
+        validate_target(common_data, self.dst)
+    }
 }
 
 /// A generator for including a random value
@@ -344,6 +393,10 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D> for Ran
     fn deserialize(src: &mut Buffer, _common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
         let target = src.read_target()?;
         Ok(Self { target })
+    }
+
+    fn validate(&self, common_data: &CommonCircuitData<F, D>) -> IoResult<()> {
+        validate_target(common_data, self.target)
     }
 }
 
@@ -388,6 +441,11 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D> for Non
         let to_test = src.read_target()?;
         let dummy = src.read_target()?;
         Ok(Self { to_test, dummy })
+    }
+
+    fn validate(&self, common_data: &CommonCircuitData<F, D>) -> IoResult<()> {
+        validate_target(common_data, self.to_test)?;
+        validate_target(common_data, self.dummy)
     }
 }
 
@@ -441,5 +499,12 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D> for Con
             wire_index,
             constant,
         })
+    }
+
+    fn validate(&self, common_data: &CommonCircuitData<F, D>) -> IoResult<()> {
+        if self.constant_index >= common_data.config.num_constants {
+            return Err(IoError);
+        }
+        validate_wire_coordinates(common_data, self.row, self.wire_index)
     }
 }

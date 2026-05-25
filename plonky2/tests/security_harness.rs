@@ -62,8 +62,8 @@ use plonky2::recursion::cyclic_recursion::check_cyclic_proof_verifier_data;
 use plonky2::recursion::dummy_circuit::{try_cyclic_base_proof, try_dummy_circuit};
 use plonky2::util::reducing::ReducingFactorTarget;
 use plonky2::util::serialization::{
-    Buffer, DefaultGateSerializer, DefaultGeneratorSerializer, IoResult, Write,
-    MAX_DESERIALIZED_MERKLE_CAP_LEN,
+    Buffer, DefaultGateSerializer, DefaultGeneratorSerializer, IoResult,
+    WitnessGeneratorSerializer, Write, MAX_DESERIALIZED_MERKLE_CAP_LEN,
 };
 use plonky2::util::strided_view::PackedStridedView;
 use plonky2::util::timing::TimingTree;
@@ -468,6 +468,47 @@ fn valid_fft_root_table_roundtrip_recomputes() {
         ProverOnlyCircuitData::<F, C, D>::from_bytes(&bytes, &serializer, &data.common).unwrap();
 
     assert!(decoded.fft_root_table.is_some());
+}
+
+#[test]
+fn generator_deserialization_bounds_rejected() {
+    const CONSTANT_GENERATOR_TAG: u32 = 4;
+
+    let data = simple_circuit_data();
+    let serializer = DefaultGeneratorSerializer::<C, D>::default();
+
+    let mut valid = Vec::new();
+    valid.write_u32(CONSTANT_GENERATOR_TAG).unwrap();
+    valid.write_usize(0).unwrap();
+    valid.write_usize(0).unwrap();
+    valid.write_usize(0).unwrap();
+    valid.write_field(F::ONE).unwrap();
+    let mut valid_buffer = Buffer::new(&valid);
+    assert!(serializer
+        .read_generator(&mut valid_buffer, &data.common)
+        .is_ok());
+
+    let mut bad_row = Vec::new();
+    bad_row.write_u32(CONSTANT_GENERATOR_TAG).unwrap();
+    bad_row.write_usize(data.common.degree()).unwrap();
+    bad_row.write_usize(0).unwrap();
+    bad_row.write_usize(0).unwrap();
+    bad_row.write_field(F::ONE).unwrap();
+    let mut bad_row_buffer = Buffer::new(&bad_row);
+    assert!(serializer
+        .read_generator(&mut bad_row_buffer, &data.common)
+        .is_err());
+
+    let mut bad_wire = Vec::new();
+    bad_wire.write_u32(CONSTANT_GENERATOR_TAG).unwrap();
+    bad_wire.write_usize(0).unwrap();
+    bad_wire.write_usize(0).unwrap();
+    bad_wire.write_usize(data.common.config.num_wires).unwrap();
+    bad_wire.write_field(F::ONE).unwrap();
+    let mut bad_wire_buffer = Buffer::new(&bad_wire);
+    assert!(serializer
+        .read_generator(&mut bad_wire_buffer, &data.common)
+        .is_err());
 }
 
 #[test]

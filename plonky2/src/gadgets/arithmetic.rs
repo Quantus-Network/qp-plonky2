@@ -433,6 +433,13 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D> for Equ
         let inv = src.read_target()?;
         Ok(Self { x, y, equal, inv })
     }
+
+    fn validate(&self, common_data: &CommonCircuitData<F, D>) -> IoResult<()> {
+        crate::iop::generator::validate_target(common_data, self.x)?;
+        crate::iop::generator::validate_target(common_data, self.y)?;
+        crate::iop::generator::validate_target(common_data, self.equal.target)?;
+        crate::iop::generator::validate_target(common_data, self.inv)
+    }
 }
 
 /// Represents a base arithmetic operation in the circuit. Used to memoize results.

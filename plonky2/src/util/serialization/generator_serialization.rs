@@ -37,6 +37,7 @@ macro_rules! read_generator_impl {
         $(if tag == i.next().unwrap() {
         let generator =
             <$generator_types as $crate::iop::generator::SimpleGenerator<F, D>>::deserialize(buf, $common)?;
+        $crate::iop::generator::SimpleGenerator::<F, D>::validate(&generator, $common)?;
         Ok($crate::iop::generator::WitnessGeneratorRef::<F, D>::new(
             $crate::iop::generator::SimpleGenerator::<F, D>::adapter(generator),
         ))
