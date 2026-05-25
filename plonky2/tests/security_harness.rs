@@ -33,6 +33,7 @@ use plonky2::gates::reducing::ReducingGate;
 use plonky2::gates::reducing_extension::ReducingExtensionGate;
 use plonky2::gates::util::StridedConstraintConsumer;
 use plonky2::hash::batch_merkle_tree::BatchMerkleTree;
+use plonky2::hash::hashing::hash_n_to_hash_len_delimited;
 use plonky2::hash::merkle_proofs::{
     verify_batch_merkle_proof_to_cap, verify_merkle_proof_to_cap, MerkleProof, MerkleProofTarget,
 };
@@ -1445,6 +1446,24 @@ fn merkle_poseidon_zero_suffix_leaf_collision_rejected() -> anyhow::Result<()> {
     assert!(verify_merkle_proof_to_cap(zero_extended_leaf, 0, &tree.cap, &proof).is_err());
 
     Ok(())
+}
+
+#[test]
+fn trailing_zero_hash_len_delimited_distinguishes_lengths() {
+    type P = <PoseidonHash as Hasher<F>>::Permutation;
+
+    let x = F::from_canonical_u64(123);
+    assert_eq!(
+        PoseidonHash::hash_no_pad(&[x]),
+        PoseidonHash::hash_no_pad(&[x, F::ZERO])
+    );
+
+    let h1 = hash_n_to_hash_len_delimited::<F, P>(&[x]);
+    let h2 = hash_n_to_hash_len_delimited::<F, P>(&[x, F::ZERO]);
+    let h3 = hash_n_to_hash_len_delimited::<F, P>(&[x, F::ZERO, F::ZERO]);
+    assert_ne!(h1, h2);
+    assert_ne!(h2, h3);
+    assert_ne!(h1, h3);
 }
 
 #[test]

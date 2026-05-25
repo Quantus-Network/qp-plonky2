@@ -94,6 +94,18 @@ pub fn hash_n_to_hash_no_pad<F: RichField, P: PlonkyPermutation<F>>(inputs: &[F]
     HashOut::from_vec(hash_n_to_m_no_pad::<F, P>(inputs, NUM_HASH_OUT_ELTS))
 }
 
+/// Hash a variable-length message by prefixing its exact field-element length before using the
+/// fixed-length no-pad sponge. Prefer this over [`hash_n_to_hash_no_pad`] when message lengths are
+/// not already fixed by the protocol.
+pub fn hash_n_to_hash_len_delimited<F: RichField, P: PlonkyPermutation<F>>(
+    inputs: &[F],
+) -> HashOut<F> {
+    let mut encoded = Vec::with_capacity(inputs.len() + 1);
+    encoded.push(F::from_canonical_usize(inputs.len()));
+    encoded.extend_from_slice(inputs);
+    hash_n_to_hash_no_pad::<F, P>(&encoded)
+}
+
 /// Poseidon2 variable length padding (…||1||0* to RATE)
 pub fn hash_n_to_hash_no_pad_p2<F: RichField, P: PlonkyPermutation<F>>(inputs: &[F]) -> HashOut<F> {
     let rate = P::RATE;
@@ -119,4 +131,28 @@ pub fn hash_n_to_hash_no_pad_p2<F: RichField, P: PlonkyPermutation<F>>(inputs: &
 
     // Squeeze without an extra permute.
     HashOut::from_vec(perm.squeeze()[..NUM_HASH_OUT_ELTS].to_vec())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::config::Hasher;
+    use crate::field::goldilocks_field::GoldilocksField;
+    use crate::poseidon::PoseidonHash;
+
+    #[test]
+    fn length_delimited_hash_distinguishes_trailing_zeros() {
+        type F = GoldilocksField;
+        type P = <PoseidonHash as Hasher<F>>::Permutation;
+
+        let x = F::from_canonical_u64(123);
+        assert_eq!(
+            hash_n_to_hash_no_pad::<F, P>(&[x]),
+            hash_n_to_hash_no_pad::<F, P>(&[x, F::ZERO])
+        );
+        assert_ne!(
+            hash_n_to_hash_len_delimited::<F, P>(&[x]),
+            hash_n_to_hash_len_delimited::<F, P>(&[x, F::ZERO])
+        );
+    }
 }
