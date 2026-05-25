@@ -52,6 +52,7 @@ use plonky2::plonk::circuit_data::{
     CircuitConfig, CommonCircuitData, ProverOnlyCircuitData, VerifierCircuitTarget,
 };
 use plonky2::plonk::config::{AlgebraicHasher, GenericConfig, Hasher, PoseidonGoldilocksConfig};
+use plonky2::plonk::plonk_common::PlonkOracle;
 use plonky2::plonk::proof::{OpeningSetTarget, ProofTarget, ProofWithPublicInputsTarget};
 use plonky2::plonk::prover::prove;
 use plonky2::plonk::vars::{EvaluationTargets, EvaluationVars};
@@ -898,6 +899,30 @@ fn malformed_verifier_metadata_rejected() {
 
     assert!(common.check_valid().is_err());
     let bytes = common.to_bytes(&serializer).unwrap();
+    assert!(CommonCircuitData::<F, D>::from_bytes(bytes, &serializer).is_err());
+
+    data.common.check_valid().unwrap();
+    let bytes = data.common.to_bytes(&serializer).unwrap();
+    assert!(CommonCircuitData::<F, D>::from_bytes(bytes, &serializer).is_ok());
+}
+
+#[test]
+fn unvalidated_circuit_metadata_rejected() {
+    let data = simple_circuit_data();
+    let serializer = DefaultGateSerializer;
+
+    let mut short_layouts = data.common.clone();
+    short_layouts
+        .fri_oracle_layouts
+        .truncate(PlonkOracle::QUOTIENT.index);
+    assert!(short_layouts.check_valid().is_err());
+    let bytes = short_layouts.to_bytes(&serializer).unwrap();
+    assert!(CommonCircuitData::<F, D>::from_bytes(bytes, &serializer).is_err());
+
+    let mut wrong_wire_count = data.common.clone();
+    wrong_wire_count.fri_oracle_layouts[PlonkOracle::WIRES.index].logical_polys += 1;
+    assert!(wrong_wire_count.check_valid().is_err());
+    let bytes = wrong_wire_count.to_bytes(&serializer).unwrap();
     assert!(CommonCircuitData::<F, D>::from_bytes(bytes, &serializer).is_err());
 
     data.common.check_valid().unwrap();

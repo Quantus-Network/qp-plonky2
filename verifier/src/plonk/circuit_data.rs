@@ -17,7 +17,7 @@ use crate::field::extension::Extendable;
 use crate::field::types::Field;
 use crate::fri::structure::{
     FriBatchInfo, FriInstanceInfo, FriOpeningExpression, FriOracleInfo, FriOracleLayout,
-    FriPolynomialInfo,
+    FriOracleRepresentation, FriPolynomialInfo,
 };
 use crate::gates::gate::{check_gate_id_collisions, GateRef};
 use crate::gates::lookup_table::LookupTable;
@@ -273,6 +273,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
         if self.public_initial_degree_bits != self.fri_params.degree_bits {
             return Err("public_initial_degree_bits must match FRI degree_bits");
         }
+        self.check_fri_oracle_layouts()?;
 
         // All lookup tables must be non-empty.
         if self.luts.iter().any(|lut| lut.is_empty()) {
@@ -281,6 +282,68 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
 
         check_gate_id_collisions(&self.gates)?;
 
+        Ok(())
+    }
+
+    fn checked_layout_poly_count(
+        lhs: usize,
+        rhs: usize,
+        err: &'static str,
+    ) -> Result<usize, &'static str> {
+        lhs.checked_mul(rhs).ok_or(err)
+    }
+
+    fn check_oracle_layout(
+        &self,
+        oracle: PlonkOracle,
+        expected_polys: usize,
+    ) -> Result<(), &'static str> {
+        let layout = self
+            .fri_oracle_layouts
+            .get(oracle.index)
+            .ok_or("missing FRI oracle layout")?;
+        if layout.raw_polys != expected_polys || layout.logical_polys != expected_polys {
+            return Err("FRI oracle layout polynomial count mismatch");
+        }
+        if !matches!(layout.representation, FriOracleRepresentation::Raw) {
+            return Err("unsupported public FRI oracle representation");
+        }
+        Ok(())
+    }
+
+    fn check_fri_oracle_layouts(&self) -> Result<(), &'static str> {
+        let required_len = PlonkOracle::QUOTIENT
+            .index
+            .checked_add(1)
+            .ok_or("FRI oracle layout index overflow")?;
+        if self.fri_oracle_layouts.len() < required_len {
+            return Err("missing FRI oracle layouts");
+        }
+
+        let constants_sigmas = self
+            .num_constants
+            .checked_add(self.config.num_routed_wires)
+            .ok_or("constants/sigmas layout overflow")?;
+        let zs_lookup_per_challenge = self
+            .num_partial_products
+            .checked_add(1)
+            .and_then(|count| count.checked_add(self.num_lookup_polys))
+            .ok_or("zs/lookup layout overflow")?;
+        let zs_lookup = Self::checked_layout_poly_count(
+            self.config.num_challenges,
+            zs_lookup_per_challenge,
+            "zs/lookup layout overflow",
+        )?;
+        let quotient = Self::checked_layout_poly_count(
+            self.config.num_challenges,
+            self.quotient_degree_factor,
+            "quotient layout overflow",
+        )?;
+
+        self.check_oracle_layout(PlonkOracle::CONSTANTS_SIGMAS, constants_sigmas)?;
+        self.check_oracle_layout(PlonkOracle::WIRES, self.config.num_wires)?;
+        self.check_oracle_layout(PlonkOracle::ZS_PARTIAL_PRODUCTS, zs_lookup)?;
+        self.check_oracle_layout(PlonkOracle::QUOTIENT, quotient)?;
         Ok(())
     }
 
