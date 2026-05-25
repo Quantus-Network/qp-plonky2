@@ -27,3 +27,4 @@ finding	severity	class	commit	status	notes
 64687	Medium	untrusted-artifact-validation	5192053ce	fixed	Malformed verifier metadata triggers panic
 64690	Medium	untrusted-artifact-validation	c758e2bf8	fixed	Malformed domains panic in release
 64701	Medium	merkle-hash-binding	9ad1b7f85	fixed	Trailing-zero hash collisions
+64702	Medium	runtime-dos-preconditions	3725f4746	fixed	Zero-output request never terminates
