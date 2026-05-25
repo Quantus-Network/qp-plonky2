@@ -268,6 +268,25 @@ impl CircuitConfig {
         Ok(())
     }
 
+    pub fn check_extension_gate_widths<const D: usize>(&self) -> Result<(), &'static str> {
+        if D == 0 {
+            return Err("extension degree must not be 0");
+        }
+        let mul_wires = 3usize
+            .checked_mul(D)
+            .ok_or("multiplication extension gate wire budget overflow")?;
+        if self.num_routed_wires < mul_wires {
+            return Err("not enough routed wires for multiplication extension gate");
+        }
+        let arithmetic_wires = 4usize
+            .checked_mul(D)
+            .ok_or("arithmetic extension gate wire budget overflow")?;
+        if self.num_routed_wires < arithmetic_wires {
+            return Err("not enough routed wires for arithmetic extension gate");
+        }
+        Ok(())
+    }
+
     /// Validate that the circuit config has valid parameters. Panics on failure.
     ///
     /// Use this at circuit build time where invalid config is a programmer error.

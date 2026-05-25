@@ -21,9 +21,11 @@ use plonky2::fri::{
     validate_batch_fri_auxiliary_shape, validate_fri_auxiliary_shape, FriBatchMaskingParams,
     FriChallenger, FriConfig, FriFinalPolyLayout, FriParams, FriReductionStrategy,
 };
+use plonky2::gates::arithmetic_extension::ArithmeticExtensionGate;
 use plonky2::gates::coset_interpolation::CosetInterpolationGate;
 use plonky2::gates::exponentiation::ExponentiationGate;
 use plonky2::gates::gate::{Gate, GateRef};
+use plonky2::gates::multiplication_extension::MulExtensionGate;
 use plonky2::gates::noop::NoopGate;
 use plonky2::gates::reducing::ReducingGate;
 use plonky2::gates::reducing_extension::ReducingExtensionGate;
@@ -1163,6 +1165,32 @@ fn random_access_alias_rejected() -> anyhow::Result<()> {
     let proof = data.prove(pw)?;
     assert_eq!(proof.public_inputs, vec![F::from_canonical_u64(4)]);
     data.verify(proof)
+}
+
+#[test]
+fn insufficient_routed_wires_rejected() {
+    let mut no_mul_config = CircuitConfig::standard_recursion_config();
+    no_mul_config.num_routed_wires = 3 * D - 1;
+    assert!(no_mul_config.check_extension_gate_widths::<D>().is_err());
+    assert!(MulExtensionGate::<D>::try_new_from_config(&no_mul_config).is_err());
+
+    let mut no_arithmetic_config = CircuitConfig::standard_recursion_config();
+    no_arithmetic_config.num_routed_wires = 4 * D - 1;
+    assert!(MulExtensionGate::<D>::try_new_from_config(&no_arithmetic_config).is_ok());
+    assert!(ArithmeticExtensionGate::<D>::try_new_from_config(&no_arithmetic_config).is_err());
+    assert!(no_arithmetic_config
+        .check_extension_gate_widths::<D>()
+        .is_err());
+
+    let standard = CircuitConfig::standard_recursion_config();
+    assert!(standard.check_extension_gate_widths::<D>().is_ok());
+    assert!(ArithmeticExtensionGate::<D>::try_new_from_config(&standard).is_ok());
+    assert!(MulExtensionGate::<D>::try_new_from_config(&standard).is_ok());
+
+    let result = catch_unwind(AssertUnwindSafe(|| {
+        let _ = CircuitBuilder::<F, D>::new(no_arithmetic_config);
+    }));
+    assert!(result.is_err());
 }
 
 #[test]

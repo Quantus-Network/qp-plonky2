@@ -19,10 +19,21 @@ pub struct MulExtensionGate<const D: usize> {
 }
 
 impl<const D: usize> MulExtensionGate<D> {
-    pub const fn new_from_config(config: &CircuitConfig) -> Self {
-        Self {
-            num_ops: Self::num_ops(config),
+    pub fn try_new_from_config(config: &CircuitConfig) -> core::result::Result<Self, &'static str> {
+        let num_ops = Self::num_ops(config);
+        if num_ops == 0 {
+            return Err("not enough routed wires for multiplication extension gate");
         }
+        Ok(Self { num_ops })
+    }
+
+    pub const fn new_from_config(config: &CircuitConfig) -> Self {
+        let num_ops = Self::num_ops(config);
+        assert!(
+            num_ops > 0,
+            "not enough routed wires for multiplication extension gate"
+        );
+        Self { num_ops }
     }
 
     /// Determine the maximum number of operations that can fit in one gate for the given config.
