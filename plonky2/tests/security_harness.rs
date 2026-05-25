@@ -4,6 +4,7 @@ use hashbrown::HashMap;
 use plonky2::batch_fri::oracle::BatchFriOracle;
 use plonky2::batch_fri::prover::batch_fri_proof;
 use plonky2::batch_fri::verifier::verify_batch_fri_proof;
+use plonky2::field::cosets::{get_unique_coset_shifts, try_get_unique_coset_shifts};
 use plonky2::field::interpolation::{try_barycentric_weights, try_interpolant, try_interpolate2};
 use plonky2::field::packable::Packable;
 use plonky2::field::packed::PackedField;
@@ -463,6 +464,18 @@ fn zero_poly_on_coset_valid_domain_works() {
     let eval = z_h.eval(0);
     let eval_inverse = z_h.eval_inverse(0);
     assert_eq!(eval * eval_inverse, F::ONE);
+}
+
+#[test]
+fn subgroup_size_validation_rejects_invalid_sizes() {
+    assert!(try_get_unique_coset_shifts::<F>(0, 1).is_err());
+    if usize::BITS > 32 {
+        assert!(try_get_unique_coset_shifts::<F>(1usize << 32, 1).is_err());
+    }
+    assert!(try_get_unique_coset_shifts::<F>(7, 1).is_err());
+
+    let valid = try_get_unique_coset_shifts::<F>(1 << 5, 4).unwrap();
+    assert_eq!(valid, get_unique_coset_shifts::<F>(1 << 5, 4));
 }
 
 #[test]

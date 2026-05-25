@@ -1,15 +1,36 @@
 use alloc::vec::Vec;
 
+use anyhow::{ensure, Result};
 use num::bigint::BigUint;
+use num::Zero;
 
 use crate::types::Field;
 
 /// Finds a set of shifts that result in unique cosets for the multiplicative subgroup of size
 /// `2^subgroup_bits`.
 pub fn get_unique_coset_shifts<F: Field>(subgroup_size: usize, num_shifts: usize) -> Vec<F> {
+    try_get_unique_coset_shifts(subgroup_size, num_shifts).expect("invalid coset shift parameters")
+}
+
+pub fn try_get_unique_coset_shifts<F: Field>(
+    subgroup_size: usize,
+    num_shifts: usize,
+) -> Result<Vec<F>> {
+    ensure!(subgroup_size != 0, "subgroup size must be non-zero");
+    ensure!(
+        subgroup_size <= u32::MAX as usize,
+        "subgroup size exceeds supported range"
+    );
+
     // From Lagrange's theorem.
-    let num_cosets = (F::order() - 1u32) / (subgroup_size as u32);
-    assert!(
+    let group_order = F::order() - 1u32;
+    let subgroup_size = BigUint::from(subgroup_size);
+    ensure!(
+        (&group_order % &subgroup_size).is_zero(),
+        "subgroup size must divide the multiplicative group order"
+    );
+    let num_cosets = group_order / subgroup_size;
+    ensure!(
         BigUint::from(num_shifts) <= num_cosets,
         "The subgroup does not have enough distinct cosets"
     );
@@ -17,17 +38,17 @@ pub fn get_unique_coset_shifts<F: Field>(subgroup_size: usize, num_shifts: usize
     // Let g be a generator of the entire multiplicative group. Let n be the order of the subgroup.
     // The subgroup can be written as <g^(|F*| / n)>. We can use g^0, ..., g^(num_shifts - 1) as our
     // shifts, since g^i <g^(|F*| / n)> are distinct cosets provided i < |F*| / n, which we checked.
-    F::MULTIPLICATIVE_GROUP_GENERATOR
+    Ok(F::MULTIPLICATIVE_GROUP_GENERATOR
         .powers()
         .take(num_shifts)
-        .collect()
+        .collect::<Vec<_>>())
 }
 
 #[cfg(test)]
 mod tests {
     use std::collections::HashSet;
 
-    use crate::cosets::get_unique_coset_shifts;
+    use crate::cosets::{get_unique_coset_shifts, try_get_unique_coset_shifts};
     use crate::goldilocks_field::GoldilocksField;
     use crate::types::Field;
 
@@ -50,5 +71,18 @@ mod tests {
                 "Duplicate element!"
             );
         }
+    }
+
+    #[test]
+    fn subgroup_size_validation() {
+        type F = GoldilocksField;
+        assert!(try_get_unique_coset_shifts::<F>(0, 1).is_err());
+        if usize::BITS > 32 {
+            assert!(try_get_unique_coset_shifts::<F>(1usize << 32, 1).is_err());
+        }
+        assert!(try_get_unique_coset_shifts::<F>(7, 1).is_err());
+
+        let valid = try_get_unique_coset_shifts::<F>(1 << 5, 4).unwrap();
+        assert_eq!(valid, get_unique_coset_shifts::<F>(1 << 5, 4));
     }
 }
