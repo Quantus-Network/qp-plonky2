@@ -31,3 +31,4 @@ finding	severity	class	commit	status	notes
 64706	Medium	untrusted-artifact-validation	c5cd9414f	test-only-covered	Malformed Merkle caps can panic proof verification; root fixed by f6eaccba9
 64707	Medium	untrusted-artifact-validation	4932fe0eb	fixed	Malformed compressed proofs panic instead of returning errors
 64708	Medium	merkle-hash-binding	86bb5cd5d	test-only-covered	Short Merkle leaves are not uniquely committed; root fixed by c5f8b727a
+64709	Medium	merkle-hash-binding	a1bf921e8	fixed	Poseidon2 recursive Merkle hashing ignores branch direction
