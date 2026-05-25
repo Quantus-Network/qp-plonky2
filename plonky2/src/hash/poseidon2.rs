@@ -199,6 +199,16 @@ impl<F: RichField + P2Permuter> AlgebraicHasher<F> for Poseidon2Hash {
         Poseidon2Permutation { state }
     }
 
+    fn hash_no_pad_circuit<const D: usize>(
+        builder: &mut CircuitBuilder<F, D>,
+        inputs: Vec<Target>,
+    ) -> HashOutTarget
+    where
+        F: RichField + Extendable<D>,
+    {
+        builder.hash_n_to_hash_no_pad_p2::<Self>(inputs)
+    }
+
     fn hash_merkle_leaf_circuit<const D: usize>(
         builder: &mut CircuitBuilder<F, D>,
         leaf_data: Vec<Target>,

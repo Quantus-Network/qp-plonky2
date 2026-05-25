@@ -33,6 +33,16 @@ pub trait AlgebraicHasher<F: RichField>: Hasher<F, Hash = HashOut<F>> {
     where
         F: RichField + Extendable<D>;
 
+    fn hash_no_pad_circuit<const D: usize>(
+        builder: &mut CircuitBuilder<F, D>,
+        inputs: Vec<Target>,
+    ) -> HashOutTarget
+    where
+        F: RichField + Extendable<D>,
+    {
+        HashOutTarget::from_vec(builder.hash_n_to_m_no_pad::<Self>(inputs, NUM_HASH_OUT_ELTS))
+    }
+
     fn hash_merkle_leaf_circuit<const D: usize>(
         builder: &mut CircuitBuilder<F, D>,
         leaf_data: Vec<Target>,

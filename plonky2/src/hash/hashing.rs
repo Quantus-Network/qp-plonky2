@@ -23,7 +23,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         &mut self,
         inputs: Vec<Target>,
     ) -> HashOutTarget {
-        HashOutTarget::from_vec(self.hash_n_to_m_no_pad::<H>(inputs, NUM_HASH_OUT_ELTS))
+        H::hash_no_pad_circuit(self, inputs)
     }
 
     pub fn hash_n_to_m_no_pad<H: AlgebraicHasher<F>>(

@@ -2017,6 +2017,28 @@ fn poseidon2_branch_direction_direct_permutation() -> anyhow::Result<()> {
 }
 
 #[test]
+fn poseidon2_generic_hash_matches_native() -> anyhow::Result<()> {
+    let inputs: Vec<_> = (0..17).map(|i| F::from_canonical_u64(100 + i)).collect();
+    let expected = Poseidon2Hash::hash_no_pad(&inputs);
+
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let input_targets = builder.add_virtual_targets(inputs.len());
+    let digest = builder.hash_n_to_hash_no_pad::<Poseidon2Hash>(input_targets.clone());
+    builder.register_public_inputs(&digest.elements);
+
+    let data = builder.build::<C>();
+    let mut pw = PartialWitness::new();
+    for (&target, &value) in input_targets.iter().zip(&inputs) {
+        pw.set_target(target, value)?;
+    }
+
+    let proof = data.prove(pw)?;
+    assert_eq!(proof.public_inputs, expected.elements.to_vec());
+    data.verify(proof)
+}
+
+#[test]
 fn poseidon2_merkle_recursive_matches_native() -> anyhow::Result<()> {
     let (leaves, tree) = poseidon2_two_leaf_tree();
     let leaf_index = 1;
