@@ -3,9 +3,10 @@ use alloc::vec::Vec;
 use core::mem::MaybeUninit;
 use core::slice;
 
+use anyhow::{ensure, Result};
 use plonky2_maybe_rayon::*;
 // Re-export MerkleCap from core for unified type across crates
-pub use qp_plonky2_core::MerkleCap;
+pub use qp_plonky2_core::{checked_merkle_cap_len, MerkleCap};
 
 use crate::hash::hash_types::RichField;
 use crate::hash::merkle_proofs::MerkleProof;
@@ -118,28 +119,67 @@ pub(crate) fn fill_digests_buf<F: RichField, H: Hasher<F>>(
     );
 }
 
+#[allow(dead_code)]
 pub(crate) fn merkle_tree_prove<F: RichField, H: Hasher<F>>(
     leaf_index: usize,
     leaves_len: usize,
     cap_height: usize,
     digests: &[H::Hash],
 ) -> Vec<H::Hash> {
-    let num_layers = log2_strict(leaves_len) - cap_height;
-    debug_assert_eq!(leaf_index >> (cap_height + num_layers), 0);
+    try_merkle_tree_prove::<F, H>(leaf_index, leaves_len, cap_height, digests)
+        .expect("Merkle leaf index and tree metadata must be valid")
+}
 
-    let digest_len = 2 * (leaves_len - (1 << cap_height));
-    assert_eq!(digest_len, digests.len());
+pub(crate) fn try_merkle_tree_prove<F: RichField, H: Hasher<F>>(
+    leaf_index: usize,
+    leaves_len: usize,
+    cap_height: usize,
+    digests: &[H::Hash],
+) -> Result<Vec<H::Hash>> {
+    ensure!(
+        leaves_len.is_power_of_two(),
+        "Merkle tree leaf count must be a power of two"
+    );
+    ensure!(leaf_index < leaves_len, "Merkle leaf index is out of range");
+    let cap_len = checked_merkle_cap_len(cap_height)?;
+    ensure!(
+        cap_len <= leaves_len,
+        "Merkle cap height exceeds leaf height"
+    );
+
+    let num_layers = log2_strict(leaves_len) - cap_height;
+    let digest_len = leaves_len
+        .checked_sub(cap_len)
+        .and_then(|n| n.checked_mul(2))
+        .ok_or_else(|| anyhow::anyhow!("Merkle digest length overflow"))?;
+    ensure!(
+        digest_len == digests.len(),
+        "Merkle digest length does not match leaf count and cap height"
+    );
 
     let digest_tree: &[H::Hash] = {
         let tree_index = leaf_index >> num_layers;
         let tree_len = digest_len >> cap_height;
-        &digests[tree_len * tree_index..tree_len * (tree_index + 1)]
+        let tree_start = tree_len
+            .checked_mul(tree_index)
+            .ok_or_else(|| anyhow::anyhow!("Merkle digest tree index overflow"))?;
+        let tree_end = tree_start
+            .checked_add(tree_len)
+            .ok_or_else(|| anyhow::anyhow!("Merkle digest tree range overflow"))?;
+        ensure!(
+            tree_end <= digests.len(),
+            "Merkle digest tree range is out of bounds"
+        );
+        &digests[tree_start..tree_end]
     };
 
     // Mask out high bits to get the index within the sub-tree.
-    let mut pair_index = leaf_index & ((1 << num_layers) - 1);
-    (0..num_layers)
-        .map(|i| {
+    let subtree_len = 1usize
+        .checked_shl(num_layers.try_into().unwrap_or(usize::BITS))
+        .ok_or_else(|| anyhow::anyhow!("Merkle subtree length overflow"))?;
+    let mut pair_index = leaf_index & (subtree_len - 1);
+    let siblings = (0..num_layers)
+        .map(|i| -> Result<H::Hash> {
             let parity = pair_index & 1;
             pair_index >>= 1;
 
@@ -149,14 +189,30 @@ pub(crate) fn merkle_tree_prove<F: RichField, H: Hasher<F>>(
             // `pair_index` is the index of the pair within layer `i`.
             // The index of that the pair within `digests` is
             // `pair_index * 2 ** (i + 1) + (2 ** i - 1)`.
-            let siblings_index = (pair_index << (i + 1)) + (1 << i) - 1;
+            let shifted_pair_index = pair_index
+                .checked_shl((i + 1).try_into().unwrap_or(usize::BITS))
+                .ok_or_else(|| anyhow::anyhow!("Merkle sibling index overflow"))?;
+            let layer_offset = 1usize
+                .checked_shl(i.try_into().unwrap_or(usize::BITS))
+                .and_then(|n| n.checked_sub(1))
+                .ok_or_else(|| anyhow::anyhow!("Merkle sibling layer offset overflow"))?;
+            let siblings_index = shifted_pair_index
+                .checked_add(layer_offset)
+                .ok_or_else(|| anyhow::anyhow!("Merkle sibling index overflow"))?;
             // We have an index for the _pair_, but we want the index of the _sibling_.
             // Double the pair index to get the index of the left sibling. Conditionally add `1`
             // if we are to retrieve the right sibling.
-            let sibling_index = 2 * siblings_index + (1 - parity);
-            digest_tree[sibling_index]
+            let sibling_index = siblings_index
+                .checked_mul(2)
+                .and_then(|n| n.checked_add(1 - parity))
+                .ok_or_else(|| anyhow::anyhow!("Merkle sibling index overflow"))?;
+            digest_tree
+                .get(sibling_index)
+                .copied()
+                .ok_or_else(|| anyhow::anyhow!("Merkle sibling index is out of bounds"))
         })
-        .collect()
+        .collect::<Result<Vec<_>>>()?;
+    Ok(siblings)
 }
 
 impl<F: RichField, H: Hasher<F>> MerkleTree<F, H> {
@@ -193,17 +249,43 @@ impl<F: RichField, H: Hasher<F>> MerkleTree<F, H> {
         }
     }
 
+    pub fn try_get(&self, i: usize) -> Result<&[F]> {
+        self.leaves
+            .get(i)
+            .map(Vec::as_slice)
+            .ok_or_else(|| anyhow::anyhow!("Merkle leaf index is out of range"))
+    }
+
+    /// Return a leaf by index.
+    ///
+    /// Panics if `i` is out of range. Use [`Self::try_get`] for untrusted indices.
     pub fn get(&self, i: usize) -> &[F] {
-        &self.leaves[i]
+        self.try_get(i).expect("Merkle leaf index must be in range")
     }
 
     /// Create a Merkle proof from a leaf index.
-    pub fn prove(&self, leaf_index: usize) -> MerkleProof<F, H> {
+    pub fn try_prove(&self, leaf_index: usize) -> Result<MerkleProof<F, H>> {
+        ensure!(
+            !self.cap.is_empty() && self.cap.len().is_power_of_two(),
+            "Merkle cap must be non-empty and power-of-two sized"
+        );
         let cap_height = log2_strict(self.cap.len());
-        let siblings =
-            merkle_tree_prove::<F, H>(leaf_index, self.leaves.len(), cap_height, &self.digests);
+        let siblings = try_merkle_tree_prove::<F, H>(
+            leaf_index,
+            self.leaves.len(),
+            cap_height,
+            &self.digests,
+        )?;
 
-        MerkleProof { siblings }
+        Ok(MerkleProof { siblings })
+    }
+
+    /// Create a Merkle proof from a leaf index.
+    ///
+    /// Panics if `leaf_index` is out of range. Use [`Self::try_prove`] for untrusted indices.
+    pub fn prove(&self, leaf_index: usize) -> MerkleProof<F, H> {
+        self.try_prove(leaf_index)
+            .expect("Merkle leaf index must be in range")
     }
 }
 

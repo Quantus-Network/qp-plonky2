@@ -109,7 +109,7 @@ pub fn batch_fri_proof<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>,
         challenger,
         n,
         fri_params,
-    );
+    )?;
 
     Ok(FriProof {
         commit_phase_merkle_caps: trees.iter().map(|t| t.cap.clone()).collect(),
@@ -254,7 +254,7 @@ fn batch_fri_prover_query_rounds<
     challenger: &mut Challenger<F, C::Hasher>,
     n: usize,
     fri_params: &FriParams,
-) -> Vec<FriQueryRound<F, C::Hasher, D>> {
+) -> Result<Vec<FriQueryRound<F, C::Hasher, D>>> {
     challenger
         .get_n_challenges(fri_params.config.num_query_rounds)
         .into_par_iter()
@@ -279,25 +279,26 @@ fn batch_fri_prover_query_round<
     trees: &[MerkleTree<F, C::Hasher>],
     mut x_index: usize,
     fri_params: &FriParams,
-) -> FriQueryRound<F, C::Hasher, D> {
+) -> Result<FriQueryRound<F, C::Hasher, D>> {
     let mut query_steps = Vec::with_capacity(trees.len());
     let initial_proof = initial_merkle_trees
         .iter()
-        .map(|t| {
-            (
-                t.values(x_index)
+        .map(|t| -> Result<_> {
+            Ok((
+                t.try_values(x_index)?
                     .iter()
                     .flatten()
                     .cloned()
                     .collect::<Vec<_>>(),
-                t.open_batch(x_index),
-            )
+                t.try_open_batch(x_index)?,
+            ))
         })
-        .collect::<Vec<_>>();
+        .collect::<Result<Vec<_>>>()?;
     for (i, tree) in trees.iter().enumerate() {
         let arity_bits = fri_params.reduction_arity_bits[i];
-        let evals = unflatten(tree.get(x_index >> arity_bits));
-        let merkle_proof = tree.prove(x_index >> arity_bits);
+        let reduced_index = x_index >> arity_bits;
+        let evals = unflatten(tree.try_get(reduced_index)?);
+        let merkle_proof = tree.try_prove(reduced_index)?;
 
         query_steps.push(FriQueryStep {
             evals,
@@ -306,12 +307,12 @@ fn batch_fri_prover_query_round<
 
         x_index >>= arity_bits;
     }
-    FriQueryRound {
+    Ok(FriQueryRound {
         initial_trees_proof: FriInitialTreeProof {
             evals_proofs: initial_proof,
         },
         steps: query_steps,
-    }
+    })
 }
 
 #[cfg(test)]

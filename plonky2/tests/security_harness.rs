@@ -28,7 +28,10 @@ use plonky2::gates::noop::NoopGate;
 use plonky2::gates::reducing::ReducingGate;
 use plonky2::gates::reducing_extension::ReducingExtensionGate;
 use plonky2::gates::util::StridedConstraintConsumer;
-use plonky2::hash::merkle_proofs::{verify_merkle_proof_to_cap, MerkleProof, MerkleProofTarget};
+use plonky2::hash::batch_merkle_tree::BatchMerkleTree;
+use plonky2::hash::merkle_proofs::{
+    verify_batch_merkle_proof_to_cap, verify_merkle_proof_to_cap, MerkleProof, MerkleProofTarget,
+};
 use plonky2::hash::merkle_tree::{MerkleCap, MerkleTree};
 use plonky2::hash::poseidon::PoseidonHash;
 use plonky2::hash::poseidon2::Poseidon2Hash;
@@ -984,6 +987,39 @@ fn context_metadata_bounds_rejected_or_truncated() -> anyhow::Result<()> {
 
     let proof = data.prove(pw)?;
     data.verify(proof)
+}
+
+#[test]
+fn unchecked_leaf_index_returns_err_not_panic() -> anyhow::Result<()> {
+    let leaves = vec![
+        vec![F::ZERO],
+        vec![F::ONE],
+        vec![F::TWO],
+        vec![F::from_canonical_u64(3)],
+    ];
+    let tree = MerkleTree::<F, H>::new(leaves.clone(), 0);
+
+    assert!(tree.try_get(leaves.len()).is_err());
+    assert!(tree.try_prove(leaves.len()).is_err());
+
+    let proof = tree.try_prove(2)?;
+    verify_merkle_proof_to_cap(leaves[2].clone(), 2, &tree.cap, &proof)?;
+
+    let short_leaves = vec![vec![F::ZERO], vec![F::ONE]];
+    let batch_tree = BatchMerkleTree::<F, H>::new(vec![leaves.clone(), short_leaves], 0);
+
+    assert!(batch_tree.try_values(leaves.len()).is_err());
+    assert!(batch_tree.try_open_batch(leaves.len()).is_err());
+
+    let opened_values = batch_tree.try_values(3)?;
+    let batch_proof = batch_tree.try_open_batch(3)?;
+    verify_batch_merkle_proof_to_cap(
+        &opened_values,
+        &batch_tree.leaf_heights,
+        3,
+        &batch_tree.cap,
+        &batch_proof,
+    )
 }
 
 #[test]

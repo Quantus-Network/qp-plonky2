@@ -3,12 +3,12 @@ use alloc::vec;
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
 
-use itertools::Itertools;
+use anyhow::{ensure, Result};
 
 use crate::hash::hash_types::{RichField, NUM_HASH_OUT_ELTS};
 use crate::hash::merkle_proofs::MerkleProof;
 use crate::hash::merkle_tree::{
-    capacity_up_to_mut, fill_digests_buf, merkle_tree_prove, MerkleCap,
+    capacity_up_to_mut, checked_merkle_cap_len, fill_digests_buf, try_merkle_tree_prove, MerkleCap,
 };
 use crate::plonk::config::{GenericHashOut, Hasher};
 use crate::util::log2_strict;
@@ -53,7 +53,7 @@ impl<F: RichField, H: Hasher<F>> BatchMerkleTree<F, H> {
         let num_digests = 2 * (leaves_len - (1 << cap_height));
         let mut digests = Vec::with_capacity(num_digests);
         let digests_buf = capacity_up_to_mut(&mut digests, num_digests);
-        let mut digests_buf_pos = 0;
+        let mut digests_buf_pos: usize = 0;
 
         let mut cap = vec![];
         let dummy_leaves = vec![vec![F::ZERO]; 1 << cap_height];
@@ -129,38 +129,122 @@ impl<F: RichField, H: Hasher<F>> BatchMerkleTree<F, H> {
         }
     }
 
+    fn leaf_count(&self) -> Result<usize> {
+        ensure!(!self.leaves.is_empty(), "batch Merkle tree has no leaves");
+        let leaf_count = self.leaves[0].len();
+        ensure!(leaf_count > 0, "batch Merkle tree has no leaf rows");
+        ensure!(
+            leaf_count.is_power_of_two(),
+            "batch Merkle tree leaf count is not a power of two"
+        );
+        Ok(leaf_count)
+    }
+
     /// Create a Merkle proof from a leaf index.
-    pub fn open_batch(&self, leaf_index: usize) -> MerkleProof<F, H> {
-        let mut digests_buf_pos = 0;
-        let initial_leaf_height = log2_strict(self.leaves[0].len());
+    pub fn try_open_batch(&self, leaf_index: usize) -> Result<MerkleProof<F, H>> {
+        let leaf_count = self.leaf_count()?;
+        ensure!(
+            leaf_index < leaf_count,
+            "batch Merkle leaf index is out of range"
+        );
+        ensure!(
+            self.leaf_heights.len() == self.leaves.len(),
+            "batch Merkle leaf height metadata is malformed"
+        );
+        ensure!(
+            !self.cap.is_empty() && self.cap.len().is_power_of_two(),
+            "batch Merkle cap must be non-empty and power-of-two sized"
+        );
+
+        let mut digests_buf_pos: usize = 0;
+        let initial_leaf_height = log2_strict(leaf_count);
         let mut siblings = vec![];
         let mut cap_heights = self.leaf_heights.clone();
         cap_heights.push(log2_strict(self.cap.len()));
         for window in cap_heights.windows(2) {
             let cur_cap_height = window[0];
             let next_cap_height = window[1];
-            let num_digests: usize = 2 * ((1 << cur_cap_height) - (1 << next_cap_height));
-            siblings.extend::<Vec<_>>(merkle_tree_prove::<F, H>(
-                leaf_index >> (initial_leaf_height - cur_cap_height),
-                1 << cur_cap_height,
+            ensure!(
+                cur_cap_height <= initial_leaf_height,
+                "batch Merkle leaf height exceeds initial height"
+            );
+            ensure!(
+                next_cap_height <= cur_cap_height,
+                "batch Merkle cap heights are not descending"
+            );
+            let cur_cap_len = checked_merkle_cap_len(cur_cap_height)?;
+            let next_cap_len = checked_merkle_cap_len(next_cap_height)?;
+            let num_digests = cur_cap_len
+                .checked_sub(next_cap_len)
+                .and_then(|n| n.checked_mul(2))
+                .ok_or_else(|| anyhow::anyhow!("batch Merkle digest length overflow"))?;
+            let digests_end = digests_buf_pos
+                .checked_add(num_digests)
+                .ok_or_else(|| anyhow::anyhow!("batch Merkle digest range overflow"))?;
+            ensure!(
+                digests_end <= self.digests.len(),
+                "batch Merkle digest range is out of bounds"
+            );
+            let shift = initial_leaf_height - cur_cap_height;
+            siblings.extend::<Vec<_>>(try_merkle_tree_prove::<F, H>(
+                leaf_index >> shift,
+                cur_cap_len,
                 next_cap_height,
-                &self.digests[digests_buf_pos..digests_buf_pos + num_digests],
-            ));
+                &self.digests[digests_buf_pos..digests_end],
+            )?);
             digests_buf_pos += num_digests;
         }
+        ensure!(
+            digests_buf_pos == self.digests.len(),
+            "batch Merkle proof did not consume every digest"
+        );
 
-        MerkleProof { siblings }
+        Ok(MerkleProof { siblings })
     }
 
-    pub fn values(&self, leaf_index: usize) -> Vec<Vec<F>> {
-        let leaves_cap_height = log2_strict(self.leaves[0].len());
+    /// Create a Merkle proof from a leaf index.
+    ///
+    /// Panics if `leaf_index` is out of range. Use [`Self::try_open_batch`] for untrusted indices.
+    pub fn open_batch(&self, leaf_index: usize) -> MerkleProof<F, H> {
+        self.try_open_batch(leaf_index)
+            .expect("batch Merkle leaf index must be in range")
+    }
+
+    pub fn try_values(&self, leaf_index: usize) -> Result<Vec<Vec<F>>> {
+        let leaf_count = self.leaf_count()?;
+        ensure!(
+            leaf_index < leaf_count,
+            "batch Merkle leaf index is out of range"
+        );
+        ensure!(
+            self.leaf_heights.len() == self.leaves.len(),
+            "batch Merkle leaf height metadata is malformed"
+        );
+
+        let leaves_cap_height = log2_strict(leaf_count);
         self.leaves
             .iter()
             .zip(&self.leaf_heights)
-            .map(|(leaves, cap_height)| {
-                leaves[leaf_index >> (leaves_cap_height - cap_height)].clone()
+            .map(|(leaves, cap_height)| -> Result<Vec<F>> {
+                ensure!(
+                    *cap_height <= leaves_cap_height,
+                    "batch Merkle leaf height exceeds initial height"
+                );
+                let row = leaf_index >> (leaves_cap_height - cap_height);
+                leaves
+                    .get(row)
+                    .cloned()
+                    .ok_or_else(|| anyhow::anyhow!("batch Merkle leaf row is out of range"))
             })
-            .collect_vec()
+            .collect()
+    }
+
+    /// Return the batch-opened values at a leaf index.
+    ///
+    /// Panics if `leaf_index` is out of range. Use [`Self::try_values`] for untrusted indices.
+    pub fn values(&self, leaf_index: usize) -> Vec<Vec<F>> {
+        self.try_values(leaf_index)
+            .expect("batch Merkle leaf index must be in range")
     }
 }
 
