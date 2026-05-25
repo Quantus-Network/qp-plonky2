@@ -22,3 +22,4 @@ finding	severity	class	commit	status	notes
 64671	Medium	untrusted-artifact-validation	492b97332	fixed	Zero-slot generator divide-by-zero
 64677	Medium	runtime-dos-preconditions	4d7c909a2	fixed	Malformed inputs trigger panics
 64678	Medium	runtime-dos-preconditions	2a71b8b37	fixed	Unchecked subgroup size panics
+64685	Medium	runtime-dos-preconditions	f9f3c9698	fixed	Zero generator hangs subgroup helpers
