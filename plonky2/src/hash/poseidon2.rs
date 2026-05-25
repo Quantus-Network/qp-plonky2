@@ -165,7 +165,7 @@ impl<F: RichField + P2Permuter> AlgebraicHasher<F> for Poseidon2Hash {
 
     fn permute_swapped<const D: usize>(
         inputs: Self::AlgebraicPermutation,
-        _swap: BoolTarget, // still ignored (semantics unchanged)
+        swap: BoolTarget,
         b: &mut CircuitBuilder<F, D>,
     ) -> Self::AlgebraicPermutation
     where
@@ -179,8 +179,15 @@ impl<F: RichField + P2Permuter> AlgebraicHasher<F> for Poseidon2Hash {
 
         // connect inputs
         for i in 0..SPONGE_WIDTH {
+            let input = if i < NUM_HASH_OUT_ELTS {
+                b.select(swap, inp[i + NUM_HASH_OUT_ELTS], inp[i])
+            } else if i < 2 * NUM_HASH_OUT_ELTS {
+                b.select(swap, inp[i - NUM_HASH_OUT_ELTS], inp[i])
+            } else {
+                inp[i]
+            };
             b.connect(
-                inp[i],
+                input,
                 Target::wire(row, Poseidon2Gate::<F, D>::wire_input(i)),
             );
         }

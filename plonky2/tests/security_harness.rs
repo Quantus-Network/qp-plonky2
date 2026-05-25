@@ -29,17 +29,19 @@ use plonky2::gates::exponentiation::ExponentiationGate;
 use plonky2::gates::gate::{Gate, GateRef};
 use plonky2::gates::multiplication_extension::MulExtensionGate;
 use plonky2::gates::noop::NoopGate;
+use plonky2::gates::poseidon2::SPONGE_WIDTH;
 use plonky2::gates::reducing::ReducingGate;
 use plonky2::gates::reducing_extension::ReducingExtensionGate;
 use plonky2::gates::util::StridedConstraintConsumer;
 use plonky2::hash::batch_merkle_tree::BatchMerkleTree;
-use plonky2::hash::hashing::{hash_n_to_hash_len_delimited, hash_n_to_m_no_pad};
+use plonky2::hash::hash_types::{HashOut, NUM_HASH_OUT_ELTS};
+use plonky2::hash::hashing::{hash_n_to_hash_len_delimited, hash_n_to_m_no_pad, PlonkyPermutation};
 use plonky2::hash::merkle_proofs::{
     verify_batch_merkle_proof_to_cap, verify_merkle_proof_to_cap, MerkleProof, MerkleProofTarget,
 };
 use plonky2::hash::merkle_tree::{MerkleCap, MerkleTree};
 use plonky2::hash::poseidon::PoseidonHash;
-use plonky2::hash::poseidon2::Poseidon2Hash;
+use plonky2::hash::poseidon2::{Poseidon2Hash, Poseidon2Permutation};
 use plonky2::iop::challenger::Challenger;
 use plonky2::iop::ext_target::ExtensionTarget;
 use plonky2::iop::generator::WitnessGeneratorRef;
@@ -49,7 +51,7 @@ use plonky2::plonk::circuit_builder::CircuitBuilder;
 use plonky2::plonk::circuit_data::{
     CircuitConfig, CommonCircuitData, ProverOnlyCircuitData, VerifierCircuitTarget,
 };
-use plonky2::plonk::config::{GenericConfig, Hasher, PoseidonGoldilocksConfig};
+use plonky2::plonk::config::{AlgebraicHasher, GenericConfig, Hasher, PoseidonGoldilocksConfig};
 use plonky2::plonk::proof::{OpeningSetTarget, ProofTarget, ProofWithPublicInputsTarget};
 use plonky2::plonk::prover::prove;
 use plonky2::plonk::vars::{EvaluationTargets, EvaluationVars};
@@ -1963,6 +1965,55 @@ fn poseidon2_merkle_valid_proof_verifies() -> anyhow::Result<()> {
     let proof = tree.prove(1);
 
     verify_merkle_proof_to_cap(leaves[1].clone(), 1, &tree.cap, &proof)
+}
+
+fn poseidon2_direct_permutation_digest(left: HashOut<F>, right: HashOut<F>) -> HashOut<F> {
+    let mut inputs = Vec::with_capacity(SPONGE_WIDTH);
+    inputs.extend_from_slice(&left.elements);
+    inputs.extend_from_slice(&right.elements);
+    inputs.resize(SPONGE_WIDTH, F::ZERO);
+    let mut permutation = Poseidon2Permutation::<F>::new(inputs);
+    permutation.permute();
+    HashOut::from_vec(permutation.squeeze()[..NUM_HASH_OUT_ELTS].to_vec())
+}
+
+#[test]
+fn poseidon2_branch_direction_direct_permutation() -> anyhow::Result<()> {
+    let left = Poseidon2Hash::hash_merkle_leaf(&[F::from_canonical_u64(3)]);
+    let right = Poseidon2Hash::hash_merkle_leaf(&[F::from_canonical_u64(5)]);
+    let unswapped = poseidon2_direct_permutation_digest(left, right);
+    let swapped = poseidon2_direct_permutation_digest(right, left);
+    assert_ne!(unswapped, swapped);
+
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+
+    let mut inputs = Vec::with_capacity(SPONGE_WIDTH);
+    inputs.extend_from_slice(&left.elements);
+    inputs.extend_from_slice(&right.elements);
+    inputs.resize(SPONGE_WIDTH, F::ZERO);
+    let input_targets = builder.constants(&inputs);
+
+    let false_swap = builder.constant_bool(false);
+    let true_swap = builder.constant_bool(true);
+    let out_unswapped = Poseidon2Hash::permute_swapped::<D>(
+        Poseidon2Permutation::<Target>::new(input_targets.clone()),
+        false_swap,
+        &mut builder,
+    );
+    let out_swapped = Poseidon2Hash::permute_swapped::<D>(
+        Poseidon2Permutation::<Target>::new(input_targets),
+        true_swap,
+        &mut builder,
+    );
+    builder.register_public_inputs(&out_unswapped.as_ref()[..NUM_HASH_OUT_ELTS]);
+    builder.register_public_inputs(&out_swapped.as_ref()[..NUM_HASH_OUT_ELTS]);
+
+    let data = builder.build::<C>();
+    let proof = data.prove(PartialWitness::new())?;
+    let expected = [unswapped.elements.to_vec(), swapped.elements.to_vec()].concat();
+    assert_eq!(proof.public_inputs, expected);
+    data.verify(proof)
 }
 
 #[test]
