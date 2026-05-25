@@ -1,6 +1,8 @@
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
 
+use anyhow::{ensure, Result};
+
 use crate::field::extension::Extendable;
 use crate::hash::hash_types::RichField;
 use crate::iop::ext_target::{ExtensionAlgebraTarget, ExtensionTarget};
@@ -75,6 +77,33 @@ impl<const D: usize> PolynomialCoeffsExtAlgebraTarget<D> {
     }
 
     /// Evaluate the polynomial at a point given its powers. The first power is the point itself, not 1.
+    pub fn try_eval_with_powers<F>(
+        &self,
+        builder: &mut CircuitBuilder<F, D>,
+        powers: &[ExtensionAlgebraTarget<D>],
+    ) -> Result<ExtensionAlgebraTarget<D>>
+    where
+        F: RichField + Extendable<D>,
+    {
+        if self.0.is_empty() {
+            ensure!(
+                powers.is_empty(),
+                "empty polynomial must be evaluated with an empty power table"
+            );
+            return Ok(builder.zero_ext_algebra());
+        }
+        debug_assert_eq!(self.0.len(), powers.len() + 1);
+        let acc = self.0[0];
+        Ok(self.0[1..]
+            .iter()
+            .zip(powers)
+            .fold(acc, |acc, (&x, &c)| builder.mul_add_ext_algebra(c, x, acc)))
+    }
+
+    /// Evaluate the polynomial at a point given its powers. The first power is the point itself, not 1.
+    ///
+    /// This panics if the supplied power table is invalid. Use `try_eval_with_powers` for
+    /// untrusted inputs.
     pub fn eval_with_powers<F>(
         &self,
         builder: &mut CircuitBuilder<F, D>,
@@ -83,11 +112,7 @@ impl<const D: usize> PolynomialCoeffsExtAlgebraTarget<D> {
     where
         F: RichField + Extendable<D>,
     {
-        debug_assert_eq!(self.0.len(), powers.len() + 1);
-        let acc = self.0[0];
-        self.0[1..]
-            .iter()
-            .zip(powers)
-            .fold(acc, |acc, (&x, &c)| builder.mul_add_ext_algebra(c, x, acc))
+        self.try_eval_with_powers(builder, powers)
+            .expect("invalid polynomial power table")
     }
 }

@@ -5,6 +5,7 @@ use plonky2::batch_fri::oracle::BatchFriOracle;
 use plonky2::batch_fri::prover::batch_fri_proof;
 use plonky2::batch_fri::verifier::verify_batch_fri_proof;
 use plonky2::field::cosets::{get_unique_coset_shifts, try_get_unique_coset_shifts};
+use plonky2::field::extension::algebra::{ExtensionAlgebra, PolynomialCoeffsAlgebra};
 use plonky2::field::interpolation::{try_barycentric_weights, try_interpolant, try_interpolate2};
 use plonky2::field::packable::Packable;
 use plonky2::field::packed::PackedField;
@@ -23,6 +24,7 @@ use plonky2::fri::{
     validate_batch_fri_auxiliary_shape, validate_fri_auxiliary_shape, FriBatchMaskingParams,
     FriChallenger, FriConfig, FriFinalPolyLayout, FriParams, FriReductionStrategy,
 };
+use plonky2::gadgets::polynomial::PolynomialCoeffsExtAlgebraTarget;
 use plonky2::gates::arithmetic_base::ArithmeticGate;
 use plonky2::gates::arithmetic_extension::ArithmeticExtensionGate;
 use plonky2::gates::coset_interpolation::CosetInterpolationGate;
@@ -521,6 +523,48 @@ fn unvalidated_witness_targets_return_err() {
     let result = catch_unwind(AssertUnwindSafe(|| data.prove(pw)));
     assert!(result.is_ok(), "invalid witness target must not panic");
     assert!(result.unwrap().is_err());
+}
+
+#[test]
+fn empty_polynomial_fast_path_returns_zero_or_err() {
+    let empty = PolynomialCoeffs::<F>::empty();
+    assert_eq!(empty.try_eval_with_powers(&[]).unwrap(), F::ZERO);
+    assert!(empty.try_eval_with_powers(&[F::ONE]).is_err());
+
+    let empty_ext = PolynomialCoeffs::<FF>::empty();
+    assert_eq!(
+        empty_ext.try_eval_base_with_powers::<D>(&[]).unwrap(),
+        FF::ZERO
+    );
+    assert!(empty_ext.try_eval_base_with_powers::<D>(&[F::ONE]).is_err());
+
+    let empty_algebra = PolynomialCoeffsAlgebra::<FF, D>::new(Vec::new());
+    assert_eq!(
+        empty_algebra
+            .try_eval_with_powers(&[])
+            .unwrap()
+            .to_basefield_array(),
+        ExtensionAlgebra::<FF, D>::ZERO.to_basefield_array()
+    );
+    assert!(empty_algebra
+        .try_eval_with_powers(&[ExtensionAlgebra::<FF, D>::one()])
+        .is_err());
+    assert_eq!(
+        empty_algebra
+            .try_eval_base_with_powers(&[])
+            .unwrap()
+            .to_basefield_array(),
+        ExtensionAlgebra::<FF, D>::ZERO.to_basefield_array()
+    );
+    assert!(empty_algebra.try_eval_base_with_powers(&[FF::ONE]).is_err());
+
+    let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+    let empty_target = PolynomialCoeffsExtAlgebraTarget::<D>(Vec::new());
+    assert!(empty_target.try_eval_with_powers(&mut builder, &[]).is_ok());
+    let zero_power = builder.zero_ext_algebra();
+    assert!(empty_target
+        .try_eval_with_powers(&mut builder, &[zero_power])
+        .is_err());
 }
 
 #[test]

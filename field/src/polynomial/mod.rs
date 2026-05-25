@@ -180,13 +180,29 @@ impl<F: Field> PolynomialCoeffs<F> {
     }
 
     /// Evaluate the polynomial at a point given its powers. The first power is the point itself, not 1.
-    pub fn eval_with_powers(&self, powers: &[F]) -> F {
+    pub fn try_eval_with_powers(&self, powers: &[F]) -> Result<F> {
+        if self.coeffs.is_empty() {
+            ensure!(
+                powers.is_empty(),
+                "empty polynomial must be evaluated with an empty power table"
+            );
+            return Ok(F::ZERO);
+        }
         debug_assert_eq!(self.coeffs.len(), powers.len() + 1);
         let acc = self.coeffs[0];
-        self.coeffs[1..]
+        Ok(self.coeffs[1..]
             .iter()
             .zip(powers)
-            .fold(acc, |acc, (&x, &c)| acc + c * x)
+            .fold(acc, |acc, (&x, &c)| acc + c * x))
+    }
+
+    /// Evaluate the polynomial at a point given its powers. The first power is the point itself, not 1.
+    ///
+    /// This panics if the supplied power table is invalid. Use `try_eval_with_powers` for
+    /// untrusted inputs.
+    pub fn eval_with_powers(&self, powers: &[F]) -> F {
+        self.try_eval_with_powers(powers)
+            .expect("invalid polynomial power table")
     }
 
     pub fn eval_base<const D: usize>(&self, x: F::BaseField) -> F
@@ -200,16 +216,35 @@ impl<F: Field> PolynomialCoeffs<F> {
     }
 
     /// Evaluate the polynomial at a point given its powers. The first power is the point itself, not 1.
+    pub fn try_eval_base_with_powers<const D: usize>(&self, powers: &[F::BaseField]) -> Result<F>
+    where
+        F: FieldExtension<D>,
+    {
+        if self.coeffs.is_empty() {
+            ensure!(
+                powers.is_empty(),
+                "empty polynomial must be evaluated with an empty power table"
+            );
+            return Ok(F::ZERO);
+        }
+        debug_assert_eq!(self.coeffs.len(), powers.len() + 1);
+        let acc = self.coeffs[0];
+        Ok(self.coeffs[1..]
+            .iter()
+            .zip(powers)
+            .fold(acc, |acc, (&x, &c)| acc + x.scalar_mul(c)))
+    }
+
+    /// Evaluate the polynomial at a point given its powers. The first power is the point itself, not 1.
+    ///
+    /// This panics if the supplied power table is invalid. Use `try_eval_base_with_powers` for
+    /// untrusted inputs.
     pub fn eval_base_with_powers<const D: usize>(&self, powers: &[F::BaseField]) -> F
     where
         F: FieldExtension<D>,
     {
-        debug_assert_eq!(self.coeffs.len(), powers.len() + 1);
-        let acc = self.coeffs[0];
-        self.coeffs[1..]
-            .iter()
-            .zip(powers)
-            .fold(acc, |acc, (&x, &c)| acc + x.scalar_mul(c))
+        self.try_eval_base_with_powers::<D>(powers)
+            .expect("invalid polynomial power table")
     }
 
     pub fn lde_multiple(polys: Vec<&Self>, rate_bits: usize) -> Vec<Self> {

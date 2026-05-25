@@ -3,6 +3,8 @@ use core::fmt::{self, Debug, Display, Formatter};
 use core::iter::{Product, Sum};
 use core::ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
+use anyhow::{ensure, Result};
+
 use crate::extension::OEF;
 
 /// Let `F_D` be the optimal extension field `F[X]/(X^D-W)`. Then `ExtensionAlgebra<F_D>` is the quotient `F_D[X]/(X^D-W)`.
@@ -162,13 +164,32 @@ impl<F: OEF<D>, const D: usize> PolynomialCoeffsAlgebra<F, D> {
     }
 
     /// Evaluate the polynomial at a point given its powers. The first power is the point itself, not 1.
-    pub fn eval_with_powers(&self, powers: &[ExtensionAlgebra<F, D>]) -> ExtensionAlgebra<F, D> {
+    pub fn try_eval_with_powers(
+        &self,
+        powers: &[ExtensionAlgebra<F, D>],
+    ) -> Result<ExtensionAlgebra<F, D>> {
+        if self.coeffs.is_empty() {
+            ensure!(
+                powers.is_empty(),
+                "empty polynomial must be evaluated with an empty power table"
+            );
+            return Ok(ExtensionAlgebra::ZERO);
+        }
         debug_assert_eq!(self.coeffs.len(), powers.len() + 1);
         let acc = self.coeffs[0];
-        self.coeffs[1..]
+        Ok(self.coeffs[1..]
             .iter()
             .zip(powers)
-            .fold(acc, |acc, (&x, &c)| acc + c * x)
+            .fold(acc, |acc, (&x, &c)| acc + c * x))
+    }
+
+    /// Evaluate the polynomial at a point given its powers. The first power is the point itself, not 1.
+    ///
+    /// This panics if the supplied power table is invalid. Use `try_eval_with_powers` for
+    /// untrusted inputs.
+    pub fn eval_with_powers(&self, powers: &[ExtensionAlgebra<F, D>]) -> ExtensionAlgebra<F, D> {
+        self.try_eval_with_powers(powers)
+            .expect("invalid polynomial power table")
     }
 
     pub fn eval_base(&self, x: F) -> ExtensionAlgebra<F, D> {
@@ -179,13 +200,29 @@ impl<F: OEF<D>, const D: usize> PolynomialCoeffsAlgebra<F, D> {
     }
 
     /// Evaluate the polynomial at a point given its powers. The first power is the point itself, not 1.
-    pub fn eval_base_with_powers(&self, powers: &[F]) -> ExtensionAlgebra<F, D> {
+    pub fn try_eval_base_with_powers(&self, powers: &[F]) -> Result<ExtensionAlgebra<F, D>> {
+        if self.coeffs.is_empty() {
+            ensure!(
+                powers.is_empty(),
+                "empty polynomial must be evaluated with an empty power table"
+            );
+            return Ok(ExtensionAlgebra::ZERO);
+        }
         debug_assert_eq!(self.coeffs.len(), powers.len() + 1);
         let acc = self.coeffs[0];
-        self.coeffs[1..]
+        Ok(self.coeffs[1..]
             .iter()
             .zip(powers)
-            .fold(acc, |acc, (&x, &c)| acc + x.scalar_mul(c))
+            .fold(acc, |acc, (&x, &c)| acc + x.scalar_mul(c)))
+    }
+
+    /// Evaluate the polynomial at a point given its powers. The first power is the point itself, not 1.
+    ///
+    /// This panics if the supplied power table is invalid. Use `try_eval_base_with_powers` for
+    /// untrusted inputs.
+    pub fn eval_base_with_powers(&self, powers: &[F]) -> ExtensionAlgebra<F, D> {
+        self.try_eval_base_with_powers(powers)
+            .expect("invalid polynomial power table")
     }
 }
 
