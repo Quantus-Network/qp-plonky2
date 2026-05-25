@@ -1,6 +1,7 @@
 #[cfg(not(feature = "std"))]
 use alloc::{format, vec::Vec};
 
+use anyhow::{ensure, Result};
 use itertools::Itertools;
 use plonky2_field::extension::Extendable;
 use plonky2_field::fft::FftRootTable;
@@ -56,25 +57,142 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         }
     }
 
+    fn validate_prover_metadata(
+        degree_bits: &[usize],
+        instances: &[FriInstanceInfo<F, D>],
+        oracles: &[&Self],
+        fri_params: &FriParams,
+    ) -> Result<()> {
+        ensure!(!instances.is_empty(), "FRI instance list cannot be empty");
+        ensure!(
+            degree_bits.len() == instances.len(),
+            "FRI degree-bit count does not match instance count"
+        );
+        ensure!(!oracles.is_empty(), "FRI oracle list cannot be empty");
+        ensure!(
+            degree_bits.windows(2).all(|pair| pair[0] > pair[1]),
+            "FRI degree bits must be strictly descending"
+        );
+
+        let oracle_count = instances[0].oracles.len();
+        ensure!(
+            oracle_count == oracles.len(),
+            "FRI instance oracle count does not match oracle list"
+        );
+        let mut total_polys_by_oracle = vec![0usize; oracle_count];
+        for instance in instances {
+            ensure!(
+                !instance.batches.is_empty(),
+                "FRI instance must contain at least one opening batch"
+            );
+            ensure!(
+                instance.oracles.len() == oracle_count,
+                "FRI instances must share the same oracle count"
+            );
+            for (oracle_index, oracle) in instance.oracles.iter().enumerate() {
+                total_polys_by_oracle[oracle_index] = total_polys_by_oracle[oracle_index]
+                    .checked_add(oracle.num_polys)
+                    .ok_or_else(|| anyhow::anyhow!("FRI oracle polynomial count overflow"))?;
+            }
+        }
+
+        for (oracle_index, (&expected_polys, oracle)) in
+            total_polys_by_oracle.iter().zip(oracles).enumerate()
+        {
+            ensure!(
+                expected_polys <= oracle.polynomials.len(),
+                "FRI oracle {oracle_index} metadata references unavailable polynomials"
+            );
+        }
+
+        let mut current_degree_bits = degree_bits[0]
+            .checked_add(fri_params.config.rate_bits)
+            .ok_or_else(|| anyhow::anyhow!("FRI degree-bit overflow"))?;
+        let mut next_instance = 1;
+        for &arity_bits in &fri_params.reduction_arity_bits {
+            ensure!(
+                current_degree_bits >= arity_bits,
+                "FRI reduction arity exceeds current degree bits"
+            );
+            current_degree_bits -= arity_bits;
+            if next_instance < degree_bits.len() {
+                let next_degree_bits = degree_bits[next_instance]
+                    .checked_add(fri_params.config.rate_bits)
+                    .ok_or_else(|| anyhow::anyhow!("FRI degree-bit overflow"))?;
+                if current_degree_bits == next_degree_bits {
+                    next_instance += 1;
+                }
+            }
+        }
+        ensure!(
+            next_instance == instances.len(),
+            "FRI batch reductions did not consume every instance"
+        );
+
+        for instance in instances {
+            for batch in &instance.batches {
+                ensure!(
+                    !batch.openings.is_empty(),
+                    "FRI opening batch cannot be empty"
+                );
+                for expression in &batch.openings {
+                    ensure!(
+                        !expression.terms.is_empty(),
+                        "FRI opening expression cannot be empty"
+                    );
+                    for term in &expression.terms {
+                        let total_polys =
+                            total_polys_by_oracle
+                                .get(term.polynomial.oracle_index)
+                                .ok_or_else(|| anyhow::anyhow!("FRI oracle index out of range"))?;
+                        ensure!(
+                            term.polynomial.polynomial_index < *total_polys,
+                            "FRI polynomial index out of range"
+                        );
+                        ensure!(
+                            oracles[term.polynomial.oracle_index]
+                                .polynomials
+                                .get(term.polynomial.polynomial_index)
+                                .is_some(),
+                            "FRI polynomial index references unavailable committed polynomial"
+                        );
+                    }
+                }
+            }
+        }
+
+        Ok(())
+    }
+
     fn opening_expression_poly(
         expression: &FriOpeningExpression<F, D>,
         oracles: &[&Self],
         point: F::Extension,
         point_power_cache: &mut Vec<(usize, F::Extension)>,
-    ) -> PolynomialCoeffs<F::Extension> {
-        expression
+    ) -> Result<PolynomialCoeffs<F::Extension>> {
+        ensure!(
+            !expression.terms.is_empty(),
+            "FRI opening expression cannot be empty"
+        );
+        let polys = expression
             .terms
             .iter()
             .map(|term| {
                 let coefficient =
                     Self::eval_coefficient(&term.coefficient, point, point_power_cache);
-                let poly = &oracles[term.polynomial.oracle_index].polynomials
-                    [term.polynomial.polynomial_index];
+                let oracle = oracles
+                    .get(term.polynomial.oracle_index)
+                    .ok_or_else(|| anyhow::anyhow!("FRI oracle index out of range"))?;
+                let poly = oracle
+                    .polynomials
+                    .get(term.polynomial.polynomial_index)
+                    .ok_or_else(|| anyhow::anyhow!("FRI polynomial index out of range"))?;
                 let mut scaled = poly.to_extension::<D>();
                 scaled *= coefficient;
-                scaled
+                Ok(scaled)
             })
-            .sum()
+            .collect::<Result<Vec<_>>>()?;
+        Ok(polys.into_iter().sum())
     }
 
     /// Creates a list polynomial commitment for the polynomials interpolating the values in `values`.
@@ -169,9 +287,9 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         challenger: &mut Challenger<F, C::Hasher>,
         fri_params: &FriParams,
         timing: &mut TimingTree,
-    ) -> FriProof<F, C::Hasher, D> {
-        assert_eq!(degree_bits.len(), instances.len());
-        assert!(D > 1, "Not implemented for D=1.");
+    ) -> Result<FriProof<F, C::Hasher, D>> {
+        Self::validate_prover_metadata(degree_bits, instances, oracles, fri_params)?;
+        ensure!(D > 1, "Batch FRI is not implemented for D=1");
         let alpha = challenger.get_extension_challenge::<D>();
         let mut alpha = ReducingFactor::new(alpha);
 
@@ -190,15 +308,16 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
             // The oracles used in Plonky2 are given in `FRI_ORACLES` in `plonky2/src/plonk/plonk_common.rs`.
             for FriBatchInfo { point, openings } in &instance.batches {
                 let mut point_power_cache = Vec::new();
+                let opening_polys = openings
+                    .iter()
+                    .map(|expr| {
+                        Self::opening_expression_poly(expr, oracles, *point, &mut point_power_cache)
+                    })
+                    .collect::<Result<Vec<_>>>()?;
                 let composition_poly = timed!(
                     timing,
                     &format!("reduce batch of {} opening expressions", openings.len()),
-                    alpha.reduce_polys(openings.iter().map(|expr| Self::opening_expression_poly(
-                        expr,
-                        oracles,
-                        *point,
-                        &mut point_power_cache
-                    )))
+                    alpha.reduce_polys(opening_polys.iter())
                 );
                 let mut quotient = composition_poly.divide_by_linear(*point);
                 quotient.coeffs.push(F::Extension::ZERO); // pad back to power of two
@@ -206,7 +325,13 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
                 final_poly += quotient;
             }
 
-            assert_eq!(final_poly.len(), 1 << degree_bits[i]);
+            let expected_len = 1usize
+                .checked_shl(degree_bits[i].try_into().unwrap_or(usize::BITS))
+                .ok_or_else(|| anyhow::anyhow!("FRI degree bits exceed usize width"))?;
+            ensure!(
+                final_poly.len() == expected_len,
+                "FRI final polynomial degree does not match metadata"
+            );
             let lde_final_poly = final_poly.lde(fri_params.config.rate_bits);
             let lde_final_values = timed!(
                 timing,
@@ -217,7 +342,7 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
             final_lde_polynomial_values.push(lde_final_values);
         }
 
-        batch_fri_proof::<F, C, D>(
+        Ok(batch_fri_proof::<F, C, D>(
             &oracles
                 .iter()
                 .map(|o| &o.batch_merkle_tree)
@@ -227,7 +352,7 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
             challenger,
             fri_params,
             timing,
-        )
+        ))
     }
 
     /// Fetches LDE values at the `index * step`th point.
@@ -238,11 +363,36 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         step: usize,
         slice_start: usize,
         slice_len: usize,
-    ) -> &[F] {
-        let index = index * step;
-        let index = reverse_bits(index, self.degree_bits[degree_bits_index] + self.rate_bits);
-        let slice = &self.batch_merkle_tree.leaves[degree_bits_index][index];
-        &slice[slice_start..slice_start + slice_len]
+    ) -> Result<&[F]> {
+        let linear_index = index
+            .checked_mul(step)
+            .ok_or_else(|| anyhow::anyhow!("FRI LDE row index overflow"))?;
+        let degree_bits = *self
+            .degree_bits
+            .get(degree_bits_index)
+            .ok_or_else(|| anyhow::anyhow!("FRI degree group index out of range"))?;
+        let row_bits = degree_bits
+            .checked_add(self.rate_bits)
+            .ok_or_else(|| anyhow::anyhow!("FRI LDE row-bit overflow"))?;
+        let row_count = 1usize
+            .checked_shl(row_bits.try_into().unwrap_or(usize::BITS))
+            .ok_or_else(|| anyhow::anyhow!("FRI LDE row-bit width is too large"))?;
+        ensure!(linear_index < row_count, "FRI LDE row index out of range");
+
+        let index = reverse_bits(linear_index, row_bits);
+        let degree_group = self
+            .batch_merkle_tree
+            .leaves
+            .get(degree_bits_index)
+            .ok_or_else(|| anyhow::anyhow!("FRI LDE degree group missing"))?;
+        let slice = degree_group
+            .get(index)
+            .ok_or_else(|| anyhow::anyhow!("FRI LDE row missing"))?;
+        let slice_end = slice_start
+            .checked_add(slice_len)
+            .ok_or_else(|| anyhow::anyhow!("FRI LDE slice range overflow"))?;
+        ensure!(slice_end <= slice.len(), "FRI LDE slice out of range");
+        Ok(&slice[slice_start..slice_end])
     }
 
     /// Like `get_lde_values`, but fetches LDE values from a batch of `P::WIDTH` points, and returns
@@ -254,7 +404,7 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         step: usize,
         slice_start: usize,
         slice_len: usize,
-    ) -> Vec<P>
+    ) -> Result<Vec<P>>
     where
         P: PackedField<Scalar = F>,
     {
@@ -268,12 +418,15 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
                     slice_len,
                 )
             })
-            .collect_vec();
+            .collect::<Result<Vec<_>>>()?;
 
         // This is essentially a transpose, but we will not use the generic transpose method as we
         // want inner lists to be of type P, not Vecs which would involve allocation.
-        let leaf_size = row_wise[0].len();
-        (0..leaf_size)
+        let leaf_size = row_wise
+            .first()
+            .ok_or_else(|| anyhow::anyhow!("FRI packed width cannot be zero"))?
+            .len();
+        Ok((0..leaf_size)
             .map(|j| {
                 let mut packed = P::ZEROS;
                 packed
@@ -283,7 +436,7 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
                     .for_each(|(packed_i, row_i)| *packed_i = row_i[j]);
                 packed
             })
-            .collect_vec()
+            .collect_vec())
     }
 }
 
@@ -485,7 +638,7 @@ mod test {
             &mut challenger,
             &fri_params,
             &mut timing,
-        );
+        )?;
 
         let fri_challenges = verifier_challenger.fri_challenges::<C, D>(
             &proof.commit_phase_merkle_caps,
@@ -727,7 +880,8 @@ mod test {
             &mut prover_challenger,
             &fri_params,
             &mut timing,
-        );
+        )
+        .expect("honest batch FRI proof should be produced");
         let inner_challenges = verifier_challenger.fri_challenges::<C, D>(
             &inner_proof.commit_phase_merkle_caps,
             &inner_proof.final_polys,

@@ -1,8 +1,9 @@
 use std::panic::{catch_unwind, AssertUnwindSafe};
 
+use plonky2::batch_fri::oracle::BatchFriOracle;
 use plonky2::field::packable::Packable;
 use plonky2::field::packed::PackedField;
-use plonky2::field::polynomial::PolynomialCoeffs;
+use plonky2::field::polynomial::{PolynomialCoeffs, PolynomialValues};
 use plonky2::field::types::Field;
 use plonky2::field::zero_poly_coset::ZeroPolyOnCoset;
 use plonky2::fri::proof::{
@@ -27,6 +28,7 @@ use plonky2::hash::merkle_proofs::{verify_merkle_proof_to_cap, MerkleProof, Merk
 use plonky2::hash::merkle_tree::{MerkleCap, MerkleTree};
 use plonky2::hash::poseidon::PoseidonHash;
 use plonky2::hash::poseidon2::Poseidon2Hash;
+use plonky2::iop::challenger::Challenger;
 use plonky2::iop::ext_target::ExtensionTarget;
 use plonky2::iop::generator::WitnessGeneratorRef;
 use plonky2::iop::target::Target;
@@ -39,6 +41,7 @@ use plonky2::util::serialization::{
     Buffer, DefaultGateSerializer, DefaultGeneratorSerializer, IoResult, Write,
 };
 use plonky2::util::strided_view::PackedStridedView;
+use plonky2::util::timing::TimingTree;
 
 const D: usize = 2;
 type C = PoseidonGoldilocksConfig;
@@ -455,6 +458,110 @@ fn valid_fri_oracle_metadata_references_pass() {
     };
 
     assert!(instance.check_references().is_ok());
+}
+
+fn small_batch_fri_oracle() -> BatchFriOracle<F, C, D> {
+    let mut timing = TimingTree::default();
+    BatchFriOracle::from_values(
+        vec![PolynomialValues::new(vec![
+            F::ZERO,
+            F::ONE,
+            F::TWO,
+            F::from_canonical_u64(3),
+        ])],
+        1,
+        false,
+        0,
+        &mut timing,
+        &[None],
+    )
+}
+
+fn small_batch_fri_params() -> FriParams {
+    FriParams {
+        config: FriConfig {
+            rate_bits: 1,
+            cap_height: 0,
+            proof_of_work_bits: 0,
+            reduction_strategy: FriReductionStrategy::Fixed(vec![1]),
+            num_query_rounds: 1,
+        },
+        leaf_hiding: false,
+        batch_masking: None,
+        degree_bits: 2,
+        reduction_arity_bits: vec![1],
+        final_poly_layout: FriFinalPolyLayout::Single,
+    }
+}
+
+#[test]
+fn malformed_batch_fri_metadata_returns_err() {
+    let oracle = small_batch_fri_oracle();
+    let params = small_batch_fri_params();
+    let mut challenger = Challenger::<F, H>::new();
+    let mut timing = TimingTree::default();
+
+    assert!(BatchFriOracle::prove_openings(
+        &[2],
+        &[],
+        &[&oracle],
+        &mut challenger,
+        &params,
+        &mut timing,
+    )
+    .is_err());
+
+    let missing_oracle = FriInstanceInfo {
+        oracles: vec![FriOracleInfo {
+            num_polys: 1,
+            blinding: false,
+        }],
+        batches: vec![FriBatchInfo {
+            point: FF::ONE,
+            openings: vec![FriOpeningExpression::raw(FriPolynomialInfo {
+                oracle_index: 1,
+                polynomial_index: 0,
+            })],
+        }],
+    };
+    assert!(BatchFriOracle::prove_openings(
+        &[2],
+        &[missing_oracle],
+        &[&oracle],
+        &mut challenger,
+        &params,
+        &mut timing,
+    )
+    .is_err());
+
+    let missing_polynomial = FriInstanceInfo {
+        oracles: vec![FriOracleInfo {
+            num_polys: 1,
+            blinding: false,
+        }],
+        batches: vec![FriBatchInfo {
+            point: FF::ONE,
+            openings: vec![FriOpeningExpression::raw(FriPolynomialInfo {
+                oracle_index: 0,
+                polynomial_index: 1,
+            })],
+        }],
+    };
+    assert!(BatchFriOracle::prove_openings(
+        &[2],
+        &[missing_polynomial],
+        &[&oracle],
+        &mut challenger,
+        &params,
+        &mut timing,
+    )
+    .is_err());
+
+    assert!(oracle.get_lde_values(0, usize::MAX, 2, 0, 1).is_err());
+    assert!(oracle.get_lde_values(0, 0, 1, usize::MAX, 1).is_err());
+    assert!(oracle
+        .get_lde_values_packed::<F>(0, usize::MAX, 2, 0, 1)
+        .is_err());
 }
 
 fn fri_params_with_final_layout(final_poly_layout: FriFinalPolyLayout) -> FriParams {
