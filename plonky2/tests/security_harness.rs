@@ -496,6 +496,23 @@ fn zero_generator_hangs_rejected() {
 }
 
 #[test]
+fn zero_inputs_batch_inversion_rejected() {
+    assert!(F::try_batch_multiplicative_inverse(&[F::ONE, F::ZERO, F::TWO]).is_err());
+    assert!(try_interpolate2([(F::ONE, F::ZERO), (F::ONE, F::TWO)], F::ZERO).is_err());
+
+    let xs = [
+        F::from_canonical_u64(11),
+        F::from_canonical_u64(13),
+        F::from_canonical_u64(17),
+    ];
+    let invs = F::try_batch_multiplicative_inverse(&xs).unwrap();
+    assert_eq!(invs, F::batch_multiplicative_inverse(&xs));
+    for (&x, &x_inv) in xs.iter().zip(&invs) {
+        assert_eq!(x * x_inv, F::ONE);
+    }
+}
+
+#[test]
 fn malformed_fri_oracle_metadata_rejected() {
     let instance = FriInstanceInfo::<F, D> {
         oracles: vec![FriOracleInfo {

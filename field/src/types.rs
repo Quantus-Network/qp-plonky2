@@ -144,6 +144,18 @@ pub trait Field:
     }
 
     fn batch_multiplicative_inverse(x: &[Self]) -> Vec<Self> {
+        Self::try_batch_multiplicative_inverse(x).expect("batch inverse input contained zero")
+    }
+
+    fn try_batch_multiplicative_inverse(x: &[Self]) -> Result<Vec<Self>> {
+        ensure!(
+            x.iter().all(|x_i| !x_i.is_zero()),
+            "batch inverse input contained zero"
+        );
+        Ok(Self::batch_multiplicative_inverse_nonzero(x))
+    }
+
+    fn batch_multiplicative_inverse_nonzero(x: &[Self]) -> Vec<Self> {
         // This is Montgomery's trick. At a high level, we invert the product of the given field
         // elements, then derive the individual inverses from that via multiplication.
 
@@ -683,5 +695,23 @@ mod tests {
                 .len(),
             1 << 3
         );
+    }
+
+    #[test]
+    fn batch_multiplicative_inverse_rejects_zero() {
+        type F = GoldilocksField;
+
+        assert!(F::try_batch_multiplicative_inverse(&[F::ONE, F::ZERO, F::TWO]).is_err());
+
+        let xs = [
+            F::from_canonical_u64(3),
+            F::from_canonical_u64(5),
+            F::from_canonical_u64(7),
+        ];
+        let invs = F::try_batch_multiplicative_inverse(&xs).unwrap();
+        assert_eq!(invs, F::batch_multiplicative_inverse(&xs));
+        for (&x, &x_inv) in xs.iter().zip(&invs) {
+            assert_eq!(x * x_inv, F::ONE);
+        }
     }
 }

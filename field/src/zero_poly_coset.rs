@@ -54,7 +54,7 @@ impl<F: Field> ZeroPolyOnCoset<F> {
             .into_iter()
             .map(|x| g_pow_n * x - F::ONE)
             .collect::<Vec<_>>();
-        let inverses = F::batch_multiplicative_inverse(&evals);
+        let inverses = F::try_batch_multiplicative_inverse(&evals)?;
         Ok(Self {
             n: F::from_canonical_usize(n),
             rate,
