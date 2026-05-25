@@ -40,3 +40,4 @@ finding	severity	class	commit	status	notes
 64715	Medium	runtime-dos-preconditions	864969dbd	fixed	Zero lookup slot counts cause deterministic build panics
 64717	Medium	untrusted-artifact-validation	3e425ad83	test-only-covered	Missing commit-phase cap count check causes verifier panic; root fixed by a185fb932
 64718	Medium	untrusted-artifact-validation	caf9dc2db	fixed	Generator deserialization lacks bounds checks for witness coordinates
+64719	Medium	runtime-dos-preconditions	13227feb2	fixed	Unvalidated witness targets can panic the prover
