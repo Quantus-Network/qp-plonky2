@@ -33,7 +33,7 @@ use plonky2::gates::reducing::ReducingGate;
 use plonky2::gates::reducing_extension::ReducingExtensionGate;
 use plonky2::gates::util::StridedConstraintConsumer;
 use plonky2::hash::batch_merkle_tree::BatchMerkleTree;
-use plonky2::hash::hashing::hash_n_to_hash_len_delimited;
+use plonky2::hash::hashing::{hash_n_to_hash_len_delimited, hash_n_to_m_no_pad};
 use plonky2::hash::merkle_proofs::{
     verify_batch_merkle_proof_to_cap, verify_merkle_proof_to_cap, MerkleProof, MerkleProofTarget,
 };
@@ -1464,6 +1464,20 @@ fn trailing_zero_hash_len_delimited_distinguishes_lengths() {
     assert_ne!(h1, h2);
     assert_ne!(h2, h3);
     assert_ne!(h1, h3);
+}
+
+#[test]
+fn zero_output_hash_returns_empty() {
+    type P = <PoseidonHash as Hasher<F>>::Permutation;
+
+    assert!(hash_n_to_m_no_pad::<F, P>(&[F::ONE, F::TWO], 0).is_empty());
+    assert_eq!(hash_n_to_m_no_pad::<F, P>(&[F::ONE], 3).len(), 3);
+
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    assert!(builder
+        .hash_n_to_m_no_pad::<PoseidonHash>(Vec::new(), 0)
+        .is_empty());
 }
 
 #[test]

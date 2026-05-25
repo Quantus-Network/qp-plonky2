@@ -69,6 +69,10 @@ pub fn hash_n_to_m_no_pad<F: RichField, P: PlonkyPermutation<F>>(
     inputs: &[F],
     num_outputs: usize,
 ) -> Vec<F> {
+    if num_outputs == 0 {
+        return Vec::new();
+    }
+
     let mut perm = P::new(core::iter::repeat(F::ZERO));
 
     // Absorb all input chunks.
@@ -154,5 +158,14 @@ mod tests {
             hash_n_to_hash_len_delimited::<F, P>(&[x]),
             hash_n_to_hash_len_delimited::<F, P>(&[x, F::ZERO])
         );
+    }
+
+    #[test]
+    fn zero_output_hash_returns_empty() {
+        type F = GoldilocksField;
+        type P = <PoseidonHash as Hasher<F>>::Permutation;
+
+        assert!(hash_n_to_m_no_pad::<F, P>(&[F::ONE, F::TWO], 0).is_empty());
+        assert_eq!(hash_n_to_m_no_pad::<F, P>(&[F::ONE], 3).len(), 3);
     }
 }

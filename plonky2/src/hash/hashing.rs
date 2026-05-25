@@ -31,6 +31,10 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         inputs: Vec<Target>,
         num_outputs: usize,
     ) -> Vec<Target> {
+        if num_outputs == 0 {
+            return Vec::new();
+        }
+
         let zero = self.zero();
         let mut state = H::AlgebraicPermutation::new(core::iter::repeat(zero));
 
