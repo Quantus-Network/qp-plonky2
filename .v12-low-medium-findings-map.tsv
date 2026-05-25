@@ -37,3 +37,4 @@ finding	severity	class	commit	status	notes
 64712	Medium	untrusted-artifact-validation	f30021de9	fixed	Malformed gate metadata can panic circuit loading and verification
 64713	Medium	untrusted-artifact-validation	7b990e4c4	fixed	Lookup deserializers panic on unvalidated serialized indices
 64714	Medium	untrusted-artifact-validation	c2c88e97f	fixed	Empty lookup tables panic during build and witness generation
+64715	Medium	runtime-dos-preconditions	864969dbd	fixed	Zero lookup slot counts cause deterministic build panics
