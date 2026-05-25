@@ -1092,6 +1092,34 @@ fn split_low_high_widths_rejected() -> anyhow::Result<()> {
 }
 
 #[test]
+fn zero_bit_range_check_rejects_nonzero() -> anyhow::Result<()> {
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let x = builder.add_virtual_target();
+    builder.range_check(x, 0);
+
+    let one_bit = builder.add_virtual_target();
+    builder.range_check(one_bit, 1);
+
+    let data = builder.build::<C>();
+
+    let mut valid = PartialWitness::new();
+    valid.set_target(x, F::ZERO)?;
+    valid.set_target(one_bit, F::ONE)?;
+    let proof = data.prove(valid)?;
+    data.verify(proof)?;
+
+    let mut invalid = PartialWitness::new();
+    invalid.set_target(x, F::ONE)?;
+    invalid.set_target(one_bit, F::ONE)?;
+    let result = catch_unwind(AssertUnwindSafe(|| data.prove(invalid)));
+    assert!(result.is_ok(), "zero-bit range check must not panic");
+    assert!(result.unwrap().is_err());
+
+    Ok(())
+}
+
+#[test]
 fn merkle_poseidon_zero_suffix_leaf_collision_rejected() -> anyhow::Result<()> {
     let leaf = vec![
         F::from_canonical_u64(1),
