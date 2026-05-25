@@ -1064,6 +1064,34 @@ fn leading_zero_underflow_rejected() -> anyhow::Result<()> {
 }
 
 #[test]
+fn split_low_high_widths_rejected() -> anyhow::Result<()> {
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let x = builder.add_virtual_target();
+
+    let gates_before = builder.num_gates();
+    assert!(builder.try_split_low_high(x, 9, 8).is_err());
+    assert_eq!(builder.num_gates(), gates_before);
+    assert!(builder.try_split_low_high(x, 64, 64).is_err());
+    assert_eq!(builder.num_gates(), gates_before);
+
+    let (low, high) = builder.try_split_low_high(x, 4, 8)?;
+    builder.register_public_input(low);
+    builder.register_public_input(high);
+
+    let data = builder.build::<C>();
+    let mut pw = PartialWitness::new();
+    pw.set_target(x, F::from_canonical_u64(0xab))?;
+
+    let proof = data.prove(pw)?;
+    assert_eq!(
+        proof.public_inputs,
+        vec![F::from_canonical_u64(0xb), F::from_canonical_u64(0xa)]
+    );
+    data.verify(proof)
+}
+
+#[test]
 fn merkle_poseidon_zero_suffix_leaf_collision_rejected() -> anyhow::Result<()> {
     let leaf = vec![
         F::from_canonical_u64(1),

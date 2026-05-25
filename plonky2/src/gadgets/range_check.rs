@@ -31,13 +31,21 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
 
     /// Returns `(a,b)` such that `x = a + 2^n_log * b` with `a < 2^n_log`.
     /// `x` is assumed to be range-checked for having `num_bits` bits.
-    pub fn split_low_high(&mut self, x: Target, n_log: usize, num_bits: usize) -> (Target, Target) {
-        assert!(n_log <= num_bits, "n_log must not exceed num_bits");
-        assert!(n_log < u64::BITS as usize, "n_log must be less than 64");
-        assert!(
+    pub fn try_split_low_high(
+        &mut self,
+        x: Target,
+        n_log: usize,
+        num_bits: usize,
+    ) -> Result<(Target, Target)> {
+        ensure!(n_log <= num_bits, "n_log must not exceed num_bits");
+        ensure!(n_log < u64::BITS as usize, "n_log must be less than 64");
+        ensure!(
             num_bits <= u64::BITS as usize,
             "num_bits must be at most 64"
         );
+        let high_bits = num_bits
+            .checked_sub(n_log)
+            .ok_or_else(|| anyhow::anyhow!("n_log must not exceed num_bits"))?;
 
         let low = self.add_virtual_target();
         let high = self.add_virtual_target();
@@ -50,7 +58,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         });
 
         self.range_check(low, n_log);
-        let high_bits = num_bits - n_log;
         self.range_check(high, high_bits);
 
         let pow2 = 1u64
@@ -60,7 +67,17 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         let comp_x = self.mul_add(high, pow2, low);
         self.connect(x, comp_x);
 
-        (low, high)
+        Ok((low, high))
+    }
+
+    /// Returns `(a,b)` such that `x = a + 2^n_log * b` with `a < 2^n_log`.
+    /// `x` is assumed to be range-checked for having `num_bits` bits.
+    ///
+    /// Panics if the widths are unsupported. Use [`Self::try_split_low_high`] for untrusted
+    /// widths.
+    pub fn split_low_high(&mut self, x: Target, n_log: usize, num_bits: usize) -> (Target, Target) {
+        self.try_split_low_high(x, n_log, num_bits)
+            .expect("split_low_high widths must be valid")
     }
 
     pub fn assert_bool(&mut self, b: BoolTarget) {
