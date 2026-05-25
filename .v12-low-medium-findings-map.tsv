@@ -14,3 +14,4 @@ finding	severity	class	commit	status	notes
 64626	Medium	untrusted-artifact-validation	b01081c26	fixed	Unchecked leaf index panics
 64630	Medium	runtime-dos-preconditions	a35babbe2	fixed	Unchecked leading-zero underflow
 64633	Medium	runtime-dos-preconditions	63d703182	fixed	Unchecked widths exhaust circuit builder
+64634	Medium	gadget-constraint-soundness	58641cce6	fixed	Zero-bit checks add no constraint
