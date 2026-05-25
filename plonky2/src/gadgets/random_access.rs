@@ -10,13 +10,31 @@ use crate::iop::ext_target::ExtensionTarget;
 use crate::iop::target::Target;
 use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::circuit_data::VerifierCircuitTarget;
-use crate::util::log2_strict;
+use crate::util::{log2_ceil, log2_strict};
 
 impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
+    fn constrain_random_access_index(&mut self, access_index: Target, original_len: usize) {
+        assert!(original_len > 0, "random_access requires a non-empty list");
+        if original_len == 1 {
+            self.assert_zero(access_index);
+            return;
+        }
+
+        if original_len.is_power_of_two() {
+            return;
+        }
+
+        let bits = log2_ceil(original_len);
+        let max_valid_index = self.constant(F::from_canonical_usize(original_len - 1));
+        let remaining = self.sub(max_valid_index, access_index);
+        self.range_check(remaining, bits);
+    }
+
     /// Checks that a `Target` matches a vector at a particular index.
     pub fn random_access(&mut self, access_index: Target, v: Vec<Target>) -> Target {
         let mut v = v;
         let current_len = v.len();
+        self.constrain_random_access_index(access_index, current_len);
         let next_power_of_two = current_len.next_power_of_two();
         if current_len < next_power_of_two {
             // Get the last element (if there is one) and extend with it
@@ -56,15 +74,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         access_index: Target,
         v: Vec<ExtensionTarget<D>>,
     ) -> ExtensionTarget<D> {
-        let mut v = v;
-        let current_len = v.len();
-        let next_power_of_two = current_len.next_power_of_two();
-        if current_len < next_power_of_two {
-            // Get the last element (if there is one) and extend with it
-            if let Some(&last) = v.last() {
-                v.extend(repeat_n(last, next_power_of_two - current_len));
-            }
-        }
         let selected: Vec<_> = (0..D)
             .map(|i| self.random_access(access_index, v.iter().map(|et| et.0[i]).collect()))
             .collect();

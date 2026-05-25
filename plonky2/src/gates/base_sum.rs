@@ -2,7 +2,7 @@
 use alloc::{format, string::String, vec, vec::Vec};
 use core::ops::Range;
 
-use anyhow::Result;
+use anyhow::{ensure, Result};
 
 use crate::field::extension::Extendable;
 use crate::field::packed::PackedField;
@@ -195,9 +195,8 @@ impl<F: RichField + Extendable<D>, const B: usize, const D: usize> SimpleGenerat
         let sum_value = witness
             .get_target(Target::wire(self.row, BaseSumGate::<B>::WIRE_SUM))
             .to_canonical_u64();
-        debug_assert_eq!(
-            (0..self.num_limbs).fold(sum_value, |acc, _| acc / (B as u64)),
-            0,
+        ensure!(
+            (0..self.num_limbs).fold(sum_value, |acc, _| acc / (B as u64)) == 0,
             "Integer too large to fit in given number of limbs"
         );
 

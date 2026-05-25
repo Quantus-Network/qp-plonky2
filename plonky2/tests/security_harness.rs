@@ -1120,6 +1120,52 @@ fn zero_bit_range_check_rejects_nonzero() -> anyhow::Result<()> {
 }
 
 #[test]
+fn random_access_alias_rejected() -> anyhow::Result<()> {
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let access_index = builder.add_virtual_target();
+    let values = vec![
+        builder.constant(F::from_canonical_u64(10)),
+        builder.constant(F::from_canonical_u64(20)),
+        builder.constant(F::from_canonical_u64(30)),
+    ];
+    let selected = builder.random_access(access_index, values);
+    builder.register_public_input(selected);
+
+    let data = builder.build::<C>();
+
+    let mut valid = PartialWitness::new();
+    valid.set_target(access_index, F::from_canonical_usize(2))?;
+    let proof = data.prove(valid)?;
+    assert_eq!(proof.public_inputs, vec![F::from_canonical_u64(30)]);
+    data.verify(proof)?;
+
+    let mut invalid = PartialWitness::new();
+    invalid.set_target(access_index, F::from_canonical_usize(3))?;
+    let result = catch_unwind(AssertUnwindSafe(|| data.prove(invalid)));
+    assert!(result.is_ok(), "out-of-range random access must not panic");
+    assert!(result.unwrap().is_err());
+
+    let config = CircuitConfig::standard_recursion_config();
+    let mut power_two_builder = CircuitBuilder::<F, D>::new(config);
+    let index = power_two_builder.add_virtual_target();
+    let values = vec![
+        power_two_builder.constant(F::from_canonical_u64(1)),
+        power_two_builder.constant(F::from_canonical_u64(2)),
+        power_two_builder.constant(F::from_canonical_u64(3)),
+        power_two_builder.constant(F::from_canonical_u64(4)),
+    ];
+    let selected = power_two_builder.random_access(index, values);
+    power_two_builder.register_public_input(selected);
+    let data = power_two_builder.build::<C>();
+    let mut pw = PartialWitness::new();
+    pw.set_target(index, F::from_canonical_usize(3))?;
+    let proof = data.prove(pw)?;
+    assert_eq!(proof.public_inputs, vec![F::from_canonical_u64(4)]);
+    data.verify(proof)
+}
+
+#[test]
 fn merkle_poseidon_zero_suffix_leaf_collision_rejected() -> anyhow::Result<()> {
     let leaf = vec![
         F::from_canonical_u64(1),

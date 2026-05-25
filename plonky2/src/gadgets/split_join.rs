@@ -5,7 +5,7 @@ use alloc::{
     vec::Vec,
 };
 
-use anyhow::Result;
+use anyhow::{ensure, Result};
 
 use crate::field::extension::Extendable;
 use crate::gates::base_sum::BaseSumGate;
@@ -91,8 +91,8 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D> for Spl
             integer_value >>= 1;
         }
 
-        debug_assert_eq!(
-            integer_value, 0,
+        ensure!(
+            integer_value == 0,
             "Integer too large to fit in given number of bits"
         );
 
@@ -150,9 +150,8 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D> for Wir
             out_buffer.set_target(sum, F::from_canonical_u64(truncated_value))?;
         }
 
-        debug_assert_eq!(
-            integer_value,
-            0,
+        ensure!(
+            integer_value == 0,
             "Integer too large to fit in {} many `BaseSumGate`s",
             self.gates.len()
         );
