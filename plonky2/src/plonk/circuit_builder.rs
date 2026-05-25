@@ -248,6 +248,9 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     fn check_config(&self) {
         // Validate basic config invariants required for soundness.
         self.config.validate();
+        self.config
+            .check_reducing_widths::<D>()
+            .expect("Invalid circuit config");
 
         let &CircuitConfig {
             security_bits,

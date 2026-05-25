@@ -232,6 +232,10 @@ impl CircuitConfig {
     /// This checks invariants that the PLONK protocol relies on for soundness.
     /// Returns an error message if validation fails.
     pub fn check_valid(&self) -> Result<(), &'static str> {
+        if self.num_routed_wires > self.num_wires {
+            return Err("num_routed_wires must not exceed num_wires");
+        }
+
         if self.num_challenges == 0 {
             return Err("num_challenges must not be 0 (zero challenges means no verification)");
         }
@@ -244,6 +248,19 @@ impl CircuitConfig {
             poly_fri.check_valid()?;
         }
 
+        Ok(())
+    }
+
+    pub fn check_reducing_widths<const D: usize>(&self) -> Result<(), &'static str> {
+        if D == 0 {
+            return Err("extension degree must not be 0");
+        }
+        if reducing_base_capacity::<D>(self.num_wires, self.num_routed_wires).is_none() {
+            return Err("not enough wires for base reducing gate");
+        }
+        if reducing_extension_capacity::<D>(self.num_wires, self.num_routed_wires).is_none() {
+            return Err("not enough wires for extension reducing gate");
+        }
         Ok(())
     }
 
@@ -306,6 +323,38 @@ impl CircuitConfig {
             );
         }
     }
+}
+
+pub fn reducing_base_capacity<const D: usize>(
+    num_wires: usize,
+    num_routed_wires: usize,
+) -> Option<usize> {
+    if D == 0 {
+        return None;
+    }
+    let routed_overhead = 3usize.checked_mul(D)?;
+    let wire_overhead = 2usize.checked_mul(D)?;
+    let wire_divisor = D.checked_add(1)?;
+    let routed_capacity = num_routed_wires.checked_sub(routed_overhead)?;
+    let wire_capacity = num_wires.checked_sub(wire_overhead)? / wire_divisor;
+    let capacity = routed_capacity.min(wire_capacity);
+    (capacity > 0).then_some(capacity)
+}
+
+pub fn reducing_extension_capacity<const D: usize>(
+    num_wires: usize,
+    num_routed_wires: usize,
+) -> Option<usize> {
+    if D == 0 {
+        return None;
+    }
+    let routed_overhead = 3usize.checked_mul(D)?;
+    let wire_overhead = 2usize.checked_mul(D)?;
+    let wire_divisor = D.checked_mul(2)?;
+    let routed_capacity = num_routed_wires.checked_sub(routed_overhead)? / D;
+    let wire_capacity = num_wires.checked_sub(wire_overhead)? / wire_divisor;
+    let capacity = routed_capacity.min(wire_capacity);
+    (capacity > 0).then_some(capacity)
 }
 
 #[cfg(test)]

@@ -45,6 +45,7 @@ use plonky2::plonk::prover::prove;
 use plonky2::plonk::vars::{EvaluationTargets, EvaluationVars};
 use plonky2::recursion::cyclic_recursion::check_cyclic_proof_verifier_data;
 use plonky2::recursion::dummy_circuit::{try_cyclic_base_proof, try_dummy_circuit};
+use plonky2::util::reducing::ReducingFactorTarget;
 use plonky2::util::serialization::{
     Buffer, DefaultGateSerializer, DefaultGeneratorSerializer, IoResult, Write,
 };
@@ -886,6 +887,40 @@ fn malformed_matrix_transpose_returns_err() {
         try_transpose(&rectangular).unwrap(),
         vec![vec![1, 3], vec![2, 4]]
     );
+}
+
+#[test]
+fn malformed_config_panics_reductions_rejected() -> anyhow::Result<()> {
+    let mut malformed = CircuitConfig::standard_recursion_config();
+    malformed.num_wires = 3 * D;
+    malformed.num_routed_wires = 3 * D;
+    assert!(malformed.check_reducing_widths::<D>().is_err());
+
+    let builder_result = catch_unwind(AssertUnwindSafe(|| {
+        let _ = CircuitBuilder::<F, D>::new(malformed);
+    }));
+    assert!(
+        builder_result.is_err(),
+        "malformed reducing config must be rejected at builder construction"
+    );
+
+    let config = CircuitConfig::standard_recursion_config();
+    assert!(config.check_reducing_widths::<D>().is_ok());
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let alpha = builder.constant_extension(FF::from_canonical_u64(7));
+    let mut reducer = ReducingFactorTarget::new(alpha);
+    let base_terms = (0..80)
+        .map(|i| builder.constant(F::from_canonical_usize(i)))
+        .collect::<Vec<_>>();
+    let extension_terms = (0..80)
+        .map(|i| builder.constant_extension(FF::from_canonical_usize(i)))
+        .collect::<Vec<_>>();
+    let _ = reducer.reduce_base(&base_terms, &mut builder);
+    let _ = reducer.reduce(&extension_terms, &mut builder);
+
+    let data = builder.build::<C>();
+    let proof = data.prove(PartialWitness::new())?;
+    data.verify(proof)
 }
 
 #[test]

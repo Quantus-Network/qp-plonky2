@@ -246,6 +246,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
     /// This checks that degree parameters are consistent and within bounds.
     pub fn check_valid(&self) -> Result<(), &'static str> {
         self.config.check_valid()?;
+        self.config.check_reducing_widths::<D>()?;
         self.fri_params
             .check_valid()
             .map_err(|_| "invalid FRI params")?;

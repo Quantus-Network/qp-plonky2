@@ -52,7 +52,8 @@ impl<const D: usize> ReducingFactorTarget<D> {
         let max_coeffs_len = ReducingGate::<D>::max_coeffs_len(
             builder.config.num_wires,
             builder.config.num_routed_wires,
-        );
+        )
+        .expect("invalid circuit config: base reducing gate has no coefficient capacity");
         self.count += l as u64;
         let zero = builder.zero();
         let zero_ext = builder.zero_extension();
@@ -103,7 +104,8 @@ impl<const D: usize> ReducingFactorTarget<D> {
         let max_coeffs_len = ReducingExtensionGate::<D>::max_coeffs_len(
             builder.config.num_wires,
             builder.config.num_routed_wires,
-        );
+        )
+        .expect("invalid circuit config: extension reducing gate has no coefficient capacity");
         self.count += l as u64;
         let zero_ext = builder.zero_extension();
         let mut acc = zero_ext;

@@ -21,6 +21,7 @@ use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::circuit_data::CommonCircuitData;
 use crate::plonk::vars::{EvaluationTargets, EvaluationVars, EvaluationVarsBase};
 use crate::util::serialization::{Buffer, IoResult, Read, Write};
+use qp_plonky2_core::circuit_config::reducing_base_capacity;
 
 /// Computes `sum alpha^i c_i` for a vector `c_i` of `num_coeffs` elements of the base field.
 #[derive(Debug, Default, Clone)]
@@ -34,8 +35,8 @@ impl<const D: usize> ReducingGate<D> {
         Self { num_coeffs }
     }
 
-    pub fn max_coeffs_len(num_wires: usize, num_routed_wires: usize) -> usize {
-        (num_routed_wires - 3 * D).min((num_wires - 2 * D) / (D + 1))
+    pub fn max_coeffs_len(num_wires: usize, num_routed_wires: usize) -> Option<usize> {
+        reducing_base_capacity::<D>(num_wires, num_routed_wires)
     }
 
     pub(crate) const fn wires_output() -> Range<usize> {

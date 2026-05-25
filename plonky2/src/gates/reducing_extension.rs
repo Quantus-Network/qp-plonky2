@@ -21,6 +21,7 @@ use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::circuit_data::CommonCircuitData;
 use crate::plonk::vars::{EvaluationTargets, EvaluationVars, EvaluationVarsBase};
 use crate::util::serialization::{Buffer, IoResult, Read, Write};
+use qp_plonky2_core::circuit_config::reducing_extension_capacity;
 
 /// Computes `sum alpha^i c_i` for a vector `c_i` of `num_coeffs` elements of the extension field.
 #[derive(Debug, Clone, Default)]
@@ -34,10 +35,8 @@ impl<const D: usize> ReducingExtensionGate<D> {
         Self { num_coeffs }
     }
 
-    pub fn max_coeffs_len(num_wires: usize, num_routed_wires: usize) -> usize {
-        // `3*D` routed wires are used for the output, alpha and old accumulator.
-        // Need `num_coeffs*D` routed wires for coeffs, and `(num_coeffs-1)*D` wires for accumulators.
-        ((num_routed_wires - 3 * D) / D).min((num_wires - 2 * D) / (D * 2))
+    pub fn max_coeffs_len(num_wires: usize, num_routed_wires: usize) -> Option<usize> {
+        reducing_extension_capacity::<D>(num_wires, num_routed_wires)
     }
 
     pub(crate) const fn wires_output() -> Range<usize> {
