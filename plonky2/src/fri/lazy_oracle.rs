@@ -241,6 +241,39 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
     pub fn lde_size(&self) -> usize {
         1 << (self.degree_log + self.rate_bits)
     }
+
+    /// Create a lazy batch from a regular PolynomialBatch, dropping the leaves.
+    ///
+    /// This allows converting to lazy storage after quotient computation is done,
+    /// freeing memory while retaining the ability to answer FRI queries.
+    pub fn from_polynomial_batch(
+        batch: crate::fri::oracle::PolynomialBatch<F, C, D>,
+    ) -> Self {
+        let digest_only_tree = DigestOnlyMerkleTree::from_merkle_tree(&batch.merkle_tree);
+        
+        Self {
+            polynomials: batch.polynomials,
+            merkle_tree: digest_only_tree,
+            degree_log: batch.degree_log,
+            rate_bits: batch.rate_bits,
+            blinding: batch.blinding,
+            #[cfg(feature = "rand")]
+            salt_values: None, // Salt values not preserved - will be recomputed if needed
+        }
+    }
+
+    /// Answer an FRI query by providing the leaf values and merkle proof.
+    ///
+    /// This recomputes the leaf values from polynomial coefficients and uses
+    /// the stored digests for the Merkle proof.
+    ///
+    /// Returns (leaf_values, merkle_proof) pair for the given index.
+    pub fn answer_fri_query(
+        &self,
+        bit_reversed_index: usize,
+    ) -> (Vec<F>, MerkleProof<F, C::Hasher>) {
+        self.prove_with_leaf(bit_reversed_index)
+    }
 }
 
 #[cfg(test)]

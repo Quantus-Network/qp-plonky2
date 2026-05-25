@@ -100,6 +100,20 @@ impl<F: RichField, H: Hasher<F>> DigestOnlyMerkleTree<F, H> {
     pub fn is_empty(&self) -> bool {
         self.num_leaves == 0
     }
+
+    /// Create a digest-only tree from an existing MerkleTree, dropping the leaves.
+    ///
+    /// This allows converting a regular MerkleTree to a lazy version after
+    /// the leaves are no longer needed for direct access.
+    pub fn from_merkle_tree(
+        tree: &crate::hash::merkle_tree::MerkleTree<F, H>,
+    ) -> Self {
+        Self {
+            num_leaves: tree.leaves.len(),
+            digests: tree.digests.clone(),
+            cap: tree.cap.clone(),
+        }
+    }
 }
 
 #[cfg(test)]

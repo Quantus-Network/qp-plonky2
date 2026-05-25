@@ -47,7 +47,7 @@ use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::config::{GenericConfig, Hasher};
 use crate::plonk::plonk_common::PlonkOracle;
 use crate::plonk::proof::{CompressedProofWithPublicInputs, ProofWithPublicInputs};
-use crate::plonk::prover::prove;
+use crate::plonk::prover::{prove, prove_lazy};
 use crate::plonk::verifier::verify;
 use crate::util::serialization::{
     Buffer, GateSerializer, IoResult, Read, WitnessGeneratorSerializer, Write,
@@ -200,6 +200,21 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
 
     pub fn prove(&self, inputs: PartialWitness<F>) -> Result<ProofWithPublicInputs<F, C, D>> {
         prove::<F, C, D>(
+            &self.prover_only,
+            &self.common,
+            inputs,
+            &mut TimingTree::default(),
+        )
+    }
+
+    /// Memory-efficient proving using lazy polynomial commitments.
+    ///
+    /// This saves ~80% memory during polynomial commitment by not storing LDE values.
+    /// The tradeoff is ~10-20% longer proving time due to recomputing LDE values.
+    ///
+    /// Use this when memory is constrained (e.g., mobile devices).
+    pub fn prove_lazy(&self, inputs: PartialWitness<F>) -> Result<ProofWithPublicInputs<F, C, D>> {
+        prove_lazy::<F, C, D>(
             &self.prover_only,
             &self.common,
             inputs,

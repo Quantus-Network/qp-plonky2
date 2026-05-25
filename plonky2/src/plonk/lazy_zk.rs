@@ -149,6 +149,19 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
             logical_layouts: self.logical_layouts,
         }
     }
+
+    /// Create a lazy batch from a regular LogicalPolynomialBatch, dropping the leaves.
+    ///
+    /// This allows converting to lazy storage after quotient computation is done,
+    /// freeing memory while retaining the ability to answer FRI queries.
+    pub fn from_logical_batch(
+        batch: crate::plonk::zk::LogicalPolynomialBatch<F, C, D>,
+    ) -> Self {
+        Self {
+            raw: LazyPolynomialBatch::from_polynomial_batch(batch.raw),
+            logical_layouts: batch.logical_layouts,
+        }
+    }
 }
 
 /// Commit polynomial values using the lazy approach (no LDE storage).
