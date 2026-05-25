@@ -50,6 +50,7 @@ use plonky2::util::serialization::{
 };
 use plonky2::util::strided_view::PackedStridedView;
 use plonky2::util::timing::TimingTree;
+use plonky2::util::try_transpose;
 use qp_plonky2_core::ZkMode;
 
 const D: usize = 2;
@@ -870,6 +871,21 @@ fn unconstrained_branch_selector_rejected() {
     let result = catch_unwind(AssertUnwindSafe(|| data.prove(pw)));
     assert!(result.is_ok(), "non-boolean selector must not panic");
     assert!(result.unwrap().is_err());
+}
+
+#[test]
+fn malformed_matrix_transpose_returns_err() {
+    let empty: Vec<Vec<u64>> = vec![];
+    assert!(try_transpose(&empty).is_err());
+
+    let ragged = vec![vec![1, 2], vec![3]];
+    assert!(try_transpose(&ragged).is_err());
+
+    let rectangular = vec![vec![1, 2], vec![3, 4]];
+    assert_eq!(
+        try_transpose(&rectangular).unwrap(),
+        vec![vec![1, 3], vec![2, 4]]
+    );
 }
 
 #[test]

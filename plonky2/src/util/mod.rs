@@ -3,6 +3,7 @@
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
 
+use anyhow::{ensure, Result};
 use plonky2_maybe_rayon::*;
 #[doc(inline)]
 pub use plonky2_util::*;
@@ -28,12 +29,24 @@ pub(crate) fn transpose_poly_values<F: Field>(polys: Vec<PolynomialValues<F>>) -
     transpose(&poly_values)
 }
 
-pub fn transpose<T: Send + Sync + Copy>(matrix: &[Vec<T>]) -> Vec<Vec<T>> {
+pub fn try_transpose<T: Send + Sync + Copy>(matrix: &[Vec<T>]) -> Result<Vec<Vec<T>>> {
+    ensure!(!matrix.is_empty(), "matrix must not be empty");
     let len = matrix[0].len();
-    (0..len)
+    ensure!(
+        matrix.iter().all(|row| row.len() == len),
+        "matrix rows must have equal length"
+    );
+    Ok((0..len)
         .into_par_iter()
         .map(|i| matrix.iter().map(|row| row[i]).collect())
-        .collect()
+        .collect())
+}
+
+/// Transpose a non-empty rectangular matrix.
+///
+/// Panics if `matrix` is empty or ragged. Use [`try_transpose`] for untrusted inputs.
+pub fn transpose<T: Send + Sync + Copy>(matrix: &[Vec<T>]) -> Vec<Vec<T>> {
+    try_transpose(matrix).expect("matrix must be non-empty and rectangular")
 }
 
 #[cfg(test)]
@@ -43,6 +56,24 @@ mod tests {
     use alloc::vec;
 
     use super::*;
+
+    #[test]
+    fn test_try_transpose_rejects_malformed_matrices() {
+        let empty: Vec<Vec<u64>> = vec![];
+        assert!(try_transpose(&empty).is_err());
+
+        let ragged = vec![vec![1, 2], vec![3]];
+        assert!(try_transpose(&ragged).is_err());
+    }
+
+    #[test]
+    fn test_try_transpose_rectangular_matrix() {
+        let matrix = vec![vec![1, 2, 3], vec![4, 5, 6]];
+        assert_eq!(
+            try_transpose(&matrix).unwrap(),
+            vec![vec![1, 4], vec![2, 5], vec![3, 6]]
+        );
+    }
 
     #[test]
     fn test_reverse_bits() {
