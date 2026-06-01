@@ -525,6 +525,21 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
         self.public_initial_degree() << self.config.fri_config.rate_bits
     }
 
+    /// Number of FFT points precomputed for the largest PolyFri masked logical commitment.
+    ///
+    /// Returns `None` when the degree parameters overflow `usize`, so deserialization can reject
+    /// malformed circuit data instead of panicking.
+    pub fn max_fft_points(&self) -> Option<usize> {
+        let max_fft_degree_bits = self.degree_bits().max(self.public_initial_degree_bits());
+        let fft_extra_bits = self
+            .config
+            .fri_config
+            .rate_bits
+            .max(log2_ceil(self.quotient_degree_factor));
+        let fft_bits = max_fft_degree_bits.checked_add(fft_extra_bits)?;
+        1usize.checked_shl(fft_bits as u32)
+    }
+
     pub const fn degree(&self) -> usize {
         1 << self.degree_bits()
     }

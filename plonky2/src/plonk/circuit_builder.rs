@@ -2,7 +2,6 @@
 
 #[cfg(not(feature = "std"))]
 use alloc::{collections::BTreeMap, sync::Arc, vec, vec::Vec};
-use core::cmp::max;
 #[cfg(feature = "std")]
 use std::{collections::BTreeMap, sync::Arc};
 
@@ -1268,13 +1267,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             self.sigma_vecs(&k_is, &subgroup)
         );
 
-        // Precompute FFT roots for the larger PolyFri masked logical commitments. Trace-domain
-        // batches compute exact FFT roots on demand so they are never coupled to the public size.
-        let max_fft_degree_bits = max(degree_bits, public_initial_degree_bits);
-        let max_fft_points =
-            1 << (max_fft_degree_bits + max(rate_bits, log2_ceil(quotient_degree_factor)));
-        let fft_root_table = fft_root_table(max_fft_points);
-
         let constants_sigmas_commitment = if commit_to_sigma {
             let constants_sigmas_vecs = [constant_vecs, sigma_vecs.clone()].concat();
             let constants_sigmas_coeffs = constants_sigmas_vecs
@@ -1450,6 +1442,14 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             num_lookup_selectors,
             luts: self.luts,
         };
+
+        // Precompute FFT roots for the larger PolyFri masked logical commitments. Trace-domain
+        // batches compute exact FFT roots on demand so they are never coupled to the public size.
+        let fft_root_table = fft_root_table(
+            common
+                .max_fft_points()
+                .expect("FFT domain size overflows usize"),
+        );
 
         let mut success = true;
 

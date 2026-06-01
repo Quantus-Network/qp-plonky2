@@ -21,6 +21,7 @@ use hashbrown::HashMap;
 use qp_plonky2_core::{PolyFriZkConfig, ZkConfig, ZkMode};
 
 use crate::field::extension::{Extendable, FieldExtension};
+use crate::field::fft::fft_root_table;
 use crate::field::polynomial::PolynomialCoeffs;
 use crate::field::types::{Field64, PrimeField64};
 use crate::fri::oracle::PolynomialBatch;
@@ -997,19 +998,25 @@ pub trait Read {
 
         let representative_map = self.read_usize_vec()?;
 
+        // Discard any attacker-supplied FFT root table and rebuild it from the trusted circuit
+        // shape, shape-checking the serialized table only to advance the buffer cursor.
+        let recomputed_fft_root_table =
+            fft_root_table::<F>(common_data.max_fft_points().ok_or(IoError)?);
         let is_some = self.read_bool()?;
-        let fft_root_table = match is_some {
-            true => {
-                let table_len = self.read_usize()?;
-                let mut table = try_with_capacity(table_len)?;
-                for _ in 0..table_len {
-                    let len = self.read_usize()?;
-                    table.push(self.read_field_vec(len)?);
-                }
-                Some(table)
+        if is_some {
+            let table_len = self.read_usize()?;
+            if table_len != recomputed_fft_root_table.len() {
+                return Err(IoError);
             }
-            false => None,
-        };
+            for expected_row in &recomputed_fft_root_table {
+                let len = self.read_usize()?;
+                if len != expected_row.len() {
+                    return Err(IoError);
+                }
+                let _ = self.read_field_vec::<F>(len)?;
+            }
+        }
+        let fft_root_table = Some(recomputed_fft_root_table);
 
         let circuit_digest = self.read_hash::<F, <C as GenericConfig<D>>::Hasher>()?;
 
