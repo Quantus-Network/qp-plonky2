@@ -4,7 +4,6 @@
 extern crate alloc;
 
 use alloc::vec::Vec;
-
 use core::mem::size_of;
 use core::ptr::{swap, swap_nonoverlapping};
 
@@ -243,8 +242,6 @@ const BIT_REVERSE_6BIT: &[u8] = &[
     0o03, 0o43, 0o23, 0o63, 0o13, 0o53, 0o33, 0o73,
     0o07, 0o47, 0o27, 0o67, 0o17, 0o57, 0o37, 0o77,
 ];
-
-
 
 /// Try to force Rust to emit a branch. Example:
 ///     if x > 2 {

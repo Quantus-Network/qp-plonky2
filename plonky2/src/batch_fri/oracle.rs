@@ -680,11 +680,8 @@ mod test {
         };
 
         let n = 1 << k;
-        let trace = PolynomialValues::new(
-            (1..=n)
-                .map(|i| F::from_canonical_usize(i))
-                .collect_vec(),
-        );
+        let trace =
+            PolynomialValues::new((1..=n).map(|i| F::from_canonical_usize(i)).collect_vec());
         let oracle: BatchFriOracle<GoldilocksField, C, D> = BatchFriOracle::from_values(
             vec![trace],
             fri_params.config.rate_bits,

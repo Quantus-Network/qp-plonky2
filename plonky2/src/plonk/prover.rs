@@ -98,8 +98,7 @@ pub fn set_lookup_wires<
         }
 
         // Pad the last `LookupGate` with the first entry from the LUT.
-        let remaining_slots =
-            (num_entries - (lut_to_lookups.len() % num_entries)) % num_entries;
+        let remaining_slots = (num_entries - (lut_to_lookups.len() % num_entries)) % num_entries;
         let (first_inp_value, first_out_value) = lut[0];
         for slot in (num_entries - remaining_slots)..num_entries {
             let inp_target =
