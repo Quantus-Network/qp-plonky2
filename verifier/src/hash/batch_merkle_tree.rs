@@ -280,10 +280,7 @@ mod tests {
                 new_row
             })
             .collect::<Vec<Vec<F>>>();
-        let layer_1 = [
-            H::hash_leaf(&new_leaves[0]),
-            H::hash_leaf(&new_leaves[1]),
-        ];
+        let layer_1 = [H::hash_leaf(&new_leaves[0]), H::hash_leaf(&new_leaves[1])];
         assert_eq!(layer_1, fmt.digests[4..]);
 
         let root = H::two_to_one(layer_1[0], layer_1[1]);
