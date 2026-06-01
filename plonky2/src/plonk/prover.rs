@@ -315,7 +315,7 @@ where
             &gammas,
             &deltas,
             &alphas,
-        )
+        )?
     );
 
     let all_quotient_poly_chunks: Vec<PolynomialCoeffs<F>> = timed!(
@@ -697,7 +697,7 @@ fn compute_quotient_polys<
     gammas: &[F],
     deltas: &[F],
     alphas: &[F],
-) -> Vec<PolynomialCoeffs<F>> {
+) -> Result<Vec<PolynomialCoeffs<F>>> {
     let num_challenges = common_data.config.num_challenges;
 
     let has_lookup = common_data.num_lookup_polys != 0;
@@ -708,6 +708,10 @@ fn compute_quotient_polys<
         "Having constraints of degree higher than the rate is not supported yet. \
         If we need this in the future, we can precompute the larger LDE before computing the `PolynomialBatch`s."
     );
+
+    // Validate the coset domain up front so malformed or deserialized circuit data returns an
+    // error instead of panicking when we eagerly expand the two-adic subgroup below.
+    let z_h_on_coset = ZeroPolyOnCoset::try_new(common_data.degree_bits(), quotient_degree_bits)?;
 
     // We reuse the LDE computed in `PolynomialBatch` and extract every `step` points to get
     // an LDE matching `max_filtered_constraint_degree`.
@@ -721,8 +725,6 @@ fn compute_quotient_polys<
 
     let points = F::two_adic_subgroup(common_data.degree_bits() + quotient_degree_bits);
     let lde_size = points.len();
-
-    let z_h_on_coset = ZeroPolyOnCoset::new(common_data.degree_bits(), quotient_degree_bits);
 
     // Precompute the lookup table evals on the challenges in delta
     // These values are used to produce the final RE constraints for each lut,
@@ -902,9 +904,9 @@ fn compute_quotient_polys<
         })
         .collect();
 
-    transpose(&quotient_values)
+    Ok(transpose(&quotient_values)
         .into_par_iter()
         .map(PolynomialValues::new)
         .map(|values| values.coset_ifft(F::coset_shift()))
-        .collect()
+        .collect())
 }

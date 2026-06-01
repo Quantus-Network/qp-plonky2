@@ -384,7 +384,7 @@ where
             num_lookup_columns,
             &num_ctl_polys,
             config,
-        )
+        )?
     );
     let (quotient_commitment, quotient_polys_cap) = if let Some(quotient_polys) = quotient_polys {
         let all_quotient_chunks = timed!(
@@ -497,7 +497,7 @@ fn compute_quotient_polys<'a, F, P, C, S, const D: usize>(
     num_lookup_columns: usize,
     num_ctl_columns: &[usize],
     config: &StarkConfig,
-) -> Option<Vec<PolynomialCoeffs<F>>>
+) -> Result<Option<Vec<PolynomialCoeffs<F>>>>
 where
     F: RichField + Extendable<D>,
     P: PackedField<Scalar = F>,
@@ -505,7 +505,7 @@ where
     S: Stark<F, D>,
 {
     if stark.quotient_degree_factor() == 0 {
-        return None;
+        return Ok(None);
     }
 
     let degree = 1 << degree_bits;
@@ -527,7 +527,7 @@ where
     let lagrange_last =
         PolynomialValues::selector(degree, degree - 1).lde_onto_coset(quotient_degree_bits);
 
-    let z_h_on_coset = ZeroPolyOnCoset::<F>::try_new(degree_bits, quotient_degree_bits).ok()?;
+    let z_h_on_coset = ZeroPolyOnCoset::<F>::try_new(degree_bits, quotient_degree_bits)?;
 
     // Retrieve the LDE values at index `i`.
     let get_trace_values_packed =
@@ -660,13 +660,13 @@ where
         })
         .collect::<Vec<_>>();
 
-    Some(
+    Ok(Some(
         transpose(&quotient_values)
             .into_par_iter()
             .map(PolynomialValues::new)
             .map(|values| values.coset_ifft(F::coset_shift()))
             .collect(),
-    )
+    ))
 }
 
 /// Check that all constraints evaluate to zero on `H`.
