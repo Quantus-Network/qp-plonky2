@@ -4,12 +4,10 @@ use plonky2::field::packable::Packable;
 use plonky2::field::packed::PackedField;
 use plonky2::field::types::Field;
 use plonky2::field::zero_poly_coset::ZeroPolyOnCoset;
-use plonky2::fri::{
-    structure::{
-        FriBatchInfo, FriInstanceInfo, FriOpeningExpression, FriOracleInfo, FriPolynomialInfo,
-    },
-    FriFinalPolyLayout, FriParams,
+use plonky2::fri::structure::{
+    FriBatchInfo, FriInstanceInfo, FriOpeningExpression, FriOracleInfo, FriPolynomialInfo,
 };
+use plonky2::fri::{FriFinalPolyLayout, FriParams};
 use plonky2::gates::coset_interpolation::CosetInterpolationGate;
 use plonky2::gates::exponentiation::ExponentiationGate;
 use plonky2::gates::gate::Gate;
