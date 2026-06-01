@@ -88,7 +88,7 @@ pub fn fill_subtree<F: RichField, H: Hasher<F>>(
 ) -> H::Hash {
     assert_eq!(leaves.len(), digests_buf.len() / 2 + 1);
     if digests_buf.is_empty() {
-        H::hash_no_pad(&leaves[0])
+        H::hash_leaf(&leaves[0])
     } else {
         // Layout is: left recursive output || left child digest
         //             || right child digest || right recursive output.
@@ -121,7 +121,7 @@ pub fn fill_digests_buf<F: RichField, H: Hasher<F>>(
     if digests_buf.is_empty() {
         debug_assert_eq!(cap_buf.len(), leaves.len());
         cap_buf.iter_mut().zip(leaves).for_each(|(cap_buf, leaf)| {
-            cap_buf.write(H::hash_no_pad(leaf));
+            cap_buf.write(H::hash_leaf(leaf));
         });
         return;
     }
@@ -233,6 +233,9 @@ impl<F: RichField, H: Hasher<F>> MerkleTree<F, H> {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    #[cfg(not(feature = "std"))]
+    use alloc::vec;
+
     use anyhow::Result;
     use rand::rngs::SmallRng;
     use rand::SeedableRng;
@@ -308,5 +311,140 @@ pub(crate) mod tests {
         verify_all_leaves::<F, C, D>(leaves, 1)?;
 
         Ok(())
+    }
+
+    /// Regression test: Verify that domain-separated `hash_leaf` prevents
+    /// internal nodes from being presented as fake leaves.
+    ///
+    /// Background: Without domain separation, `hash_no_pad([L||R])` equals
+    /// `two_to_one(L, R)` when the input has exactly RATE elements. This would
+    /// allow an attacker to forge Merkle proofs by presenting an internal node's
+    /// children as a fake leaf.
+    ///
+    /// The fix: `hash_leaf` uses a domain separator in the capacity region
+    /// (state[RATE] = 1 before first permutation). Since `two_to_one`/`compress`
+    /// always uses all-zero capacity, no grind on rate-region values can produce
+    /// a collision. This ensures `hash_leaf(data) != two_to_one(...)` for any input.
+    #[test]
+    fn test_internal_node_cannot_masquerade_as_leaf() {
+        use crate::config::Hasher;
+        use crate::hash_types::NUM_HASH_OUT_ELTS;
+        use crate::merkle_proofs::{verify_merkle_proof_to_cap, MerkleProof};
+
+        const D: usize = 2;
+        type C = PoseidonGoldilocksConfig;
+        type F = <C as GenericConfig<D>>::F;
+        type H = <C as GenericConfig<D>>::Hasher;
+
+        // Create a tree with 4 leaves, each with 7 elements (not RATE-sized)
+        let leaves = random_data::<F>(4, 7);
+        let tree = MerkleTree::<F, H>::new(leaves.clone(), 0); // cap_height=0 means root is the cap
+
+        // Get a valid proof for leaf 0
+        let valid_proof = tree.prove(0);
+
+        // The valid proof should work
+        assert!(
+            verify_merkle_proof_to_cap(leaves[0].clone(), 0, &tree.cap, &valid_proof).is_ok(),
+            "Valid proof should verify"
+        );
+
+        // Demonstrate that the underlying hash collision still exists at the primitive level
+        // (this is expected - hash_no_pad has no domain separation):
+        // 1. Get the leaf hashes using hash_no_pad (NOT hash_leaf)
+        let leaf0_hash_no_pad = H::hash_no_pad(&leaves[0]);
+        let leaf1_hash_no_pad = H::hash_no_pad(&leaves[1]);
+
+        // 2. Compute what the internal node would be if leaves were hashed with hash_no_pad
+        let internal_if_no_pad = H::two_to_one(leaf0_hash_no_pad, leaf1_hash_no_pad);
+
+        // 3. Construct a fake leaf that is [hash || hash] - exactly 8 elements (RATE for Poseidon)
+        let mut fake_leaf = Vec::with_capacity(NUM_HASH_OUT_ELTS * 2);
+        fake_leaf.extend_from_slice(&leaf0_hash_no_pad.to_vec());
+        fake_leaf.extend_from_slice(&leaf1_hash_no_pad.to_vec());
+
+        // 4. hash_no_pad of this fake leaf equals the internal node (the primitive-level collision)
+        let fake_leaf_hash_no_pad = H::hash_no_pad(&fake_leaf);
+        assert_eq!(
+            fake_leaf_hash_no_pad, internal_if_no_pad,
+            "Primitive collision exists: hash_no_pad([L||R]) == two_to_one(L, R)"
+        );
+
+        // 5. But hash_leaf uses domain separation, so it produces a DIFFERENT hash
+        let fake_leaf_hash_leaf = H::hash_leaf(&fake_leaf);
+        assert_ne!(
+            fake_leaf_hash_leaf, internal_if_no_pad,
+            "Domain separation should make hash_leaf([L||R]) != two_to_one(L, R)"
+        );
+
+        // 6. Attempt to forge a proof (this should fail due to domain separation)
+        //
+        //    Original tree structure (cap_height=0):
+        //           root
+        //          /    \
+        //      internal  internal
+        //       /  \       /  \
+        //      L0  L1    L2   L3
+        //
+        //    Forged proof: claim fake_leaf [H(L0)||H(L1)] is at index 0 with siblings = [H(internal_right)]
+
+        // Get the sibling of the left internal node
+        let leaf2_hash = H::hash_leaf(&leaves[2]);
+        let leaf3_hash = H::hash_leaf(&leaves[3]);
+        let right_internal = H::two_to_one(leaf2_hash, leaf3_hash);
+
+        // Forged proof with one fewer level
+        let forged_proof = MerkleProof {
+            siblings: vec![right_internal],
+        };
+
+        // This verification MUST FAIL because hash_leaf has domain separation
+        let forged_result = verify_merkle_proof_to_cap(fake_leaf, 0, &tree.cap, &forged_proof);
+
+        assert!(
+            forged_result.is_err(),
+            "REGRESSION: Forged proof was accepted! Domain separation is broken."
+        );
+    }
+
+    /// Verify that hash_leaf provides domain separation from two_to_one.
+    /// Even when given input [L||R] that matches what two_to_one would hash,
+    /// hash_leaf must produce a different result.
+    #[test]
+    fn test_hash_leaf_domain_separation() {
+        use crate::config::Hasher;
+        use crate::hash_types::NUM_HASH_OUT_ELTS;
+
+        const D: usize = 2;
+        type C = PoseidonGoldilocksConfig;
+        type F = <C as GenericConfig<D>>::F;
+        type H = <C as GenericConfig<D>>::Hasher;
+
+        // Create two arbitrary hashes (simulating child node hashes)
+        let left = H::hash_no_pad(&[F::from_canonical_u64(1), F::from_canonical_u64(2)]);
+        let right = H::hash_no_pad(&[F::from_canonical_u64(3), F::from_canonical_u64(4)]);
+
+        // Compute two_to_one (internal node hash)
+        let internal_hash = H::two_to_one(left, right);
+
+        // Construct the concatenated input [left || right]
+        let mut concatenated = Vec::with_capacity(NUM_HASH_OUT_ELTS * 2);
+        concatenated.extend_from_slice(&left.to_vec());
+        concatenated.extend_from_slice(&right.to_vec());
+
+        // hash_leaf of this concatenated input MUST differ from two_to_one
+        let leaf_hash = H::hash_leaf(&concatenated);
+
+        assert_ne!(
+            leaf_hash, internal_hash,
+            "Domain separation failed: hash_leaf([L||R]) == two_to_one(L, R)"
+        );
+
+        // Also verify that hash_no_pad DOES produce the same result (the vulnerability we're preventing)
+        let no_pad_hash = H::hash_no_pad(&concatenated);
+        assert_eq!(
+            no_pad_hash, internal_hash,
+            "Expected collision: hash_no_pad([L||R]) should equal two_to_one(L, R) for RATE-sized input"
+        );
     }
 }

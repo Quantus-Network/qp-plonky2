@@ -72,6 +72,13 @@ pub fn set_lookup_wires<
         let num_entries = LookupGate::num_slots(&common_data.config);
         let num_lut_entries = LookupTableGate::num_slots(&common_data.config);
 
+        // Validate gate indices to prevent underflow
+        ensure!(
+            last_lut_gate >= 1,
+            "last_lut_gate ({}) must be >= 1",
+            last_lut_gate
+        );
+
         // Compute multiplicities.
         let mut multiplicities = vec![0; lut_len];
 
@@ -87,7 +94,9 @@ pub fn set_lookup_wires<
             .ok_or_else(|| anyhow::anyhow!("lut_to_lookups index {lut_index} out of bounds"))?;
 
         for (inp_target, _) in lut_to_lookups.iter() {
-            let inp_value = pw.get_target(*inp_target);
+            let inp_value = pw.try_get_target(*inp_target).ok_or_else(|| {
+                anyhow::anyhow!("Lookup input target {:?} not set in witness", inp_target)
+            })?;
             let inp_u16 = u16::try_from(inp_value.to_canonical_u64())
                 .map_err(|_| anyhow::anyhow!("Lookup input value {} exceeds u16", inp_value))?;
             let idx = table_value_to_idx
@@ -110,6 +119,16 @@ pub fn set_lookup_wires<
 
             multiplicities[0] += 1;
         }
+
+        // Validate first_lut_gate to prevent underflow in row calculation
+        let max_lut_entry_div = (lut_len.saturating_sub(1)) / num_lut_entries;
+        ensure!(
+            first_lut_gate >= max_lut_entry_div,
+            "first_lut_gate ({}) too small for lut_len ({}) with num_lut_entries ({})",
+            first_lut_gate,
+            lut_len,
+            num_lut_entries
+        );
 
         for lut_entry in 0..lut_len {
             let row = first_lut_gate - lut_entry / num_lut_entries;
@@ -296,7 +315,7 @@ where
             &gammas,
             &deltas,
             &alphas,
-        )?
+        )
     );
 
     let all_quotient_poly_chunks: Vec<PolynomialCoeffs<F>> = timed!(
@@ -678,7 +697,7 @@ fn compute_quotient_polys<
     gammas: &[F],
     deltas: &[F],
     alphas: &[F],
-) -> Result<Vec<PolynomialCoeffs<F>>> {
+) -> Vec<PolynomialCoeffs<F>> {
     let num_challenges = common_data.config.num_challenges;
 
     let has_lookup = common_data.num_lookup_polys != 0;
@@ -703,7 +722,7 @@ fn compute_quotient_polys<
     let points = F::two_adic_subgroup(common_data.degree_bits() + quotient_degree_bits);
     let lde_size = points.len();
 
-    let z_h_on_coset = ZeroPolyOnCoset::try_new(common_data.degree_bits(), quotient_degree_bits)?;
+    let z_h_on_coset = ZeroPolyOnCoset::new(common_data.degree_bits(), quotient_degree_bits);
 
     // Precompute the lookup table evals on the challenges in delta
     // These values are used to produce the final RE constraints for each lut,
@@ -883,9 +902,9 @@ fn compute_quotient_polys<
         })
         .collect();
 
-    Ok(transpose(&quotient_values)
+    transpose(&quotient_values)
         .into_par_iter()
         .map(PolynomialValues::new)
         .map(|values| values.coset_ifft(F::coset_shift()))
-        .collect())
+        .collect()
 }
