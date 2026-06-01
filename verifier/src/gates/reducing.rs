@@ -2,6 +2,8 @@
 use alloc::{format, string::String, vec::Vec};
 use core::ops::Range;
 
+use qp_plonky2_core::circuit_config::reducing_base_capacity;
+
 use crate::field::extension::{Extendable, FieldExtension};
 use crate::gates::gate::VerificationGate;
 use crate::gates::util::StridedConstraintConsumer;
@@ -9,7 +11,6 @@ use crate::hash::hash_types::RichField;
 use crate::plonk::circuit_data::CommonCircuitData;
 use crate::plonk::vars::{EvaluationVars, EvaluationVarsBase};
 use crate::util::serialization::{Buffer, IoResult, Read, Write};
-use qp_plonky2_core::circuit_config::reducing_base_capacity;
 
 /// Computes `sum alpha^i c_i` for a vector `c_i` of `num_coeffs` elements of the base field.
 #[derive(Debug, Default, Clone)]

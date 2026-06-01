@@ -23,15 +23,14 @@ pub mod validate_shape;
 pub mod verifier;
 pub mod witness_util;
 
-pub use validate_shape::{
-    validate_batch_fri_auxiliary_shape, validate_batch_fri_proof_shape,
-    validate_fri_auxiliary_shape,
-};
-
 // Re-export FRI types from core
 pub use qp_plonky2_core::{
     FriBatchMaskingParams, FriChallenger, FriConfig, FriConfigObserve, FriFinalPolyLayout,
     FriParams, FriParamsObserve, FriReductionStrategy,
+};
+pub use validate_shape::{
+    validate_batch_fri_auxiliary_shape, validate_batch_fri_proof_shape,
+    validate_fri_auxiliary_shape,
 };
 
 /// Trait for observing FRI configuration in a RecursiveChallenger (circuit target version).
