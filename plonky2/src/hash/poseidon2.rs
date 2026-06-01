@@ -20,7 +20,7 @@ use qp_poseidon_constants::create_poseidon;
 use crate::field::types::{Field, PrimeField64};
 use crate::gates::poseidon2::{Poseidon2Gate, SPONGE_RATE, SPONGE_WIDTH};
 use crate::hash::hash_types::{HashOut, RichField, NUM_HASH_OUT_ELTS};
-use crate::hash::hashing::{hash_n_to_hash_no_pad_p2, PlonkyPermutation};
+use crate::hash::hashing::{hash_leaf_p2, hash_n_to_hash_no_pad_p2, PlonkyPermutation};
 use crate::iop::target::{BoolTarget, Target};
 use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::config::{AlgebraicHasher, Hasher};
@@ -139,6 +139,10 @@ impl<F: RichField + P2Permuter> Hasher<F> for Poseidon2Hash {
 
     fn hash_no_pad(input: &[F]) -> Self::Hash {
         hash_n_to_hash_no_pad_p2::<F, Self::Permutation>(input)
+    }
+
+    fn hash_leaf(input: &[F]) -> Self::Hash {
+        hash_leaf_p2::<F, Self::Permutation>(input)
     }
 
     /// Keep CPU equivalence: concatenate 8 felts and call the same `hash_no_pad`.

@@ -94,6 +94,35 @@ pub fn hash_n_to_hash_no_pad<F: RichField, P: PlonkyPermutation<F>>(inputs: &[F]
     HashOut::from_vec(hash_n_to_m_no_pad::<F, P>(inputs, NUM_HASH_OUT_ELTS))
 }
 
+/// Domain-separated leaf hash for Merkle trees.
+///
+/// This function hashes leaf data with a domain separator to prevent internal nodes
+/// from being presented as leaves. The domain separator is placed in the capacity
+/// portion of the sponge state (beyond the rate), ensuring that:
+/// - `hash_leaf([a,b,c,d,e,f,g,h])` ≠ `two_to_one([a,b,c,d], [e,f,g,h])`
+///
+/// This prevents attacks where an attacker constructs a fake leaf whose hash
+/// equals an internal node hash.
+pub fn hash_leaf<F: RichField, P: PlonkyPermutation<F>>(inputs: &[F]) -> HashOut<F> {
+    // Domain separator: set capacity[0] to 1 to distinguish from internal nodes.
+    // Internal nodes (compress/two_to_one) use all-zero capacity.
+    // Leaf hashes use capacity[0] = 1.
+    let mut perm = P::new(core::iter::repeat(F::ZERO));
+
+    // Set the domain separator in the capacity region (index = RATE)
+    perm.set_elt(F::ONE, P::RATE);
+
+    // Absorb all input chunks.
+    for input_chunk in inputs.chunks(P::RATE) {
+        perm.set_from_slice(input_chunk, 0);
+        perm.permute();
+    }
+
+    HashOut {
+        elements: perm.squeeze()[..NUM_HASH_OUT_ELTS].try_into().unwrap(),
+    }
+}
+
 /// Poseidon2 variable length padding (…||1||0* to RATE)
 pub fn hash_n_to_hash_no_pad_p2<F: RichField, P: PlonkyPermutation<F>>(inputs: &[F]) -> HashOut<F> {
     let rate = P::RATE;
@@ -109,6 +138,39 @@ pub fn hash_n_to_hash_no_pad_p2<F: RichField, P: PlonkyPermutation<F>>(inputs: &
 
     // Absorb/additively and permute per block.
     let mut perm = P::new(core::iter::repeat(F::ZERO));
+    for block in msg.chunks(rate) {
+        for (i, &x) in block.iter().enumerate() {
+            let si = perm.as_ref()[i];
+            perm.set_elt(si + x, i);
+        }
+        perm.permute();
+    }
+
+    // Squeeze without an extra permute.
+    HashOut::from_vec(perm.squeeze()[..NUM_HASH_OUT_ELTS].to_vec())
+}
+
+/// Domain-separated leaf hash for Merkle trees (Poseidon2 variant).
+///
+/// This function hashes leaf data with a domain separator to prevent internal nodes
+/// from being presented as leaves. Uses Poseidon2's additive absorption and padding,
+/// with a domain separator in the capacity region.
+pub fn hash_leaf_p2<F: RichField, P: PlonkyPermutation<F>>(inputs: &[F]) -> HashOut<F> {
+    let rate = P::RATE;
+
+    // Append one '1' and zero-pad to a rate-aligned length (same as hash_n_to_hash_no_pad_p2)
+    let padded_len = ((inputs.len() + 1 + rate - 1) / rate) * rate;
+
+    let mut msg = vec![F::ZERO; padded_len];
+    msg[..inputs.len()].copy_from_slice(inputs);
+    msg[inputs.len()] = F::ONE;
+
+    // Start with domain separator in capacity region (index = RATE)
+    // This distinguishes leaf hashes from internal node hashes.
+    let mut perm = P::new(core::iter::repeat(F::ZERO));
+    perm.set_elt(F::ONE, rate); // Domain separator in capacity[0]
+
+    // Absorb/additively and permute per block.
     for block in msg.chunks(rate) {
         for (i, &x) in block.iter().enumerate() {
             let si = perm.as_ref()[i];

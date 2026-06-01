@@ -7,8 +7,8 @@ use alloc::vec::Vec;
 
 // Re-export core hashing types and functions
 pub use qp_plonky2_core::hashing::{
-    compress, hash_n_to_hash_no_pad, hash_n_to_hash_no_pad_p2, hash_n_to_m_no_pad,
-    PlonkyPermutation,
+    compress, hash_leaf, hash_leaf_p2, hash_n_to_hash_no_pad, hash_n_to_hash_no_pad_p2,
+    hash_n_to_m_no_pad, PlonkyPermutation,
 };
 
 use crate::field::extension::Extendable;
