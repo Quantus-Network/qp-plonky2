@@ -199,10 +199,10 @@ mod tests {
         let fmt: BatchMerkleTree<GoldilocksField, H> = BatchMerkleTree::new(vec![mat_1], 0);
 
         let mat_1_leaf_hashes = [
-            H::hash_no_pad(&[F::ZERO, F::ONE]),
-            H::hash_no_pad(&[F::TWO, F::ONE]),
-            H::hash_no_pad(&[F::TWO, F::TWO]),
-            H::hash_no_pad(&[F::ZERO, F::ZERO]),
+            H::hash_leaf(&[F::ZERO, F::ONE]),
+            H::hash_leaf(&[F::TWO, F::ONE]),
+            H::hash_leaf(&[F::TWO, F::TWO]),
+            H::hash_leaf(&[F::ZERO, F::ZERO]),
         ];
         assert_eq!(mat_1_leaf_hashes[0..2], fmt.digests[0..2]);
         assert_eq!(mat_1_leaf_hashes[2..4], fmt.digests[4..6]);
@@ -251,10 +251,10 @@ mod tests {
             BatchMerkleTree::new(vec![mat_1, mat_2.clone()], 0);
 
         let mat_1_leaf_hashes = [
-            H::hash_no_pad(&[F::ZERO, F::ONE]),
-            H::hash_no_pad(&[F::TWO, F::ONE]),
-            H::hash_no_pad(&[F::TWO, F::TWO]),
-            H::hash_no_pad(&[F::ZERO, F::ZERO]),
+            H::hash_leaf(&[F::ZERO, F::ONE]),
+            H::hash_leaf(&[F::TWO, F::ONE]),
+            H::hash_leaf(&[F::TWO, F::TWO]),
+            H::hash_leaf(&[F::ZERO, F::ZERO]),
         ];
         assert_eq!(mat_1_leaf_hashes, fmt.digests[0..4]);
 
@@ -272,8 +272,8 @@ mod tests {
             })
             .collect::<Vec<Vec<F>>>();
         let layer_1 = [
-            H::hash_no_pad(&new_leaves[0]),
-            H::hash_no_pad(&new_leaves[1]),
+            H::hash_leaf(&new_leaves[0]),
+            H::hash_leaf(&new_leaves[1]),
         ];
         assert_eq!(layer_1, fmt.digests[4..]);
 

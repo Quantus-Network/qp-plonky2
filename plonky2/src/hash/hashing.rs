@@ -116,4 +116,31 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         let outs = st.squeeze()[..NUM_HASH_OUT_ELTS].to_vec();
         HashOutTarget::from_vec(outs)
     }
+
+    /// Domain-separated leaf hash for Merkle trees (in-circuit version).
+    ///
+    /// This prepends a zero field element as a domain separator to distinguish
+    /// leaf hashes from internal node hashes (two_to_one), preventing second-preimage attacks.
+    pub fn hash_leaf<H: AlgebraicHasher<F>>(&mut self, inputs: Vec<Target>) -> HashOutTarget {
+        // Prepend domain separator (zero) to distinguish leaf hashes from internal nodes.
+        let zero = self.zero();
+        let mut prefixed = Vec::with_capacity(1 + inputs.len());
+        prefixed.push(zero);
+        prefixed.extend(inputs);
+        self.hash_n_to_hash_no_pad::<H>(prefixed)
+    }
+
+    /// Domain-separated leaf hash for Merkle trees (in-circuit Poseidon2 version).
+    ///
+    /// This prepends a zero field element as a domain separator to distinguish
+    /// leaf hashes from internal node hashes (two_to_one), preventing second-preimage attacks.
+    /// Uses Poseidon2's additive absorption and padding.
+    pub fn hash_leaf_p2<H: AlgebraicHasher<F>>(&mut self, inputs: Vec<Target>) -> HashOutTarget {
+        // Prepend domain separator (zero) to distinguish leaf hashes from internal nodes.
+        let zero = self.zero();
+        let mut prefixed = Vec::with_capacity(1 + inputs.len());
+        prefixed.push(zero);
+        prefixed.extend(inputs);
+        self.hash_n_to_hash_no_pad_p2::<H>(prefixed)
+    }
 }
