@@ -44,7 +44,7 @@ use crate::iop::generator::{generate_partial_witness, WitnessGeneratorRef};
 use crate::iop::target::Target;
 use crate::iop::witness::{PartialWitness, PartitionWitness};
 use crate::plonk::circuit_builder::CircuitBuilder;
-use crate::plonk::config::{GenericConfig, Hasher};
+use crate::plonk::config::{AlgebraicHasher, GenericConfig, Hasher};
 use crate::plonk::plonk_common::PlonkOracle;
 use crate::plonk::proof::{CompressedProofWithPublicInputs, ProofWithPublicInputs};
 use crate::plonk::prover::prove;
@@ -109,8 +109,48 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         )
     }
 
+    /// Verify a proof for this circuit.
+    ///
+    /// **IMPORTANT**: For cyclic recursive circuits (those using
+    /// [`conditionally_verify_cyclic_proof`](crate::recursion::cyclic_recursion) or
+    /// [`conditionally_verify_cyclic_proof_or_dummy`](crate::recursion::cyclic_recursion)),
+    /// you MUST use [`verify_cyclic`](Self::verify_cyclic) instead. This method does not
+    /// verify that the verifier data embedded in the proof's public inputs matches the
+    /// actual circuit, which is required for cyclic recursion security.
     pub fn verify(&self, proof_with_pis: ProofWithPublicInputs<F, C, D>) -> Result<()> {
         verify::<F, C, D>(proof_with_pis, &self.verifier_only, &self.common)
+    }
+
+    /// Verify a cyclic recursive proof.
+    ///
+    /// This method MUST be used instead of [`verify`](Self::verify) for circuits that use
+    /// cyclic recursion ([`conditionally_verify_cyclic_proof`](crate::recursion::cyclic_recursion)
+    /// or [`conditionally_verify_cyclic_proof_or_dummy`](crate::recursion::cyclic_recursion)).
+    ///
+    /// In addition to standard proof verification, this checks that the verifier data
+    /// embedded in the proof's public inputs matches the actual verifier data for this
+    /// circuit. This prevents an attacker from substituting a valid proof chain built
+    /// with a different (but structurally identical) circuit.
+    ///
+    /// # Security
+    ///
+    /// Without this check, an attacker could:
+    /// 1. Build a malicious circuit with the same structure as the legitimate one
+    /// 2. Create a valid proof chain using their circuit
+    /// 3. Present it as a proof for the legitimate circuit
+    ///
+    /// The embedded verifier data check ensures the proof was actually generated for
+    /// this specific circuit.
+    pub fn verify_cyclic(&self, proof_with_pis: ProofWithPublicInputs<F, C, D>) -> Result<()>
+    where
+        C::Hasher: AlgebraicHasher<F>,
+    {
+        self.verify(proof_with_pis.clone())?;
+        crate::recursion::cyclic_recursion::check_cyclic_proof_verifier_data(
+            &proof_with_pis,
+            &self.verifier_only,
+            &self.common,
+        )
     }
 
     pub fn verify_compressed(
@@ -208,7 +248,10 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
     }
 }
 
-/// Circuit data required by the prover.
+/// Circuit data required by the verifier (a subset of the full circuit data).
+///
+/// This can be extracted from [`CircuitData`] via [`CircuitData::verifier_data`] and
+/// distributed to verifiers who don't need the prover-specific data.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct VerifierCircuitData<
     F: RichField + Extendable<D>,
@@ -236,8 +279,48 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         buffer.read_verifier_circuit_data(gate_serializer)
     }
 
+    /// Verify a proof for this circuit.
+    ///
+    /// **IMPORTANT**: For cyclic recursive circuits (those using
+    /// [`conditionally_verify_cyclic_proof`](crate::recursion::cyclic_recursion) or
+    /// [`conditionally_verify_cyclic_proof_or_dummy`](crate::recursion::cyclic_recursion)),
+    /// you MUST use [`verify_cyclic`](Self::verify_cyclic) instead. This method does not
+    /// verify that the verifier data embedded in the proof's public inputs matches the
+    /// actual circuit, which is required for cyclic recursion security.
     pub fn verify(&self, proof_with_pis: ProofWithPublicInputs<F, C, D>) -> Result<()> {
         verify::<F, C, D>(proof_with_pis, &self.verifier_only, &self.common)
+    }
+
+    /// Verify a cyclic recursive proof.
+    ///
+    /// This method MUST be used instead of [`verify`](Self::verify) for circuits that use
+    /// cyclic recursion ([`conditionally_verify_cyclic_proof`](crate::recursion::cyclic_recursion)
+    /// or [`conditionally_verify_cyclic_proof_or_dummy`](crate::recursion::cyclic_recursion)).
+    ///
+    /// In addition to standard proof verification, this checks that the verifier data
+    /// embedded in the proof's public inputs matches the actual verifier data for this
+    /// circuit. This prevents an attacker from substituting a valid proof chain built
+    /// with a different (but structurally identical) circuit.
+    ///
+    /// # Security
+    ///
+    /// Without this check, an attacker could:
+    /// 1. Build a malicious circuit with the same structure as the legitimate one
+    /// 2. Create a valid proof chain using their circuit
+    /// 3. Present it as a proof for the legitimate circuit
+    ///
+    /// The embedded verifier data check ensures the proof was actually generated for
+    /// this specific circuit.
+    pub fn verify_cyclic(&self, proof_with_pis: ProofWithPublicInputs<F, C, D>) -> Result<()>
+    where
+        C::Hasher: AlgebraicHasher<F>,
+    {
+        self.verify(proof_with_pis.clone())?;
+        crate::recursion::cyclic_recursion::check_cyclic_proof_verifier_data(
+            &proof_with_pis,
+            &self.verifier_only,
+            &self.common,
+        )
     }
 
     pub fn verify_compressed(

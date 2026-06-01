@@ -557,7 +557,7 @@ pub trait Read {
         C: GenericConfig<D, F = F>,
     {
         let config = &common_data.config;
-        let mut fqrs = Vec::with_capacity(config.fri_config.num_query_rounds);
+        let mut fqrs = try_with_capacity(config.fri_config.num_query_rounds)?;
         for _ in 0..config.fri_config.num_query_rounds {
             let initial_trees_proof = self.read_fri_initial_proof::<F, C, D>(common_data)?;
             let steps = common_data

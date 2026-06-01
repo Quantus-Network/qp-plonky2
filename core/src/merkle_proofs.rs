@@ -64,7 +64,7 @@ pub fn verify_batch_merkle_proof_to_cap<F: RichField, H: Hasher<F>>(
     proof: &MerkleProof<F, H>,
 ) -> Result<()> {
     assert_eq!(leaf_data.len(), leaf_heights.len());
-    let mut current_digest = H::hash_or_noop(&leaf_data[0]);
+    let mut current_digest = H::hash_leaf(&leaf_data[0]);
     let mut current_height = leaf_heights[0];
     let mut leaf_data_index = 1;
     for &sibling_digest in &proof.siblings {
@@ -80,7 +80,10 @@ pub fn verify_batch_merkle_proof_to_cap<F: RichField, H: Hasher<F>>(
         if leaf_data_index < leaf_heights.len() && current_height == leaf_heights[leaf_data_index] {
             let mut new_leaves = current_digest.to_vec();
             new_leaves.extend_from_slice(&leaf_data[leaf_data_index]);
-            current_digest = H::hash_or_noop(&new_leaves);
+            // This is hashing a digest concatenated with additional leaf data.
+            // Use hash_leaf for domain separation since this combined data
+            // is semantically a leaf in the higher-level tree structure.
+            current_digest = H::hash_leaf(&new_leaves);
             leaf_data_index += 1;
         }
     }

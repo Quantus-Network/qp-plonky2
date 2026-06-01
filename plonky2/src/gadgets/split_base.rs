@@ -2,7 +2,7 @@
 use alloc::{format, string::String, vec, vec::Vec};
 use core::borrow::Borrow;
 
-use anyhow::Result;
+use anyhow::{ensure, Result};
 use itertools::Itertools;
 
 use crate::field::extension::Extendable;
@@ -19,13 +19,31 @@ use crate::util::serialization::{Buffer, IoResult, Read, Write};
 impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     /// Split the given element into a list of targets, where each one represents a
     /// base-B limb of the element, with little-endian ordering.
-    pub fn split_le_base<const B: usize>(&mut self, x: Target, num_limbs: usize) -> Vec<Target> {
+    ///
+    /// # Errors
+    /// Returns an error if `num_limbs` exceeds the maximum number of limbs that can
+    /// uniquely represent a field element (i.e., if `B^num_limbs >= F::ORDER`).
+    pub fn split_le_base<const B: usize>(
+        &mut self,
+        x: Target,
+        num_limbs: usize,
+    ) -> Result<Vec<Target>> {
+        let max_limbs = log_floor(F::ORDER - 1, B as u64);
+        ensure!(
+            num_limbs <= max_limbs,
+            "num_limbs ({}) exceeds maximum ({}) for base {} decomposition; \
+             B^num_limbs must be < F::ORDER to ensure unique decomposition",
+            num_limbs,
+            max_limbs,
+            B
+        );
+
         let gate_type = BaseSumGate::<B>::new(num_limbs);
         let gate = self.add_gate(gate_type, vec![]);
         let sum = Target::wire(gate, BaseSumGate::<B>::WIRE_SUM);
         self.connect(x, sum);
 
-        Target::wires_from_range(gate, gate_type.limbs())
+        Ok(Target::wires_from_range(gate, gate_type.limbs()))
     }
 
     /// Asserts that `x`'s big-endian bit representation has at least `leading_zeros` leading zeros.
@@ -103,14 +121,11 @@ impl<F: RichField + Extendable<D>, const B: usize, const D: usize> SimpleGenerat
         witness: &PartitionWitness<F>,
         out_buffer: &mut GeneratedValues<F>,
     ) -> Result<()> {
-        let sum = self
-            .limbs
-            .iter()
-            .map(|&t| witness.get_bool_target(t))
-            .rev()
-            .fold(F::ZERO, |acc, limb| {
-                acc * F::from_canonical_usize(B) + F::from_bool(limb)
-            });
+        let mut sum = F::ZERO;
+        for &t in self.limbs.iter().rev() {
+            let limb = witness.get_bool_target(t)?;
+            sum = sum * F::from_canonical_usize(B) + F::from_bool(limb);
+        }
 
         out_buffer.set_target(Target::wire(self.row, BaseSumGate::<B>::WIRE_SUM), sum)
     }
@@ -150,7 +165,7 @@ mod tests {
         let mut builder = CircuitBuilder::<F, D>::new(config);
         let x = F::from_canonical_usize(0b110100000); // 416 = 1532 in base 6.
         let xt = builder.constant(x);
-        let limbs = builder.split_le_base::<6>(xt, 24);
+        let limbs = builder.split_le_base::<6>(xt, 24)?;
         let one = builder.one();
         let two = builder.two();
         let three = builder.constant(F::from_canonical_u64(3));
@@ -201,5 +216,22 @@ mod tests {
         let proof = data.prove(pw)?;
 
         verify(proof, &data.verifier_only, &data.common)
+    }
+
+    #[test]
+    fn test_split_le_base_rejects_overflow() {
+        const D: usize = 2;
+        type C = PoseidonGoldilocksConfig;
+        type F = <C as GenericConfig<D>>::F;
+        let config = CircuitConfig::standard_recursion_config();
+        let mut builder = CircuitBuilder::<F, D>::new(config);
+
+        let xt = builder.add_virtual_target();
+        // For Goldilocks (p ~ 2^64), base-2 decomposition with 65 limbs
+        // would allow B^num_limbs = 2^65 > p, enabling non-unique decomposition.
+        // This should return an error.
+        let result = builder.split_le_base::<2>(xt, 65);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("num_limbs"));
     }
 }

@@ -9,17 +9,14 @@ use plonky2::iop::target::{BoolTarget, Target};
 use plonky2::iop::witness::{PartialWitness, WitnessWrite};
 use plonky2::plonk::circuit_builder::CircuitBuilder;
 use plonky2::plonk::circuit_data::CircuitConfig;
-use plonky2::plonk::config::{
-    AlgebraicHasher, GenericConfig, Poseidon2GoldilocksConfig, PoseidonGoldilocksConfig,
-};
+use plonky2::plonk::config::{AlgebraicHasher, GenericConfig, PoseidonGoldilocksConfig};
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
 const D: usize = 2;
-// Poseidon1 config - uses PoseidonHash for Merkle trees
-type C1 = PoseidonGoldilocksConfig;
-// Poseidon2 config - uses Poseidon2Hash for Merkle trees
-type C2 = Poseidon2GoldilocksConfig;
-type F = <C1 as GenericConfig<D>>::F;
+// Use Poseidon1 config for the proof system (FRI/Merkle trees)
+// The benchmark compares Poseidon1 vs Poseidon2 *circuit gates*, not the proof system config
+type C = PoseidonGoldilocksConfig;
+type F = <C as GenericConfig<D>>::F;
 
 const NUM_PERMS: usize = 100; // Number of permutations to perform in the circuit
 
@@ -60,8 +57,8 @@ fn bench_poseidon_air(c: &mut Criterion) {
         builder.register_public_inputs(&out.squeeze());
     }
 
-    // Build with Poseidon1 config (uses PoseidonHash for Merkle trees)
-    let data = builder.build::<C1>();
+    // Build with Poseidon1 config
+    let data = builder.build::<C>();
 
     // 2) Build witness ONCE
     let mut base_pw = PartialWitness::new();
@@ -105,8 +102,8 @@ fn bench_poseidon2_air(c: &mut Criterion) {
         builder.register_public_inputs(&out.squeeze());
     }
 
-    // Build with Poseidon2 config (uses Poseidon2Hash for Merkle trees)
-    let data = builder.build::<C2>();
+    // Build with Poseidon1 config (proof system uses Poseidon1, but circuit gates use Poseidon2)
+    let data = builder.build::<C>();
 
     // 2) Build witness ONCE
     let mut base_pw = PartialWitness::new();

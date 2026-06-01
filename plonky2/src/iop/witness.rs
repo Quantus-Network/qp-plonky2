@@ -232,15 +232,19 @@ pub trait Witness<F: Field>: WitnessWrite<F> {
             .collect()
     }
 
-    fn get_bool_target(&self, target: BoolTarget) -> bool {
+    /// Returns the boolean value of a `BoolTarget`, or an error if the target
+    /// value is not a valid boolean (0 or 1).
+    fn get_bool_target(&self, target: BoolTarget) -> Result<bool> {
         let value = self.get_target(target.target);
         if value.is_zero() {
-            return false;
+            return Ok(false);
         }
         if value.is_one() {
-            return true;
+            return Ok(true);
         }
-        panic!("not a bool")
+        Err(anyhow!(
+            "BoolTarget has non-boolean value (expected 0 or 1)"
+        ))
     }
 
     fn get_hash_target(&self, ht: HashOutTarget) -> HashOut<F> {
@@ -398,5 +402,72 @@ impl<F: Field> Witness<F> for PartitionWitness<'_, F> {
     fn try_get_target(&self, target: Target) -> Option<F> {
         let rep_index = self.representative_map[self.target_index(target)];
         self.values[rep_index]
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use plonky2_field::goldilocks_field::GoldilocksField;
+    use plonky2_field::types::Field;
+
+    use super::*;
+    use crate::iop::generator::generate_partial_witness;
+    use crate::plonk::circuit_builder::CircuitBuilder;
+    use crate::plonk::circuit_data::CircuitConfig;
+    use crate::plonk::config::PoseidonGoldilocksConfig;
+
+    type F = GoldilocksField;
+    type C = PoseidonGoldilocksConfig;
+    const D: usize = 2;
+
+    #[test]
+    fn test_get_bool_target_valid_values() {
+        let config = CircuitConfig::standard_recursion_config();
+        let mut builder = CircuitBuilder::<F, D>::new(config);
+
+        let bool_true = builder.add_virtual_bool_target_safe();
+        let bool_false = builder.add_virtual_bool_target_safe();
+
+        // Need at least one gate for a valid circuit
+        let _ = builder.add_virtual_target();
+
+        let mut pw = PartialWitness::new();
+        pw.set_bool_target(bool_true, true).unwrap();
+        pw.set_bool_target(bool_false, false).unwrap();
+
+        let data = builder.build::<C>();
+        let partition_witness =
+            generate_partial_witness::<F, C, D>(pw, &data.prover_only, &data.common).unwrap();
+
+        // Valid bool values should work
+        assert_eq!(partition_witness.get_bool_target(bool_true).unwrap(), true);
+        assert_eq!(
+            partition_witness.get_bool_target(bool_false).unwrap(),
+            false
+        );
+    }
+
+    #[test]
+    fn test_get_bool_target_invalid_value_returns_error() {
+        let config = CircuitConfig::standard_recursion_config();
+        let mut builder = CircuitBuilder::<F, D>::new(config);
+
+        // Create a bare target (not constrained to be boolean)
+        // and wrap it in BoolTarget to test the getter
+        let target = builder.add_virtual_target();
+        let bool_target = BoolTarget::new_unsafe(target);
+
+        let mut pw = PartialWitness::new();
+        // Set a non-boolean value
+        pw.set_target(target, F::from_canonical_u64(42)).unwrap();
+
+        let data = builder.build::<C>();
+        let partition_witness =
+            generate_partial_witness::<F, C, D>(pw, &data.prover_only, &data.common).unwrap();
+
+        // Invalid bool value should return an error, not panic
+        let result = partition_witness.get_bool_target(bool_target);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("non-boolean"));
     }
 }

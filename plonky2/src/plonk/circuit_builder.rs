@@ -280,6 +280,11 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
 
     /// Registers the given target as a public input.
     pub fn register_public_input(&mut self, target: Target) {
+        assert!(
+            self.verifier_data_public_input.is_none(),
+            "Cannot register public inputs after calling add_verifier_data_public_inputs. \
+            The verifier data must be the last public inputs for cyclic recursion to work correctly."
+        );
         self.public_inputs.push(target);
     }
 

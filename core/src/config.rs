@@ -4,7 +4,7 @@
 //! configurations, one using the Poseidon hash function and one using truncated Keccak.
 
 #[cfg(not(feature = "std"))]
-use alloc::{vec, vec::Vec};
+use alloc::vec::Vec;
 use core::fmt::Debug;
 
 use serde::de::DeserializeOwned;
@@ -53,21 +53,14 @@ pub trait Hasher<F: RichField>: Sized + Copy + Debug + Eq + PartialEq {
         Self::hash_no_pad(&padded_input)
     }
 
-    /// Hash the slice if necessary to reduce its length to ~256 bits. If it already fits, this is a
-    /// no-op.
-    fn hash_or_noop(inputs: &[F]) -> Self::Hash {
-        if inputs.len() * 8 <= Self::HASH_SIZE {
-            let mut inputs_bytes = vec![0u8; Self::HASH_SIZE];
-            for i in 0..inputs.len() {
-                inputs_bytes[i * 8..(i + 1) * 8]
-                    .copy_from_slice(&inputs[i].to_canonical_u64().to_le_bytes());
-            }
-            Self::Hash::from_bytes(&inputs_bytes)
-        } else {
-            Self::hash_no_pad(inputs)
-        }
-    }
+    /// Hash leaf data for Merkle trees with domain separation.
+    ///
+    /// This uses a domain separator to ensure leaf hashes cannot collide with
+    /// internal node hashes (from `two_to_one`), preventing attacks where an
+    /// attacker presents an internal node's preimage as a fake leaf.
+    fn hash_leaf(input: &[F]) -> Self::Hash;
 
+    /// Compress two hashes into one (for internal Merkle tree nodes).
     fn two_to_one(left: Self::Hash, right: Self::Hash) -> Self::Hash;
 }
 
