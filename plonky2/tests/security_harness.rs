@@ -19,11 +19,11 @@ use plonky2::fri::proof::{
     FriChallenges, FriFinalPolys, FriFinalPolysTarget, FriInitialTreeProof, FriProof,
     FriProofTarget, FriQueryRound,
 };
+use plonky2::fri::structure::{
+    FriBatchInfo, FriInstanceInfo, FriOpeningBatch, FriOpeningExpression, FriOpenings,
+    FriOracleInfo, FriPolynomialInfo,
+};
 use plonky2::fri::{
-    structure::{
-        FriBatchInfo, FriInstanceInfo, FriOpeningBatch, FriOpeningExpression, FriOpenings,
-        FriOracleInfo, FriPolynomialInfo,
-    },
     validate_batch_fri_auxiliary_shape, validate_fri_auxiliary_shape, FriBatchMaskingParams,
     FriChallenger, FriConfig, FriFinalPolyLayout, FriParams, FriReductionStrategy,
 };

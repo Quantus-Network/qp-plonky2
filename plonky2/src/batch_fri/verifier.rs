@@ -10,12 +10,11 @@ use crate::fri::proof::{
     eval_final_polys_at_point, FriChallenges, FriInitialTreeProof, FriProof, FriQueryRound,
 };
 use crate::fri::structure::{FriBatchInfo, FriInstanceInfo, FriOpenings};
-use crate::fri::validate_batch_fri_auxiliary_shape;
 use crate::fri::verifier::{
     compute_evaluation, eval_opening_expression, fri_verify_proof_of_work,
     PrecomputedReducedOpenings,
 };
-use crate::fri::FriParams;
+use crate::fri::{validate_batch_fri_auxiliary_shape, FriParams};
 use crate::hash::hash_types::RichField;
 use crate::hash::merkle_proofs::{verify_batch_merkle_proof_to_cap, verify_merkle_proof_to_cap};
 use crate::hash::merkle_tree::MerkleCap;
