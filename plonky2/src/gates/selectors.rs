@@ -7,7 +7,6 @@
 use alloc::{vec, vec::Vec};
 
 use hashbrown::HashMap;
-
 // Re-export selector types from core
 pub use qp_plonky2_core::selectors::{LookupSelectors, SelectorsInfo, UNUSED_SELECTOR};
 

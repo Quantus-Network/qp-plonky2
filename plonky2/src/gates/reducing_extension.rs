@@ -8,6 +8,7 @@ use alloc::{
 use core::ops::Range;
 
 use anyhow::Result;
+use qp_plonky2_core::circuit_config::reducing_extension_capacity;
 
 use crate::field::extension::{Extendable, FieldExtension};
 use crate::gates::gate::Gate;
@@ -21,7 +22,6 @@ use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::circuit_data::CommonCircuitData;
 use crate::plonk::vars::{EvaluationTargets, EvaluationVars, EvaluationVarsBase};
 use crate::util::serialization::{Buffer, IoResult, Read, Write};
-use qp_plonky2_core::circuit_config::reducing_extension_capacity;
 
 /// Computes `sum alpha^i c_i` for a vector `c_i` of `num_coeffs` elements of the extension field.
 #[derive(Debug, Clone, Default)]
