@@ -7,6 +7,7 @@
 //! mixing Poseidon internally and truncated Keccak externally.
 
 // Re-export core config types - these are the canonical definitions
+#[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
 
 pub use qp_plonky2_core::config::{
