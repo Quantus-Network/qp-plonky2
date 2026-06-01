@@ -241,31 +241,6 @@ pub struct CommonVerifierData<F: RichField + Extendable<D>, const D: usize> {
 }
 
 impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
-    /// Validate invariants required by the verifier.
-    ///
-    /// This checks that degree parameters are consistent and within bounds.
-    pub fn check_valid(&self) -> Result<(), &'static str> {
-        self.config.check_valid()?;
-
-        // Quotient degree must fit within FRI rate.
-        let quotient_degree_bits = crate::util::log2_ceil(self.quotient_degree_factor);
-        if quotient_degree_bits > self.config.fri_config.rate_bits {
-            return Err("quotient_degree_factor exceeds FRI rate_bits");
-        }
-
-        // Public initial degree must be at least as large as trace degree.
-        if self.public_initial_degree_bits < self.trace_degree_bits {
-            return Err("public_initial_degree_bits must be >= trace_degree_bits");
-        }
-
-        // All lookup tables must be non-empty.
-        if self.luts.iter().any(|lut| lut.is_empty()) {
-            return Err("lookup table is empty");
-        }
-
-        Ok(())
-    }
-
     pub fn to_bytes(&self, gate_serializer: &dyn GateSerializer<F, D>) -> IoResult<Vec<u8>> {
         let mut buffer = Vec::new();
         buffer.write_common_circuit_data(self, gate_serializer)?;
