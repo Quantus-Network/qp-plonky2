@@ -1,7 +1,7 @@
 //! Logic for building plonky2 circuits.
 
 #[cfg(not(feature = "std"))]
-use alloc::{collections::BTreeMap, sync::Arc, vec, vec::Vec};
+use alloc::{collections::BTreeMap, string::String, sync::Arc, vec, vec::Vec};
 use core::cmp::max;
 #[cfg(feature = "std")]
 use std::{collections::BTreeMap, sync::Arc};
