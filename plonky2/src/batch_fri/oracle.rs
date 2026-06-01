@@ -1,5 +1,5 @@
 #[cfg(not(feature = "std"))]
-use alloc::{format, vec::Vec};
+use alloc::{format, vec, vec::Vec};
 
 use anyhow::{ensure, Result};
 use itertools::Itertools;
