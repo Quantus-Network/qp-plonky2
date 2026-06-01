@@ -97,20 +97,30 @@ pub fn hash_n_to_hash_no_pad<F: RichField, P: PlonkyPermutation<F>>(inputs: &[F]
 /// Domain-separated leaf hash for Merkle trees.
 ///
 /// This function hashes leaf data with a domain separator to prevent internal nodes
-/// from being presented as leaves. The domain separator (F::ZERO) is prepended to
-/// the input, ensuring that:
+/// from being presented as leaves. The domain separator is placed in the capacity
+/// region of the sponge state (index RATE), ensuring that:
 /// - `hash_leaf([a,b,c,d,e,f,g,h])` ≠ `two_to_one([a,b,c,d], [e,f,g,h])`
 ///
 /// This prevents attacks where an attacker constructs a fake leaf whose hash
-/// equals an internal node hash.
+/// equals an internal node hash. The capacity-region placement is critical:
+/// `two_to_one`/`compress` always uses all-zero capacity, so no grind on
+/// rate-region values can produce a collision.
 pub fn hash_leaf<F: RichField, P: PlonkyPermutation<F>>(inputs: &[F]) -> HashOut<F> {
-    // Prepend domain separator (F::ZERO) to distinguish leaf hashes from internal nodes.
-    // Internal nodes hash [L || R] directly, while leaves hash [0 || data].
-    // This ensures hash_leaf(data) != two_to_one(...) even when data = [L || R].
-    let mut prefixed = Vec::with_capacity(1 + inputs.len());
-    prefixed.push(F::ZERO);
-    prefixed.extend_from_slice(inputs);
-    hash_n_to_hash_no_pad::<F, P>(&prefixed)
+    let mut perm = P::new(core::iter::repeat(F::ZERO));
+
+    // Domain separator in capacity region (index = RATE).
+    // two_to_one/compress always has zero capacity, so this is unforgeable.
+    perm.set_elt(F::ONE, P::RATE);
+
+    // Absorb all input chunks (overwrite mode, same as hash_n_to_m_no_pad).
+    for input_chunk in inputs.chunks(P::RATE) {
+        perm.set_from_slice(input_chunk, 0);
+        perm.permute();
+    }
+
+    HashOut {
+        elements: perm.squeeze()[..NUM_HASH_OUT_ELTS].try_into().unwrap(),
+    }
 }
 
 /// Poseidon2 variable length padding (…||1||0* to RATE)
@@ -144,11 +154,29 @@ pub fn hash_n_to_hash_no_pad_p2<F: RichField, P: PlonkyPermutation<F>>(inputs: &
 ///
 /// This function hashes leaf data with a domain separator to prevent internal nodes
 /// from being presented as leaves. Uses Poseidon2's additive absorption and padding,
-/// with a domain separator (F::ZERO) prepended to the input.
+/// with a domain separator in the capacity region.
 pub fn hash_leaf_p2<F: RichField, P: PlonkyPermutation<F>>(inputs: &[F]) -> HashOut<F> {
-    // Prepend domain separator (F::ZERO) to distinguish leaf hashes from internal nodes.
-    let mut prefixed = Vec::with_capacity(1 + inputs.len());
-    prefixed.push(F::ZERO);
-    prefixed.extend_from_slice(inputs);
-    hash_n_to_hash_no_pad_p2::<F, P>(&prefixed)
+    let rate = P::RATE;
+
+    // Pad input: append '1' then zeros to rate-aligned length
+    let padded_len = ((inputs.len() + 1 + rate - 1) / rate) * rate;
+    let mut msg = vec![F::ZERO; padded_len];
+    msg[..inputs.len()].copy_from_slice(inputs);
+    msg[inputs.len()] = F::ONE;
+
+    // Domain separator in capacity region (index = RATE).
+    // two_to_one uses hash_no_pad which has zero capacity, so this is unforgeable.
+    let mut perm = P::new(core::iter::repeat(F::ZERO));
+    perm.set_elt(F::ONE, rate);
+
+    // Absorb additively and permute per block.
+    for block in msg.chunks(rate) {
+        for (i, &x) in block.iter().enumerate() {
+            let si = perm.as_ref()[i];
+            perm.set_elt(si + x, i);
+        }
+        perm.permute();
+    }
+
+    HashOut::from_vec(perm.squeeze()[..NUM_HASH_OUT_ELTS].to_vec())
 }

@@ -376,10 +376,10 @@ mod tests {
             recursive_proof::<F, C, C, D>(proof, vd, common_data, &config, Some(13), false, false)?;
         assert_eq!(common_data.degree_bits(), 13);
 
-        // Shrink it to 2^13 (domain-separated leaf hashing adds slight overhead).
+        // Shrink it to 2^12.
         let (proof, vd, common_data) =
             recursive_proof::<F, C, C, D>(proof, vd, common_data, &config, None, true, true)?;
-        assert_eq!(common_data.degree_bits(), 13);
+        assert_eq!(common_data.degree_bits(), 12);
 
         test_serialization(&proof, &vd, &common_data)?;
 

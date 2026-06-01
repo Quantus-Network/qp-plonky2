@@ -313,15 +313,6 @@ pub(crate) mod tests {
         Ok(())
     }
 
-    /// Test that internal nodes cannot masquerade as leaves.
-    ///
-    /// This test constructs a scenario where an attacker tries to forge a Merkle proof
-    /// by presenting an internal node's preimage as a fake leaf. For PoseidonHash with
-    /// RATE=8, if leaf_data has exactly 8 elements [L || R] where L and R are 4-element
-    /// hashes, then hash_no_pad([L || R]) == two_to_one(L, R). This could allow an
-    /// attacker to present an internal node as a leaf at a shallower depth.
-    ///
-    /// This test SHOULD FAIL (the forged proof should be rejected), demonstrating
     /// Regression test: Verify that domain-separated `hash_leaf` prevents
     /// internal nodes from being presented as fake leaves.
     ///
@@ -330,8 +321,10 @@ pub(crate) mod tests {
     /// allow an attacker to forge Merkle proofs by presenting an internal node's
     /// children as a fake leaf.
     ///
-    /// The fix: `hash_leaf` uses a domain separator in the capacity region,
-    /// ensuring `hash_leaf(data) != two_to_one(...)` even for RATE-sized inputs.
+    /// The fix: `hash_leaf` uses a domain separator in the capacity region
+    /// (state[RATE] = 1 before first permutation). Since `two_to_one`/`compress`
+    /// always uses all-zero capacity, no grind on rate-region values can produce
+    /// a collision. This ensures `hash_leaf(data) != two_to_one(...)` for any input.
     #[test]
     fn test_internal_node_cannot_masquerade_as_leaf() {
         use crate::config::Hasher;

@@ -119,28 +119,82 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
 
     /// Domain-separated leaf hash for Merkle trees (in-circuit version).
     ///
-    /// This prepends a zero field element as a domain separator to distinguish
-    /// leaf hashes from internal node hashes (two_to_one), preventing second-preimage attacks.
+    /// This sets capacity[RATE] = 1 before hashing to distinguish leaf hashes from
+    /// internal node hashes (two_to_one), preventing second-preimage attacks.
+    /// The capacity-region placement is critical: two_to_one/compress always has
+    /// zero capacity, so no grind on rate-region values can produce a collision.
     pub fn hash_leaf<H: AlgebraicHasher<F>>(&mut self, inputs: Vec<Target>) -> HashOutTarget {
-        // Prepend domain separator (zero) to distinguish leaf hashes from internal nodes.
         let zero = self.zero();
-        let mut prefixed = Vec::with_capacity(1 + inputs.len());
-        prefixed.push(zero);
-        prefixed.extend(inputs);
-        self.hash_n_to_hash_no_pad::<H>(prefixed)
+        let one = self.one();
+        let mut state = H::AlgebraicPermutation::new(core::iter::repeat(zero));
+
+        // Domain separator in capacity region (index = RATE)
+        state.set_elt(one, H::AlgebraicPermutation::RATE);
+
+        // Absorb all input chunks (overwrite mode, same as hash_n_to_m_no_pad)
+        for input_chunk in inputs.chunks(H::AlgebraicPermutation::RATE) {
+            state.set_from_slice(input_chunk, 0);
+            state = self.permute::<H>(state);
+        }
+
+        HashOutTarget::from_vec(state.squeeze()[..NUM_HASH_OUT_ELTS].to_vec())
     }
 
     /// Domain-separated leaf hash for Merkle trees (in-circuit Poseidon2 version).
     ///
-    /// This prepends a zero field element as a domain separator to distinguish
-    /// leaf hashes from internal node hashes (two_to_one), preventing second-preimage attacks.
+    /// This sets capacity[RATE] = 1 before hashing to distinguish leaf hashes from
+    /// internal node hashes (two_to_one), preventing second-preimage attacks.
     /// Uses Poseidon2's additive absorption and padding.
     pub fn hash_leaf_p2<H: AlgebraicHasher<F>>(&mut self, inputs: Vec<Target>) -> HashOutTarget {
-        // Prepend domain separator (zero) to distinguish leaf hashes from internal nodes.
         let zero = self.zero();
-        let mut prefixed = Vec::with_capacity(1 + inputs.len());
-        prefixed.push(zero);
-        prefixed.extend(inputs);
-        self.hash_n_to_hash_no_pad_p2::<H>(prefixed)
+        let one = self.one();
+
+        // Domain separator in capacity region (index = RATE)
+        let mut st = H::AlgebraicPermutation::new(core::iter::repeat(zero));
+        st.set_elt(one, SPONGE_RATE);
+
+        if SPONGE_RATE == 0 {
+            return HashOutTarget::from_vec(vec![zero; NUM_HASH_OUT_ELTS]);
+        }
+
+        // Absorb input in SPONGE_RATE-sized chunks with additive absorption
+        let mut idx = 0usize;
+        while idx < inputs.len() {
+            let remaining = inputs.len() - idx;
+            let take = remaining.min(SPONGE_RATE);
+
+            let mut blk = vec![zero; SPONGE_RATE];
+            for i in 0..take {
+                blk[i] = inputs[idx + i];
+            }
+
+            // Append '1' delimiter if this is the final partial block
+            if idx + take == inputs.len() && take < SPONGE_RATE {
+                blk[take] = one;
+            }
+
+            // Additive absorption then permute
+            for i in 0..SPONGE_RATE {
+                let sum = self.add(st.as_ref()[i], blk[i]);
+                st.set_elt(sum, i);
+            }
+            st = self.permute::<H>(st);
+
+            idx += take;
+        }
+
+        // If inputs were an exact multiple of SPONGE_RATE (including empty),
+        // absorb one full padding block [1, 0, 0, ...]
+        if inputs.len() % SPONGE_RATE == 0 {
+            let mut blk = vec![zero; SPONGE_RATE];
+            blk[0] = one;
+            for i in 0..SPONGE_RATE {
+                let sum = self.add(st.as_ref()[i], blk[i]);
+                st.set_elt(sum, i);
+            }
+            st = self.permute::<H>(st);
+        }
+
+        HashOutTarget::from_vec(st.squeeze()[..NUM_HASH_OUT_ELTS].to_vec())
     }
 }
