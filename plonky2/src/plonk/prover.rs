@@ -62,33 +62,53 @@ pub fn set_lookup_wires<
         },
     ) in prover_data.lookup_rows.iter().enumerate()
     {
-        let lut_len = common_data.luts[lut_index].len();
+        let lut = common_data
+            .luts
+            .get(lut_index)
+            .ok_or_else(|| anyhow::anyhow!("Lookup table index {lut_index} out of bounds"))?;
+        ensure!(!lut.is_empty(), "Lookup table {lut_index} is empty");
+
+        let lut_len = lut.len();
         let num_entries = LookupGate::num_slots(&common_data.config);
         let num_lut_entries = LookupTableGate::num_slots(&common_data.config);
+
+        // Validate gate indices to prevent underflow
+        ensure!(
+            last_lut_gate >= 1,
+            "last_lut_gate ({}) must be >= 1",
+            last_lut_gate
+        );
 
         // Compute multiplicities.
         let mut multiplicities = vec![0; lut_len];
 
-        let table_value_to_idx: HashMap<u16, usize> = common_data.luts[lut_index]
+        let table_value_to_idx: HashMap<u16, usize> = lut
             .iter()
             .enumerate()
             .map(|(i, (inp_target, _))| (*inp_target, i))
             .collect();
 
-        for (inp_target, _) in prover_data.lut_to_lookups[lut_index].iter() {
-            let inp_value = pw.get_target(*inp_target);
+        let lut_to_lookups = prover_data
+            .lut_to_lookups
+            .get(lut_index)
+            .ok_or_else(|| anyhow::anyhow!("lut_to_lookups index {lut_index} out of bounds"))?;
+
+        for (inp_target, _) in lut_to_lookups.iter() {
+            let inp_value = pw.try_get_target(*inp_target).ok_or_else(|| {
+                anyhow::anyhow!("Lookup input target {:?} not set in witness", inp_target)
+            })?;
+            let inp_u16 = u16::try_from(inp_value.to_canonical_u64())
+                .map_err(|_| anyhow::anyhow!("Lookup input value {} exceeds u16", inp_value))?;
             let idx = table_value_to_idx
-                .get(&u16::try_from(inp_value.to_canonical_u64()).unwrap())
-                .unwrap();
+                .get(&inp_u16)
+                .ok_or_else(|| anyhow::anyhow!("Lookup input {inp_u16} not found in table"))?;
 
             multiplicities[*idx] += 1;
         }
 
         // Pad the last `LookupGate` with the first entry from the LUT.
-        let remaining_slots = (num_entries
-            - (prover_data.lut_to_lookups[lut_index].len() % num_entries))
-            % num_entries;
-        let (first_inp_value, first_out_value) = common_data.luts[lut_index][0];
+        let remaining_slots = (num_entries - (lut_to_lookups.len() % num_entries)) % num_entries;
+        let (first_inp_value, first_out_value) = lut[0];
         for slot in (num_entries - remaining_slots)..num_entries {
             let inp_target =
                 Target::wire(last_lut_gate - 1, LookupGate::wire_ith_looking_inp(slot));
@@ -99,6 +119,16 @@ pub fn set_lookup_wires<
 
             multiplicities[0] += 1;
         }
+
+        // Validate first_lut_gate to prevent underflow in row calculation
+        let max_lut_entry_div = (lut_len.saturating_sub(1)) / num_lut_entries;
+        ensure!(
+            first_lut_gate >= max_lut_entry_div,
+            "first_lut_gate ({}) too small for lut_len ({}) with num_lut_entries ({})",
+            first_lut_gate,
+            lut_len,
+            num_lut_entries
+        );
 
         for lut_entry in 0..lut_len {
             let row = first_lut_gate - lut_entry / num_lut_entries;

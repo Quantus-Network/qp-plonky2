@@ -4,7 +4,7 @@ use core::iter::{Product, Sum};
 use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 use num::{BigUint, Integer, ToPrimitive};
-use plonky2_util::{assume, branch_hint};
+use plonky2_util::branch_hint;
 use serde::{Deserialize, Serialize};
 
 use crate::ops::Square;
@@ -257,12 +257,6 @@ impl Add for GoldilocksField {
         if over {
             // NB: self.0 > Self::ORDER && rhs.0 > Self::ORDER is necessary but not sufficient for
             // double-overflow.
-            // This assume does two things:
-            //  1. If compiler knows that either self.0 or rhs.0 <= ORDER, then it can skip this
-            //     check.
-            //  2. Hints to the compiler how rare this double-overflow is (thus handled better with
-            //     a branch).
-            assume(self.0 > Self::ORDER && rhs.0 > Self::ORDER);
             branch_hint();
             sum += EPSILON; // Cannot overflow.
         }
@@ -292,14 +286,6 @@ impl Sub for GoldilocksField {
         let (diff, under) = self.0.overflowing_sub(rhs.0);
         let (mut diff, under) = diff.overflowing_sub((under as u64) * EPSILON);
         if under {
-            // NB: self.0 < EPSILON - 1 && rhs.0 > Self::ORDER is necessary but not sufficient for
-            // double-underflow.
-            // This assume does two things:
-            //  1. If compiler knows that either self.0 >= EPSILON - 1 or rhs.0 <= ORDER, then it
-            //     can skip this check.
-            //  2. Hints to the compiler how rare this double-underflow is (thus handled better
-            //     with a branch).
-            assume(self.0 < EPSILON - 1 && rhs.0 > Self::ORDER);
             branch_hint();
             diff -= EPSILON; // Cannot underflow.
         }
@@ -376,8 +362,6 @@ unsafe fn add_no_canonicalize_trashing_input(x: u64, y: u64) -> u64 {
         inlateout(reg) y => adjustment,
         options(pure, nomem, nostack),
     );
-    assume(x != 0 || (res_wrapped == y && adjustment == 0));
-    assume(y != 0 || (res_wrapped == x && adjustment == 0));
     // Add EPSILON == subtract ORDER.
     // Cannot overflow unless the assumption if x + y < 2**64 + ORDER is incorrect.
     res_wrapped + adjustment

@@ -7,7 +7,7 @@ use alloc::vec::Vec;
 
 use plonky2_field::types::Field;
 pub use plonky2_util::{
-    assume, branch_hint, log2_ceil, log2_strict, reverse_index_bits, reverse_index_bits_in_place,
+    branch_hint, log2_ceil, log2_strict, reverse_index_bits, reverse_index_bits_in_place,
 };
 
 /// Reverse the `num_bits` lowest bits of `n`.

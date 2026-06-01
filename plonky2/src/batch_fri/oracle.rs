@@ -293,6 +293,7 @@ mod test {
     #[cfg(not(feature = "std"))]
     use alloc::vec;
 
+    use itertools::Itertools;
     use plonky2_field::goldilocks_field::GoldilocksField;
     use plonky2_field::types::Sample;
 
@@ -650,5 +651,171 @@ mod test {
         data.verify(proof.clone())?;
 
         Ok(())
+    }
+
+    /// Test that the recursive batch FRI verifier rejects trailing instances with the same degree.
+    ///
+    /// This is a regression test for a soundness bug where instances with the same degree as the
+    /// initial instance would be silently ignored, allowing a malicious prover to supply bogus
+    /// openings that are never verified.
+    #[test]
+    #[should_panic(expected = "Wrong number of folded instances")]
+    fn recursive_batch_fri_rejects_trailing_same_degree_instance() {
+        let mut timing = TimingTree::default();
+        let reduction_arity_bits = vec![1, 2, 1];
+        let k = 6;
+        let fri_params = FriParams {
+            config: FriConfig {
+                rate_bits: 1,
+                cap_height: 0,
+                proof_of_work_bits: 0,
+                reduction_strategy: FriReductionStrategy::Fixed(reduction_arity_bits.clone()),
+                num_query_rounds: 2,
+            },
+            leaf_hiding: false,
+            batch_masking: None,
+            degree_bits: k,
+            reduction_arity_bits,
+            final_poly_layout: FriFinalPolyLayout::Single,
+        };
+
+        let n = 1 << k;
+        let trace =
+            PolynomialValues::new((1..=n).map(|i| F::from_canonical_usize(i)).collect_vec());
+        let oracle: BatchFriOracle<GoldilocksField, C, D> = BatchFriOracle::from_values(
+            vec![trace],
+            fri_params.config.rate_bits,
+            fri_params.leaf_hiding,
+            fri_params.config.cap_height,
+            &mut timing,
+            &[None],
+        );
+
+        let mut point_challenger = Challenger::<F, H>::new();
+        point_challenger.observe_cap(&oracle.batch_merkle_tree.cap);
+        let zeta = point_challenger.get_extension_challenge::<D>();
+
+        let poly = &oracle.polynomials[0];
+        let actual_opening = poly.to_extension::<D>().eval(zeta);
+        let bogus_opening = actual_opening + <F as Extendable<D>>::Extension::ONE;
+
+        let honest_instance = FriInstanceInfo {
+            oracles: vec![FriOracleInfo {
+                num_polys: 1,
+                blinding: false,
+            }],
+            batches: vec![FriBatchInfo {
+                point: zeta,
+                openings: vec![FriOpeningExpression::raw(FriPolynomialInfo {
+                    oracle_index: 0,
+                    polynomial_index: 0,
+                })],
+            }],
+        };
+        let honest_openings = FriOpenings {
+            batches: vec![FriOpeningBatch {
+                values: vec![actual_opening],
+            }],
+        };
+
+        let mut prover_challenger = Challenger::<F, H>::new();
+        let mut verifier_challenger = prover_challenger.clone();
+        let inner_proof = BatchFriOracle::prove_openings(
+            &[k],
+            &[honest_instance.clone()],
+            &[&oracle],
+            &mut prover_challenger,
+            &fri_params,
+            &mut timing,
+        );
+        let inner_challenges = verifier_challenger.fri_challenges::<C, D>(
+            &inner_proof.commit_phase_merkle_caps,
+            &inner_proof.final_polys,
+            inner_proof.pow_witness,
+            k,
+            &fri_params.config,
+            None,
+            None,
+        );
+        verify_batch_fri_proof::<GoldilocksField, C, D>(
+            &[k],
+            &[honest_instance.clone()],
+            &[honest_openings],
+            &inner_challenges,
+            &[oracle.batch_merkle_tree.cap.clone()],
+            &inner_proof,
+            &fri_params,
+        )
+        .expect("Native verification should pass with single honest instance");
+
+        // Now build a recursive verifier that claims two instances with the same degree k.
+        // The second instance has a bogus opening. Before the fix, this would be silently
+        // ignored and the circuit would accept. After the fix, circuit construction should
+        // panic because batch_index (1) != instance.len() (2).
+        let config = CircuitConfig::standard_recursion_config();
+        let mut builder = CircuitBuilder::<F, D>::new(config);
+        let fri_proof_target = builder.add_virtual_fri_proof(&[2], &fri_params);
+        let zeta_target = builder.constant_extension(zeta);
+
+        let claimed_instance_0 = FriInstanceInfoTarget {
+            oracles: vec![FriOracleInfo {
+                num_polys: 1,
+                blinding: false,
+            }],
+            batches: vec![FriBatchInfoTarget {
+                point: zeta_target,
+                openings: vec![FriOpeningExpression::raw(FriPolynomialInfo {
+                    oracle_index: 0,
+                    polynomial_index: 0,
+                })],
+            }],
+        };
+        let claimed_instance_1 = FriInstanceInfoTarget {
+            oracles: vec![FriOracleInfo {
+                num_polys: 1,
+                blinding: false,
+            }],
+            batches: vec![FriBatchInfoTarget {
+                point: zeta_target,
+                openings: vec![FriOpeningExpression::raw(FriPolynomialInfo {
+                    oracle_index: 0,
+                    polynomial_index: 0,
+                })],
+            }],
+        };
+
+        let opening0_target = FriOpeningsTarget {
+            batches: vec![FriOpeningBatchTarget {
+                values: vec![builder.constant_extension(actual_opening)],
+            }],
+        };
+        let opening1_target = FriOpeningsTarget {
+            batches: vec![FriOpeningBatchTarget {
+                values: vec![builder.constant_extension(bogus_opening)],
+            }],
+        };
+
+        let mut recursive_challenger = RecursiveChallenger::<F, H, D>::new(&mut builder);
+        let fri_challenges_target = recursive_challenger.fri_challenges(
+            &mut builder,
+            &fri_proof_target.commit_phase_merkle_caps,
+            &fri_proof_target.final_polys,
+            fri_proof_target.pow_witness,
+            &fri_params.config,
+        );
+        let merkle_cap_target = builder.constant_merkle_cap(&oracle.batch_merkle_tree.cap);
+
+        // This should panic with "Wrong number of folded instances" because
+        // we're passing two instances with the same degree k, but only the first
+        // will be folded (batch_index will be 1, not 2).
+        builder.verify_batch_fri_proof::<C>(
+            &[k, k],
+            &[claimed_instance_0, claimed_instance_1],
+            &[opening0_target, opening1_target],
+            &fri_challenges_target,
+            &[merkle_cap_target],
+            &fri_proof_target,
+            &fri_params,
+        );
     }
 }

@@ -8,7 +8,7 @@ pub mod serialization;
 // Re-export reducing and strided_view from core
 // Re-export utility functions from core
 pub use qp_plonky2_core::util::{
-    assume, branch_hint, log2_ceil, log2_strict, reverse_bits, reverse_index_bits,
+    branch_hint, log2_ceil, log2_strict, reverse_bits, reverse_index_bits,
     reverse_index_bits_in_place,
 };
 pub use qp_plonky2_core::{reducing, strided_view};

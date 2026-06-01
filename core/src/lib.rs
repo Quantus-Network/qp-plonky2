@@ -96,7 +96,7 @@ pub use proof::{FriInferredElements, ProofChallenges};
 pub use selectors::{LookupSelectors, SelectorsInfo, UNUSED_SELECTOR};
 // Utility functions
 pub use util::{
-    assume, branch_hint, log2_ceil, log2_strict, reverse_bits, reverse_index_bits,
+    branch_hint, log2_ceil, log2_strict, reverse_bits, reverse_index_bits,
     reverse_index_bits_in_place,
 };
 

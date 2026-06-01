@@ -446,11 +446,13 @@ pub trait Read {
     }
 
     fn read_poly_fri_zk_config(&mut self) -> IoResult<PolyFriZkConfig> {
-        Ok(PolyFriZkConfig {
+        let config = PolyFriZkConfig {
             wire_mask_degree: self.read_usize()?,
             z_mask_degree: self.read_usize()?,
             fri_batch_mask_degree: self.read_usize()?,
-        })
+        };
+        config.check_valid().map_err(|_| IoError)?;
+        Ok(config)
     }
 
     fn read_zk_config(&mut self) -> IoResult<ZkConfig> {
@@ -475,7 +477,7 @@ pub trait Read {
         let zk_config = self.read_zk_config()?;
         let fri_config = self.read_fri_config()?;
 
-        Ok(CircuitConfig {
+        let config = CircuitConfig {
             num_wires,
             num_routed_wires,
             num_constants,
@@ -485,7 +487,9 @@ pub trait Read {
             use_base_arithmetic_gate,
             zk_config,
             fri_config,
-        })
+        };
+        config.check_valid().map_err(|_| IoError)?;
+        Ok(config)
     }
 
     fn read_fri_params(&mut self) -> IoResult<FriParams> {
@@ -630,6 +634,15 @@ pub trait Read {
         }
 
         common_data.gates = gates;
+        qp_plonky2_core::circuit_config::check_common_data_valid(
+            &common_data.config,
+            common_data.quotient_degree_factor,
+            common_data.config.fri_config.rate_bits,
+            common_data.public_initial_degree_bits,
+            common_data.trace_degree_bits,
+            || common_data.luts.iter().any(|lut| lut.is_empty()),
+        )
+        .map_err(|_| IoError)?;
 
         Ok(common_data)
     }
@@ -872,6 +885,9 @@ pub trait Read {
     #[inline]
     fn read_lut(&mut self) -> IoResult<Vec<(u16, u16)>> {
         let length = self.read_usize()?;
+        if length == 0 {
+            return Err(IoError);
+        }
         let mut lut = try_with_capacity(length)?;
         for _ in 0..length {
             lut.push((self.read_u16()?, self.read_u16()?));
