@@ -8,11 +8,11 @@ use plonky2::field::zero_poly_coset::ZeroPolyOnCoset;
 use plonky2::fri::proof::{
     FriChallenges, FriFinalPolys, FriInitialTreeProof, FriProof, FriQueryRound,
 };
+use plonky2::fri::structure::{
+    FriBatchInfo, FriInstanceInfo, FriOpeningBatch, FriOpeningExpression, FriOpenings,
+    FriOracleInfo, FriPolynomialInfo,
+};
 use plonky2::fri::{
-    structure::{
-        FriBatchInfo, FriInstanceInfo, FriOpeningBatch, FriOpeningExpression, FriOpenings,
-        FriOracleInfo, FriPolynomialInfo,
-    },
     validate_batch_fri_auxiliary_shape, validate_fri_auxiliary_shape, FriConfig,
     FriFinalPolyLayout, FriParams, FriReductionStrategy,
 };
