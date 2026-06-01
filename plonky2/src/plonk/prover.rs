@@ -94,9 +94,9 @@ pub fn set_lookup_wires<
             .ok_or_else(|| anyhow::anyhow!("lut_to_lookups index {lut_index} out of bounds"))?;
 
         for (inp_target, _) in lut_to_lookups.iter() {
-            let inp_value = pw
-                .try_get_target(*inp_target)
-                .ok_or_else(|| anyhow::anyhow!("Lookup input target {:?} not set in witness", inp_target))?;
+            let inp_value = pw.try_get_target(*inp_target).ok_or_else(|| {
+                anyhow::anyhow!("Lookup input target {:?} not set in witness", inp_target)
+            })?;
             let inp_u16 = u16::try_from(inp_value.to_canonical_u64())
                 .map_err(|_| anyhow::anyhow!("Lookup input value {} exceeds u16", inp_value))?;
             let idx = table_value_to_idx
