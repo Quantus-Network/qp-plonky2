@@ -119,7 +119,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
 
     /// Domain-separated leaf hash for Merkle trees (in-circuit version).
     ///
-    /// This sets capacity[RATE] = 1 before hashing to distinguish leaf hashes from
+    /// This sets `capacity[RATE] = 1` before hashing to distinguish leaf hashes from
     /// internal node hashes (two_to_one), preventing second-preimage attacks.
     /// The capacity-region placement is critical: two_to_one/compress always has
     /// zero capacity, so no grind on rate-region values can produce a collision.
@@ -142,7 +142,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
 
     /// Domain-separated leaf hash for Merkle trees (in-circuit Poseidon2 version).
     ///
-    /// This sets capacity[RATE] = 1 before hashing to distinguish leaf hashes from
+    /// This sets `capacity[RATE] = 1` before hashing to distinguish leaf hashes from
     /// internal node hashes (two_to_one), preventing second-preimage attacks.
     /// Uses Poseidon2's additive absorption and padding.
     pub fn hash_leaf_p2<H: AlgebraicHasher<F>>(&mut self, inputs: Vec<Target>) -> HashOutTarget {
