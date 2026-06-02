@@ -26,9 +26,8 @@ use crate::field::polynomial::PolynomialCoeffs;
 use crate::field::types::{Field64, PrimeField64};
 use crate::fri::oracle::PolynomialBatch;
 use crate::fri::proof::{
-    CompressedFriProof, CompressedFriQueryRounds, FriFinalPolys, FriFinalPolysTarget,
-    FriInitialTreeProof, FriInitialTreeProofTarget, FriProof, FriProofTarget, FriQueryRound,
-    FriQueryRoundTarget, FriQueryStep, FriQueryStepTarget,
+    CompressedFriProof, CompressedFriQueryRounds, FriInitialTreeProof, FriInitialTreeProofTarget,
+    FriProof, FriProofTarget, FriQueryRound, FriQueryRoundTarget, FriQueryStep, FriQueryStepTarget,
 };
 use crate::fri::{FriConfig, FriParams, FriReductionStrategy};
 use crate::gadgets::polynomial::PolynomialCoeffsExtTarget;
@@ -611,9 +610,7 @@ pub trait Read {
             .collect::<Result<Vec<_>, _>>()?;
         let query_round_proofs = self.read_fri_query_rounds::<F, C, D>(common_data)?;
         let final_poly_len = common_data.fri_params.final_poly_len();
-        let final_poly = FriFinalPolys::new(PolynomialCoeffs::new(
-            self.read_field_ext_vec::<F, D>(final_poly_len)?,
-        ));
+        let final_poly = PolynomialCoeffs::new(self.read_field_ext_vec::<F, D>(final_poly_len)?);
         let pow_witness = self.read_field()?;
         Ok(FriProof {
             commit_phase_merkle_caps,
@@ -632,9 +629,7 @@ pub trait Read {
             commit_phase_merkle_caps.push(self.read_target_merkle_cap()?);
         }
         let query_round_proofs = self.read_target_fri_query_rounds::<D>()?;
-        let final_poly = FriFinalPolysTarget {
-            coeffs: PolynomialCoeffsExtTarget(self.read_target_ext_vec::<D>()?),
-        };
+        let final_poly = PolynomialCoeffsExtTarget(self.read_target_ext_vec::<D>()?);
         let pow_witness = self.read_target()?;
 
         Ok(FriProofTarget {
@@ -1171,9 +1166,7 @@ pub trait Read {
             .collect::<Result<Vec<_>, _>>()?;
         let query_round_proofs = self.read_compressed_fri_query_rounds::<F, C, D>(common_data)?;
         let final_poly_len = common_data.fri_params.final_poly_len();
-        let final_poly = FriFinalPolys::new(PolynomialCoeffs::new(
-            self.read_field_ext_vec::<F, D>(final_poly_len)?,
-        ));
+        let final_poly = PolynomialCoeffs::new(self.read_field_ext_vec::<F, D>(final_poly_len)?);
         let pow_witness = self.read_field()?;
         Ok(CompressedFriProof {
             commit_phase_merkle_caps,
@@ -1676,7 +1669,7 @@ pub trait Write {
             self.write_merkle_cap(cap)?;
         }
         self.write_fri_query_rounds::<F, C, D>(&fp.query_round_proofs)?;
-        self.write_field_ext_vec::<F, D>(&fp.final_poly.coeffs.coeffs)?;
+        self.write_field_ext_vec::<F, D>(&fp.final_poly.coeffs)?;
         self.write_field(fp.pow_witness)
     }
 
@@ -1688,7 +1681,7 @@ pub trait Write {
             self.write_target_merkle_cap(cap)?;
         }
         self.write_target_fri_query_rounds::<D>(&fpt.query_round_proofs)?;
-        self.write_target_ext_vec::<D>(&fpt.final_poly.coeffs.0)?;
+        self.write_target_ext_vec::<D>(&fpt.final_poly.0)?;
         self.write_target(fpt.pow_witness)
     }
 
@@ -2153,7 +2146,7 @@ pub trait Write {
             self.write_merkle_cap(cap)?;
         }
         self.write_compressed_fri_query_rounds::<F, C, D>(&fp.query_round_proofs)?;
-        self.write_field_ext_vec::<F, D>(&fp.final_poly.coeffs.coeffs)?;
+        self.write_field_ext_vec::<F, D>(&fp.final_poly.coeffs)?;
         self.write_field(fp.pow_witness)
     }
 

@@ -7,8 +7,8 @@ use alloc::vec::Vec;
 
 // Re-export all FRI proof types from core
 pub use qp_plonky2_core::fri_proof::{
-    eval_final_poly_at_point, CompressedFriProof, CompressedFriQueryRounds, FriFinalPolys,
-    FriInitialTreeProof, FriProof, FriQueryRound, FriQueryStep,
+    CompressedFriProof, CompressedFriQueryRounds, FriInitialTreeProof, FriProof, FriQueryRound,
+    FriQueryStep,
 };
 // Re-export FriChallenges from core
 pub use qp_plonky2_core::FriChallenges;
@@ -59,11 +59,8 @@ pub struct FriQueryRoundTarget<const D: usize> {
     pub steps: Vec<FriQueryStepTarget<D>>,
 }
 
-/// Target version of the disclosed final polynomial.
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct FriFinalPolysTarget<const D: usize> {
-    pub coeffs: PolynomialCoeffsExtTarget<D>,
-}
+/// Target version of the disclosed final polynomial coefficients.
+pub type FriFinalPolysTarget<const D: usize> = PolynomialCoeffsExtTarget<D>;
 
 /// Target version of FriProof for circuit building.
 #[derive(Clone, Debug, Eq, PartialEq)]

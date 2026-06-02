@@ -65,26 +65,6 @@ pub struct CompressedFriQueryRounds<F: RichField + Extendable<D>, H: Hasher<F>, 
     pub steps: Vec<HashMap<usize, FriQueryStep<F, H, D>>>,
 }
 
-/// The final reduced polynomial disclosed after the FRI commit phase.
-#[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
-#[serde(bound = "")]
-pub struct FriFinalPolys<F: RichField + Extendable<D>, const D: usize> {
-    pub coeffs: PolynomialCoeffs<F::Extension>,
-}
-
-impl<F: RichField + Extendable<D>, const D: usize> FriFinalPolys<F, D> {
-    pub fn new(coeffs: PolynomialCoeffs<F::Extension>) -> Self {
-        Self { coeffs }
-    }
-}
-
-pub fn eval_final_poly_at_point<F: RichField + Extendable<D>, const D: usize>(
-    final_polys: &FriFinalPolys<F, D>,
-    point: F::Extension,
-) -> F::Extension {
-    final_polys.coeffs.eval(point)
-}
-
 /// The full FRI proof.
 #[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
 #[serde(bound = "")]
@@ -94,7 +74,7 @@ pub struct FriProof<F: RichField + Extendable<D>, H: Hasher<F>, const D: usize> 
     /// Query rounds proofs
     pub query_round_proofs: Vec<FriQueryRound<F, H, D>>,
     /// The final reduced polynomial.
-    pub final_poly: FriFinalPolys<F, D>,
+    pub final_poly: PolynomialCoeffs<F::Extension>,
     /// Witness showing that the prover did PoW.
     pub pow_witness: F,
 }
@@ -108,7 +88,7 @@ pub struct CompressedFriProof<F: RichField + Extendable<D>, H: Hasher<F>, const 
     /// Compressed query rounds proof.
     pub query_round_proofs: CompressedFriQueryRounds<F, H, D>,
     /// The final reduced polynomial.
-    pub final_poly: FriFinalPolys<F, D>,
+    pub final_poly: PolynomialCoeffs<F::Extension>,
     /// Witness showing that the prover did PoW.
     pub pow_witness: F,
 }

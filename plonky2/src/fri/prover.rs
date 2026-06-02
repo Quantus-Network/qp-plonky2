@@ -8,9 +8,7 @@ use plonky2_maybe_rayon::*;
 
 use crate::field::extension::{flatten, unflatten, Extendable};
 use crate::field::polynomial::{PolynomialCoeffs, PolynomialValues};
-use crate::fri::proof::{
-    FriFinalPolys, FriInitialTreeProof, FriProof, FriQueryRound, FriQueryStep,
-};
+use crate::fri::proof::{FriInitialTreeProof, FriProof, FriQueryRound, FriQueryStep};
 use crate::fri::{FriConfig, FriParams};
 use crate::hash::hash_types::{RichField, NUM_HASH_OUT_ELTS};
 use crate::hash::hashing::PlonkyPermutation;
@@ -50,7 +48,7 @@ pub fn fri_proof<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const
             max_num_query_steps,
         )
     );
-    let final_poly = FriFinalPolys::new(final_coeffs);
+    let final_poly = final_coeffs;
     observe_final_poly::<F, C, D>(challenger, &final_poly, final_poly_coeff_len);
 
     // PoW phase
@@ -146,12 +144,12 @@ fn fri_committed_trees<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>,
 
 fn observe_final_poly<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>(
     challenger: &mut Challenger<F, C::Hasher>,
-    final_poly: &FriFinalPolys<F, D>,
+    final_poly: &PolynomialCoeffs<F::Extension>,
     final_poly_coeff_len: Option<usize>,
 ) {
-    challenger.observe_extension_elements(&final_poly.coeffs.coeffs);
+    challenger.observe_extension_elements(&final_poly.coeffs);
     if let Some(len) = final_poly_coeff_len {
-        for _ in final_poly.coeffs.len()..len {
+        for _ in final_poly.len()..len {
             challenger.observe_extension_element(&F::Extension::ZERO);
         }
     }

@@ -250,13 +250,9 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         poly0: &FriFinalPolysTarget<D>,
         poly1: &FriFinalPolysTarget<D>,
     ) -> FriFinalPolysTarget<D> {
-        FriFinalPolysTarget {
-            coeffs: crate::gadgets::polynomial::PolynomialCoeffsExtTarget(self.select_vec_ext(
-                b,
-                &poly0.coeffs.0,
-                &poly1.coeffs.0,
-            )),
-        }
+        crate::gadgets::polynomial::PolynomialCoeffsExtTarget(
+            self.select_vec_ext(b, &poly0.0, &poly1.0),
+        )
     }
 
     /// Computes `if b { qr0 } else { qr1 }`.

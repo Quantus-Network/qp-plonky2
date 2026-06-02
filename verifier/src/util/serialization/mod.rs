@@ -14,8 +14,8 @@ pub use gate_serialization::default::DefaultGateSerializer;
 pub use gate_serialization::GateSerializer;
 use hashbrown::HashMap;
 use qp_plonky2_core::fri_proof::{
-    CompressedFriProof, CompressedFriQueryRounds, FriFinalPolys, FriInitialTreeProof, FriProof,
-    FriQueryRound, FriQueryStep,
+    CompressedFriProof, CompressedFriQueryRounds, FriInitialTreeProof, FriProof, FriQueryRound,
+    FriQueryStep,
 };
 use qp_plonky2_core::merkle_proofs::MerkleProof;
 use qp_plonky2_core::merkle_tree::MerkleCap;
@@ -376,9 +376,7 @@ pub trait Read {
             .collect::<Result<Vec<_>, _>>()?;
         let query_round_proofs = self.read_fri_query_rounds::<F, C, D>(common_data)?;
         let final_poly_len = common_data.fri_params.final_poly_len();
-        let final_poly = FriFinalPolys::new(PolynomialCoeffs::new(
-            self.read_field_ext_vec::<F, D>(final_poly_len)?,
-        ));
+        let final_poly = PolynomialCoeffs::new(self.read_field_ext_vec::<F, D>(final_poly_len)?);
         let pow_witness = self.read_field()?;
         Ok(FriProof {
             commit_phase_merkle_caps,
@@ -716,9 +714,7 @@ pub trait Read {
             .collect::<Result<Vec<_>, _>>()?;
         let query_round_proofs = self.read_compressed_fri_query_rounds::<F, C, D>(common_data)?;
         let final_poly_len = common_data.fri_params.final_poly_len();
-        let final_poly = FriFinalPolys::new(PolynomialCoeffs::new(
-            self.read_field_ext_vec::<F, D>(final_poly_len)?,
-        ));
+        let final_poly = PolynomialCoeffs::new(self.read_field_ext_vec::<F, D>(final_poly_len)?);
         let pow_witness = self.read_field()?;
         Ok(CompressedFriProof {
             commit_phase_merkle_caps,
@@ -1005,7 +1001,7 @@ pub trait Write {
             self.write_merkle_cap(cap)?;
         }
         self.write_fri_query_rounds::<F, C, D>(&fp.query_round_proofs)?;
-        self.write_field_ext_vec::<F, D>(&fp.final_poly.coeffs.coeffs)?;
+        self.write_field_ext_vec::<F, D>(&fp.final_poly.coeffs)?;
         self.write_field(fp.pow_witness)
     }
 
@@ -1291,7 +1287,7 @@ pub trait Write {
             self.write_merkle_cap(cap)?;
         }
         self.write_compressed_fri_query_rounds::<F, C, D>(&fp.query_round_proofs)?;
-        self.write_field_ext_vec::<F, D>(&fp.final_poly.coeffs.coeffs)?;
+        self.write_field_ext_vec::<F, D>(&fp.final_poly.coeffs)?;
         self.write_field(fp.pow_witness)
     }
 

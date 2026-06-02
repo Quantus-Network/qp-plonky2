@@ -9,9 +9,7 @@ use plonky2_util::{log2_strict, reverse_index_bits_in_place};
 
 use crate::field::extension::{unflatten, Extendable};
 use crate::field::polynomial::{PolynomialCoeffs, PolynomialValues};
-use crate::fri::proof::{
-    FriFinalPolys, FriInitialTreeProof, FriProof, FriQueryRound, FriQueryStep,
-};
+use crate::fri::proof::{FriInitialTreeProof, FriProof, FriQueryRound, FriQueryStep};
 use crate::fri::prover::{fri_proof_of_work, FriCommitedTrees};
 use crate::fri::FriParams;
 use crate::hash::batch_merkle_tree::BatchMerkleTree;
@@ -82,7 +80,7 @@ pub fn batch_fri_proof<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>,
     FriProof {
         commit_phase_merkle_caps: trees.iter().map(|t| t.cap.clone()).collect(),
         query_round_proofs,
-        final_poly: FriFinalPolys::new(final_coeffs),
+        final_poly: final_coeffs,
         pow_witness,
     }
 }

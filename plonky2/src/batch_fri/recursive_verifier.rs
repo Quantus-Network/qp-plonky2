@@ -37,7 +37,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
 
         debug_assert_eq!(
             params.final_poly_len(),
-            proof.final_poly.coeffs.len(),
+            proof.final_poly.len(),
             "Final polynomial has wrong coefficient count."
         );
 
@@ -335,7 +335,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             self,
             &format!(
                 "evaluate final polynomial with {} coefficients",
-                proof.final_poly.coeffs.len()
+                proof.final_poly.len()
             ),
             {
                 let subgroup_x_ext = self.convert_to_ext(subgroup_x);

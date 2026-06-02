@@ -6,9 +6,7 @@ use itertools::Itertools;
 use plonky2_field::extension::{flatten, Extendable, FieldExtension};
 use plonky2_field::types::Field;
 
-use crate::fri::proof::{
-    eval_final_poly_at_point, FriChallenges, FriInitialTreeProof, FriProof, FriQueryRound,
-};
+use crate::fri::proof::{FriChallenges, FriInitialTreeProof, FriProof, FriQueryRound};
 use crate::fri::structure::{FriBatchInfo, FriInstanceInfo, FriOpenings};
 use crate::fri::validate_shape::validate_batch_fri_proof_shape;
 use crate::fri::verifier::{
@@ -241,7 +239,7 @@ fn batch_fri_verifier_query_round<
     // Final check of FRI. After all the reductions, we check that the final polynomial is equal
     // to the one sent by the prover.
     ensure!(
-        eval_final_poly_at_point(&proof.final_poly, subgroup_x.into()) == old_eval,
+        proof.final_poly.eval(subgroup_x.into()) == old_eval,
         "Final polynomial evaluation is invalid."
     );
 

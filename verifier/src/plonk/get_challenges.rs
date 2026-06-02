@@ -2,7 +2,8 @@
 use alloc::{vec, vec::Vec};
 
 use hashbrown::HashSet;
-use qp_plonky2_core::fri_proof::{CompressedFriProof, FriFinalPolys, FriProof};
+use qp_plonky2_core::field::polynomial::PolynomialCoeffs;
+use qp_plonky2_core::fri_proof::{CompressedFriProof, FriProof};
 use qp_plonky2_core::fri_verifier::{
     compute_evaluation, fri_combine_initial, PrecomputedReducedOpenings,
 };
@@ -26,7 +27,7 @@ fn get_challenges<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, cons
     quotient_polys_cap: &MerkleCap<F, C::Hasher>,
     openings: &OpeningSet<F, D>,
     commit_phase_merkle_caps: &[MerkleCap<F, C::Hasher>],
-    final_poly: &FriFinalPolys<F, D>,
+    final_poly: &PolynomialCoeffs<F::Extension>,
     pow_witness: F,
     circuit_digest: &<<C as GenericConfig<D>>::Hasher as Hasher<C::F>>::Hash,
     common_data: &CommonCircuitData<F, D>,

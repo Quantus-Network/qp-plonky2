@@ -126,7 +126,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
 
         debug_assert_eq!(
             params.final_poly_len(),
-            proof.final_poly.coeffs.0.len(),
+            proof.final_poly.0.len(),
             "Final polynomial has wrong length."
         );
 
@@ -213,7 +213,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
 
         debug_assert_eq!(
             params.final_poly_len(),
-            proof.final_poly.coeffs.0.len(),
+            proof.final_poly.0.len(),
             "Final polynomial has wrong length."
         );
 
@@ -415,7 +415,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         final_poly: &FriFinalPolysTarget<D>,
         point: ExtensionTarget<D>,
     ) -> ExtensionTarget<D> {
-        final_poly.coeffs.eval(self, point)
+        final_poly.eval(self, point)
     }
 
     fn fri_combine_initial(
@@ -758,9 +758,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         let query_round_proofs = (0..num_queries)
             .map(|_| self.add_virtual_fri_query(num_leaves_per_oracle, params))
             .collect();
-        let final_poly = FriFinalPolysTarget {
-            coeffs: self.add_virtual_poly_coeff_ext(params.final_poly_len()),
-        };
+        let final_poly = self.add_virtual_poly_coeff_ext(params.final_poly_len());
         let pow_witness = self.add_virtual_target();
         FriProofTarget {
             commit_phase_merkle_caps,

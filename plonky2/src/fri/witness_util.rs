@@ -22,7 +22,7 @@ where
     witness.set_target(fri_proof_target.pow_witness, fri_proof.pow_witness)?;
 
     // Set final polynomial coefficients
-    let target_len = fri_proof_target.final_poly.coeffs.0.len();
+    let target_len = fri_proof_target.final_poly.0.len();
     let coeffs_len = fri_proof.final_poly.coeffs.len();
     if target_len < coeffs_len {
         return Err(anyhow!(
@@ -31,13 +31,12 @@ where
     }
     for i in 0..coeffs_len {
         witness.set_extension_target(
-            fri_proof_target.final_poly.coeffs.0[i],
-            fri_proof.final_poly.coeffs.coeffs[i],
+            fri_proof_target.final_poly.0[i],
+            fri_proof.final_poly.coeffs[i],
         )?;
     }
     for i in coeffs_len..target_len {
-        witness
-            .set_extension_target(fri_proof_target.final_poly.coeffs.0[i], F::Extension::ZERO)?;
+        witness.set_extension_target(fri_proof_target.final_poly.0[i], F::Extension::ZERO)?;
     }
 
     let target_caps = &fri_proof_target.commit_phase_merkle_caps;

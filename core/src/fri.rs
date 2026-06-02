@@ -11,8 +11,8 @@ use serde::Serialize;
 use crate::challenger::Challenger;
 use crate::config::{GenericConfig, Hasher};
 use crate::field::extension::Extendable;
+use crate::field::polynomial::PolynomialCoeffs;
 use crate::field::types::Field;
-use crate::fri_proof::FriFinalPolys;
 use crate::fri_structure::{FriChallenges, FriOpenings};
 use crate::hash_types::{RichField, NUM_HASH_OUT_ELTS};
 use crate::merkle_tree::MerkleCap;
@@ -334,7 +334,7 @@ pub trait FriChallenger<F: RichField, H: Hasher<F>> {
     fn fri_challenges<C: GenericConfig<D, F = F>, const D: usize>(
         &mut self,
         commit_phase_merkle_caps: &[MerkleCap<F, C::Hasher>],
-        final_polys: &FriFinalPolys<F, D>,
+        final_poly: &PolynomialCoeffs<F::Extension>,
         pow_witness: F,
         degree_bits: usize,
         config: &FriConfig,
@@ -358,7 +358,7 @@ impl<F: RichField, H: Hasher<F>> FriChallenger<F, H> for Challenger<F, H> {
     fn fri_challenges<C: GenericConfig<D, F = F>, const D: usize>(
         &mut self,
         commit_phase_merkle_caps: &[MerkleCap<F, C::Hasher>],
-        final_polys: &FriFinalPolys<F, D>,
+        final_poly: &PolynomialCoeffs<F::Extension>,
         pow_witness: F,
         degree_bits: usize,
         config: &FriConfig,
@@ -393,12 +393,12 @@ impl<F: RichField, H: Hasher<F>> FriChallenger<F, H> for Challenger<F, H> {
             }
         }
 
-        self.observe_extension_elements(&final_polys.coeffs.coeffs);
+        self.observe_extension_elements(&final_poly.coeffs);
         // When this proof was generated in a circuit with a different final polynomial length,
         // the challenger needs to observe the full length so native and
         // recursive transcripts stay aligned.
         if let Some(len) = final_poly_coeff_len {
-            let current_len = final_polys.coeffs.len();
+            let current_len = final_poly.len();
             for _ in current_len..len {
                 self.observe_extension_element(&F::Extension::ZERO);
             }

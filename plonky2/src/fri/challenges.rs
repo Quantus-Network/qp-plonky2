@@ -46,7 +46,7 @@ impl<F: RichField + Extendable<D>, H: AlgebraicHasher<F>, const D: usize>
             })
             .collect();
 
-        self.observe_extension_elements(&final_poly.coeffs.0);
+        self.observe_extension_elements(&final_poly.0);
 
         self.observe_element(pow_witness);
         let fri_pow_response = self.get_challenge(builder);

@@ -5,8 +5,9 @@ use hashbrown::HashSet;
 
 use super::circuit_builder::NUM_COINS_LOOKUP;
 use crate::field::extension::Extendable;
+use crate::field::polynomial::PolynomialCoeffs;
 use crate::fri::proof::{
-    CompressedFriProof, FriChallenges, FriFinalPolys, FriFinalPolysTarget, FriProof, FriProofTarget,
+    CompressedFriProof, FriChallenges, FriFinalPolysTarget, FriProof, FriProofTarget,
 };
 use crate::fri::verifier::{compute_evaluation, fri_combine_initial, PrecomputedReducedOpenings};
 use crate::fri::{FriChallenger, FriParamsObserve, FriParamsObserveTarget};
@@ -31,7 +32,7 @@ fn get_challenges<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, cons
     quotient_polys_cap: &MerkleCap<F, C::Hasher>,
     openings: &OpeningSet<F, D>,
     commit_phase_merkle_caps: &[MerkleCap<F, C::Hasher>],
-    final_poly: &FriFinalPolys<F, D>,
+    final_poly: &PolynomialCoeffs<F::Extension>,
     pow_witness: F,
     circuit_digest: &<<C as GenericConfig<D>>::Hasher as Hasher<C::F>>::Hash,
     common_data: &CommonCircuitData<F, D>,

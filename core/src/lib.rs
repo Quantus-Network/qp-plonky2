@@ -54,8 +54,8 @@ pub use fri::{
 };
 // FRI proof types
 pub use fri_proof::{
-    eval_final_poly_at_point, CompressedFriProof, CompressedFriQueryRounds, FriFinalPolys,
-    FriInitialTreeProof, FriProof, FriQueryRound, FriQueryStep,
+    CompressedFriProof, CompressedFriQueryRounds, FriInitialTreeProof, FriProof, FriQueryRound,
+    FriQueryStep,
 };
 pub use fri_structure::{
     FriBatchInfo, FriChallenges, FriCoefficient, FriInstanceInfo, FriOpeningBatch,
