@@ -284,9 +284,7 @@ where
         )
     );
 
-    challenger.observe_cap::<C::Hasher>(
-        &partial_products_zs_and_lookup_commitment.merkle_tree.cap,
-    );
+    challenger.observe_cap::<C::Hasher>(&partial_products_zs_and_lookup_commitment.merkle_tree.cap);
 
     let alphas = challenger.get_n_challenges(num_challenges);
 
@@ -383,9 +381,7 @@ where
 
     let proof = Proof::<F, C, D> {
         wires_cap: wires_commitment.merkle_tree.cap,
-        plonk_zs_partial_products_cap: partial_products_zs_and_lookup_commitment
-            .merkle_tree
-            .cap,
+        plonk_zs_partial_products_cap: partial_products_zs_and_lookup_commitment.merkle_tree.cap,
         quotient_polys_cap: quotient_polys_commitment.merkle_tree.cap,
         openings,
         opening_proof,
