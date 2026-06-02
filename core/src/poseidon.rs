@@ -16,7 +16,7 @@ use crate::config::{merkle_node_hash_input, Hasher};
 use crate::field::extension::{Extendable, FieldExtension};
 use crate::field::types::PrimeField64;
 use crate::hash_types::{HashOut, RichField};
-use crate::hashing::{hash_leaf, hash_n_to_hash_no_pad, PlonkyPermutation};
+use crate::hashing::{hash_n_to_hash_no_pad, PlonkyPermutation};
 
 pub const SPONGE_RATE: usize = 8;
 pub const SPONGE_CAPACITY: usize = 4;
@@ -707,10 +707,6 @@ impl<F: RichField> Hasher<F> for PoseidonHash {
 
     fn hash_no_pad(input: &[F]) -> Self::Hash {
         hash_n_to_hash_no_pad::<F, Self::Permutation>(input)
-    }
-
-    fn hash_leaf(input: &[F]) -> Self::Hash {
-        hash_leaf::<F, Self::Permutation>(input)
     }
 
     fn two_to_one(left: Self::Hash, right: Self::Hash) -> Self::Hash {

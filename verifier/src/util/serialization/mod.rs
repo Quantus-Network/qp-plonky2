@@ -636,15 +636,7 @@ pub trait Read {
         }
 
         common_data.gates = gates;
-        qp_plonky2_core::circuit_config::check_common_data_valid(
-            &common_data.config,
-            common_data.quotient_degree_factor,
-            common_data.config.fri_config.rate_bits,
-            common_data.public_initial_degree_bits,
-            common_data.trace_degree_bits,
-            || common_data.luts.iter().any(|lut| lut.is_empty()),
-        )
-        .map_err(|_| IoError)?;
+        common_data.check_valid().map_err(|_| IoError)?;
 
         Ok(common_data)
     }

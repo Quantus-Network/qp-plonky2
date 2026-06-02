@@ -12,7 +12,7 @@ use p3_goldilocks::{Goldilocks as P3G, Poseidon2Goldilocks};
 use p3_symmetric::Permutation;
 // We only support Goldilocks for now, which matches your Poseidon2Core.
 use plonky2_field::goldilocks_field::GoldilocksField as GL;
-use qp_plonky2_core::hashing::{hash_leaf_p2, hash_n_to_hash_no_pad_p2, PlonkyPermutation};
+use qp_plonky2_core::hashing::{hash_n_to_hash_no_pad_p2, PlonkyPermutation};
 use qp_poseidon_constants::{create_poseidon, SPONGE_RATE, SPONGE_WIDTH};
 
 use crate::field::types::{Field, PrimeField64};
@@ -126,10 +126,6 @@ impl<F: RichField + P2Permuter> Hasher<F> for Poseidon2Hash {
 
     fn hash_no_pad(input: &[F]) -> Self::Hash {
         hash_n_to_hash_no_pad_p2::<F, Self::Permutation>(input)
-    }
-
-    fn hash_leaf(input: &[F]) -> Self::Hash {
-        hash_leaf_p2::<F, Self::Permutation>(input)
     }
 
     /// Keep CPU equivalence: concatenate 8 felts and call the same `hash_no_pad`.

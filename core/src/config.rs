@@ -64,14 +64,6 @@ pub trait Hasher<F: RichField>: Sized + Copy + Debug + Eq + PartialEq {
         Self::hash_no_pad(&padded_input)
     }
 
-    /// Hash leaf data for Merkle trees with domain separation.
-    ///
-    /// This uses a domain separator to ensure leaf hashes cannot collide with
-    /// internal node hashes (from `two_to_one`), preventing attacks where an
-    /// attacker presents an internal node's preimage as a fake leaf.
-    fn hash_leaf(input: &[F]) -> Self::Hash;
-
-    /// Compress two hashes into one (for internal Merkle tree nodes).
     fn two_to_one(left: Self::Hash, right: Self::Hash) -> Self::Hash;
 }
 

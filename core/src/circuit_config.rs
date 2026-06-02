@@ -240,13 +240,6 @@ impl CircuitConfig {
             return Err("num_constants must not be 0 (causes infinite loop in circuit build)");
         }
 
-        // num_routed_wires must be at least 3 for LookupTableGate (which uses 3 wires per slot)
-        // and at least 2 for LookupGate (which uses 2 wires per slot).
-        // We check >= 3 as the stricter bound.
-        if self.num_routed_wires < 3 {
-            return Err("num_routed_wires must be >= 3 (required for lookup gates)");
-        }
-
         if let ZkMode::PolyFri(poly_fri) = &self.zk_config.mode {
             poly_fri.check_valid()?;
         }
@@ -403,48 +396,4 @@ mod tests {
         };
         config.validate();
     }
-}
-
-/// Validate common circuit data fields shared between prover and verifier.
-///
-/// This is a free function to avoid duplication between `CommonCircuitData::check_valid`
-/// (in plonky2) and `CommonVerifierData::check_valid` (in verifier).
-///
-/// # Arguments
-/// * `config` - The circuit configuration
-/// * `quotient_degree_factor` - The quotient polynomial degree factor
-/// * `rate_bits` - FRI rate bits from config
-/// * `public_initial_degree_bits` - Public initial FRI degree bits
-/// * `trace_degree_bits` - Trace polynomial degree bits
-/// * `luts` - Lookup tables (as slice of slices for flexibility)
-///
-/// # Returns
-/// `Ok(())` if valid, or an error message describing the validation failure.
-pub fn check_common_data_valid(
-    config: &CircuitConfig,
-    quotient_degree_factor: usize,
-    rate_bits: usize,
-    public_initial_degree_bits: usize,
-    trace_degree_bits: usize,
-    luts_empty_check: impl Fn() -> bool,
-) -> Result<(), &'static str> {
-    config.check_valid()?;
-
-    // Quotient degree must fit within FRI rate.
-    let quotient_degree_bits = crate::util::log2_ceil(quotient_degree_factor);
-    if quotient_degree_bits > rate_bits {
-        return Err("quotient_degree_factor exceeds FRI rate_bits");
-    }
-
-    // Public initial degree must be at least as large as trace degree.
-    if public_initial_degree_bits < trace_degree_bits {
-        return Err("public_initial_degree_bits must be >= trace_degree_bits");
-    }
-
-    // All lookup tables must be non-empty.
-    if luts_empty_check() {
-        return Err("lookup table is empty");
-    }
-
-    Ok(())
 }
