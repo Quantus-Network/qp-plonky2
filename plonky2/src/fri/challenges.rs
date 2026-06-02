@@ -29,7 +29,7 @@ impl<F: RichField + Extendable<D>, H: AlgebraicHasher<F>, const D: usize>
         &mut self,
         builder: &mut CircuitBuilder<F, D>,
         commit_phase_merkle_caps: &[MerkleCapTarget],
-        final_polys: &FriFinalPolysTarget<D>,
+        final_poly: &FriFinalPolysTarget<D>,
         pow_witness: Target,
         inner_fri_config: &FriConfig,
     ) -> FriChallengesTarget<D> {
@@ -46,9 +46,7 @@ impl<F: RichField + Extendable<D>, H: AlgebraicHasher<F>, const D: usize>
             })
             .collect();
 
-        for chunk in &final_polys.chunks {
-            self.observe_extension_elements(&chunk.0);
-        }
+        self.observe_extension_elements(&final_poly.coeffs.0);
 
         self.observe_element(pow_witness);
         let fri_pow_response = self.get_challenge(builder);

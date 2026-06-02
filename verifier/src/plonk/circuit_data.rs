@@ -16,8 +16,7 @@ use serde::Serialize;
 use crate::field::extension::Extendable;
 use crate::field::types::Field;
 use crate::fri::structure::{
-    FriBatchInfo, FriInstanceInfo, FriOpeningExpression, FriOracleInfo, FriOracleLayout,
-    FriPolynomialInfo,
+    FriBatchInfo, FriInstanceInfo, FriOpeningExpression, FriOracleInfo, FriPolynomialInfo,
 };
 use crate::gates::gate::GateRef;
 use crate::gates::lookup_table::LookupTable;
@@ -198,14 +197,8 @@ pub struct CommonVerifierData<F: RichField + Extendable<D>, const D: usize> {
 
     pub fri_params: FriParams,
 
-    /// Shared public degree bits for the initial phase-1 FRI oracle commitments in PolyFri mode.
+    /// Shared public degree bits for the initial phase-1 FRI oracle commitments.
     pub public_initial_degree_bits: usize,
-
-    /// Raw-vs-logical oracle layout metadata used by prover-private helpers and tests.
-    ///
-    /// Public FRI instance generation now emits only logical masked openings, so this metadata is
-    /// no longer consulted when building the public proof shape.
-    pub fri_oracle_layouts: Vec<FriOracleLayout>,
 
     /// The types of gates used in this circuit, along with their prefixes.
     pub gates: Vec<GateRef<F, D>>,
@@ -323,25 +316,15 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
         self.quotient_degree_factor * self.degree()
     }
 
-    /// PolyFri masks the permutation accumulator family, so the partial-product chunk size drops
-    /// by one to keep the masked accumulator checks within the existing quotient degree bound.
+    /// The quotient degree factor determines partial-product chunk size.
     pub fn permutation_partial_product_degree(&self) -> usize {
-        if self.config.uses_poly_fri_zk() {
-            self.quotient_degree_factor - 1
-        } else {
-            self.quotient_degree_factor
-        }
+        self.quotient_degree_factor
     }
 
-    /// Lookup running-sum accumulators already consume one degree in the filtered constraints.
-    /// PolyFri masking adds one more effective degree, so their chunk size drops by one more to
-    /// stay within the unchanged quotient bound.
+    /// Lookup running-sum accumulators consume one degree in the filtered constraints,
+    /// so their chunk size is one less than the quotient degree factor.
     pub fn lookup_accumulator_degree(&self) -> usize {
-        if self.config.uses_poly_fri_zk() {
-            self.quotient_degree_factor - 2
-        } else {
-            self.quotient_degree_factor - 1
-        }
+        self.quotient_degree_factor - 1
     }
 
     /// Range of the constants polynomials in the `constants_sigmas_commitment`.
@@ -398,18 +381,24 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
     }
 
     fn fri_oracles(&self) -> Vec<FriOracleInfo> {
-        [
-            PlonkOracle::CONSTANTS_SIGMAS,
-            PlonkOracle::WIRES,
-            PlonkOracle::ZS_PARTIAL_PRODUCTS,
-            PlonkOracle::QUOTIENT,
+        vec![
+            FriOracleInfo {
+                num_polys: self.num_preprocessed_polys(),
+                blinding: PlonkOracle::CONSTANTS_SIGMAS.blinding,
+            },
+            FriOracleInfo {
+                num_polys: self.config.num_wires,
+                blinding: PlonkOracle::WIRES.blinding,
+            },
+            FriOracleInfo {
+                num_polys: self.num_zs_partial_products_polys() + self.num_all_lookup_polys(),
+                blinding: PlonkOracle::ZS_PARTIAL_PRODUCTS.blinding,
+            },
+            FriOracleInfo {
+                num_polys: self.num_quotient_polys(),
+                blinding: PlonkOracle::QUOTIENT.blinding,
+            },
         ]
-        .into_iter()
-        .map(|oracle| FriOracleInfo {
-            num_polys: self.fri_oracle_layouts[oracle.index].logical_polys,
-            blinding: oracle.blinding,
-        })
-        .collect()
     }
 
     pub(crate) const fn num_preprocessed_polys(&self) -> usize {

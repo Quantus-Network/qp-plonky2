@@ -8,7 +8,6 @@ use core::mem::swap;
 use anyhow::{ensure, Result};
 use hashbrown::HashMap;
 use plonky2_maybe_rayon::*;
-use qp_plonky2_core::{PolyFriZkConfig, ZkMode};
 
 use super::circuit_builder::{LookupChallenges, LookupWire};
 use crate::field::extension::Extendable;
@@ -34,7 +33,6 @@ use crate::plonk::vanishing_poly::{eval_vanishing_poly_base_batch, get_lut_poly}
 use crate::plonk::vars::EvaluationVarsBaseBatch;
 use crate::plonk::zk::{
     commit_coeffs_with_split_mask, commit_values_with_split_mask, LogicalPolynomialBatch,
-    SplitMaskPlan,
 };
 use crate::timed;
 use crate::util::partial_products::{partial_products_and_z_gx, quotient_chunk_products};
@@ -211,10 +209,10 @@ where
         "compute wires commitment",
         commit_values_with_split_mask::<F, C, D>(
             wires_values,
-            wire_mask_plan(common_data).as_ref(),
+            None, // No PolyFri masking
             Some(common_data.public_initial_degree()),
             config.fri_config.rate_bits,
-            config.uses_leaf_hiding() && PlonkOracle::WIRES.blinding,
+            config.zero_knowledge && PlonkOracle::WIRES.blinding,
             config.fri_config.cap_height,
             timing,
             prover_data.fft_root_table.as_ref(),
@@ -283,10 +281,10 @@ where
         "commit to partial products, Z's and, if any, lookup polynomials",
         commit_values_with_split_mask::<F, C, D>(
             zs_partial_products_lookups,
-            z_mask_plan(common_data).as_ref(),
+            None, // No PolyFri masking
             Some(common_data.public_initial_degree()),
             config.fri_config.rate_bits,
-            config.uses_leaf_hiding() && PlonkOracle::ZS_PARTIAL_PRODUCTS.blinding,
+            config.zero_knowledge && PlonkOracle::ZS_PARTIAL_PRODUCTS.blinding,
             config.fri_config.cap_height,
             timing,
             prover_data.fft_root_table.as_ref(),
@@ -343,7 +341,7 @@ where
             None,
             Some(common_data.public_initial_degree()),
             config.fri_config.rate_bits,
-            config.uses_leaf_hiding() && PlonkOracle::QUOTIENT.blinding,
+            config.zero_knowledge && PlonkOracle::QUOTIENT.blinding,
             config.fri_config.cap_height,
             timing,
             None,
@@ -381,7 +379,7 @@ where
     let opening_proof = timed!(
         timing,
         "compute opening proofs",
-        PolynomialBatch::<F, C, D>::prove_openings_masked(
+        PolynomialBatch::<F, C, D>::prove_openings(
             &instance,
             &[
                 &prover_data.constants_sigmas_commitment,
@@ -391,6 +389,8 @@ where
             ],
             &mut challenger,
             &common_data.fri_params,
+            None,
+            None,
             timing,
         )
     );
@@ -409,32 +409,6 @@ where
         proof,
         public_inputs,
     })
-}
-
-fn split_mask_plan_from_mode<F: RichField + Extendable<D>, const D: usize>(
-    common_data: &CommonCircuitData<F, D>,
-    select_degree: impl FnOnce(&PolyFriZkConfig) -> usize,
-) -> Option<SplitMaskPlan> {
-    match &common_data.config.zk_config.mode {
-        ZkMode::Disabled => None,
-        ZkMode::RowBlinding => None,
-        ZkMode::PolyFri(poly_fri) => Some(SplitMaskPlan {
-            split_power: common_data.degree(),
-            mask_degree: select_degree(poly_fri),
-        }),
-    }
-}
-
-fn wire_mask_plan<F: RichField + Extendable<D>, const D: usize>(
-    common_data: &CommonCircuitData<F, D>,
-) -> Option<SplitMaskPlan> {
-    split_mask_plan_from_mode(common_data, |cfg| cfg.wire_mask_degree)
-}
-
-fn z_mask_plan<F: RichField + Extendable<D>, const D: usize>(
-    common_data: &CommonCircuitData<F, D>,
-) -> Option<SplitMaskPlan> {
-    split_mask_plan_from_mode(common_data, |cfg| cfg.z_mask_degree)
 }
 
 /// Compute the partial products used in the `Z` polynomials.

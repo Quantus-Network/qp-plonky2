@@ -86,7 +86,6 @@ struct Options {
 enum ZkBenchMode {
     Disabled,
     RowBlinding,
-    PolyFri,
 }
 
 /// Creates a dummy proof which should have `2 ** log2_size` rows.
@@ -393,7 +392,6 @@ fn main() -> Result<()> {
     let config = match options.zk_mode {
         ZkBenchMode::Disabled => CircuitConfig::standard_recursion_config(),
         ZkBenchMode::RowBlinding => CircuitConfig::standard_recursion_zk_config(),
-        ZkBenchMode::PolyFri => CircuitConfig::standard_recursion_polyfri_zk_config(),
     };
     info!("Benchmark zk mode: {:?}", options.zk_mode);
 
@@ -454,9 +452,8 @@ fn parse_zk_bench_mode(src: &str) -> Result<ZkBenchMode> {
     match src {
         "disabled" => Ok(ZkBenchMode::Disabled),
         "row-blinding" | "leaf-hiding" => Ok(ZkBenchMode::RowBlinding),
-        "polyfri" => Ok(ZkBenchMode::PolyFri),
         _ => Err(anyhow!(
-            "invalid zk mode `{src}`; expected one of: disabled, row-blinding, polyfri"
+            "invalid zk mode `{src}`; expected one of: disabled, row-blinding"
         )),
     }
 }

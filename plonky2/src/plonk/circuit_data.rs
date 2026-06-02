@@ -29,7 +29,7 @@ use crate::field::types::Field;
 use crate::fri::oracle::PolynomialBatch;
 use crate::fri::structure::{
     FriBatchInfo, FriBatchInfoTarget, FriInstanceInfo, FriInstanceInfoTarget, FriOpeningExpression,
-    FriOracleInfo, FriOracleLayout, FriPolynomialInfo,
+    FriOracleInfo, FriPolynomialInfo,
 };
 use crate::fri::FriParams;
 // Re-export CircuitConfig from core
@@ -421,16 +421,9 @@ pub struct CommonCircuitData<F: RichField + Extendable<D>, const D: usize> {
 
     pub fri_params: FriParams,
 
-    /// Shared public degree bits for the initial phase-1 FRI oracle commitments in PolyFri mode.
-    /// This may be larger than the trace degree if logical masking lifts the committed polynomial
-    /// degree above the native trace domain.
+    /// Shared public degree bits for the initial phase-1 FRI oracle commitments.
+    /// This may be larger than the trace degree for certain configurations.
     pub public_initial_degree_bits: usize,
-
-    /// Raw-vs-logical oracle layout metadata used by prover-private helpers and tests.
-    ///
-    /// Public FRI instance generation now emits only logical masked openings, so this metadata is
-    /// no longer consulted when building the public proof shape.
-    pub fri_oracle_layouts: Vec<FriOracleLayout>,
 
     /// The types of gates used in this circuit, along with their prefixes.
     pub gates: Vec<GateRef<F, D>>,
@@ -525,7 +518,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
         self.public_initial_degree() << self.config.fri_config.rate_bits
     }
 
-    /// Number of FFT points precomputed for the largest PolyFri masked logical commitment.
+    /// Number of FFT points precomputed for the largest phase-1 commitment.
     ///
     /// Returns `None` when the degree parameters overflow `usize`, so deserialization can reject
     /// malformed circuit data instead of panicking.
@@ -564,25 +557,15 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
         self.quotient_degree_factor * self.degree()
     }
 
-    /// PolyFri masks the permutation accumulator family, so the partial-product chunk size drops
-    /// by one to keep the masked accumulator checks within the existing quotient degree bound.
+    /// The quotient degree factor determines partial-product chunk size.
     pub fn permutation_partial_product_degree(&self) -> usize {
-        if self.config.uses_poly_fri_zk() {
-            self.quotient_degree_factor - 1
-        } else {
-            self.quotient_degree_factor
-        }
+        self.quotient_degree_factor
     }
 
-    /// Lookup running-sum accumulators already consume one degree in the filtered constraints.
-    /// PolyFri masking adds one more effective degree, so their chunk size drops by one more to
-    /// stay within the unchanged quotient bound.
+    /// Lookup running-sum accumulators consume one degree in the filtered constraints,
+    /// so their chunk size is one less than the quotient degree factor.
     pub fn lookup_accumulator_degree(&self) -> usize {
-        if self.config.uses_poly_fri_zk() {
-            self.quotient_degree_factor - 2
-        } else {
-            self.quotient_degree_factor - 1
-        }
+        self.quotient_degree_factor - 1
     }
 
     /// Range of the constants polynomials in the `constants_sigmas_commitment`.
@@ -665,18 +648,24 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
     }
 
     fn fri_oracles(&self) -> Vec<FriOracleInfo> {
-        [
-            PlonkOracle::CONSTANTS_SIGMAS,
-            PlonkOracle::WIRES,
-            PlonkOracle::ZS_PARTIAL_PRODUCTS,
-            PlonkOracle::QUOTIENT,
+        vec![
+            FriOracleInfo {
+                num_polys: self.num_preprocessed_polys(),
+                blinding: PlonkOracle::CONSTANTS_SIGMAS.blinding,
+            },
+            FriOracleInfo {
+                num_polys: self.config.num_wires,
+                blinding: PlonkOracle::WIRES.blinding,
+            },
+            FriOracleInfo {
+                num_polys: self.num_zs_partial_products_polys() + self.num_all_lookup_polys(),
+                blinding: PlonkOracle::ZS_PARTIAL_PRODUCTS.blinding,
+            },
+            FriOracleInfo {
+                num_polys: self.num_quotient_polys(),
+                blinding: PlonkOracle::QUOTIENT.blinding,
+            },
         ]
-        .into_iter()
-        .map(|oracle| FriOracleInfo {
-            num_polys: self.fri_oracle_layouts[oracle.index].logical_polys,
-            blinding: oracle.blinding,
-        })
-        .collect()
     }
 
     pub(crate) const fn num_preprocessed_polys(&self) -> usize {
@@ -788,17 +777,12 @@ mod tests {
     use std::sync::Arc;
 
     use itertools::Itertools;
-    use qp_plonky2_core::ZkMode;
 
     use super::{CircuitConfig, CommonCircuitData};
-    use crate::field::extension::Extendable;
     use crate::field::types::Field;
-    use crate::fri::structure::{FriCoefficient, FriOpeningExpression, FriOracleRepresentation};
-    use crate::fri::FriFinalPolyLayout;
     use crate::gates::lookup::LookupGate;
     use crate::gates::lookup_table::LookupTable;
     use crate::gates::noop::NoopGate;
-    use crate::hash::hash_types::RichField;
     use crate::plonk::circuit_builder::CircuitBuilder;
     use crate::plonk::config::{GenericConfig, PoseidonGoldilocksConfig};
     use crate::util::partial_products::num_partial_products;
@@ -806,14 +790,6 @@ mod tests {
     const D: usize = 2;
     type C = PoseidonGoldilocksConfig;
     type F = <C as GenericConfig<D>>::F;
-
-    fn permutation_effective_degree(uses_poly_fri: bool, chunk_degree: usize) -> usize {
-        chunk_degree + usize::from(uses_poly_fri)
-    }
-
-    fn lookup_effective_degree(uses_poly_fri: bool, chunk_degree: usize) -> usize {
-        chunk_degree + 1 + usize::from(uses_poly_fri)
-    }
 
     fn build_common(config: CircuitConfig) -> CommonCircuitData<F, D> {
         let mut builder = CircuitBuilder::<F, D>::new(config);
@@ -830,22 +806,8 @@ mod tests {
         builder.build::<C>().common
     }
 
-    fn assert_raw_opening_expression<F: RichField + Extendable<D>, const D: usize>(
-        expression: &FriOpeningExpression<F, D>,
-    ) {
-        assert_eq!(
-            expression.terms.len(),
-            1,
-            "PolyFri public openings must stay in logical form"
-        );
-        assert!(matches!(
-            &expression.terms[0].coefficient,
-            FriCoefficient::One
-        ));
-    }
-
     #[test]
-    fn permutation_partial_product_degree_disabled_boundary() {
+    fn permutation_partial_product_degree_boundary() {
         let common = build_common(CircuitConfig::standard_recursion_config());
         let degree = common.permutation_partial_product_degree();
 
@@ -854,38 +816,10 @@ mod tests {
             common.num_partial_products,
             num_partial_products(common.config.num_routed_wires, degree)
         );
-        assert_eq!(
-            permutation_effective_degree(false, degree),
-            common.quotient_degree_factor,
-        );
-        assert!(
-            permutation_effective_degree(false, degree + 1) > common.quotient_degree_factor,
-            "raising the permutation chunk degree by one would exceed the quotient degree bound",
-        );
     }
 
     #[test]
-    fn permutation_partial_product_degree_polyfri_boundary() {
-        let common = build_common(CircuitConfig::standard_recursion_polyfri_zk_config());
-        let degree = common.permutation_partial_product_degree();
-
-        assert_eq!(degree, common.quotient_degree_factor - 1);
-        assert_eq!(
-            common.num_partial_products,
-            num_partial_products(common.config.num_routed_wires, degree)
-        );
-        assert_eq!(
-            permutation_effective_degree(true, degree),
-            common.quotient_degree_factor,
-        );
-        assert!(
-            permutation_effective_degree(true, degree + 1) > common.quotient_degree_factor,
-            "raising the masked permutation chunk degree by one would exceed the quotient degree bound",
-        );
-    }
-
-    #[test]
-    fn lookup_accumulator_degree_disabled_boundary() {
+    fn lookup_accumulator_degree_boundary() {
         let common = build_lookup_common(CircuitConfig::standard_recursion_config());
         let degree = common.lookup_accumulator_degree();
 
@@ -895,79 +829,10 @@ mod tests {
             common.num_lookup_polys,
             LookupGate::num_slots(&common.config).div_ceil(degree) + 1,
         );
-        assert_eq!(
-            lookup_effective_degree(false, degree),
-            common.quotient_degree_factor
-        );
-        assert!(
-            lookup_effective_degree(false, degree + 1) > common.quotient_degree_factor,
-            "raising the lookup accumulator degree by one would exceed the quotient degree bound",
-        );
     }
 
     #[test]
-    fn lookup_accumulator_degree_polyfri_boundary() {
-        let common = build_lookup_common(CircuitConfig::standard_recursion_polyfri_zk_config());
-        let degree = common.lookup_accumulator_degree();
-
-        assert!(common.num_lookup_polys > 0);
-        assert_eq!(degree, common.quotient_degree_factor - 2);
-        assert_eq!(
-            common.num_lookup_polys,
-            LookupGate::num_slots(&common.config).div_ceil(degree) + 1,
-        );
-        assert_eq!(
-            lookup_effective_degree(true, degree),
-            common.quotient_degree_factor
-        );
-        assert!(
-            lookup_effective_degree(true, degree + 1) > common.quotient_degree_factor,
-            "raising the masked lookup accumulator degree by one would exceed the quotient degree bound",
-        );
-    }
-
-    #[test]
-    #[should_panic(expected = "Invalid PolyFri config: `wire_mask_degree`")]
-    fn polyfri_wire_mask_degree_is_validated_up_front() {
-        let mut config = CircuitConfig::standard_recursion_polyfri_zk_config();
-        if let ZkMode::PolyFri(poly_fri) = &mut config.zk_config.mode {
-            poly_fri.wire_mask_degree = usize::MAX;
-        }
-        let _ = build_common(config);
-    }
-
-    #[test]
-    #[should_panic(expected = "Invalid PolyFri config: `fri_batch_mask_degree`")]
-    fn polyfri_batch_mask_degree_is_validated_up_front() {
-        let mut config = CircuitConfig::standard_recursion_polyfri_zk_config();
-        if let ZkMode::PolyFri(poly_fri) = &mut config.zk_config.mode {
-            poly_fri.fri_batch_mask_degree = usize::MAX;
-        }
-        let _ = build_common(config);
-    }
-
-    #[test]
-    #[should_panic(
-        expected = "Invalid PolyFri config: `max_quotient_degree_factor` must be at least 2"
-    )]
-    fn polyfri_permutation_budget_is_validated_up_front() {
-        let mut config = CircuitConfig::standard_recursion_polyfri_zk_config();
-        config.max_quotient_degree_factor = 1;
-        let _ = build_common(config);
-    }
-
-    #[test]
-    #[should_panic(
-        expected = "Invalid PolyFri config: `max_quotient_degree_factor` must be at least 3 when lookups are enabled"
-    )]
-    fn polyfri_lookup_budget_is_validated_up_front() {
-        let mut config = CircuitConfig::standard_recursion_polyfri_zk_config();
-        config.max_quotient_degree_factor = 2;
-        let _ = build_lookup_common(config);
-    }
-
-    #[test]
-    fn row_blinding_uses_legacy_degree_budgets() {
+    fn row_blinding_uses_same_degree_budgets() {
         let common = build_lookup_common(CircuitConfig::standard_recursion_zk_config());
 
         assert_eq!(
@@ -981,76 +846,13 @@ mod tests {
     }
 
     #[test]
-    fn row_blinding_keeps_raw_layouts_but_adds_builder_rows() {
+    fn row_blinding_adds_builder_rows() {
         let disabled = build_common(CircuitConfig::standard_recursion_config());
         let row_blinding = build_common(CircuitConfig::standard_recursion_zk_config());
-        let polyfri = build_common(CircuitConfig::standard_recursion_polyfri_zk_config());
 
-        assert_eq!(disabled.degree(), polyfri.degree());
         assert!(
             row_blinding.degree() > disabled.degree(),
             "legacy row blinding should append witness rows before final padding",
         );
-
-        assert_eq!(
-            row_blinding.fri_oracle_layouts[1].representation,
-            FriOracleRepresentation::Raw,
-        );
-        assert_eq!(
-            row_blinding.fri_oracle_layouts[2].representation,
-            FriOracleRepresentation::Raw,
-        );
-        assert_eq!(row_blinding.fri_params.batch_masking, None);
-        assert_eq!(
-            row_blinding.fri_params.final_poly_layout,
-            FriFinalPolyLayout::Single
-        );
-
-        assert!(matches!(
-            polyfri.fri_oracle_layouts[1].representation,
-            FriOracleRepresentation::Raw
-        ));
-        assert!(matches!(
-            polyfri.fri_oracle_layouts[2].representation,
-            FriOracleRepresentation::Raw
-        ));
-        assert_eq!(
-            polyfri.fri_oracle_layouts[1].raw_polys, polyfri.fri_oracle_layouts[1].logical_polys,
-            "PolyFri wires must expose only logical polynomials"
-        );
-        assert_eq!(
-            polyfri.fri_oracle_layouts[2].raw_polys, polyfri.fri_oracle_layouts[2].logical_polys,
-            "PolyFri permutation/lookup oracles must expose only logical polynomials"
-        );
-        assert!(polyfri.fri_params.batch_masking.is_some());
-        assert!(matches!(
-            polyfri.fri_params.final_poly_layout,
-            FriFinalPolyLayout::Split { .. }
-        ));
-    }
-
-    #[test]
-    fn polyfri_fri_instance_uses_raw_logical_openings() {
-        let common = build_lookup_common(CircuitConfig::standard_recursion_polyfri_zk_config());
-        let all_openings = common.fri_all_openings();
-        let wire_openings = common.fri_wire_openings();
-        let zs_openings = common.fri_zs_partial_products_openings();
-
-        assert!(matches!(
-            common.fri_oracle_layouts[1].representation,
-            FriOracleRepresentation::Raw
-        ));
-        assert!(matches!(
-            common.fri_oracle_layouts[2].representation,
-            FriOracleRepresentation::Raw
-        ));
-
-        for opening in all_openings
-            .iter()
-            .chain(wire_openings.iter())
-            .chain(zs_openings.iter())
-        {
-            assert_raw_opening_expression(opening);
-        }
     }
 }

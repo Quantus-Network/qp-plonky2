@@ -21,77 +21,23 @@ where
 {
     witness.set_target(fri_proof_target.pow_witness, fri_proof.pow_witness)?;
 
-    match (
-        &fri_proof_target.batch_mask_proof,
-        &fri_proof.batch_mask_proof,
-    ) {
-        (Some(target_mask_proof), Some(mask_proof)) => {
-            witness.set_cap_target(&target_mask_proof.cap, &mask_proof.cap)?;
-            for (target_query, query) in target_mask_proof
-                .query_openings
-                .iter()
-                .zip_eq(&mask_proof.query_openings)
-            {
-                witness.set_extension_targets(&target_query.values, &query.values)?;
-
-                let target_len = target_query.merkle_proof.siblings.len();
-                let siblings_len = query.merkle_proof.siblings.len();
-                if target_len < siblings_len {
-                    return Err(anyhow!(
-                        "fri_proof->batch_mask_proof->query_openings->merkle_proof target length is less than the proof length"
-                    ));
-                }
-                for i in 0..siblings_len {
-                    witness.set_hash_target(
-                        target_query.merkle_proof.siblings[i],
-                        query.merkle_proof.siblings[i],
-                    )?;
-                }
-                for i in siblings_len..target_len {
-                    witness
-                        .set_hash_target(target_query.merkle_proof.siblings[i], HashOut::ZERO)?;
-                }
-            }
-        }
-        (None, None) => {}
-        (Some(_), None) => {
-            return Err(anyhow!(
-                "recursive FRI targets expect a batch-mask proof but the proof is missing it"
-            ))
-        }
-        (None, Some(_)) => {
-            return Err(anyhow!(
-                "recursive FRI targets are missing batch-mask targets for a masked proof"
-            ))
-        }
-    }
-
-    if fri_proof_target.final_polys.chunks.len() != fri_proof.final_polys.chunks.len() {
+    // Set final polynomial coefficients
+    let target_len = fri_proof_target.final_poly.coeffs.0.len();
+    let coeffs_len = fri_proof.final_poly.coeffs.len();
+    if target_len < coeffs_len {
         return Err(anyhow!(
-            "recursive FRI targets expect {} final polynomial chunks but the proof has {}",
-            fri_proof_target.final_polys.chunks.len(),
-            fri_proof.final_polys.chunks.len(),
+            "fri_proof->final_poly target length is less than the proof length"
         ));
     }
-    for (target_chunk, proof_chunk) in fri_proof_target
-        .final_polys
-        .chunks
-        .iter()
-        .zip_eq(&fri_proof.final_polys.chunks)
-    {
-        let target_len = target_chunk.0.len();
-        let coeffs_len = proof_chunk.coeffs.len();
-        if target_len < coeffs_len {
-            return Err(anyhow!(
-                "fri_proof->final_polys chunk target length is less than the proof length"
-            ));
-        }
-        for i in 0..coeffs_len {
-            witness.set_extension_target(target_chunk.0[i], proof_chunk.coeffs[i])?;
-        }
-        for i in coeffs_len..target_len {
-            witness.set_extension_target(target_chunk.0[i], F::Extension::ZERO)?;
-        }
+    for i in 0..coeffs_len {
+        witness.set_extension_target(
+            fri_proof_target.final_poly.coeffs.0[i],
+            fri_proof.final_poly.coeffs.coeffs[i],
+        )?;
+    }
+    for i in coeffs_len..target_len {
+        witness
+            .set_extension_target(fri_proof_target.final_poly.coeffs.0[i], F::Extension::ZERO)?;
     }
 
     let target_caps = &fri_proof_target.commit_phase_merkle_caps;
