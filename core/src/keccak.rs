@@ -117,6 +117,20 @@ impl<F: RichField, const N: usize> Hasher<F> for KeccakHash<N> {
         BytesHash(arr)
     }
 
+    fn hash_leaf(input: &[F]) -> Self::Hash {
+        // Domain-separated leaf hash: prefix with 0x00 byte to distinguish from
+        // internal nodes (two_to_one concatenates raw hash bytes without prefix).
+        let mut buffer = Vec::with_capacity(1 + input.len() * 8);
+        buffer.push(0x00); // Leaf domain separator
+        for f in input {
+            buffer.extend_from_slice(&f.to_canonical_u64().to_le_bytes());
+        }
+        let mut arr = [0; N];
+        let hash_bytes = keccak(buffer).0;
+        arr.copy_from_slice(&hash_bytes[..N]);
+        BytesHash(arr)
+    }
+
     fn two_to_one(left: Self::Hash, right: Self::Hash) -> Self::Hash {
         Self::hash_no_pad(&merkle_node_hash_input::<F, Self>(left, right))
     }

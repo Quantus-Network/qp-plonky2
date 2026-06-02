@@ -73,7 +73,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     ) {
         debug_assert!(H::AlgebraicPermutation::RATE >= NUM_HASH_OUT_ELTS);
 
-        let mut state: HashOutTarget = H::hash_merkle_leaf_circuit(self, leaf_data);
+        let mut state: HashOutTarget = self.hash_leaf::<H>(leaf_data);
         debug_assert_eq!(state.elements.len(), NUM_HASH_OUT_ELTS);
 
         for (&bit, &sibling) in leaf_index_bits.iter().zip(&proof.siblings) {
@@ -106,7 +106,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     ) {
         debug_assert!(H::AlgebraicPermutation::RATE >= NUM_HASH_OUT_ELTS);
 
-        let mut state: HashOutTarget = H::hash_merkle_leaf_circuit(self, leaf_data);
+        let mut state: HashOutTarget = self.hash_leaf::<H>(leaf_data);
         debug_assert_eq!(state.elements.len(), NUM_HASH_OUT_ELTS);
 
         let num_log_n = log_n_range.clone().count();
@@ -149,7 +149,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     ) {
         debug_assert!(H::AlgebraicPermutation::RATE >= NUM_HASH_OUT_ELTS);
 
-        let mut state: HashOutTarget = H::hash_merkle_leaf_circuit(self, leaf_data[0].clone());
+        let mut state: HashOutTarget = self.hash_leaf::<H>(leaf_data[0].clone());
         debug_assert_eq!(state.elements.len(), NUM_HASH_OUT_ELTS);
 
         let mut current_height = leaf_heights[0];
@@ -165,7 +165,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             {
                 let mut new_leaves = state.elements.to_vec();
                 new_leaves.extend_from_slice(&leaf_data[leaf_data_index]);
-                state = H::hash_merkle_leaf_circuit(self, new_leaves);
+                state = self.hash_leaf::<H>(new_leaves);
 
                 leaf_data_index += 1;
             }
