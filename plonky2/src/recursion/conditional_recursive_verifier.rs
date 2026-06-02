@@ -5,7 +5,7 @@ use itertools::Itertools;
 
 use crate::field::extension::Extendable;
 use crate::fri::proof::{
-    FriFinalPolysTarget, FriInitialTreeProofTarget, FriProofTarget, FriQueryRoundTarget,
+    FriFinalPolyTarget, FriInitialTreeProofTarget, FriProofTarget, FriQueryRoundTarget,
     FriQueryStepTarget,
 };
 use crate::hash::hash_types::{HashOutTarget, MerkleCapTarget, RichField};
@@ -247,9 +247,9 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     fn select_final_poly(
         &mut self,
         b: BoolTarget,
-        poly0: &FriFinalPolysTarget<D>,
-        poly1: &FriFinalPolysTarget<D>,
-    ) -> FriFinalPolysTarget<D> {
+        poly0: &FriFinalPolyTarget<D>,
+        poly1: &FriFinalPolyTarget<D>,
+    ) -> FriFinalPolyTarget<D> {
         crate::gadgets::polynomial::PolynomialCoeffsExtTarget(
             self.select_vec_ext(b, &poly0.0, &poly1.0),
         )

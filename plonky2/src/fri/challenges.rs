@@ -7,7 +7,7 @@
 pub use qp_plonky2_core::FriChallenger;
 
 use crate::field::extension::Extendable;
-use crate::fri::proof::{FriChallengesTarget, FriFinalPolysTarget};
+use crate::fri::proof::{FriChallengesTarget, FriFinalPolyTarget};
 use crate::fri::structure::FriOpeningsTarget;
 use crate::fri::FriConfig;
 use crate::hash::hash_types::{MerkleCapTarget, RichField};
@@ -29,7 +29,7 @@ impl<F: RichField + Extendable<D>, H: AlgebraicHasher<F>, const D: usize>
         &mut self,
         builder: &mut CircuitBuilder<F, D>,
         commit_phase_merkle_caps: &[MerkleCapTarget],
-        final_poly: &FriFinalPolysTarget<D>,
+        final_poly: &FriFinalPolyTarget<D>,
         pow_witness: Target,
         inner_fri_config: &FriConfig,
     ) -> FriChallengesTarget<D> {

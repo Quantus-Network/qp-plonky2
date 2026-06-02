@@ -6,7 +6,7 @@ use itertools::Itertools;
 
 use crate::field::extension::Extendable;
 use crate::fri::proof::{
-    FriChallengesTarget, FriFinalPolysTarget, FriInitialTreeProofTarget, FriProofTarget,
+    FriChallengesTarget, FriFinalPolyTarget, FriInitialTreeProofTarget, FriProofTarget,
     FriQueryRoundTarget, FriQueryStepTarget,
 };
 use crate::fri::structure::{
@@ -412,7 +412,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
 
     pub(crate) fn eval_final_poly_at_point_target(
         &mut self,
-        final_poly: &FriFinalPolysTarget<D>,
+        final_poly: &FriFinalPolyTarget<D>,
         point: ExtensionTarget<D>,
     ) -> ExtensionTarget<D> {
         final_poly.eval(self, point)

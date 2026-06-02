@@ -7,7 +7,7 @@ use super::circuit_builder::NUM_COINS_LOOKUP;
 use crate::field::extension::Extendable;
 use crate::field::polynomial::PolynomialCoeffs;
 use crate::fri::proof::{
-    CompressedFriProof, FriChallenges, FriFinalPolysTarget, FriProof, FriProofTarget,
+    CompressedFriProof, FriChallenges, FriFinalPolyTarget, FriProof, FriProofTarget,
 };
 use crate::fri::verifier::{compute_evaluation, fri_combine_initial, PrecomputedReducedOpenings};
 use crate::fri::{FriChallenger, FriParamsObserve, FriParamsObserveTarget};
@@ -270,7 +270,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         quotient_polys_cap: &MerkleCapTarget,
         openings: &OpeningSetTarget<D>,
         commit_phase_merkle_caps: &[MerkleCapTarget],
-        final_poly: &FriFinalPolysTarget<D>,
+        final_poly: &FriFinalPolyTarget<D>,
         pow_witness: Target,
         inner_circuit_digest: HashOutTarget,
         inner_common_data: &CommonCircuitData<F, D>,

@@ -5,7 +5,7 @@ use core::cmp::min;
 use plonky2::field::extension::Extendable;
 use plonky2::field::polynomial::PolynomialCoeffs;
 use plonky2::field::types::Field;
-use plonky2::fri::proof::{FriFinalPolysTarget, FriProof, FriProofTarget};
+use plonky2::fri::proof::{FriFinalPolyTarget, FriProof, FriProofTarget};
 use plonky2::fri::prover::final_poly_coeff_len;
 use plonky2::fri::{FriChallenger, FriParams};
 use plonky2::hash::hash_types::{MerkleCapTarget, RichField};
@@ -369,7 +369,7 @@ fn get_challenges_target<F, C, S: Stark<F, D>, const D: usize>(
     ctl_vars: Option<&[CtlCheckVarsTarget<F, D>]>,
     openings: &StarkOpeningSetTarget<D>,
     commit_phase_merkle_caps: &[MerkleCapTarget],
-    final_poly: &FriFinalPolysTarget<D>,
+    final_poly: &FriFinalPolyTarget<D>,
     pow_witness: Target,
     degree_bits: usize,
     degree_bits_target: Target,

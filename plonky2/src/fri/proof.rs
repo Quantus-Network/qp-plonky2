@@ -28,9 +28,6 @@ pub struct FriQueryStepTarget<const D: usize> {
 }
 
 /// Target version of FriInitialTreeProof for circuit building.
-///
-/// In PolyFri mode these leaves are the public logical openings that the verifier authenticates;
-/// any prover-private split representation must be collapsed before it reaches this target.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FriInitialTreeProofTarget {
     pub evals_proofs: Vec<(Vec<Target>, MerkleProofTarget)>,
@@ -60,14 +57,14 @@ pub struct FriQueryRoundTarget<const D: usize> {
 }
 
 /// Target version of the disclosed final polynomial coefficients.
-pub type FriFinalPolysTarget<const D: usize> = PolynomialCoeffsExtTarget<D>;
+pub type FriFinalPolyTarget<const D: usize> = PolynomialCoeffsExtTarget<D>;
 
 /// Target version of FriProof for circuit building.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FriProofTarget<const D: usize> {
     pub commit_phase_merkle_caps: Vec<MerkleCapTarget>,
     pub query_round_proofs: Vec<FriQueryRoundTarget<D>>,
-    pub final_poly: FriFinalPolysTarget<D>,
+    pub final_poly: FriFinalPolyTarget<D>,
     pub pow_witness: Target,
 }
 

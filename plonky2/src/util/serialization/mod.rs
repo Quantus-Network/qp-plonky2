@@ -695,14 +695,7 @@ pub trait Read {
         let num_challenges = self.read_usize()?;
         let max_quotient_degree_factor = self.read_usize()?;
         let use_base_arithmetic_gate = self.read_bool()?;
-        // Read legacy zk_config format for backward compatibility
-        let zero_knowledge = match self.read_u8()? {
-            0 => false,               // Disabled
-            1 => return Err(IoError), // PolyFri was removed
-            2 => true,                // RowBlinding -> zero_knowledge = true
-            _ => return Err(IoError),
-        };
-        let _leaf_hiding = self.read_bool()?; // Read but ignore - now tied to zero_knowledge
+        let zero_knowledge = self.read_bool()?;
         let fri_config = self.read_fri_config()?;
 
         let config = CircuitConfig {
@@ -1771,13 +1764,7 @@ pub trait Write {
         self.write_usize(*num_challenges)?;
         self.write_usize(*max_quotient_degree_factor)?;
         self.write_bool(*use_base_arithmetic_gate)?;
-        // Write legacy zk_config format for backward compatibility
-        if *zero_knowledge {
-            self.write_u8(2)?; // RowBlinding
-        } else {
-            self.write_u8(0)?; // Disabled
-        }
-        self.write_bool(*zero_knowledge)?; // leaf_hiding = zero_knowledge
+        self.write_bool(*zero_knowledge)?;
         self.write_fri_config(fri_config)?;
 
         Ok(())
