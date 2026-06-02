@@ -31,9 +31,6 @@ use crate::plonk::plonk_common::PlonkOracle;
 use crate::plonk::proof::{OpeningSet, Proof, ProofWithPublicInputs};
 use crate::plonk::vanishing_poly::{eval_vanishing_poly_base_batch, get_lut_poly};
 use crate::plonk::vars::EvaluationVarsBaseBatch;
-use crate::plonk::zk::{
-    commit_coeffs_with_split_mask, commit_values_with_split_mask, LogicalPolynomialBatch,
-};
 use crate::timed;
 use crate::util::partial_products::{partial_products_and_z_gx, quotient_chunk_products};
 use crate::util::timing::TimingTree;
@@ -207,10 +204,8 @@ where
     let wires_commitment = timed!(
         timing,
         "compute wires commitment",
-        commit_values_with_split_mask::<F, C, D>(
+        PolynomialBatch::<F, C, D>::from_values(
             wires_values,
-            None, // No PolyFri masking
-            Some(common_data.public_initial_degree()),
             config.fri_config.rate_bits,
             config.zero_knowledge && PlonkOracle::WIRES.blinding,
             config.fri_config.cap_height,
@@ -228,7 +223,7 @@ where
     challenger.observe_hash::<C::Hasher>(prover_data.circuit_digest);
     challenger.observe_hash::<C::InnerHasher>(public_inputs_hash);
 
-    challenger.observe_cap::<C::Hasher>(&wires_commitment.raw.merkle_tree.cap);
+    challenger.observe_cap::<C::Hasher>(&wires_commitment.merkle_tree.cap);
 
     // We need 4 values per challenge: 2 for the combos, 1 for (X-combo) in the accumulators and 1 to prove that the lookup table was computed correctly.
     // We can reuse betas and gammas for two of them.
@@ -279,10 +274,8 @@ where
     let partial_products_zs_and_lookup_commitment = timed!(
         timing,
         "commit to partial products, Z's and, if any, lookup polynomials",
-        commit_values_with_split_mask::<F, C, D>(
+        PolynomialBatch::<F, C, D>::from_values(
             zs_partial_products_lookups,
-            None, // No PolyFri masking
-            Some(common_data.public_initial_degree()),
             config.fri_config.rate_bits,
             config.zero_knowledge && PlonkOracle::ZS_PARTIAL_PRODUCTS.blinding,
             config.fri_config.cap_height,
@@ -292,10 +285,7 @@ where
     );
 
     challenger.observe_cap::<C::Hasher>(
-        &partial_products_zs_and_lookup_commitment
-            .raw
-            .merkle_tree
-            .cap,
+        &partial_products_zs_and_lookup_commitment.merkle_tree.cap,
     );
 
     let alphas = challenger.get_n_challenges(num_challenges);
@@ -331,15 +321,11 @@ where
             .collect()
     );
 
-    // Quotient chunks stay on the raw path - their opened values are fully determined by other
-    // openings, so ZK for that contribution comes from the Phase-2 FRI batch mask instead.
     let quotient_polys_commitment = timed!(
         timing,
         "commit to quotient polys",
-        commit_coeffs_with_split_mask::<F, C, D>(
+        PolynomialBatch::<F, C, D>::from_coeffs(
             all_quotient_poly_chunks,
-            None,
-            Some(common_data.public_initial_degree()),
             config.fri_config.rate_bits,
             config.zero_knowledge && PlonkOracle::QUOTIENT.blinding,
             config.fri_config.cap_height,
@@ -348,7 +334,7 @@ where
         )
     );
 
-    challenger.observe_cap::<C::Hasher>(&quotient_polys_commitment.raw.merkle_tree.cap);
+    challenger.observe_cap::<C::Hasher>(&quotient_polys_commitment.merkle_tree.cap);
 
     let zeta = challenger.get_extension_challenge::<D>();
     // To avoid leaking witness data, we want to ensure that our opening locations, `zeta` and
@@ -383,9 +369,9 @@ where
             &instance,
             &[
                 &prover_data.constants_sigmas_commitment,
-                &wires_commitment.raw,
-                &partial_products_zs_and_lookup_commitment.raw,
-                &quotient_polys_commitment.raw,
+                &wires_commitment,
+                &partial_products_zs_and_lookup_commitment,
+                &quotient_polys_commitment,
             ],
             &mut challenger,
             &common_data.fri_params,
@@ -396,12 +382,11 @@ where
     );
 
     let proof = Proof::<F, C, D> {
-        wires_cap: wires_commitment.raw.merkle_tree.cap,
+        wires_cap: wires_commitment.merkle_tree.cap,
         plonk_zs_partial_products_cap: partial_products_zs_and_lookup_commitment
-            .raw
             .merkle_tree
             .cap,
-        quotient_polys_cap: quotient_polys_commitment.raw.merkle_tree.cap,
+        quotient_polys_cap: quotient_polys_commitment.merkle_tree.cap,
         openings,
         opening_proof,
     };
@@ -665,8 +650,8 @@ fn compute_quotient_polys<
     common_data: &CommonCircuitData<F, D>,
     prover_data: &'a ProverOnlyCircuitData<F, C, D>,
     public_inputs_hash: &<<C as GenericConfig<D>>::InnerHasher as Hasher<F>>::Hash,
-    wires_commitment: &'a LogicalPolynomialBatch<F, C, D>,
-    zs_partial_products_and_lookup_commitment: &'a LogicalPolynomialBatch<F, C, D>,
+    wires_commitment: &'a PolynomialBatch<F, C, D>,
+    zs_partial_products_and_lookup_commitment: &'a PolynomialBatch<F, C, D>,
     betas: &[F],
     gammas: &[F],
     deltas: &[F],
@@ -767,17 +752,16 @@ fn compute_quotient_polys<
             for (&i, &x) in indices_batch.iter().zip(xs_batch) {
                 let shifted_x = F::coset_shift() * x;
                 let i_next = (i + next_step) % lde_size;
-                let shifted_x_next = F::coset_shift() * points[i_next];
                 let local_constants_sigmas = prover_data
                     .constants_sigmas_commitment
                     .get_lde_values(i, step);
                 let local_constants = &local_constants_sigmas[common_data.constants_range()];
                 let s_sigmas = &local_constants_sigmas[common_data.sigmas_range()];
-                let local_wires = wires_commitment.get_lde_values(i, step, shifted_x);
+                let local_wires = wires_commitment.get_lde_values(i, step);
                 let local_zs_partial_and_lookup =
-                    zs_partial_products_and_lookup_commitment.get_lde_values(i, step, shifted_x);
-                let next_zs_partial_and_lookup = zs_partial_products_and_lookup_commitment
-                    .get_lde_values(i_next, step, shifted_x_next);
+                    zs_partial_products_and_lookup_commitment.get_lde_values(i, step);
+                let next_zs_partial_and_lookup =
+                    zs_partial_products_and_lookup_commitment.get_lde_values(i_next, step);
 
                 let local_zs = &local_zs_partial_and_lookup[common_data.zs_range()];
 
