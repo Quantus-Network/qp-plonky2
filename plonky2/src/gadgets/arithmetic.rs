@@ -255,6 +255,12 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         let num_power_bits = gate.num_power_bits;
         let mut exp_bits_vec: Vec<BoolTarget> =
             exponent_bits.into_iter().map(|b| *b.borrow()).collect();
+        assert!(
+            exp_bits_vec.len() <= num_power_bits,
+            "exponent bit length {} exceeds ExponentiationGate capacity {}",
+            exp_bits_vec.len(),
+            num_power_bits
+        );
         while exp_bits_vec.len() < num_power_bits {
             exp_bits_vec.push(_false);
         }

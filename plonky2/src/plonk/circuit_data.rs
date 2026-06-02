@@ -49,6 +49,7 @@ use crate::plonk::plonk_common::PlonkOracle;
 use crate::plonk::proof::{CompressedProofWithPublicInputs, ProofWithPublicInputs};
 use crate::plonk::prover::prove;
 use crate::plonk::verifier::verify;
+use crate::util::log2_ceil;
 use crate::util::serialization::{
     Buffer, GateSerializer, IoResult, Read, WitnessGeneratorSerializer, Write,
 };
@@ -465,6 +466,31 @@ pub struct CommonCircuitData<F: RichField + Extendable<D>, const D: usize> {
 }
 
 impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
+    /// Validate invariants required by the prover.
+    ///
+    /// This checks that degree parameters are consistent and within bounds.
+    pub fn check_valid(&self) -> Result<(), &'static str> {
+        self.config.check_valid()?;
+
+        // Quotient degree must fit within FRI rate.
+        let quotient_degree_bits = log2_ceil(self.quotient_degree_factor);
+        if quotient_degree_bits > self.config.fri_config.rate_bits {
+            return Err("quotient_degree_factor exceeds FRI rate_bits");
+        }
+
+        // Public initial degree must be at least as large as trace degree.
+        if self.public_initial_degree_bits < self.trace_degree_bits {
+            return Err("public_initial_degree_bits must be >= trace_degree_bits");
+        }
+
+        // All lookup tables must be non-empty.
+        if self.luts.iter().any(|lut| lut.is_empty()) {
+            return Err("lookup table is empty");
+        }
+
+        Ok(())
+    }
+
     pub fn to_bytes(&self, gate_serializer: &dyn GateSerializer<F, D>) -> IoResult<Vec<u8>> {
         let mut buffer = Vec::new();
         buffer.write_common_circuit_data(self, gate_serializer)?;
@@ -497,6 +523,21 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
     /// LDE size of the public initial codeword used by masked phase-1 oracles.
     pub const fn public_initial_lde_size(&self) -> usize {
         self.public_initial_degree() << self.config.fri_config.rate_bits
+    }
+
+    /// Number of FFT points precomputed for the largest PolyFri masked logical commitment.
+    ///
+    /// Returns `None` when the degree parameters overflow `usize`, so deserialization can reject
+    /// malformed circuit data instead of panicking.
+    pub fn max_fft_points(&self) -> Option<usize> {
+        let max_fft_degree_bits = self.degree_bits().max(self.public_initial_degree_bits());
+        let fft_extra_bits = self
+            .config
+            .fri_config
+            .rate_bits
+            .max(log2_ceil(self.quotient_degree_factor));
+        let fft_bits = max_fft_degree_bits.checked_add(fft_extra_bits)?;
+        1usize.checked_shl(fft_bits as u32)
     }
 
     pub const fn degree(&self) -> usize {

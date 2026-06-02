@@ -150,13 +150,17 @@ impl<F: RichField + Extendable<D>, const D: usize> CosetInterpolationGate<F, D> 
 
     /// End of wire indices, exclusive.
     const fn end(&self) -> usize {
-        self.start_intermediates() + D * (2 * self.num_intermediates() + 1)
+        self.wire_shift_inverse() + 1
     }
 
     /// Wire indices of the shifted point to evaluate the interpolant at.
     const fn wires_shifted_evaluation_point(&self) -> Range<usize> {
         let start = self.start_intermediates() + D * 2 * self.num_intermediates();
         start..start + D
+    }
+
+    const fn wire_shift_inverse(&self) -> usize {
+        self.start_intermediates() + D * (2 * self.num_intermediates() + 1)
     }
 }
 
@@ -191,9 +195,11 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D>
         let mut constraints = Vec::with_capacity(self.num_constraints());
 
         let shift = vars.local_wires[self.wire_shift()];
+        let shift_inverse = vars.local_wires[self.wire_shift_inverse()];
         let evaluation_point = vars.get_local_ext_algebra(self.wires_evaluation_point());
         let shifted_evaluation_point =
             vars.get_local_ext_algebra(self.wires_shifted_evaluation_point());
+        constraints.push(shift * shift_inverse - F::Extension::ONE);
         constraints.extend(
             (evaluation_point - shifted_evaluation_point.scalar_mul(shift)).to_basefield_array(),
         );
@@ -243,8 +249,10 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D>
         mut yield_constr: StridedConstraintConsumer<F>,
     ) {
         let shift = vars.local_wires[self.wire_shift()];
+        let shift_inverse = vars.local_wires[self.wire_shift_inverse()];
         let evaluation_point = vars.get_local_ext(self.wires_evaluation_point());
         let shifted_evaluation_point = vars.get_local_ext(self.wires_shifted_evaluation_point());
+        yield_constr.one(shift * shift_inverse - F::ONE);
         yield_constr.many(
             (evaluation_point - shifted_evaluation_point.scalar_mul(shift)).to_basefield_array(),
         );
@@ -301,7 +309,7 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D>
     fn num_constraints(&self) -> usize {
         // D constraints to check for consistency of the shifted evaluation point, plus D
         // constraints for the evaluation value.
-        D + D + 2 * D * self.num_intermediates()
+        1 + D + D + 2 * D * self.num_intermediates()
     }
 }
 
@@ -389,4 +397,26 @@ fn partial_interpolate_ext_algebra<F: OEF<D>, const D: usize>(
             (next_eval, next_terms_partial_prod)
         },
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use plonky2_field::goldilocks_field::GoldilocksField;
+
+    use super::*;
+
+    #[test]
+    fn test_num_wires_constraints() {
+        let gate = <CosetInterpolationGate<GoldilocksField, 2>>::with_max_degree(4, 8);
+        assert_eq!(gate.num_wires(), 48);
+        assert_eq!(gate.num_constraints(), 13);
+
+        let gate = <CosetInterpolationGate<GoldilocksField, 2>>::with_max_degree(3, 8);
+        assert_eq!(gate.num_wires(), 24);
+        assert_eq!(gate.num_constraints(), 5);
+
+        let gate = <CosetInterpolationGate<GoldilocksField, 2>>::with_max_degree(4, 16);
+        assert_eq!(gate.num_wires(), 40);
+        assert_eq!(gate.num_constraints(), 5);
+    }
 }

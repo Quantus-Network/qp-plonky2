@@ -8,7 +8,7 @@ use alloc::{
 use core::marker::PhantomData;
 use core::ops::Range;
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 
 use crate::field::extension::algebra::ExtensionAlgebra;
 use crate::field::extension::{Extendable, FieldExtension, OEF};
@@ -163,13 +163,17 @@ impl<F: RichField + Extendable<D>, const D: usize> CosetInterpolationGate<F, D> 
 
     /// End of wire indices, exclusive.
     const fn end(&self) -> usize {
-        self.start_intermediates() + D * (2 * self.num_intermediates() + 1)
+        self.wire_shift_inverse() + 1
     }
 
     /// Wire indices of the shifted point to evaluate the interpolant at.
     const fn wires_shifted_evaluation_point(&self) -> Range<usize> {
         let start = self.start_intermediates() + D * 2 * self.num_intermediates();
         start..start + D
+    }
+
+    const fn wire_shift_inverse(&self) -> usize {
+        self.start_intermediates() + D * (2 * self.num_intermediates() + 1)
     }
 }
 
@@ -202,9 +206,11 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for CosetInterpola
         let mut constraints = Vec::with_capacity(self.num_constraints());
 
         let shift = vars.local_wires[self.wire_shift()];
+        let shift_inverse = vars.local_wires[self.wire_shift_inverse()];
         let evaluation_point = vars.get_local_ext_algebra(self.wires_evaluation_point());
         let shifted_evaluation_point =
             vars.get_local_ext_algebra(self.wires_shifted_evaluation_point());
+        constraints.push(shift * shift_inverse - F::Extension::ONE);
         constraints.extend(
             (evaluation_point - shifted_evaluation_point.scalar_mul(shift)).to_basefield_array(),
         );
@@ -254,8 +260,10 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for CosetInterpola
         mut yield_constr: StridedConstraintConsumer<F>,
     ) {
         let shift = vars.local_wires[self.wire_shift()];
+        let shift_inverse = vars.local_wires[self.wire_shift_inverse()];
         let evaluation_point = vars.get_local_ext(self.wires_evaluation_point());
         let shifted_evaluation_point = vars.get_local_ext(self.wires_shifted_evaluation_point());
+        yield_constr.one(shift * shift_inverse - F::ONE);
         yield_constr.many(
             (evaluation_point - shifted_evaluation_point.scalar_mul(shift)).to_basefield_array(),
         );
@@ -305,9 +313,15 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for CosetInterpola
         let mut constraints = Vec::with_capacity(self.num_constraints());
 
         let shift = vars.local_wires[self.wire_shift()];
+        let shift_inverse = vars.local_wires[self.wire_shift_inverse()];
         let evaluation_point = vars.get_local_ext_algebra(self.wires_evaluation_point());
         let shifted_evaluation_point =
             vars.get_local_ext_algebra(self.wires_shifted_evaluation_point());
+
+        let shift_product = builder.mul_extension(shift, shift_inverse);
+        let one_extension = builder.one_extension();
+        let shift_nonzero = builder.sub_extension(shift_product, one_extension);
+        constraints.push(shift_nonzero);
 
         let neg_one = builder.neg_one();
         let neg_shift = builder.scalar_mul_ext(neg_one, shift);
@@ -390,9 +404,9 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for CosetInterpola
     }
 
     fn num_constraints(&self) -> usize {
-        // D constraints to check for consistency of the shifted evaluation point, plus D
-        // constraints for the evaluation value.
-        D + D + 2 * D * self.num_intermediates()
+        // One constraint to make the shift nonzero, D constraints to check for consistency of the
+        // shifted evaluation point, plus D constraints for the evaluation value.
+        1 + D + D + 2 * D * self.num_intermediates()
     }
 }
 
@@ -465,8 +479,13 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D>
 
         let evaluation_point = get_local_ext(self.gate.wires_evaluation_point());
         let shift = get_local_wire(self.gate.wire_shift());
-        let shifted_evaluation_point = evaluation_point.scalar_mul(shift.inverse());
+        let shift_inverse = shift
+            .try_inverse()
+            .ok_or_else(|| anyhow!("coset interpolation shift must be nonzero"))?;
+        let shifted_evaluation_point = evaluation_point.scalar_mul(shift_inverse);
         let degree = self.gate.degree();
+
+        out_buffer.set_wire(local_wire(self.gate.wire_shift_inverse()), shift_inverse)?;
 
         out_buffer.set_ext_wires(
             self.gate.wires_shifted_evaluation_point().map(local_wire),
@@ -727,7 +746,8 @@ mod tests {
         assert_eq!(gate.wires_intermediate_prod(0), 33..37);
         assert_eq!(gate.wires_intermediate_prod(1), 37..41);
         assert_eq!(gate.wires_shifted_evaluation_point(), 41..45);
-        assert_eq!(gate.num_wires(), 45);
+        assert_eq!(gate.wire_shift_inverse(), 45);
+        assert_eq!(gate.num_wires(), 46);
     }
 
     #[test]
@@ -756,7 +776,8 @@ mod tests {
         assert_eq!(gate.wires_intermediate_eval(0), 25..29);
         assert_eq!(gate.wires_intermediate_prod(0), 29..33);
         assert_eq!(gate.wires_shifted_evaluation_point(), 33..37);
-        assert_eq!(gate.num_wires(), 37);
+        assert_eq!(gate.wire_shift_inverse(), 37);
+        assert_eq!(gate.num_wires(), 38);
     }
 
     #[test]
@@ -783,7 +804,8 @@ mod tests {
         assert_eq!(gate.wires_evaluation_point(), 17..21);
         assert_eq!(gate.wires_evaluation_value(), 21..25);
         assert_eq!(gate.wires_shifted_evaluation_point(), 25..29);
-        assert_eq!(gate.num_wires(), 29);
+        assert_eq!(gate.wire_shift_inverse(), 29);
+        assert_eq!(gate.num_wires(), 30);
     }
 
     #[test]
@@ -839,6 +861,7 @@ mod tests {
             v.extend(intermediate_eval.0);
             v.extend(intermediate_prod.0);
             v.extend(shifted_eval_point.0);
+            v.push(shift.inverse());
             v.iter().map(|&x| x.into()).collect()
         }
 
@@ -862,15 +885,15 @@ mod tests {
     #[test]
     fn test_num_wires_constraints() {
         let gate = <CosetInterpolationGate<GoldilocksField, 2>>::with_max_degree(4, 8);
-        assert_eq!(gate.num_wires(), 47);
-        assert_eq!(gate.num_constraints(), 12);
+        assert_eq!(gate.num_wires(), 48);
+        assert_eq!(gate.num_constraints(), 13);
 
         let gate = <CosetInterpolationGate<GoldilocksField, 2>>::with_max_degree(3, 8);
-        assert_eq!(gate.num_wires(), 23);
-        assert_eq!(gate.num_constraints(), 4);
+        assert_eq!(gate.num_wires(), 24);
+        assert_eq!(gate.num_constraints(), 5);
 
         let gate = <CosetInterpolationGate<GoldilocksField, 2>>::with_max_degree(4, 16);
-        assert_eq!(gate.num_wires(), 39);
-        assert_eq!(gate.num_constraints(), 4);
+        assert_eq!(gate.num_wires(), 40);
+        assert_eq!(gate.num_constraints(), 5);
     }
 }

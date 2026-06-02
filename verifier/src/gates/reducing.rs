@@ -18,6 +18,7 @@ pub struct ReducingGate<const D: usize> {
 
 impl<const D: usize> ReducingGate<D> {
     pub const fn new(num_coeffs: usize) -> Self {
+        assert!(num_coeffs > 0);
         Self { num_coeffs }
     }
 
@@ -65,6 +66,9 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for Re
         Self: Sized,
     {
         let num_coeffs = src.read_usize()?;
+        if num_coeffs == 0 {
+            return Err(crate::util::serialization::IoError);
+        }
         Ok(Self::new(num_coeffs))
     }
 
@@ -129,5 +133,18 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for Re
 
     fn num_constraints(&self) -> usize {
         D * self.num_coeffs
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::panic::{catch_unwind, AssertUnwindSafe};
+
+    use super::*;
+
+    #[test]
+    fn new_zero_panics() {
+        let result = catch_unwind(AssertUnwindSafe(|| ReducingGate::<2>::new(0)));
+        assert!(result.is_err());
     }
 }
