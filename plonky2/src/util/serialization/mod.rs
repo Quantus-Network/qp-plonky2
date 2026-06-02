@@ -942,6 +942,11 @@ pub trait Read {
         )
         .map_err(|_| IoError)?;
 
+        // Validate FRI degree bits consistency
+        if common_data.public_initial_degree_bits != common_data.fri_params.degree_bits {
+            return Err(IoError);
+        }
+
         Ok(common_data)
     }
 
