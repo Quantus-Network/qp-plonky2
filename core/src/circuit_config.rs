@@ -167,7 +167,9 @@ mod tests {
     fn check_common_data_rejects_mismatched_degree_bits() {
         let config = CircuitConfig::standard_recursion_config();
         let rate_bits = config.fri_config.rate_bits;
-        assert!(super::check_common_data_valid(&config, 1, rate_bits, 10, 10, 10, || false).is_ok());
+        assert!(
+            super::check_common_data_valid(&config, 1, rate_bits, 10, 10, 10, || false).is_ok()
+        );
         assert_eq!(
             super::check_common_data_valid(&config, 1, rate_bits, 9, 9, 10, || false),
             Err("public_initial_degree_bits must match FRI degree_bits")
