@@ -62,9 +62,13 @@ impl<'a, P: PackedField> PackedStridedView<'a, P> {
         );
 
         // This requirement means that stride divides data into slices of `data.len() / stride`
-        // elements. Every access must fit entirely within one of those slices.
+        // elements. Every access must fit entirely within one of those slices. The addition is
+        // checked so that a large attacker-controlled `offset` cannot wrap and bypass the bound.
+        let offset_end = offset
+            .checked_add(P::WIDTH)
+            .expect("offset + P::WIDTH overflow");
         assert!(
-            offset + P::WIDTH <= stride,
+            offset_end <= stride,
             "offset (got {}) + P::WIDTH ({}) cannot be greater than stride (got {})",
             offset,
             P::WIDTH,
@@ -127,6 +131,13 @@ impl<'a, P: PackedField> PackedStridedView<'a, P> {
     #[inline]
     pub const fn is_empty(&self) -> bool {
         self.len() == 0
+    }
+
+    #[inline]
+    fn checked_stride_offset(&self, index: usize) -> usize {
+        self.stride
+            .checked_mul(index)
+            .expect("Invalid access: strided view offset overflow")
     }
 }
 
@@ -244,13 +255,16 @@ pub trait Viewable<F> {
 impl<P: PackedField> Viewable<Range<usize>> for PackedStridedView<'_, P> {
     type View = Self;
     fn view(&self, range: Range<usize>) -> Self::View {
+        assert!(range.start <= range.end, "Invalid access");
         assert!(range.start <= self.len(), "Invalid access");
         assert!(range.end <= self.len(), "Invalid access");
+        let length = range.end.checked_sub(range.start).expect("Invalid access");
+        let offset = self.checked_stride_offset(range.start);
         Self {
             // See comment in `PackedStridedView`. `self.start_ptr` will point more than one byte
             // past the end of the buffer if the offset is not 0 and the buffer has length 0.
-            start_ptr: self.start_ptr.wrapping_add(self.stride * range.start),
-            length: range.end - range.start,
+            start_ptr: self.start_ptr.wrapping_add(offset),
+            length,
             stride: self.stride,
             _phantom: PhantomData,
         }
@@ -261,11 +275,13 @@ impl<P: PackedField> Viewable<RangeFrom<usize>> for PackedStridedView<'_, P> {
     type View = Self;
     fn view(&self, range: RangeFrom<usize>) -> Self::View {
         assert!(range.start <= self.len(), "Invalid access");
+        let length = self.len().checked_sub(range.start).expect("Invalid access");
+        let offset = self.checked_stride_offset(range.start);
         Self {
             // See comment in `PackedStridedView`. `self.start_ptr` will point more than one byte
             // past the end of the buffer if the offset is not 0 and the buffer has length 0.
-            start_ptr: self.start_ptr.wrapping_add(self.stride * range.start),
-            length: self.len() - range.start,
+            start_ptr: self.start_ptr.wrapping_add(offset),
+            length,
             stride: self.stride,
             _phantom: PhantomData,
         }
@@ -282,13 +298,19 @@ impl<P: PackedField> Viewable<RangeFull> for PackedStridedView<'_, P> {
 impl<P: PackedField> Viewable<RangeInclusive<usize>> for PackedStridedView<'_, P> {
     type View = Self;
     fn view(&self, range: RangeInclusive<usize>) -> Self::View {
+        assert!(range.start() <= range.end(), "Invalid access");
         assert!(*range.start() <= self.len(), "Invalid access");
         assert!(*range.end() < self.len(), "Invalid access");
+        let length = (*range.end())
+            .checked_sub(*range.start())
+            .and_then(|length| length.checked_add(1))
+            .expect("Invalid access");
+        let offset = self.checked_stride_offset(*range.start());
         Self {
             // See comment in `PackedStridedView`. `self.start_ptr` will point more than one byte
             // past the end of the buffer if the offset is not 0 and the buffer has length 0.
-            start_ptr: self.start_ptr.wrapping_add(self.stride * range.start()),
-            length: range.end() - range.start() + 1,
+            start_ptr: self.start_ptr.wrapping_add(offset),
+            length,
             stride: self.stride,
             _phantom: PhantomData,
         }
@@ -312,11 +334,60 @@ impl<P: PackedField> Viewable<RangeToInclusive<usize>> for PackedStridedView<'_,
     type View = Self;
     fn view(&self, range: RangeToInclusive<usize>) -> Self::View {
         assert!(range.end < self.len(), "Invalid access");
+        let length = range.end.checked_add(1).expect("Invalid access");
         Self {
             start_ptr: self.start_ptr,
-            length: range.end + 1,
+            length,
             stride: self.stride,
             _phantom: PhantomData,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::field::goldilocks_field::GoldilocksField;
+    use crate::field::types::Field;
+
+    fn sample<const N: usize>() -> [GoldilocksField; N] {
+        core::array::from_fn(|i| GoldilocksField::from_canonical_u64(i as u64))
+    }
+
+    #[test]
+    fn view_subrange_is_in_bounds() {
+        let data = sample::<6>();
+        let view = PackedStridedView::<GoldilocksField>::new(&data, 2, 0);
+        assert_eq!(view.len(), 3);
+        let sub = view.view(1..3);
+        assert_eq!(sub.len(), 2);
+        assert_eq!(*sub.get(0).unwrap(), data[2]);
+        assert_eq!(*sub.get(1).unwrap(), data[4]);
+    }
+
+    /// #64705: a large `offset` must not wrap past the `offset + P::WIDTH <= stride` bound.
+    #[test]
+    #[should_panic(expected = "offset + P::WIDTH overflow")]
+    fn new_rejects_offset_overflow() {
+        let data = sample::<1>();
+        let _ = PackedStridedView::<GoldilocksField>::new(&data, 1, usize::MAX);
+    }
+
+    /// #64704: a reversed `Range` must not underflow into a huge forged length.
+    #[test]
+    #[should_panic(expected = "Invalid access")]
+    fn view_rejects_reversed_range() {
+        let data = sample::<6>();
+        let view = PackedStridedView::<GoldilocksField>::new(&data, 2, 0);
+        let _ = view.view(3..1);
+    }
+
+    /// #64704: a reversed `RangeInclusive` must not underflow into a huge forged length.
+    #[test]
+    #[should_panic(expected = "Invalid access")]
+    fn view_rejects_reversed_range_inclusive() {
+        let data = sample::<6>();
+        let view = PackedStridedView::<GoldilocksField>::new(&data, 2, 0);
+        let _ = view.view(3..=1);
     }
 }

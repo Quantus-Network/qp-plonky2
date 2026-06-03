@@ -41,6 +41,40 @@ where
         pow_witness: _pow_witness,
     } = proof;
 
+    // Reference safety (#64696): every opening term must reference an in-range oracle and a
+    // polynomial index that is valid for that oracle's leaf. In batch FRI a single oracle's leaf
+    // concatenates polynomials from every instance, so the in-range bound is the sum of `num_polys`
+    // across instances (which is just `num_polys` for a single-instance, plain-FRI call). Without
+    // this, malformed metadata makes `unsalted_eval`/`eval_opening_expression` index out of bounds
+    // and panic the verifier instead of returning an error.
+    if let Some(first) = instances.first() {
+        let oracle_count = first.oracles.len();
+        let mut total_num_polys = vec![0usize; oracle_count];
+        for inst in instances {
+            ensure!(
+                inst.oracles.len() == oracle_count,
+                "FRI instances disagree on oracle count"
+            );
+            for (i, oracle) in inst.oracles.iter().enumerate() {
+                total_num_polys[i] += oracle.num_polys;
+            }
+        }
+        for inst in instances {
+            for batch in &inst.batches {
+                for expression in &batch.openings {
+                    for term in &expression.terms {
+                        let oracle_index = term.polynomial.oracle_index;
+                        ensure!(oracle_index < oracle_count, "FRI oracle index out of range");
+                        ensure!(
+                            term.polynomial.polynomial_index < total_num_polys[oracle_index],
+                            "FRI polynomial index out of range"
+                        );
+                    }
+                }
+            }
+        }
+    }
+
     let cap_height = params.config.cap_height;
     for cap in commit_phase_merkle_caps {
         ensure!(cap.height() == cap_height);

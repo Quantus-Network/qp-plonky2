@@ -559,6 +559,7 @@ pub trait Read {
             common_data.config.fri_config.rate_bits,
             common_data.public_initial_degree_bits,
             common_data.trace_degree_bits,
+            common_data.fri_params.degree_bits,
             || common_data.luts.iter().any(|lut| lut.is_empty()),
         )
         .map_err(|_| IoError)?;
