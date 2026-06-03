@@ -7,7 +7,7 @@ and the fixes applied to those still valid.
 
 | Finding | Title | Status | Fix |
 |---|---|---|---|
-| #64696 | Malformed oracle metadata panics verifier | Valid (reshaped) | Batch-aware reference check in FRI shape validation |
+| #64696 | Malformed oracle metadata panics verifier | Valid (reshaped) | Batch-aware reference check + validate initial-tree leaves before compressed inference |
 | #64699 | Malformed split layout panics verifier | Not valid | Target code removed with PolyFRI |
 | #64700 | Mismatched degree bits weaken FRI sampling | Valid | Bind `public_initial_degree_bits == fri_params.degree_bits` |
 | #64703 | Merkle leaf binding bypass | Valid | Length-bind `hash_leaf` in the sponge capacity |
@@ -22,11 +22,26 @@ The original vector (`FriOracleLayout.logical_polys` flowing through deserializa
 PolyFRI. The remaining live surface is `FriInstanceInfo`: `eval_opening_expression` / `unsalted_eval`
 index oracle leaves by `polynomial_index` taken from deserialized metadata, with no referential check.
 
-**Fix** (`core/src/fri_validate_shape.rs`): `validate_batch_fri_proof_shape` now verifies every opening
-term references an in-range `oracle_index` and a `polynomial_index` within that oracle's leaf. In batch
-FRI a single oracle's leaf concatenates polynomials from every instance, so the bound is the **sum** of
-`num_polys` across instances (which reduces to `num_polys` for a single-instance plain-FRI call). This
-runs on the live verifier path (`verify_fri_proof` → `validate_fri_proof_shape`).
+The audit PoC drives the **compressed** path (`verify_compressed` →
+`CompressedProofWithPublicInputs::verify`). There, `get_inferred_elements` runs
+`fri_combine_initial` → `eval_opening_expression_with_point_powers` → `FriInitialTreeProof::unsalted_eval`
+*during inference*, **before** `verify_with_challenges` reaches `validate_fri_proof_shape`
+(`validate_proof_shape` deliberately skips the opening proof). A malformed `common` (large
+`num_*_polys`) plus a compressed proof with short initial-tree leaves therefore panics out of bounds in
+`unsalted_eval` before any shape check runs.
+
+**Fix** (`core/src/fri_validate_shape.rs`):
+- `validate_batch_fri_proof_shape` verifies every opening term references an in-range `oracle_index`
+  and a `polynomial_index` within that oracle's leaf. In batch FRI a single oracle's leaf concatenates
+  polynomials from every instance, so the bound is the **sum** of `num_polys` across instances (reducing
+  to `num_polys` for a single-instance plain-FRI call). This covers the live `verify_fri_proof` →
+  `validate_fri_proof_shape` path (plain + batch).
+- New `validate_fri_initial_proof_shape` validates a single initial-tree proof's leaf shapes
+  (oracle count + per-oracle leaf length) and term references against the derived `FriInstanceInfo`.
+  `get_inferred_elements` (both `verifier` and `plonky2`) now calls it for each query's initial-tree
+  proof *before* `fri_combine_initial`, so the compressed inference path returns a clean `anyhow` error
+  instead of panicking. The shared `checked_leaf_lengths` helper keeps both checks DRY (only leaf
+  contents are validated here, not Merkle-proof depth, which is correct for the pruned compressed form).
 
 ### #64699 — Malformed split layout panics verifier (not valid)
 
@@ -77,11 +92,17 @@ comparison, so overflow panics instead of bypassing the check.
 ## Tests
 
 Added regression tests:
+- `core/src/fri_validate_shape.rs` — `validate_fri_initial_proof_shape` rejects an out-of-range
+  `polynomial_index` and a short leaf, and accepts a consistent shape (#64696)
 - `core/src/merkle_tree.rs::test_zero_suffix_leaf_collision_rejected` (#64703)
 - `core/src/strided_view.rs` — reversed `Range`/`RangeInclusive` and offset-overflow panics + a positive
   sub-view (#64704, #64705)
 - `core/src/circuit_config.rs::check_common_data_rejects_mismatched_degree_bits` (#64700)
+- `plonky2/tests/security_harness.rs` — #64700 through `CommonCircuitData::from_bytes` (mismatched
+  degree bits rejected on deserialization + matching roundtrip), and #64703 in-circuit (a forged
+  zero-suffixed leaf cannot satisfy the honest leaf's `hash_leaf` digest; honest leaf still verifies)
 
-Suites run green: `qp-plonky2-core`, `qp-plonky2-verifier`, `starky` (batch-FRI + recursive STARK
-end-to-end), and the full `qp-plonky2` lib suite (124 passed, incl. `test_recursive_recursive_verifier`
-and `test_cyclic_recursion`).
+Suites run green: `qp-plonky2-core` (24), `qp-plonky2-verifier` (12), `starky` (16, batch-FRI + recursive
+STARK end-to-end), `plonky2/tests/security_harness.rs` (20), plonky2 compressed-proof verification
+(`test_proof_compression{,_lookup}`), and the full `qp-plonky2` lib suite (124 passed, incl.
+`test_recursive_recursive_verifier` and `test_cyclic_recursion`).

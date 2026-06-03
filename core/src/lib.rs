@@ -61,7 +61,9 @@ pub use fri_structure::{
     FriBatchInfo, FriChallenges, FriCoefficient, FriInstanceInfo, FriOpeningBatch,
     FriOpeningExpression, FriOpeningTerm, FriOpenings, FriOracleInfo, FriPolynomialInfo,
 };
-pub use fri_validate_shape::{validate_batch_fri_proof_shape, validate_fri_proof_shape};
+pub use fri_validate_shape::{
+    validate_batch_fri_proof_shape, validate_fri_initial_proof_shape, validate_fri_proof_shape,
+};
 pub use fri_verifier::{
     compute_evaluation, fri_combine_initial, fri_verify_proof_of_work, verify_fri_proof,
     PrecomputedReducedOpenings,
