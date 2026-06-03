@@ -8,8 +8,9 @@ use qp_plonky2_core::fri_verifier::{
     compute_evaluation, fri_combine_initial, PrecomputedReducedOpenings,
 };
 use qp_plonky2_core::merkle_tree::MerkleCap;
-use qp_plonky2_core::validate_fri_initial_proof_shape;
-use qp_plonky2_core::{Challenger, FriChallenger, FriChallenges, FriParamsObserve};
+use qp_plonky2_core::{
+    validate_fri_initial_proof_shape, Challenger, FriChallenger, FriChallenges, FriParamsObserve,
+};
 
 use crate::field::extension::Extendable;
 use crate::hash::hash_types::RichField;
