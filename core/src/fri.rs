@@ -6,13 +6,13 @@
 use alloc::{vec, vec::Vec};
 
 use log::debug;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 use crate::challenger::Challenger;
 use crate::config::{GenericConfig, Hasher};
 use crate::field::extension::Extendable;
+use crate::field::polynomial::PolynomialCoeffs;
 use crate::field::types::Field;
-use crate::fri_proof::FriFinalPolys;
 use crate::fri_structure::{FriChallenges, FriOpenings};
 use crate::hash_types::{RichField, NUM_HASH_OUT_ELTS};
 use crate::merkle_tree::MerkleCap;
@@ -207,38 +207,6 @@ pub struct FriConfig {
     pub num_query_rounds: usize,
 }
 
-/// Layout used when the prover sends the final reduced FRI polynomial.
-///
-/// `Split` keeps each disclosed chunk below the original degree cap while still letting the
-/// verifier reconstruct the logical polynomial via powers of `X^{chunk_degree}`.
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
-pub enum FriFinalPolyLayout {
-    Single,
-    Split {
-        chunk_degree_bits: usize,
-        chunks: usize,
-    },
-}
-
-impl FriFinalPolyLayout {
-    pub const fn chunks(&self) -> usize {
-        match self {
-            Self::Single => 1,
-            Self::Split { chunks, .. } => *chunks,
-        }
-    }
-}
-
-/// Batch-masking parameters for the FRI opening reduction.
-///
-/// Phase 2 commits a separate batch-mask oracle before sampling `fri_alpha`. The oracle uses the
-/// same logical final-polynomial layout as the masked FRI codeword so prover and verifier share
-/// one chunk-combination rule when evaluating `R(x)` at queried points.
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
-pub struct FriBatchMaskingParams {
-    pub mask_degree: usize,
-}
-
 impl FriConfig {
     pub fn rate(&self) -> f64 {
         1.0 / ((1 << self.rate_bits) as f64)
@@ -254,10 +222,8 @@ impl FriConfig {
         FriParams {
             config: self.clone(),
             leaf_hiding,
-            batch_masking: None,
             degree_bits,
             reduction_arity_bits,
-            final_poly_layout: FriFinalPolyLayout::Single,
         }
     }
 
@@ -273,15 +239,8 @@ pub struct FriParams {
     /// User-specified FRI configuration.
     pub config: FriConfig,
 
-    /// Whether to salt Merkle leaves. This is independent from Poly/FRI split masking so no-zk
-    /// benchmarking can disable both while PolyFri keeps row counts unchanged.
+    /// Whether to salt Merkle leaves for zero-knowledge.
     pub leaf_hiding: bool,
-
-    /// Optional masking of the FRI batch reduction polynomial.
-    ///
-    /// When present, the prover must commit the explicit batch-mask oracle before sampling
-    /// `fri_alpha`, and its query openings must use the same logical layout as `final_poly_layout`.
-    pub batch_masking: Option<FriBatchMaskingParams>,
 
     /// The degree of the purported codeword, measured in bits.
     pub degree_bits: usize,
@@ -291,9 +250,6 @@ pub struct FriParams {
     /// a 4-to-1 reduction, then a 2-to-1 reduction. After these reductions, the reduced polynomial
     /// is sent directly.
     pub reduction_arity_bits: Vec<usize>,
-
-    /// Layout of the reduced polynomial disclosed after the FRI commit phase.
-    pub final_poly_layout: FriFinalPolyLayout,
 }
 
 impl FriParams {
@@ -314,39 +270,11 @@ impl FriParams {
     }
 
     pub fn final_poly_bits(&self) -> usize {
-        match self.final_poly_layout {
-            FriFinalPolyLayout::Single => self.degree_bits - self.total_arities(),
-            FriFinalPolyLayout::Split {
-                chunk_degree_bits, ..
-            } => chunk_degree_bits,
-        }
+        self.degree_bits - self.total_arities()
     }
 
     pub fn final_poly_len(&self) -> usize {
         1 << self.final_poly_bits()
-    }
-
-    pub fn final_poly_chunks(&self) -> usize {
-        self.final_poly_layout.chunks()
-    }
-
-    /// Layout used for the explicit pre-alpha batch-mask oracle on the unreduced FRI batch
-    /// polynomial.
-    ///
-    /// This keeps the same chunk count as `final_poly_layout` so the prover and verifier share one
-    /// chunk-combination rule, while sizing the chunk degree to the full pre-FRI polynomial degree
-    /// rather than the reduced tail disclosed after the commit phase.
-    pub fn batch_mask_layout(&self) -> FriFinalPolyLayout {
-        match self.final_poly_layout {
-            FriFinalPolyLayout::Single => FriFinalPolyLayout::Single,
-            FriFinalPolyLayout::Split { chunks, .. } => {
-                assert!(chunks.is_power_of_two());
-                FriFinalPolyLayout::Split {
-                    chunk_degree_bits: self.degree_bits - chunks.trailing_zeros() as usize,
-                    chunks,
-                }
-            }
-        }
     }
 }
 
@@ -381,10 +309,6 @@ impl FriParamsObserve for FriParams {
         self.config.observe(challenger);
 
         challenger.observe_element(F::from_bool(self.leaf_hiding));
-        challenger.observe_element(F::from_bool(self.batch_masking.is_some()));
-        if let Some(batch_masking) = &self.batch_masking {
-            challenger.observe_element(F::from_canonical_usize(batch_masking.mask_degree));
-        }
         challenger.observe_element(F::from_canonical_usize(self.degree_bits));
         challenger.observe_elements(
             &self
@@ -393,19 +317,6 @@ impl FriParamsObserve for FriParams {
                 .map(|&e| F::from_canonical_usize(e))
                 .collect::<Vec<_>>(),
         );
-        match self.final_poly_layout {
-            FriFinalPolyLayout::Single => {
-                challenger.observe_element(F::ZERO);
-            }
-            FriFinalPolyLayout::Split {
-                chunk_degree_bits,
-                chunks,
-            } => {
-                challenger.observe_element(F::ONE);
-                challenger.observe_element(F::from_canonical_usize(chunk_degree_bits));
-                challenger.observe_element(F::from_canonical_usize(chunks));
-            }
-        }
     }
 }
 
@@ -423,7 +334,7 @@ pub trait FriChallenger<F: RichField, H: Hasher<F>> {
     fn fri_challenges<C: GenericConfig<D, F = F>, const D: usize>(
         &mut self,
         commit_phase_merkle_caps: &[MerkleCap<F, C::Hasher>],
-        final_polys: &FriFinalPolys<F, D>,
+        final_poly: &PolynomialCoeffs<F::Extension>,
         pow_witness: F,
         degree_bits: usize,
         config: &FriConfig,
@@ -447,7 +358,7 @@ impl<F: RichField, H: Hasher<F>> FriChallenger<F, H> for Challenger<F, H> {
     fn fri_challenges<C: GenericConfig<D, F = F>, const D: usize>(
         &mut self,
         commit_phase_merkle_caps: &[MerkleCap<F, C::Hasher>],
-        final_polys: &FriFinalPolys<F, D>,
+        final_poly: &PolynomialCoeffs<F::Extension>,
         pow_witness: F,
         degree_bits: usize,
         config: &FriConfig,
@@ -482,16 +393,14 @@ impl<F: RichField, H: Hasher<F>> FriChallenger<F, H> for Challenger<F, H> {
             }
         }
 
-        for chunk in &final_polys.chunks {
-            self.observe_extension_elements(&chunk.coeffs);
-            // When this proof was generated in a circuit with a different final polynomial length,
-            // the challenger needs to observe the full length of each disclosed chunk so native and
-            // recursive transcripts stay aligned.
-            if let Some(len) = final_poly_coeff_len {
-                let current_len = chunk.coeffs.len();
-                for _ in current_len..len {
-                    self.observe_extension_element(&F::Extension::ZERO);
-                }
+        self.observe_extension_elements(&final_poly.coeffs);
+        // When this proof was generated in a circuit with a different final polynomial length,
+        // the challenger needs to observe the full length so native and
+        // recursive transcripts stay aligned.
+        if let Some(len) = final_poly_coeff_len {
+            let current_len = final_poly.len();
+            for _ in current_len..len {
+                self.observe_extension_element(&F::Extension::ZERO);
             }
         }
 

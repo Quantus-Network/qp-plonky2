@@ -45,24 +45,21 @@ pub mod util;
 // Re-export key types at crate root for convenience
 pub use challenger::Challenger;
 // Circuit and FRI configuration types
-pub use circuit_config::{CircuitConfig, PolyFriZkConfig, ZkConfig, ZkMode};
+pub use circuit_config::CircuitConfig;
 pub use config::{
     GenericConfig, GenericHashOut, Hasher, KeccakGoldilocksConfig, PoseidonGoldilocksConfig,
 };
 pub use fri::{
-    FriBatchMaskingParams, FriChallenger, FriConfig, FriConfigObserve, FriFinalPolyLayout,
-    FriParams, FriParamsObserve, FriReductionStrategy,
+    FriChallenger, FriConfig, FriConfigObserve, FriParams, FriParamsObserve, FriReductionStrategy,
 };
 // FRI proof types
 pub use fri_proof::{
-    combine_final_poly_chunks, eval_final_polys_at_point, CompressedFriProof,
-    CompressedFriQueryRounds, FriBatchMaskProof, FriBatchMaskQuery, FriFinalPolys,
-    FriInitialTreeProof, FriProof, FriQueryRound, FriQueryStep,
+    CompressedFriProof, CompressedFriQueryRounds, FriInitialTreeProof, FriProof, FriQueryRound,
+    FriQueryStep,
 };
 pub use fri_structure::{
     FriBatchInfo, FriChallenges, FriCoefficient, FriInstanceInfo, FriOpeningBatch,
-    FriOpeningExpression, FriOpeningTerm, FriOpenings, FriOracleInfo, FriOracleLayout,
-    FriOracleRepresentation, FriPolynomialInfo,
+    FriOpeningExpression, FriOpeningTerm, FriOpenings, FriOracleInfo, FriPolynomialInfo,
 };
 pub use fri_validate_shape::{validate_batch_fri_proof_shape, validate_fri_proof_shape};
 pub use fri_verifier::{

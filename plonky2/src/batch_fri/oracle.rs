@@ -14,8 +14,6 @@ use crate::batch_fri::prover::batch_fri_proof;
 use crate::fri::oracle::PolynomialBatch;
 use crate::fri::proof::FriProof;
 use crate::fri::structure::{FriBatchInfo, FriCoefficient, FriInstanceInfo, FriOpeningExpression};
-#[cfg(test)]
-use crate::fri::FriFinalPolyLayout;
 use crate::fri::FriParams;
 use crate::hash::batch_merkle_tree::BatchMerkleTree;
 use crate::hash::hash_types::RichField;
@@ -337,10 +335,8 @@ mod test {
                 num_query_rounds: 10,
             },
             leaf_hiding: false,
-            batch_masking: None,
             degree_bits: k0,
             reduction_arity_bits,
-            final_poly_layout: FriFinalPolyLayout::Single,
         };
 
         let n0 = 1 << k0;
@@ -489,7 +485,7 @@ mod test {
 
         let fri_challenges = verifier_challenger.fri_challenges::<C, D>(
             &proof.commit_phase_merkle_caps,
-            &proof.final_polys,
+            &proof.final_poly,
             proof.pow_witness,
             k0,
             &fri_params.config,
@@ -620,7 +616,7 @@ mod test {
         let fri_challenges_target = challenger.fri_challenges(
             &mut builder,
             &fri_proof_target.commit_phase_merkle_caps,
-            &fri_proof_target.final_polys,
+            &fri_proof_target.final_poly,
             fri_proof_target.pow_witness,
             &fri_params.config,
         );
@@ -673,10 +669,8 @@ mod test {
                 num_query_rounds: 2,
             },
             leaf_hiding: false,
-            batch_masking: None,
             degree_bits: k,
             reduction_arity_bits,
-            final_poly_layout: FriFinalPolyLayout::Single,
         };
 
         let n = 1 << k;
@@ -730,7 +724,7 @@ mod test {
         );
         let inner_challenges = verifier_challenger.fri_challenges::<C, D>(
             &inner_proof.commit_phase_merkle_caps,
-            &inner_proof.final_polys,
+            &inner_proof.final_poly,
             inner_proof.pow_witness,
             k,
             &fri_params.config,
@@ -799,7 +793,7 @@ mod test {
         let fri_challenges_target = recursive_challenger.fri_challenges(
             &mut builder,
             &fri_proof_target.commit_phase_merkle_caps,
-            &fri_proof_target.final_polys,
+            &fri_proof_target.final_poly,
             fri_proof_target.pow_witness,
             &fri_params.config,
         );

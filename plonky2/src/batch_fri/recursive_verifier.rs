@@ -36,15 +36,10 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         }
 
         debug_assert_eq!(
-            params.final_poly_chunks(),
-            proof.final_polys.chunks.len(),
-            "Final polynomial has wrong chunk count."
+            params.final_poly_len(),
+            proof.final_poly.len(),
+            "Final polynomial has wrong coefficient count."
         );
-        debug_assert!(proof
-            .final_polys
-            .chunks
-            .iter()
-            .all(|chunk| chunk.len() == params.final_poly_len()));
 
         with_context!(
             self,
@@ -207,7 +202,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         precomputed_reduced_evals: &[PrecomputedReducedOpeningsTarget<D>],
         initial_merkle_caps: &[MerkleCapTarget],
         proof: &FriProofTarget<D>,
-        query_round_index: usize,
+        _query_round_index: usize,
         x_index: Target,
         round_proof: &FriQueryRoundTarget<D>,
         params: &FriParams,
@@ -248,7 +243,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
 
         // old_eval is the last derived evaluation; it will be checked for consistency with its
         // committed "parent" value in the next iteration.
-        let expected_unmasked_final = with_context!(
+        let mut old_eval = with_context!(
             self,
             "combine initial oracles",
             self.batch_fri_combine_initial(
@@ -261,26 +256,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
                 params,
             )
         );
-        let batch_mask_eval = if let Some(batch_mask_proof) = &proof.batch_mask_proof {
-            let query_opening = &batch_mask_proof.query_openings[query_round_index];
-            with_context!(
-                self,
-                "verify batch-mask Merkle proof",
-                self.verify_merkle_proof_to_cap_with_cap_index::<C::Hasher>(
-                    flatten_target(&query_opening.values),
-                    &x_index_bits,
-                    cap_index,
-                    &batch_mask_proof.cap,
-                    &query_opening.merkle_proof,
-                )
-            );
-            let subgroup_x_ext = self.convert_to_ext(subgroup_x);
-            Some(self.eval_batch_mask_at_query_point_target(query_opening, subgroup_x_ext, params))
-        } else {
-            None
-        };
-        let mut old_eval =
-            self.eval_masked_final_at_query_point_target(expected_unmasked_final, batch_mask_eval);
         batch_index += 1;
 
         for (i, &arity_bits) in params.reduction_arity_bits.iter().enumerate() {
@@ -359,12 +334,12 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         let eval = with_context!(
             self,
             &format!(
-                "evaluate {} final polynomial chunks",
-                proof.final_polys.chunks.len()
+                "evaluate final polynomial with {} coefficients",
+                proof.final_poly.len()
             ),
             {
                 let subgroup_x_ext = self.convert_to_ext(subgroup_x);
-                self.eval_final_polys_at_point_target(&proof.final_polys, subgroup_x_ext, params)
+                self.eval_final_poly_at_point_target(&proof.final_poly, subgroup_x_ext)
             }
         );
         self.connect_extension(eval, old_eval);

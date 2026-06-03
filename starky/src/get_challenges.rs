@@ -3,8 +3,9 @@ use alloc::vec::Vec;
 use core::cmp::min;
 
 use plonky2::field::extension::Extendable;
+use plonky2::field::polynomial::PolynomialCoeffs;
 use plonky2::field::types::Field;
-use plonky2::fri::proof::{FriFinalPolys, FriFinalPolysTarget, FriProof, FriProofTarget};
+use plonky2::fri::proof::{FriFinalPolyTarget, FriProof, FriProofTarget};
 use plonky2::fri::prover::final_poly_coeff_len;
 use plonky2::fri::{FriChallenger, FriParams};
 use plonky2::hash::hash_types::{MerkleCapTarget, RichField};
@@ -42,9 +43,8 @@ fn get_challenges<F, C, S: Stark<F, D>, const D: usize>(
     quotient_polys_cap: Option<&MerkleCap<F, C::Hasher>>,
     ctl_vars: Option<&[CtlCheckVars<F, F::Extension, F::Extension, D>]>,
     openings: &StarkOpeningSet<F, D>,
-    batch_mask_cap: Option<&MerkleCap<F, C::Hasher>>,
     commit_phase_merkle_caps: &[MerkleCap<F, C::Hasher>],
-    final_polys: &FriFinalPolys<F, D>,
+    final_poly: &PolynomialCoeffs<F::Extension>,
     pow_witness: F,
     config: &StarkConfig,
     degree_bits: usize,
@@ -167,9 +167,6 @@ where
     let stark_zeta = challenger.get_extension_challenge::<D>();
 
     challenger.observe_openings(&openings.to_fri_openings());
-    if let Some(batch_mask_cap) = batch_mask_cap {
-        challenger.observe_cap(batch_mask_cap);
-    }
 
     let (final_poly_coeff_len, max_num_query_steps) =
         if let Some(verifier_circuit_fri_params) = verifier_circuit_fri_params {
@@ -190,7 +187,7 @@ where
         stark_zeta,
         fri_challenges: challenger.fri_challenges::<C, D>(
             commit_phase_merkle_caps,
-            final_polys,
+            final_poly,
             pow_witness,
             degree_bits,
             &config.fri_config,
@@ -290,8 +287,7 @@ where
             opening_proof:
                 FriProof {
                     commit_phase_merkle_caps,
-                    batch_mask_proof,
-                    final_polys,
+                    final_poly,
                     pow_witness,
                     ..
                 },
@@ -313,9 +309,8 @@ where
             quotient_polys_cap.as_ref(),
             ctl_vars,
             openings,
-            batch_mask_proof.as_ref().map(|proof| &proof.cap),
             commit_phase_merkle_caps,
-            final_polys,
+            final_poly,
             *pow_witness,
             config,
             degree_bits,
@@ -373,9 +368,8 @@ fn get_challenges_target<F, C, S: Stark<F, D>, const D: usize>(
     quotient_polys_cap: Option<&MerkleCapTarget>,
     ctl_vars: Option<&[CtlCheckVarsTarget<F, D>]>,
     openings: &StarkOpeningSetTarget<D>,
-    batch_mask_cap: Option<&MerkleCapTarget>,
     commit_phase_merkle_caps: &[MerkleCapTarget],
-    final_polys: &FriFinalPolysTarget<D>,
+    final_poly: &FriFinalPolyTarget<D>,
     pow_witness: Target,
     degree_bits: usize,
     degree_bits_target: Target,
@@ -496,9 +490,6 @@ where
     let stark_zeta = challenger.get_extension_challenge(builder);
 
     challenger.observe_openings(&openings.to_fri_openings(builder.zero()));
-    if let Some(batch_mask_cap) = batch_mask_cap {
-        challenger.observe_cap(batch_mask_cap);
-    }
 
     StarkProofChallengesTarget {
         lookup_challenge_set,
@@ -507,7 +498,7 @@ where
         fri_challenges: challenger.fri_challenges(
             builder,
             commit_phase_merkle_caps,
-            final_polys,
+            final_poly,
             pow_witness,
             &config.fri_config,
         ),
@@ -612,8 +603,7 @@ impl<const D: usize> StarkProofTarget<D> {
             opening_proof:
                 FriProofTarget {
                     commit_phase_merkle_caps,
-                    batch_mask_proof,
-                    final_polys,
+                    final_poly,
                     pow_witness,
                     ..
                 },
@@ -637,9 +627,8 @@ impl<const D: usize> StarkProofTarget<D> {
             quotient_polys_cap.as_ref(),
             ctl_vars,
             openings,
-            batch_mask_proof.as_ref().map(|proof| &proof.cap),
             commit_phase_merkle_caps,
-            final_polys,
+            final_poly,
             *pow_witness,
             degree_bits,
             self.degree_bits,

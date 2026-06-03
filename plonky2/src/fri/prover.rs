@@ -3,151 +3,22 @@ use alloc::vec;
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
 
-use plonky2_field::types::{Field, Sample};
+use plonky2_field::types::Field;
 use plonky2_maybe_rayon::*;
 
 use crate::field::extension::{flatten, unflatten, Extendable};
 use crate::field::polynomial::{PolynomialCoeffs, PolynomialValues};
-use crate::fri::proof::{
-    FriBatchMaskProof, FriBatchMaskQuery, FriFinalPolys, FriInitialTreeProof, FriProof,
-    FriQueryRound, FriQueryStep,
-};
-use crate::fri::{FriConfig, FriFinalPolyLayout, FriParams};
+use crate::fri::proof::{FriInitialTreeProof, FriProof, FriQueryRound, FriQueryStep};
+use crate::fri::{FriConfig, FriParams};
 use crate::hash::hash_types::{RichField, NUM_HASH_OUT_ELTS};
 use crate::hash::hashing::PlonkyPermutation;
-use crate::hash::merkle_tree::{MerkleCap, MerkleTree};
+use crate::hash::merkle_tree::MerkleTree;
 use crate::iop::challenger::Challenger;
 use crate::plonk::config::GenericConfig;
 use crate::plonk::plonk_common::reduce_with_powers;
 use crate::timed;
+use crate::util::reverse_index_bits_in_place;
 use crate::util::timing::TimingTree;
-use crate::util::{reverse_index_bits_in_place, transpose};
-
-/// The LDE input for the final FRI composition polynomial.
-///
-/// Phase 2 still folds a single masked codeword through the commit phase, but the disclosed
-/// reduced polynomial may be chunked afterward to keep each transmitted chunk within the original
-/// degree cap.
-#[derive(Debug)]
-pub struct FriLdeInput<F: RichField + Extendable<D>, const D: usize> {
-    pub layout: FriFinalPolyLayout,
-    pub coeffs: Vec<PolynomialCoeffs<F::Extension>>,
-    pub values: Vec<PolynomialValues<F::Extension>>,
-}
-
-/// Explicit oracle committed before `fri_alpha` is sampled in the PolyFri native path.
-///
-/// Each chunk is evaluated over the same FRI query domain as the final masked codeword so the
-/// verifier can authenticate `R(x)` with a separate Merkle opening at every query point.
-#[derive(Debug)]
-pub struct FriBatchMaskOracle<
-    F: RichField + Extendable<D>,
-    C: GenericConfig<D, F = F>,
-    const D: usize,
-> {
-    pub coeffs: Vec<PolynomialCoeffs<F::Extension>>,
-    pub values: Vec<PolynomialValues<F::Extension>>,
-    pub merkle_tree: MerkleTree<F, C::Hasher>,
-    pub cap: MerkleCap<F, C::Hasher>,
-    pub layout: FriFinalPolyLayout,
-}
-
-#[cfg(feature = "rand")]
-fn sample_batch_mask_chunk<F: RichField + Extendable<D>, const D: usize>(
-    mask_degree: usize,
-    force_zero: bool,
-) -> PolynomialCoeffs<F::Extension> {
-    if force_zero {
-        PolynomialCoeffs::new(vec![F::Extension::ZERO; mask_degree + 1])
-    } else {
-        PolynomialCoeffs::new(F::Extension::rand_vec(mask_degree + 1))
-    }
-}
-
-#[cfg(not(feature = "rand"))]
-fn sample_batch_mask_chunk<F: RichField + Extendable<D>, const D: usize>(
-    _mask_degree: usize,
-    _force_zero: bool,
-) -> PolynomialCoeffs<F::Extension> {
-    panic!("Cannot enable FRI batch masking without the rand feature");
-}
-
-pub(crate) fn build_batch_mask_oracle<
-    F: RichField + Extendable<D>,
-    C: GenericConfig<D, F = F>,
-    const D: usize,
->(
-    fri_params: &FriParams,
-    cap_height: usize,
-    force_zero_mask: bool,
-    timing: &mut TimingTree,
-) -> FriBatchMaskOracle<F, C, D> {
-    let batch_masking = fri_params
-        .batch_masking
-        .as_ref()
-        .expect("Batch-mask oracle requested without FRI batch masking parameters");
-    let chunk_count = fri_params.final_poly_chunks();
-    let lde_size = fri_params.lde_size();
-    let coeffs = timed!(
-        timing,
-        "sample batch mask oracle",
-        (0..chunk_count)
-            .map(|_| sample_batch_mask_chunk::<F, D>(batch_masking.mask_degree, force_zero_mask))
-            .collect::<Vec<_>>()
-    );
-    let values = timed!(
-        timing,
-        "evaluate batch mask oracle",
-        coeffs
-            .iter()
-            .map(|coeffs| coeffs.padded(lde_size).coset_fft(F::coset_shift().into()))
-            .collect::<Vec<_>>()
-    );
-    let value_rows = values
-        .iter()
-        .map(|poly_values| poly_values.values.clone())
-        .collect::<Vec<_>>();
-    let mut leaves = timed!(
-        timing,
-        "transpose batch mask oracle",
-        transpose(&value_rows)
-            .into_iter()
-            .map(|chunk_values| flatten(&chunk_values))
-            .collect::<Vec<_>>()
-    );
-    reverse_index_bits_in_place(&mut leaves);
-    let merkle_tree = timed!(
-        timing,
-        "build batch mask tree",
-        MerkleTree::new(leaves, cap_height)
-    );
-    let cap = merkle_tree.cap.clone();
-
-    FriBatchMaskOracle {
-        coeffs,
-        values,
-        merkle_tree,
-        cap,
-        layout: fri_params.batch_mask_layout(),
-    }
-}
-
-pub(crate) fn batch_mask_query_openings<
-    F: RichField + Extendable<D>,
-    C: GenericConfig<D, F = F>,
-    const D: usize,
->(
-    oracle: &FriBatchMaskOracle<F, C, D>,
-    indices: &[usize],
-) -> Vec<FriBatchMaskQuery<F, C::Hasher, D>> {
-    indices
-        .iter()
-        .map(|&x_index| FriBatchMaskQuery {
-            values: unflatten(oracle.merkle_tree.get(x_index)),
-            merkle_proof: oracle.merkle_tree.prove(x_index),
-        })
-        .collect()
-}
 
 /// Builds a FRI proof.
 pub fn fri_proof<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>(
@@ -162,66 +33,6 @@ pub fn fri_proof<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const
     max_num_query_steps: Option<usize>,
     timing: &mut TimingTree,
 ) -> FriProof<F, C::Hasher, D> {
-    fri_proof_from_chunks::<F, C, D>(
-        initial_merkle_trees,
-        FriLdeInput {
-            layout: FriFinalPolyLayout::Single,
-            coeffs: vec![lde_polynomial_coeffs],
-            values: vec![lde_polynomial_values],
-        },
-        challenger,
-        fri_params,
-        final_poly_coeff_len,
-        max_num_query_steps,
-        None,
-        timing,
-    )
-}
-
-pub(crate) type FriCommitedTrees<F, C, const D: usize> = (
-    Vec<MerkleTree<F, <C as GenericConfig<D>>::Hasher>>,
-    PolynomialCoeffs<<F as Extendable<D>>::Extension>,
-);
-
-pub fn final_poly_coeff_len(mut degree_bits: usize, reduction_arity_bits: &Vec<usize>) -> usize {
-    for arity_bits in reduction_arity_bits {
-        degree_bits -= *arity_bits;
-    }
-    1 << degree_bits
-}
-
-pub fn fri_proof_from_chunks<
-    F: RichField + Extendable<D>,
-    C: GenericConfig<D, F = F>,
-    const D: usize,
->(
-    initial_merkle_trees: &[&MerkleTree<F, C::Hasher>],
-    final_input: FriLdeInput<F, D>,
-    challenger: &mut Challenger<F, C::Hasher>,
-    fri_params: &FriParams,
-    final_poly_coeff_len: Option<usize>,
-    max_num_query_steps: Option<usize>,
-    batch_mask_oracle: Option<&FriBatchMaskOracle<F, C, D>>,
-    timing: &mut TimingTree,
-) -> FriProof<F, C::Hasher, D> {
-    assert_eq!(
-        final_input.coeffs.len(),
-        1,
-        "Phase 2 keeps one masked FRI codeword and only chunks the disclosed final polynomial",
-    );
-    assert_eq!(
-        final_input.values.len(),
-        1,
-        "Phase 2 keeps one masked FRI codeword and only chunks the disclosed final polynomial",
-    );
-
-    let FriLdeInput {
-        layout,
-        mut coeffs,
-        mut values,
-    } = final_input;
-    let lde_polynomial_coeffs = coeffs.pop().unwrap();
-    let lde_polynomial_values = values.pop().unwrap();
     let n = lde_polynomial_values.len();
     assert_eq!(lde_polynomial_coeffs.len(), n);
 
@@ -237,9 +48,8 @@ pub fn fri_proof_from_chunks<
             max_num_query_steps,
         )
     );
-    let final_polys =
-        decompose_final_polynomial::<F, D>(final_coeffs, layout, final_poly_coeff_len);
-    observe_final_polys::<F, C, D>(challenger, &final_polys, final_poly_coeff_len);
+    let final_poly = final_coeffs;
+    observe_final_poly::<F, C, D>(challenger, &final_poly, final_poly_coeff_len);
 
     // PoW phase
     let pow_witness = timed!(
@@ -249,20 +59,27 @@ pub fn fri_proof_from_chunks<
     );
 
     // Query phase
-    let (query_indices, query_round_proofs) =
+    let (_query_indices, query_round_proofs) =
         fri_prover_query_rounds::<F, C, D>(initial_merkle_trees, &trees, challenger, n, fri_params);
-    let batch_mask_proof = batch_mask_oracle.map(|batch_mask_oracle| FriBatchMaskProof {
-        cap: batch_mask_oracle.cap.clone(),
-        query_openings: batch_mask_query_openings(batch_mask_oracle, &query_indices),
-    });
 
     FriProof {
         commit_phase_merkle_caps: trees.iter().map(|t| t.cap.clone()).collect(),
-        batch_mask_proof,
         query_round_proofs,
-        final_polys,
+        final_poly,
         pow_witness,
     }
+}
+
+pub(crate) type FriCommitedTrees<F, C, const D: usize> = (
+    Vec<MerkleTree<F, <C as GenericConfig<D>>::Hasher>>,
+    PolynomialCoeffs<<F as Extendable<D>>::Extension>,
+);
+
+pub fn final_poly_coeff_len(mut degree_bits: usize, reduction_arity_bits: &Vec<usize>) -> usize {
+    for arity_bits in reduction_arity_bits {
+        degree_bits -= *arity_bits;
+    }
+    1 << degree_bits
 }
 
 fn fri_committed_trees<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>(
@@ -325,44 +142,15 @@ fn fri_committed_trees<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>,
     (trees, coeffs)
 }
 
-fn decompose_final_polynomial<F: RichField + Extendable<D>, const D: usize>(
-    final_coeffs: PolynomialCoeffs<F::Extension>,
-    layout: FriFinalPolyLayout,
-    final_poly_coeff_len: Option<usize>,
-) -> FriFinalPolys<F, D> {
-    match layout {
-        FriFinalPolyLayout::Single => FriFinalPolys::from_single(final_coeffs),
-        FriFinalPolyLayout::Split {
-            chunk_degree_bits,
-            chunks,
-        } => {
-            let chunk_len = final_poly_coeff_len.unwrap_or(1 << chunk_degree_bits);
-            let mut padded = final_coeffs;
-            padded
-                .pad(chunk_len * chunks)
-                .expect("Chunked final polynomial exceeds the configured layout");
-            FriFinalPolys {
-                layout: FriFinalPolyLayout::Split {
-                    chunk_degree_bits,
-                    chunks,
-                },
-                chunks: padded.chunks(chunk_len),
-            }
-        }
-    }
-}
-
-fn observe_final_polys<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>(
+fn observe_final_poly<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>(
     challenger: &mut Challenger<F, C::Hasher>,
-    final_polys: &FriFinalPolys<F, D>,
+    final_poly: &PolynomialCoeffs<F::Extension>,
     final_poly_coeff_len: Option<usize>,
 ) {
-    for chunk in &final_polys.chunks {
-        challenger.observe_extension_elements(&chunk.coeffs);
-        if let Some(len) = final_poly_coeff_len {
-            for _ in chunk.coeffs.len()..len {
-                challenger.observe_extension_element(&F::Extension::ZERO);
-            }
+    challenger.observe_extension_elements(&final_poly.coeffs);
+    if let Some(len) = final_poly_coeff_len {
+        for _ in final_poly.len()..len {
+            challenger.observe_extension_element(&F::Extension::ZERO);
         }
     }
 }
