@@ -8,17 +8,13 @@ use alloc::vec;
 use core::fmt::Debug;
 
 use once_cell::sync::Lazy;
-use p3_field::integers::QuotientMap;
-use p3_field::{PrimeCharacteristicRing, PrimeField64 as P3PrimeField64};
-use p3_goldilocks::{Goldilocks as P3G, Poseidon2Goldilocks};
-use p3_symmetric::Permutation;
 use plonky2_field::extension::Extendable;
 // We only support Goldilocks for now, which matches your Poseidon2Core.
 use plonky2_field::goldilocks_field::GoldilocksField as GL;
-use qp_poseidon_constants::create_poseidon;
+use qp_poseidon_core::{Goldilocks as QpG, Poseidon2, SPONGE_RATE, SPONGE_WIDTH};
 
 use crate::field::types::{Field, PrimeField64};
-use crate::gates::poseidon2::{Poseidon2Gate, SPONGE_RATE, SPONGE_WIDTH};
+use crate::gates::poseidon2::Poseidon2Gate;
 use crate::hash::hash_types::{HashOut, RichField, NUM_HASH_OUT_ELTS};
 use crate::hash::hashing::{hash_leaf_p2, hash_n_to_hash_no_pad_p2, PlonkyPermutation};
 use crate::iop::target::{BoolTarget, Target};
@@ -27,24 +23,23 @@ use crate::plonk::config::{AlgebraicHasher, Hasher};
 
 /// Static Poseidon2 instance, initialized once and reused across all calls.
 /// The instance is determined entirely by compile-time constants and is safe to share.
-static POSEIDON2: Lazy<Poseidon2Goldilocks<12>> = Lazy::new(create_poseidon);
+static POSEIDON2: Lazy<Poseidon2> = Lazy::new(Poseidon2::new);
 
-/// ---------- Internal helper: p3 permutation on Goldilocks ----------
+/// ---------- Internal helper: qp-poseidon-core permutation on Goldilocks ----------
 #[inline(always)]
 fn p2_permute_gl(mut state: [GL; SPONGE_WIDTH]) -> [GL; SPONGE_WIDTH] {
-    // Convert to p3 Goldilocks.
-    let mut s_p3 = [P3G::ZERO; SPONGE_WIDTH];
+    // Convert to qp-poseidon-core Goldilocks.
+    let mut s_qp = [QpG::ZERO; SPONGE_WIDTH];
     for i in 0..SPONGE_WIDTH {
-        // GL -> u64 -> P3G (both mod 2^64 - 2^32 + 1)
-        s_p3[i] = unsafe { P3G::from_canonical_unchecked(state[i].to_canonical_u64()) };
+        // GL -> u64 -> QpG (both mod 2^64 - 2^32 + 1)
+        s_qp[i] = QpG::new(state[i].to_canonical_u64());
     }
 
-    let mut st = s_p3;
-    POSEIDON2.permute_mut(&mut st);
+    POSEIDON2.permute_mut(&mut s_qp);
 
     // Back to plonky2 GL
     for i in 0..SPONGE_WIDTH {
-        state[i] = GL::from_noncanonical_u64(st[i].as_canonical_u64());
+        state[i] = GL::from_noncanonical_u64(s_qp[i].as_canonical_u64());
     }
     state
 }
@@ -203,7 +198,7 @@ impl<F: RichField + P2Permuter> AlgebraicHasher<F> for Poseidon2Hash {
 #[cfg(test)]
 mod tests {
     use plonky2_field::goldilocks_field::GoldilocksField as F;
-    use qp_poseidon_core::hash_to_bytes;
+    use qp_poseidon_core::{hash_to_bytes, Goldilocks as QpF};
     use rand_chacha::rand_core::{RngCore, SeedableRng};
     use rand_chacha::ChaCha8Rng;
 
@@ -285,8 +280,6 @@ mod tests {
     }
     #[test]
     fn poseidon2_hash_matches_qp_poseidon() {
-        use p3_goldilocks::Goldilocks as P3F;
-
         // random inputs of varying sizes
         let mut rng = ChaCha8Rng::seed_from_u64(0xD1CE_D00D);
         for _ in 0..100 {
@@ -297,9 +290,9 @@ mod tests {
                 .map(|_| F::from_canonical_u64(rng.next_u64()))
                 .collect();
 
-            let inputs_p3: Vec<P3F> = inputs_f
+            let inputs_qp: Vec<QpF> = inputs_f
                 .iter()
-                .map(|x| P3F::from_int(x.to_canonical_u64()))
+                .map(|x| QpF::new(x.to_canonical_u64()))
                 .collect();
 
             // Plonky2 CPU reference
@@ -311,10 +304,10 @@ mod tests {
                 cpu_bytes[i * 8..(i + 1) * 8].copy_from_slice(&w);
             }
 
-            // p3 (qp_poseidon_core) reference
-            let p3_bytes = hash_to_bytes(&inputs_p3);
+            // qp-poseidon-core reference
+            let qp_bytes = hash_to_bytes(&inputs_qp);
 
-            assert_eq!(cpu_bytes, p3_bytes, "Poseidon2 mismatch for len={len}");
+            assert_eq!(cpu_bytes, qp_bytes, "Poseidon2 mismatch for len={len}");
         }
     }
 }

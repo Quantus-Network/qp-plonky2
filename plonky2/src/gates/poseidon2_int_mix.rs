@@ -9,9 +9,8 @@ use core::marker::PhantomData;
 use core::ops::Range;
 
 use anyhow::Result;
-use qp_poseidon_constants::{
-    POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW, POSEIDON2_INTERNAL_CONSTANTS_RAW,
-    POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
+use qp_poseidon_core::poseidon2::{
+    INITIAL_EXTERNAL_CONSTANTS, INTERNAL_CONSTANTS, TERMINAL_EXTERNAL_CONSTANTS,
 };
 
 use crate::field::extension::algebra::ExtensionAlgebra;
@@ -59,9 +58,9 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2IntMixGate<F, D> {
     pub fn new() -> Self {
         // Reuse Poseidon2Params to get diag; we ignore other fields.
         let params = Poseidon2Params::<F, D>::from_p3_constants_u64(
-            POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW,
-            POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
-            POSEIDON2_INTERNAL_CONSTANTS_RAW,
+            INITIAL_EXTERNAL_CONSTANTS,
+            TERMINAL_EXTERNAL_CONSTANTS,
+            INTERNAL_CONSTANTS,
         );
         Self {
             diag: params.diag,
@@ -277,9 +276,9 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D>
 
         // diag as F::Extension
         let params = Poseidon2Params::<F, D>::from_p3_constants_u64(
-            POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW,
-            POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
-            POSEIDON2_INTERNAL_CONSTANTS_RAW,
+            INITIAL_EXTERNAL_CONSTANTS,
+            TERMINAL_EXTERNAL_CONSTANTS,
+            INTERNAL_CONSTANTS,
         );
         let diag_ext: [F::Extension; SPONGE_WIDTH] = core::array::from_fn(|i| {
             F::Extension::from_canonical_u64(params.diag[i].to_canonical_u64())

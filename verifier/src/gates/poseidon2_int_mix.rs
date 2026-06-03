@@ -3,10 +3,10 @@ use alloc::{format, string::String, vec::Vec};
 use core::marker::PhantomData;
 use core::ops::Range;
 
-use qp_poseidon_constants::{
-    POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW, POSEIDON2_INTERNAL_CONSTANTS_RAW,
-    POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW, SPONGE_WIDTH,
+use qp_poseidon_core::poseidon2::{
+    INITIAL_EXTERNAL_CONSTANTS, INTERNAL_CONSTANTS, TERMINAL_EXTERNAL_CONSTANTS,
 };
+use qp_poseidon_core::SPONGE_WIDTH;
 
 use crate::field::extension::algebra::ExtensionAlgebra;
 use crate::field::extension::{Extendable, FieldExtension};
@@ -47,9 +47,9 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2IntMixGate<F, D> {
     pub fn new() -> Self {
         // Reuse Poseidon2Params to get diag; we ignore other fields.
         let params = Poseidon2Params::<F, D>::from_p3_constants_u64(
-            POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW,
-            POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
-            POSEIDON2_INTERNAL_CONSTANTS_RAW,
+            INITIAL_EXTERNAL_CONSTANTS,
+            TERMINAL_EXTERNAL_CONSTANTS,
+            INTERNAL_CONSTANTS,
         );
         Self {
             diag: params.diag,

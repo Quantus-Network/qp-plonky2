@@ -13,11 +13,12 @@ use core::fmt::Debug;
 use core::marker::PhantomData;
 
 use plonky2_field::extension::Extendable;
-use qp_poseidon_constants::{
-    POSEIDON2_EXTERNAL_ROUNDS, POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW,
-    POSEIDON2_INTERNAL_CONSTANTS_RAW, POSEIDON2_INTERNAL_ROUNDS, POSEIDON2_MATRIX_DIAG_12_RAW,
-    POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW, SPONGE_WIDTH,
+use qp_poseidon_core::poseidon2::{
+    EXTERNAL_ROUNDS as POSEIDON2_EXTERNAL_ROUNDS, INITIAL_EXTERNAL_CONSTANTS,
+    INTERNAL_CONSTANTS, INTERNAL_ROUNDS as POSEIDON2_INTERNAL_ROUNDS, MATRIX_DIAG,
+    TERMINAL_EXTERNAL_CONSTANTS,
 };
+use qp_poseidon_core::SPONGE_WIDTH;
 
 use crate::field::types::Field;
 use crate::gates::gate::VerificationGate;
@@ -107,7 +108,7 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2Params<F, D> {
         }
 
         // Goldilocks Poseidon2 diagonal from canonical constants
-        let diag = core::array::from_fn(|i| F::from_canonical_u64(POSEIDON2_MATRIX_DIAG_12_RAW[i]));
+        let diag = core::array::from_fn(|i| F::from_canonical_u64(MATRIX_DIAG[i]));
 
         Self {
             ext_init,
@@ -211,9 +212,9 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2Gate<F, D> {
     pub fn new() -> Self {
         Self {
             params: Poseidon2Params::from_p3_constants_u64(
-                POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW,
-                POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
-                POSEIDON2_INTERNAL_CONSTANTS_RAW,
+                INITIAL_EXTERNAL_CONSTANTS,
+                TERMINAL_EXTERNAL_CONSTANTS,
+                INTERNAL_CONSTANTS,
             ),
             _pd: PhantomData,
         }
