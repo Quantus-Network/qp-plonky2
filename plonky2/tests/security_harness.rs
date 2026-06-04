@@ -3,6 +3,7 @@ use std::sync::Arc;
 
 use plonky2::field::types::Field;
 use plonky2::field::zero_poly_coset::ZeroPolyOnCoset;
+use plonky2::fri::FriReductionStrategy;
 use plonky2::gadgets::lookup::TIP5_TABLE;
 use plonky2::gates::coset_interpolation::CosetInterpolationGate;
 use plonky2::gates::exponentiation::ExponentiationGate;
@@ -426,22 +427,58 @@ fn genuine_common_data_with_reductions_round_trips() {
 
 #[test]
 fn deserialization_rejects_cleared_reduction_arities() {
-    assert!(tamper_is_rejected(sample_common_data_with_reductions(), |c| {
-        c.fri_params.reduction_arity_bits.clear();
-    }));
+    assert!(tamper_is_rejected(
+        sample_common_data_with_reductions(),
+        |c| {
+            c.fri_params.reduction_arity_bits.clear();
+        }
+    ));
 }
 
 #[test]
 fn deserialization_rejects_altered_reduction_arity() {
-    assert!(tamper_is_rejected(sample_common_data_with_reductions(), |c| {
-        c.fri_params.reduction_arity_bits[0] = 1;
-    }));
+    assert!(tamper_is_rejected(
+        sample_common_data_with_reductions(),
+        |c| {
+            c.fri_params.reduction_arity_bits[0] = 1;
+        }
+    ));
 }
 
 #[test]
 fn deserialization_rejects_flipped_leaf_hiding() {
     assert!(tampered_common_data_is_rejected(|c| {
         c.fri_params.leaf_hiding = !c.fri_params.leaf_hiding;
+    }));
+}
+
+#[test]
+fn deserialization_rejects_zero_constant_arity_strategy() {
+    assert!(tampered_common_data_is_rejected(|c| {
+        let strategy = FriReductionStrategy::ConstantArityBits(0, 0);
+        c.config.fri_config.reduction_strategy = strategy.clone();
+        c.fri_params.config.reduction_strategy = strategy;
+    }));
+}
+
+#[test]
+fn deserialization_rejects_zero_fixed_arity_strategy() {
+    assert!(tampered_common_data_is_rejected(|c| {
+        let strategy = FriReductionStrategy::Fixed(vec![0]);
+        c.config.fri_config.reduction_strategy = strategy.clone();
+        c.fri_params.config.reduction_strategy = strategy;
+        c.fri_params.reduction_arity_bits = vec![0];
+    }));
+}
+
+#[test]
+fn deserialization_rejects_oversized_min_size_query_count() {
+    assert!(tampered_common_data_is_rejected(|c| {
+        let strategy = FriReductionStrategy::MinSize(None);
+        c.config.fri_config.reduction_strategy = strategy.clone();
+        c.config.fri_config.num_query_rounds = usize::MAX;
+        c.fri_params.config.reduction_strategy = strategy;
+        c.fri_params.config.num_query_rounds = usize::MAX;
     }));
 }
 
