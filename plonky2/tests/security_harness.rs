@@ -11,9 +11,11 @@ use plonky2::iop::ext_target::ExtensionTarget;
 use plonky2::iop::target::Target;
 use plonky2::iop::witness::{PartialWitness, Witness, WitnessWrite};
 use plonky2::plonk::circuit_builder::CircuitBuilder;
-use plonky2::plonk::circuit_data::{CircuitConfig, ProverOnlyCircuitData};
-use plonky2::plonk::config::{GenericConfig, PoseidonGoldilocksConfig};
-use plonky2::util::serialization::{Buffer, DefaultGeneratorSerializer, Write};
+use plonky2::plonk::circuit_data::{CircuitConfig, CommonCircuitData, ProverOnlyCircuitData};
+use plonky2::plonk::config::{GenericConfig, Hasher, PoseidonGoldilocksConfig};
+use plonky2::util::serialization::{
+    Buffer, DefaultGateSerializer, DefaultGeneratorSerializer, Write,
+};
 
 const D: usize = 2;
 type C = PoseidonGoldilocksConfig;
@@ -264,4 +266,94 @@ fn zero_poly_on_coset_valid_domain_works() {
     let eval = z_h.eval(0);
     let eval_inverse = z_h.eval_inverse(0);
     assert_eq!(eval * eval_inverse, F::ONE);
+}
+
+/// #64700: deserialization must reject a `CommonCircuitData` whose `public_initial_degree_bits`
+/// (which seeds FRI query sampling) disagrees with the transcript-bound `fri_params.degree_bits`,
+/// otherwise a malicious blob could shrink the sampled query domain.
+#[test]
+fn mismatched_degree_bits_common_data_deserialization_rejected() {
+    let mut data = simple_circuit_data();
+    data.common.public_initial_degree_bits = data.common.fri_params.degree_bits + 1;
+
+    let gate_serializer = DefaultGateSerializer;
+    let bytes = data.common.to_bytes(&gate_serializer).unwrap();
+
+    assert!(CommonCircuitData::<F, D>::from_bytes(bytes, &gate_serializer).is_err());
+}
+
+#[test]
+fn matching_degree_bits_common_data_roundtrips() {
+    let data = simple_circuit_data();
+    let gate_serializer = DefaultGateSerializer;
+    let bytes = data.common.to_bytes(&gate_serializer).unwrap();
+
+    assert!(CommonCircuitData::<F, D>::from_bytes(bytes, &gate_serializer).is_ok());
+}
+
+/// #64703: the in-circuit `hash_leaf` is length-binding, so a zero-suffixed leaf cannot be coerced
+/// to share an honest (shorter) leaf's digest. Constraining the forged leaf's hash to equal the
+/// honest leaf's hash must therefore be unsatisfiable (proof rejected).
+#[test]
+fn forged_zero_suffixed_leaf_rejected_in_circuit() -> anyhow::Result<()> {
+    type H = <C as GenericConfig<D>>::Hasher;
+
+    let honest: Vec<F> = (1..=5).map(F::from_canonical_u64).collect();
+    let honest_hash = H::hash_leaf(&honest);
+
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    // The forged leaf is the honest leaf with a trailing zero (length + 1).
+    let forged: Vec<Target> = (0..honest.len() + 1)
+        .map(|_| builder.add_virtual_target())
+        .collect();
+    let hash = builder.hash_leaf::<H>(forged.clone());
+    let expected = builder.constant_hash(honest_hash);
+    builder.connect_hashes(hash, expected);
+
+    let data = builder.build::<C>();
+    let mut pw = PartialWitness::new();
+    for (i, t) in forged.iter().enumerate() {
+        pw.set_target(*t, honest.get(i).copied().unwrap_or(F::ZERO))?;
+    }
+
+    // A panic in witness generation, a `prove` error, or a failing `verify` all mean the forgery
+    // was rejected; only a verifying proof would indicate a surviving collision.
+    let rejected = catch_unwind(AssertUnwindSafe(|| match data.prove(pw) {
+        Ok(proof) => data.verify(proof).is_err(),
+        Err(_) => true,
+    }))
+    .unwrap_or(true);
+    assert!(
+        rejected,
+        "forged zero-suffixed leaf must not satisfy the honest leaf's hash in-circuit"
+    );
+
+    Ok(())
+}
+
+#[test]
+fn honest_leaf_hash_matches_in_circuit() -> anyhow::Result<()> {
+    type H = <C as GenericConfig<D>>::Hasher;
+
+    let honest: Vec<F> = (1..=5).map(F::from_canonical_u64).collect();
+    let honest_hash = H::hash_leaf(&honest);
+
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let targets: Vec<Target> = (0..honest.len())
+        .map(|_| builder.add_virtual_target())
+        .collect();
+    let hash = builder.hash_leaf::<H>(targets.clone());
+    let expected = builder.constant_hash(honest_hash);
+    builder.connect_hashes(hash, expected);
+
+    let data = builder.build::<C>();
+    let mut pw = PartialWitness::new();
+    for (t, v) in targets.iter().zip(&honest) {
+        pw.set_target(*t, *v)?;
+    }
+
+    let proof = data.prove(pw)?;
+    data.verify(proof)
 }

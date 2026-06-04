@@ -159,6 +159,22 @@ mod tests {
         };
         config.validate();
     }
+
+    /// #64700: FRI query indices are sampled from `public_initial_degree_bits`, so it must equal the
+    /// transcript-bound FRI `degree_bits`; otherwise queries are drawn from a smaller domain than
+    /// the proof is checked against, weakening soundness.
+    #[test]
+    fn check_common_data_rejects_mismatched_degree_bits() {
+        let config = CircuitConfig::standard_recursion_config();
+        let rate_bits = config.fri_config.rate_bits;
+        assert!(
+            super::check_common_data_valid(&config, 1, rate_bits, 10, 10, 10, || false).is_ok()
+        );
+        assert_eq!(
+            super::check_common_data_valid(&config, 1, rate_bits, 9, 9, 10, || false),
+            Err("public_initial_degree_bits must match FRI degree_bits")
+        );
+    }
 }
 
 /// Validate common circuit data fields shared between prover and verifier.
@@ -172,6 +188,7 @@ mod tests {
 /// * `rate_bits` - FRI rate bits from config
 /// * `public_initial_degree_bits` - Public initial FRI degree bits
 /// * `trace_degree_bits` - Trace polynomial degree bits
+/// * `fri_degree_bits` - Degree bits bound into the FRI transcript via `FriParams`
 /// * `luts` - Lookup tables (as slice of slices for flexibility)
 ///
 /// # Returns
@@ -182,6 +199,7 @@ pub fn check_common_data_valid(
     rate_bits: usize,
     public_initial_degree_bits: usize,
     trace_degree_bits: usize,
+    fri_degree_bits: usize,
     luts_empty_check: impl Fn() -> bool,
 ) -> Result<(), &'static str> {
     config.check_valid()?;
@@ -195,6 +213,13 @@ pub fn check_common_data_valid(
     // Public initial degree must be at least as large as trace degree.
     if public_initial_degree_bits < trace_degree_bits {
         return Err("public_initial_degree_bits must be >= trace_degree_bits");
+    }
+
+    // The query domain is sampled from `public_initial_degree_bits` while FRI is verified over the
+    // transcript-bound `fri_params.degree_bits`; they must match or queries could be drawn from a
+    // smaller domain than the proof is checked against.
+    if public_initial_degree_bits != fri_degree_bits {
+        return Err("public_initial_degree_bits must match FRI degree_bits");
     }
 
     // All lookup tables must be non-empty.

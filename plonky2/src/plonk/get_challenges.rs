@@ -9,6 +9,7 @@ use crate::field::polynomial::PolynomialCoeffs;
 use crate::fri::proof::{
     CompressedFriProof, FriChallenges, FriFinalPolyTarget, FriProof, FriProofTarget,
 };
+use crate::fri::validate_shape::validate_fri_initial_proof_shape;
 use crate::fri::verifier::{compute_evaluation, fri_combine_initial, PrecomputedReducedOpenings};
 use crate::fri::{FriChallenger, FriParamsObserve, FriParamsObserveTarget};
 use crate::hash::hash_types::{HashOutTarget, MerkleCapTarget, RichField};
@@ -189,7 +190,7 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         &self,
         challenges: &ProofChallenges<F, D>,
         common_data: &CommonCircuitData<F, D>,
-    ) -> FriInferredElements<F, D> {
+    ) -> anyhow::Result<FriInferredElements<F, D>> {
         let ProofChallenges {
             plonk_zeta,
             fri_challenges:
@@ -211,18 +212,28 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         );
         let log_n =
             common_data.public_initial_degree_bits() + common_data.config.fri_config.rate_bits;
+        let fri_instance = common_data.get_fri_instance(*plonk_zeta);
         // Simulate the proof verification and collect the inferred elements.
         // The content of the loop is basically the same as the `fri_verifier_query_round` function.
         for &(mut x_index) in fri_query_indices.iter() {
             let mut subgroup_x = F::MULTIPLICATIVE_GROUP_GENERATOR
                 * F::primitive_root_of_unity(log_n).exp_u64(reverse_bits(x_index, log_n) as u64);
+            let initial_tree_proof = &self
+                .proof
+                .opening_proof
+                .query_round_proofs
+                .initial_trees_proofs[&x_index];
+            // #64696: validate leaf shapes against the FRI instance before evaluating opening
+            // expressions, so malformed metadata cannot make `unsalted_eval` index out of bounds
+            // and panic during inference (this runs before full FRI shape validation).
+            validate_fri_initial_proof_shape::<F, C::Hasher, D>(
+                initial_tree_proof,
+                core::slice::from_ref(&fri_instance),
+                common_data.fri_params.leaf_hiding,
+            )?;
             let mut old_eval = fri_combine_initial::<F, C, D>(
-                &common_data.get_fri_instance(*plonk_zeta),
-                &self
-                    .proof
-                    .opening_proof
-                    .query_round_proofs
-                    .initial_trees_proofs[&x_index],
+                &fri_instance,
+                initial_tree_proof,
                 *fri_alpha,
                 subgroup_x,
                 &precomputed_reduced_evals,
@@ -257,7 +268,7 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
                 x_index = coset_index;
             }
         }
-        FriInferredElements(fri_inferred_elements)
+        Ok(FriInferredElements(fri_inferred_elements))
     }
 }
 

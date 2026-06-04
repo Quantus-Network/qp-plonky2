@@ -125,11 +125,13 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     /// zero capacity, so no grind on rate-region values can produce a collision.
     pub fn hash_leaf<H: AlgebraicHasher<F>>(&mut self, inputs: Vec<Target>) -> HashOutTarget {
         let zero = self.zero();
-        let one = self.one();
-        let mut state = H::AlgebraicPermutation::new(core::iter::repeat(zero));
 
-        // Domain separator in capacity region (index = RATE)
-        state.set_elt(one, H::AlgebraicPermutation::RATE);
+        // Place `len + 1` in the capacity region (index = RATE): the non-zero value
+        // domain-separates leaves from internal nodes, and encoding the length makes the digest
+        // injective in length so zero-suffixed leaves cannot collide. Mirrors native `hash_leaf`.
+        let len_tag = self.constant(F::from_canonical_usize(inputs.len() + 1));
+        let mut state = H::AlgebraicPermutation::new(core::iter::repeat(zero));
+        state.set_elt(len_tag, H::AlgebraicPermutation::RATE);
 
         // Absorb all input chunks (overwrite mode, same as hash_n_to_m_no_pad)
         for input_chunk in inputs.chunks(H::AlgebraicPermutation::RATE) {

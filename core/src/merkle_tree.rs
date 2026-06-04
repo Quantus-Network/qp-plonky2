@@ -447,4 +447,30 @@ pub(crate) mod tests {
             "Expected collision: hash_no_pad([L||R]) should equal two_to_one(L, R) for RATE-sized input"
         );
     }
+
+    /// Regression test for #64703: leaf hashing must be length-binding so a zero-suffixed leaf
+    /// cannot reuse another leaf's Merkle proof.
+    #[test]
+    fn test_zero_suffix_leaf_collision_rejected() {
+        use crate::config::Hasher;
+
+        const D: usize = 2;
+        type C = PoseidonGoldilocksConfig;
+        type F = <C as GenericConfig<D>>::F;
+        type H = <C as GenericConfig<D>>::Hasher;
+
+        let leaf = (1..=5).map(F::from_canonical_u64).collect::<Vec<_>>();
+        let mut zero_suffixed = leaf.clone();
+        zero_suffixed.push(F::ZERO);
+
+        // The padded leaf hash is injective in length.
+        assert_ne!(H::hash_leaf(&leaf), H::hash_leaf(&zero_suffixed));
+
+        let leaves = vec![leaf.clone(), vec![F::from_canonical_u64(9); 5]];
+        let tree = MerkleTree::<F, H>::new(leaves, 0);
+        let proof = tree.prove(0);
+
+        verify_merkle_proof_to_cap(leaf, 0, &tree.cap, &proof).unwrap();
+        assert!(verify_merkle_proof_to_cap(zero_suffixed, 0, &tree.cap, &proof).is_err());
+    }
 }

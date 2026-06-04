@@ -94,6 +94,18 @@ pub fn hash_n_to_hash_no_pad<F: RichField, P: PlonkyPermutation<F>>(inputs: &[F]
     HashOut::from_vec(hash_n_to_m_no_pad::<F, P>(inputs, NUM_HASH_OUT_ELTS))
 }
 
+/// Appends a single `1` terminator and zero-fills to a multiple of `rate` (the `10*` rule).
+///
+/// The terminator's position encodes the input length, so inputs that differ only by trailing
+/// zeros (e.g. `[a, b]` vs `[a, b, 0]`) produce distinct padded messages and cannot collide.
+fn pad10_to_rate<F: RichField>(inputs: &[F], rate: usize) -> Vec<F> {
+    let padded_len = ((inputs.len() + 1 + rate - 1) / rate) * rate;
+    let mut msg = vec![F::ZERO; padded_len];
+    msg[..inputs.len()].copy_from_slice(inputs);
+    msg[inputs.len()] = F::ONE;
+    msg
+}
+
 /// Domain-separated leaf hash for Merkle trees.
 ///
 /// This function hashes leaf data with a domain separator to prevent internal nodes
@@ -108,9 +120,11 @@ pub fn hash_n_to_hash_no_pad<F: RichField, P: PlonkyPermutation<F>>(inputs: &[F]
 pub fn hash_leaf<F: RichField, P: PlonkyPermutation<F>>(inputs: &[F]) -> HashOut<F> {
     let mut perm = P::new(core::iter::repeat(F::ZERO));
 
-    // Domain separator in capacity region (index = RATE).
-    // two_to_one/compress always has zero capacity, so this is unforgeable.
-    perm.set_elt(F::ONE, P::RATE);
+    // Place `len + 1` in the capacity region (index = RATE). The non-zero value domain-separates
+    // leaves from internal `two_to_one`/`compress` nodes (which always use zero capacity), and
+    // encoding the length makes the digest injective in length so distinct zero-suffixed leaves
+    // (e.g. `[a,b,c,d,e]` vs `[a,b,c,d,e,0]`) cannot collide under overwrite-mode absorption.
+    perm.set_elt(F::from_canonical_usize(inputs.len() + 1), P::RATE);
 
     // Absorb all input chunks (overwrite mode, same as hash_n_to_m_no_pad).
     for input_chunk in inputs.chunks(P::RATE) {
@@ -130,11 +144,7 @@ pub fn hash_n_to_hash_no_pad_p2<F: RichField, P: PlonkyPermutation<F>>(inputs: &
     // Append one '1' and zero-pad to a rate-aligned length.
     // This automatically adds a whole [1,0,...,0] block when inputs.len() % rate == 0,
     // including the empty-input case.
-    let padded_len = ((inputs.len() + 1 + rate - 1) / rate) * rate;
-
-    let mut msg = vec![F::ZERO; padded_len];
-    msg[..inputs.len()].copy_from_slice(inputs);
-    msg[inputs.len()] = F::ONE;
+    let msg = pad10_to_rate(inputs, rate);
 
     // Absorb/additively and permute per block.
     let mut perm = P::new(core::iter::repeat(F::ZERO));
@@ -159,10 +169,7 @@ pub fn hash_leaf_p2<F: RichField, P: PlonkyPermutation<F>>(inputs: &[F]) -> Hash
     let rate = P::RATE;
 
     // Pad input: append '1' then zeros to rate-aligned length
-    let padded_len = ((inputs.len() + 1 + rate - 1) / rate) * rate;
-    let mut msg = vec![F::ZERO; padded_len];
-    msg[..inputs.len()].copy_from_slice(inputs);
-    msg[inputs.len()] = F::ONE;
+    let msg = pad10_to_rate(inputs, rate);
 
     // Domain separator in capacity region (index = RATE).
     // two_to_one uses hash_no_pad which has zero capacity, so this is unforgeable.
