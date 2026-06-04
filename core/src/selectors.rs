@@ -107,7 +107,7 @@ mod tests {
     fn check_valid_rejects_out_of_range_index() {
         let info = SelectorsInfo {
             selector_indices: vec![0, 5],
-            groups: vec![0..2],
+            groups: vec![0..1, 1..2],
         };
         assert!(info.check_valid(2, 0, 8).is_err());
     }

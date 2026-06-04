@@ -386,6 +386,27 @@ fn deserialization_rejects_phantom_lookup_polys() {
 }
 
 #[test]
+fn deserialization_rejects_mismatched_fri_query_rounds() {
+    assert!(tampered_common_data_is_rejected(|c| {
+        c.config.fri_config.num_query_rounds -= 1;
+    }));
+}
+
+#[test]
+fn deserialization_rejects_mismatched_fri_rate_bits() {
+    assert!(tampered_common_data_is_rejected(|c| {
+        c.config.fri_config.rate_bits += 1;
+    }));
+}
+
+#[test]
+fn deserialization_rejects_mismatched_public_initial_degree_bits() {
+    assert!(tampered_common_data_is_rejected(|c| {
+        c.public_initial_degree_bits += 1;
+    }));
+}
+
+#[test]
 fn deserialization_rejects_selector_group_not_containing_gate() {
     assert!(tamper_is_rejected(sample_lookup_common_data(), |c| {
         let groups = &c.selectors_info.groups;

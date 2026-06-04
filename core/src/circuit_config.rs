@@ -2,7 +2,7 @@
 
 use serde::Serialize;
 
-use crate::fri::{FriConfig, FriReductionStrategy};
+use crate::fri::{FriConfig, FriParams, FriReductionStrategy};
 use crate::selectors::LookupSelectors;
 
 /// Configuration to be used when building a circuit. This defines the shape of the circuit
@@ -129,131 +129,6 @@ impl CircuitConfig {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::{
-        check_common_data_valid, check_gate_shape, check_lookup_metadata_valid, CircuitConfig,
-    };
-
-    #[test]
-    fn check_common_data_rejects_zero_quotient_degree() {
-        let config = CircuitConfig::standard_recursion_config();
-        let nrw = config.num_routed_wires;
-        assert!(check_common_data_valid(&config, 0, 10, 4, 4, 0, nrw, || false).is_err());
-    }
-
-    #[test]
-    fn check_common_data_validates_partial_products() {
-        let config = CircuitConfig::standard_recursion_config();
-        let nrw = config.num_routed_wires;
-        let qdf = 8;
-        let expected = nrw.div_ceil(qdf) - 1;
-        assert!(check_common_data_valid(&config, qdf, 10, 4, 4, expected, nrw, || false).is_ok());
-        assert!(
-            check_common_data_valid(&config, qdf, 10, 4, 4, expected + 1, nrw, || false).is_err()
-        );
-    }
-
-    #[test]
-    fn check_common_data_rejects_wrong_k_is_length() {
-        let config = CircuitConfig::standard_recursion_config();
-        let nrw = config.num_routed_wires;
-        let expected = nrw.div_ceil(8) - 1;
-        assert!(
-            check_common_data_valid(&config, 8, 10, 4, 4, expected, nrw - 1, || false).is_err()
-        );
-    }
-
-    #[test]
-    fn check_gate_shape_rejects_oversized_gates() {
-        let config = CircuitConfig::standard_recursion_config();
-        let nc = config.num_constants;
-        assert!(check_gate_shape(config.num_wires, 0, 1, &config, 1, 0, nc, 4).is_ok());
-        assert!(check_gate_shape(config.num_wires + 1, 0, 1, &config, 1, 0, nc, 4).is_err());
-        assert!(check_gate_shape(1, nc, 1, &config, 1, 0, nc, 4).is_err());
-        assert!(check_gate_shape(1, 0, 5, &config, 1, 0, nc, 4).is_err());
-    }
-
-    #[test]
-    fn check_valid_rejects_routed_wires_exceeding_wires() {
-        let config = CircuitConfig {
-            num_routed_wires: 200,
-            num_wires: 143,
-            ..CircuitConfig::standard_recursion_config()
-        };
-        assert!(config.check_valid().is_err());
-    }
-
-    #[test]
-    fn check_lookup_metadata_accepts_absent_lookups() {
-        assert!(check_lookup_metadata_valid(0, 0, 0, 8, 40).is_ok());
-    }
-
-    #[test]
-    fn check_lookup_metadata_rejects_phantom_lookups() {
-        assert!(check_lookup_metadata_valid(1, 0, 0, 8, 40).is_err());
-        assert!(check_lookup_metadata_valid(0, 1, 0, 8, 40).is_err());
-    }
-
-    #[test]
-    fn check_lookup_metadata_accepts_consistent_lookups() {
-        // num_routed_wires = 80 => LookupGate slots = 40, qdf = 8 => degree 7.
-        // selectors = StartEnd(4) + 1 lut = 5; polys = ceil(40 / 7) + 1 = 7.
-        assert!(check_lookup_metadata_valid(7, 5, 1, 8, 40).is_ok());
-    }
-
-    #[test]
-    fn check_lookup_metadata_rejects_disabled_or_degenerate_polys() {
-        assert!(check_lookup_metadata_valid(0, 5, 1, 8, 40).is_err());
-        assert!(check_lookup_metadata_valid(1, 5, 1, 8, 40).is_err());
-    }
-
-    #[test]
-    fn check_lookup_metadata_rejects_wrong_selector_count() {
-        assert!(check_lookup_metadata_valid(7, 4, 1, 8, 40).is_err());
-    }
-
-    #[test]
-    fn check_lookup_metadata_rejects_low_quotient_degree() {
-        assert!(check_lookup_metadata_valid(7, 5, 1, 1, 40).is_err());
-    }
-
-    #[test]
-    fn standard_helpers_select_expected_zk_modes() {
-        let disabled = CircuitConfig::standard_recursion_config();
-        assert!(!disabled.zero_knowledge);
-
-        let zk = CircuitConfig::standard_recursion_zk_config();
-        assert!(zk.zero_knowledge);
-    }
-
-    #[test]
-    fn circuit_config_validate_accepts_valid_num_challenges() {
-        let config = CircuitConfig::standard_recursion_config();
-        config.validate(); // Should not panic (num_challenges = 2)
-    }
-
-    #[test]
-    #[should_panic(expected = "num_challenges must not be 0")]
-    fn circuit_config_validate_rejects_zero_num_challenges() {
-        let config = CircuitConfig {
-            num_challenges: 0, // Invalid - voids soundness
-            ..CircuitConfig::standard_recursion_config()
-        };
-        config.validate();
-    }
-
-    #[test]
-    #[should_panic(expected = "num_constants must not be 0")]
-    fn circuit_config_validate_rejects_zero_num_constants() {
-        let config = CircuitConfig {
-            num_constants: 0, // Invalid - causes infinite loop
-            ..CircuitConfig::standard_recursion_config()
-        };
-        config.validate();
-    }
-}
-
 /// Validate common circuit data fields shared between prover and verifier.
 ///
 /// This is a free function to avoid duplication between `CommonCircuitData::check_valid`
@@ -357,6 +232,31 @@ pub fn check_gate_shape(
     Ok(())
 }
 
+/// Validate that the two FRI views inside `CommonCircuitData` agree.
+///
+/// Common data stores the FRI config twice (`config.fri_config` and `fri_params.config`) and the
+/// initial FRI degree twice (`public_initial_degree_bits` and `fri_params.degree_bits`). The
+/// verifier samples query indices from `config.fri_config` and `public_initial_degree_bits` but
+/// checks proof shape and runs FRI against `fri_params`; if the copies disagree (e.g. a smaller
+/// `num_query_rounds` in `config.fri_config`), only the smaller number of query rounds is actually
+/// verified. Require the copies to match so both paths use identical parameters.
+///
+/// Comparison is used rather than recomputing `fri_params`, because recomputation on forged config
+/// (arbitrary `rate_bits` / arities) can itself panic instead of returning an error.
+pub fn check_fri_params_consistent(
+    config: &CircuitConfig,
+    public_initial_degree_bits: usize,
+    fri_params: &FriParams,
+) -> Result<(), &'static str> {
+    if fri_params.config != config.fri_config {
+        return Err("fri_params.config must match config.fri_config");
+    }
+    if fri_params.degree_bits != public_initial_degree_bits {
+        return Err("fri_params.degree_bits must match public_initial_degree_bits");
+    }
+    Ok(())
+}
+
 /// Validate lookup metadata against the declared lookup tables and circuit config.
 ///
 /// `num_lookup_polys` and `num_lookup_selectors` are fully determined by the table count and
@@ -408,4 +308,152 @@ pub fn check_lookup_metadata_valid(
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        check_common_data_valid, check_fri_params_consistent, check_gate_shape,
+        check_lookup_metadata_valid, CircuitConfig,
+    };
+
+    #[test]
+    fn check_common_data_rejects_zero_quotient_degree() {
+        let config = CircuitConfig::standard_recursion_config();
+        let nrw = config.num_routed_wires;
+        assert!(check_common_data_valid(&config, 0, 10, 4, 4, 0, nrw, || false).is_err());
+    }
+
+    #[test]
+    fn check_common_data_validates_partial_products() {
+        let config = CircuitConfig::standard_recursion_config();
+        let nrw = config.num_routed_wires;
+        let qdf = 8;
+        let expected = nrw.div_ceil(qdf) - 1;
+        assert!(check_common_data_valid(&config, qdf, 10, 4, 4, expected, nrw, || false).is_ok());
+        assert!(
+            check_common_data_valid(&config, qdf, 10, 4, 4, expected + 1, nrw, || false).is_err()
+        );
+    }
+
+    #[test]
+    fn check_common_data_rejects_wrong_k_is_length() {
+        let config = CircuitConfig::standard_recursion_config();
+        let nrw = config.num_routed_wires;
+        let expected = nrw.div_ceil(8) - 1;
+        assert!(
+            check_common_data_valid(&config, 8, 10, 4, 4, expected, nrw - 1, || false).is_err()
+        );
+    }
+
+    #[test]
+    fn check_gate_shape_rejects_oversized_gates() {
+        let config = CircuitConfig::standard_recursion_config();
+        let nc = config.num_constants;
+        assert!(check_gate_shape(config.num_wires, 0, 1, &config, 1, 0, nc, 4).is_ok());
+        assert!(check_gate_shape(config.num_wires + 1, 0, 1, &config, 1, 0, nc, 4).is_err());
+        assert!(check_gate_shape(1, nc, 1, &config, 1, 0, nc, 4).is_err());
+        assert!(check_gate_shape(1, 0, 5, &config, 1, 0, nc, 4).is_err());
+    }
+
+    #[test]
+    fn check_valid_rejects_routed_wires_exceeding_wires() {
+        let config = CircuitConfig {
+            num_routed_wires: 200,
+            num_wires: 143,
+            ..CircuitConfig::standard_recursion_config()
+        };
+        assert!(config.check_valid().is_err());
+    }
+
+    #[test]
+    fn check_lookup_metadata_accepts_absent_lookups() {
+        assert!(check_lookup_metadata_valid(0, 0, 0, 8, 40).is_ok());
+    }
+
+    #[test]
+    fn check_lookup_metadata_rejects_phantom_lookups() {
+        assert!(check_lookup_metadata_valid(1, 0, 0, 8, 40).is_err());
+        assert!(check_lookup_metadata_valid(0, 1, 0, 8, 40).is_err());
+    }
+
+    #[test]
+    fn check_lookup_metadata_accepts_consistent_lookups() {
+        // num_routed_wires = 80 => LookupGate slots = 40, qdf = 8 => degree 7.
+        // selectors = StartEnd(4) + 1 lut = 5; polys = ceil(40 / 7) + 1 = 7.
+        assert!(check_lookup_metadata_valid(7, 5, 1, 8, 40).is_ok());
+    }
+
+    #[test]
+    fn check_lookup_metadata_rejects_disabled_or_degenerate_polys() {
+        assert!(check_lookup_metadata_valid(0, 5, 1, 8, 40).is_err());
+        assert!(check_lookup_metadata_valid(1, 5, 1, 8, 40).is_err());
+    }
+
+    #[test]
+    fn check_lookup_metadata_rejects_wrong_selector_count() {
+        assert!(check_lookup_metadata_valid(7, 4, 1, 8, 40).is_err());
+    }
+
+    #[test]
+    fn check_lookup_metadata_rejects_low_quotient_degree() {
+        assert!(check_lookup_metadata_valid(7, 5, 1, 1, 40).is_err());
+    }
+
+    #[test]
+    fn check_fri_params_accepts_derived_params() {
+        let config = CircuitConfig::standard_recursion_config();
+        let params = config.fri_config.fri_params(10, config.zero_knowledge);
+        assert!(check_fri_params_consistent(&config, 10, &params).is_ok());
+    }
+
+    #[test]
+    fn check_fri_params_rejects_query_round_mismatch() {
+        let config = CircuitConfig::standard_recursion_config();
+        let mut params = config.fri_config.fri_params(10, config.zero_knowledge);
+        params.config.num_query_rounds -= 1;
+        assert!(check_fri_params_consistent(&config, 10, &params).is_err());
+    }
+
+    #[test]
+    fn check_fri_params_rejects_degree_bits_mismatch() {
+        let config = CircuitConfig::standard_recursion_config();
+        let params = config.fri_config.fri_params(10, config.zero_knowledge);
+        assert!(check_fri_params_consistent(&config, 11, &params).is_err());
+    }
+
+    #[test]
+    fn standard_helpers_select_expected_zk_modes() {
+        let disabled = CircuitConfig::standard_recursion_config();
+        assert!(!disabled.zero_knowledge);
+
+        let zk = CircuitConfig::standard_recursion_zk_config();
+        assert!(zk.zero_knowledge);
+    }
+
+    #[test]
+    fn circuit_config_validate_accepts_valid_num_challenges() {
+        let config = CircuitConfig::standard_recursion_config();
+        config.validate(); // Should not panic (num_challenges = 2)
+    }
+
+    #[test]
+    #[should_panic(expected = "num_challenges must not be 0")]
+    fn circuit_config_validate_rejects_zero_num_challenges() {
+        let config = CircuitConfig {
+            num_challenges: 0, // Invalid - voids soundness
+            ..CircuitConfig::standard_recursion_config()
+        };
+        config.validate();
+    }
+
+    #[test]
+    #[should_panic(expected = "num_constants must not be 0")]
+    fn circuit_config_validate_rejects_zero_num_constants() {
+        let config = CircuitConfig {
+            num_constants: 0, // Invalid - causes infinite loop
+            ..CircuitConfig::standard_recursion_config()
+        };
+        config.validate();
+    }
 }

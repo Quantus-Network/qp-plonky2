@@ -857,6 +857,13 @@ pub trait Read {
         )
         .map_err(|_| IoError)?;
 
+        qp_plonky2_core::circuit_config::check_fri_params_consistent(
+            &common_data.config,
+            common_data.public_initial_degree_bits,
+            &common_data.fri_params,
+        )
+        .map_err(|_| IoError)?;
+
         qp_plonky2_core::circuit_config::check_lookup_metadata_valid(
             common_data.num_lookup_polys,
             common_data.num_lookup_selectors,
