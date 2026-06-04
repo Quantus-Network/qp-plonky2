@@ -257,18 +257,35 @@ where
     let cap_height = fri_params.config.cap_height;
 
     ensure!(trace_cap.height() == cap_height);
-    ensure!(
-        quotient_polys_cap.is_none()
-            || quotient_polys_cap.as_ref().map(|q| q.height()) == Some(cap_height)
-    );
+
+    // Validate quotient polynomial cap and openings consistency.
+    // When quotient polynomials are required (num_quotient_polys > 0), both the cap
+    // and openings must be present. When not required, both must be absent.
+    // This prevents attackers from providing fake quotient openings without a commitment.
+    let num_quotient_polys = stark.num_quotient_polys(config);
+    if num_quotient_polys > 0 {
+        let quotient_cap = quotient_polys_cap
+            .as_ref()
+            .ok_or_else(|| anyhow!("Missing quotient_polys_cap when quotient polynomials are required"))?;
+        ensure!(quotient_cap.height() == cap_height);
+
+        let quotient_openings = quotient_polys
+            .as_ref()
+            .ok_or_else(|| anyhow!("Missing quotient_polys when quotient polynomials are required"))?;
+        ensure!(quotient_openings.len() == num_quotient_polys);
+    } else {
+        ensure!(
+            quotient_polys_cap.is_none(),
+            "quotient_polys_cap should be None when no quotient polynomials are required"
+        );
+        ensure!(
+            quotient_polys.is_none(),
+            "quotient_polys should be None when no quotient polynomials are required"
+        );
+    }
 
     ensure!(local_values.len() == S::COLUMNS);
     ensure!(next_values.len() == S::COLUMNS);
-    ensure!(if let Some(quotient_polys) = quotient_polys {
-        quotient_polys.len() == stark.num_quotient_polys(config)
-    } else {
-        stark.num_quotient_polys(config) == 0
-    });
 
     check_lookup_options::<F, C, S, D>(
         stark,

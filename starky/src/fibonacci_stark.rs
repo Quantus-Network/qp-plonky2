@@ -351,4 +351,71 @@ mod tests {
 
         Ok(())
     }
+
+    /// Test that quotient_polys_cap is required when quotient polynomials exist.
+    ///
+    /// Before the fix, validate_proof_shape would accept quotient_polys_cap = None
+    /// even when quotient_polys openings were present. This allows an attacker to
+    /// provide fake quotient polynomial openings without any Merkle commitment,
+    /// bypassing FRI verification of the quotient oracle.
+    #[test]
+    fn test_quotient_cap_required_when_quotient_polys_exist() {
+        const D: usize = 2;
+        type C = PoseidonGoldilocksConfig;
+        type F = <C as GenericConfig<D>>::F;
+        type S = FibonacciStark<F, D>;
+
+        let config = StarkConfig::standard_fast_config();
+        let num_rows = 1 << 5;
+        let stark = S::new(num_rows);
+
+        // Generate a valid proof
+        let public_inputs = [F::ZERO, F::ONE, fibonacci(num_rows - 1, F::ZERO, F::ONE)];
+        let trace = stark.generate_trace(public_inputs[0], public_inputs[1]);
+        let mut proof = prove::<F, C, S, D>(
+            stark,
+            &config,
+            trace,
+            &public_inputs,
+            None,
+            &mut TimingTree::default(),
+        )
+        .expect("Valid proof should succeed");
+
+        // Verify the valid proof works
+        assert!(verify_stark_proof(stark, proof.clone(), &config, None).is_ok());
+
+        // Confirm quotient polys exist for this STARK
+        assert!(
+            stark.quotient_degree_factor() > 0,
+            "FibonacciStark should have quotient polynomials"
+        );
+        assert!(
+            proof.proof.quotient_polys_cap.is_some(),
+            "Valid proof should have quotient_polys_cap"
+        );
+        assert!(
+            proof.proof.openings.quotient_polys.is_some(),
+            "Valid proof should have quotient_polys openings"
+        );
+
+        // Now remove the quotient_polys_cap but keep the quotient_polys openings
+        // This should be rejected because it allows unverified quotient values
+        proof.proof.quotient_polys_cap = None;
+
+        let result = verify_stark_proof(stark, proof, &config, None);
+        assert!(
+            result.is_err(),
+            "Verification should fail when quotient_polys_cap is missing but quotient_polys exist. \
+             Before the fix, this would incorrectly succeed, allowing attackers to forge quotient openings."
+        );
+
+        // Verify the error is specifically about missing quotient_polys_cap (not a later FRI error)
+        let err_msg = result.unwrap_err().to_string();
+        assert!(
+            err_msg.contains("quotient_polys_cap"),
+            "Error should mention missing quotient_polys_cap, but got: {}",
+            err_msg
+        );
+    }
 }
