@@ -74,6 +74,7 @@ impl StarkConfig {
     pub fn check_config<F: RichField + Extendable<D>, const D: usize>(&self) -> Result<()> {
         let StarkConfig {
             security_bits,
+            num_challenges,
             fri_config:
                 FriConfig {
                     rate_bits,
@@ -81,8 +82,29 @@ impl StarkConfig {
                     num_query_rounds,
                     ..
                 },
-            ..
         } = &self;
+
+        // num_challenges must be at least 1. With num_challenges = 0, no constraint
+        // accumulators are created, and all STARK/lookup/CTL constraints become no-ops.
+        // This would allow proofs for arbitrary invalid traces to pass verification.
+        if *num_challenges == 0 {
+            return Err(anyhow!(
+                "num_challenges must be at least 1; with 0 challenges, no constraints are enforced"
+            ));
+        }
+
+        // Each challenge provides ~log2(|F|) bits of security for the constraint
+        // combination. With the Goldilocks field (64 bits), we need at least
+        // ceil(security_bits / 64) challenges to meet the security target.
+        let field_bits = F::order().bits() as usize;
+        let min_challenges_for_security = security_bits.div_ceil(field_bits);
+        if *num_challenges < min_challenges_for_security {
+            return Err(anyhow!(format!(
+                "num_challenges ({}) is insufficient for {} bits of security; \
+                 need at least {} challenges with a {}-bit field",
+                num_challenges, security_bits, min_challenges_for_security, field_bits
+            )));
+        }
 
         // Conjectured FRI security; see the ethSTARK paper.
         let fri_field_bits = F::Extension::order().bits() as usize;
@@ -170,5 +192,61 @@ mod tests {
         // The conjectured security yields `rate_bits` * `num_query_rounds` + `proof_of_work_bits` = 66
         // bits of security for FRI, which falls short of the 100 bits of security target.
         assert!(too_few_queries_config.check_config::<F, D>().is_err());
+    }
+
+    /// Test that num_challenges = 0 is rejected.
+    ///
+    /// With num_challenges = 0, no constraint accumulators are created and all
+    /// STARK/lookup/CTL constraints become no-ops. This would allow proofs for
+    /// arbitrary invalid traces to pass verification.
+    #[test]
+    fn test_zero_challenges_rejected() {
+        type F = GoldilocksField;
+        const D: usize = 2;
+
+        let zero_challenges_config = StarkConfig::new(
+            100,
+            0, // VULNERABLE: no challenges means no constraint enforcement
+            FriConfig {
+                rate_bits: 1,
+                cap_height: 4,
+                proof_of_work_bits: 16,
+                reduction_strategy: FriReductionStrategy::ConstantArityBits(4, 5),
+                num_query_rounds: 84,
+            },
+        );
+
+        assert!(
+            zero_challenges_config.check_config::<F, D>().is_err(),
+            "num_challenges = 0 should be rejected because it disables all constraint checking"
+        );
+    }
+
+    /// Test that num_challenges must be sufficient for the target security level.
+    ///
+    /// Each challenge provides ~log2(|F|) bits of security for constraint combination.
+    /// For 100-bit security with a 64-bit field, we need at least 2 challenges.
+    #[test]
+    fn test_insufficient_challenges_rejected() {
+        type F = GoldilocksField;
+        const D: usize = 2;
+
+        // 100 bits security with 64-bit field needs ceil(100/64) = 2 challenges
+        let one_challenge_config = StarkConfig::new(
+            100,
+            1, // Insufficient: provides only ~64 bits of security
+            FriConfig {
+                rate_bits: 1,
+                cap_height: 4,
+                proof_of_work_bits: 16,
+                reduction_strategy: FriReductionStrategy::ConstantArityBits(4, 5),
+                num_query_rounds: 84,
+            },
+        );
+
+        assert!(
+            one_challenge_config.check_config::<F, D>().is_err(),
+            "num_challenges = 1 should be rejected for 100-bit security with 64-bit field"
+        );
     }
 }
