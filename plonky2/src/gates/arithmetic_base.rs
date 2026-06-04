@@ -23,7 +23,7 @@ use crate::plonk::vars::{
     EvaluationTargets, EvaluationVars, EvaluationVarsBase, EvaluationVarsBaseBatch,
     EvaluationVarsBasePacked,
 };
-use crate::util::serialization::{Buffer, IoResult, Read, Write};
+use crate::util::serialization::{Buffer, IoError, IoResult, Read, Write};
 
 /// A gate which can perform a weighted multiply-add, i.e. `result = c0.x.y + c1.z`. If the config
 /// has enough routed wires, it can support several such operations in one gate.
@@ -69,9 +69,13 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for ArithmeticGate
         dst.write_usize(self.num_ops)
     }
 
-    fn deserialize(src: &mut Buffer, _common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
+    fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
         let num_ops = src.read_usize()?;
-        Ok(Self { num_ops })
+        let gate = Self::new_from_config(&common_data.config);
+        if num_ops != gate.num_ops {
+            return Err(IoError);
+        }
+        Ok(gate)
     }
 
     fn eval_unfiltered(&self, vars: EvaluationVars<F, D>) -> Vec<F::Extension> {

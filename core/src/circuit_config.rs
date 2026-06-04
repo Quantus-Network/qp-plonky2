@@ -123,7 +123,42 @@ impl CircuitConfig {
 
 #[cfg(test)]
 mod tests {
-    use super::CircuitConfig;
+    use super::{check_common_data_valid, check_gate_shape, CircuitConfig};
+
+    #[test]
+    fn check_common_data_rejects_zero_quotient_degree() {
+        let config = CircuitConfig::standard_recursion_config();
+        let nrw = config.num_routed_wires;
+        assert!(check_common_data_valid(&config, 0, 10, 4, 4, 0, nrw, || false).is_err());
+    }
+
+    #[test]
+    fn check_common_data_validates_partial_products() {
+        let config = CircuitConfig::standard_recursion_config();
+        let nrw = config.num_routed_wires;
+        let qdf = 8;
+        let expected = nrw.div_ceil(qdf) - 1;
+        assert!(check_common_data_valid(&config, qdf, 10, 4, 4, expected, nrw, || false).is_ok());
+        assert!(check_common_data_valid(&config, qdf, 10, 4, 4, expected + 1, nrw, || false).is_err());
+    }
+
+    #[test]
+    fn check_common_data_rejects_wrong_k_is_length() {
+        let config = CircuitConfig::standard_recursion_config();
+        let nrw = config.num_routed_wires;
+        let expected = nrw.div_ceil(8) - 1;
+        assert!(check_common_data_valid(&config, 8, 10, 4, 4, expected, nrw - 1, || false).is_err());
+    }
+
+    #[test]
+    fn check_gate_shape_rejects_oversized_gates() {
+        let config = CircuitConfig::standard_recursion_config();
+        let nc = config.num_constants;
+        assert!(check_gate_shape(config.num_wires, 0, 1, &config, 1, 0, nc, 4).is_ok());
+        assert!(check_gate_shape(config.num_wires + 1, 0, 1, &config, 1, 0, nc, 4).is_err());
+        assert!(check_gate_shape(1, nc, 1, &config, 1, 0, nc, 4).is_err());
+        assert!(check_gate_shape(1, 0, 5, &config, 1, 0, nc, 4).is_err());
+    }
 
     #[test]
     fn standard_helpers_select_expected_zk_modes() {
@@ -172,6 +207,8 @@ mod tests {
 /// * `rate_bits` - FRI rate bits from config
 /// * `public_initial_degree_bits` - Public initial FRI degree bits
 /// * `trace_degree_bits` - Trace polynomial degree bits
+/// * `num_partial_products` - Declared number of partial products
+/// * `k_is_len` - Length of the permutation-argument coset shift vector
 /// * `luts` - Lookup tables (as slice of slices for flexibility)
 ///
 /// # Returns
@@ -182,14 +219,37 @@ pub fn check_common_data_valid(
     rate_bits: usize,
     public_initial_degree_bits: usize,
     trace_degree_bits: usize,
+    num_partial_products: usize,
+    k_is_len: usize,
     luts_empty_check: impl Fn() -> bool,
 ) -> Result<(), &'static str> {
     config.check_valid()?;
+
+    // The permutation argument indexes one coset shift per routed wire.
+    if k_is_len != config.num_routed_wires {
+        return Err("k_is length must equal num_routed_wires");
+    }
+
+    // A zero quotient degree factor breaks partial-product chunking and quotient sizing.
+    if quotient_degree_factor == 0 {
+        return Err("quotient_degree_factor must not be 0");
+    }
 
     // Quotient degree must fit within FRI rate.
     let quotient_degree_bits = crate::util::log2_ceil(quotient_degree_factor);
     if quotient_degree_bits > rate_bits {
         return Err("quotient_degree_factor exceeds FRI rate_bits");
+    }
+
+    // num_partial_products is fully determined by the routed-wire count and quotient degree;
+    // an inconsistent value mis-sizes the partial-product portion of every proof.
+    let expected_partial_products = config
+        .num_routed_wires
+        .div_ceil(quotient_degree_factor)
+        .checked_sub(1)
+        .ok_or("num_partial_products underflows")?;
+    if num_partial_products != expected_partial_products {
+        return Err("num_partial_products inconsistent with circuit config");
     }
 
     // Public initial degree must be at least as large as trace degree.
@@ -202,5 +262,39 @@ pub fn check_common_data_valid(
         return Err("lookup table is empty");
     }
 
+    Ok(())
+}
+
+/// Validate a single gate's declared shape against the surrounding circuit data.
+///
+/// Intended for deserialization of untrusted data: ensures a gate cannot reference more
+/// wires, constants, or constraints than the circuit configuration accounts for, which
+/// would otherwise cause out-of-bounds access during constraint evaluation.
+///
+/// `num_selectors` and `num_lookup_selectors` are the constant slots consumed before a
+/// gate's own constants, so a gate's constants must fit in what remains.
+pub fn check_gate_shape(
+    gate_num_wires: usize,
+    gate_num_constants: usize,
+    gate_num_constraints: usize,
+    config: &CircuitConfig,
+    num_selectors: usize,
+    num_lookup_selectors: usize,
+    num_constants: usize,
+    num_gate_constraints: usize,
+) -> Result<(), &'static str> {
+    if gate_num_wires > config.num_wires {
+        return Err("gate uses more wires than the circuit configuration provides");
+    }
+    let constants_used = num_selectors
+        .checked_add(num_lookup_selectors)
+        .and_then(|prefix| prefix.checked_add(gate_num_constants))
+        .ok_or("gate constant count overflows")?;
+    if constants_used > num_constants {
+        return Err("gate uses more constants than the circuit configuration provides");
+    }
+    if gate_num_constraints > num_gate_constraints {
+        return Err("gate emits more constraints than num_gate_constraints");
+    }
     Ok(())
 }

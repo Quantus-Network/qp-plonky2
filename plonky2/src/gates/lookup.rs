@@ -27,7 +27,7 @@ use crate::plonk::vars::{
     EvaluationTargets, EvaluationVars, EvaluationVarsBase, EvaluationVarsBaseBatch,
     EvaluationVarsBasePacked,
 };
-use crate::util::serialization::{Buffer, IoResult, Read, Write};
+use crate::util::serialization::{Buffer, IoError, IoResult, Read, Write};
 
 pub type Lookup = Vec<(Target, Target)>;
 
@@ -96,9 +96,10 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for LookupGate {
         let mut lut_hash = [0u8; 32];
         src.read_exact(&mut lut_hash)?;
 
+        let lut = common_data.luts.get(lut_index).ok_or(IoError)?.clone();
         Ok(Self {
             num_slots,
-            lut: common_data.luts[lut_index].clone(),
+            lut,
             lut_hash,
         })
     }
@@ -238,9 +239,10 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D> for Loo
         let slot_nb = src.read_usize()?;
         let lut_index = src.read_usize()?;
 
+        let lut = common_data.luts.get(lut_index).ok_or(IoError)?.clone();
         Ok(Self {
             row,
-            lut: common_data.luts[lut_index].clone(),
+            lut,
             slot_nb,
         })
     }

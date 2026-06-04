@@ -230,6 +230,17 @@ impl FriConfig {
     pub const fn num_cap_elements(&self) -> usize {
         1 << self.cap_height
     }
+
+    /// Validate invariants that hold for any genuinely-built circuit.
+    ///
+    /// Intended for deserialization of untrusted data: a config that fails these checks
+    /// would let verification skip all queries (zero soundness), so it is rejected.
+    pub fn check_valid(&self) -> Result<(), &'static str> {
+        if self.num_query_rounds == 0 {
+            return Err("num_query_rounds must not be 0 (zero queries means no soundness)");
+        }
+        Ok(())
+    }
 }
 
 /// FRI parameters, including generated parameters which are specific to an instance size, in
@@ -275,6 +286,27 @@ impl FriParams {
 
     pub fn final_poly_len(&self) -> usize {
         1 << self.final_poly_bits()
+    }
+
+    /// Validate invariants that hold for any genuinely-built circuit.
+    ///
+    /// Intended for deserialization of untrusted data: rejects reduction schedules that
+    /// would otherwise underflow [`Self::final_poly_bits`] or drive oversized FRI loops.
+    pub fn check_valid(&self) -> Result<(), &'static str> {
+        self.config.check_valid()?;
+        let mut total_arities = 0usize;
+        for &arity_bits in &self.reduction_arity_bits {
+            if arity_bits > self.degree_bits {
+                return Err("FRI reduction arity exceeds degree_bits");
+            }
+            total_arities = total_arities
+                .checked_add(arity_bits)
+                .ok_or("FRI reduction arities sum overflows")?;
+        }
+        if total_arities > self.degree_bits {
+            return Err("sum of FRI reduction arities exceeds degree_bits");
+        }
+        Ok(())
     }
 }
 

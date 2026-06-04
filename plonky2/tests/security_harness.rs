@@ -265,3 +265,77 @@ fn zero_poly_on_coset_valid_domain_works() {
     let eval_inverse = z_h.eval_inverse(0);
     assert_eq!(eval * eval_inverse, F::ONE);
 }
+
+fn sample_common_data() -> plonky2::plonk::circuit_data::CommonCircuitData<F, D> {
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let x = builder.add_virtual_public_input();
+    let y = builder.mul(x, x);
+    builder.register_public_input(y);
+    builder.build::<C>().common
+}
+
+fn tampered_common_data_is_rejected(
+    mutate: impl FnOnce(&mut plonky2::plonk::circuit_data::CommonCircuitData<F, D>),
+) -> bool {
+    use plonky2::plonk::circuit_data::CommonCircuitData;
+    use plonky2::util::serialization::DefaultGateSerializer;
+
+    let gate_serializer = DefaultGateSerializer;
+    let mut common = sample_common_data();
+    mutate(&mut common);
+    let bytes = common.to_bytes(&gate_serializer).unwrap();
+    CommonCircuitData::<F, D>::from_bytes(bytes, &gate_serializer).is_err()
+}
+
+#[test]
+fn genuine_common_data_round_trips() {
+    use plonky2::plonk::circuit_data::CommonCircuitData;
+    use plonky2::util::serialization::DefaultGateSerializer;
+
+    let gate_serializer = DefaultGateSerializer;
+    let bytes = sample_common_data().to_bytes(&gate_serializer).unwrap();
+    assert!(CommonCircuitData::<F, D>::from_bytes(bytes, &gate_serializer).is_ok());
+}
+
+#[test]
+fn deserialization_rejects_zero_query_rounds() {
+    assert!(tampered_common_data_is_rejected(|c| {
+        c.config.fri_config.num_query_rounds = 0;
+    }));
+}
+
+#[test]
+fn deserialization_rejects_excessive_reduction_arities() {
+    assert!(tampered_common_data_is_rejected(|c| {
+        c.fri_params.reduction_arity_bits = vec![c.fri_params.degree_bits + 1];
+    }));
+}
+
+#[test]
+fn deserialization_rejects_inconsistent_partial_products() {
+    assert!(tampered_common_data_is_rejected(|c| {
+        c.num_partial_products += 1;
+    }));
+}
+
+#[test]
+fn deserialization_rejects_zero_quotient_degree_factor() {
+    assert!(tampered_common_data_is_rejected(|c| {
+        c.quotient_degree_factor = 0;
+    }));
+}
+
+#[test]
+fn deserialization_rejects_selector_index_length_mismatch() {
+    assert!(tampered_common_data_is_rejected(|c| {
+        c.selectors_info.selector_indices.push(0);
+    }));
+}
+
+#[test]
+fn deserialization_rejects_wrong_k_is_length() {
+    assert!(tampered_common_data_is_rejected(|c| {
+        c.k_is.push(F::ZERO);
+    }));
+}
