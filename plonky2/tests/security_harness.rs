@@ -2,8 +2,8 @@ use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::sync::Arc;
 
 use plonky2::field::types::Field;
-use plonky2::gadgets::lookup::TIP5_TABLE;
 use plonky2::field::zero_poly_coset::ZeroPolyOnCoset;
+use plonky2::gadgets::lookup::TIP5_TABLE;
 use plonky2::gates::coset_interpolation::CosetInterpolationGate;
 use plonky2::gates::exponentiation::ExponentiationGate;
 use plonky2::gates::gate::Gate;
@@ -310,9 +310,7 @@ fn tampered_common_data_is_rejected(
     tamper_is_rejected(sample_common_data(), mutate)
 }
 
-fn common_data_round_trips(
-    common: plonky2::plonk::circuit_data::CommonCircuitData<F, D>,
-) -> bool {
+fn common_data_round_trips(common: plonky2::plonk::circuit_data::CommonCircuitData<F, D>) -> bool {
     use plonky2::plonk::circuit_data::CommonCircuitData;
     use plonky2::util::serialization::DefaultGateSerializer;
 

@@ -43,7 +43,10 @@ impl SelectorsInfo {
         // active row, and a group that excludes `i` mis-evaluates that filter (skipping the
         // gate's constraints). `compute_filter` relies on this via a release-stripped assert.
         for (gate_idx, &index) in self.selector_indices.iter().enumerate() {
-            let group = self.groups.get(index).ok_or("selector index out of range")?;
+            let group = self
+                .groups
+                .get(index)
+                .ok_or("selector index out of range")?;
             if !group.contains(&gate_idx) {
                 return Err("selector group does not contain its gate");
             }
