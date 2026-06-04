@@ -426,16 +426,22 @@ fn genuine_common_data_with_reductions_round_trips() {
 
 #[test]
 fn deserialization_rejects_cleared_reduction_arities() {
-    assert!(tamper_is_rejected(sample_common_data_with_reductions(), |c| {
-        c.fri_params.reduction_arity_bits.clear();
-    }));
+    assert!(tamper_is_rejected(
+        sample_common_data_with_reductions(),
+        |c| {
+            c.fri_params.reduction_arity_bits.clear();
+        }
+    ));
 }
 
 #[test]
 fn deserialization_rejects_altered_reduction_arity() {
-    assert!(tamper_is_rejected(sample_common_data_with_reductions(), |c| {
-        c.fri_params.reduction_arity_bits[0] = 1;
-    }));
+    assert!(tamper_is_rejected(
+        sample_common_data_with_reductions(),
+        |c| {
+            c.fri_params.reduction_arity_bits[0] = 1;
+        }
+    ));
 }
 
 #[test]
