@@ -291,6 +291,19 @@ fn sample_lookup_common_data() -> plonky2::plonk::circuit_data::CommonCircuitDat
     builder.build::<C>().common
 }
 
+fn sample_common_data_with_reductions() -> plonky2::plonk::circuit_data::CommonCircuitData<F, D> {
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let mut x = builder.add_virtual_public_input();
+    for _ in 0..5_000 {
+        x = builder.mul(x, x);
+    }
+    builder.register_public_input(x);
+    let common = builder.build::<C>().common;
+    assert!(!common.fri_params.reduction_arity_bits.is_empty());
+    common
+}
+
 fn tamper_is_rejected(
     mut common: plonky2::plonk::circuit_data::CommonCircuitData<F, D>,
     mutate: impl FnOnce(&mut plonky2::plonk::circuit_data::CommonCircuitData<F, D>),
@@ -403,6 +416,32 @@ fn deserialization_rejects_mismatched_fri_rate_bits() {
 fn deserialization_rejects_mismatched_public_initial_degree_bits() {
     assert!(tampered_common_data_is_rejected(|c| {
         c.public_initial_degree_bits += 1;
+    }));
+}
+
+#[test]
+fn genuine_common_data_with_reductions_round_trips() {
+    assert!(common_data_round_trips(sample_common_data_with_reductions()));
+}
+
+#[test]
+fn deserialization_rejects_cleared_reduction_arities() {
+    assert!(tamper_is_rejected(sample_common_data_with_reductions(), |c| {
+        c.fri_params.reduction_arity_bits.clear();
+    }));
+}
+
+#[test]
+fn deserialization_rejects_altered_reduction_arity() {
+    assert!(tamper_is_rejected(sample_common_data_with_reductions(), |c| {
+        c.fri_params.reduction_arity_bits[0] = 1;
+    }));
+}
+
+#[test]
+fn deserialization_rejects_flipped_leaf_hiding() {
+    assert!(tampered_common_data_is_rejected(|c| {
+        c.fri_params.leaf_hiding = !c.fri_params.leaf_hiding;
     }));
 }
 

@@ -38,30 +38,62 @@ pub enum FriReductionStrategy {
 
 impl FriReductionStrategy {
     /// The arity of each FRI reduction step, expressed as the log2 of the actual arity.
+    ///
+    /// Panics on parameters that cannot describe a real circuit; use
+    /// [`Self::checked_reduction_arity_bits`] when deriving from untrusted data.
     pub fn reduction_arity_bits(
+        &self,
+        degree_bits: usize,
+        rate_bits: usize,
+        cap_height: usize,
+        num_queries: usize,
+    ) -> Vec<usize> {
+        self.checked_reduction_arity_bits(degree_bits, rate_bits, cap_height, num_queries)
+            .expect("invalid FRI reduction parameters")
+    }
+
+    /// Fallible [`Self::reduction_arity_bits`] for deserialization of untrusted data: returns an
+    /// error instead of panicking (overflow/underflow) on forged FRI parameters.
+    pub fn checked_reduction_arity_bits(
         &self,
         mut degree_bits: usize,
         rate_bits: usize,
         cap_height: usize,
         num_queries: usize,
-    ) -> Vec<usize> {
+    ) -> Result<Vec<usize>, &'static str> {
+        // The LDE layer is 2^(degree_bits + rate_bits); bound it so the derivations below cannot
+        // overflow and the MinSize search stays finite.
+        degree_bits
+            .checked_add(rate_bits)
+            .filter(|&b| b < usize::BITS as usize)
+            .ok_or("FRI degree_bits + rate_bits exceeds usize width")?;
         match self {
-            FriReductionStrategy::Fixed(reduction_arity_bits) => reduction_arity_bits.to_vec(),
+            FriReductionStrategy::Fixed(reduction_arity_bits) => Ok(reduction_arity_bits.to_vec()),
             &FriReductionStrategy::ConstantArityBits(arity_bits, final_poly_bits) => {
                 let mut result = Vec::new();
-                while degree_bits > final_poly_bits
-                    && degree_bits + rate_bits - arity_bits >= cap_height
-                {
+                while degree_bits > final_poly_bits {
+                    let layer_bits = degree_bits
+                        .checked_add(rate_bits)
+                        .and_then(|v| v.checked_sub(arity_bits))
+                        .ok_or("FRI reduction arity exceeds the LDE layer size")?;
+                    if layer_bits < cap_height {
+                        break;
+                    }
+                    if degree_bits < arity_bits {
+                        return Err("FRI reduction arity exceeds degree_bits");
+                    }
                     result.push(arity_bits);
-                    assert!(degree_bits >= arity_bits);
                     degree_bits -= arity_bits;
                 }
                 result.shrink_to_fit();
-                result
+                Ok(result)
             }
-            FriReductionStrategy::MinSize(opt_max_arity_bits) => {
-                min_size_arity_bits(degree_bits, rate_bits, num_queries, *opt_max_arity_bits)
-            }
+            FriReductionStrategy::MinSize(opt_max_arity_bits) => Ok(min_size_arity_bits(
+                degree_bits,
+                rate_bits,
+                num_queries,
+                *opt_max_arity_bits,
+            )),
         }
     }
 
@@ -213,18 +245,29 @@ impl FriConfig {
     }
 
     pub fn fri_params(&self, degree_bits: usize, leaf_hiding: bool) -> FriParams {
-        let reduction_arity_bits = self.reduction_strategy.reduction_arity_bits(
+        self.checked_fri_params(degree_bits, leaf_hiding)
+            .expect("invalid FRI parameters")
+    }
+
+    /// Fallible [`Self::fri_params`] for deserialization of untrusted data: derives the full
+    /// [`FriParams`] (including `reduction_arity_bits`) without panicking on forged config.
+    pub fn checked_fri_params(
+        &self,
+        degree_bits: usize,
+        leaf_hiding: bool,
+    ) -> Result<FriParams, &'static str> {
+        let reduction_arity_bits = self.reduction_strategy.checked_reduction_arity_bits(
             degree_bits,
             self.rate_bits,
             self.cap_height,
             self.num_query_rounds,
-        );
-        FriParams {
+        )?;
+        Ok(FriParams {
             config: self.clone(),
             leaf_hiding,
             degree_bits,
             reduction_arity_bits,
-        }
+        })
     }
 
     pub const fn num_cap_elements(&self) -> usize {

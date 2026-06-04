@@ -232,27 +232,27 @@ pub fn check_gate_shape(
     Ok(())
 }
 
-/// Validate that the two FRI views inside `CommonCircuitData` agree.
+/// Validate that the derived `fri_params` inside `CommonCircuitData` matches `config.fri_config`.
 ///
-/// Common data stores the FRI config twice (`config.fri_config` and `fri_params.config`) and the
-/// initial FRI degree twice (`public_initial_degree_bits` and `fri_params.degree_bits`). The
-/// verifier samples query indices from `config.fri_config` and `public_initial_degree_bits` but
-/// checks proof shape and runs FRI against `fri_params`; if the copies disagree (e.g. a smaller
-/// `num_query_rounds` in `config.fri_config`), only the smaller number of query rounds is actually
-/// verified. Require the copies to match so both paths use identical parameters.
+/// `fri_params` is fully determined by `config.fri_config`, `public_initial_degree_bits`, and
+/// `config.zero_knowledge`, but the verifier draws FRI query indices from `config.fri_config`
+/// while running FRI (proof shape, reduction schedule, final polynomial, leaf salting) against
+/// `fri_params`. Any divergence in a derived field (`num_query_rounds`, `degree_bits`,
+/// `reduction_arity_bits`, `leaf_hiding`, ...) lets a forged blob weaken the FRI check instead of
+/// being rejected, so the whole structure is re-derived and compared.
 ///
-/// Comparison is used rather than recomputing `fri_params`, because recomputation on forged config
-/// (arbitrary `rate_bits` / arities) can itself panic instead of returning an error.
+/// The derivation is the fallible [`FriConfig::checked_fri_params`], which returns an error rather
+/// than panicking on forged config (arbitrary `rate_bits` / arities).
 pub fn check_fri_params_consistent(
     config: &CircuitConfig,
     public_initial_degree_bits: usize,
     fri_params: &FriParams,
 ) -> Result<(), &'static str> {
-    if fri_params.config != config.fri_config {
-        return Err("fri_params.config must match config.fri_config");
-    }
-    if fri_params.degree_bits != public_initial_degree_bits {
-        return Err("fri_params.degree_bits must match public_initial_degree_bits");
+    let expected = config
+        .fri_config
+        .checked_fri_params(public_initial_degree_bits, config.zero_knowledge)?;
+    if *fri_params != expected {
+        return Err("fri_params inconsistent with circuit config");
     }
     Ok(())
 }
@@ -312,6 +312,9 @@ pub fn check_lookup_metadata_valid(
 
 #[cfg(test)]
 mod tests {
+    #[cfg(not(feature = "std"))]
+    use alloc::vec;
+
     use super::{
         check_common_data_valid, check_fri_params_consistent, check_gate_shape,
         check_lookup_metadata_valid, CircuitConfig,
@@ -420,6 +423,23 @@ mod tests {
         let config = CircuitConfig::standard_recursion_config();
         let params = config.fri_config.fri_params(10, config.zero_knowledge);
         assert!(check_fri_params_consistent(&config, 11, &params).is_err());
+    }
+
+    #[test]
+    fn check_fri_params_rejects_arity_schedule_mismatch() {
+        let config = CircuitConfig::standard_recursion_config();
+        let mut params = config.fri_config.fri_params(12, config.zero_knowledge);
+        assert!(!params.reduction_arity_bits.is_empty());
+        params.reduction_arity_bits = vec![1];
+        assert!(check_fri_params_consistent(&config, 12, &params).is_err());
+    }
+
+    #[test]
+    fn check_fri_params_rejects_leaf_hiding_mismatch() {
+        let config = CircuitConfig::standard_recursion_config();
+        let mut params = config.fri_config.fri_params(10, config.zero_knowledge);
+        params.leaf_hiding = !config.zero_knowledge;
+        assert!(check_fri_params_consistent(&config, 10, &params).is_err());
     }
 
     #[test]
