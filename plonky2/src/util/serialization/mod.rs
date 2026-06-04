@@ -32,7 +32,7 @@ use crate::fri::proof::{
 use crate::fri::{FriConfig, FriParams, FriReductionStrategy};
 use crate::gadgets::polynomial::PolynomialCoeffsExtTarget;
 use crate::gates::gate::GateRef;
-use crate::gates::lookup::Lookup;
+use crate::gates::lookup::{Lookup, LookupGate};
 use crate::gates::selectors::SelectorsInfo;
 use crate::hash::hash_types::{HashOutTarget, MerkleCapTarget, RichField};
 use crate::hash::merkle_proofs::{MerkleProof, MerkleProofTarget};
@@ -854,6 +854,15 @@ pub trait Read {
             common_data.num_partial_products,
             common_data.k_is.len(),
             || common_data.luts.iter().any(|lut| lut.is_empty()),
+        )
+        .map_err(|_| IoError)?;
+
+        qp_plonky2_core::circuit_config::check_lookup_metadata_valid(
+            common_data.num_lookup_polys,
+            common_data.num_lookup_selectors,
+            common_data.luts.len(),
+            common_data.quotient_degree_factor,
+            LookupGate::num_slots(&common_data.config),
         )
         .map_err(|_| IoError)?;
 

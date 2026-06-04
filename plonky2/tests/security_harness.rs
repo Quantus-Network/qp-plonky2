@@ -1,6 +1,8 @@
 use std::panic::{catch_unwind, AssertUnwindSafe};
+use std::sync::Arc;
 
 use plonky2::field::types::Field;
+use plonky2::gadgets::lookup::TIP5_TABLE;
 use plonky2::field::zero_poly_coset::ZeroPolyOnCoset;
 use plonky2::gates::coset_interpolation::CosetInterpolationGate;
 use plonky2::gates::exponentiation::ExponentiationGate;
@@ -275,27 +277,58 @@ fn sample_common_data() -> plonky2::plonk::circuit_data::CommonCircuitData<F, D>
     builder.build::<C>().common
 }
 
-fn tampered_common_data_is_rejected(
+fn sample_lookup_common_data() -> plonky2::plonk::circuit_data::CommonCircuitData<F, D> {
+    use plonky2::gates::lookup_table::LookupTable;
+
+    let table: LookupTable = Arc::new((0u16..256).zip(TIP5_TABLE).collect());
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let input = builder.add_virtual_target();
+    let index = builder.add_lookup_table_from_pairs(table);
+    let output = builder.add_lookup_from_index(input, index);
+    builder.register_public_input(input);
+    builder.register_public_input(output);
+    builder.build::<C>().common
+}
+
+fn tamper_is_rejected(
+    mut common: plonky2::plonk::circuit_data::CommonCircuitData<F, D>,
     mutate: impl FnOnce(&mut plonky2::plonk::circuit_data::CommonCircuitData<F, D>),
 ) -> bool {
     use plonky2::plonk::circuit_data::CommonCircuitData;
     use plonky2::util::serialization::DefaultGateSerializer;
 
     let gate_serializer = DefaultGateSerializer;
-    let mut common = sample_common_data();
     mutate(&mut common);
     let bytes = common.to_bytes(&gate_serializer).unwrap();
     CommonCircuitData::<F, D>::from_bytes(bytes, &gate_serializer).is_err()
 }
 
-#[test]
-fn genuine_common_data_round_trips() {
+fn tampered_common_data_is_rejected(
+    mutate: impl FnOnce(&mut plonky2::plonk::circuit_data::CommonCircuitData<F, D>),
+) -> bool {
+    tamper_is_rejected(sample_common_data(), mutate)
+}
+
+fn common_data_round_trips(
+    common: plonky2::plonk::circuit_data::CommonCircuitData<F, D>,
+) -> bool {
     use plonky2::plonk::circuit_data::CommonCircuitData;
     use plonky2::util::serialization::DefaultGateSerializer;
 
     let gate_serializer = DefaultGateSerializer;
-    let bytes = sample_common_data().to_bytes(&gate_serializer).unwrap();
-    assert!(CommonCircuitData::<F, D>::from_bytes(bytes, &gate_serializer).is_ok());
+    let bytes = common.to_bytes(&gate_serializer).unwrap();
+    CommonCircuitData::<F, D>::from_bytes(bytes, &gate_serializer).is_ok()
+}
+
+#[test]
+fn genuine_common_data_round_trips() {
+    assert!(common_data_round_trips(sample_common_data()));
+}
+
+#[test]
+fn genuine_lookup_common_data_round_trips() {
+    assert!(common_data_round_trips(sample_lookup_common_data()));
 }
 
 #[test]
@@ -337,5 +370,57 @@ fn deserialization_rejects_selector_index_length_mismatch() {
 fn deserialization_rejects_wrong_k_is_length() {
     assert!(tampered_common_data_is_rejected(|c| {
         c.k_is.push(F::ZERO);
+    }));
+}
+
+#[test]
+fn deserialization_rejects_routed_wires_exceeding_wires() {
+    assert!(tampered_common_data_is_rejected(|c| {
+        c.config.num_routed_wires = c.config.num_wires + 1;
+    }));
+}
+
+#[test]
+fn deserialization_rejects_phantom_lookup_polys() {
+    assert!(tampered_common_data_is_rejected(|c| {
+        c.num_lookup_polys = 1;
+    }));
+}
+
+#[test]
+fn deserialization_rejects_selector_group_not_containing_gate() {
+    assert!(tamper_is_rejected(sample_lookup_common_data(), |c| {
+        let groups = &c.selectors_info.groups;
+        assert!(
+            groups.len() >= 2,
+            "test requires a circuit with multiple selector groups"
+        );
+        // Reassign gate 0 to a different existing group that does not contain it.
+        let original = c.selectors_info.selector_indices[0];
+        let other = (0..groups.len())
+            .find(|&g| g != original && !groups[g].contains(&0))
+            .expect("expected a non-containing selector group");
+        c.selectors_info.selector_indices[0] = other;
+    }));
+}
+
+#[test]
+fn deserialization_rejects_disabled_lookup_polys() {
+    assert!(tamper_is_rejected(sample_lookup_common_data(), |c| {
+        c.num_lookup_polys = 0;
+    }));
+}
+
+#[test]
+fn deserialization_rejects_degenerate_lookup_polys() {
+    assert!(tamper_is_rejected(sample_lookup_common_data(), |c| {
+        c.num_lookup_polys = 1;
+    }));
+}
+
+#[test]
+fn deserialization_rejects_wrong_lookup_selector_count() {
+    assert!(tamper_is_rejected(sample_lookup_common_data(), |c| {
+        c.num_lookup_selectors += 1;
     }));
 }

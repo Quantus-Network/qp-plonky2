@@ -25,6 +25,7 @@ use crate::field::extension::{Extendable, FieldExtension};
 use crate::field::polynomial::PolynomialCoeffs;
 use crate::field::types::{Field64, PrimeField64};
 use crate::gates::gate::GateRef;
+use crate::gates::lookup::LookupGate;
 use crate::gates::selectors::SelectorsInfo;
 use crate::hash::hash_types::RichField;
 use crate::plonk::circuit_data::{
@@ -566,6 +567,15 @@ pub trait Read {
             common_data.num_partial_products,
             common_data.k_is.len(),
             || common_data.luts.iter().any(|lut| lut.is_empty()),
+        )
+        .map_err(|_| IoError)?;
+
+        qp_plonky2_core::circuit_config::check_lookup_metadata_valid(
+            common_data.num_lookup_polys,
+            common_data.num_lookup_selectors,
+            common_data.luts.len(),
+            common_data.quotient_degree_factor,
+            LookupGate::num_slots(&common_data.config),
         )
         .map_err(|_| IoError)?;
 

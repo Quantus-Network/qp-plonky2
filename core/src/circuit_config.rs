@@ -3,6 +3,7 @@
 use serde::Serialize;
 
 use crate::fri::{FriConfig, FriReductionStrategy};
+use crate::selectors::LookupSelectors;
 
 /// Configuration to be used when building a circuit. This defines the shape of the circuit
 /// as well as its targeted security level and sub-protocol (e.g. FRI) parameters.
@@ -109,6 +110,13 @@ impl CircuitConfig {
             return Err("num_routed_wires must be >= 3 (required for lookup gates)");
         }
 
+        // Routed wires are a subset of all wires; advice wires are the remainder. A larger
+        // routed count underflows num_advice_wires and overruns wire-opening reads during
+        // the permutation argument.
+        if self.num_routed_wires > self.num_wires {
+            return Err("num_routed_wires must not exceed num_wires");
+        }
+
         Ok(())
     }
 
@@ -123,7 +131,9 @@ impl CircuitConfig {
 
 #[cfg(test)]
 mod tests {
-    use super::{check_common_data_valid, check_gate_shape, CircuitConfig};
+    use super::{
+        check_common_data_valid, check_gate_shape, check_lookup_metadata_valid, CircuitConfig,
+    };
 
     #[test]
     fn check_common_data_rejects_zero_quotient_degree() {
@@ -162,6 +172,50 @@ mod tests {
         assert!(check_gate_shape(config.num_wires + 1, 0, 1, &config, 1, 0, nc, 4).is_err());
         assert!(check_gate_shape(1, nc, 1, &config, 1, 0, nc, 4).is_err());
         assert!(check_gate_shape(1, 0, 5, &config, 1, 0, nc, 4).is_err());
+    }
+
+    #[test]
+    fn check_valid_rejects_routed_wires_exceeding_wires() {
+        let config = CircuitConfig {
+            num_routed_wires: 200,
+            num_wires: 143,
+            ..CircuitConfig::standard_recursion_config()
+        };
+        assert!(config.check_valid().is_err());
+    }
+
+    #[test]
+    fn check_lookup_metadata_accepts_absent_lookups() {
+        assert!(check_lookup_metadata_valid(0, 0, 0, 8, 40).is_ok());
+    }
+
+    #[test]
+    fn check_lookup_metadata_rejects_phantom_lookups() {
+        assert!(check_lookup_metadata_valid(1, 0, 0, 8, 40).is_err());
+        assert!(check_lookup_metadata_valid(0, 1, 0, 8, 40).is_err());
+    }
+
+    #[test]
+    fn check_lookup_metadata_accepts_consistent_lookups() {
+        // num_routed_wires = 80 => LookupGate slots = 40, qdf = 8 => degree 7.
+        // selectors = StartEnd(4) + 1 lut = 5; polys = ceil(40 / 7) + 1 = 7.
+        assert!(check_lookup_metadata_valid(7, 5, 1, 8, 40).is_ok());
+    }
+
+    #[test]
+    fn check_lookup_metadata_rejects_disabled_or_degenerate_polys() {
+        assert!(check_lookup_metadata_valid(0, 5, 1, 8, 40).is_err());
+        assert!(check_lookup_metadata_valid(1, 5, 1, 8, 40).is_err());
+    }
+
+    #[test]
+    fn check_lookup_metadata_rejects_wrong_selector_count() {
+        assert!(check_lookup_metadata_valid(7, 4, 1, 8, 40).is_err());
+    }
+
+    #[test]
+    fn check_lookup_metadata_rejects_low_quotient_degree() {
+        assert!(check_lookup_metadata_valid(7, 5, 1, 1, 40).is_err());
     }
 
     #[test]
@@ -300,5 +354,58 @@ pub fn check_gate_shape(
     if gate_num_constraints > num_gate_constraints {
         return Err("gate emits more constraints than num_gate_constraints");
     }
+    Ok(())
+}
+
+/// Validate lookup metadata against the declared lookup tables and circuit config.
+///
+/// `num_lookup_polys` and `num_lookup_selectors` are fully determined by the table count and
+/// config. A forged value either skips lookup constraints entirely (`num_lookup_polys == 0`
+/// makes `has_lookup` false) or mis-sizes / divides-by-zero during lookup constraint
+/// evaluation (`num_lookup_polys == 1` leaves zero accumulator chunks), so both are recomputed
+/// and compared here rather than trusted.
+///
+/// `lookup_gate_num_slots` is `LookupGate::num_slots(config)`, supplied by the caller so the
+/// per-gate wire layout stays defined in one place.
+pub fn check_lookup_metadata_valid(
+    num_lookup_polys: usize,
+    num_lookup_selectors: usize,
+    num_luts: usize,
+    quotient_degree_factor: usize,
+    lookup_gate_num_slots: usize,
+) -> Result<(), &'static str> {
+    if num_luts == 0 {
+        if num_lookup_polys != 0 {
+            return Err("num_lookup_polys must be 0 without lookup tables");
+        }
+        if num_lookup_selectors != 0 {
+            return Err("num_lookup_selectors must be 0 without lookup tables");
+        }
+        return Ok(());
+    }
+
+    // Fixed transition/init selectors, plus one end selector per lookup table.
+    let expected_selectors = (LookupSelectors::StartEnd as usize)
+        .checked_add(num_luts)
+        .ok_or("lookup selector count overflows")?;
+    if num_lookup_selectors != expected_selectors {
+        return Err("num_lookup_selectors inconsistent with lookup tables");
+    }
+
+    // Lookup accumulators chunk into degree (quotient_degree_factor - 1), so lookups require
+    // quotient_degree_factor >= 2; a smaller value divides by zero during evaluation.
+    let lookup_degree = quotient_degree_factor
+        .checked_sub(1)
+        .filter(|&d| d != 0)
+        .ok_or("quotient_degree_factor must be >= 2 with lookup tables")?;
+    // One RE polynomial on top of the Sum/LDC accumulator chunks.
+    let expected_polys = lookup_gate_num_slots
+        .div_ceil(lookup_degree)
+        .checked_add(1)
+        .ok_or("num_lookup_polys overflows")?;
+    if num_lookup_polys != expected_polys {
+        return Err("num_lookup_polys inconsistent with lookup tables");
+    }
+
     Ok(())
 }
