@@ -240,10 +240,6 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D> for Loo
         let lut_index = src.read_usize()?;
 
         let lut = common_data.luts.get(lut_index).ok_or(IoError)?.clone();
-        Ok(Self {
-            row,
-            lut,
-            slot_nb,
-        })
+        Ok(Self { row, lut, slot_nb })
     }
 }

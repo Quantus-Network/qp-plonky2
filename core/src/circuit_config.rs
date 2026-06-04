@@ -139,7 +139,9 @@ mod tests {
         let qdf = 8;
         let expected = nrw.div_ceil(qdf) - 1;
         assert!(check_common_data_valid(&config, qdf, 10, 4, 4, expected, nrw, || false).is_ok());
-        assert!(check_common_data_valid(&config, qdf, 10, 4, 4, expected + 1, nrw, || false).is_err());
+        assert!(
+            check_common_data_valid(&config, qdf, 10, 4, 4, expected + 1, nrw, || false).is_err()
+        );
     }
 
     #[test]
@@ -147,7 +149,9 @@ mod tests {
         let config = CircuitConfig::standard_recursion_config();
         let nrw = config.num_routed_wires;
         let expected = nrw.div_ceil(8) - 1;
-        assert!(check_common_data_valid(&config, 8, 10, 4, 4, expected, nrw - 1, || false).is_err());
+        assert!(
+            check_common_data_valid(&config, 8, 10, 4, 4, expected, nrw - 1, || false).is_err()
+        );
     }
 
     #[test]
