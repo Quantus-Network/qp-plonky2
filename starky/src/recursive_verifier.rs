@@ -261,7 +261,7 @@ pub fn add_virtual_stark_proof<F: RichField + Extendable<D>, S: Stark<F, D>, con
         .then(|| builder.add_virtual_cap(cap_height));
 
     let quotient_polys_cap =
-        (stark.constraint_degree() > 0).then(|| builder.add_virtual_cap(cap_height));
+        (stark.quotient_degree_factor() > 0).then(|| builder.add_virtual_cap(cap_height));
 
     StarkProofTarget {
         trace_cap: builder.add_virtual_cap(cap_height),
@@ -302,7 +302,7 @@ fn add_virtual_stark_opening_set<F: RichField + Extendable<D>, S: Stark<F, D>, c
         ctl_zs_first: stark
             .requires_ctls()
             .then(|| builder.add_virtual_targets(num_ctl_zs)),
-        quotient_polys: (stark.constraint_degree() > 0).then(|| {
+        quotient_polys: (stark.quotient_degree_factor() > 0).then(|| {
             builder.add_virtual_extension_targets(
                 stark.quotient_degree_factor() * config.num_challenges,
             )

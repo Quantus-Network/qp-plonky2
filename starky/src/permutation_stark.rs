@@ -238,4 +238,140 @@ mod tests {
     fn init_logger() {
         let _ = env_logger::builder().format_timestamp(None).try_init();
     }
+
+    /// Test that verifies the security fix for lookup-only STARKs.
+    ///
+    /// This test creates an invalid trace where the lookup column contains a value
+    /// that doesn't exist in the table column, violating the lookup constraint.
+    ///
+    /// Before the fix (when `constraint_degree() == 0` caused `quotient_degree_factor() == 0`),
+    /// no quotient polynomials were generated and the verifier would incorrectly accept
+    /// this invalid proof. After the fix, the verifier correctly rejects it.
+    #[test]
+    fn test_invalid_lookup_rejected() {
+        const D: usize = 2;
+        type C = PoseidonGoldilocksConfig;
+        type F = <C as GenericConfig<D>>::F;
+        type S = PermutationStark<F, D>;
+
+        let config = StarkConfig::standard_fast_config();
+        let num_rows = 1 << 5;
+        let public_input = F::ZERO;
+
+        let stark = S::new(num_rows);
+
+        // Generate a valid trace first
+        let mut trace = stark.generate_trace(public_input);
+
+        // Corrupt the trace: change a value in the looking column (column 0)
+        // to a value that doesn't exist in the table column (column 1).
+        // The valid trace has values 0, 1, 2, ..., 31 in both columns (as a permutation).
+        // We'll change one value in column 0 to 999, which doesn't exist in column 1.
+        trace[0].values[0] = F::from_canonical_u64(999);
+
+        // Attempt to prove with the corrupted trace.
+        // The prover may succeed in generating a proof (it doesn't always check constraints),
+        // but verification MUST fail.
+        let proof_result = prove::<F, C, S, D>(
+            stark,
+            &config,
+            trace,
+            &[public_input],
+            None,
+            &mut TimingTree::default(),
+        );
+
+        match proof_result {
+            Err(_) => {
+                // Proof generation failed - this is acceptable (constraint violation detected early)
+            }
+            Ok(proof) => {
+                // Proof was generated, but verification MUST fail
+                let verify_result = verify_stark_proof(stark, proof, &config, None);
+                assert!(
+                    verify_result.is_err(),
+                    "Verification should fail for invalid lookup trace. \
+                     Before the security fix, this would have incorrectly succeeded because \
+                     quotient_degree_factor() was 0 for lookup-only STARKs, meaning no \
+                     quotient polynomials were generated and the verifier had nothing to check."
+                );
+            }
+        }
+    }
+
+    /// This test verifies that the fix correctly computes quotient_degree_factor for lookup-only STARKs.
+    ///
+    /// Before the fix:
+    /// - constraint_degree() = 0 (no base constraints)
+    /// - quotient_degree_factor() = 0 (derived only from constraint_degree)
+    /// - num_quotient_polys() = 0 (no quotient polynomials generated)
+    ///
+    /// After the fix:
+    /// - constraint_degree() = 0 (unchanged - no base constraints)
+    /// - quotient_degree_factor() = 1 (accounts for degree-2 lookup constraints)
+    /// - num_quotient_polys() > 0 (quotient polynomials are generated)
+    #[test]
+    fn test_lookup_only_stark_has_quotient_polys() {
+        const D: usize = 2;
+        type C = PoseidonGoldilocksConfig;
+        type F = <C as GenericConfig<D>>::F;
+        type S = PermutationStark<F, D>;
+
+        let config = StarkConfig::standard_fast_config();
+        let num_rows = 1 << 5;
+
+        let stark = S::new(num_rows);
+
+        // Verify the STARK configuration
+        assert_eq!(
+            stark.constraint_degree(),
+            0,
+            "PermutationStark should have constraint_degree() == 0 (no base constraints)"
+        );
+
+        assert!(
+            stark.uses_lookups(),
+            "PermutationStark should use lookups"
+        );
+
+        // This is the key assertion - with the fix, quotient_degree_factor should be > 0
+        // even when constraint_degree() == 0, because lookup constraints have degree 2.
+        assert!(
+            stark.quotient_degree_factor() > 0,
+            "quotient_degree_factor() should be > 0 for lookup-only STARKs. \
+             Before the fix, this was 0, which meant lookup constraints were never enforced."
+        );
+
+        assert!(
+            stark.num_quotient_polys(&config) > 0,
+            "num_quotient_polys() should be > 0 for lookup-only STARKs"
+        );
+
+        // Generate a valid proof and verify the proof structure includes quotient polynomials
+        let public_input = F::ZERO;
+        let trace = stark.generate_trace(public_input);
+        let proof = prove::<F, C, S, D>(
+            stark,
+            &config,
+            trace,
+            &[public_input],
+            None,
+            &mut TimingTree::default(),
+        )
+        .expect("Valid proof should succeed");
+
+        assert!(
+            proof.proof.quotient_polys_cap.is_some(),
+            "Proof should contain quotient polynomial commitment"
+        );
+
+        assert!(
+            proof.proof.openings.quotient_polys.is_some(),
+            "Proof should contain quotient polynomial openings"
+        );
+
+        // Verify the proof is valid
+        verify_stark_proof(stark, proof, &config, None)
+            .expect("Valid proof should verify successfully");
+    }
 }
