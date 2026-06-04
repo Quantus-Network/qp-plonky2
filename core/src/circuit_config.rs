@@ -319,6 +319,7 @@ mod tests {
         check_common_data_valid, check_fri_params_consistent, check_gate_shape,
         check_lookup_metadata_valid, CircuitConfig,
     };
+    use crate::fri::{FriParams, FriReductionStrategy};
 
     #[test]
     fn check_common_data_rejects_zero_quotient_degree() {
@@ -439,6 +440,46 @@ mod tests {
         let config = CircuitConfig::standard_recursion_config();
         let mut params = config.fri_config.fri_params(10, config.zero_knowledge);
         params.leaf_hiding = !config.zero_knowledge;
+        assert!(check_fri_params_consistent(&config, 10, &params).is_err());
+    }
+
+    #[test]
+    fn check_fri_params_rejects_zero_constant_arity_strategy() {
+        let mut config = CircuitConfig::standard_recursion_config();
+        config.fri_config.reduction_strategy = FriReductionStrategy::ConstantArityBits(0, 0);
+        let params = FriParams {
+            config: config.fri_config.clone(),
+            leaf_hiding: config.zero_knowledge,
+            degree_bits: 10,
+            reduction_arity_bits: vec![],
+        };
+        assert!(check_fri_params_consistent(&config, 10, &params).is_err());
+    }
+
+    #[test]
+    fn check_fri_params_rejects_zero_fixed_arity_strategy() {
+        let mut config = CircuitConfig::standard_recursion_config();
+        config.fri_config.reduction_strategy = FriReductionStrategy::Fixed(vec![0]);
+        let params = FriParams {
+            config: config.fri_config.clone(),
+            leaf_hiding: config.zero_knowledge,
+            degree_bits: 10,
+            reduction_arity_bits: vec![0],
+        };
+        assert!(check_fri_params_consistent(&config, 10, &params).is_err());
+    }
+
+    #[test]
+    fn check_fri_params_rejects_oversized_min_size_query_count() {
+        let mut config = CircuitConfig::standard_recursion_config();
+        config.fri_config.reduction_strategy = FriReductionStrategy::MinSize(None);
+        config.fri_config.num_query_rounds = usize::MAX;
+        let params = FriParams {
+            config: config.fri_config.clone(),
+            leaf_hiding: config.zero_knowledge,
+            degree_bits: 10,
+            reduction_arity_bits: vec![],
+        };
         assert!(check_fri_params_consistent(&config, 10, &params).is_err());
     }
 
