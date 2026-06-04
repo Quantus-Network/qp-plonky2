@@ -13,15 +13,12 @@ use core::fmt::Debug;
 use core::marker::PhantomData;
 
 use plonky2_field::extension::Extendable;
-// Re-export sponge parameters from the canonical source (qp-poseidon-constants)
-pub use qp_poseidon_constants::{
-    POSEIDON2_EXTERNAL_ROUNDS, POSEIDON2_INTERNAL_ROUNDS, POSEIDON2_OUTPUT, SPONGE_CAPACITY,
-    SPONGE_RATE, SPONGE_WIDTH,
+use qp_poseidon_core::poseidon2::{
+    EXTERNAL_ROUNDS as POSEIDON2_EXTERNAL_ROUNDS, INITIAL_EXTERNAL_CONSTANTS, INTERNAL_CONSTANTS,
+    INTERNAL_ROUNDS as POSEIDON2_INTERNAL_ROUNDS, MATRIX_DIAG, TERMINAL_EXTERNAL_CONSTANTS,
 };
-use qp_poseidon_constants::{
-    POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW, POSEIDON2_INTERNAL_CONSTANTS_RAW,
-    POSEIDON2_MATRIX_DIAG_12_RAW, POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
-};
+// Re-export sponge parameters from qp-poseidon-core
+pub use qp_poseidon_core::{POSEIDON2_OUTPUT, SPONGE_CAPACITY, SPONGE_RATE, SPONGE_WIDTH};
 use unroll::unroll_for_loops;
 
 use crate::field::types::Field;
@@ -119,7 +116,7 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2Params<F, D> {
         }
 
         // Goldilocks Poseidon2 diagonal from canonical constants
-        let diag = core::array::from_fn(|i| F::from_canonical_u64(POSEIDON2_MATRIX_DIAG_12_RAW[i]));
+        let diag = core::array::from_fn(|i| F::from_canonical_u64(MATRIX_DIAG[i]));
 
         Self {
             ext_init,
@@ -208,7 +205,7 @@ fn internal_mix_optimized<F: PrimeField64>(state: &[F; SPONGE_WIDTH]) -> [F; SPO
 
     // Compute y[i] = diag[i] * s[i] + sum and reduce
     core::array::from_fn(|i| {
-        let prod = (s[i] as u128) * (POSEIDON2_MATRIX_DIAG_12_RAW[i] as u128);
+        let prod = (s[i] as u128) * (MATRIX_DIAG[i] as u128);
         F::from_noncanonical_u128(prod + sum)
     })
 }
@@ -464,9 +461,9 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2Gate<F, D> {
     pub fn new() -> Self {
         Self {
             params: Poseidon2Params::from_p3_constants_u64(
-                POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW,
-                POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
-                POSEIDON2_INTERNAL_CONSTANTS_RAW,
+                INITIAL_EXTERNAL_CONSTANTS,
+                TERMINAL_EXTERNAL_CONSTANTS,
+                INTERNAL_CONSTANTS,
             ),
             _pd: PhantomData,
         }
@@ -735,9 +732,8 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for Poseidon2Gate<
             for i in 0..12 {
                 if i < SPONGE_WIDTH {
                     // SAFETY: constants are canonical
-                    state[i] = unsafe {
-                        state[i].add_canonical_u64(POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW[r][i])
-                    };
+                    state[i] =
+                        unsafe { state[i].add_canonical_u64(INITIAL_EXTERNAL_CONSTANTS[r][i]) };
                 }
             }
 
@@ -764,8 +760,7 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for Poseidon2Gate<
             if r < POSEIDON2_INTERNAL_ROUNDS {
                 // lane 0: add RC
                 // SAFETY: constants are canonical
-                state[0] =
-                    unsafe { state[0].add_canonical_u64(POSEIDON2_INTERNAL_CONSTANTS_RAW[r]) };
+                state[0] = unsafe { state[0].add_canonical_u64(INTERNAL_CONSTANTS[r]) };
 
                 // constrain S-box input for lane 0
                 let sbox_in = lw[Self::wire_int_sbox(r)];
@@ -784,9 +779,8 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for Poseidon2Gate<
             for i in 0..12 {
                 if i < SPONGE_WIDTH {
                     // SAFETY: constants are canonical
-                    state[i] = unsafe {
-                        state[i].add_canonical_u64(POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW[r][i])
-                    };
+                    state[i] =
+                        unsafe { state[i].add_canonical_u64(TERMINAL_EXTERNAL_CONSTANTS[r][i]) };
                 }
             }
 
@@ -952,9 +946,9 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D>
         Ok(Self {
             row: src.read_usize()?,
             params: Poseidon2Params::from_p3_constants_u64(
-                POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW,
-                POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW,
-                POSEIDON2_INTERNAL_CONSTANTS_RAW,
+                INITIAL_EXTERNAL_CONSTANTS,
+                TERMINAL_EXTERNAL_CONSTANTS,
+                INTERNAL_CONSTANTS,
             ),
             _pd: PhantomData,
         })
@@ -1037,10 +1031,8 @@ mod tests {
             // 4 initial external rounds
             for r in 0..4 {
                 for i in 0..SPONGE_WIDTH {
-                    our_state[i] = unsafe {
-                        our_state[i]
-                            .add_canonical_u64(POSEIDON2_INITIAL_EXTERNAL_CONSTANTS_RAW[r][i])
-                    };
+                    our_state[i] =
+                        unsafe { our_state[i].add_canonical_u64(INITIAL_EXTERNAL_CONSTANTS[r][i]) };
                 }
                 sbox_layer_optimized(&mut our_state);
                 our_state = mds_light_optimized(&our_state);
@@ -1048,8 +1040,7 @@ mod tests {
 
             // 22 internal rounds
             for r in 0..POSEIDON2_INTERNAL_ROUNDS {
-                our_state[0] =
-                    unsafe { our_state[0].add_canonical_u64(POSEIDON2_INTERNAL_CONSTANTS_RAW[r]) };
+                our_state[0] = unsafe { our_state[0].add_canonical_u64(INTERNAL_CONSTANTS[r]) };
                 our_state[0] = sbox7_base(our_state[0]);
                 our_state = internal_mix_optimized(&our_state);
             }
@@ -1058,8 +1049,7 @@ mod tests {
             for r in 0..4 {
                 for i in 0..SPONGE_WIDTH {
                     our_state[i] = unsafe {
-                        our_state[i]
-                            .add_canonical_u64(POSEIDON2_TERMINAL_EXTERNAL_CONSTANTS_RAW[r][i])
+                        our_state[i].add_canonical_u64(TERMINAL_EXTERNAL_CONSTANTS[r][i])
                     };
                 }
                 sbox_layer_optimized(&mut our_state);

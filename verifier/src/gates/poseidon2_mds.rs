@@ -2,7 +2,7 @@
 use alloc::{format, string::String, vec::Vec};
 use core::marker::PhantomData;
 
-use qp_poseidon_constants::SPONGE_WIDTH;
+use qp_poseidon_core::SPONGE_WIDTH;
 
 use crate::field::extension::algebra::ExtensionAlgebra;
 use crate::field::extension::{Extendable, FieldExtension};

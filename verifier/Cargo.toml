@@ -46,12 +46,8 @@ serde = { workspace = true, features = ["rc"] }
 static_assertions = { workspace = true }
 unroll = { workspace = true }
 
-# p3 crates - keep default-features = false
-p3-field = { version = "0.3.0", default-features = false }
-p3-goldilocks = { version = "0.3.0", default-features = false }
-p3-poseidon2 = { version = "0.3.0", default-features = false }
-p3-symmetric = { version = "0.3.0", default-features = false }
-qp-poseidon-constants = { version = "1.0", default-features = false }
+# Poseidon2 - self-contained implementation
+qp-poseidon-core = { version = "2.1.0", default-features = false }
 
 # Local dependencies - note: no "rand" feature = verification-only, no randomness needed
 plonky2-field = { package = "qp-plonky2-field", version = "1.4.1", path = "../field", default-features = false }

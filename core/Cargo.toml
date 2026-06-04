@@ -32,13 +32,6 @@ serde = { workspace = true, features = ["rc"] }
 static_assertions = { workspace = true }
 unroll = { workspace = true }
 
-# p3 crates for Poseidon2
-p3-field = { version = "0.3.0", default-features = false }
-p3-goldilocks = { version = "0.3.0", default-features = false }
-p3-poseidon2 = { version = "0.3.0", default-features = false }
-p3-symmetric = { version = "0.3.0", default-features = false }
-qp-poseidon-constants = { version = "1.0", default-features = false }
-
 # Local dependencies
 plonky2-field = { package = "qp-plonky2-field", version = "1.4.1", path = "../field", default-features = false }
 plonky2_util = { version = "1.0.0", path = "../util", default-features = false }
