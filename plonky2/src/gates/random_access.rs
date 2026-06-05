@@ -423,8 +423,7 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D>
 #[cfg(feature = "rand")]
 mod tests {
     use anyhow::Result;
-    use rand::rngs::OsRng;
-    use rand::Rng;
+    use rand::RngExt;
 
     use super::*;
     use crate::field::goldilocks_field::GoldilocksField;
@@ -492,7 +491,7 @@ mod tests {
             .map(|_| F::rand_vec(vec_size))
             .collect::<Vec<_>>();
         let access_indices = (0..num_copies)
-            .map(|_| OsRng.gen_range(0..vec_size))
+            .map(|_| rand::rng().random_range(0..vec_size))
             .collect::<Vec<_>>();
         let gate = RandomAccessGate::<F, D> {
             bits,

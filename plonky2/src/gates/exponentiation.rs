@@ -321,8 +321,7 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D>
 #[cfg(feature = "rand")]
 mod tests {
     use anyhow::Result;
-    use rand::rngs::OsRng;
-    use rand::Rng;
+    use rand::RngExt;
 
     use super::*;
     use crate::field::goldilocks_field::GoldilocksField;
@@ -413,10 +412,10 @@ mod tests {
             v.iter().map(|&x| x.into()).collect::<Vec<_>>()
         }
 
-        let mut rng = OsRng;
+        let mut rng = rand::rng();
 
         let base = F::TWO;
-        let power = rng.gen::<usize>() % (1 << MAX_POWER_BITS);
+        let power = rng.random_range(0..(1 << MAX_POWER_BITS));
         let num_power_bits = log2_ceil(power + 1);
         let gate = ExponentiationGate::<F, D> {
             num_power_bits,

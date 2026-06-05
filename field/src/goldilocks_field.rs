@@ -61,10 +61,10 @@ impl Sample for GoldilocksField {
     #[inline]
     fn sample<R>(rng: &mut R) -> Self
     where
-        R: rand::RngCore + ?Sized,
+        R: rand::Rng + ?Sized,
     {
-        use rand::Rng;
-        Self::from_canonical_u64(rng.gen_range(0..Self::ORDER))
+        use rand::RngExt;
+        Self::from_canonical_u64(rng.random_range(0..Self::ORDER))
     }
 }
 

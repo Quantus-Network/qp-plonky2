@@ -70,10 +70,28 @@ impl Sample for Secp256K1Base {
     #[inline]
     fn sample<R>(rng: &mut R) -> Self
     where
-        R: rand::RngCore + ?Sized,
+        R: rand::Rng + ?Sized,
     {
-        use num::bigint::RandBigInt;
-        Self::from_noncanonical_biguint(rng.gen_biguint_below(&Self::order()))
+        use num::bigint::BigUint;
+        use rand::RngExt;
+        // Generate 4 random u64s and reduce modulo the field order
+        let limbs: [u64; 4] = [
+            rng.random(),
+            rng.random(),
+            rng.random(),
+            rng.random(),
+        ];
+        let random_value = BigUint::from_slice(&[
+            limbs[0] as u32,
+            (limbs[0] >> 32) as u32,
+            limbs[1] as u32,
+            (limbs[1] >> 32) as u32,
+            limbs[2] as u32,
+            (limbs[2] >> 32) as u32,
+            limbs[3] as u32,
+            (limbs[3] >> 32) as u32,
+        ]);
+        Self::from_noncanonical_biguint(random_value % Self::order())
     }
 }
 

@@ -54,7 +54,7 @@ impl<F: Extendable<2>> Sample for QuadraticExtension<F> {
     #[inline]
     fn sample<R>(rng: &mut R) -> Self
     where
-        R: rand::RngCore + ?Sized,
+        R: rand::Rng + ?Sized,
     {
         Self([F::sample(rng), F::sample(rng)])
     }

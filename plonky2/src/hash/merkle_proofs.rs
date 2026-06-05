@@ -238,8 +238,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
 #[cfg(feature = "rand")]
 mod tests {
     use anyhow::Result;
-    use rand::rngs::OsRng;
-    use rand::Rng;
+    use rand::RngExt;
 
     use super::*;
     use crate::field::types::Field;
@@ -267,7 +266,7 @@ mod tests {
         let cap_height = 1;
         let leaves = random_data::<F>(n, 7);
         let tree = MerkleTree::<F, <C as GenericConfig<D>>::Hasher>::new(leaves, cap_height);
-        let i: usize = OsRng.gen_range(0..n);
+        let i: usize = rand::rng().random_range(0..n);
         let proof = tree.prove(i);
 
         let proof_t = MerkleProofTarget {

@@ -73,7 +73,7 @@ impl<F: Field + crate::field::types::Sample> crate::field::types::Sample for Has
     #[inline]
     fn sample<R>(rng: &mut R) -> Self
     where
-        R: rand::RngCore + ?Sized,
+        R: rand::Rng + ?Sized,
     {
         Self {
             elements: [
