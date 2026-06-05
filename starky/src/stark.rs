@@ -84,8 +84,22 @@ pub trait Stark<F: RichField + Extendable<D>, const D: usize>: Sync {
     fn constraint_degree(&self) -> usize;
 
     /// Outputs the maximum quotient polynomial's degree factor of this [`Stark`].
+    ///
+    /// This accounts for both base STARK constraints and lookup/permutation argument
+    /// constraints. Lookup constraints have degree 2, so if the STARK uses lookups,
+    /// the effective constraint degree is at least 2.
     fn quotient_degree_factor(&self) -> usize {
-        match self.constraint_degree().checked_sub(1) {
+        // Lookup constraints have degree 2 (they involve products like
+        // `(next_z - z) * table_with_challenge` and helper column constraints).
+        // If the STARK uses lookups, we must ensure the quotient degree factor
+        // is at least 1 to enforce these constraints.
+        let effective_degree = if self.uses_lookups() {
+            self.constraint_degree().max(2)
+        } else {
+            self.constraint_degree()
+        };
+
+        match effective_degree.checked_sub(1) {
             Some(v) => 1.max(v),
             None => 0,
         }

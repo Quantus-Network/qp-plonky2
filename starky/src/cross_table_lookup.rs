@@ -855,6 +855,18 @@ pub fn verify_cross_table_lookups<F: RichField + Extendable<D>, const D: usize, 
     ctl_extra_looking_sums: &HashMap<usize, Vec<F>>,
     config: &StarkConfig,
 ) -> Result<()> {
+    // Validate ctl_extra_looking_sums has enough entries for each challenge.
+    // This prevents index-out-of-bounds panics when accessing v[c].
+    for (&ctl_index, extra_sum) in ctl_extra_looking_sums {
+        ensure!(
+            extra_sum.len() >= config.num_challenges,
+            "ctl_extra_looking_sums[{}] has {} entries but num_challenges is {}",
+            ctl_index,
+            extra_sum.len(),
+            config.num_challenges
+        );
+    }
+
     let mut ctl_zs_openings = ctl_zs_first.iter().map(|v| v.iter()).collect::<Vec<_>>();
     for (
         index,
@@ -874,25 +886,53 @@ pub fn verify_cross_table_lookups<F: RichField + Extendable<D>, const D: usize, 
         }
         for c in 0..config.num_challenges {
             // Compute the combination of all looking table CTL polynomial openings.
-
-            let looking_zs_sum = filtered_looking_tables
-                .iter()
-                .map(|&table| *ctl_zs_openings[table].next().unwrap())
-                .sum::<F>()
-                // Get elements looking into `looked_table` that are not associated to any STARK.
-                + ctl_extra_looking_sum.map(|v| v[c]).unwrap_or_default();
+            // Use ok_or_else instead of unwrap to return proper errors for malformed proofs.
+            let mut looking_zs_sum = F::ZERO;
+            for &table in &filtered_looking_tables {
+                let opening = ctl_zs_openings
+                    .get_mut(table)
+                    .and_then(|iter| iter.next())
+                    .ok_or_else(|| {
+                        anyhow::anyhow!(
+                            "Insufficient CTL openings for looking table {} in CTL {}",
+                            table,
+                            index
+                        )
+                    })?;
+                looking_zs_sum = looking_zs_sum + *opening;
+            }
+            // Get elements looking into `looked_table` that are not associated to any STARK.
+            // Note: ctl_extra_looking_sum length was validated above.
+            looking_zs_sum =
+                looking_zs_sum + ctl_extra_looking_sum.map(|v| v[c]).unwrap_or_default();
 
             // Get the looked table CTL polynomial opening.
-            let looked_z = *ctl_zs_openings[looked_table.table].next().unwrap();
+            let looked_z = ctl_zs_openings
+                .get_mut(looked_table.table)
+                .and_then(|iter| iter.next())
+                .ok_or_else(|| {
+                    anyhow::anyhow!(
+                        "Insufficient CTL openings for looked table {} in CTL {}",
+                        looked_table.table,
+                        index
+                    )
+                })?;
+
             // Ensure that the combination of looking table openings is equal to the looked table opening.
             ensure!(
-                looking_zs_sum == looked_z,
+                looking_zs_sum == *looked_z,
                 "Cross-table lookup {:?} verification failed.",
                 index
             );
         }
     }
-    debug_assert!(ctl_zs_openings.iter_mut().all(|iter| iter.next().is_none()));
+
+    // Validate that all openings were consumed (defense in depth).
+    // This was previously debug_assert!, but should be a proper check in release builds too.
+    ensure!(
+        ctl_zs_openings.iter_mut().all(|iter| iter.next().is_none()),
+        "Unexpected extra CTL openings provided"
+    );
 
     Ok(())
 }
@@ -1059,5 +1099,111 @@ pub mod debug_utils {
                 l1 = looked_locations.len(),
             );
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use hashbrown::HashMap;
+    use plonky2::field::goldilocks_field::GoldilocksField;
+    use plonky2::field::types::Field;
+
+    use super::{verify_cross_table_lookups, CrossTableLookup, TableWithColumns};
+    use crate::config::StarkConfig;
+    use crate::lookup::Column;
+
+    type F = GoldilocksField;
+
+    /// Test that verify_cross_table_lookups returns an error (not panic) when
+    /// ctl_zs_first vectors are too short.
+    ///
+    /// Before the fix, the function would panic with "called `Option::unwrap()` on a `None` value"
+    /// when iterating past the end of the opening vectors. After the fix, it should return
+    /// a proper error.
+    #[test]
+    fn test_malformed_ctl_openings_returns_error() {
+        let config = StarkConfig::standard_fast_config();
+
+        // Create a simple CTL: table 0 looks into table 1
+        let looking_table = TableWithColumns {
+            table: 0,
+            columns: vec![Column::single(0)],
+            filter: Default::default(),
+        };
+        let looked_table = TableWithColumns {
+            table: 1,
+            columns: vec![Column::single(0)],
+            filter: Default::default(),
+        };
+        let ctl = CrossTableLookup {
+            looking_tables: vec![looking_table],
+            looked_table,
+        };
+
+        // Provide empty opening vectors - this should cause an error, not a panic
+        let ctl_zs_first: [Vec<F>; 2] = [vec![], vec![]];
+        let ctl_extra_looking_sums = HashMap::new();
+
+        let result = verify_cross_table_lookups::<F, 2, 2>(
+            &[ctl],
+            ctl_zs_first,
+            &ctl_extra_looking_sums,
+            &config,
+        );
+
+        assert!(
+            result.is_err(),
+            "verify_cross_table_lookups should return an error for malformed openings, not panic"
+        );
+    }
+
+    /// Test that verify_cross_table_lookups returns an error when ctl_extra_looking_sum
+    /// has too few entries for the number of challenges.
+    ///
+    /// Before the fix, accessing v[c] would panic with index out of bounds.
+    /// After the fix, it should return a proper error.
+    #[test]
+    fn test_malformed_extra_looking_sum_returns_error() {
+        let config = StarkConfig::standard_fast_config();
+        // config.num_challenges is 2 for standard_fast_config
+
+        // Create a simple CTL
+        let looking_table = TableWithColumns {
+            table: 0,
+            columns: vec![Column::single(0)],
+            filter: Default::default(),
+        };
+        let looked_table = TableWithColumns {
+            table: 1,
+            columns: vec![Column::single(0)],
+            filter: Default::default(),
+        };
+        let ctl = CrossTableLookup {
+            looking_tables: vec![looking_table],
+            looked_table,
+        };
+
+        // Provide enough openings for the CTL
+        // Each table needs num_challenges openings per CTL it participates in
+        let ctl_zs_first: [Vec<F>; 2] = [
+            vec![F::ONE, F::ONE], // table 0: 2 challenges
+            vec![F::ONE, F::ONE], // table 1: 2 challenges
+        ];
+
+        // Provide extra_looking_sum with only 1 entry when we need 2 (num_challenges)
+        let mut ctl_extra_looking_sums = HashMap::new();
+        ctl_extra_looking_sums.insert(0, vec![F::ZERO]); // Only 1 entry, but need 2
+
+        let result = verify_cross_table_lookups::<F, 2, 2>(
+            &[ctl],
+            ctl_zs_first,
+            &ctl_extra_looking_sums,
+            &config,
+        );
+
+        assert!(
+            result.is_err(),
+            "verify_cross_table_lookups should return an error for malformed extra_looking_sum, not panic"
+        );
     }
 }
