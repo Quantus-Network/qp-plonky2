@@ -32,7 +32,7 @@ use crate::fri::proof::{
 use crate::fri::{FriConfig, FriParams, FriReductionStrategy};
 use crate::gadgets::polynomial::PolynomialCoeffsExtTarget;
 use crate::gates::gate::GateRef;
-use crate::gates::lookup::Lookup;
+use crate::gates::lookup::{Lookup, LookupGate};
 use crate::gates::selectors::SelectorsInfo;
 use crate::hash::hash_types::{HashOutTarget, MerkleCapTarget, RichField};
 use crate::hash::merkle_proofs::{MerkleProof, MerkleProofTarget};
@@ -678,13 +678,15 @@ pub trait Read {
         let proof_of_work_bits = self.read_u32()?;
         let reduction_strategy = self.read_fri_reduction_strategy()?;
 
-        Ok(FriConfig {
+        let config = FriConfig {
             rate_bits,
             cap_height,
             num_query_rounds,
             proof_of_work_bits,
             reduction_strategy,
-        })
+        };
+        config.check_valid().map_err(|_| IoError)?;
+        Ok(config)
     }
 
     fn read_circuit_config(&mut self) -> IoResult<CircuitConfig> {
@@ -719,12 +721,14 @@ pub trait Read {
         let degree_bits = self.read_usize()?;
         let leaf_hiding = self.read_bool()?;
 
-        Ok(FriParams {
+        let params = FriParams {
             config,
             reduction_arity_bits,
             degree_bits,
             leaf_hiding,
-        })
+        };
+        params.check_valid().map_err(|_| IoError)?;
+        Ok(params)
     }
 
     fn read_gate<F: RichField + Extendable<D>, const D: usize>(
@@ -847,9 +851,51 @@ pub trait Read {
             common_data.config.fri_config.rate_bits,
             common_data.public_initial_degree_bits,
             common_data.trace_degree_bits,
+            common_data.num_partial_products,
+            common_data.k_is.len(),
             || common_data.luts.iter().any(|lut| lut.is_empty()),
         )
         .map_err(|_| IoError)?;
+
+        qp_plonky2_core::circuit_config::check_fri_params_consistent(
+            &common_data.config,
+            common_data.public_initial_degree_bits,
+            &common_data.fri_params,
+        )
+        .map_err(|_| IoError)?;
+
+        qp_plonky2_core::circuit_config::check_lookup_metadata_valid(
+            common_data.num_lookup_polys,
+            common_data.num_lookup_selectors,
+            common_data.luts.len(),
+            common_data.quotient_degree_factor,
+            LookupGate::num_slots(&common_data.config),
+        )
+        .map_err(|_| IoError)?;
+
+        common_data
+            .selectors_info
+            .check_valid(
+                common_data.gates.len(),
+                common_data.num_lookup_selectors,
+                common_data.num_constants,
+            )
+            .map_err(|_| IoError)?;
+
+        let num_selectors = common_data.selectors_info.num_selectors();
+        for gate in &common_data.gates {
+            qp_plonky2_core::circuit_config::check_gate_shape(
+                gate.0.num_wires(),
+                gate.0.num_constants(),
+                gate.0.num_constraints(),
+                &common_data.config,
+                num_selectors,
+                common_data.num_lookup_selectors,
+                common_data.num_constants,
+                common_data.num_gate_constraints,
+            )
+            .map_err(|_| IoError)?;
+        }
 
         Ok(common_data)
     }

@@ -25,7 +25,7 @@ use crate::iop::witness::{PartitionWitness, Witness, WitnessWrite};
 use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::circuit_data::CommonCircuitData;
 use crate::plonk::vars::{EvaluationTargets, EvaluationVars, EvaluationVarsBase};
-use crate::util::serialization::{Buffer, IoResult, Read, Write};
+use crate::util::serialization::{Buffer, IoError, IoResult, Read, Write};
 
 /// One of the instantiations of `InterpolationGate`: allows constraints of variable
 /// degree, up to `1<<subgroup_bits`.
@@ -194,6 +194,17 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for CosetInterpola
         let degree = src.read_usize()?;
         let length = src.read_usize()?;
         let barycentric_weights: Vec<F> = src.read_field_vec(length)?;
+
+        // Structural invariants that hold for any genuinely-built gate; reject otherwise so
+        // evaluation cannot panic on out-of-range slicing or a zero-width interpolation step.
+        if subgroup_bits == 0 || subgroup_bits >= usize::BITS as usize {
+            return Err(IoError);
+        }
+        let num_points = 1usize << subgroup_bits;
+        if degree < 2 || degree > num_points || barycentric_weights.len() != num_points {
+            return Err(IoError);
+        }
+
         Ok(Self {
             subgroup_bits,
             degree,

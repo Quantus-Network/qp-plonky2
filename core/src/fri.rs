@@ -38,30 +38,68 @@ pub enum FriReductionStrategy {
 
 impl FriReductionStrategy {
     /// The arity of each FRI reduction step, expressed as the log2 of the actual arity.
+    ///
+    /// Panics on parameters that cannot describe a real circuit; use
+    /// [`Self::checked_reduction_arity_bits`] when deriving from untrusted data.
     pub fn reduction_arity_bits(
+        &self,
+        degree_bits: usize,
+        rate_bits: usize,
+        cap_height: usize,
+        num_queries: usize,
+    ) -> Vec<usize> {
+        self.checked_reduction_arity_bits(degree_bits, rate_bits, cap_height, num_queries)
+            .expect("invalid FRI reduction parameters")
+    }
+
+    /// Fallible [`Self::reduction_arity_bits`] for deserialization of untrusted data: returns an
+    /// error instead of panicking (overflow/underflow) on forged FRI parameters.
+    pub fn checked_reduction_arity_bits(
         &self,
         mut degree_bits: usize,
         rate_bits: usize,
         cap_height: usize,
         num_queries: usize,
-    ) -> Vec<usize> {
+    ) -> Result<Vec<usize>, &'static str> {
+        // The LDE layer is 2^(degree_bits + rate_bits); bound it so the derivations below cannot
+        // overflow and the MinSize search stays finite.
+        degree_bits
+            .checked_add(rate_bits)
+            .filter(|&b| b < usize::BITS as usize)
+            .ok_or("FRI degree_bits + rate_bits exceeds usize width")?;
         match self {
-            FriReductionStrategy::Fixed(reduction_arity_bits) => reduction_arity_bits.to_vec(),
+            FriReductionStrategy::Fixed(reduction_arity_bits) => {
+                check_reduction_arity_bits(reduction_arity_bits, degree_bits)?;
+                Ok(reduction_arity_bits.to_vec())
+            }
             &FriReductionStrategy::ConstantArityBits(arity_bits, final_poly_bits) => {
+                if arity_bits == 0 {
+                    return Err("FRI reduction arity must not be 0");
+                }
                 let mut result = Vec::new();
-                while degree_bits > final_poly_bits
-                    && degree_bits + rate_bits - arity_bits >= cap_height
-                {
+                while degree_bits > final_poly_bits {
+                    let layer_bits = degree_bits
+                        .checked_add(rate_bits)
+                        .and_then(|v| v.checked_sub(arity_bits))
+                        .ok_or("FRI reduction arity exceeds the LDE layer size")?;
+                    if layer_bits < cap_height {
+                        break;
+                    }
+                    if degree_bits < arity_bits {
+                        return Err("FRI reduction arity exceeds degree_bits");
+                    }
                     result.push(arity_bits);
-                    assert!(degree_bits >= arity_bits);
                     degree_bits -= arity_bits;
                 }
                 result.shrink_to_fit();
-                result
+                Ok(result)
             }
-            FriReductionStrategy::MinSize(opt_max_arity_bits) => {
-                min_size_arity_bits(degree_bits, rate_bits, num_queries, *opt_max_arity_bits)
-            }
+            FriReductionStrategy::MinSize(opt_max_arity_bits) => checked_min_size_arity_bits(
+                degree_bits,
+                rate_bits,
+                num_queries,
+                *opt_max_arity_bits,
+            ),
         }
     }
 
@@ -89,18 +127,45 @@ impl FriReductionStrategy {
     }
 }
 
-fn min_size_arity_bits(
+fn check_reduction_arity_bits(
+    arity_bits: &[usize],
+    degree_bits: usize,
+) -> Result<(), &'static str> {
+    let mut total_arities = 0usize;
+    for &arity_bits in arity_bits {
+        if arity_bits == 0 {
+            return Err("FRI reduction arity must not be 0");
+        }
+        if arity_bits > degree_bits {
+            return Err("FRI reduction arity exceeds degree_bits");
+        }
+        total_arities = total_arities
+            .checked_add(arity_bits)
+            .ok_or("FRI reduction arities sum overflows")?;
+    }
+    if total_arities > degree_bits {
+        return Err("sum of FRI reduction arities exceeds degree_bits");
+    }
+    Ok(())
+}
+
+fn checked_min_size_arity_bits(
     degree_bits: usize,
     rate_bits: usize,
     num_queries: usize,
     opt_max_arity_bits: Option<usize>,
-) -> Vec<usize> {
+) -> Result<Vec<usize>, &'static str> {
     // 2^4 is the largest arity we see in optimal reduction sequences in practice. For 2^5 to occur
     // in an optimal sequence, we would need a really massive polynomial.
     let max_arity_bits = opt_max_arity_bits.unwrap_or(4);
 
-    let (mut arity_bits, fri_proof_size) =
-        min_size_arity_bits_helper(degree_bits, rate_bits, num_queries, max_arity_bits, vec![]);
+    let (mut arity_bits, fri_proof_size) = checked_min_size_arity_bits_helper(
+        degree_bits,
+        rate_bits,
+        num_queries,
+        max_arity_bits,
+        vec![],
+    )?;
     arity_bits.shrink_to_fit();
 
     debug!(
@@ -108,23 +173,31 @@ fn min_size_arity_bits(
         arity_bits, fri_proof_size
     );
 
-    arity_bits
+    Ok(arity_bits)
 }
 
 /// Return `(arity_bits, fri_proof_size)`.
-fn min_size_arity_bits_helper(
+fn checked_min_size_arity_bits_helper(
     degree_bits: usize,
     rate_bits: usize,
     num_queries: usize,
     global_max_arity_bits: usize,
     prefix: Vec<usize>,
-) -> (Vec<usize>, usize) {
-    let sum_of_arities: usize = prefix.iter().sum();
-    let current_layer_bits = degree_bits + rate_bits - sum_of_arities;
-    assert!(current_layer_bits >= rate_bits);
+) -> Result<(Vec<usize>, usize), &'static str> {
+    let sum_of_arities = prefix.iter().try_fold(0usize, |acc, &arity_bits| {
+        acc.checked_add(arity_bits)
+            .ok_or("FRI reduction arities sum overflows")
+    })?;
+    let current_layer_bits = degree_bits
+        .checked_add(rate_bits)
+        .and_then(|bits| bits.checked_sub(sum_of_arities))
+        .ok_or("FRI reduction arities exceed the LDE layer size")?;
+    if current_layer_bits < rate_bits {
+        return Err("sum of FRI reduction arities exceeds degree_bits");
+    }
 
     let mut best_arity_bits = prefix.clone();
-    let mut best_size = relative_proof_size(degree_bits, rate_bits, num_queries, &prefix);
+    let mut best_size = checked_relative_proof_size(degree_bits, rate_bits, num_queries, &prefix)?;
 
     // The largest next_arity_bits to search. Note that any optimal arity sequence will be
     // monotonically non-increasing, as a larger arity will shrink more Merkle proofs if it occurs
@@ -139,53 +212,84 @@ fn min_size_arity_bits_helper(
         let mut extended_prefix = prefix.clone();
         extended_prefix.push(next_arity_bits);
 
-        let (arity_bits, size) = min_size_arity_bits_helper(
+        let (arity_bits, size) = checked_min_size_arity_bits_helper(
             degree_bits,
             rate_bits,
             num_queries,
             max_arity_bits,
             extended_prefix,
-        );
+        )?;
         if size < best_size {
             best_arity_bits = arity_bits;
             best_size = size;
         }
     }
 
-    (best_arity_bits, best_size)
+    Ok((best_arity_bits, best_size))
 }
 
 /// Compute the approximate size of a FRI proof with the given reduction arities. Note that this
 /// ignores initial evaluations, which aren't affected by arities, and some other minor
 /// contributions. The result is measured in field elements.
-fn relative_proof_size(
+fn checked_relative_proof_size(
     degree_bits: usize,
     rate_bits: usize,
     num_queries: usize,
     arity_bits: &[usize],
-) -> usize {
+) -> Result<usize, &'static str> {
     const D: usize = 4;
 
-    let mut current_layer_bits = degree_bits + rate_bits;
+    let mut current_layer_bits = degree_bits
+        .checked_add(rate_bits)
+        .ok_or("FRI degree_bits + rate_bits exceeds usize width")?;
 
-    let mut total_elems = 0;
-    for arity_bits in arity_bits {
-        let arity = 1 << arity_bits;
+    let mut total_elems = 0usize;
+    for &arity_bits in arity_bits {
+        if arity_bits == 0 {
+            return Err("FRI reduction arity must not be 0");
+        }
+        let arity = 1usize
+            .checked_shl(arity_bits as u32)
+            .ok_or("FRI reduction arity exceeds usize width")?;
 
         // Add neighboring evaluations, which are extension field elements.
-        total_elems += (arity - 1) * D * num_queries;
+        let neighboring_elems = arity
+            .checked_sub(1)
+            .and_then(|n| n.checked_mul(D))
+            .and_then(|n| n.checked_mul(num_queries))
+            .ok_or("FRI proof size estimate overflows")?;
+        total_elems = total_elems
+            .checked_add(neighboring_elems)
+            .ok_or("FRI proof size estimate overflows")?;
         // Add siblings in the Merkle path.
-        total_elems += current_layer_bits * 4 * num_queries;
+        let sibling_elems = current_layer_bits
+            .checked_mul(4)
+            .and_then(|n| n.checked_mul(num_queries))
+            .ok_or("FRI proof size estimate overflows")?;
+        total_elems = total_elems
+            .checked_add(sibling_elems)
+            .ok_or("FRI proof size estimate overflows")?;
 
-        current_layer_bits -= arity_bits;
+        current_layer_bits = current_layer_bits
+            .checked_sub(arity_bits)
+            .ok_or("FRI reduction arities exceed the LDE layer size")?;
     }
 
     // Add the final polynomial's coefficients.
-    assert!(current_layer_bits >= rate_bits);
-    let final_poly_len = 1 << (current_layer_bits - rate_bits);
-    total_elems += D * final_poly_len;
+    let final_poly_bits = current_layer_bits
+        .checked_sub(rate_bits)
+        .ok_or("sum of FRI reduction arities exceeds degree_bits")?;
+    let final_poly_len = 1usize
+        .checked_shl(final_poly_bits as u32)
+        .ok_or("FRI final polynomial length exceeds usize width")?;
+    let final_poly_elems = D
+        .checked_mul(final_poly_len)
+        .ok_or("FRI proof size estimate overflows")?;
+    total_elems = total_elems
+        .checked_add(final_poly_elems)
+        .ok_or("FRI proof size estimate overflows")?;
 
-    total_elems
+    Ok(total_elems)
 }
 
 /// A configuration for the FRI protocol.
@@ -213,22 +317,44 @@ impl FriConfig {
     }
 
     pub fn fri_params(&self, degree_bits: usize, leaf_hiding: bool) -> FriParams {
-        let reduction_arity_bits = self.reduction_strategy.reduction_arity_bits(
+        self.checked_fri_params(degree_bits, leaf_hiding)
+            .expect("invalid FRI parameters")
+    }
+
+    /// Fallible [`Self::fri_params`] for deserialization of untrusted data: derives the full
+    /// [`FriParams`] (including `reduction_arity_bits`) without panicking on forged config.
+    pub fn checked_fri_params(
+        &self,
+        degree_bits: usize,
+        leaf_hiding: bool,
+    ) -> Result<FriParams, &'static str> {
+        let reduction_arity_bits = self.reduction_strategy.checked_reduction_arity_bits(
             degree_bits,
             self.rate_bits,
             self.cap_height,
             self.num_query_rounds,
-        );
-        FriParams {
+        )?;
+        Ok(FriParams {
             config: self.clone(),
             leaf_hiding,
             degree_bits,
             reduction_arity_bits,
-        }
+        })
     }
 
     pub const fn num_cap_elements(&self) -> usize {
         1 << self.cap_height
+    }
+
+    /// Validate invariants that hold for any genuinely-built circuit.
+    ///
+    /// Intended for deserialization of untrusted data: a config that fails these checks
+    /// would let verification skip all queries (zero soundness), so it is rejected.
+    pub fn check_valid(&self) -> Result<(), &'static str> {
+        if self.num_query_rounds == 0 {
+            return Err("num_query_rounds must not be 0 (zero queries means no soundness)");
+        }
+        Ok(())
     }
 }
 
@@ -275,6 +401,30 @@ impl FriParams {
 
     pub fn final_poly_len(&self) -> usize {
         1 << self.final_poly_bits()
+    }
+
+    /// Validate invariants that hold for any genuinely-built circuit.
+    ///
+    /// Intended for deserialization of untrusted data: rejects reduction schedules that
+    /// would otherwise underflow [`Self::final_poly_bits`] or drive oversized FRI loops.
+    pub fn check_valid(&self) -> Result<(), &'static str> {
+        self.config.check_valid()?;
+        let mut total_arities = 0usize;
+        for &arity_bits in &self.reduction_arity_bits {
+            if arity_bits == 0 {
+                return Err("FRI reduction arity must not be 0");
+            }
+            if arity_bits > self.degree_bits {
+                return Err("FRI reduction arity exceeds degree_bits");
+            }
+            total_arities = total_arities
+                .checked_add(arity_bits)
+                .ok_or("FRI reduction arities sum overflows")?;
+        }
+        if total_arities > self.degree_bits {
+            return Err("sum of FRI reduction arities exceeds degree_bits");
+        }
+        Ok(())
     }
 }
 

@@ -2,7 +2,8 @@
 
 use serde::Serialize;
 
-use crate::fri::{FriConfig, FriReductionStrategy};
+use crate::fri::{FriConfig, FriParams, FriReductionStrategy};
+use crate::selectors::LookupSelectors;
 
 /// Configuration to be used when building a circuit. This defines the shape of the circuit
 /// as well as its targeted security level and sub-protocol (e.g. FRI) parameters.
@@ -109,6 +110,13 @@ impl CircuitConfig {
             return Err("num_routed_wires must be >= 3 (required for lookup gates)");
         }
 
+        // Routed wires are a subset of all wires; advice wires are the remainder. A larger
+        // routed count underflows num_advice_wires and overruns wire-opening reads during
+        // the permutation argument.
+        if self.num_routed_wires > self.num_wires {
+            return Err("num_routed_wires must not exceed num_wires");
+        }
+
         Ok(())
     }
 
@@ -121,9 +129,359 @@ impl CircuitConfig {
     }
 }
 
+/// Validate common circuit data fields shared between prover and verifier.
+///
+/// This is a free function to avoid duplication between `CommonCircuitData::check_valid`
+/// (in plonky2) and `CommonVerifierData::check_valid` (in verifier).
+///
+/// # Arguments
+/// * `config` - The circuit configuration
+/// * `quotient_degree_factor` - The quotient polynomial degree factor
+/// * `rate_bits` - FRI rate bits from config
+/// * `public_initial_degree_bits` - Public initial FRI degree bits
+/// * `trace_degree_bits` - Trace polynomial degree bits
+/// * `num_partial_products` - Declared number of partial products
+/// * `k_is_len` - Length of the permutation-argument coset shift vector
+/// * `luts` - Lookup tables (as slice of slices for flexibility)
+///
+/// # Returns
+/// `Ok(())` if valid, or an error message describing the validation failure.
+pub fn check_common_data_valid(
+    config: &CircuitConfig,
+    quotient_degree_factor: usize,
+    rate_bits: usize,
+    public_initial_degree_bits: usize,
+    trace_degree_bits: usize,
+    num_partial_products: usize,
+    k_is_len: usize,
+    luts_empty_check: impl Fn() -> bool,
+) -> Result<(), &'static str> {
+    config.check_valid()?;
+
+    // The permutation argument indexes one coset shift per routed wire.
+    if k_is_len != config.num_routed_wires {
+        return Err("k_is length must equal num_routed_wires");
+    }
+
+    // A zero quotient degree factor breaks partial-product chunking and quotient sizing.
+    if quotient_degree_factor == 0 {
+        return Err("quotient_degree_factor must not be 0");
+    }
+
+    // Quotient degree must fit within FRI rate.
+    let quotient_degree_bits = crate::util::log2_ceil(quotient_degree_factor);
+    if quotient_degree_bits > rate_bits {
+        return Err("quotient_degree_factor exceeds FRI rate_bits");
+    }
+
+    // num_partial_products is fully determined by the routed-wire count and quotient degree;
+    // an inconsistent value mis-sizes the partial-product portion of every proof.
+    let expected_partial_products = config
+        .num_routed_wires
+        .div_ceil(quotient_degree_factor)
+        .checked_sub(1)
+        .ok_or("num_partial_products underflows")?;
+    if num_partial_products != expected_partial_products {
+        return Err("num_partial_products inconsistent with circuit config");
+    }
+
+    // Public initial degree must be at least as large as trace degree.
+    if public_initial_degree_bits < trace_degree_bits {
+        return Err("public_initial_degree_bits must be >= trace_degree_bits");
+    }
+
+    // All lookup tables must be non-empty.
+    if luts_empty_check() {
+        return Err("lookup table is empty");
+    }
+
+    Ok(())
+}
+
+/// Validate a single gate's declared shape against the surrounding circuit data.
+///
+/// Intended for deserialization of untrusted data: ensures a gate cannot reference more
+/// wires, constants, or constraints than the circuit configuration accounts for, which
+/// would otherwise cause out-of-bounds access during constraint evaluation.
+///
+/// `num_selectors` and `num_lookup_selectors` are the constant slots consumed before a
+/// gate's own constants, so a gate's constants must fit in what remains.
+pub fn check_gate_shape(
+    gate_num_wires: usize,
+    gate_num_constants: usize,
+    gate_num_constraints: usize,
+    config: &CircuitConfig,
+    num_selectors: usize,
+    num_lookup_selectors: usize,
+    num_constants: usize,
+    num_gate_constraints: usize,
+) -> Result<(), &'static str> {
+    if gate_num_wires > config.num_wires {
+        return Err("gate uses more wires than the circuit configuration provides");
+    }
+    let constants_used = num_selectors
+        .checked_add(num_lookup_selectors)
+        .and_then(|prefix| prefix.checked_add(gate_num_constants))
+        .ok_or("gate constant count overflows")?;
+    if constants_used > num_constants {
+        return Err("gate uses more constants than the circuit configuration provides");
+    }
+    if gate_num_constraints > num_gate_constraints {
+        return Err("gate emits more constraints than num_gate_constraints");
+    }
+    Ok(())
+}
+
+/// Validate that the derived `fri_params` inside `CommonCircuitData` matches `config.fri_config`.
+///
+/// `fri_params` is fully determined by `config.fri_config`, `public_initial_degree_bits`, and
+/// `config.zero_knowledge`, but the verifier draws FRI query indices from `config.fri_config`
+/// while running FRI (proof shape, reduction schedule, final polynomial, leaf salting) against
+/// `fri_params`. Any divergence in a derived field (`num_query_rounds`, `degree_bits`,
+/// `reduction_arity_bits`, `leaf_hiding`, ...) lets a forged blob weaken the FRI check instead of
+/// being rejected, so the whole structure is re-derived and compared.
+///
+/// The derivation is the fallible [`FriConfig::checked_fri_params`], which returns an error rather
+/// than panicking on forged config (arbitrary `rate_bits` / arities).
+pub fn check_fri_params_consistent(
+    config: &CircuitConfig,
+    public_initial_degree_bits: usize,
+    fri_params: &FriParams,
+) -> Result<(), &'static str> {
+    let expected = config
+        .fri_config
+        .checked_fri_params(public_initial_degree_bits, config.zero_knowledge)?;
+    if *fri_params != expected {
+        return Err("fri_params inconsistent with circuit config");
+    }
+    Ok(())
+}
+
+/// Validate lookup metadata against the declared lookup tables and circuit config.
+///
+/// `num_lookup_polys` and `num_lookup_selectors` are fully determined by the table count and
+/// config. A forged value either skips lookup constraints entirely (`num_lookup_polys == 0`
+/// makes `has_lookup` false) or mis-sizes / divides-by-zero during lookup constraint
+/// evaluation (`num_lookup_polys == 1` leaves zero accumulator chunks), so both are recomputed
+/// and compared here rather than trusted.
+///
+/// `lookup_gate_num_slots` is `LookupGate::num_slots(config)`, supplied by the caller so the
+/// per-gate wire layout stays defined in one place.
+pub fn check_lookup_metadata_valid(
+    num_lookup_polys: usize,
+    num_lookup_selectors: usize,
+    num_luts: usize,
+    quotient_degree_factor: usize,
+    lookup_gate_num_slots: usize,
+) -> Result<(), &'static str> {
+    if num_luts == 0 {
+        if num_lookup_polys != 0 {
+            return Err("num_lookup_polys must be 0 without lookup tables");
+        }
+        if num_lookup_selectors != 0 {
+            return Err("num_lookup_selectors must be 0 without lookup tables");
+        }
+        return Ok(());
+    }
+
+    // Fixed transition/init selectors, plus one end selector per lookup table.
+    let expected_selectors = (LookupSelectors::StartEnd as usize)
+        .checked_add(num_luts)
+        .ok_or("lookup selector count overflows")?;
+    if num_lookup_selectors != expected_selectors {
+        return Err("num_lookup_selectors inconsistent with lookup tables");
+    }
+
+    // Lookup accumulators chunk into degree (quotient_degree_factor - 1), so lookups require
+    // quotient_degree_factor >= 2; a smaller value divides by zero during evaluation.
+    let lookup_degree = quotient_degree_factor
+        .checked_sub(1)
+        .filter(|&d| d != 0)
+        .ok_or("quotient_degree_factor must be >= 2 with lookup tables")?;
+    // One RE polynomial on top of the Sum/LDC accumulator chunks.
+    let expected_polys = lookup_gate_num_slots
+        .div_ceil(lookup_degree)
+        .checked_add(1)
+        .ok_or("num_lookup_polys overflows")?;
+    if num_lookup_polys != expected_polys {
+        return Err("num_lookup_polys inconsistent with lookup tables");
+    }
+
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
-    use super::CircuitConfig;
+    #[cfg(not(feature = "std"))]
+    use alloc::vec;
+
+    use super::{
+        check_common_data_valid, check_fri_params_consistent, check_gate_shape,
+        check_lookup_metadata_valid, CircuitConfig,
+    };
+    use crate::fri::{FriParams, FriReductionStrategy};
+
+    #[test]
+    fn check_common_data_rejects_zero_quotient_degree() {
+        let config = CircuitConfig::standard_recursion_config();
+        let nrw = config.num_routed_wires;
+        assert!(check_common_data_valid(&config, 0, 10, 4, 4, 0, nrw, || false).is_err());
+    }
+
+    #[test]
+    fn check_common_data_validates_partial_products() {
+        let config = CircuitConfig::standard_recursion_config();
+        let nrw = config.num_routed_wires;
+        let qdf = 8;
+        let expected = nrw.div_ceil(qdf) - 1;
+        assert!(check_common_data_valid(&config, qdf, 10, 4, 4, expected, nrw, || false).is_ok());
+        assert!(
+            check_common_data_valid(&config, qdf, 10, 4, 4, expected + 1, nrw, || false).is_err()
+        );
+    }
+
+    #[test]
+    fn check_common_data_rejects_wrong_k_is_length() {
+        let config = CircuitConfig::standard_recursion_config();
+        let nrw = config.num_routed_wires;
+        let expected = nrw.div_ceil(8) - 1;
+        assert!(
+            check_common_data_valid(&config, 8, 10, 4, 4, expected, nrw - 1, || false).is_err()
+        );
+    }
+
+    #[test]
+    fn check_gate_shape_rejects_oversized_gates() {
+        let config = CircuitConfig::standard_recursion_config();
+        let nc = config.num_constants;
+        assert!(check_gate_shape(config.num_wires, 0, 1, &config, 1, 0, nc, 4).is_ok());
+        assert!(check_gate_shape(config.num_wires + 1, 0, 1, &config, 1, 0, nc, 4).is_err());
+        assert!(check_gate_shape(1, nc, 1, &config, 1, 0, nc, 4).is_err());
+        assert!(check_gate_shape(1, 0, 5, &config, 1, 0, nc, 4).is_err());
+    }
+
+    #[test]
+    fn check_valid_rejects_routed_wires_exceeding_wires() {
+        let config = CircuitConfig {
+            num_routed_wires: 200,
+            num_wires: 143,
+            ..CircuitConfig::standard_recursion_config()
+        };
+        assert!(config.check_valid().is_err());
+    }
+
+    #[test]
+    fn check_lookup_metadata_accepts_absent_lookups() {
+        assert!(check_lookup_metadata_valid(0, 0, 0, 8, 40).is_ok());
+    }
+
+    #[test]
+    fn check_lookup_metadata_rejects_phantom_lookups() {
+        assert!(check_lookup_metadata_valid(1, 0, 0, 8, 40).is_err());
+        assert!(check_lookup_metadata_valid(0, 1, 0, 8, 40).is_err());
+    }
+
+    #[test]
+    fn check_lookup_metadata_accepts_consistent_lookups() {
+        // num_routed_wires = 80 => LookupGate slots = 40, qdf = 8 => degree 7.
+        // selectors = StartEnd(4) + 1 lut = 5; polys = ceil(40 / 7) + 1 = 7.
+        assert!(check_lookup_metadata_valid(7, 5, 1, 8, 40).is_ok());
+    }
+
+    #[test]
+    fn check_lookup_metadata_rejects_disabled_or_degenerate_polys() {
+        assert!(check_lookup_metadata_valid(0, 5, 1, 8, 40).is_err());
+        assert!(check_lookup_metadata_valid(1, 5, 1, 8, 40).is_err());
+    }
+
+    #[test]
+    fn check_lookup_metadata_rejects_wrong_selector_count() {
+        assert!(check_lookup_metadata_valid(7, 4, 1, 8, 40).is_err());
+    }
+
+    #[test]
+    fn check_lookup_metadata_rejects_low_quotient_degree() {
+        assert!(check_lookup_metadata_valid(7, 5, 1, 1, 40).is_err());
+    }
+
+    #[test]
+    fn check_fri_params_accepts_derived_params() {
+        let config = CircuitConfig::standard_recursion_config();
+        let params = config.fri_config.fri_params(10, config.zero_knowledge);
+        assert!(check_fri_params_consistent(&config, 10, &params).is_ok());
+    }
+
+    #[test]
+    fn check_fri_params_rejects_query_round_mismatch() {
+        let config = CircuitConfig::standard_recursion_config();
+        let mut params = config.fri_config.fri_params(10, config.zero_knowledge);
+        params.config.num_query_rounds -= 1;
+        assert!(check_fri_params_consistent(&config, 10, &params).is_err());
+    }
+
+    #[test]
+    fn check_fri_params_rejects_degree_bits_mismatch() {
+        let config = CircuitConfig::standard_recursion_config();
+        let params = config.fri_config.fri_params(10, config.zero_knowledge);
+        assert!(check_fri_params_consistent(&config, 11, &params).is_err());
+    }
+
+    #[test]
+    fn check_fri_params_rejects_arity_schedule_mismatch() {
+        let config = CircuitConfig::standard_recursion_config();
+        let mut params = config.fri_config.fri_params(12, config.zero_knowledge);
+        assert!(!params.reduction_arity_bits.is_empty());
+        params.reduction_arity_bits = vec![1];
+        assert!(check_fri_params_consistent(&config, 12, &params).is_err());
+    }
+
+    #[test]
+    fn check_fri_params_rejects_leaf_hiding_mismatch() {
+        let config = CircuitConfig::standard_recursion_config();
+        let mut params = config.fri_config.fri_params(10, config.zero_knowledge);
+        params.leaf_hiding = !config.zero_knowledge;
+        assert!(check_fri_params_consistent(&config, 10, &params).is_err());
+    }
+
+    #[test]
+    fn check_fri_params_rejects_zero_constant_arity_strategy() {
+        let mut config = CircuitConfig::standard_recursion_config();
+        config.fri_config.reduction_strategy = FriReductionStrategy::ConstantArityBits(0, 0);
+        let params = FriParams {
+            config: config.fri_config.clone(),
+            leaf_hiding: config.zero_knowledge,
+            degree_bits: 10,
+            reduction_arity_bits: vec![],
+        };
+        assert!(check_fri_params_consistent(&config, 10, &params).is_err());
+    }
+
+    #[test]
+    fn check_fri_params_rejects_zero_fixed_arity_strategy() {
+        let mut config = CircuitConfig::standard_recursion_config();
+        config.fri_config.reduction_strategy = FriReductionStrategy::Fixed(vec![0]);
+        let params = FriParams {
+            config: config.fri_config.clone(),
+            leaf_hiding: config.zero_knowledge,
+            degree_bits: 10,
+            reduction_arity_bits: vec![0],
+        };
+        assert!(check_fri_params_consistent(&config, 10, &params).is_err());
+    }
+
+    #[test]
+    fn check_fri_params_rejects_oversized_min_size_query_count() {
+        let mut config = CircuitConfig::standard_recursion_config();
+        config.fri_config.reduction_strategy = FriReductionStrategy::MinSize(None);
+        config.fri_config.num_query_rounds = usize::MAX;
+        let params = FriParams {
+            config: config.fri_config.clone(),
+            leaf_hiding: config.zero_knowledge,
+            degree_bits: 10,
+            reduction_arity_bits: vec![],
+        };
+        assert!(check_fri_params_consistent(&config, 10, &params).is_err());
+    }
 
     #[test]
     fn standard_helpers_select_expected_zk_modes() {
@@ -159,48 +517,4 @@ mod tests {
         };
         config.validate();
     }
-}
-
-/// Validate common circuit data fields shared between prover and verifier.
-///
-/// This is a free function to avoid duplication between `CommonCircuitData::check_valid`
-/// (in plonky2) and `CommonVerifierData::check_valid` (in verifier).
-///
-/// # Arguments
-/// * `config` - The circuit configuration
-/// * `quotient_degree_factor` - The quotient polynomial degree factor
-/// * `rate_bits` - FRI rate bits from config
-/// * `public_initial_degree_bits` - Public initial FRI degree bits
-/// * `trace_degree_bits` - Trace polynomial degree bits
-/// * `luts` - Lookup tables (as slice of slices for flexibility)
-///
-/// # Returns
-/// `Ok(())` if valid, or an error message describing the validation failure.
-pub fn check_common_data_valid(
-    config: &CircuitConfig,
-    quotient_degree_factor: usize,
-    rate_bits: usize,
-    public_initial_degree_bits: usize,
-    trace_degree_bits: usize,
-    luts_empty_check: impl Fn() -> bool,
-) -> Result<(), &'static str> {
-    config.check_valid()?;
-
-    // Quotient degree must fit within FRI rate.
-    let quotient_degree_bits = crate::util::log2_ceil(quotient_degree_factor);
-    if quotient_degree_bits > rate_bits {
-        return Err("quotient_degree_factor exceeds FRI rate_bits");
-    }
-
-    // Public initial degree must be at least as large as trace degree.
-    if public_initial_degree_bits < trace_degree_bits {
-        return Err("public_initial_degree_bits must be >= trace_degree_bits");
-    }
-
-    // All lookup tables must be non-empty.
-    if luts_empty_check() {
-        return Err("lookup table is empty");
-    }
-
-    Ok(())
 }
