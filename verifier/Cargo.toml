@@ -60,7 +60,10 @@ rand = { version = "=0.10.1", features = ["std_rng"] }
 plonky2-field = { package = "qp-plonky2-field", version = "=1.5.0", path = "../field", features = [
   "rand",
 ] }
-plonky2 = { package = "qp-plonky2", version = "=1.5.0", path = "../plonky2" }
+# path-only (no version): qp-plonky2 depends on this crate, so a versioned
+# dev-dep would form a publish cycle on crates.io. Cargo drops path-only
+# dev-deps when packaging, breaking the cycle.
+plonky2 = { package = "qp-plonky2", path = "../plonky2" }
 ciborium = { version = "=0.2.2" }
 
 [lints]
