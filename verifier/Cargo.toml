@@ -1,7 +1,7 @@
 [package]
 name = "qp-plonky2-verifier"
 description = "Plonky2 verification library - minimal, no-std compatible, no randomness required"
-version = "1.4.1"
+version = "1.5.1"
 authors = [
   "Daniel Lubarov <daniel@lubarov.com>",
   "William Borgeaud <williamborgeaud@gmail.com>",
