@@ -1144,8 +1144,12 @@ mod tests {
         let ctl_zs_first: [Vec<F>; 2] = [vec![], vec![]];
         let ctl_extra_looking_sums = HashMap::new();
 
-        let result =
-            verify_cross_table_lookups::<F, 2, 2>(&[ctl], ctl_zs_first, &ctl_extra_looking_sums, &config);
+        let result = verify_cross_table_lookups::<F, 2, 2>(
+            &[ctl],
+            ctl_zs_first,
+            &ctl_extra_looking_sums,
+            &config,
+        );
 
         assert!(
             result.is_err(),

@@ -329,10 +329,7 @@ mod tests {
             "PermutationStark should have constraint_degree() == 0 (no base constraints)"
         );
 
-        assert!(
-            stark.uses_lookups(),
-            "PermutationStark should use lookups"
-        );
+        assert!(stark.uses_lookups(), "PermutationStark should use lookups");
 
         // This is the key assertion - with the fix, quotient_degree_factor should be > 0
         // even when constraint_degree() == 0, because lookup constraints have degree 2.

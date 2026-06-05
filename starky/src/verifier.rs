@@ -264,14 +264,14 @@ where
     // This prevents attackers from providing fake quotient openings without a commitment.
     let num_quotient_polys = stark.num_quotient_polys(config);
     if num_quotient_polys > 0 {
-        let quotient_cap = quotient_polys_cap
-            .as_ref()
-            .ok_or_else(|| anyhow!("Missing quotient_polys_cap when quotient polynomials are required"))?;
+        let quotient_cap = quotient_polys_cap.as_ref().ok_or_else(|| {
+            anyhow!("Missing quotient_polys_cap when quotient polynomials are required")
+        })?;
         ensure!(quotient_cap.height() == cap_height);
 
-        let quotient_openings = quotient_polys
-            .as_ref()
-            .ok_or_else(|| anyhow!("Missing quotient_polys when quotient polynomials are required"))?;
+        let quotient_openings = quotient_polys.as_ref().ok_or_else(|| {
+            anyhow!("Missing quotient_polys when quotient polynomials are required")
+        })?;
         ensure!(quotient_openings.len() == num_quotient_polys);
     } else {
         ensure!(
