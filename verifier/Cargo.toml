@@ -28,40 +28,40 @@ std = [
 [dependencies]
 # Use workspace versions for most deps
 ahash = { workspace = true }
-once_cell = { version = "1.21", default-features = false, features = [
+once_cell = { version = "=1.21.3", default-features = false, features = [
   "alloc",
   "race",
   "critical-section",
 ] }
-critical-section = { version = "1.2", default-features = false }
+critical-section = { version = "=1.2.0", default-features = false }
 anyhow = { workspace = true }
 hashbrown = { workspace = true }
 itertools = { workspace = true }
-keccak-hash = { version = "0.8.0", default-features = false }
+keccak-hash = { version = "=0.8.0", default-features = false }
 log = { workspace = true }
-# Override num to NOT include rand feature - this prevents rand 0.8 → rand_chacha 0.3 → getrandom
+# Override num to NOT include rand feature - this prevents rand → getrandom
 # from being pulled into WASM builds
-num = { version = "0.4", default-features = false, features = ["alloc"] }
+num = { version = "=0.4.3", default-features = false, features = ["alloc"] }
 serde = { workspace = true, features = ["rc"] }
 static_assertions = { workspace = true }
 unroll = { workspace = true }
 
 # Poseidon2 - self-contained implementation
-qp-poseidon-core = { version = "2.1.0", default-features = false }
+qp-poseidon-core = { version = "=2.1.0", default-features = false }
 
 # Local dependencies - note: no "rand" feature = verification-only, no randomness needed
-plonky2-field = { package = "qp-plonky2-field", version = "1.4.1", path = "../field", default-features = false }
-plonky2_util = { version = "1.0.0", path = "../util", default-features = false }
-qp-plonky2-core = { version = "1.4.1", path = "../core", default-features = false }
+plonky2-field = { package = "qp-plonky2-field", version = "=1.4.1", path = "../field", default-features = false }
+plonky2_util = { version = "=1.0.0", path = "../util", default-features = false }
+qp-plonky2-core = { version = "=1.4.1", path = "../core", default-features = false }
 
 [dev-dependencies]
-criterion = { version = "0.5.1", default-features = false }
-rand = { version = "0.8", features = ["small_rng"] }
-plonky2-field = { package = "qp-plonky2-field", version = "1.4.1", path = "../field", features = [
+criterion = { version = "=0.5.1", default-features = false }
+rand = { version = "=0.10.1", features = ["std_rng"] }
+plonky2-field = { package = "qp-plonky2-field", version = "=1.4.1", path = "../field", features = [
   "rand",
 ] }
-plonky2 = { package = "qp-plonky2", version = "1.1.5", path = "../plonky2" }
-serde_cbor = { version = "0.11.2", default-features = true }
+plonky2 = { package = "qp-plonky2", version = "=1.4.1", path = "../plonky2" }
+ciborium = { version = "=0.2.2" }
 
 [lints]
 workspace = true

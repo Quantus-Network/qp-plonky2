@@ -199,8 +199,8 @@ impl<F: RichField + P2Permuter> AlgebraicHasher<F> for Poseidon2Hash {
 mod tests {
     use plonky2_field::goldilocks_field::GoldilocksField as F;
     use qp_poseidon_core::{hash_to_bytes, Goldilocks as QpF};
-    use rand_chacha::rand_core::{RngCore, SeedableRng};
-    use rand_chacha::ChaCha8Rng;
+    use rand::rngs::ChaCha8Rng;
+    use rand::{RngExt, SeedableRng};
 
     use super::*;
     use crate::iop::witness::{PartialWitness, WitnessWrite};
@@ -260,7 +260,7 @@ mod tests {
 
         for &len in &lens {
             let inputs: Vec<F> = (0..len)
-                .map(|_| F::from_canonical_u64(rng.next_u64()))
+                .map(|_| F::from_canonical_u64(rng.random()))
                 .collect();
             assert_hash_matches(inputs);
         }
@@ -271,9 +271,9 @@ mod tests {
         // A bunch of random lengths & values.
         let mut rng = ChaCha8Rng::seed_from_u64(0xFACEFEED);
         for _ in 0..20 {
-            let len = (rng.next_u32() as usize) % 64; // up to 63 elements
+            let len = (rng.random::<u32>() as usize) % 64; // up to 63 elements
             let inputs: Vec<F> = (0..len)
-                .map(|_| F::from_canonical_u64(rng.next_u64()))
+                .map(|_| F::from_canonical_u64(rng.random()))
                 .collect();
             assert_hash_matches(inputs);
         }
@@ -283,11 +283,11 @@ mod tests {
         // random inputs of varying sizes
         let mut rng = ChaCha8Rng::seed_from_u64(0xD1CE_D00D);
         for _ in 0..100 {
-            let len = (rng.next_u32() as usize) % 64; // up to 63 elements
+            let len = (rng.random::<u32>() as usize) % 64; // up to 63 elements
 
             // Build the same input in both field types
             let inputs_f: Vec<F> = (0..len)
-                .map(|_| F::from_canonical_u64(rng.next_u64()))
+                .map(|_| F::from_canonical_u64(rng.random()))
                 .collect();
 
             let inputs_qp: Vec<QpF> = inputs_f

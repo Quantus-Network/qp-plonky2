@@ -441,8 +441,7 @@ impl<F: Field> Mul for &PolynomialCoeffs<F> {
 mod tests {
     use std::time::Instant;
 
-    use rand::rngs::OsRng;
-    use rand::Rng;
+    use rand::RngExt;
 
     use super::*;
     use crate::goldilocks_field::GoldilocksField;
@@ -519,8 +518,8 @@ mod tests {
     #[test]
     fn test_polynomial_multiplication() {
         type F = GoldilocksField;
-        let mut rng = OsRng;
-        let (a_deg, b_deg) = (rng.gen_range(1..10_000), rng.gen_range(1..10_000));
+        let mut rng = rand::rng();
+        let (a_deg, b_deg) = (rng.random_range(1..10_000), rng.random_range(1..10_000));
         let a = PolynomialCoeffs::new(F::rand_vec(a_deg));
         let b = PolynomialCoeffs::new(F::rand_vec(b_deg));
         let m1 = &a * &b;
@@ -535,9 +534,9 @@ mod tests {
     #[test]
     fn test_inv_mod_xn() {
         type F = GoldilocksField;
-        let mut rng = OsRng;
-        let a_deg = rng.gen_range(0..1_000);
-        let n = rng.gen_range(1..1_000);
+        let mut rng = rand::rng();
+        let a_deg = rng.random_range(0..1_000);
+        let n = rng.random_range(1..1_000);
         let mut a = PolynomialCoeffs::new(F::rand_vec(a_deg + 1));
         if a.coeffs[0].is_zero() {
             a.coeffs[0] = F::ONE; // First coefficient needs to be nonzero.
@@ -560,8 +559,8 @@ mod tests {
     #[test]
     fn test_polynomial_long_division() {
         type F = GoldilocksField;
-        let mut rng = OsRng;
-        let (a_deg, b_deg) = (rng.gen_range(1..10_000), rng.gen_range(1..10_000));
+        let mut rng = rand::rng();
+        let (a_deg, b_deg) = (rng.random_range(1..10_000), rng.random_range(1..10_000));
         let a = PolynomialCoeffs::new(F::rand_vec(a_deg));
         let b = PolynomialCoeffs::new(F::rand_vec(b_deg));
         let (q, r) = a.div_rem_long_division(&b);
@@ -574,8 +573,8 @@ mod tests {
     #[test]
     fn test_polynomial_division() {
         type F = GoldilocksField;
-        let mut rng = OsRng;
-        let (a_deg, b_deg) = (rng.gen_range(1..10_000), rng.gen_range(1..10_000));
+        let mut rng = rand::rng();
+        let (a_deg, b_deg) = (rng.random_range(1..10_000), rng.random_range(1..10_000));
         let a = PolynomialCoeffs::new(F::rand_vec(a_deg));
         let b = PolynomialCoeffs::new(F::rand_vec(b_deg));
         let (q, r) = a.div_rem(&b);
@@ -588,8 +587,8 @@ mod tests {
     #[test]
     fn test_polynomial_division_by_constant() {
         type F = GoldilocksField;
-        let mut rng = OsRng;
-        let a_deg = rng.gen_range(1..10_000);
+        let mut rng = rand::rng();
+        let a_deg = rng.random_range(1..10_000);
         let a = PolynomialCoeffs::new(F::rand_vec(a_deg));
         let b = PolynomialCoeffs::from(vec![F::rand()]);
         let (q, r) = a.div_rem(&b);
@@ -604,7 +603,7 @@ mod tests {
     #[test]
     fn test_division_linear() {
         type F = GoldilocksField;
-        let mut rng = OsRng;
+        let mut rng = rand::rng();
         let l = 14;
         let n = 1 << l;
         let g = F::primitive_root_of_unity(l);
@@ -615,7 +614,7 @@ mod tests {
             PolynomialCoeffs::new(xn_min_one_vec)
         };
 
-        let a = g.exp_u64(rng.gen_range(0..(n as u64)));
+        let a = g.exp_u64(rng.random_range(0..(n as u64)));
         let denom = PolynomialCoeffs::new(vec![-a, F::ONE]);
         let now = Instant::now();
         xn_minus_one.div_rem(&denom);

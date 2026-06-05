@@ -21,13 +21,13 @@ anyhow = { workspace = true }
 itertools = { workspace = true, features = ["use_alloc"] }
 num = { workspace = true, features = ["alloc"] }
 
-rand = { workspace = true, features = ["getrandom"], optional = true }
+rand = { workspace = true, features = ["thread_rng"], optional = true }
 serde = { workspace = true, features = ["alloc"] }
 static_assertions = { workspace = true }
 unroll = { workspace = true }
 
 # Local dependencies
-plonky2_util = { version = "1.0.0", path = "../util", default-features = false }
+plonky2_util = { version = "=1.0.0", path = "../util", default-features = false }
 
 
 # Display math equations properly in documentation
@@ -41,4 +41,4 @@ workspace = true
 default = ["rand"]
 
 [build-dependencies]
-rustc_version = "0.4"
+rustc_version = "=0.4.1"

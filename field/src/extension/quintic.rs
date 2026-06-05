@@ -55,7 +55,7 @@ impl<F: Extendable<5>> Sample for QuinticExtension<F> {
     #[inline]
     fn sample<R>(rng: &mut R) -> Self
     where
-        R: rand::RngCore + ?Sized,
+        R: rand::Rng + ?Sized,
     {
         Self::from_basefield_array([
             F::sample(rng),

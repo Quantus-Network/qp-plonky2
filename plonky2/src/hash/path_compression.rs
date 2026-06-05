@@ -9,8 +9,7 @@ pub use qp_plonky2_core::hash::path_compression::{
 #[cfg(test)]
 #[cfg(feature = "rand")]
 mod tests {
-    use rand::rngs::OsRng;
-    use rand::Rng;
+    use rand::RngExt;
 
     use super::*;
     use crate::field::types::Sample;
@@ -24,12 +23,12 @@ mod tests {
         type F = <C as GenericConfig<D>>::F;
         let h = 10;
         let cap_height = 3;
-        let vs = (0..1 << h).map(|_| vec![F::rand()]).collect::<Vec<_>>();
+        let vs: Vec<Vec<F>> = (0..1 << h).map(|_| vec![F::rand()]).collect();
         let mt = MerkleTree::<F, <C as GenericConfig<D>>::Hasher>::new(vs.clone(), cap_height);
 
-        let mut rng = OsRng;
-        let k = rng.gen_range(1..=1 << h);
-        let indices = (0..k).map(|_| rng.gen_range(0..1 << h)).collect::<Vec<_>>();
+        let mut rng = rand::rng();
+        let k = rng.random_range(1..=1 << h);
+        let indices: Vec<usize> = (0..k).map(|_| rng.random_range(0..1 << h)).collect();
         let proofs = indices.iter().map(|&i| mt.prove(i)).collect::<Vec<_>>();
 
         let compressed_proofs = compress_merkle_proofs(cap_height, &indices, &proofs);
@@ -45,12 +44,14 @@ mod tests {
 
         #[cfg(feature = "std")]
         {
-            let compressed_proof_bytes = serde_cbor::to_vec(&compressed_proofs).unwrap();
+            let mut compressed_proof_bytes = Vec::new();
+            ciborium::into_writer(&compressed_proofs, &mut compressed_proof_bytes).unwrap();
             println!(
                 "Compressed proof length: {} bytes",
                 compressed_proof_bytes.len()
             );
-            let proof_bytes = serde_cbor::to_vec(&proofs).unwrap();
+            let mut proof_bytes = Vec::new();
+            ciborium::into_writer(&proofs, &mut proof_bytes).unwrap();
             println!("Proof length: {} bytes", proof_bytes.len());
         }
     }

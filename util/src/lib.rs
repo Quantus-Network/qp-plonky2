@@ -274,19 +274,18 @@ mod tests {
     use alloc::vec;
     use alloc::vec::Vec;
 
-    use rand::rngs::OsRng;
-    use rand::Rng;
+    use rand::RngExt;
 
     use crate::{log2_ceil, log2_strict};
 
     #[test]
     fn test_reverse_index_bits() {
         let lengths = [32, 128, 1 << 16];
-        let mut rng = OsRng;
+        let mut rng = rand::rng();
         for _ in 0..32 {
             for length in lengths {
                 let mut rand_list: Vec<u32> = Vec::with_capacity(length);
-                rand_list.resize_with(length, || rng.gen());
+                rand_list.resize_with(length, || rng.random());
 
                 let out = super::reverse_index_bits(&rand_list);
                 let expect = reverse_index_bits_naive(&rand_list);
@@ -301,11 +300,11 @@ mod tests {
     #[test]
     fn test_reverse_index_bits_in_place() {
         let lengths = [32, 128, 1 << 16];
-        let mut rng = OsRng;
+        let mut rng = rand::rng();
         for _ in 0..32 {
             for length in lengths {
                 let mut rand_list: Vec<u32> = Vec::with_capacity(length);
-                rand_list.resize_with(length, || rng.gen());
+                rand_list.resize_with(length, || rng.random());
 
                 let expect = reverse_index_bits_naive(&rand_list);
 

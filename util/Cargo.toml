@@ -6,7 +6,9 @@ license = "MIT OR Apache-2.0"
 edition = "2021"
 
 [dev-dependencies]
-rand = { version = "0.8.5", default-features = false, features = ["getrandom"] }
+rand = { version = "=0.10.1", default-features = false, features = [
+  "thread_rng",
+] }
 
 # Display math equations properly in documentation
 [package.metadata.docs.rs]

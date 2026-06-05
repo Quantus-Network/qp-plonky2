@@ -9,16 +9,15 @@ macro_rules! test_field_arithmetic {
             use alloc::vec::Vec;
 
             use num::bigint::BigUint;
-            use rand::rngs::OsRng;
-            use rand::{Rng, RngCore};
+            use rand::RngExt;
             use $crate::types::{Field, Sample};
 
             #[test]
             fn modular_reduction() {
-                let mut rng = OsRng;
+                let mut rng = rand::rng();
                 for _ in 0..10 {
-                    let x_lo = rng.next_u64();
-                    let x_hi = rng.next_u32();
+                    let x_lo: u64 = rng.random();
+                    let x_hi: u32 = rng.random();
                     let x = (x_lo as u128) + ((x_hi as u128) << 64);
                     let a = <$field>::from_noncanonical_u128(x);
                     let b = <$field>::from_noncanonical_u96((x_lo, x_hi));
@@ -89,11 +88,11 @@ macro_rules! test_field_arithmetic {
             fn exponentiation_large() {
                 type F = $field;
 
-                let mut rng = OsRng;
+                let mut rng = rand::rng();
 
                 let base = F::rand();
-                let pow = BigUint::from(rng.gen::<u64>());
-                let cycles = rng.gen::<u32>();
+                let pow = BigUint::from(rng.random::<u64>());
+                let cycles: u32 = rng.random();
                 let mul_group_order = F::order() - 1u32;
                 let big_pow = &pow + &mul_group_order * cycles;
                 let big_pow_wrong = &pow + &mul_group_order * cycles + 1u32;

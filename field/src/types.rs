@@ -24,21 +24,21 @@ pub trait Sample: Sized {
     /// Samples a single value using `rng`.
     fn sample<R>(rng: &mut R) -> Self
     where
-        R: rand::RngCore + ?Sized;
+        R: rand::Rng + ?Sized;
 
-    /// Samples a single value using the [`rand::rngs::OsRng`].
+    /// Samples a single value using the thread-local random number generator.
     #[inline]
     fn rand() -> Self {
-        Self::sample(&mut rand::rngs::OsRng)
+        Self::sample(&mut rand::rng())
     }
 
-    /// Samples a [`Vec`] of values of length `n` using [`rand::rngs::OsRng`].
+    /// Samples a [`Vec`] of values of length `n` using the thread-local random number generator.
     #[inline]
     fn rand_vec(n: usize) -> Vec<Self> {
         (0..n).map(|_| Self::rand()).collect()
     }
 
-    /// Samples an array of values of length `N` using [`rand::rngs::OsRng`].
+    /// Samples an array of values of length `N` using the thread-local random number generator.
     #[inline]
     fn rand_array<const N: usize>() -> [Self; N] {
         Self::rand_vec(N)

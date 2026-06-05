@@ -15,6 +15,7 @@ use core::str::FromStr;
 use std::sync::Arc;
 
 use anyhow::{anyhow, Context as _, Result};
+use clap::Parser;
 use itertools::Itertools;
 use log::{info, Level, LevelFilter};
 use plonky2::gadgets::lookup::TIP5_TABLE;
@@ -30,10 +31,8 @@ use plonky2::util::serialization::DefaultGateSerializer;
 use plonky2::util::timing::TimingTree;
 use plonky2_field::extension::Extendable;
 use plonky2_maybe_rayon::rayon;
-use rand::rngs::OsRng;
-use rand::{RngCore, SeedableRng};
-use rand_chacha::ChaCha8Rng;
-use structopt::StructOpt;
+use rand::rngs::ChaCha8Rng;
+use rand::{RngExt, SeedableRng};
 
 type ProofTuple<F, C, const D: usize> = (
     ProofWithPublicInputs<F, C, D>,
@@ -41,44 +40,44 @@ type ProofTuple<F, C, const D: usize> = (
     CommonCircuitData<F, D>,
 );
 
-#[derive(Clone, StructOpt, Debug)]
-#[structopt(name = "bench_recursion")]
+#[derive(Clone, Parser, Debug)]
+#[command(name = "bench_recursion")]
 struct Options {
     /// Verbose mode (-v, -vv, -vvv, etc.)
-    #[structopt(short, long, parse(from_occurrences))]
-    verbose: usize,
+    #[arg(short, long, action = clap::ArgAction::Count)]
+    verbose: u8,
 
     /// Apply an env_filter compatible log filter
-    #[structopt(long, env, default_value)]
+    #[arg(long, env, default_value = "")]
     log_filter: String,
 
     /// Random seed for deterministic runs.
     /// If not specified a new seed is generated from OS entropy.
-    #[structopt(long, parse(try_from_str = parse_hex_u64))]
+    #[arg(long, value_parser = parse_hex_u64)]
     seed: Option<u64>,
 
     /// Number of compute threads to use. Defaults to number of cores. Can be a single
     /// value or a rust style range.
-    #[structopt(long, parse(try_from_str = parse_range_usize))]
+    #[arg(long, value_parser = parse_range_usize)]
     threads: Option<RangeInclusive<usize>>,
 
     /// Log2 gate count of the inner proof. Can be a single value or a rust style
     /// range.
-    #[structopt(long, default_value="14", parse(try_from_str = parse_range_usize))]
+    #[arg(long, default_value = "14", value_parser = parse_range_usize)]
     size: RangeInclusive<usize>,
 
     /// Lookup type. If `lookup_type == 0` or `lookup_type > 2`, then a benchmark with NoopGates only is run.
     /// If `lookup_type == 1`, a benchmark with one lookup is run.
     /// If `lookup_type == 2`, a benchmark with 515 lookups is run.
-    #[structopt(long, default_value="0", parse(try_from_str = parse_hex_u64))]
+    #[arg(long, default_value = "0", value_parser = parse_hex_u64)]
     lookup_type: u64,
 
     /// Zero-knowledge mode for the benchmarked proof.
-    #[structopt(long, default_value = "disabled", parse(try_from_str = parse_zk_bench_mode))]
+    #[arg(long, default_value = "disabled", value_parser = parse_zk_bench_mode)]
     zk_mode: ZkBenchMode,
 
     /// Number of recursive verification layers to add after the initial proof.
-    #[structopt(long, default_value = "2")]
+    #[arg(long, default_value = "2")]
     layers: usize,
 }
 
@@ -367,7 +366,7 @@ pub fn benchmark_function(
 
 fn main() -> Result<()> {
     // Parse command line arguments, see `--help` for details.
-    let options = Options::from_args_safe()?;
+    let options = Options::try_parse()?;
     // Initialize logging
     let mut builder = env_logger::Builder::from_default_env();
     builder.parse_filters(&options.log_filter);
@@ -381,7 +380,7 @@ fn main() -> Result<()> {
     builder.try_init()?;
 
     // Initialize randomness source
-    let rng_seed = options.seed.unwrap_or_else(|| OsRng.next_u64());
+    let rng_seed = options.seed.unwrap_or_else(|| rand::rng().random());
     info!("Using random seed {rng_seed:16x}");
     let _rng = ChaCha8Rng::seed_from_u64(rng_seed);
     // TODO: Use `rng` to create deterministic runs

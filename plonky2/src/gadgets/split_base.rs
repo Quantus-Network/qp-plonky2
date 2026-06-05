@@ -146,8 +146,7 @@ impl<F: RichField + Extendable<D>, const B: usize, const D: usize> SimpleGenerat
 mod tests {
     use anyhow::Result;
     use plonky2_field::types::Field;
-    use rand::rngs::OsRng;
-    use rand::Rng;
+    use rand::RngExt;
 
     use super::*;
     use crate::iop::witness::PartialWitness;
@@ -192,7 +191,7 @@ mod tests {
         let pw = PartialWitness::new();
         let mut builder = CircuitBuilder::<F, D>::new(config);
 
-        let n = OsRng.gen_range(0..(1 << 30));
+        let n = rand::rng().random_range(0..(1 << 30));
         let x = builder.constant(F::from_canonical_usize(n));
 
         let zero = builder._false();
