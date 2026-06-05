@@ -77,12 +77,7 @@ impl Sample for Secp256K1Scalar {
         use num::bigint::BigUint;
         use rand::RngExt;
         // Generate 4 random u64s and reduce modulo the field order
-        let limbs: [u64; 4] = [
-            rng.random(),
-            rng.random(),
-            rng.random(),
-            rng.random(),
-        ];
+        let limbs: [u64; 4] = [rng.random(), rng.random(), rng.random(), rng.random()];
         let random_value = BigUint::from_slice(&[
             limbs[0] as u32,
             (limbs[0] >> 32) as u32,

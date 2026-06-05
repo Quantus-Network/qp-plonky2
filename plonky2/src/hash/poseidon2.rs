@@ -200,7 +200,7 @@ mod tests {
     use plonky2_field::goldilocks_field::GoldilocksField as F;
     use qp_poseidon_core::{hash_to_bytes, Goldilocks as QpF};
     use rand::rngs::ChaCha8Rng;
-    use rand::{Rng, RngExt, SeedableRng};
+    use rand::{RngExt, SeedableRng};
 
     use super::*;
     use crate::iop::witness::{PartialWitness, WitnessWrite};

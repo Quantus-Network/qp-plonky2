@@ -29,7 +29,6 @@ pub trait Sample: Sized {
     /// Samples a single value using the thread-local random number generator.
     #[inline]
     fn rand() -> Self {
-        use rand::RngExt;
         Self::sample(&mut rand::rng())
     }
 

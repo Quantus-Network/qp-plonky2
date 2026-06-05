@@ -15,6 +15,7 @@ use core::str::FromStr;
 use std::sync::Arc;
 
 use anyhow::{anyhow, Context as _, Result};
+use clap::Parser;
 use itertools::Itertools;
 use log::{info, Level, LevelFilter};
 use plonky2::gadgets::lookup::TIP5_TABLE;
@@ -32,7 +33,6 @@ use plonky2_field::extension::Extendable;
 use plonky2_maybe_rayon::rayon;
 use rand::rngs::ChaCha8Rng;
 use rand::{RngExt, SeedableRng};
-use clap::Parser;
 
 type ProofTuple<F, C, const D: usize> = (
     ProofWithPublicInputs<F, C, D>,

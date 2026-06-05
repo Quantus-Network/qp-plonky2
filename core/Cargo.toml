@@ -25,23 +25,23 @@ ahash = { workspace = true }
 anyhow = { workspace = true }
 hashbrown = { workspace = true }
 itertools = { workspace = true }
-keccak-hash = { version = "0.8.0", default-features = false }
+keccak-hash = { version = "=0.8.0", default-features = false }
 log = { workspace = true }
-num = { version = "0.4", default-features = false, features = ["alloc"] }
+num = { version = "=0.4.3", default-features = false, features = ["alloc"] }
 serde = { workspace = true, features = ["rc"] }
 static_assertions = { workspace = true }
 unroll = { workspace = true }
 
 # Local dependencies
-plonky2-field = { package = "qp-plonky2-field", version = "1.4.1", path = "../field", default-features = false }
-plonky2_util = { version = "1.0.0", path = "../util", default-features = false }
+plonky2-field = { package = "qp-plonky2-field", version = "=1.4.1", path = "../field", default-features = false }
+plonky2_util = { version = "=1.0.0", path = "../util", default-features = false }
 
 # Optional dependencies
 rand = { version = "=0.10.1", default-features = false, optional = true }
 
 [dev-dependencies]
 rand = { version = "=0.10.1", features = ["std_rng"] }
-plonky2-field = { package = "qp-plonky2-field", version = "1.4.1", path = "../field", features = [
+plonky2-field = { package = "qp-plonky2-field", version = "=1.4.1", path = "../field", features = [
   "rand",
 ] }
 
