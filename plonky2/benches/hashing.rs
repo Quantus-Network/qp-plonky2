@@ -11,7 +11,7 @@ use plonky2::plonk::circuit_builder::CircuitBuilder;
 use plonky2::plonk::circuit_data::CircuitConfig;
 use plonky2::plonk::config::{AlgebraicHasher, GenericConfig, PoseidonGoldilocksConfig};
 use rand::rngs::StdRng;
-use rand::{Rng, SeedableRng};
+use rand::{RngExt, SeedableRng};
 const D: usize = 2;
 // Use Poseidon1 config for the proof system (FRI/Merkle trees)
 // The benchmark compares Poseidon1 vs Poseidon2 *circuit gates*, not the proof system config
@@ -26,7 +26,7 @@ fn generate_inputs(rng: &mut StdRng) -> Vec<[F; SPONGE_WIDTH]> {
         .map(|_| {
             let mut state = [F::ZERO; SPONGE_WIDTH];
             for i in 0..SPONGE_WIDTH {
-                state[i] = F::from_canonical_u64(rng.gen());
+                state[i] = F::from_canonical_u64(rng.random());
             }
             state
         })
