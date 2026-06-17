@@ -176,15 +176,31 @@ Poseidon2 gate has far too many constraints to transcribe reliably. Each gadget
 gets an `Assumptions` record + a `Spec` record and **both** `sound` and `complete`
 lemmas (per §2).
 
-### Step 1 — T2 `range_check` (+ package scaffold), hand-modeled
-- Scaffold `formal/` (`lakefile.toml` with mathlib + cache, `lean-toolchain`,
-  `Plonky2Spec.lean`, CI job with `lake exe cache get`).
-- Hand-model the `BaseSumGate` constraints for `rangeCheck (x : ZMod p) (n : Nat)`;
-  state `Assumptions`/`Spec`, prove **soundness** (`constraints ⟹ x.val < 2^n`) and
-  **completeness** (`x.val < 2^n ⟹ ∃ limb witness`). Model
+### Step 1 — T2 `range_check` (+ package scaffold), hand-modeled  ✅ DONE
+- Scaffolded `formal/` (`lakefile.toml`, `lean-toolchain` v4.30.0,
+  `Plonky2Spec.lean`, `.gitignore`, CI job).
+- Hand-modeled the `BaseSumGate<B>` constraints (`BaseSum` structured record:
+  `reconstruct B limbs = sum` + per-limb range), with `NoWrap` side-condition;
+  proved **soundness** (`baseSum_sound : BaseSum ⟹ sum < Bᴸ`) and **completeness**
+  (`baseSum_complete : sum < Bᴸ ⟹ ∃ base-B digit witness`). Specialized to
+  `rangeCheck (x,n)` (`B = 2`): `rangeCheck_sound`/`rangeCheck_complete`, the
+  `rangeCheck_implies_inRange` bridge lemma, and modeled
   `enforce_target_less_than_const`.
-- **Acceptance:** `lake build` + `leanchecker` clean, no `sorry`; a `.val` lemma
-  upgrading a spec `inRange 32 x` from assumption to consequence of `rangeCheck`.
+- **Deviation from the field plan (recorded):** Step 1 lands **mathlib-free over
+  the `Nat`/`.val` model**, not `ZMod p`. Two reasons: (a) the mathlib cache host
+  is unreachable in the dev sandbox, so a local `lake build` with mathlib is
+  infeasible (source build = hours) and writing field proofs without a local
+  kernel is error-prone; (b) the *only* step that genuinely needs the field is
+  "degree-`B` product ⟹ limb ∈ {0..B-1}" (prime ⇒ integral domain), and
+  `Nat.Prime`/Euclid are not in core Lean (verified empirically). So that one fact
+  is modeled as the range primitive's *semantic content* (`limbᵢ < B`) with a
+  `FIELD-FIDELITY NOTE`, and **everything else** (place-value bound + witness
+  construction) is proved and locally machine-checked. mathlib + `ZMod p` enter
+  when that equivalence is discharged (a dedicated field phase / alongside T3).
+- **Acceptance met:** `lake build` + `leanchecker` clean, no `sorry`; `#print
+  axioms` shows only `propext`/`Quot.sound`/`Classical.choice`;
+  `rangeCheck_implies_inRange` upgrades the spec's `inRange n x` from assumption to
+  consequence of `range_check`.
 - *Checkpoint: review + commit.*
 
 ### Step 2 — Build the constraint exporter + T0/T1 gates

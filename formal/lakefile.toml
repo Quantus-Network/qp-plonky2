@@ -1,0 +1,21 @@
+# Lean 4 formal-spec package for the qp-plonky2 gadget→constraint layer.
+#
+# This is the "layer-2" bridge package described in `PLAN.md`: it formalizes the
+# *constraint semantics* of the plonky2 gadgets the wormhole circuits use, so the
+# spec relations in `qp-zk-circuits/formal` can be proved to be what the circuit
+# constraints actually enforce.
+#
+# Step 1 (this commit) is intentionally dependency-free (core Lean + `omega`), so
+# it builds in seconds and stays hermetic — no mathlib cache to fetch in CI.
+#
+# A later phase will add mathlib (pinned to the tag matching `lean-toolchain`) for
+# the concrete Goldilocks field `ZMod p`, the prime-field integral-domain fact the
+# range primitive's product form rests on, and the `.val` bridge to the spec. When
+# that lands:
+#     lake update mathlib      # resolves mathlib + transitive deps
+#     lake exe cache get       # downloads prebuilt .olean cache (the big one)
+defaultTargets = ["Plonky2Spec"]
+name = "plonky2Spec"
+
+[[lean_lib]]
+name = "Plonky2Spec"
