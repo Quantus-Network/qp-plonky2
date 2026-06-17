@@ -96,17 +96,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # Builds the Lean 4 gadget→constraint model under `formal/` (see formal/PLAN.md).
-      # Step 1 is deliberately mathlib-free and builds in seconds; `lake build`
-      # type-checks every proof in the kernel, so a later edit that breaks a proof
-      # fails CI instead of rotting silently. elan/lake come from
+      # `lake build` type-checks every proof in the kernel, so a later edit that
+      # breaks a proof fails CI instead of rotting silently. elan/lake come from
       # `formal/lean-toolchain` (Lean v4.30). `leanchecker` re-checks the compiled
       # environment with an independent kernel checker (bundled on v4.30).
+      #
+      # The package depends on mathlib (pinned to v4.30.0) for the `ZMod p` field
+      # model, so `use-mathlib-cache: true` makes the action fetch the prebuilt
+      # `.olean` cache instead of compiling mathlib from source.
       - name: Build formal spec (lake build)
         # Pinned to a full commit SHA (supply-chain hardening). 38fbc41 == v1.5.0.
         uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1.5.0
         with:
           lake-package-directory: "formal"
-          use-mathlib-cache: "false"
+          use-mathlib-cache: "true"
           leanchecker: "true"
       # No-`sorry` gate: the model must stay gap-free. Fail if any proof term uses a
       # `sorry`/`admit`/`sorryAx` placeholder. (Keep those literal words out of

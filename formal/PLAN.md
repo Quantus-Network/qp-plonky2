@@ -186,21 +186,35 @@ lemmas (per §2).
   `rangeCheck (x,n)` (`B = 2`): `rangeCheck_sound`/`rangeCheck_complete`, the
   `rangeCheck_implies_inRange` bridge lemma, and modeled
   `enforce_target_less_than_const`.
-- **Deviation from the field plan (recorded):** Step 1 lands **mathlib-free over
-  the `Nat`/`.val` model**, not `ZMod p`. Two reasons: (a) the mathlib cache host
-  is unreachable in the dev sandbox, so a local `lake build` with mathlib is
-  infeasible (source build = hours) and writing field proofs without a local
-  kernel is error-prone; (b) the *only* step that genuinely needs the field is
-  "degree-`B` product ⟹ limb ∈ {0..B-1}" (prime ⇒ integral domain), and
-  `Nat.Prime`/Euclid are not in core Lean (verified empirically). So that one fact
-  is modeled as the range primitive's *semantic content* (`limbᵢ < B`) with a
-  `FIELD-FIDELITY NOTE`, and **everything else** (place-value bound + witness
-  construction) is proved and locally machine-checked. mathlib + `ZMod p` enter
-  when that equivalence is discharged (a dedicated field phase / alongside T3).
 - **Acceptance met:** `lake build` + `leanchecker` clean, no `sorry`; `#print
   axioms` shows only `propext`/`Quot.sound`/`Classical.choice`;
   `rangeCheck_implies_inRange` upgrades the spec's `inRange n x` from assumption to
   consequence of `range_check`.
+- *Checkpoint: reviewed + committed (initial `Nat`/`.val` model).*
+
+### Step 1.5 — `ZMod p` field-native port (mathlib)  ✅ DONE
+The initial Step-1 commit modeled the per-limb range as its semantic content
+(`limbᵢ < B`) over `Nat`, deferring the one genuinely field-algebraic fact —
+"degree-`B` product `∏_{j<B}(limbᵢ − j) = 0` ⟹ `limbᵢ ∈ {0,…,B-1}`" — because that
+needs `ZMod p` to be an integral domain (`Nat.Prime`/Euclid are not in core Lean).
+With mathlib now wired in (pinned `v4.30.0`), this is **discharged**:
+- `Basic.lean` keeps the field-agnostic positional-arithmetic core over `ℕ`
+  (mathlib-free); `RangeCheck.lean` is now **field-native over `ZMod p`**.
+- The gate's per-limb constraint is modeled faithfully as
+  `limbRangeProduct B x = ∏_{j ∈ range B} (x − j)`, and
+  `limb_val_lt_of_product` proves `product = 0 ⟹ x.val < B` via
+  `Finset.prod_eq_zero_iff` + `mul_eq_zero` (the integral-domain step) — exactly the
+  rung that was previously a modeling assumption.
+- `reconstructF` (field) is bridged to the `ℕ` `reconstruct` through `ZMod.val`
+  (`reconstructF_eq_cast`), so the place-value bounds in `Basic.lean` govern the
+  field computation. `baseSum_sound`/`baseSum_complete` and the
+  `rangeCheck_*`/`inRange` lemmas are all restated and proved over `ZMod p`.
+- Generality follows Zellic: theorems are over an arbitrary `[Fact p.Prime]` with
+  explicit no-wrap bounds (`Bᴸ ≤ p`); soundness needs the bound, completeness does
+  not (the reconstructed value is the canonical `sum.val < p`).
+- CI `formal-spec` job flipped to `use-mathlib-cache: "true"`.
+- **Acceptance:** `lake build` + `leanchecker` clean, no `sorry`; `#print axioms`
+  shows only `propext`/`Classical.choice`/`Quot.sound`.
 - *Checkpoint: review + commit.*
 
 ### Step 2 — Build the constraint exporter + T0/T1 gates
