@@ -5,17 +5,22 @@
 # spec relations in `qp-zk-circuits/formal` can be proved to be what the circuit
 # constraints actually enforce.
 #
-# Step 1 (this commit) is intentionally dependency-free (core Lean + `omega`), so
-# it builds in seconds and stays hermetic — no mathlib cache to fetch in CI.
-#
-# A later phase will add mathlib (pinned to the tag matching `lean-toolchain`) for
-# the concrete Goldilocks field `ZMod p`, the prime-field integral-domain fact the
-# range primitive's product form rests on, and the `.val` bridge to the spec. When
-# that lands:
-#     lake update mathlib      # resolves mathlib + transitive deps
-#     lake exe cache get       # downloads prebuilt .olean cache (the big one)
+# mathlib is pinned to the `v4.30.0` tag, which matches `lean-toolchain`
+# (leanprover/lean4:v4.30.0) exactly. It provides the concrete Goldilocks field
+# `ZMod p`, the prime-field integral-domain fact the range primitive's product
+# form rests on, and the `.val` bridge to the spec. After editing this file:
+#     lake update mathlib      # resolves mathlib + transitive deps (writes the manifest)
+#     lake exe cache get        # downloads prebuilt .olean cache (run BEFORE `lake build`)
+#     lake build
+# CI: flip the `formal-spec` job to `use-mathlib-cache: "true"` so the runner
+# fetches the cache instead of compiling mathlib from source.
 defaultTargets = ["Plonky2Spec"]
 name = "plonky2Spec"
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+version = "git#v4.30.0"
 
 [[lean_lib]]
 name = "Plonky2Spec"
