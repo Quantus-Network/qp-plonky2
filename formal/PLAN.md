@@ -217,16 +217,38 @@ With mathlib now wired in (pinned `v4.30.0`), this is **discharged**:
   shows only `propext`/`Classical.choice`/`Quot.sound`.
 - *Checkpoint: review + commit.*
 
-### Step 2 — Build the constraint exporter + T0/T1 gates
+### Step 2 — T0/T1 gates + constraint exporter + wrapper bridge
+Sliced into three checkpoints. The T0/T1 gates are small algebraic identities, so
+they are hand-modeled and machine-checked **first** (2a); those Lean models then
+serve as the oracle the Rust exporter must reproduce (2b); the wrapper bridge (2c)
+consumes both.
+
+#### Step 2a — T0/T1 gadget semantics (hand-modeled)  ✅ DONE
+- `Arithmetic.lean` (T0): `ArithmeticConstraint c0 c1 m0 m1 addend output`
+  (`output = c0·m0·m1 + c1·addend`, arithmetic_base.rs:87-89) with `arithmetic_iff`,
+  and the `add/sub/mul/mul_add/mul_sub` specs as instantiations (arithmetic.rs).
+- `Boolean.lean` (T1): `IsBool` with `isBool_iff_assertBool` (the `b²−b=0`
+  constraint ⇔ booleanity, integral-domain); `bnot/band/bor` with closure +
+  truth-table lemmas; `bmux` (`_if`) and `bselect` (`select`) with `=`-equivalence
+  and the `b=1→x`, `b=0→y` reductions; and the **`is_equal`** gadget (`IsEqual`
+  two-constraint record) with full soundness (`isEqual_isBool`, `isEqual_iff :
+  equal=1 ↔ x=y`) and completeness (`isEqual_complete`).
+- **Acceptance met:** `lake build` + `leanchecker` clean, no `sorry`; `#print
+  axioms` standard-only.
+- *Checkpoint: review + commit.*
+
+#### Step 2b — Constraint exporter (Rust)
 - Build the Rust exporter (symbolic `eval_unfiltered` → Lean), validated by
-  re-deriving the Step-1 range constraints and checking they match the hand model.
-- Export + verify `ArithmeticBaseGate` (covers `add/sub/mul/connect`, `select`,
-  boolean `b²=b`, `isEqual`, `and/or/not`). Generalize the export; structured
-  constraints; `Assumptions`/`Spec` + sound/complete each.
-- Bridge the `R_L0` wrapper logic that rests on these (dummy flags, dedup,
-  prefix scan, nullifier select).
-- **Acceptance:** exporter reproduces Step-1 constraints; wrapper-logic bridge
-  lemma(s) build clean; gates verified.
+  re-deriving the Step-1 range constraints **and** the 2a arithmetic constraint and
+  checking they match the hand models. Generalize the export.
+- **Acceptance:** exporter reproduces Step-1 + 2a constraints verbatim.
+- *Checkpoint: review + commit.*
+
+#### Step 2c — `R_L0` wrapper-logic bridge
+- Bridge the `R_L0` wrapper logic that rests on the T0/T1 gadgets (dummy flags,
+  dedup, prefix scan, dummy-nullifier replacement, nullifier select) to the
+  `qp-zk-circuits/formal` `RL0` relation, using the 2a lemmas.
+- **Acceptance:** wrapper-logic bridge lemma(s) build clean.
 - *Checkpoint: review + commit.*
 
 ### Step 3 — T3 Poseidon2 hash "computes H" (exporter-driven)
