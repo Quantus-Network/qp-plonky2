@@ -244,11 +244,29 @@ consumes both.
 - **Acceptance:** exporter reproduces Step-1 + 2a constraints verbatim.
 - *Checkpoint: review + commit.*
 
-#### Step 2c — `R_L0` wrapper-logic bridge
-- Bridge the `R_L0` wrapper logic that rests on the T0/T1 gadgets (dummy flags,
-  dedup, prefix scan, dummy-nullifier replacement, nullifier select) to the
-  `qp-zk-circuits/formal` `RL0` relation, using the 2a lemmas.
-- **Acceptance:** wrapper-logic bridge lemma(s) build clean.
+#### Step 2c — `R_L0` wrapper-logic bridge  ✅ DONE (field-level)
+`Wrapper.lean` proves each layer-0 wrapper primitive
+(`build_layer0_wrapper_constraints`, circuit_logic.rs) computes *exactly* the
+conditional/selection that the corresponding `RL0` definition is built from, all on
+the 2a lemmas:
+- `nullifier_replacement` — `select(is_dummy, dnull, real) = if is_dummy then …`
+  (the `nullifiersReplaced` per-slot equation).
+- `match_contribution` / `dedup_select` — `select(eq, a, 0)` / `select(dup, 0, acc)`
+  as `matchSum` / `groupAux`'s `if`s (via `isEqual_iff`).
+- `andAll` + `andAll_eq_one_iff` — `bytes_digest_eq` as the AND of per-limb
+  equalities (`= 1 ↔ all limbs equal`), the digest-equality used by metadata/dedup.
+- `block_consistency` / `real_block_matches` — `or(is_dummy, matches) = 1` ⟹ a
+  non-dummy child matches the reference (`metadataConsistent`).
+- `scanStep` + `scan_locked` + `scanFirst_correct` — the prefix scan selects the
+  **first real slot's** value (`referenceFromFirstReal`; the position-independent
+  privacy fix), with the all-dummy batch keeping the zero initial reference.
+- **Acceptance met:** `lake build` + `leanchecker` clean, no `sorry`; `#print axioms`
+  standard-only.
+- **Remaining seam (the cross-package composition `circuit ⟹ RL0`):** wiring
+  `qp-zk-circuits/formal` in as a `lake` dep and reconciling `Felt = Nat` ↔ `ZMod p`
+  via `.val`, plus instantiating `RandomOracle.dummyNull` with the Poseidon
+  `H(H(u))` result — i.e. it depends on Step 3 and the cross-repo dep. The
+  selection logic (everything built from T0/T1) is discharged here.
 - *Checkpoint: review + commit.*
 
 ### Step 3 — T3 Poseidon2 hash "computes H" (exporter-driven)

@@ -17,6 +17,9 @@
                              reduced to the weighted multiply-add constraint
   * `Plonky2Spec.Boolean`    booleanity, `not/and/or/_if/select`, and the `is_equal`
                              gadget (T1), with soundness and completeness
+  * `Plonky2Spec.Wrapper`    the layer-0 wrapper logic (nullifier replacement, exit
+                             dedup, dummy flag, block consistency, first-real prefix
+                             scan) bridged to the `RL0` building blocks
 
   Methodology follows Zellic's *Formal Verification of a Plonky2 Gate*: each gadget
   separates an `Assumptions` side-condition (what the surrounding circuit must
@@ -27,3 +30,4 @@ import Plonky2Spec.Basic
 import Plonky2Spec.RangeCheck
 import Plonky2Spec.Arithmetic
 import Plonky2Spec.Boolean
+import Plonky2Spec.Wrapper
