@@ -405,4 +405,62 @@ mod tests {
             }
         }
     }
+
+    /// Differential test of the Step-3c Lean sponge model
+    /// (`formal/Plonky2Spec/Sponge.lean`) against the real `Poseidon2Hash::hash_no_pad`.
+    ///
+    /// `lean_sponge` below is a *transliteration* of the Lean `pad10` / `addBlock` /
+    /// `absorbMsg` / `squeeze4`, run over the **same** width-12 permutation the real hash
+    /// uses (`<GoldilocksField as P2Permuter>::permute`). Agreement at random inputs of
+    /// every length around the rate boundary pins the Lean wrapper's structure — the
+    /// `10*` padding, additive absorption on the 8 rate lanes (capacity untouched), the
+    /// per-block permute, and the 4-lane squeeze with no trailing permute — to the live
+    /// Rust. (The permutation itself is the Step-3b exporter-backed object; this test
+    /// targets the sponge wrapper that Step 3c adds on top of it.)
+    #[test]
+    fn sponge_structure_matches_lean_model() {
+        use plonky2::gates::poseidon2::SPONGE_WIDTH;
+        use plonky2::hash::poseidon2::{P2Permuter, Poseidon2Hash};
+        use plonky2::plonk::config::Hasher;
+
+        const RATE: usize = 8; // Sponge.lean `rate`
+
+        // `pad10` (Sponge.lean): append a single `1`, zero-fill to a multiple of RATE.
+        fn pad10(inputs: &[GF]) -> Vec<GF> {
+            let n = inputs.len();
+            let padded = ((n + 1 + (RATE - 1)) / RATE) * RATE;
+            let mut msg = Vec::with_capacity(padded);
+            msg.extend_from_slice(inputs);
+            msg.push(GF::ONE);
+            msg.resize(padded, GF::ZERO);
+            msg
+        }
+
+        // `spongeHash` (Sponge.lean): zero state, additive absorb on the rate lanes,
+        // permute per block, squeeze the first 4 lanes (no trailing permute).
+        fn lean_sponge(inputs: &[GF]) -> [GF; 4] {
+            let msg = pad10(inputs);
+            let mut state = [GF::ZERO; SPONGE_WIDTH];
+            for block in msg.chunks(RATE) {
+                // addBlock: state[i] += block[i] for i < block.len(); capacity lanes stay.
+                for (i, &x) in block.iter().enumerate() {
+                    state[i] = state[i] + x;
+                }
+                state = <GF as P2Permuter>::permute(state);
+            }
+            [state[0], state[1], state[2], state[3]] // squeeze4
+        }
+
+        let mut rng = Lcg(0xa5a5_5a5a_1234_abcd);
+        // Lengths 0..=20 cover every padding boundary: empty (full pad block), < rate,
+        // == rate (forces a whole extra `[1,0,…]` block), and multi-block messages.
+        for len in 0..=20usize {
+            for _ in 0..20 {
+                let inputs: Vec<GF> = (0..len).map(|_| rng.next()).collect();
+                let lean = lean_sponge(&inputs);
+                let real = Poseidon2Hash::hash_no_pad(&inputs).elements;
+                assert_eq!(lean, real, "sponge structure mismatch at len {len}");
+            }
+        }
+    }
 }

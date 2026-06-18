@@ -28,7 +28,13 @@
                              auto-extracted as a straight-line `let`-program (3a)
   * `Plonky2Spec.Poseidon2`  the Poseidon2 permutation model + the meaning theorem
                              `gate_sound_complete` (3b): the checkpointed gate
-                             constraints are satisfiable iff `output = perm(input)`
+                             constraints are satisfiable iff `output = perm(input)`;
+                             `Generated.Poseidon2Prims`/`Poseidon2Bridge` pin its
+                             primitives to the real Rust helpers by `ring`
+  * `Plonky2Spec.Sponge`     the `hash_no_pad` sponge over the verified permutation
+                             (3c): `pad10`/absorb/squeeze, the `H : List Felt → Digest`
+                             computational realization of the spec's `RandomOracle.H`,
+                             and the `dummyNull = H (H ·)` structural bridge
 
   Methodology follows Zellic's *Formal Verification of a Plonky2 Gate*: each gadget
   separates an `Assumptions` side-condition (what the surrounding circuit must
@@ -46,3 +52,4 @@ import Plonky2Spec.Generated.Poseidon2
 import Plonky2Spec.Poseidon2
 import Plonky2Spec.Generated.Poseidon2Prims
 import Plonky2Spec.Generated.Poseidon2Bridge
+import Plonky2Spec.Sponge

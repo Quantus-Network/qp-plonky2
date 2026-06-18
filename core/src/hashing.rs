@@ -106,6 +106,36 @@ fn pad10_to_rate<F: RichField>(inputs: &[F], rate: usize) -> Vec<F> {
     msg
 }
 
+// The Poseidon2 sponge core, factored into the three steps the Lean model
+// (`qp-plonky2/formal/Plonky2Spec/Sponge.lean`) is written in, with matching names.
+// The Lean transcription is differentially tested against this path
+// (`sponge_structure_matches_lean_model` in the constraint-exporter).
+
+/// Additive absorption of one block onto the rate lanes: `state[i] += block[i]` for
+/// `i < block.len()` (`≤ RATE`); capacity lanes are untouched. Mirrors `Sponge.lean`'s
+/// `addBlock`.
+fn add_block<F: RichField, P: PlonkyPermutation<F>>(perm: &mut P, block: &[F]) {
+    for (i, &x) in block.iter().enumerate() {
+        let si = perm.as_ref()[i];
+        perm.set_elt(si + x, i);
+    }
+}
+
+/// Absorb a (padded) message block by block, permuting after each `RATE`-block.
+/// Mirrors `Sponge.lean`'s `absorbMsg`.
+fn absorb_msg<F: RichField, P: PlonkyPermutation<F>>(perm: &mut P, msg: &[F]) {
+    for block in msg.chunks(P::RATE) {
+        add_block(perm, block);
+        perm.permute();
+    }
+}
+
+/// Squeeze the `NUM_HASH_OUT_ELTS`-felt digest: the first lanes of the rate, with no
+/// trailing permute. Mirrors `Sponge.lean`'s `squeeze4`.
+fn squeeze4<F: RichField, P: PlonkyPermutation<F>>(perm: &P) -> HashOut<F> {
+    HashOut::from_vec(perm.squeeze()[..NUM_HASH_OUT_ELTS].to_vec())
+}
+
 /// Domain-separated leaf hash for Merkle trees.
 ///
 /// This function hashes leaf data with a domain separator to prevent internal nodes
@@ -139,25 +169,14 @@ pub fn hash_leaf<F: RichField, P: PlonkyPermutation<F>>(inputs: &[F]) -> HashOut
 
 /// Poseidon2 variable length padding (…||1||0* to RATE)
 pub fn hash_n_to_hash_no_pad_p2<F: RichField, P: PlonkyPermutation<F>>(inputs: &[F]) -> HashOut<F> {
-    let rate = P::RATE;
+    // `pad10`: append one '1' and zero-pad to a rate-aligned length. This automatically
+    // adds a whole [1,0,...,0] block when inputs.len() % rate == 0 (incl. empty input).
+    let msg = pad10_to_rate(inputs, P::RATE);
 
-    // Append one '1' and zero-pad to a rate-aligned length.
-    // This automatically adds a whole [1,0,...,0] block when inputs.len() % rate == 0,
-    // including the empty-input case.
-    let msg = pad10_to_rate(inputs, rate);
-
-    // Absorb/additively and permute per block.
+    // Absorb additively from the all-zero state, then squeeze (no trailing permute).
     let mut perm = P::new(core::iter::repeat(F::ZERO));
-    for block in msg.chunks(rate) {
-        for (i, &x) in block.iter().enumerate() {
-            let si = perm.as_ref()[i];
-            perm.set_elt(si + x, i);
-        }
-        perm.permute();
-    }
-
-    // Squeeze without an extra permute.
-    HashOut::from_vec(perm.squeeze()[..NUM_HASH_OUT_ELTS].to_vec())
+    absorb_msg(&mut perm, &msg);
+    squeeze4(&perm)
 }
 
 /// Domain-separated leaf hash for Merkle trees (Poseidon2 variant).
@@ -166,24 +185,15 @@ pub fn hash_n_to_hash_no_pad_p2<F: RichField, P: PlonkyPermutation<F>>(inputs: &
 /// from being presented as leaves. Uses Poseidon2's additive absorption and padding,
 /// with a domain separator in the capacity region.
 pub fn hash_leaf_p2<F: RichField, P: PlonkyPermutation<F>>(inputs: &[F]) -> HashOut<F> {
-    let rate = P::RATE;
-
-    // Pad input: append '1' then zeros to rate-aligned length
-    let msg = pad10_to_rate(inputs, rate);
+    // `pad10`: append '1' then zeros to a rate-aligned length.
+    let msg = pad10_to_rate(inputs, P::RATE);
 
     // Domain separator in capacity region (index = RATE).
     // two_to_one uses hash_no_pad which has zero capacity, so this is unforgeable.
     let mut perm = P::new(core::iter::repeat(F::ZERO));
-    perm.set_elt(F::ONE, rate);
+    perm.set_elt(F::ONE, P::RATE);
 
-    // Absorb additively and permute per block.
-    for block in msg.chunks(rate) {
-        for (i, &x) in block.iter().enumerate() {
-            let si = perm.as_ref()[i];
-            perm.set_elt(si + x, i);
-        }
-        perm.permute();
-    }
-
-    HashOut::from_vec(perm.squeeze()[..NUM_HASH_OUT_ELTS].to_vec())
+    // Same additive absorb / squeeze as the plain sponge (the capacity separator aside).
+    absorb_msg(&mut perm, &msg);
+    squeeze4(&perm)
 }

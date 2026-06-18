@@ -395,12 +395,42 @@ Built `Plonky2Spec/Poseidon2.lean`:
   build clean, standard-axioms-only; exporter prims test + flat-gate test green.
 - *Checkpoint: review + commit.*
 
-#### Step 3c — Sponge wrapper + bridge to `RandomOracle.H`
-- Lift the permutation to the `hash_no_pad` sponge; instantiate the spec's
-  `RandomOracle.H` with it (felt outputs are `digest.val`s); discharge
-  `DNull(u) = H(H(u))`.
-- **Acceptance:** `gadgetHash = nativePoseidon2` and the `RandomOracle.H`
-  instantiation type-checks against `qp-zk-circuits/formal`.
+#### Step 3c — Sponge wrapper + bridge to `RandomOracle.H`  ✅ DONE
+Built `Plonky2Spec/Sponge.lean`:
+- **Sponge model** (`spongeHash`): a line-by-line transcription of
+  `core/src/hashing.rs::hash_n_to_hash_no_pad_p2` over `ZMod p`, generic in the
+  permutation — `pad10` (the `10*` rule), all-zero width-12 state, **additive**
+  absorption on the 8 rate lanes (`addBlock`), permute per block (`absorbMsg`,
+  structural recursion over rate-chunks), squeeze the first 4 lanes (`squeeze4`,
+  **no** trailing permute). `poseidon2Hash` instantiates `perm := permState …` (the
+  Step-3b verified permutation), generic in the Goldilocks constants.
+- **Short-input reduction** (`spongeHash_short` / `absorbMsg_short`): a `≤ rate`
+  preimage pads to exactly one block, so the hash is a *single* permutation — covers
+  the aggregator's 4-felt dummy-nullifier preimage and the 4-felt digest re-hash.
+- **Spec bridge** (`H : List Felt → Digest`, `hh`, `dummyNull`): mirrors
+  `WormholeSpec`'s felt/digest interface (cast `ℕ → ZMod p` in, `ZMod.val` out) and
+  gives the *computational realization* of the abstract `ro.H`. `dummyNull_eq` proves
+  `dummyNull u = H (H u)` by `rfl` — exactly the shape the spec's `hh`/`dummyNull`
+  (and `WA`/`Null`/`leafHash`/`nodeHash`) are written in.
+- **No concrete `RandomOracle` instance — deliberately.** `WormholeSpec.RandomOracle`
+  bundles *total injectivity*; its own header (`example : Felt = Nat := rfl` tripwire)
+  warns this is consistent **only over an infinite carrier**. A compressing hash over
+  finite Goldilocks is never injective, so a concrete finite-field `RandomOracle` is
+  *uninhabited* and would make every downstream theorem vacuous. So we supply the
+  honest object — the computational `H` the idealized `ro.H` stands for — and leave
+  collision-resistance as the explicit, documented RO assumption on the spec side.
+  (The two Lean packages also stay decoupled: `qp-zk-circuits/formal` is intentionally
+  mathlib-free over `Felt = ℕ`, so we mirror its interface rather than import it.)
+- **Differential test (the wrapper's faithfulness anchor).** The sponge *wrapper*
+  (pad/absorb/squeeze) is not exporter-extracted, so a Rust test
+  (`sponge_structure_matches_lean_model`) transliterates the Lean `pad10`/`addBlock`/
+  `absorbMsg`/`squeeze4` over the *same* `<GoldilocksField as P2Permuter>::permute`
+  and checks it equals the real `Poseidon2Hash::hash_no_pad` at random inputs of every
+  length 0–20 (covering the empty/full-pad-block, `< rate`, `== rate`, and multi-block
+  boundaries). Runs in the existing `cargo test -p qp-plonky2-constraint-exporter` CI job.
+- **Acceptance (met):** `Sponge.lean` builds clean; `dummyNull_eq`, `spongeHash_short`,
+  `absorbMsg_short`, `pad10_length_short` are standard-axioms-only; sponge differential
+  test green alongside the gate/primitive ones.
 - *Checkpoint: review + commit.*
 
 ### Step 4 — T4 axiomatize `verify_proof` + aggregation bridge

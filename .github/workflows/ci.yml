@@ -70,10 +70,12 @@ jobs:
       - name: Test
         run: cargo test --release
       # The constraint exporter is a formal-verification dev tool (not in
-      # `default-members`, so the commands above skip it). Its differential test
-      # checks that the symbolically-extracted gate constraints match the real
-      # `GoldilocksField` `eval_unfiltered` at random points — the Rust half of the
-      # guarantee whose Lean half is the `Generated/Bridge.lean` `ring` lemmas.
+      # `default-members`, so the commands above skip it). Its differential tests
+      # check, at random points, that (a) the symbolically-extracted gate constraints
+      # match the real `GoldilocksField` `eval_unfiltered`, (b) the extracted Poseidon2
+      # primitives match the real helpers, and (c) the Lean sponge model's wrapper
+      # matches `Poseidon2Hash::hash_no_pad` — the Rust half of the guarantees whose
+      # Lean half is the `Generated/*Bridge.lean` `ring` lemmas and `Sponge.lean`.
       - name: Test constraint exporter (extraction == real gate)
         run: cargo test --release -p qp-plonky2-constraint-exporter
       # Guard against a stale committed generated Lean: regenerate from the live
