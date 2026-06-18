@@ -346,7 +346,7 @@ Sliced into three checkpoints:
   `Gates.lean` and `Poseidon2.lean`).
 - *Checkpoint: review + commit.*
 
-#### Step 3b — Lean Poseidon2 permutation model + sound/complete  ✅ DONE (meaning); bridge deferred
+#### Step 3b — Lean Poseidon2 permutation model + sound/complete  ✅ DONE (meaning + primitive bridge)
 Built `Plonky2Spec/Poseidon2.lean`:
 - **Permutation model** (`permState`): light-MDS preamble, `x^7` S-box, 4 initial +
   22 internal + 4 terminal rounds, written to mirror `mds_light_base` / `sbox7_base`
@@ -366,19 +366,33 @@ Built `Plonky2Spec/Poseidon2.lean`:
     full permutation states forces `internalMix`'s running sum to expand through 22
     rounds (~exponential). Avoided by a one-`foldl`-step lemma (`extPhase_cons`) that
     reduces every closing step to a **syntactic** match — 188 s → 2 s.
-- **Bridge to the extracted flat file — deferred (tractability blocker).** Tying
-  `gateConstraints` to `Generated.Poseidon2.poseidon2Gate` by `ring`/`rfl` is *not*
-  tractable: the extracted DAG shares subexpressions via `let` (linear size), but
-  expanding the structured model unfolds `internalMix`'s running sum through the 22
-  *compounding* internal rounds (lanes 1-11 are never checkpointed) → ~3²² term size.
-  The clean fix is to make the exporter emit a **round-factored, share-preserving**
-  Lean model (named `mdsLight`/`sbox7`/`internalMix` calls per round) so the bridge
-  becomes `rfl` *and* the meaning theorem reasons about the extracted object directly.
-  Until then faithfulness of the transcription rests on the exporter's differential
-  test (`Generated.poseidon2Gate` ≡ real gate at random points) + the documented
-  line-by-line correspondence.
-- **Acceptance (met):** `gate_sound_complete` builds clean, standard-axioms-only.
-  *Remaining:* the share-preserving bridge above.
+- **Primitive bridge — machine-checked (the flat-file blocker, sidestepped).** Tying
+  the structured `gateConstraints` to `Generated.Poseidon2.poseidon2Gate` *whole* by
+  `ring`/`rfl` is not tractable: the extracted DAG shares subexpressions via `let`
+  (linear size), but expanding the structured model unfolds `internalMix`'s running
+  sum through the 22 *compounding* internal rounds (lanes 1-11 are never checkpointed)
+  → ~3²² term size. Instead of bridging the monolith, we bridge the **three round
+  primitives** the permutation is built from — which is where any arithmetic drift in
+  the Rust would actually show up:
+  - The `plonky2` crate now exposes `sbox7_base` / `mds_light_base` / `internal_mix_base`
+    as `pub`. The exporter symbolically executes *those real helpers* and emits
+    `Generated/Poseidon2Prims.lean` (`sbox7`, `mdsLight`, `internalMix`), regenerated and
+    staleness-guarded in CI like every other `Generated/` file.
+  - `Generated/Poseidon2Bridge.lean` proves `Plonky2Spec.Poseidon2.{sbox7,mdsLight,internalMix}`
+    (the `@[irreducible]` hand model) equal their extracted counterparts by `ring`
+    (`unseal`ed locally). Standard-axioms-only; any drift in the S-box, the light-MDS
+    matrix, or the internal diffusion breaks `lake build`.
+  - A Rust differential test (`poseidon2_primitives_match_real_helpers`) checks the
+    extracted primitives against the real helpers at 200 random base-field points,
+    alongside the existing flat-gate test (`Generated.poseidon2Gate` ≡ real
+    `eval_unfiltered`).
+  What is *not* machine-checked is only the **round composition** — how
+  `gateConstraints` threads these three primitives across the 4+22+4 rounds with the
+  checkpoint wires — which mirrors `eval_unfiltered` line-by-line and is covered
+  end-to-end by the flat-gate differential test. A future round-factored exporter
+  emission would turn that last correspondence into `rfl` too.
+- **Acceptance (met):** `gate_sound_complete` + all three `*_extracted` bridge lemmas
+  build clean, standard-axioms-only; exporter prims test + flat-gate test green.
 - *Checkpoint: review + commit.*
 
 #### Step 3c — Sponge wrapper + bridge to `RandomOracle.H`

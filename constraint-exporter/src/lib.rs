@@ -135,6 +135,79 @@ pub fn generate_poseidon2_lean() -> String {
     out
 }
 
+/// Build `formal/Plonky2Spec/Generated/Poseidon2Prims.lean`: the three Poseidon2
+/// permutation *primitives* (`sbox7`, `mdsLight`, `internalMix`), each extracted by
+/// running the **real** helper (`sbox7_base` / `mds_light_base` / `internal_mix_base`,
+/// poseidon2.rs) over the symbolic field. They are small (linear MDS / mix; one
+/// `x^7`), so they are emitted inline. `Generated/Poseidon2Bridge.lean` proves each
+/// equals the hand model `Plonky2Spec.Poseidon2.{…}` by `ring`, so the arithmetic of
+/// the permutation is machine-checked against the live Rust — the structural round
+/// composition that `Plonky2Spec.Poseidon2.gateConstraints` builds from these
+/// primitives is the only remaining reviewed/diff-tested piece.
+pub fn generate_poseidon2_prims_lean() -> String {
+    // Each extractor calls `reset()`, so render its result before the next call.
+    let sbox = render::to_lean(extract::sbox7_prim());
+    let mds: Vec<String> = extract::mds_light_prim()
+        .iter()
+        .map(|&s| render::to_lean(s))
+        .collect();
+    let imix: Vec<String> = extract::internal_mix_prim()
+        .iter()
+        .map(|&s| render::to_lean(s))
+        .collect();
+
+    let mut out = String::new();
+    out.push_str(
+        "/-\n\
+         \x20 AUTO-GENERATED — do not edit by hand.\n\n\
+         \x20 The three Poseidon2 permutation primitives, each extracted by running the real\n\
+         \x20 `plonky2/src/gates/poseidon2.rs` helper over the symbolic field. Regenerate with:\n\n\
+         \x20     cargo run -p qp-plonky2-constraint-exporter --bin export-constraints\n\n\
+         \x20 * `sbox7 w0`            = `sbox7_base(w0)`               (the `x^7` S-box)\n\
+         \x20 * `mdsLight w0..w11`    = `mds_light_base([w0..w11])`    (external light MDS)\n\
+         \x20 * `internalMix w0..w23` = `internal_mix_base([w0..w11], diag=[w12..w23])`\n\n\
+         \x20 `Generated/Poseidon2Bridge.lean` proves each equals the opaque hand model\n\
+         \x20 `Plonky2Spec.Poseidon2.{sbox7,mdsLight,internalMix}` by `ring`.\n\
+         -/\n\
+         import Mathlib.Algebra.Field.ZMod\n\
+         import Mathlib.Data.Fin.VecNotation\n\n\
+         namespace Plonky2Spec.Generated\n\n\
+         set_option linter.unusedVariables false\n\n\
+         variable {p : ℕ}\n\n",
+    );
+
+    let _ = writeln!(
+        out,
+        "/-- `sbox7_base(w0) = w0^7`, extracted verbatim. -/\n\
+         def sbox7 (w0 : ZMod p) : ZMod p :=\n  {sbox}\n"
+    );
+
+    let mut p12 = String::new();
+    for i in 0..12 {
+        let _ = write!(p12, "w{i} ");
+    }
+    let _ = writeln!(
+        out,
+        "/-- `mds_light_base([w0..w11])`, lane outputs, extracted verbatim. -/\n\
+         def mdsLight ({p12}: ZMod p) : Fin 12 → ZMod p :=\n  ![{}]\n",
+        mds.join(",\n    ")
+    );
+
+    let mut p24 = String::new();
+    for i in 0..24 {
+        let _ = write!(p24, "w{i} ");
+    }
+    let _ = writeln!(
+        out,
+        "/-- `internal_mix_base([w0..w11], diag=[w12..w23])`, lane outputs, extracted. -/\n\
+         def internalMix ({p24}: ZMod p) : Fin 12 → ZMod p :=\n  ![{}]\n",
+        imix.join(",\n    ")
+    );
+
+    out.push_str("end Plonky2Spec.Generated\n");
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use plonky2::field::extension::{Extendable, FieldExtension};
@@ -276,6 +349,60 @@ mod tests {
             ));
 
             assert_eq!(sym_vals, real, "poseidon2 gate constraint mismatch");
+        }
+    }
+
+    /// The three extracted Poseidon2 primitives (`Generated/Poseidon2Prims.lean`)
+    /// evaluate to exactly what the *real* `plonky2` helpers compute. Together with
+    /// the Lean `Poseidon2Bridge` (`= Plonky2Spec.Poseidon2` primitives by `ring`),
+    /// this anchors the hand model's S-box / light-MDS / internal-diffusion arithmetic
+    /// to the live Rust code at random base-field points.
+    #[test]
+    fn poseidon2_primitives_match_real_helpers() {
+        use plonky2::gates::poseidon2::{
+            internal_mix_base, mds_light_base, sbox7_base, SPONGE_WIDTH,
+        };
+
+        let mut rng = Lcg(0xdead_d00d_face_b00c);
+
+        // sbox7: one wire in, one out. (Each `extract::*` resets the shared arena,
+        // so extract once per primitive and evaluate its handles before the next.)
+        let sbox = extract::sbox7_prim();
+        for _ in 0..200 {
+            let x = rng.next();
+            assert_eq!(render::eval(sbox, &[x], &[]), sbox7_base(x), "sbox7 mismatch");
+        }
+
+        // mds_light_base: state w0..w11.
+        let mds = extract::mds_light_prim();
+        for _ in 0..200 {
+            let state: Vec<GF> = (0..SPONGE_WIDTH).map(|_| rng.next()).collect();
+            let mut real_state: [GF; SPONGE_WIDTH] = state.clone().try_into().unwrap();
+            mds_light_base(&mut real_state);
+            for (lane, &c) in mds.iter().enumerate() {
+                assert_eq!(
+                    render::eval(c, &state, &[]),
+                    real_state[lane],
+                    "mds_light lane {lane} mismatch",
+                );
+            }
+        }
+
+        // internal_mix_base: state w0..w11, diagonal w12..w23.
+        let imix = extract::internal_mix_prim();
+        for _ in 0..200 {
+            let s: [GF; SPONGE_WIDTH] = core::array::from_fn(|_| rng.next());
+            let diag: [GF; SPONGE_WIDTH] = core::array::from_fn(|_| rng.next());
+            let mut wires: Vec<GF> = s.to_vec();
+            wires.extend_from_slice(&diag);
+            let real_imix = internal_mix_base(&s, &diag);
+            for (lane, &c) in imix.iter().enumerate() {
+                assert_eq!(
+                    render::eval(c, &wires, &[]),
+                    real_imix[lane],
+                    "internal_mix lane {lane} mismatch",
+                );
+            }
         }
     }
 }

@@ -10,7 +10,9 @@
 use plonky2::gates::arithmetic_base::ArithmeticGate;
 use plonky2::gates::base_sum::BaseSumGate;
 use plonky2::gates::gate::Gate;
-use plonky2::gates::poseidon2::Poseidon2Gate;
+use plonky2::gates::poseidon2::{
+    internal_mix_base, mds_light_base, sbox7_base, Poseidon2Gate, SPONGE_WIDTH,
+};
 use plonky2::hash::hash_types::HashOut;
 use plonky2::plonk::vars::EvaluationVars;
 
@@ -97,4 +99,35 @@ pub fn poseidon2_gate() -> Extracted {
         num_consts: 0,
         constraints,
     }
+}
+
+// --- Poseidon2 permutation *primitives* -------------------------------------
+//
+// These run the *real* helper functions (`plonky2/src/gates/poseidon2.rs`) over
+// the symbolic field, so each returns the exact polynomial the primitive computes.
+// They are tiny (linear MDS / mix; univariate degree-7 S-box), so the rendered
+// Lean is inlined and the `ring` bridge to `Plonky2Spec.Poseidon2.{mdsLight,sbox7,
+// internalMix}` is cheap. Each calls `reset()`, so render its result *before* the
+// next call. `Wire(i)` names the i-th argument (`w{i}`).
+
+/// `sbox7_base(w0) = w0^7`. One output.
+pub fn sbox7_prim() -> Sym {
+    reset();
+    sbox7_base(Sym::wire(0))
+}
+
+/// `mds_light_base` on the state `w0..w11`. 12 outputs.
+pub fn mds_light_prim() -> Vec<Sym> {
+    reset();
+    let mut s: [Sym; SPONGE_WIDTH] = core::array::from_fn(Sym::wire);
+    mds_light_base(&mut s);
+    s.to_vec()
+}
+
+/// `internal_mix_base` with state `w0..w11` and diagonal `w12..w23`. 12 outputs.
+pub fn internal_mix_prim() -> Vec<Sym> {
+    reset();
+    let x: [Sym; SPONGE_WIDTH] = core::array::from_fn(Sym::wire);
+    let diag: [Sym; SPONGE_WIDTH] = core::array::from_fn(|i| Sym::wire(SPONGE_WIDTH + i));
+    internal_mix_base(&x, &diag).to_vec()
 }

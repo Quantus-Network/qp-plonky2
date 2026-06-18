@@ -134,8 +134,11 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2Params<F, D> {
 
 use crate::field::types::PrimeField64;
 
+// `pub` for the formal-verification constraint exporter (constraint-exporter/),
+// which runs these *real* primitives over a symbolic field to extract their exact
+// polynomials and `ring`-bridges them to the Lean model. See `../formal/PLAN.md` 3b.
 #[inline(always)]
-fn sbox7_base<F: Field>(x: F) -> F {
+pub fn sbox7_base<F: Field>(x: F) -> F {
     let x2 = x.square();
     let x4 = x2.square();
     let x3 = x * x2;
@@ -232,8 +235,9 @@ fn apply_mat4_base<F: Field>(a: F, b: F, c: F, d: F) -> [F; 4] {
     [y0, y1, y2, y3]
 }
 
+/// `pub` for the constraint exporter (see `sbox7_base`).
 #[inline(always)]
-fn mds_light_base<F: Field>(s: &mut [F; SPONGE_WIDTH]) {
+pub fn mds_light_base<F: Field>(s: &mut [F; SPONGE_WIDTH]) {
     let [y0, y1, y2, y3] = apply_mat4_base(s[0], s[1], s[2], s[3]);
     let [y4, y5, y6, y7] = apply_mat4_base(s[4], s[5], s[6], s[7]);
     let [y8, y9, y10, y11] = apply_mat4_base(s[8], s[9], s[10], s[11]);
@@ -329,8 +333,9 @@ fn mds_light_ext<F: RichField + Extendable<D>, const D: usize>(
     }
 }
 
+/// `pub` for the constraint exporter (see `sbox7_base`).
 #[inline(always)]
-fn internal_mix_base<F: Field>(
+pub fn internal_mix_base<F: Field>(
     x: &[F; SPONGE_WIDTH],
     diag: &[F; SPONGE_WIDTH],
 ) -> [F; SPONGE_WIDTH] {

@@ -44,3 +44,5 @@ import Plonky2Spec.Generated.Gates
 import Plonky2Spec.Generated.Bridge
 import Plonky2Spec.Generated.Poseidon2
 import Plonky2Spec.Poseidon2
+import Plonky2Spec.Generated.Poseidon2Prims
+import Plonky2Spec.Generated.Poseidon2Bridge
