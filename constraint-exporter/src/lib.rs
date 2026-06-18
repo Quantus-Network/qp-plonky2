@@ -77,6 +77,64 @@ pub fn generate_lean() -> String {
     out
 }
 
+/// Build the contents of `formal/Plonky2Spec/Generated/Poseidon2.lean`.
+///
+/// The Poseidon2 permutation gate emits 118 constraints sharing a large common
+/// sub-DAG (the round state), so unlike `generate_lean` this emits a **single**
+/// `def` returning the constraint *list*, with one `let` binding per shared
+/// arithmetic node (see `render::emit_lets`). One inlined-tree def per constraint
+/// would be exponential.
+pub fn generate_poseidon2_lean() -> String {
+    // Extract first; the arena then holds exactly this gate's nodes, which
+    // `emit_lets` / `ref_str` read. Do not extract anything else before rendering.
+    let ex = extract::poseidon2_gate();
+
+    let mut out = String::new();
+    out.push_str(
+        "/-\n\
+         \x20 AUTO-GENERATED — do not edit by hand.\n\n\
+         \x20 Produced by `qp-plonky2-constraint-exporter` from the real\n\
+         \x20 `Poseidon2Gate::eval_unfiltered` (plonky2/src/gates/poseidon2.rs), symbolically\n\
+         \x20 executed over a symbolic field. Regenerate with:\n\n\
+         \x20     cargo run -p qp-plonky2-constraint-exporter --bin export-constraints\n\n\
+         \x20 `poseidon2Gate w0 … w{n}` returns the list of constraint polynomials the gate\n\
+         \x20 forces to zero (`wᵢ` = `local_wires[i]`: `w0..w11` input, `w12..w23` output, the\n\
+         \x20 rest per-round S-box-input checkpoints). The round constants are the gate's own\n\
+         \x20 `self.params` values (independent of the field), so they appear verbatim here.\n\
+         \x20 Emitted as a straight-line `let`-program: one binding per shared subexpression,\n\
+         \x20 since the 22 internal rounds reuse the running sum heavily.\n\n\
+         \x20 Step 3b proves this list is all-zero iff `output = Poseidon2_perm(input)`.\n\
+         -/\n\
+         import Mathlib.Algebra.Field.ZMod\n\n\
+         namespace Plonky2Spec.Generated\n\n\
+         set_option linter.unusedVariables false\n\
+         -- The straight-line `let`-program nests ~2.4k bindings deep; raise the\n\
+         -- elaboration recursion limit above that depth.\n\
+         set_option maxRecDepth 8000\n\n\
+         variable {p : ℕ}\n\n",
+    );
+
+    let mut params = String::new();
+    for i in 0..ex.num_wires {
+        let _ = write!(params, "w{i} ");
+    }
+    let _ = writeln!(
+        out,
+        "/-- Poseidon2 permutation gate: the {n} constraints extracted verbatim from \
+         `Poseidon2Gate::eval_unfiltered`. -/",
+        n = ex.constraints.len(),
+    );
+    let _ = writeln!(
+        out,
+        "def poseidon2Gate ({params}: ZMod p) : List (ZMod p) :="
+    );
+    out.push_str(&render::emit_lets("  "));
+    let roots: Vec<String> = ex.constraints.iter().map(|&r| render::ref_str(r)).collect();
+    let _ = writeln!(out, "  [{}]\n", roots.join(",\n   "));
+    out.push_str("end Plonky2Spec.Generated\n");
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use plonky2::field::extension::{Extendable, FieldExtension};
@@ -85,6 +143,7 @@ mod tests {
     use plonky2::gates::arithmetic_base::ArithmeticGate;
     use plonky2::gates::base_sum::BaseSumGate;
     use plonky2::gates::gate::Gate;
+    use plonky2::gates::poseidon2::Poseidon2Gate;
     use plonky2::hash::hash_types::HashOut;
     use plonky2::plonk::vars::EvaluationVars;
     use symbolic::GOLDILOCKS_ORDER;
@@ -180,6 +239,43 @@ mod tests {
             ));
 
             assert_eq!(sym_vals, real, "base sum gate constraint mismatch");
+        }
+    }
+
+    #[test]
+    fn poseidon2_extraction_matches_real_gate() {
+        // Extract once; evaluate the shared DAG with the memoized evaluator
+        // (recursive `eval` would blow up on the internal rounds).
+        let ex = extract::poseidon2_gate();
+        assert_eq!(
+            ex.constraints.len(),
+            118,
+            "expected 118 Poseidon2 constraints"
+        );
+        let mut rng = Lcg(0x00c0_ffee_1234_5678);
+        for _ in 0..16 {
+            let wires: Vec<GF> = (0..ex.num_wires).map(|_| rng.next()).collect();
+
+            let vals = render::eval_all(&wires, &[]);
+            let sym_vals: Vec<GF> = ex
+                .constraints
+                .iter()
+                .map(|&r| render::eval_root(r, &vals))
+                .collect();
+
+            let gate = Poseidon2Gate::<GF, 2>::new();
+            let we = embed(&wires);
+            let pih = HashOut::<GF>::ZERO;
+            let vars = EvaluationVars {
+                local_constants: &[],
+                local_wires: &we,
+                public_inputs_hash: &pih,
+            };
+            let real = real_eval(<Poseidon2Gate<GF, 2> as Gate<GF, 2>>::eval_unfiltered(
+                &gate, vars,
+            ));
+
+            assert_eq!(sym_vals, real, "poseidon2 gate constraint mismatch");
         }
     }
 }

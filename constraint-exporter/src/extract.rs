@@ -10,6 +10,7 @@
 use plonky2::gates::arithmetic_base::ArithmeticGate;
 use plonky2::gates::base_sum::BaseSumGate;
 use plonky2::gates::gate::Gate;
+use plonky2::gates::poseidon2::Poseidon2Gate;
 use plonky2::hash::hash_types::HashOut;
 use plonky2::plonk::vars::EvaluationVars;
 
@@ -67,6 +68,31 @@ pub fn base_sum_gate<const B: usize>(num_limbs: usize, name: &'static str) -> Ex
     let constraints = <BaseSumGate<B> as Gate<Sym, 1>>::eval_unfiltered(&gate, vars);
     Extracted {
         name,
+        num_wires,
+        num_consts: 0,
+        constraints,
+    }
+}
+
+/// `Poseidon2Gate` (width 12, `x^7` S-box, 4 initial + 22 internal + 4 terminal
+/// rounds). Wires: `w0..w11` input, `w12..w23` output, then the per-round S-box
+/// input checkpoints. The gate carries its own real round constants in
+/// `self.params` (independent of `F`), so the extracted polynomials contain the
+/// genuine Poseidon2 constants as `Const(n)` nodes. Emits 118 constraints.
+pub fn poseidon2_gate() -> Extracted {
+    reset();
+    let gate = Poseidon2Gate::<Sym, 1>::new();
+    let num_wires = <Poseidon2Gate<Sym, 1> as Gate<Sym, 1>>::num_wires(&gate);
+    let wires: Vec<Sym> = (0..num_wires).map(Sym::wire).collect();
+    let pih = HashOut::<Sym>::ZERO;
+    let vars = EvaluationVars {
+        local_constants: &[],
+        local_wires: &wires,
+        public_inputs_hash: &pih,
+    };
+    let constraints = <Poseidon2Gate<Sym, 1> as Gate<Sym, 1>>::eval_unfiltered(&gate, vars);
+    Extracted {
+        name: "poseidon2Gate",
         num_wires,
         num_consts: 0,
         constraints,

@@ -76,14 +76,14 @@ jobs:
       # guarantee whose Lean half is the `Generated/Bridge.lean` `ring` lemmas.
       - name: Test constraint exporter (extraction == real gate)
         run: cargo test --release -p qp-plonky2-constraint-exporter
-      # Guard against a stale committed `Gates.lean`: regenerate it from the live
+      # Guard against a stale committed generated Lean: regenerate from the live
       # gate code and fail if it differs from what is checked in. Run once (Linux).
       - name: Check generated Lean is up to date
         if: matrix.os == 'ubuntu-latest'
         run: |
           cargo run --release -p qp-plonky2-constraint-exporter --bin export-constraints >/dev/null
-          git diff --exit-code -- formal/Plonky2Spec/Generated/Gates.lean \
-            || (echo "::error::formal/Plonky2Spec/Generated/Gates.lean is stale; rerun the exporter" && exit 1)
+          git diff --exit-code -- formal/Plonky2Spec/Generated/ \
+            || (echo "::error::formal/Plonky2Spec/Generated/ is stale; rerun the exporter" && exit 1)
 
   analysis:
     name: 🤖 Analysis (Doc)

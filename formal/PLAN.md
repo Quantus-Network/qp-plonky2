@@ -302,11 +302,65 @@ the 2a lemmas:
 - *Checkpoint: review + commit.*
 
 ### Step 3 — T3 Poseidon2 hash "computes H" (exporter-driven)
-- Export the Poseidon2 gate constraints (permutation: round function, MDS, round
-  constants); model the `hash_no_pad` sponge over them; prove gadget output equals
-  the native Poseidon2 function. Instantiate the spec's `RandomOracle.H` with it.
-- **Acceptance:** `gadgetHash = nativePoseidon2` theorem; the existing
+The hash used by the circuits *and* the spec is **Poseidon2** (`Poseidon2Hash`,
+via `hash_n_to_hash_no_pad_p2::<Poseidon2Hash>` in `circuit_logic.rs` /
+`zk_merkle_proof.rs`; the spec's `RandomOracle.H` = `Poseidon2Hash::hash_no_pad`,
+and `DNull(u) = H(H(u))`). The permutation gate is `Poseidon2Gate`
+(`plonky2/src/gates/poseidon2.rs`): width 12, S-box `x^7`, 4 initial + 22 internal
++ 4 terminal rounds, **118 constraints**, degree 7. This is the gate the exporter
+was built for — far too many constraints to hand-transcribe.
+
+Two facts make this tractable:
+- **Constants come for free.** `Poseidon2Gate` carries its own round constants in
+  `self.params` (`new()` builds them from `INITIAL/TERMINAL_EXTERNAL_CONSTANTS` and
+  `INTERNAL_CONSTANTS`), *independent of `F`*. So symbolic extraction picks up the
+  real constants as `Const(n)` nodes — the stubbed `Poseidon` trait tables on `Sym`
+  are irrelevant to this gate.
+- **The gate is a *checkpointed* permutation.** To cap degree at 7 it allocates
+  per-round S-box-input wires and emits `state[i] − sbox_in = 0`, then resets
+  `state[i] = sbox_in`. So the constraints pin `output = perm(input)` *modulo* the
+  intermediate S-box wires — soundness/completeness are existential over those
+  wires (structurally like `BaseSum`'s recon+range, but with ~30 rounds).
+
+Sliced into three checkpoints:
+
+#### Step 3a — Renderer CSE upgrade + extract `Poseidon2Gate`  ✅ DONE
+- **Renderer now emits shared subexpressions as `let`-bindings** (`render::emit_lets`
+  + `ref_str`): a straight-line program, one binding per arithmetic arena node in
+  topological (id) order, with leaves inlined. The internal rounds reuse the running
+  state sum ~13×/round across 22 rounds; the inline-tree `to_lean` would blow up
+  ~13²² — the `let`-program is linear in the DAG (~2.4k bindings). The recursive
+  evaluator gained a memoized twin (`eval_all`/`eval_root`) so the differential test
+  doesn't blow up either. Needed one fix: `Sym::to_canonical_u64` must return the
+  value for `Const` nodes (the gate round-trips its round constants through
+  `ext_c = from_canonical_u64(x.to_canonical_u64())`); non-constant symbols still panic.
+- Extracted `Poseidon2Gate::eval_unfiltered` to `Generated/Poseidon2.lean`:
+  `def poseidon2Gate (w0 … w129 : ZMod p) : List (ZMod p)` returning all **118**
+  constraints (single def, shared `let`-block — *not* one def per constraint, which
+  would re-derive the whole permutation 118×). Built clean (`set_option maxRecDepth
+  8000` for the deep `let`-nesting).
+- Differential test (`poseidon2_extraction_matches_real_gate`): extracted DAG vs the
+  real `GoldilocksField` `Poseidon2Gate` over the degree-2 extension at 16 random
+  points — green, asserts exactly 118 constraints.
+- **CI:** the staleness `git diff` check now covers all of `Generated/` (both
+  `Gates.lean` and `Poseidon2.lean`).
+- *Checkpoint: review + commit.*
+
+#### Step 3b — Lean Poseidon2 permutation model + sound/complete
+- Model the permutation in Lean: light-MDS, `x^7` S-box, 4+22+4 rounds with the
+  real constants (`Poseidon2.lean`).
+- Prove the extracted constraints are satisfiable **iff** `output = perm(input)`,
+  existentially over the S-box-input wires (soundness + completeness).
+- **Acceptance:** `poseidon2Gate_constraints ⟺ output = perm(input)`; the
   differential tests become a checked corollary rather than only empirical.
+- *Checkpoint: review + commit.*
+
+#### Step 3c — Sponge wrapper + bridge to `RandomOracle.H`
+- Lift the permutation to the `hash_no_pad` sponge; instantiate the spec's
+  `RandomOracle.H` with it (felt outputs are `digest.val`s); discharge
+  `DNull(u) = H(H(u))`.
+- **Acceptance:** `gadgetHash = nativePoseidon2` and the `RandomOracle.H`
+  instantiation type-checks against `qp-zk-circuits/formal`.
 - *Checkpoint: review + commit.*
 
 ### Step 4 — T4 axiomatize `verify_proof` + aggregation bridge

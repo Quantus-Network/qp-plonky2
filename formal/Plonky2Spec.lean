@@ -24,6 +24,9 @@
                              real `Gate::eval_unfiltered` by the Rust exporter
                              (`constraint-exporter/`), and `Generated.Bridge`,
                              which pins them to the hand models by `ring` (2b)
+  * `Plonky2Spec.Generated.Poseidon2`  the 118 `Poseidon2Gate` constraints,
+                             auto-extracted as a straight-line `let`-program (3a);
+                             the permutation model + `computes-H` bridge follow (3b/3c)
 
   Methodology follows Zellic's *Formal Verification of a Plonky2 Gate*: each gadget
   separates an `Assumptions` side-condition (what the surrounding circuit must
@@ -37,3 +40,4 @@ import Plonky2Spec.Boolean
 import Plonky2Spec.Wrapper
 import Plonky2Spec.Generated.Gates
 import Plonky2Spec.Generated.Bridge
+import Plonky2Spec.Generated.Poseidon2

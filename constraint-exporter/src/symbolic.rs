@@ -73,6 +73,22 @@ pub fn reset() {
     ARENA.with(|a| a.borrow_mut().clear());
 }
 
+/// A snapshot of the current arena, indexed by handle id. Node `id` only
+/// references children with strictly smaller ids (a node is interned after its
+/// children), so iterating `0..len` is a topological order — exactly what the
+/// straight-line `let`-renderer and the memoized evaluator rely on. Sentinel
+/// handles (the `const` field elements) are *not* in the arena and must be
+/// resolved separately.
+pub fn arena_snapshot() -> Vec<Node> {
+    ARENA.with(|a| a.borrow().clone())
+}
+
+/// `true` iff `s` is one of the reserved sentinel handles (`ZERO/ONE/TWO/…`),
+/// i.e. not an index into the arena.
+pub fn is_sentinel(s: Sym) -> bool {
+    s.0 >= SENTINEL_MIN
+}
+
 fn intern(node: Node) -> Sym {
     ARENA.with(|a| {
         let mut v = a.borrow_mut();
@@ -338,11 +354,20 @@ impl Field64 for Sym {
 }
 
 impl PrimeField64 for Sym {
+    // Constant nodes have a genuine canonical value; this is how a gate's round
+    // constants round-trip through `ext_c` (`from_canonical_u64(x.to_canonical_u64())`,
+    // poseidon2.rs). A non-constant symbol has no value, so that genuinely panics.
     fn to_canonical_u64(&self) -> u64 {
-        panic!("symbolic element has no canonical value")
+        match self.node() {
+            Node::Const(n) => n,
+            _ => panic!("to_canonical_u64 on a non-constant symbolic element"),
+        }
     }
     fn to_noncanonical_u64(&self) -> u64 {
-        panic!("symbolic element has no canonical value")
+        match self.node() {
+            Node::Const(n) => n,
+            _ => panic!("to_noncanonical_u64 on a non-constant symbolic element"),
+        }
     }
 }
 
