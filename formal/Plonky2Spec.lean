@@ -25,8 +25,10 @@
                              (`constraint-exporter/`), and `Generated.Bridge`,
                              which pins them to the hand models by `ring` (2b)
   * `Plonky2Spec.Generated.Poseidon2`  the 118 `Poseidon2Gate` constraints,
-                             auto-extracted as a straight-line `let`-program (3a);
-                             the permutation model + `computes-H` bridge follow (3b/3c)
+                             auto-extracted as a straight-line `let`-program (3a)
+  * `Plonky2Spec.Poseidon2`  the Poseidon2 permutation model + the meaning theorem
+                             `gate_sound_complete` (3b): the checkpointed gate
+                             constraints are satisfiable iff `output = perm(input)`
 
   Methodology follows Zellic's *Formal Verification of a Plonky2 Gate*: each gadget
   separates an `Assumptions` side-condition (what the surrounding circuit must
@@ -41,3 +43,4 @@ import Plonky2Spec.Wrapper
 import Plonky2Spec.Generated.Gates
 import Plonky2Spec.Generated.Bridge
 import Plonky2Spec.Generated.Poseidon2
+import Plonky2Spec.Poseidon2

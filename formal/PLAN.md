@@ -346,13 +346,39 @@ Sliced into three checkpoints:
   `Gates.lean` and `Poseidon2.lean`).
 - *Checkpoint: review + commit.*
 
-#### Step 3b — Lean Poseidon2 permutation model + sound/complete
-- Model the permutation in Lean: light-MDS, `x^7` S-box, 4+22+4 rounds with the
-  real constants (`Poseidon2.lean`).
-- Prove the extracted constraints are satisfiable **iff** `output = perm(input)`,
-  existentially over the S-box-input wires (soundness + completeness).
-- **Acceptance:** `poseidon2Gate_constraints ⟺ output = perm(input)`; the
-  differential tests become a checked corollary rather than only empirical.
+#### Step 3b — Lean Poseidon2 permutation model + sound/complete  ✅ DONE (meaning); bridge deferred
+Built `Plonky2Spec/Poseidon2.lean`:
+- **Permutation model** (`permState`): light-MDS preamble, `x^7` S-box, 4 initial +
+  22 internal + 4 terminal rounds, written to mirror `mds_light_base` / `sbox7_base`
+  / `internal_mix_base` and the gate's round/wire layout (round-0 elision included).
+  **Generic in the round constants** (`eInit/eTerm/iRc/diag`) — the equivalence holds
+  for *any* constants, so the primitives are `@[irreducible]` and never unfolded.
+- **Checkpointed constraint model** (`gateConstraints`): a line-by-line transcription
+  of `eval_unfiltered`, threading the 12-lane state and reading the S-box checkpoint
+  wires (`ckInit` rounds 1-3, `ckI` internal, `ckTerm` terminal) exactly as the gate.
+- **Meaning theorem** (`gate_sound_complete`, sound **and** complete):
+  `(∃ checkpoint wires, all 118 constraints = 0) ↔ output = permState input`.
+  Proof is the pure *checkpoint substitution* (each S-box constraint pins its
+  checkpoint to the running state, so the gate's reset-and-continue equals the
+  checkpoint-free `perm`) via two `foldl` inductions; primitives stay opaque.
+  `#print axioms` = `{propext, Classical.choice, Quot.sound}` (standard), ~2 s build.
+  - *Performance note:* the kernel ignores `@[irreducible]`, so any `rfl` between two
+    full permutation states forces `internalMix`'s running sum to expand through 22
+    rounds (~exponential). Avoided by a one-`foldl`-step lemma (`extPhase_cons`) that
+    reduces every closing step to a **syntactic** match — 188 s → 2 s.
+- **Bridge to the extracted flat file — deferred (tractability blocker).** Tying
+  `gateConstraints` to `Generated.Poseidon2.poseidon2Gate` by `ring`/`rfl` is *not*
+  tractable: the extracted DAG shares subexpressions via `let` (linear size), but
+  expanding the structured model unfolds `internalMix`'s running sum through the 22
+  *compounding* internal rounds (lanes 1-11 are never checkpointed) → ~3²² term size.
+  The clean fix is to make the exporter emit a **round-factored, share-preserving**
+  Lean model (named `mdsLight`/`sbox7`/`internalMix` calls per round) so the bridge
+  becomes `rfl` *and* the meaning theorem reasons about the extracted object directly.
+  Until then faithfulness of the transcription rests on the exporter's differential
+  test (`Generated.poseidon2Gate` ≡ real gate at random points) + the documented
+  line-by-line correspondence.
+- **Acceptance (met):** `gate_sound_complete` builds clean, standard-axioms-only.
+  *Remaining:* the share-preserving bridge above.
 - *Checkpoint: review + commit.*
 
 #### Step 3c — Sponge wrapper + bridge to `RandomOracle.H`
