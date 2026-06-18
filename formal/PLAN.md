@@ -412,15 +412,14 @@ Built `Plonky2Spec/Sponge.lean`:
   gives the *computational realization* of the abstract `ro.H`. `dummyNull_eq` proves
   `dummyNull u = H (H u)` by `rfl` — exactly the shape the spec's `hh`/`dummyNull`
   (and `WA`/`Null`/`leafHash`/`nodeHash`) are written in.
-- **No concrete `RandomOracle` instance — deliberately.** `WormholeSpec.RandomOracle`
-  bundles *total injectivity*; its own header (`example : Felt = Nat := rfl` tripwire)
-  warns this is consistent **only over an infinite carrier**. A compressing hash over
-  finite Goldilocks is never injective, so a concrete finite-field `RandomOracle` is
-  *uninhabited* and would make every downstream theorem vacuous. So we supply the
-  honest object — the computational `H` the idealized `ro.H` stands for — and leave
-  collision-resistance as the explicit, documented RO assumption on the spec side.
-  (The two Lean packages also stay decoupled: `qp-zk-circuits/formal` is intentionally
-  mathlib-free over `Felt = ℕ`, so we mirror its interface rather than import it.)
+- **No concrete `RandomOracle` instance *here* — deliberately (superseded in Step 5).**
+  At the time of Step 3c, `WormholeSpec.RandomOracle` bundled *total injectivity*, which is
+  consistent **only over an infinite carrier**: a compressing hash over finite Goldilocks is
+  never injective, so a concrete finite-field `RandomOracle` would have been *uninhabited* and
+  made every downstream theorem vacuous. So Step 3c supplied only the honest computational `H`
+  (the object `ro.H` stands for) and left the instantiation to later. **Step 5 removes this
+  obstruction** (the collision-resistance refactor drops the `injective` field), and
+  `Plonky2Bridge.spongeRO` *does* instantiate `RandomOracle` with this sponge.
 - **Differential test (the wrapper's faithfulness anchor).** The sponge *wrapper*
   (pad/absorb/squeeze) is not exporter-extracted, so a Rust test
   (`sponge_structure_matches_lean_model`) transliterates the Lean `pad10`/`addBlock`/
@@ -465,12 +464,60 @@ seam, as in Step 3c).
   enumerated in `Trusted.lean`.
 - *Checkpoint: review + commit.*
 
+### Step 5 — Collision-resistance refactor + the cross-package composition  ✅ DONE
+The seam Steps 2c/3c left open (`circuit ⟹ RL0` across the `ZMod.val ↔ Felt` boundary, with
+the oracle instantiated by the real hash) is now closed for the nullifier/hash path, and the
+trust stack is assembled into one statement.
+
+#### Step 5a — Collision resistance as an explicit assumption (`qp-zk-circuits/formal`)
+`WormholeSpec.RandomOracle` no longer carries the `injective` field; the hash is just
+`H : List Felt → Digest`, so the structure is inhabited over a *finite* field too (where an
+injective `H` cannot exist). Collision resistance is now the opt-in predicate
+`RandomOracle.CollisionResistant`. `Security.lean`/`LeafBinding.lean` are restated as
+**reductions** (`*_or_collision`, no assumption: a break *constructs* an `H` collision) plus
+**corollaries** under `CollisionResistant`. `Security.Demo.collapsingRO` exhibits a
+non-injective oracle that now inhabits `RandomOracle` (impossible under the old field).
+Reductions are axiom-free; corollaries standard-axioms-only.
+
+#### Step 5b — `spongeRO`: instantiate the oracle with the verified sponge (`Plonky2Bridge.lean`)
+With 5a, `Plonky2Bridge.spongeRO perm : WormholeSpec.RandomOracle := { H := spongeH perm }`
+realizes the spec oracle by the Step-3b/3c sponge — the first object to actually join the two
+packages. The `.val` seam is pinned: the input cast `ℕ → ZMod p` is non-injective
+(`spongeRO_not_collisionResistant`: `[0]`/`[p]` collide), the output `ZMod.val` is injective,
+and on **canonical** (`< p`) preimages a realized-oracle collision is exactly a field-level
+Poseidon2 collision (`spongeH_canonical_collision_is_field_collision` + converse).
+
+#### Step 5c — Wrapper-logic `.val` bridge (`Plonky2Bridge.lean`)
+The `Plonky2Spec.Wrapper` field gadget proofs are lifted across `.val` into the
+`WormholeSpec` building blocks: `valDigest`/`valDigest_bselect`, the headline
+`nullifier_slot_bridge` (a field `select(is_dummy, dnull, real)` slot read through `.val`
+equals `buildNullifiers`' per-slot body, with the dummy digest realized by `spongeRO`),
+`nullifiers_val_bridge` (list-level), and `layer0_val_RL0` (concludes a genuine `RL0
+(spongeRO perm) …`). `match_contribution_val`/`scan_val` lift the exit/reference primitives.
+What stays an explicit hypothesis is the public-input *decode* (which wire is which value) —
+the wiring/copy-constraint model (gap (a) below).
+
+#### Step 5d — End-to-end soundness over the verified sponge (`Plonky2Bridge.layer0_end_to_end`)
+The capstone the §1 trust stack builds toward, at the real hash: a satisfied layer-0
+aggregation circuit whose recursion accepted every child (i) satisfies `RL0`, (ii) conserves
+value (`outputExitTotal = rawOutputTotal`), and (iii) attests every child's `Rleaf`. Clauses
+(i)–(ii) are standard-axioms-only; (iii) pulls in *exactly* the two trusted recursion axioms
+from `Trusted.lean` (`#print axioms`-checked).
+- **Acceptance (met):** `lake build Plonky2Bridge` clean; all 5b–5d lemmas standard-axioms-only
+  except `layer0_end_to_end`, which adds only the documented trusted axioms; default
+  `Plonky2Spec` build and the hermetic spec build unaffected.
+- *Checkpoint: review + commit.*
+
 ## 9. Definition of done
 
 `R_leaf` fully bridged (T0–T3), `R_L0`/`R_L1` bridged modulo the enumerated
 trusted assumptions (T4 + layer 1), each gate proven **sound and complete** with
 its `Assumptions`/`Spec` split, CI green on all gates, and the trusted base
-documented in `Trusted.lean`. The remaining gap is exactly (a) the residual
-**wiring/copy-constraint** model fidelity (§3 — gate constraints are exporter-
-backed; routing is still hand-modeled) and (b) the layer-1 assumptions (§7) — both
+documented in `Trusted.lean`. The oracle is now instantiated by the concrete
+verified sponge (Step 5), and the nullifier/hash path of `circuit ⟹ RL0` is
+composed across `.val` end to end (`layer0_end_to_end`). The remaining gap is
+exactly (a) the residual **wiring/copy-constraint** model fidelity (§3 — gate
+constraints are exporter-backed and the wrapper *logic* is bridged, but the
+public-input **decode** that feeds the bridges its `hd`/`hnull`/`hexits`/… wire
+assignments is still hand-modeled) and (b) the layer-1 assumptions (§7) — both
 explicit.

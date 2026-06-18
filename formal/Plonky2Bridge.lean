@@ -176,6 +176,8 @@ open Plonky2Spec (IsBool bselect nullifier_replacement match_contribution scanSt
   firstRealVal scanFirst_correct)
 open WormholeSpec (LeafPublic Layer0Output isDummyL0 buildNullifiers RL0 Layer0Circuit
   layer0_bridge groupExits childPairs metadataConsistent referenceFromFirstReal)
+open WormholeSpec (outputExitTotal rawOutputTotal RL0_value_conservation LeafWitness Rleaf
+  LeafProofAccepted leaf_proof_sound)
 
 variable [Fact p.Prime]
 
@@ -306,5 +308,47 @@ theorem scan_val (xs : List (ZMod p × ZMod p)) (init : ZMod p)
     (hb : ∀ rv ∈ xs, IsBool rv.1) :
     ((List.foldl scanStep (0, init) xs).2).val = (firstRealVal init xs).val :=
   congrArg ZMod.val (scanFirst_correct xs init hb)
+
+/-! ## End-to-end layer-0 soundness over the verified sponge (the trust stack, assembled)
+
+  The capstone: for the *concrete* random oracle `spongeRO perm` (the Step-3b/3c verified
+  Poseidon2 sponge), a satisfied layer-0 aggregation circuit whose recursion gadget accepted
+  every child leaf proof
+
+    (i)   satisfies the layer-0 relation `RL0`                  — rung (2)→(3), via the wrapper
+                                                                  `.val` bridge `layer0_val_RL0`,
+                                                                  built on the exporter-verified
+                                                                  gadget semantics;
+    (ii)  conserves value (`outputExitTotal = rawOutputTotal`)  — rung (4), `RL0_value_conservation`;
+    (iii) attests every child's leaf relation `Rleaf`           — the trusted recursion seam (1),
+                                                                  `leaf_proof_sound`.
+
+  This is the single statement the PLAN's trust stack (§1) builds toward, instantiated at the
+  real hash. Two things sit *outside* the Lean hypotheses, by design:
+  * **Fidelity to the Rust** — that `spongeRO`/the wrapper gadgets *are* the deployed circuit —
+    is carried by the constraint exporter + differential tests (gate constraints ≡ real
+    `eval_unfiltered`, sponge ≡ `hash_no_pad`), not re-proved here.
+  * The public-input **decode** (`hd`/`hdnull`/`hreal`/`hnull`/`hexits`/`hmeta`/`href`) is the
+    wiring/copy-constraint model (PLAN §9 gap (a)).
+  The only trusted *axioms* this theorem depends on are the recursion/proof-system ones in
+  `WormholeSpec.Trusted` (pulled in solely by clause (iii)); clauses (i)–(ii) are
+  standard-axioms-only. -/
+theorem layer0_end_to_end (perm : St p → St p)
+    (triples : List (NullSlot p × LeafPublic × List WormholeSpec.Felt)) {out : Layer0Output}
+    (hb : ∀ t ∈ triples, IsBool t.1.isDummy)
+    (hd : ∀ t ∈ triples, t.1.isDummy = 1 ↔ isDummyL0 t.2.1)
+    (hdnull : ∀ t ∈ triples, valDigest t.1.dnull = (spongeRO perm).dummyNull t.2.2)
+    (hreal : ∀ t ∈ triples, valDigest t.1.real = t.2.1.nullifier)
+    (hnull : out.nullifiers = triples.map (fun t => t.1.out))
+    (hexits : out.exitSlots = groupExits (childPairs (triples.map (fun t => t.2.1))))
+    (hmeta : metadataConsistent (triples.map (fun t => t.2.1)) out)
+    (href : referenceFromFirstReal (triples.map (fun t => t.2.1)) out)
+    (hacc : ∀ pub ∈ triples.map (fun t => t.2.1), LeafProofAccepted (spongeRO perm) pub) :
+    RL0 (spongeRO perm) (triples.map (fun t => t.2.1)) (triples.map (fun t => t.2.2)) out
+      ∧ outputExitTotal out = rawOutputTotal (triples.map (fun t => t.2.1))
+      ∧ ∀ pub ∈ triples.map (fun t => t.2.1), ∃ w : LeafWitness, Rleaf (spongeRO perm) pub w := by
+  have hRL0 := layer0_val_RL0 perm triples hb hd hdnull hreal hnull hexits hmeta href
+  exact ⟨hRL0, RL0_value_conservation hRL0,
+    fun pub hp => leaf_proof_sound (spongeRO perm) pub (hacc pub hp)⟩
 
 end Plonky2Bridge
