@@ -37,6 +37,7 @@
 import Mathlib.Data.ZMod.Basic
 import WormholeSpec
 import Plonky2Spec.Sponge
+import Plonky2Spec.Wrapper
 
 namespace Plonky2Bridge
 
@@ -151,5 +152,159 @@ theorem field_collision_gives_spongeH_collision (perm : St p → St p) {x y : Li
     (h : spongeHash perm (emb x) = spongeHash perm (emb y)) :
     spongeH perm x = spongeH perm y := by
   simp only [spongeH, h]
+
+/-! ## The wrapper-logic `.val` seam (`Plonky2Spec.Wrapper` ⟶ `WormholeSpec.RL0` over `.val`)
+
+  Step 2c left the cross-package composition open: `Plonky2Spec.Wrapper` proves each layer-0
+  wrapper *gadget* (`select` / `and` / `or` / the first-real prefix scan) computes the right
+  conditional over `ZMod p`, while `WormholeSpec.AggregationBridge` proves
+  `Layer0Circuit ⟹ RL0` over `Felt = ℕ` — but nothing tied the two across the
+  `ZMod.val ↔ Felt` boundary. This section is that bridge: a field gadget output, read back
+  through `valDigest` / `ZMod.val`, equals the spec building block (`buildNullifiers`,
+  `matchSum`, `referenceFromFirstReal`), with the dummy-nullifier digest realized by the
+  verified sponge `spongeRO`. Composing the nullifier path end to end yields a genuine
+  `RL0 (spongeRO perm) …`.
+
+  What stays abstract is only the public-input *decode* — which field wire carries which
+  spec value (`hd`/`hdnull`/`hreal`/`hnull`/`hexits`/… below). That is the wiring/copy-
+  constraint model (PLAN §9 gap (a)), the separate next step; here it is the explicit
+  hypothesis boundary. The *gadget logic* behind each such hypothesis is the cited
+  `Plonky2Spec.Wrapper` lemma, lifted across `.val` by `valDigest_bselect` /
+  `match_contribution_val` / `scan_val`. -/
+
+open Plonky2Spec (IsBool bselect nullifier_replacement match_contribution scanStep
+  firstRealVal scanFirst_correct)
+open WormholeSpec (LeafPublic Layer0Output isDummyL0 buildNullifiers RL0 Layer0Circuit
+  layer0_bridge groupExits childPairs metadataConsistent referenceFromFirstReal)
+
+variable [Fact p.Prime]
+
+/-- Read four field lanes back as a spec `Digest` via `ZMod.val` (the output side of the
+    seam — `ZMod.val` is injective, so this direction loses nothing). -/
+def valDigest (f : Fin 4 → ZMod p) : Digest :=
+  ⟨(f 0).val, (f 1).val, (f 2).val, (f 3).val⟩
+
+/-- A boolean digest-select read through `.val`: the lanewise lift of
+    `Wrapper.nullifier_replacement`. Picks the `dnull` digest when the flag is set, else
+    `real`. -/
+theorem valDigest_bselect {is_dummy : ZMod p} {dnull real : Fin 4 → ZMod p}
+    (hb : IsBool is_dummy) :
+    valDigest (fun i => bselect is_dummy (dnull i) (real i))
+      = if is_dummy = 1 then valDigest dnull else valDigest real := by
+  by_cases h1 : is_dummy = 1
+  · have hfun : (fun i => bselect is_dummy (dnull i) (real i)) = dnull := by
+      funext i; rw [nullifier_replacement hb]; simp [h1]
+    rw [hfun, if_pos h1]
+  · have hfun : (fun i => bselect is_dummy (dnull i) (real i)) = real := by
+      funext i; rw [nullifier_replacement hb]; simp [h1]
+    rw [hfun, if_neg h1]
+
+/-- **The per-slot nullifier bridge.** A field nullifier slot — `select(is_dummy, dnull, real)`
+    lanewise — read through `.val` equals the spec's per-slot body of `buildNullifiers`, with
+    the dummy digest realized by the verified sponge oracle `spongeRO`. The hypotheses are the
+    decode/gadget facts: `is_dummy` is boolean and decodes the L0 dummy flag (`hd`), the
+    `dnull` lanes are the sponge double-hash of the witnessed preimage (`hdnull`, the T3
+    "gadget computes `H(H u)`" result — discharged by `spongeRO_dummyNull`), and the `real`
+    lanes are the child's nullifier. -/
+theorem nullifier_slot_bridge (perm : St p → St p) {is_dummy : ZMod p}
+    {dnull real : Fin 4 → ZMod p} {pub : LeafPublic} {u : List ℕ}
+    (hb : IsBool is_dummy)
+    (hd : is_dummy = 1 ↔ isDummyL0 pub)
+    (hdnull : valDigest dnull = (spongeRO perm).dummyNull u)
+    (hreal : valDigest real = pub.nullifier) :
+    valDigest (fun i => bselect is_dummy (dnull i) (real i))
+      = if isDummyL0 pub then (spongeRO perm).dummyNull u else pub.nullifier := by
+  rw [valDigest_bselect hb]
+  by_cases h1 : is_dummy = 1
+  · rw [if_pos h1, if_pos (hd.mp h1), hdnull]
+  · rw [if_neg h1, if_neg (fun hh => h1 (hd.mpr hh)), hreal]
+
+/-- Field witness for one nullifier slot, as the circuit lays it out: the boolean dummy
+    flag, the dummy-nullifier lanes, and the real-nullifier lanes. -/
+structure NullSlot (p : ℕ) where
+  isDummy : ZMod p
+  dnull : Fin 4 → ZMod p
+  real : Fin 4 → ZMod p
+
+/-- The field nullifier output of one slot, read back as a spec `Digest`. -/
+def NullSlot.out (s : NullSlot p) : Digest :=
+  valDigest (fun i => bselect s.isDummy (s.dnull i) (s.real i))
+
+omit [Fact p.Prime] in
+/-- `buildNullifiers` over leaves/preimages drawn from the same aligned witness list reduces
+    to a pointwise `map` of its per-slot body. -/
+theorem buildNullifiers_map (ro : RandomOracle)
+    (triples : List (NullSlot p × LeafPublic × List WormholeSpec.Felt)) :
+    buildNullifiers ro (triples.map (fun t => t.2.1)) (triples.map (fun t => t.2.2))
+      = triples.map (fun t => if isDummyL0 t.2.1 then ro.dummyNull t.2.2 else t.2.1.nullifier) := by
+  induction triples with
+  | nil => rfl
+  | cons t ts ih =>
+      obtain ⟨s, pub, u⟩ := t
+      simp only [List.map_cons, buildNullifiers]
+      rw [ih]
+
+/-- **List-level nullifier bridge.** Read through `.val`, the field nullifier outputs of an
+    aligned witness list are exactly `buildNullifiers (spongeRO perm) leaves us` — i.e. the
+    `Layer0Circuit.nulls` content, justified slotwise by `nullifier_slot_bridge`. -/
+theorem nullifiers_val_bridge (perm : St p → St p)
+    (triples : List (NullSlot p × LeafPublic × List WormholeSpec.Felt))
+    (hb : ∀ t ∈ triples, IsBool t.1.isDummy)
+    (hd : ∀ t ∈ triples, t.1.isDummy = 1 ↔ isDummyL0 t.2.1)
+    (hdnull : ∀ t ∈ triples, valDigest t.1.dnull = (spongeRO perm).dummyNull t.2.2)
+    (hreal : ∀ t ∈ triples, valDigest t.1.real = t.2.1.nullifier) :
+    triples.map (fun t => t.1.out)
+      = buildNullifiers (spongeRO perm) (triples.map (fun t => t.2.1))
+          (triples.map (fun t => t.2.2)) := by
+  rw [buildNullifiers_map]
+  apply List.map_congr_left
+  intro t ht
+  simp only [NullSlot.out]
+  exact nullifier_slot_bridge perm (hb t ht) (hd t ht) (hdnull t ht) (hreal t ht)
+
+/-- **Wrapper-logic `.val` composition (layer 0).** Given the field witnesses for the
+    nullifier slots (bridged slotwise above, the nullifier + Poseidon path closed end to end)
+    plus the remaining wrapper outputs as their `.val`-decoded spec values, the layer-0
+    circuit satisfies `RL0` for the verified-sponge oracle. The exit-grouping / metadata /
+    first-real-reference equalities are the explicit decode hypotheses; their *gadget logic*
+    is `Wrapper.{match_contribution, dedup_select, scanFirst_correct, real_block_matches}`
+    (lifted by `match_contribution_val` / `scan_val`), and wiring them out of the field
+    witness is the decode model (PLAN §9 gap (a)). -/
+theorem layer0_val_RL0 (perm : St p → St p)
+    (triples : List (NullSlot p × LeafPublic × List WormholeSpec.Felt)) {out : Layer0Output}
+    (hb : ∀ t ∈ triples, IsBool t.1.isDummy)
+    (hd : ∀ t ∈ triples, t.1.isDummy = 1 ↔ isDummyL0 t.2.1)
+    (hdnull : ∀ t ∈ triples, valDigest t.1.dnull = (spongeRO perm).dummyNull t.2.2)
+    (hreal : ∀ t ∈ triples, valDigest t.1.real = t.2.1.nullifier)
+    (hnull : out.nullifiers = triples.map (fun t => t.1.out))
+    (hexits : out.exitSlots = groupExits (childPairs (triples.map (fun t => t.2.1))))
+    (hmeta : metadataConsistent (triples.map (fun t => t.2.1)) out)
+    (href : referenceFromFirstReal (triples.map (fun t => t.2.1)) out) :
+    RL0 (spongeRO perm) (triples.map (fun t => t.2.1)) (triples.map (fun t => t.2.2)) out :=
+  layer0_bridge
+    { uslen := by simp [List.length_map]
+      nulls := by rw [hnull]; exact nullifiers_val_bridge perm triples hb hd hdnull hreal
+      exits := hexits
+      metaOk := hmeta
+      ref := href }
+
+/-! ### Supporting `.val` lifts for the exit-grouping and reference primitives -/
+
+/-- The exit-match contribution read through `.val`: `Wrapper.match_contribution` over the
+    seam. With the equality flag correct, the field `select(eq, amount, 0)` decodes to the
+    per-element body of `matchSum`, `if k = key then amount.val else 0`. -/
+theorem match_contribution_val {eq amount : ZMod p} {P : Prop} [Decidable P]
+    (hb : IsBool eq) (hP : eq = 1 ↔ P) :
+    (bselect eq amount 0).val = if P then amount.val else 0 := by
+  rw [match_contribution hb hP]
+  by_cases h : P <;> simp [h]
+
+/-- The first-real prefix scan read through `.val`: `Wrapper.scanFirst_correct` over the seam.
+    The scanned reference value equals the first real slot's value (the basis of
+    `referenceFromFirstReal`, applied per block-hash limb and the block number). -/
+theorem scan_val (xs : List (ZMod p × ZMod p)) (init : ZMod p)
+    (hb : ∀ rv ∈ xs, IsBool rv.1) :
+    ((List.foldl scanStep (0, init) xs).2).val = (firstRealVal init xs).val :=
+  congrArg ZMod.val (scanFirst_correct xs init hb)
 
 end Plonky2Bridge
