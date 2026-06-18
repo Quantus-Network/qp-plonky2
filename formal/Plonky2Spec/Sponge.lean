@@ -17,24 +17,27 @@
 
   WIDTH = 12, RATE = 8, CAPACITY = 4, digest = 4 felts (NUM_HASH_OUT_ELTS).
 
-  WHY THERE IS NO `RandomOracle` INSTANCE HERE.
-  --------------------------------------------
-  `WormholeSpec.RandomOracle` bundles `H` with a *total injectivity* idealization.
-  Its own module header (`qp-zk-circuits/formal/WormholeSpec/Hash.lean`, the
-  `example : Felt = Nat := rfl` tripwire) warns that this is consistent **only over
-  an infinite carrier**: a compressing hash over the finite Goldilocks field is never
-  injective, so a concrete finite-field `RandomOracle` is *uninhabited* and would make
-  every downstream theorem vacuous. Therefore we do **not** build a `RandomOracle`
-  value. What we provide is the honest object: the *computational* hash `H` that the
-  abstract `ro.H` stands for — the real `hash_no_pad` — together with the structural
-  facts the spec relies on (`hh`/`dummyNull` are exactly the double-sponge `H (H ·)`).
-  Collision-resistance stays an explicit RO assumption on the spec side; it is not,
-  and cannot be, discharged against the concrete sponge.
+  THE `RandomOracle` INSTANCE NOW LIVES IN `Plonky2Bridge`.
+  --------------------------------------------------------
+  This module mirrors `WormholeSpec`'s felt/digest interface locally rather than
+  importing it, so the spec package stays a mathlib-free leaf that builds in seconds.
+  The *instance* that actually joins the two packages — the literal
+  `WormholeSpec.RandomOracle` realized by this sponge — is built in the cross-package
+  bridge `Plonky2Bridge` (it imports both, on the mathlib side). It was the spec's
+  "option 2" refactor (collision resistance as an explicit hypothesis instead of a
+  baked-in `injective` field) that made that instance possible at all: over the finite
+  field an injective `H` cannot exist (pigeonhole), so the old `RandomOracle` was
+  uninhabited. What this module provides is the honest computational object the abstract
+  `ro.H` stands for — the real `hash_no_pad` — and the structural facts the spec relies
+  on (`hh`/`dummyNull` are exactly the double-sponge `H (H ·)`). Collision resistance
+  remains an explicit assumption; `Plonky2Bridge` pins down exactly what it means against
+  the concrete sponge (it is a *canonical-input* property — see the `.val` seam below).
 
   The carrier here is `ZMod p` (the native field, as in `Poseidon2.lean`); the spec
-  uses `Felt = ℕ`. The adapter casts inputs `ℕ → ZMod p` and reads digests back with
+  uses `Felt = ℕ`. The bridge casts inputs `ℕ → ZMod p` and reads digests back with
   `ZMod.val : ZMod p → ℕ`, mirroring the spec's `Digest` (whose `.val`s are the felt
-  outputs). For canonical (`< p`) felts the round-trip is the identity.
+  outputs). For canonical (`< p`) felts the round-trip is the identity; on non-canonical
+  felts the input cast is non-injective — the seam `Plonky2Bridge` makes precise.
 
   FAITHFULNESS OF THE WRAPPER. The permutation underneath is exporter-backed and
   `ring`-bridged (Step 3b). The sponge *wrapper* (`pad10`/`addBlock`/`absorbMsg`/
@@ -146,12 +149,12 @@ theorem spongeHash_short (perm : St p → St p) (inputs : List (ZMod p))
 /-! ### Bridge to the spec's `RandomOracle.H : List Felt → Digest`
 
 We mirror `WormholeSpec`'s felt/digest interface here (rather than importing it: that
-package is deliberately mathlib-free over `Felt = ℕ`, and — per its header — must
-stay over an abstract/infinite carrier so its injective-RO theorems are non-vacuous).
-The objects below are the *computational realization* the abstract `ro.H` stands for:
-inputs cast `ℕ → ZMod p`, the digest read back through `ZMod.val`. The point of the
-section is the structural identity `dummyNull = H (H ·)` — the exact composition the
-spec's `hh`/`dummyNull` use — discharged by `rfl`. -/
+package is deliberately mathlib-free, and keeping it a leaf preserves its
+seconds-long hermetic build). The objects below are the *computational realization*
+the abstract `ro.H` stands for: inputs cast `ℕ → ZMod p`, the digest read back through
+`ZMod.val`. The point of the section is the structural identity `dummyNull = H (H ·)` —
+the exact composition the spec's `hh`/`dummyNull` use — discharged by `rfl`. The literal
+`WormholeSpec.RandomOracle` instance over these is built in `Plonky2Bridge`. -/
 
 /-- The spec's felt carrier (`WormholeSpec.Felt`). -/
 abbrev Felt : Type := ℕ
