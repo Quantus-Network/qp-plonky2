@@ -237,11 +237,43 @@ consumes both.
   axioms` standard-only.
 - *Checkpoint: review + commit.*
 
-#### Step 2b — Constraint exporter (Rust)
-- Build the Rust exporter (symbolic `eval_unfiltered` → Lean), validated by
-  re-deriving the Step-1 range constraints **and** the 2a arithmetic constraint and
-  checking they match the hand models. Generalize the export.
-- **Acceptance:** exporter reproduces Step-1 + 2a constraints verbatim.
+#### Step 2b — Constraint exporter (Rust)  ✅ DONE
+Built `constraint-exporter/` (a workspace member, *not* in `default-members`):
+a Zellic-style symbolic exporter that runs each gate's **real**
+`Gate::eval_unfiltered` over a symbolic field and prints the constraint
+polynomials it emits — so the Lean model is mechanically derived from the gate
+code rather than hand-transcribed.
+- **How it works (`symbolic.rs`):** `Sym` is a `Copy` handle into a thread-local
+  expression arena (`Field: Copy` rules out a `Box` tree). It implements the full
+  `Field`/`PrimeField64`/`Poseidon`/`Frobenius<1>` stack (arithmetic ops build DAG
+  nodes; everything else is a stub, since `eval_unfiltered` for these gates never
+  inverts, hashes, or branches on a value). Gates are instantiated at extension
+  degree **`D = 1`**, where plonky2 blanket-implements `OEF/FieldExtension/
+  Extendable/PackedField` — the constraint *polynomials* are `D`-independent, so
+  this yields exactly the real constraints. Light identity folding keeps the DAG
+  in the same shape as the hand models (Horner reconstruction, `x·(x−1)` ranges).
+- **What it emits:** `formal/Plonky2Spec/Generated/Gates.lean` —
+  `arithmeticGate_c0` = `w3 − (w0·w1·c0 + w2·c1)` (T0), and `BaseSumGate<2>`'s
+  `baseSum2_c0` reconstruction `(w1 + 2·w2) − w0` plus per-limb range products
+  `wi·(wi − 1)` (T2). Regenerate with
+  `cargo run -p qp-plonky2-constraint-exporter --bin export-constraints`.
+- **Two-sided validation (this is the acceptance):**
+  1. *Rust differential test* (`cargo test -p qp-plonky2-constraint-exporter`):
+     the extracted DAGs, evaluated at 200 random points, match the real
+     `GoldilocksField` `eval_unfiltered` (run over the degree-2 extension) — i.e.
+     the symbolic arithmetic faithfully mirrors the field.
+  2. *Lean equivalence* (`Generated/Bridge.lean`): each extracted def is proved
+     **equal to the Step-1/2a hand model** by `ring`/`linear_combination`
+     (`arithmeticGate_c0 = 0 ↔ ArithmeticConstraint …`; `baseSum2_c0 = 0 ↔
+     reconstructF 2 [·,·] = sum`; `baseSum2_c{1,2} = limbRangeProduct 2 ·`). So the
+     exporter reproduces the Step-1 + 2a constraints verbatim, and `lake build`
+     now fails if the gate code and the spec ever diverge.
+- **CI:** `build-and-test-matrix` runs the differential test and a
+  `git diff --exit-code` staleness check on the generated file; `formal-spec`
+  builds the generated defs + bridge lemmas (`#print axioms` standard-only).
+- **Remaining (Step 3):** generalize the export to the Poseidon gates, whose
+  hundreds of constraints are exactly what a mechanical exporter is *for* — the
+  T0/T2 gates here validate the pipeline end to end first.
 - *Checkpoint: review + commit.*
 
 #### Step 2c — `R_L0` wrapper-logic bridge  ✅ DONE (field-level)

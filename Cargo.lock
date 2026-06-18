@@ -769,6 +769,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "qp-plonky2-constraint-exporter"
+version = "1.5.1"
+dependencies = [
+ "num",
+ "qp-plonky2",
+ "qp-plonky2-core",
+ "rand",
+ "serde",
+]
+
+[[package]]
 name = "qp-plonky2-core"
 version = "1.5.1"
 dependencies = [

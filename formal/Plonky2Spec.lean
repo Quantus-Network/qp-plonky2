@@ -20,6 +20,10 @@
   * `Plonky2Spec.Wrapper`    the layer-0 wrapper logic (nullifier replacement, exit
                              dedup, dummy flag, block consistency, first-real prefix
                              scan) bridged to the `RL0` building blocks
+  * `Plonky2Spec.Generated.Gates`  constraint polynomials auto-extracted from the
+                             real `Gate::eval_unfiltered` by the Rust exporter
+                             (`constraint-exporter/`), and `Generated.Bridge`,
+                             which pins them to the hand models by `ring` (2b)
 
   Methodology follows Zellic's *Formal Verification of a Plonky2 Gate*: each gadget
   separates an `Assumptions` side-condition (what the surrounding circuit must
@@ -31,3 +35,5 @@ import Plonky2Spec.RangeCheck
 import Plonky2Spec.Arithmetic
 import Plonky2Spec.Boolean
 import Plonky2Spec.Wrapper
+import Plonky2Spec.Generated.Gates
+import Plonky2Spec.Generated.Bridge

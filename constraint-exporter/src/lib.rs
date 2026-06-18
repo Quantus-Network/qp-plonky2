@@ -1,0 +1,185 @@
+//! qp-plonky2 constraint exporter.
+//!
+//! Symbolically executes plonky2 gates' real `Gate::eval_unfiltered` and emits
+//! the resulting constraint polynomials as Lean definitions, for the formal
+//! spec under `../formal`. See `../formal/PLAN.md` Step 2b and `symbolic.rs`.
+
+pub mod extract;
+pub mod render;
+pub mod symbolic;
+
+use core::fmt::Write as _;
+
+use extract::Extracted;
+
+fn emit(out: &mut String, e: &Extracted) {
+    // Parameter list: every gate wire then every gate constant.
+    let mut params = String::new();
+    for i in 0..e.num_wires {
+        let _ = write!(params, "w{i} ");
+    }
+    for i in 0..e.num_consts {
+        let _ = write!(params, "c{i} ");
+    }
+    debug_assert!(!params.is_empty(), "a gate with no wires/constants?");
+
+    for (idx, &c) in e.constraints.iter().enumerate() {
+        let _ = writeln!(
+            out,
+            "/-- `{name}` constraint #{idx}, extracted verbatim from \
+             `{name_rust}::eval_unfiltered`. -/",
+            name = e.name,
+            name_rust = e.name,
+        );
+        let _ = writeln!(
+            out,
+            "def {}_c{idx} ({}: ZMod p) : ZMod p :=\n  {}\n",
+            e.name,
+            params,
+            render::to_lean(c),
+        );
+    }
+}
+
+/// Build the full contents of `formal/Plonky2Spec/Generated/Gates.lean`.
+pub fn generate_lean() -> String {
+    let mut out = String::new();
+    out.push_str(
+        "/-\n\
+         \x20 AUTO-GENERATED — do not edit by hand.\n\n\
+         \x20 Produced by the `qp-plonky2-constraint-exporter` dev tool, which symbolically\n\
+         \x20 executes each gate's real `Gate::eval_unfiltered` (over a symbolic field) and\n\
+         \x20 prints the constraint polynomials it emits. Regenerate with:\n\n\
+         \x20     cargo run -p qp-plonky2-constraint-exporter --bin export-constraints\n\n\
+         \x20 Each `def …_c{i}` is the i-th constraint the gate forces to zero, with `w{j}`\n\
+         \x20 the j-th `local_wires` entry and `c{j}` the j-th `local_constants` entry.\n\
+         \x20 `Generated/Bridge.lean` proves each of these equals the corresponding\n\
+         \x20 hand-written model in `Arithmetic.lean` / `RangeCheck.lean` (by `ring`), so a\n\
+         \x20 drift between the gate code and the spec breaks `lake build`.\n\
+         -/\n\
+         import Mathlib.Algebra.Field.ZMod\n\n\
+         namespace Plonky2Spec.Generated\n\n\
+         -- Extracted defs carry every gate wire/constant as a parameter, so some are\n\
+         -- unused in a given constraint; that is intentional and not a code smell.\n\
+         set_option linter.unusedVariables false\n\n\
+         variable {p : ℕ}\n\n",
+    );
+    // Render each gate immediately after extracting it. The symbolic arena is a
+    // single thread-local cleared at the start of every extraction, so a handle
+    // is only valid until the *next* extraction — never hold handles from two
+    // gates at once. These gates are exactly those hand-modeled in
+    // `Arithmetic.lean` / `RangeCheck.lean`; `Generated/Bridge.lean` pins them.
+    emit(&mut out, &extract::arithmetic_gate());
+    // BaseSumGate<2>, 2 limbs: reconstruction `(w1 + 2·w2) − w0` plus one
+    // degree-2 range product `wi·(wi − 1)` per limb.
+    emit(&mut out, &extract::base_sum_gate::<2>(2, "baseSum2"));
+    out.push_str("end Plonky2Spec.Generated\n");
+    out
+}
+
+#[cfg(test)]
+mod tests {
+    use plonky2::field::extension::{Extendable, FieldExtension};
+    use plonky2::field::goldilocks_field::GoldilocksField;
+    use plonky2::field::types::Field;
+    use plonky2::gates::arithmetic_base::ArithmeticGate;
+    use plonky2::gates::base_sum::BaseSumGate;
+    use plonky2::gates::gate::Gate;
+    use plonky2::hash::hash_types::HashOut;
+    use plonky2::plonk::vars::EvaluationVars;
+    use symbolic::GOLDILOCKS_ORDER;
+
+    use super::*;
+
+    type GF = GoldilocksField;
+    type Ext2 = <GoldilocksField as Extendable<2>>::Extension;
+
+    /// Simple deterministic LCG so the differential test needs no `rand` plumbing.
+    struct Lcg(u64);
+    impl Lcg {
+        fn next(&mut self) -> GF {
+            self.0 = self
+                .0
+                .wrapping_mul(6364136223846793005)
+                .wrapping_add(1442695040888963407);
+            GF::from_canonical_u64(self.0 % GOLDILOCKS_ORDER)
+        }
+    }
+
+    /// Run the *real* gate over the degree-2 Goldilocks extension at a base-field
+    /// point (imaginary parts zero) and return the real component of each
+    /// constraint. Because the gate constraints are polynomials with base-field
+    /// coefficients, this equals the gate's constraint polynomial evaluated over
+    /// the base field — the ground truth the symbolic extraction must match.
+    fn real_eval(out_constraints: Vec<Ext2>) -> Vec<GF> {
+        out_constraints
+            .iter()
+            .map(|e| <Ext2 as FieldExtension<2>>::to_basefield_array(e)[0])
+            .collect()
+    }
+
+    fn embed(xs: &[GF]) -> Vec<Ext2> {
+        xs.iter().map(|&x| Ext2::from(x)).collect()
+    }
+
+    #[test]
+    fn arithmetic_extraction_matches_real_gate() {
+        let ex = extract::arithmetic_gate();
+        let mut rng = Lcg(0x0123_4567_89ab_cdef);
+        for _ in 0..200 {
+            let wires: Vec<GF> = (0..ex.num_wires).map(|_| rng.next()).collect();
+            let consts: Vec<GF> = (0..ex.num_consts).map(|_| rng.next()).collect();
+
+            let sym_vals: Vec<GF> = ex
+                .constraints
+                .iter()
+                .map(|&c| render::eval(c, &wires, &consts))
+                .collect();
+
+            let gate = ArithmeticGate { num_ops: 1 };
+            let we = embed(&wires);
+            let ce = embed(&consts);
+            let pih = HashOut::<GF>::ZERO;
+            let vars = EvaluationVars {
+                local_constants: &ce,
+                local_wires: &we,
+                public_inputs_hash: &pih,
+            };
+            let real = real_eval(<ArithmeticGate as Gate<GF, 2>>::eval_unfiltered(
+                &gate, vars,
+            ));
+
+            assert_eq!(sym_vals, real, "arithmetic gate constraint mismatch");
+        }
+    }
+
+    #[test]
+    fn base_sum_extraction_matches_real_gate() {
+        const NUM_LIMBS: usize = 2;
+        let ex = extract::base_sum_gate::<2>(NUM_LIMBS, "baseSum2");
+        let mut rng = Lcg(0xfeed_face_dead_beef);
+        for _ in 0..200 {
+            let wires: Vec<GF> = (0..ex.num_wires).map(|_| rng.next()).collect();
+
+            let sym_vals: Vec<GF> = ex
+                .constraints
+                .iter()
+                .map(|&c| render::eval(c, &wires, &[]))
+                .collect();
+
+            let gate = BaseSumGate::<2>::new(NUM_LIMBS);
+            let we = embed(&wires);
+            let pih = HashOut::<GF>::ZERO;
+            let vars = EvaluationVars {
+                local_constants: &[],
+                local_wires: &we,
+                public_inputs_hash: &pih,
+            };
+            let real = real_eval(<BaseSumGate<2> as Gate<GF, 2>>::eval_unfiltered(
+                &gate, vars,
+            ));
+
+            assert_eq!(sym_vals, real, "base sum gate constraint mismatch");
+        }
+    }
+}
