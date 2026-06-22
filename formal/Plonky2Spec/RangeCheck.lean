@@ -28,6 +28,7 @@ import Mathlib.Data.ZMod.Basic
 import Mathlib.Algebra.Field.ZMod
 import Mathlib.Algebra.BigOperators.GroupWithZero.Finset
 import Plonky2Spec.Basic
+import Plonky2Spec.Boolean
 
 namespace Plonky2Spec
 
@@ -186,20 +187,179 @@ theorem rangeCheck_complete {x : ZMod p} {n : ℕ}
 theorem rangeCheck_implies_inRange {x : ZMod p} {n : ℕ} (hn : 2 ^ n ≤ p)
     (h : rangeCheck x n) : inRange n x := rangeCheck_sound hn h
 
-/-! ### `enforce_target_less_than_const` -/
+/-! ### `enforce_target_less_than_const` (the `is_const_less_than` bit comparator)
 
-/-- `enforce_target_less_than_const(t, U, n_log)` (common/gadgets.rs:66): enforces
-    `t < U` (on canonical values). Internally it `split_le`s `t` to `n_log` bits
-    (this step's range core) and forces a bit-wise `is_const_less_than` comparator
-    boolean to `0`; the comparator's boolean-logic soundness rests on the T1 gadgets
-    and is discharged in Step 2. -/
-def enforceLessThanConst (t U : ZMod p) : Prop := t.val < U.val
+  `enforce_target_less_than_const(t, U, n_log)` (common/gadgets.rs:66) `split_le`s `t`
+  to `n_log` bits (the range core above) and forces the comparator
+  `is_const_less_than(U-1, t, n_log)` (gadgets.rs:32) to output `0`. We model that
+  comparator (`cmp`) and prove it computes `<` on the bit values, so the gadget's
+  *constraints* imply `t < U` — rather than positing the conclusion. -/
 
-/-- When the exclusive bound fits in `n_log` bits (`U.val ≤ 2^n_log`, the
-    `assert_comparison_width` precondition), the enforced `t < U` also yields the
-    spec range bound `inRange n_log t`. -/
+/-- Little-endian bit value: the `ℕ` a boolean bit list (least-significant first)
+    reconstructs to (`= reduce_with_powers(·, 2)`). -/
+def bitsVal (l : List (ZMod p)) : ℕ := reconstruct 2 (l.map ZMod.val)
+
+@[simp] theorem bitsVal_nil : bitsVal ([] : List (ZMod p)) = 0 := rfl
+
+theorem bitsVal_cons (a : ZMod p) (l : List (ZMod p)) :
+    bitsVal (a :: l) = a.val + 2 * bitsVal l := by
+  simp [bitsVal, List.map_cons, reconstruct_cons]
+
+/-- A boolean field bit decodes to `0`/`1`, both as a field element and as its `.val`. -/
+theorem isBool_val_cases {a : ZMod p} (h : IsBool a) :
+    (a = 0 ∧ a.val = 0) ∨ (a = 1 ∧ a.val = 1) := by
+  have hp1 : 1 < p := Nat.Prime.one_lt Fact.out
+  rcases h with h | h <;> subst h
+  · exact Or.inl ⟨rfl, by rw [show (0 : ZMod p) = ((0 : ℕ) : ZMod p) by simp,
+      ZMod.val_natCast_of_lt (by omega)]⟩
+  · exact Or.inr ⟨rfl, by rw [show (1 : ZMod p) = ((1 : ℕ) : ZMod p) by simp,
+      ZMod.val_natCast_of_lt hp1]⟩
+
+theorem bit_val_lt_two {a : ZMod p} (h : IsBool a) : a.val < 2 := by
+  rcases isBool_val_cases h with ⟨_, hv⟩ | ⟨_, hv⟩ <;> omega
+
+/-- An `n`-bit boolean list's value is `< 2^n` (no field wraparound). -/
+theorem bitsVal_lt {l : List (ZMod p)} (hb : ∀ x ∈ l, IsBool x) :
+    bitsVal l < 2 ^ l.length := by
+  unfold bitsVal
+  have hd : ∀ d ∈ l.map ZMod.val, d < 2 := by
+    intro d hd
+    rw [List.mem_map] at hd
+    obtain ⟨x, hx, rfl⟩ := hd
+    exact bit_val_lt_two (hb x hx)
+  have h := reconstruct_lt (by norm_num : 0 < 2) hd
+  rwa [List.length_map] at h
+
+/-- Per-bit "less than" through `.val`: with boolean bits, `¬a ∧ b` is `1` iff
+    `a.val < b.val`. -/
+theorem ltbit_val {a b : ZMod p} (ha : IsBool a) (hb : IsBool b) :
+    band (bnot a) b = 1 ↔ a.val < b.val := by
+  rw [band_eq_one (bnot_isBool ha) hb, bnot_eq_one]
+  rcases isBool_val_cases ha with ⟨ha0, hav⟩ | ⟨ha1, hav⟩ <;>
+    rcases isBool_val_cases hb with ⟨hb0, hbv⟩ | ⟨hb1, hbv⟩ <;> simp_all
+
+/-- Per-bit equality through `.val`. -/
+theorem bxnor_val {a b : ZMod p} (ha : IsBool a) (hb : IsBool b) :
+    bxnor a b = 1 ↔ a.val = b.val := by
+  rw [bxnor_eq_one ha hb]
+  rcases isBool_val_cases ha with ⟨ha0, hav⟩ | ⟨ha1, hav⟩ <;>
+    rcases isBool_val_cases hb with ⟨hb0, hbv⟩ | ⟨hb1, hbv⟩ <;> simp_all
+
+/-- The MSB-priority bit comparator `is_const_less_than` (gadgets.rs:32-61), as a
+    recursion over the bit lists (least-significant first; computes the same `lt`/`eq`
+    as the gadget's MSB-first scan). Each step is the gadget's per-bit logic:
+    `lt' = lt ∨ (eq ∧ ¬a ∧ b)` and `eq' = eq ∧ ¬(a ⊕ b)`. -/
+def cmp : List (ZMod p) → List (ZMod p) → ZMod p × ZMod p
+  | a :: xs, b :: ys =>
+      (bor (cmp xs ys).1 (band (cmp xs ys).2 (band (bnot a) b)),
+       band (cmp xs ys).2 (bxnor a b))
+  | _, _ => (0, 1)
+
+theorem cmp_fst (a b : ZMod p) (xs ys : List (ZMod p)) :
+    (cmp (a :: xs) (b :: ys)).1
+      = bor (cmp xs ys).1 (band (cmp xs ys).2 (band (bnot a) b)) := rfl
+
+theorem cmp_snd (a b : ZMod p) (xs ys : List (ZMod p)) :
+    (cmp (a :: xs) (b :: ys)).2 = band (cmp xs ys).2 (bxnor a b) := rfl
+
+theorem cmp_isBool : ∀ (xs ys : List (ZMod p)),
+    (∀ x ∈ xs, IsBool x) → (∀ y ∈ ys, IsBool y) →
+    IsBool (cmp xs ys).1 ∧ IsBool (cmp xs ys).2 := by
+  intro xs
+  induction xs with
+  | nil => intro ys _ _; cases ys <;> exact ⟨Or.inl rfl, Or.inr rfl⟩
+  | cons a xs ih =>
+    intro ys ha hb
+    cases ys with
+    | nil => exact ⟨Or.inl rfl, Or.inr rfl⟩
+    | cons b ys =>
+      have hatl : ∀ x ∈ xs, IsBool x := fun x hx => ha x (List.mem_cons_of_mem _ hx)
+      have hbtl : ∀ y ∈ ys, IsBool y := fun y hy => hb y (List.mem_cons_of_mem _ hy)
+      obtain ⟨hlt, heq⟩ := ih ys hatl hbtl
+      have ha0 : IsBool a := ha a List.mem_cons_self
+      have hb0 : IsBool b := hb b List.mem_cons_self
+      rw [cmp_fst, cmp_snd]
+      exact ⟨bor_isBool hlt (band_isBool heq (band_isBool (bnot_isBool ha0) hb0)),
+             band_isBool heq (bxnor_isBool ha0 hb0)⟩
+
+/-- **Comparator correctness.** On equal-length boolean bit lists, `cmp` computes the
+    value comparison: `lt = 1 ↔ as < bs` and `eq = 1 ↔ as = bs` (on `.val`). -/
+theorem cmp_spec : ∀ (xs ys : List (ZMod p)), xs.length = ys.length →
+    (∀ x ∈ xs, IsBool x) → (∀ y ∈ ys, IsBool y) →
+    ((cmp xs ys).1 = 1 ↔ bitsVal xs < bitsVal ys) ∧
+    ((cmp xs ys).2 = 1 ↔ bitsVal xs = bitsVal ys) := by
+  intro xs
+  induction xs with
+  | nil =>
+    intro ys hlen _ _
+    cases ys with
+    | nil =>
+      have h1 : (cmp ([] : List (ZMod p)) []).1 = 0 := rfl
+      have h2 : (cmp ([] : List (ZMod p)) []).2 = 1 := rfl
+      rw [h1, h2, bitsVal_nil]
+      exact ⟨by simp, by simp⟩
+    | cons b ys => simp at hlen
+  | cons a xs ih =>
+    intro ys hlen ha hb
+    cases ys with
+    | nil => simp at hlen
+    | cons b ys =>
+      have hlen' : xs.length = ys.length := by simpa using hlen
+      have hatl : ∀ x ∈ xs, IsBool x := fun x hx => ha x (List.mem_cons_of_mem _ hx)
+      have hbtl : ∀ y ∈ ys, IsBool y := fun y hy => hb y (List.mem_cons_of_mem _ hy)
+      have ha0 : IsBool a := ha a List.mem_cons_self
+      have hb0 : IsBool b := hb b List.mem_cons_self
+      obtain ⟨ihlt, iheq⟩ := ih ys hlen' hatl hbtl
+      obtain ⟨hltB, heqB⟩ := cmp_isBool xs ys hatl hbtl
+      have hav := bit_val_lt_two ha0
+      have hbv := bit_val_lt_two hb0
+      rw [bitsVal_cons, bitsVal_cons]
+      refine ⟨?_, ?_⟩
+      · rw [cmp_fst, bor_eq_one hltB (band_isBool heqB (band_isBool (bnot_isBool ha0) hb0)),
+            band_eq_one heqB (band_isBool (bnot_isBool ha0) hb0), ihlt, iheq, ltbit_val ha0 hb0]
+        omega
+      · rw [cmp_snd, band_eq_one heqB (bxnor_isBool ha0 hb0), iheq, bxnor_val ha0 hb0]
+        omega
+
+/-- The constraints `enforce_target_less_than_const(t, U, nlog)` imposes (gadgets.rs:66):
+    `t` `split_le`s into `nlog` bits, the constant `U-1` into the same width, and the
+    comparator's overflow flag `((U-1) < t)` is connected to `0`. -/
+def EnforceLessThanConst (t U : ZMod p) (nlog : ℕ) : Prop :=
+  ∃ tbits ubits : List (ZMod p),
+    (∀ x ∈ tbits, IsBool x) ∧ (∀ x ∈ ubits, IsBool x) ∧
+      tbits.length = nlog ∧ ubits.length = nlog ∧
+      reconstructF 2 tbits = t ∧ bitsVal ubits = U.val - 1 ∧ (cmp ubits tbits).1 = 0
+
+/-- **Soundness of `enforce_target_less_than_const`.** With no field wraparound
+    (`2^nlog ≤ p`) and a positive bound, the gadget's constraints *force* `t < U` on
+    canonical values: the comparator output being `0` rules out `U-1 < t`. -/
+theorem enforceLessThanConst_sound {t U : ZMod p} {nlog : ℕ}
+    (hp : 2 ^ nlog ≤ p) (hU : 0 < U.val) (h : EnforceLessThanConst t U nlog) :
+    t.val < U.val := by
+  obtain ⟨tbits, ubits, tbool, ubool, tlen, ulen, trecon, ubound, overflow⟩ := h
+  have htlt : bitsVal tbits < 2 ^ nlog := by
+    have h := bitsVal_lt tbool; rwa [tlen] at h
+  have htval : t.val = bitsVal tbits := by
+    have hcast : t = ((bitsVal tbits : ℕ) : ZMod p) := by
+      unfold bitsVal; rw [← trecon, reconstructF_eq_cast]
+    rw [hcast, ZMod.val_natCast_of_lt (lt_of_lt_of_le htlt hp)]
+  have hlen : ubits.length = tbits.length := by rw [ulen, tlen]
+  obtain ⟨hlt_iff, _⟩ := cmp_spec ubits tbits hlen ubool tbool
+  have hnot : ¬ bitsVal ubits < bitsVal tbits := by
+    intro hh
+    have hone : (cmp ubits tbits).1 = 1 := hlt_iff.mpr hh
+    rw [overflow] at hone
+    exact zero_ne_one hone
+  have hle : bitsVal tbits ≤ bitsVal ubits := Nat.not_lt.mp hnot
+  rw [ubound] at hle
+  rw [htval]; omega
+
+/-- When the exclusive bound fits in `nlog` bits (`U.val ≤ 2^nlog`, the
+    `assert_comparison_width` precondition), the enforced `t < U` also yields the spec
+    range bound `inRange nlog t`. -/
 theorem enforceLessThanConst_inRange {t U : ZMod p} {nlog : ℕ}
-    (h : enforceLessThanConst t U) (hU : U.val ≤ 2 ^ nlog) : inRange nlog t :=
-  lt_of_lt_of_le h hU
+    (hp : 2 ^ nlog ≤ p) (hU : 0 < U.val) (hUb : U.val ≤ 2 ^ nlog)
+    (h : EnforceLessThanConst t U nlog) : inRange nlog t :=
+  lt_of_lt_of_le (enforceLessThanConst_sound hp hU h) hUb
 
 end Plonky2Spec

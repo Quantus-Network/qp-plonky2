@@ -70,6 +70,38 @@ theorem bor_eq_one {a b : ZMod p} (ha : IsBool a) (hb : IsBool b) :
   rcases ha with ha | ha <;> rcases hb with hb | hb <;> subst ha <;> subst hb <;>
     simp [bor, zero_ne_one]
 
+/-! ### XOR and bit-equality (the comparator's `not_xor`, gadgets.rs:83-105) -/
+
+/-- `xor(a, b)` (gadgets.rs:93-105): `a + b − 2·a·b`. -/
+def bxor (a b : ZMod p) : ZMod p := a + b - 2 * (a * b)
+
+/-- `¬(a ⊕ b)`: the `not_xor` flag `is_const_less_than` threads as `eq` (gadgets.rs:56-57);
+    `1` iff the (boolean) bits agree. -/
+def bxnor (a b : ZMod p) : ZMod p := bnot (bxor a b)
+
+theorem bxor_isBool {a b : ZMod p} (ha : IsBool a) (hb : IsBool b) : IsBool (bxor a b) := by
+  unfold IsBool bxor
+  rcases ha with h | h <;> rcases hb with h' | h' <;> subst h <;> subst h'
+  · left; ring
+  · right; ring
+  · right; ring
+  · left; ring
+
+theorem bxnor_isBool {a b : ZMod p} (ha : IsBool a) (hb : IsBool b) : IsBool (bxnor a b) :=
+  bnot_isBool (bxor_isBool ha hb)
+
+/-- `bxnor` is bit-equality: `1` iff the bits are equal. Uses `(a−b)² = a+b−2ab` on
+    booleans (`a² = a`) and that a prime field has no zero divisors. -/
+theorem bxnor_eq_one {a b : ZMod p} (ha : IsBool a) (hb : IsBool b) :
+    bxnor a b = 1 ↔ a = b := by
+  have ha2 : a * a = a := by rcases ha with h | h <;> subst h <;> ring
+  have hb2 : b * b = b := by rcases hb with h | h <;> subst h <;> ring
+  have hsq : a + b - 2 * (a * b) = (a - b) * (a - b) := by
+    have h0 : (a - b) * (a - b) = a * a - 2 * (a * b) + b * b := by ring
+    rw [h0, ha2, hb2]; ring
+  rw [bxnor, bnot_eq_one, bxor, hsq, mul_self_eq_zero]
+  exact sub_eq_zero
+
 /-! ### Multiplexers: `_if` and `select` -/
 
 /-- `_if(b, x, y)` (arithmetic.rs:362-367): `b·x + (1−b)·y`. (`bif` is a Lean
