@@ -514,18 +514,12 @@ mod tests {
             let out = core::array::from_fn(|i| wires[Poseidon2Gate::<GF, 2>::wire_output(i)]);
 
             let ck_init = core::array::from_fn(|r| {
-                core::array::from_fn(|i| {
-                    wires[Poseidon2Gate::<GF, 2>::wire_ext_sbox(r + 1, i)]
-                })
+                core::array::from_fn(|i| wires[Poseidon2Gate::<GF, 2>::wire_ext_sbox(r + 1, i)])
             });
             let ck_term = core::array::from_fn(|r| {
-                core::array::from_fn(|i| {
-                    wires[Poseidon2Gate::<GF, 2>::wire_ext_sbox(4 + r, i)]
-                })
+                core::array::from_fn(|i| wires[Poseidon2Gate::<GF, 2>::wire_ext_sbox(4 + r, i)])
             });
-            let ck_i = core::array::from_fn(|r| {
-                wires[Poseidon2Gate::<GF, 2>::wire_int_sbox(r)]
-            });
+            let ck_i = core::array::from_fn(|r| wires[Poseidon2Gate::<GF, 2>::wire_int_sbox(r)]);
 
             let hand = hand_gate_constraints(
                 &params.ext_init,
