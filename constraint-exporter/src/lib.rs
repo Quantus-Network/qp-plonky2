@@ -370,7 +370,11 @@ mod tests {
         let sbox = extract::sbox7_prim();
         for _ in 0..200 {
             let x = rng.next();
-            assert_eq!(render::eval(sbox, &[x], &[]), sbox7_base(x), "sbox7 mismatch");
+            assert_eq!(
+                render::eval(sbox, &[x], &[]),
+                sbox7_base(x),
+                "sbox7 mismatch"
+            );
         }
 
         // mds_light_base: state w0..w11.
