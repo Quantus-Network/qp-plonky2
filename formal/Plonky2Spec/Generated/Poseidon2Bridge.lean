@@ -10,11 +10,13 @@
   meaning proof in `Plonky2Spec.Poseidon2` never expands them); here we `unseal`
   them locally to discharge the equalities.
 
-  What remains reviewed (not yet machine-checked here) is only the *round
+  What remains reviewed (not machine-checked in Lean) is only the *round
   composition* — how `Plonky2Spec.Poseidon2.gateConstraints` threads these
   primitives across the 4+22+4 rounds with the checkpoint wires — which mirrors
-  `eval_unfiltered` line-by-line and is covered end-to-end by the exporter's
-  differential test against the real gate.
+  `eval_unfiltered` line-by-line. The exporter differential test
+  `poseidon2_extraction_matches_real_gate` pins the flat extracted list; the
+  hand-model transliteration test `poseidon2_hand_gate_constraints_match_real_gate`
+  pins this structured walk (the input to `gate_sound_complete`).
 -/
 import Mathlib.Algebra.Field.ZMod
 import Mathlib.Algebra.BigOperators.Fin

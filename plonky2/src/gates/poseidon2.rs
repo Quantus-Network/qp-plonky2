@@ -473,6 +473,13 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2Gate<F, D> {
             _pd: PhantomData,
         }
     }
+
+    /// Baked round constants (`ext_init`, `ext_term`, `int_rc`, `diag`). Exposed for
+    /// formal-verification differential tests that transliterate the hand model
+    /// `Plonky2Spec.Poseidon2.gateConstraints`.
+    pub fn params(&self) -> &Poseidon2Params<F, D> {
+        &self.params
+    }
 }
 
 impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for Poseidon2Gate<F, D> {

@@ -142,8 +142,8 @@ pub fn generate_poseidon2_lean() -> String {
 /// `x^7`), so they are emitted inline. `Generated/Poseidon2Bridge.lean` proves each
 /// equals the hand model `Plonky2Spec.Poseidon2.{…}` by `ring`, so the arithmetic of
 /// the permutation is machine-checked against the live Rust — the structural round
-/// composition that `Plonky2Spec.Poseidon2.gateConstraints` builds from these
-/// primitives is the only remaining reviewed/diff-tested piece.
+/// composition in `Plonky2Spec.Poseidon2.gateConstraints` is differentially tested
+/// against `eval_unfiltered` by `poseidon2_hand_gate_constraints_match_real_gate`.
 pub fn generate_poseidon2_prims_lean() -> String {
     // Each extractor calls `reset()`, so render its result before the next call.
     let sbox = render::to_lean(extract::sbox7_prim());
@@ -407,6 +407,150 @@ mod tests {
                     "internal_mix lane {lane} mismatch",
                 );
             }
+        }
+    }
+
+    /// Differential test of the Step-3b hand model's *round composition*
+    /// (`formal/Plonky2Spec/Poseidon2.lean` `gateConstraints`) against the real
+    /// `Poseidon2Gate::eval_unfiltered`.
+    ///
+    /// The exporter-backed `Generated/Poseidon2.lean` is already checked by
+    /// `poseidon2_extraction_matches_real_gate`; the primitives are checked by
+    /// `poseidon2_primitives_match_real_helpers` + the Lean `Poseidon2Bridge` `ring`
+    /// lemmas. This test closes the remaining seam: the structured checkpointed
+    /// round walk in `gateConstraints` (the input to `gate_sound_complete`) matches
+    /// the live gate's constraint emission at random wire assignments.
+    #[test]
+    fn poseidon2_hand_gate_constraints_match_real_gate() {
+        use plonky2::gates::poseidon2::{
+            internal_mix_base, mds_light_base, sbox7_base, SPONGE_WIDTH,
+        };
+
+        /// One external round: `mdsLight (sboxAll (addRC rc s))` — mirrors `extRound`.
+        fn ext_round<F: Field>(rc: &[F; SPONGE_WIDTH], s: &[F; SPONGE_WIDTH]) -> [F; SPONGE_WIDTH] {
+            let mut tmp = core::array::from_fn(|i| s[i] + rc[i]);
+            for i in 0..SPONGE_WIDTH {
+                tmp[i] = sbox7_base(tmp[i]);
+            }
+            mds_light_base(&mut tmp);
+            tmp
+        }
+
+        /// Checkpointed external phase — mirrors `extConstrs`.
+        fn ext_constrs<F: Field>(
+            rcs: &[[F; SPONGE_WIDTH]],
+            cks: &[[F; SPONGE_WIDTH]],
+            s: &[F; SPONGE_WIDTH],
+        ) -> (Vec<F>, [F; SPONGE_WIDTH]) {
+            let mut constr = Vec::new();
+            let mut state = *s;
+            for (rc, ck) in rcs.iter().zip(cks.iter()) {
+                for i in 0..SPONGE_WIDTH {
+                    constr.push(state[i] + rc[i] - ck[i]);
+                }
+                let mut sboxed = core::array::from_fn(|i| sbox7_base(ck[i]));
+                mds_light_base(&mut sboxed);
+                state = sboxed;
+            }
+            (constr, state)
+        }
+
+        /// Checkpointed internal phase — mirrors `intConstrs`.
+        fn int_constrs<F: Field>(
+            diag: &[F; SPONGE_WIDTH],
+            rcs: &[F],
+            cks: &[F],
+            s: &[F; SPONGE_WIDTH],
+        ) -> (Vec<F>, [F; SPONGE_WIDTH]) {
+            let mut constr = Vec::new();
+            let mut state = *s;
+            for (rc, ck) in rcs.iter().zip(cks.iter()) {
+                constr.push(state[0] + *rc - *ck);
+                let mut next = state;
+                next[0] = sbox7_base(*ck);
+                state = internal_mix_base(&next, diag);
+            }
+            (constr, state)
+        }
+
+        /// Full gate constraint list — mirrors `gateConstraints`.
+        fn hand_gate_constraints(
+            ext_init: &[[GF; SPONGE_WIDTH]; 4],
+            ext_term: &[[GF; SPONGE_WIDTH]; 4],
+            int_rc: &[GF; 22],
+            diag: &[GF; SPONGE_WIDTH],
+            inp: &[GF; SPONGE_WIDTH],
+            out: &[GF; SPONGE_WIDTH],
+            ck_init: &[[GF; SPONGE_WIDTH]; 3],
+            ck_term: &[[GF; SPONGE_WIDTH]; 4],
+            ck_i: &[GF; 22],
+        ) -> Vec<GF> {
+            let mut preamble = *inp;
+            mds_light_base(&mut preamble);
+            let s0 = ext_round(&ext_init[0], &preamble);
+
+            let init_rcs = [ext_init[1], ext_init[2], ext_init[3]];
+            let (c1, s1) = ext_constrs(&init_rcs, ck_init, &s0);
+
+            let (c2, s2) = int_constrs(diag, int_rc, ck_i, &s1);
+
+            let term_rcs = [ext_term[0], ext_term[1], ext_term[2], ext_term[3]];
+            let (c3, s3) = ext_constrs(&term_rcs, ck_term, &s2);
+
+            let mut all = c1;
+            all.extend(c2);
+            all.extend(c3);
+            all.extend((0..SPONGE_WIDTH).map(|i| out[i] - s3[i]));
+            all
+        }
+
+        let gate = Poseidon2Gate::<GF, 2>::new();
+        let params = gate.params();
+        let mut rng = Lcg(0xface_feed_cafe_babe);
+        for _ in 0..16 {
+            let wires: Vec<GF> = (0..gate.num_wires()).map(|_| rng.next()).collect();
+
+            let inp = core::array::from_fn(|i| wires[Poseidon2Gate::<GF, 2>::wire_input(i)]);
+            let out = core::array::from_fn(|i| wires[Poseidon2Gate::<GF, 2>::wire_output(i)]);
+
+            let ck_init = core::array::from_fn(|r| {
+                core::array::from_fn(|i| {
+                    wires[Poseidon2Gate::<GF, 2>::wire_ext_sbox(r + 1, i)]
+                })
+            });
+            let ck_term = core::array::from_fn(|r| {
+                core::array::from_fn(|i| {
+                    wires[Poseidon2Gate::<GF, 2>::wire_ext_sbox(4 + r, i)]
+                })
+            });
+            let ck_i = core::array::from_fn(|r| {
+                wires[Poseidon2Gate::<GF, 2>::wire_int_sbox(r)]
+            });
+
+            let hand = hand_gate_constraints(
+                &params.ext_init,
+                &params.ext_term,
+                &params.int_rc,
+                &params.diag,
+                &inp,
+                &out,
+                &ck_init,
+                &ck_term,
+                &ck_i,
+            );
+
+            let we = embed(&wires);
+            let pih = HashOut::<GF>::ZERO;
+            let vars = EvaluationVars {
+                local_constants: &[],
+                local_wires: &we,
+                public_inputs_hash: &pih,
+            };
+            let real = real_eval(<Poseidon2Gate<GF, 2> as Gate<GF, 2>>::eval_unfiltered(
+                &gate, vars,
+            ));
+
+            assert_eq!(hand, real, "hand gateConstraints transliteration mismatch");
         }
     }
 

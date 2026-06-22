@@ -16,7 +16,10 @@
   the 22 compounding internal rounds (~3²² term size). Closing that last gap cleanly
   needs the exporter to emit a *round-factored* (share-preserving) Lean model — see
   `PLAN.md` Step 3b. The faithfulness of the transcription is meanwhile carried by
-  the differential test and the line-by-line correspondence documented below.
+  the differential test `poseidon2_hand_gate_constraints_match_real_gate`
+  (constraint-exporter), which transliterates this `gateConstraints` walk and compares
+  it to `eval_unfiltered` at random wire assignments, and by the line-by-line
+  correspondence documented below.
 
   Design (mirrors `Poseidon2Gate::eval_unfiltered`, plonky2/src/gates/poseidon2.rs):
   the gate is a *checkpointed* permutation. To cap each constraint at degree 7 it
