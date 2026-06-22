@@ -140,6 +140,45 @@ jobs:
             exit 1
           fi
 
+  # The headline deliverable (`Plonky2Bridge.layer0_end_to_end`) lives outside
+  # `defaultTargets`, so the `formal-spec` job above never compiles it. This job
+  # builds the cross-package bridge (wormholeSpec pinned in lake-manifest.json) and
+  # asserts the capstone's axiom footprint is exactly `leaf_proof_sound` plus the
+  # standard Lean axioms — not e.g. `layer0_proof_sound` or a silent compile failure.
+  formal-bridge:
+    name: 📐 Formal Bridge (Lean)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Soft gate while the GitHub-sourced wormholeSpec dep stabilizes; flip to false once green.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare Lean toolchain + mathlib cache
+        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1.5.0
+        with:
+          lake-package-directory: "formal"
+          use-mathlib-cache: "true"
+      - name: Build Plonky2Bridge (cross-package capstone)
+        run: cd formal && lake build Plonky2Bridge
+      - name: Assert layer0_end_to_end axiom footprint
+        run: |
+          set -euo pipefail
+          cd formal
+          output=$(lake env lean ci/AxiomsCheck.lean 2>&1)
+          printf '%s\n' "$output"
+          if ! grep -q 'depends on axioms' <<< "$output"; then
+            echo "::error::could not read #print axioms for Plonky2Bridge.layer0_end_to_end"
+            exit 1
+          fi
+          wormhole_axioms=$(grep -oE 'WormholeSpec\.[a-zA-Z0-9_]+' <<< "$output" | sort -u || true)
+          expected='WormholeSpec.leaf_proof_sound'
+          if [ "$wormhole_axioms" != "$expected" ]; then
+            echo "::error::layer0_end_to_end WormholeSpec axiom footprint mismatch"
+            echo "expected exactly: $expected"
+            echo "got: ${wormhole_axioms:-<none>}"
+            exit 1
+          fi
+
   security-audit:
     name: 🔒 Security Audit
     needs: fast-checks
