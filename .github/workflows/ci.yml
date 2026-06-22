@@ -129,11 +129,13 @@ jobs:
           use-mathlib-cache: "true"
           leanchecker: "true"
       # No-`sorry` gate: the model must stay gap-free. Fail if any proof term uses a
-      # `sorry`/`admit`/`sorryAx` placeholder. (Keep those literal words out of
-      # comments/strings under `formal/` so this stays a clean signal.)
+      # `sorry`/`admit`/`sorryAx` placeholder. Exclude `.lake/` — after `lake build`
+      # mathlib (and other deps) live there and legitimately contain `sorry` in tactic
+      # docs/examples. (Keep those literal words out of comments/strings in our sources
+      # under `formal/` so this stays a clean signal.)
       - name: Assert the spec contains no sorry/admit
         run: |
-          if grep -rEn '\b(sorry|admit|sorryAx)\b' --include='*.lean' formal; then
+          if grep -rEn '\b(sorry|admit|sorryAx)\b' --include='*.lean' formal --exclude-dir=.lake; then
             echo "::error::formal spec contains a sorry/admit placeholder"
             exit 1
           fi
