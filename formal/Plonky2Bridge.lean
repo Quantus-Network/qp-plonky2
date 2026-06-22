@@ -32,7 +32,7 @@
   and it matches `WormholeSpec.Encoding`'s `{0, p}` non-canonical collision finding.
 
   This module imports BOTH packages and is deliberately kept out of `defaultTargets`, so
-  the hermetic `Plonky2Spec` build (and its sibling-free CI job) is unaffected.
+  the hermetic `Plonky2Spec` build (and its `wormholeSpec`-free CI job) is unaffected.
 -/
 import Mathlib.Data.ZMod.Basic
 import WormholeSpec
@@ -330,9 +330,10 @@ theorem scan_val (xs : List (ZMod p × ZMod p)) (init : ZMod p)
     `eval_unfiltered`, sponge ≡ `hash_no_pad`), not re-proved here.
   * The public-input **decode** (`hd`/`hdnull`/`hreal`/`hnull`/`hexits`/`hmeta`/`href`) is the
     wiring/copy-constraint model (PLAN §9 gap (a)).
-  The only trusted *axioms* this theorem depends on are the recursion/proof-system ones in
-  `WormholeSpec.Trusted` (pulled in solely by clause (iii)); clauses (i)–(ii) are
-  standard-axioms-only. -/
+  The only trusted *axiom* this theorem depends on is the recursion/proof-system soundness
+  fact `leaf_proof_sound` in `WormholeSpec.Trusted` (pulled in solely by clause (iii)); the
+  acceptance predicate `LeafProofAccepted` is `opaque`, not an axiom, so the `hacc`
+  hypothesis adds nothing to the trusted set. Clauses (i)–(ii) are standard-axioms-only. -/
 theorem layer0_end_to_end (perm : St p → St p)
     (triples : List (NullSlot p × LeafPublic × List WormholeSpec.Felt)) {out : Layer0Output}
     (hb : ∀ t ∈ triples, IsBool t.1.isDummy)

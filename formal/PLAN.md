@@ -439,20 +439,24 @@ Landed in **`qp-zk-circuits/formal/WormholeSpec`** (not `Plonky2Spec`): the rela
 duplication; instead the bridge is stated where the relations are, and the
 gadget-fidelity half stays in `Plonky2Spec.Wrapper` (composed at the `ZMod.val ↔ Felt`
 seam, as in Step 3c).
-- **`WormholeSpec/Trusted.lean` (the trusted base, fully enumerated).** Explicit
-  `axiom`s: abstract acceptance predicates `LeafProofAccepted` / `Layer0ProofAccepted`
-  (what `add_recursive_verifiers → verify_proof` attests under the baked child VK), and
-  the `verify_proof`-soundness axioms `leaf_proof_sound` (`accepted ⟹ ∃ w, Rleaf`) and
-  `layer0_proof_sound` (`accepted ⟹ ∃ leaves us, RL0`). Each is documented with what it
-  asserts, its justification (proof-system soundness (1): FRI/Plonk/Fiat–Shamir-QROM/
-  recursion), and what it would take to discharge.
+- **`WormholeSpec/Trusted.lean` (the trusted base, fully enumerated).** The abstract
+  acceptance predicates `LeafProofAccepted` / `Layer0ProofAccepted` (what
+  `add_recursive_verifiers → verify_proof` attests under the baked child VK) are `opaque`,
+  not `axiom`s — they assert nothing, so they stay out of the trusted axiom set. The only
+  genuine `axiom`s are the two `verify_proof`-soundness facts `leaf_proof_sound`
+  (`accepted ⟹ ∃ w, Rleaf`) and `layer0_proof_sound` (`accepted ⟹ ∃ leaves us, RL0`).
+  Each is documented with what it asserts, its justification (proof-system soundness (1):
+  FRI/Plonk/Fiat–Shamir-QROM/recursion), and what it would take to discharge.
 - **`WormholeSpec/AggregationBridge.lean` (the bridge lemmas).** Models the L0/L1
   wrapper constraints (`build_layer{0,1}_wrapper_constraints`) as the facts the circuit
-  enforces on decoded public inputs (`Layer0Circuit` / `Layer1Circuit`) and proves:
-  - `layer0_bridge : Layer0Circuit ⟹ RL0`, `layer1_bridge : Layer1Circuit ⟹ RL1`
-    (the select/grouping/scan outputs give `nullifiersReplaced`, `groupExits`, the
-    metadata/reference clauses; `nullifiersReplaced_build`/`buildNullifiers_length`
-    discharge the per-slot select and the length bookkeeping by induction);
+  enforces on decoded public inputs (`Layer0Circuit`; `Layer1Circuit`) and proves:
+  - `layer0_bridge : Layer0Circuit ⟹ RL0` — the substantive bridge: the select/grouping/
+    scan outputs give `nullifiersReplaced`, `groupExits`, the metadata/reference clauses,
+    with `nullifiersReplaced_build`/`buildNullifiers_length` discharging the per-slot select
+    and the length bookkeeping by induction;
+  - `layer1_bridge : Layer1Circuit ⟹ RL1` — the layer-1 wrapper conditions are
+    field-for-field `RL1`, so `Layer1Circuit` is *defined as* `RL1` (an `abbrev`) and the
+    bridge is definitionally the identity (no L1 analogue of the layer-0 select/grouping);
   - `layer0_sound` / `layer1_sound`: a satisfied aggregation circuit whose recursion
     gadget accepted every child attests **both** its own relation (`RL0`/`RL1`) **and**
     each child's relation (`Rleaf` / inner `RL0`), via the trusted axioms.

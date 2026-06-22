@@ -16,8 +16,8 @@
 # fetches the cache instead of compiling mathlib from source.
 # `defaultTargets` is *only* `Plonky2Spec`: the hermetic `lake build` (and the
 # `formal-spec` CI job) build the mathlib gadget model alone, with no dependency on
-# the sibling `qp-zk-circuits` checkout. The cross-package bridge below is an explicit,
-# opt-in target (`lake build Plonky2Bridge`).
+# the `qp-zk-circuits` spec package. The cross-package bridge below is an explicit,
+# opt-in target (`lake build Plonky2Bridge`) that pulls the spec from GitHub.
 defaultTargets = ["Plonky2Spec"]
 name = "plonky2Spec"
 
@@ -26,13 +26,17 @@ name = "mathlib"
 scope = "leanprover-community"
 version = "git#v4.30.0"
 
-# The spec package (`qp-zk-circuits/formal`), pulled in as a light *local* dependency
-# for the composition bridge only (PLAN.md §6). It is mathlib-free and builds in
-# seconds; requiring it here does not affect the `Plonky2Spec` default build. Assumes
-# the two repos are checked out as siblings.
+# The spec package (`qp-zk-circuits/formal`), pulled in as a light dependency for the
+# composition bridge only (PLAN.md §6). It is mathlib-free and builds in seconds;
+# requiring it here does not affect the `Plonky2Spec` default build. Sourced from the
+# `Quantus-Network/qp-zk-circuits` GitHub repo (the `formal/` subdir) at `main`, so no
+# sibling checkout is needed; `lake-manifest.json` pins the exact resolved commit
+# (bump with `lake update wormholeSpec`).
 [[require]]
 name = "wormholeSpec"
-path = "../../qp-zk-circuits/formal"
+git = "https://github.com/Quantus-Network/qp-zk-circuits.git"
+rev = "main"
+subDir = "formal"
 
 [[lean_lib]]
 name = "Plonky2Spec"
@@ -40,6 +44,6 @@ name = "Plonky2Spec"
 # The composition bridge (PLAN.md §6): instantiates the spec's `WormholeSpec.RandomOracle`
 # with the concrete finite-field Poseidon2 sponge and pins down the `.val` carrier seam.
 # Imports BOTH packages, so it is kept out of `defaultTargets` to preserve the hermetic,
-# mathlib-free spec build and the sibling-free `Plonky2Spec` CI job.
+# mathlib-free spec build and the `wormholeSpec`-free `Plonky2Spec` CI job.
 [[lean_lib]]
 name = "Plonky2Bridge"
