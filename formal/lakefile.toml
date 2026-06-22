@@ -28,14 +28,14 @@ version = "git#v4.30.0"
 
 # The spec package (`qp-zk-circuits/formal`), pulled in as a light dependency for the
 # composition bridge only (PLAN.md §6). It is mathlib-free and builds in seconds;
-# requiring it here does not affect the `Plonky2Spec` default build. Sourced from the
-# `Quantus-Network/qp-zk-circuits` GitHub repo (the `formal/` subdir) at `main`, so no
-# sibling checkout is needed; `lake-manifest.json` pins the exact resolved commit
-# (bump with `lake update wormholeSpec`).
+# requiring it here does not affect the `Plonky2Spec` default build. Pinned to an
+# explicit commit (not a floating branch) so the trust-anchoring artifact is
+# reproducible from `lakefile.toml` alone; bump with `lake update wormholeSpec` after
+# advancing the pin when qp-zk-circuits formal changes land.
 [[require]]
 name = "wormholeSpec"
 git = "https://github.com/Quantus-Network/qp-zk-circuits.git"
-rev = "main"
+rev = "ce68068f85395c072969c0694554f55d63810b9d"
 subDir = "formal"
 
 [[lean_lib]]

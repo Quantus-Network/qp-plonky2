@@ -33,6 +33,16 @@
 
   This module imports BOTH packages and is deliberately kept out of `defaultTargets`, so
   the hermetic `Plonky2Spec` build (and its `wormholeSpec`-free CI job) is unaffected.
+
+  TRUST BOUNDARY WITH `qp-zk-circuits/formal`.
+  ------------------------------------------------
+  The capstone (`layer0_end_to_end`) composes *this* package's sponge/wrapper `.val` bridge
+  with definitions and lemmas from the pinned `wormholeSpec` dependency (`RL0`,
+  `layer0_bridge`, `RL0_value_conservation`, `leaf_proof_sound`, …). Those objects are
+  stated and proved (or axiomatized, for `leaf_proof_sound`) in qp-zk-circuits/formal at
+  the commit pinned in `formal/lakefile.toml` — this PR does not restate or re-verify them.
+  What *is* new here: `spongeRO`, the `.val` seam, and the wrapper nullifier path into
+  `RL0 (spongeRO perm) …`.
 -/
 import Mathlib.Data.ZMod.Basic
 import WormholeSpec
