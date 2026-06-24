@@ -359,10 +359,10 @@ mod tests {
     /// to the live Rust code at random base-field points.
     #[test]
     fn poseidon2_primitives_match_real_helpers() {
-        use plonky2::gates::poseidon2::{
-            formal_export::{internal_mix_base, mds_light_base, sbox7_base},
-            SPONGE_WIDTH,
+        use plonky2::gates::poseidon2::formal_export::{
+            internal_mix_base, mds_light_base, sbox7_base,
         };
+        use plonky2::gates::poseidon2::SPONGE_WIDTH;
 
         let mut rng = Lcg(0xdead_d00d_face_b00c);
 
@@ -423,10 +423,10 @@ mod tests {
     /// the live gate's constraint emission at random wire assignments.
     #[test]
     fn poseidon2_hand_gate_constraints_match_real_gate() {
-        use plonky2::gates::poseidon2::{
-            formal_export::{internal_mix_base, mds_light_base, sbox7_base},
-            SPONGE_WIDTH,
+        use plonky2::gates::poseidon2::formal_export::{
+            internal_mix_base, mds_light_base, sbox7_base,
         };
+        use plonky2::gates::poseidon2::SPONGE_WIDTH;
 
         /// One external round: `mdsLight (sboxAll (addRC rc s))` — mirrors `extRound`.
         fn ext_round<F: Field>(rc: &[F; SPONGE_WIDTH], s: &[F; SPONGE_WIDTH]) -> [F; SPONGE_WIDTH] {
