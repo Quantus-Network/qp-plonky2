@@ -11,7 +11,9 @@ use plonky2::gates::arithmetic_base::ArithmeticGate;
 use plonky2::gates::base_sum::BaseSumGate;
 use plonky2::gates::gate::Gate;
 use plonky2::gates::poseidon2::{
-    internal_mix_base, mds_light_base, sbox7_base, Poseidon2Gate, SPONGE_WIDTH,
+    formal_export::{internal_mix_base, mds_light_base, sbox7_base},
+    Poseidon2Gate,
+    SPONGE_WIDTH,
 };
 use plonky2::hash::hash_types::HashOut;
 use plonky2::plonk::vars::EvaluationVars;

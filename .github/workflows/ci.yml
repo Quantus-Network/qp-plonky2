@@ -143,14 +143,13 @@ jobs:
   # The headline deliverable (`Plonky2Bridge.layer0_end_to_end`) lives outside
   # `defaultTargets`, so the `formal-spec` job above never compiles it. This job
   # builds the cross-package bridge (wormholeSpec pinned in lake-manifest.json) and
-  # asserts the capstone's axiom footprint is exactly `leaf_proof_sound` plus the
-  # standard Lean axioms — not e.g. `layer0_proof_sound` or a silent compile failure.
+  # asserts the capstone's axiom footprint is exactly the standard Lean axioms plus
+  # `WormholeSpec.leaf_proof_sound` — not e.g. `layer0_proof_sound`, `sorryAx`,
+  # `Lean.ofReduceBool`, or a silent compile failure.
   formal-bridge:
     name: 📐 Formal Bridge (Lean)
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    # Soft gate while the GitHub-sourced wormholeSpec dep stabilizes; flip to false once green.
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - name: Prepare Lean toolchain + mathlib cache
@@ -170,12 +169,18 @@ jobs:
             echo "::error::could not read #print axioms for Plonky2Bridge.layer0_end_to_end"
             exit 1
           fi
-          wormhole_axioms=$(grep -oE 'WormholeSpec\.[a-zA-Z0-9_]+' <<< "$output" | sort -u || true)
-          expected='WormholeSpec.leaf_proof_sound'
-          if [ "$wormhole_axioms" != "$expected" ]; then
-            echo "::error::layer0_end_to_end WormholeSpec axiom footprint mismatch"
-            echo "expected exactly: $expected"
-            echo "got: ${wormhole_axioms:-<none>}"
+          axioms=$(sed -n '/depends on axioms:/,/]/p' <<< "$output" | tr -d '\n' | sed 's/.*\[\(.*\)\].*/\1/' | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | grep -v '^$' | sort)
+          expected=$(printf '%s\n' \
+            'propext' \
+            'Classical.choice' \
+            'Quot.sound' \
+            'WormholeSpec.leaf_proof_sound' | sort)
+          if [ "$axioms" != "$expected" ]; then
+            echo "::error::layer0_end_to_end axiom footprint mismatch"
+            echo "expected exactly:"
+            printf '  %s\n' "$expected"
+            echo "got:"
+            printf '  %s\n' "$axioms"
             exit 1
           fi
 
