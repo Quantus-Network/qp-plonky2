@@ -134,8 +134,9 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2Params<F, D> {
 
 use crate::field::types::PrimeField64;
 
+// `formal-export` re-exports these for `qp-plonky2-constraint-exporter` (see `../formal/PLAN.md` 3b).
 #[inline(always)]
-fn sbox7_base<F: Field>(x: F) -> F {
+pub(crate) fn sbox7_base<F: Field>(x: F) -> F {
     let x2 = x.square();
     let x4 = x2.square();
     let x3 = x * x2;
@@ -233,7 +234,7 @@ fn apply_mat4_base<F: Field>(a: F, b: F, c: F, d: F) -> [F; 4] {
 }
 
 #[inline(always)]
-fn mds_light_base<F: Field>(s: &mut [F; SPONGE_WIDTH]) {
+pub(crate) fn mds_light_base<F: Field>(s: &mut [F; SPONGE_WIDTH]) {
     let [y0, y1, y2, y3] = apply_mat4_base(s[0], s[1], s[2], s[3]);
     let [y4, y5, y6, y7] = apply_mat4_base(s[4], s[5], s[6], s[7]);
     let [y8, y9, y10, y11] = apply_mat4_base(s[8], s[9], s[10], s[11]);
@@ -330,7 +331,7 @@ fn mds_light_ext<F: RichField + Extendable<D>, const D: usize>(
 }
 
 #[inline(always)]
-fn internal_mix_base<F: Field>(
+pub(crate) fn internal_mix_base<F: Field>(
     x: &[F; SPONGE_WIDTH],
     diag: &[F; SPONGE_WIDTH],
 ) -> [F; SPONGE_WIDTH] {
@@ -343,6 +344,35 @@ fn internal_mix_base<F: Field>(
         y[i] = diag[i] * x[i] + sum;
     }
     y
+}
+
+#[cfg(feature = "formal-export")]
+#[doc(hidden)]
+pub mod formal_export {
+    use plonky2_field::types::Field;
+
+    use super::{
+        internal_mix_base as internal_mix_base_impl, mds_light_base as mds_light_base_impl,
+        sbox7_base as sbox7_base_impl, SPONGE_WIDTH,
+    };
+
+    #[inline(always)]
+    pub fn sbox7_base<F: Field>(x: F) -> F {
+        sbox7_base_impl(x)
+    }
+
+    #[inline(always)]
+    pub fn mds_light_base<F: Field>(s: &mut [F; SPONGE_WIDTH]) {
+        mds_light_base_impl(s);
+    }
+
+    #[inline(always)]
+    pub fn internal_mix_base<F: Field>(
+        x: &[F; SPONGE_WIDTH],
+        diag: &[F; SPONGE_WIDTH],
+    ) -> [F; SPONGE_WIDTH] {
+        internal_mix_base_impl(x, diag)
+    }
 }
 
 #[inline(always)]
@@ -467,6 +497,12 @@ impl<F: RichField + Extendable<D>, const D: usize> Poseidon2Gate<F, D> {
             ),
             _pd: PhantomData,
         }
+    }
+
+    #[cfg(feature = "formal-export")]
+    #[doc(hidden)]
+    pub fn params(&self) -> &Poseidon2Params<F, D> {
+        &self.params
     }
 }
 

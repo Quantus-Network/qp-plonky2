@@ -69,6 +69,23 @@ jobs:
         run: cargo check --package qp-plonky2 --no-default-features
       - name: Test
         run: cargo test --release
+      # The constraint exporter is a formal-verification dev tool (not in
+      # `default-members`, so the commands above skip it). Its differential tests
+      # check, at random points, that (a) the symbolically-extracted gate constraints
+      # match the real `GoldilocksField` `eval_unfiltered`, (b) the extracted Poseidon2
+      # primitives match the real helpers, and (c) the Lean sponge model's wrapper
+      # matches `Poseidon2Hash::hash_no_pad` — the Rust half of the guarantees whose
+      # Lean half is the `Bridges/*Bridge.lean` `ring` lemmas and `Sponge.lean`.
+      - name: Test constraint exporter (extraction == real gate)
+        run: cargo test --release -p qp-plonky2-constraint-exporter
+      # Guard against a stale committed generated Lean: regenerate from the live
+      # gate code and fail if it differs from what is checked in. Run once (Linux).
+      - name: Check generated Lean is up to date
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cargo run --release -p qp-plonky2-constraint-exporter --bin export-constraints >/dev/null
+          git diff --exit-code -- formal/Plonky2Spec/Generated/ \
+            || (echo "::error::formal/Plonky2Spec/Generated/ is stale; rerun the exporter" && exit 1)
 
   analysis:
     name: 🤖 Analysis (Doc)
@@ -88,6 +105,84 @@ jobs:
         run: rustup component add rust-src
       - name: Run doc
         run: cargo doc --no-deps
+
+  formal-spec:
+    name: 📐 Formal Spec (Lean)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      # Builds the Lean 4 gadget→constraint model under `formal/` (see formal/PLAN.md).
+      # `lake build` type-checks every proof in the kernel, so a later edit that
+      # breaks a proof fails CI instead of rotting silently. elan/lake come from
+      # `formal/lean-toolchain` (Lean v4.30). `leanchecker` re-checks the compiled
+      # environment with an independent kernel checker (bundled on v4.30).
+      #
+      # The package depends on mathlib (pinned to v4.30.0) for the `ZMod p` field
+      # model, so `use-mathlib-cache: true` makes the action fetch the prebuilt
+      # `.olean` cache instead of compiling mathlib from source.
+      - name: Build formal spec (lake build)
+        # Pinned to a full commit SHA (supply-chain hardening). 38fbc41 == v1.5.0.
+        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1.5.0
+        with:
+          lake-package-directory: "formal"
+          use-mathlib-cache: "true"
+          leanchecker: "true"
+      # No-`sorry` gate: the model must stay gap-free. Fail if any proof term uses a
+      # `sorry`/`admit`/`sorryAx` placeholder. Exclude `.lake/` — after `lake build`
+      # mathlib (and other deps) live there and legitimately contain `sorry` in tactic
+      # docs/examples. (Keep those literal words out of comments/strings in our sources
+      # under `formal/` so this stays a clean signal.)
+      - name: Assert the spec contains no sorry/admit
+        run: |
+          if grep -rEn '\b(sorry|admit|sorryAx)\b' --include='*.lean' formal --exclude-dir=.lake; then
+            echo "::error::formal spec contains a sorry/admit placeholder"
+            exit 1
+          fi
+
+  # The headline deliverable (`Plonky2Bridge.layer0_end_to_end`) lives outside
+  # `defaultTargets`, so the `formal-spec` job above never compiles it. This job
+  # builds the cross-package bridge (wormholeSpec pinned in lake-manifest.json) and
+  # asserts the capstone's axiom footprint is exactly the standard Lean axioms plus
+  # `WormholeSpec.leaf_proof_sound` — not e.g. `layer0_proof_sound`, `sorryAx`,
+  # `Lean.ofReduceBool`, or a silent compile failure.
+  formal-bridge:
+    name: 📐 Formal Bridge (Lean)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare Lean toolchain + mathlib cache
+        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1.5.0
+        with:
+          lake-package-directory: "formal"
+          use-mathlib-cache: "true"
+      - name: Build Plonky2Bridge (cross-package capstone)
+        run: cd formal && lake build Plonky2Bridge
+      - name: Assert layer0_end_to_end axiom footprint
+        run: |
+          set -euo pipefail
+          cd formal
+          output=$(lake env lean ci/AxiomsCheck.lean 2>&1)
+          printf '%s\n' "$output"
+          if ! grep -q 'depends on axioms' <<< "$output"; then
+            echo "::error::could not read #print axioms for Plonky2Bridge.layer0_end_to_end"
+            exit 1
+          fi
+          axioms=$(sed -n '/depends on axioms:/,/]/p' <<< "$output" | tr -d '\n' | sed 's/.*\[\(.*\)\].*/\1/' | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | grep -v '^$' | sort)
+          expected=$(printf '%s\n' \
+            'propext' \
+            'Classical.choice' \
+            'Quot.sound' \
+            'WormholeSpec.leaf_proof_sound' | sort)
+          if [ "$axioms" != "$expected" ]; then
+            echo "::error::layer0_end_to_end axiom footprint mismatch"
+            echo "expected exactly:"
+            printf '  %s\n' "$expected"
+            echo "got:"
+            printf '  %s\n' "$axioms"
+            exit 1
+          fi
 
   security-audit:
     name: 🔒 Security Audit

@@ -1,0 +1,527 @@
+# Formal verification plan — the gadget→spec bridge (layer 2)
+
+This package formalizes the **constraint semantics** of the plonky2 gadgets the
+wormhole circuits actually use, so that the spec relations in
+`qp-zk-circuits/formal` (`R_leaf`, `R_L0`, `R_L1`) can be proved to be *what the
+circuit constraints actually enforce* — not merely asserted.
+
+## 1. The trust stack (why this layer)
+
+```
+(4) Security properties     ← qp-zk-circuits/formal  (DONE: conservation, exclusivity, …)
+      ⇧
+(3) Spec relations R_leaf…  ← qp-zk-circuits/formal  (DONE: as Lean Props)
+      ⇧  ===  THIS PACKAGE: the bridge  ===
+(2) Circuit constraints     ← gadget semantics here + a faithful model of each circuit()
+      ⇧
+(1) Proof-system soundness  ← FRI + Plonk arithmetization + Fiat–Shamir + recursion  (TRUSTED, see §7)
+```
+
+- **(1)** says "a valid proof ⟹ *some* witness satisfies *this* constraint system."
+  It is agnostic to what the constraints *mean*. We treat it as an explicit,
+  documented assumption (§7); fully verifying a recursive SNARK prover is a
+  multi-year research program and is out of scope.
+- **(3)/(4)** reason about hand-written relations and their consequences. They say
+  nothing about the emitted gates.
+- **(2) — this package — is the missing rung.** It is where under/over-constraint
+  bugs live (a missing constraint lets a forged witness through, and (1) will
+  happily prove the under-constrained system). Highest bug-value per unit effort.
+
+The end-to-end theorem we are building toward:
+
+```
+(1) plonky2 soundness  ∧  (2) circuit constraints ⟺ R_leaf  ⟹  (valid proof ⟹ R_leaf on public inputs)  ⟹ (4)
+```
+
+## 2. Scope
+
+**In scope:** a Lean model of each gadget's emitted constraint as a predicate over
+field assignments, with **both** lemmas relating the predicate to its arithmetic
+meaning:
+- **soundness** — constraints ⟹ spec (the security direction: no forged witness),
+- **completeness** — spec ⟹ ∃ witness satisfying constraints (no honest prover is
+  locked out; this is the direction that surfaces *hidden assumptions* — in the
+  Zellic engagement completeness exposed an undocumented `carryIn ≤ 15` precondition
+  that callers could violate).
+
+Each gadget separates an **`Assumptions`** record (preconditions the *surrounding*
+circuit must enforce — e.g. "inputs are canonical u32") from a **`Spec`** record
+(what *this* gadget enforces). The `Assumptions` become explicit wiring obligations
+the circuit model must discharge. We then model each `circuit()`'s constraint
+conjunction and prove it implies the corresponding spec relation. Surfacing latent
+under/over-constraint assumptions is an explicit goal, not just confirmation.
+
+**Out of scope:** FRI/Plonk/Fiat–Shamir soundness, recursion-gadget internals
+(`verify_proof`), and Poseidon2 *collision resistance* (that stays the
+`RandomOracle` idealization — we prove only that the gadget *computes* the hash).
+
+## 3. Fidelity — mechanically export gate constraints (prior art)
+
+Methodology follows Zellic's *Formal Verification of a Plonky2 Gate* (Lighter
+engagement). The faithfulness of the constraint model to the Rust is the crux, so
+we do **not** hand-transcribe gate constraints. Instead:
+
+1. **Export.** A small Rust tool symbolically evaluates each gate's
+   `eval_unfiltered` (run with a symbolic field that builds an expression AST) and
+   emits the polynomial constraints as Lean definitions. The Lean we reason about
+   is then mechanically derived from the real gate code, not transcribed.
+2. **Generalize.** Export is per-parameter (e.g. a fixed `num_ops`); we write
+   generic constraint-generating functions and let Lean check they agree with each
+   concrete export, then prove the generic statement once.
+3. **Structured constraints.** Package the raw exported constraint vector into a
+   named record (with an equivalence lemma) so proofs read by purpose, not index.
+
+Residual fidelity gap (smaller than hand-modeling, but real): the exporter covers
+**gate** constraints per row; the full circuit also has **wiring/copy
+constraints** (which gates are instantiated and how their wires are connected by
+`connect`). That routing is still modeled by hand at the circuit level, mitigated
+by 1:1 structural correspondence with `circuit()` + the existing differential
+tests (`spec_differential.rs`). Full circuit export (gates + copy constraints) is
+future work; the Zellic scope was gate-level too.
+
+## 4. Gadget inventory (derived from the live circuit code)
+
+Constraint-emitting gadgets used by the leaf + aggregator circuits (witness
+allocation and infra calls excluded):
+
+| Tier | Gadget(s) | Constraint meaning | Discharges |
+|---|---|---|---|
+| **T0** arithmetic/wiring | `constant` `zero` `one`, `add` `sub` `mul`, `connect`/`connect_hashes`/`connect_shared_targets`, `register_public_input(s)` | field equalities; `connect a b` ⟺ `a = b` | equality clauses; `feeOk` arithmetic; shared-target wiring |
+| **T1** boolean + selection | `is_equal`, `and` `or` `not` `_false`, `add_virtual_bool_target_safe` (b²=b), `select`, `bytes_digest_eq` (=`is_equal`×4 + `and`) | boolean algebra + conditional mux | `R_L0` dummy flags, dedup `is_duplicate`, block-ref prefix scan, nullifier `select` |
+| **T2** range/comparison | `range_check(x,n)` (14/32/48), `enforce_target_less_than_const` | `range_check(x,n)` ⟺ `x < 2ⁿ` | all `R_leaf` `inRange 32`, `feeOk` 48-bit non-overflow, 14-bit fee complement, depth ≤ `MAX_DEPTH`; ties to `Encoding.lean` |
+| **T3** hash | `hash_n_to_hash_no_pad_p2::<Poseidon2Hash>` | gadget output = Poseidon2 sponge of input | realizes `RandomOracle.H`: `WA`, `Null`, `leafHash`, `nodeHash`/`stepUp`, `dummyNull`, block-hash |
+| **T4** recursion | `verify_proof` (via `add_recursive_verifiers`) | "π attests stmt x under vk" | `R_L0`/`R_L1` child attestation — **TRUSTED (§7)** |
+
+Coverage map:
+- **Bridge `R_leaf`** needs **T0 + T1 + T2 + T3** (no recursion at the leaf).
+- **Bridge `R_L0`/`R_L1`** needs **T0 + T1 + T2** for the wrapper logic, plus
+  **T4 axiomatized**.
+
+**Two-level structure (gate vs gadget).** The exporter operates on *gates*; the
+builder *gadgets* above lower to them. We verify the gate once (exported,
+sound+complete) and compose up to the gadget. The gates our gadgets emit
+(confirmed in `plonky2/src/gates/`):
+- T0/T1 arithmetic + select + boolean → `ArithmeticBaseGate` (`arithmetic_base.rs`,
+  computes `c₀·xy + c₁·z`; `select`, `add`, `sub`, `mul`, `b²=b` are all instances).
+- T2 `range_check` → `BaseSumGate` (`base_sum.rs`, base-B limb split + range).
+- T3 hash → the Poseidon2 gate(s) (`poseidon2.rs`, `poseidon2_mds.rs`,
+  `poseidon2_int_mix.rs`) — the case where hand-modeling is infeasible and the
+  exporter is required.
+
+## 5. Package & tooling conventions
+
+- Location: `qp-plonky2/formal/` (Lean package `Plonky2Spec`), co-located with the
+  gadgets it models so it is reusable across circuits.
+- **Field, not `Nat`. Uses mathlib.** Unlike `qp-zk-circuits/formal` (which is
+  `Nat`-based and deliberately mathlib-free), the gadget layer reasons about real
+  field behavior — `ZMod goldilocks`, `Fact (Nat.Prime p)`, `.val`, base-B digit
+  decomposition, Horner reconstruction. That is mathlib territory; hand-rolling it
+  would be enormous and is the wrong call. So this package **depends on mathlib**
+  (matching the Zellic setup: `import Mathlib.Data.ZMod.Defs`, etc.).
+- **Why this doesn't pull mathlib into the fast spec build.** Three layers, meeting
+  at the `.val` interface (see §6):
+  1. `qp-zk-circuits/formal` — Spec: `Nat`, RO-abstract, **mathlib-free**, builds
+     in seconds. *Unchanged.*
+  2. `qp-plonky2/formal` — GadgetSemantics: `ZMod p`, **mathlib**, exporter-backed.
+  3. Bridge: imports both; proves `circuitConstraints ⟹ R_leaf`. Lives **with this
+     package** (depends on mathlib) and imports the spec as a light dep — so the
+     hermetic spec build stays mathlib-free.
+- Pinned `lean-toolchain` to the **Lean version mathlib's release pins** (mathlib
+  is the binding constraint; reconcile with qp-zk-circuits' v4.30.0 when wiring the
+  bridge — bump the spec toolchain if needed).
+- CI mirrors the qp-zk-circuits `formal-spec` job: `leanprover/lean-action`
+  (pinned SHA) running `lake build` + `leanchecker: true`, plus the grep-based
+  **no-`sorry`/`admit`** gate. **Add `lake exe cache get`** (mathlib prebuilt
+  `.olean` cache) so CI doesn't compile mathlib from source. No `nanoda` (crashes
+  on v4.30 export format).
+
+## 6. Composition with qp-zk-circuits
+
+The gadget model is field-level (`ZMod p`, predicates over assignments). `R_leaf`
+et al. are felt-level (`Felt = Nat`) over the abstract `RandomOracle`. The
+**`.val` map is the interface** between the two — exactly the abstraction Zellic
+use to lift field reasoning to u32/Nat: a gadget proven to enforce
+`x.val < 2^32` discharges the spec's `inRange 32 x`; a gadget proven to compute
+Poseidon2 instantiates `RandomOracle.H` (its felt outputs are `digest.val`s).
+
+1. This package exports gadget predicates + `sound`/`complete` lemmas and a model
+   `LeafCircuit.constraints` of the leaf `circuit()`.
+2. The **bridge target** (in this package, mathlib-enabled) adds
+   `qp-zk-circuits/formal` as a light `lake` dep and proves
+   `LeafCircuit.constraints assignment ⟹ Rleaf ro p w` over `.val`, with the
+   `RandomOracle` instantiated by the T3 "gadget computes Poseidon2" result.
+   Keeping the bridge here (not in the spec package) preserves the spec's
+   mathlib-free, seconds-long build.
+
+## 7. Trusted assumptions (the seam to layer 1)
+
+Captured as explicit Lean `axiom`s in a dedicated `Trusted.lean`, mirroring how
+`RandomOracle` makes collision-resistance explicit:
+
+- **`verify_proof` soundness:** `verify_proof(vk, x, π)` constrains that `π` is a
+  valid proof of statement `x` under `vk`; given (1), a satisfied recursion gadget
+  implies the child's public-input relation holds.
+- **Proof-system soundness (1):** FRI query soundness, Plonk/AIR arithmetization,
+  Fiat–Shamir (and **QROM** Fiat–Shamir for the post-quantum claims), recursion.
+
+Each axiom is documented with what it would take to discharge it, so the
+trusted base is auditable and individually replaceable later.
+
+## 8. Execution plan (commit checkpoint between each step)
+
+**Exporter sequencing.** The `BaseSumGate` (range) is small enough to hand-model in
+Step 1 to validate the full Lean pipeline (`Assumptions`/`Spec`, sound, complete)
+cheaply. The exporter is *built in Step 2* and is *mandatory by Step 3* — the
+Poseidon2 gate has far too many constraints to transcribe reliably. Each gadget
+gets an `Assumptions` record + a `Spec` record and **both** `sound` and `complete`
+lemmas (per §2).
+
+### Step 1 — T2 `range_check` (+ package scaffold), hand-modeled  ✅ DONE
+- Scaffolded `formal/` (`lakefile.toml`, `lean-toolchain` v4.30.0,
+  `Plonky2Spec.lean`, `.gitignore`, CI job).
+- Hand-modeled the `BaseSumGate<B>` constraints (`BaseSum` structured record:
+  `reconstruct B limbs = sum` + per-limb range), with `NoWrap` side-condition;
+  proved **soundness** (`baseSum_sound : BaseSum ⟹ sum < Bᴸ`) and **completeness**
+  (`baseSum_complete : sum < Bᴸ ⟹ ∃ base-B digit witness`). Specialized to
+  `rangeCheck (x,n)` (`B = 2`): `rangeCheck_sound`/`rangeCheck_complete`, the
+  `rangeCheck_implies_inRange` bridge lemma, and modeled
+  `enforce_target_less_than_const`.
+- **Acceptance met:** `lake build` + `leanchecker` clean, no `sorry`; `#print
+  axioms` shows only `propext`/`Quot.sound`/`Classical.choice`;
+  `rangeCheck_implies_inRange` upgrades the spec's `inRange n x` from assumption to
+  consequence of `range_check`.
+- *Checkpoint: reviewed + committed (initial `Nat`/`.val` model).*
+
+### Step 1.5 — `ZMod p` field-native port (mathlib)  ✅ DONE
+The initial Step-1 commit modeled the per-limb range as its semantic content
+(`limbᵢ < B`) over `Nat`, deferring the one genuinely field-algebraic fact —
+"degree-`B` product `∏_{j<B}(limbᵢ − j) = 0` ⟹ `limbᵢ ∈ {0,…,B-1}`" — because that
+needs `ZMod p` to be an integral domain (`Nat.Prime`/Euclid are not in core Lean).
+With mathlib now wired in (pinned `v4.30.0`), this is **discharged**:
+- `Basic.lean` keeps the field-agnostic positional-arithmetic core over `ℕ`
+  (mathlib-free); `RangeCheck.lean` is now **field-native over `ZMod p`**.
+- The gate's per-limb constraint is modeled faithfully as
+  `limbRangeProduct B x = ∏_{j ∈ range B} (x − j)`, and
+  `limb_val_lt_of_product` proves `product = 0 ⟹ x.val < B` via
+  `Finset.prod_eq_zero_iff` + `mul_eq_zero` (the integral-domain step) — exactly the
+  rung that was previously a modeling assumption.
+- `reconstructF` (field) is bridged to the `ℕ` `reconstruct` through `ZMod.val`
+  (`reconstructF_eq_cast`), so the place-value bounds in `Basic.lean` govern the
+  field computation. `baseSum_sound`/`baseSum_complete` and the
+  `rangeCheck_*`/`inRange` lemmas are all restated and proved over `ZMod p`.
+- Generality follows Zellic: theorems are over an arbitrary `[Fact p.Prime]` with
+  explicit no-wrap bounds (`Bᴸ ≤ p`); soundness needs the bound, completeness does
+  not (the reconstructed value is the canonical `sum.val < p`).
+- CI `formal-spec` job flipped to `use-mathlib-cache: "true"`.
+- **Acceptance:** `lake build` + `leanchecker` clean, no `sorry`; `#print axioms`
+  shows only `propext`/`Classical.choice`/`Quot.sound`.
+- *Checkpoint: review + commit.*
+
+### Step 2 — T0/T1 gates + constraint exporter + wrapper bridge
+Sliced into three checkpoints. The T0/T1 gates are small algebraic identities, so
+they are hand-modeled and machine-checked **first** (2a); those Lean models then
+serve as the oracle the Rust exporter must reproduce (2b); the wrapper bridge (2c)
+consumes both.
+
+#### Step 2a — T0/T1 gadget semantics (hand-modeled)  ✅ DONE
+- `Arithmetic.lean` (T0): `ArithmeticConstraint c0 c1 m0 m1 addend output`
+  (`output = c0·m0·m1 + c1·addend`, arithmetic_base.rs:87-89) with `arithmetic_iff`,
+  and the `add/sub/mul/mul_add/mul_sub` specs as instantiations (arithmetic.rs).
+- `Boolean.lean` (T1): `IsBool` with `isBool_iff_assertBool` (the `b²−b=0`
+  constraint ⇔ booleanity, integral-domain); `bnot/band/bor` with closure +
+  truth-table lemmas; `bmux` (`_if`) and `bselect` (`select`) with `=`-equivalence
+  and the `b=1→x`, `b=0→y` reductions; and the **`is_equal`** gadget (`IsEqual`
+  two-constraint record) with full soundness (`isEqual_isBool`, `isEqual_iff :
+  equal=1 ↔ x=y`) and completeness (`isEqual_complete`).
+- **Acceptance met:** `lake build` + `leanchecker` clean, no `sorry`; `#print
+  axioms` standard-only.
+- *Checkpoint: review + commit.*
+
+#### Step 2b — Constraint exporter (Rust)  ✅ DONE
+Built `constraint-exporter/` (a workspace member, *not* in `default-members`):
+a Zellic-style symbolic exporter that runs each gate's **real**
+`Gate::eval_unfiltered` over a symbolic field and prints the constraint
+polynomials it emits — so the Lean model is mechanically derived from the gate
+code rather than hand-transcribed.
+- **How it works (`symbolic.rs`):** `Sym` is a `Copy` handle into a thread-local
+  expression arena (`Field: Copy` rules out a `Box` tree). It implements the full
+  `Field`/`PrimeField64`/`Poseidon`/`Frobenius<1>` stack (arithmetic ops build DAG
+  nodes; everything else is a stub, since `eval_unfiltered` for these gates never
+  inverts, hashes, or branches on a value). Gates are instantiated at extension
+  degree **`D = 1`**, where plonky2 blanket-implements `OEF/FieldExtension/
+  Extendable/PackedField` — the constraint *polynomials* are `D`-independent, so
+  this yields exactly the real constraints. Light identity folding keeps the DAG
+  in the same shape as the hand models (Horner reconstruction, `x·(x−1)` ranges).
+- **What it emits:** `formal/Plonky2Spec/Generated/Gates.lean` —
+  `arithmeticGate_c0` = `w3 − (w0·w1·c0 + w2·c1)` (T0), and `BaseSumGate<2>`'s
+  `baseSum2_c0` reconstruction `(w1 + 2·w2) − w0` plus per-limb range products
+  `wi·(wi − 1)` (T2). Regenerate with
+  `cargo run -p qp-plonky2-constraint-exporter --bin export-constraints`.
+- **Two-sided validation (this is the acceptance):**
+  1. *Rust differential test* (`cargo test -p qp-plonky2-constraint-exporter`):
+     the extracted DAGs, evaluated at 200 random points, match the real
+     `GoldilocksField` `eval_unfiltered` (run over the degree-2 extension) — i.e.
+     the symbolic arithmetic faithfully mirrors the field.
+  2. *Lean equivalence* (`Bridges/Bridge.lean`): each extracted def is proved
+     **equal to the Step-1/2a hand model** by `ring`/`linear_combination`
+     (`arithmeticGate_c0 = 0 ↔ ArithmeticConstraint …`; `baseSum2_c0 = 0 ↔
+     reconstructF 2 [·,·] = sum`; `baseSum2_c{1,2} = limbRangeProduct 2 ·`). So the
+     exporter reproduces the Step-1 + 2a constraints verbatim, and `lake build`
+     now fails if the gate code and the spec ever diverge.
+- **CI:** `build-and-test-matrix` runs the differential test and a
+  `git diff --exit-code` staleness check on the generated file; `formal-spec`
+  builds the generated defs + bridge lemmas (`#print axioms` standard-only).
+- **Remaining (Step 3):** generalize the export to the Poseidon gates, whose
+  hundreds of constraints are exactly what a mechanical exporter is *for* — the
+  T0/T2 gates here validate the pipeline end to end first.
+- *Checkpoint: review + commit.*
+
+#### Step 2c — `R_L0` wrapper-logic bridge  ✅ DONE (field-level)
+`Wrapper.lean` proves each layer-0 wrapper primitive
+(`build_layer0_wrapper_constraints`, circuit_logic.rs) computes *exactly* the
+conditional/selection that the corresponding `RL0` definition is built from, all on
+the 2a lemmas:
+- `nullifier_replacement` — `select(is_dummy, dnull, real) = if is_dummy then …`
+  (the `nullifiersReplaced` per-slot equation).
+- `match_contribution` / `dedup_select` — `select(eq, a, 0)` / `select(dup, 0, acc)`
+  as `matchSum` / `groupAux`'s `if`s (via `isEqual_iff`).
+- `andAll` + `andAll_eq_one_iff` — `bytes_digest_eq` as the AND of per-limb
+  equalities (`= 1 ↔ all limbs equal`), the digest-equality used by metadata/dedup.
+- `block_consistency` / `real_block_matches` — `or(is_dummy, matches) = 1` ⟹ a
+  non-dummy child matches the reference (`metadataConsistent`).
+- `scanStep` + `scan_locked` + `scanFirst_correct` — the prefix scan selects the
+  **first real slot's** value (`referenceFromFirstReal`; the position-independent
+  privacy fix), with the all-dummy batch keeping the zero initial reference.
+- **Acceptance met:** `lake build` + `leanchecker` clean, no `sorry`; `#print axioms`
+  standard-only.
+- **Remaining seam (the cross-package composition `circuit ⟹ RL0`):** wiring
+  `qp-zk-circuits/formal` in as a `lake` dep and reconciling `Felt = Nat` ↔ `ZMod p`
+  via `.val`, plus instantiating `RandomOracle.dummyNull` with the Poseidon
+  `H(H(u))` result — i.e. it depends on Step 3 and the cross-repo dep. The
+  selection logic (everything built from T0/T1) is discharged here.
+- *Checkpoint: review + commit.*
+
+### Step 3 — T3 Poseidon2 hash "computes H" (exporter-driven)
+The hash used by the circuits *and* the spec is **Poseidon2** (`Poseidon2Hash`,
+via `hash_n_to_hash_no_pad_p2::<Poseidon2Hash>` in `circuit_logic.rs` /
+`zk_merkle_proof.rs`; the spec's `RandomOracle.H` = `Poseidon2Hash::hash_no_pad`,
+and `DNull(u) = H(H(u))`). The permutation gate is `Poseidon2Gate`
+(`plonky2/src/gates/poseidon2.rs`): width 12, S-box `x^7`, 4 initial + 22 internal
++ 4 terminal rounds, **118 constraints**, degree 7. This is the gate the exporter
+was built for — far too many constraints to hand-transcribe.
+
+Two facts make this tractable:
+- **Constants come for free.** `Poseidon2Gate` carries its own round constants in
+  `self.params` (`new()` builds them from `INITIAL/TERMINAL_EXTERNAL_CONSTANTS` and
+  `INTERNAL_CONSTANTS`), *independent of `F`*. So symbolic extraction picks up the
+  real constants as `Const(n)` nodes — the stubbed `Poseidon` trait tables on `Sym`
+  are irrelevant to this gate.
+- **The gate is a *checkpointed* permutation.** To cap degree at 7 it allocates
+  per-round S-box-input wires and emits `state[i] − sbox_in = 0`, then resets
+  `state[i] = sbox_in`. So the constraints pin `output = perm(input)` *modulo* the
+  intermediate S-box wires — soundness/completeness are existential over those
+  wires (structurally like `BaseSum`'s recon+range, but with ~30 rounds).
+
+Sliced into three checkpoints:
+
+#### Step 3a — Renderer CSE upgrade + extract `Poseidon2Gate`  ✅ DONE
+- **Renderer now emits shared subexpressions as `let`-bindings** (`render::emit_lets`
+  + `ref_str`): a straight-line program, one binding per arithmetic arena node in
+  topological (id) order, with leaves inlined. The internal rounds reuse the running
+  state sum ~13×/round across 22 rounds; the inline-tree `to_lean` would blow up
+  ~13²² — the `let`-program is linear in the DAG (~2.4k bindings). The recursive
+  evaluator gained a memoized twin (`eval_all`/`eval_root`) so the differential test
+  doesn't blow up either. Needed one fix: `Sym::to_canonical_u64` must return the
+  value for `Const` nodes (the gate round-trips its round constants through
+  `ext_c = from_canonical_u64(x.to_canonical_u64())`); non-constant symbols still panic.
+- Extracted `Poseidon2Gate::eval_unfiltered` to `Generated/Poseidon2.lean`:
+  `def poseidon2Gate (w0 … w129 : ZMod p) : List (ZMod p)` returning all **118**
+  constraints (single def, shared `let`-block — *not* one def per constraint, which
+  would re-derive the whole permutation 118×). Built clean (`set_option maxRecDepth
+  8000` for the deep `let`-nesting).
+- Differential test (`poseidon2_extraction_matches_real_gate`): extracted DAG vs the
+  real `GoldilocksField` `Poseidon2Gate` over the degree-2 extension at 16 random
+  points — green, asserts exactly 118 constraints.
+- **CI:** the staleness `git diff` check now covers all of `Generated/` (both
+  `Gates.lean` and `Poseidon2.lean`).
+- *Checkpoint: review + commit.*
+
+#### Step 3b — Lean Poseidon2 permutation model + sound/complete  ✅ DONE (meaning + primitive bridge)
+Built `Plonky2Spec/Poseidon2.lean`:
+- **Permutation model** (`permState`): light-MDS preamble, `x^7` S-box, 4 initial +
+  22 internal + 4 terminal rounds, written to mirror `mds_light_base` / `sbox7_base`
+  / `internal_mix_base` and the gate's round/wire layout (round-0 elision included).
+  **Generic in the round constants** (`eInit/eTerm/iRc/diag`) — the equivalence holds
+  for *any* constants, so the primitives are `@[irreducible]` and never unfolded.
+- **Checkpointed constraint model** (`gateConstraints`): a line-by-line transcription
+  of `eval_unfiltered`, threading the 12-lane state and reading the S-box checkpoint
+  wires (`ckInit` rounds 1-3, `ckI` internal, `ckTerm` terminal) exactly as the gate.
+- **Meaning theorem** (`gate_sound_complete`, sound **and** complete):
+  `(∃ checkpoint wires, all 118 constraints = 0) ↔ output = permState input`.
+  Proof is the pure *checkpoint substitution* (each S-box constraint pins its
+  checkpoint to the running state, so the gate's reset-and-continue equals the
+  checkpoint-free `perm`) via two `foldl` inductions; primitives stay opaque.
+  `#print axioms` = `{propext, Classical.choice, Quot.sound}` (standard), ~2 s build.
+  - *Performance note:* the kernel ignores `@[irreducible]`, so any `rfl` between two
+    full permutation states forces `internalMix`'s running sum to expand through 22
+    rounds (~exponential). Avoided by a one-`foldl`-step lemma (`extPhase_cons`) that
+    reduces every closing step to a **syntactic** match — 188 s → 2 s.
+- **Primitive bridge — machine-checked (the flat-file blocker, sidestepped).** Tying
+  the structured `gateConstraints` to `Generated.Poseidon2.poseidon2Gate` *whole* by
+  `ring`/`rfl` is not tractable: the extracted DAG shares subexpressions via `let`
+  (linear size), but expanding the structured model unfolds `internalMix`'s running
+  sum through the 22 *compounding* internal rounds (lanes 1-11 are never checkpointed)
+  → ~3²² term size. Instead of bridging the monolith, we bridge the **three round
+  primitives** the permutation is built from — which is where any arithmetic drift in
+  the Rust would actually show up:
+  - The `plonky2` crate now exposes `sbox7_base` / `mds_light_base` / `internal_mix_base`
+    as `pub`. The exporter symbolically executes *those real helpers* and emits
+    `Generated/Poseidon2Prims.lean` (`sbox7`, `mdsLight`, `internalMix`), regenerated and
+    staleness-guarded in CI like every other `Generated/` file.
+  - `Bridges/Poseidon2Bridge.lean` proves `Plonky2Spec.Poseidon2.{sbox7,mdsLight,internalMix}`
+    (the `@[irreducible]` hand model) equal their extracted counterparts by `ring`
+    (`unseal`ed locally). Standard-axioms-only; any drift in the S-box, the light-MDS
+    matrix, or the internal diffusion breaks `lake build`.
+  - A Rust differential test (`poseidon2_primitives_match_real_helpers`) checks the
+    extracted primitives against the real helpers at 200 random base-field points,
+    alongside the existing flat-gate test (`Generated.poseidon2Gate` ≡ real
+    `eval_unfiltered`).
+  What is *not* machine-checked is only the **round composition** — how
+  `gateConstraints` threads these three primitives across the 4+22+4 rounds with the
+  checkpoint wires — which mirrors `eval_unfiltered` line-by-line and is covered
+  end-to-end by the flat-gate differential test. A future round-factored exporter
+  emission would turn that last correspondence into `rfl` too.
+- **Acceptance (met):** `gate_sound_complete` + all three `*_extracted` bridge lemmas
+  build clean, standard-axioms-only; exporter prims test + flat-gate test green.
+- *Checkpoint: review + commit.*
+
+#### Step 3c — Sponge wrapper + bridge to `RandomOracle.H`  ✅ DONE
+Built `Plonky2Spec/Sponge.lean`:
+- **Sponge model** (`spongeHash`): a line-by-line transcription of
+  `core/src/hashing.rs::hash_n_to_hash_no_pad_p2` over `ZMod p`, generic in the
+  permutation — `pad10` (the `10*` rule), all-zero width-12 state, **additive**
+  absorption on the 8 rate lanes (`addBlock`), permute per block (`absorbMsg`,
+  structural recursion over rate-chunks), squeeze the first 4 lanes (`squeeze4`,
+  **no** trailing permute). `poseidon2Hash` instantiates `perm := permState …` (the
+  Step-3b verified permutation), generic in the Goldilocks constants.
+- **Short-input reduction** (`spongeHash_short` / `absorbMsg_short`): a `≤ rate`
+  preimage pads to exactly one block, so the hash is a *single* permutation — covers
+  the aggregator's 4-felt dummy-nullifier preimage and the 4-felt digest re-hash.
+- **Spec bridge** (`H : List Felt → Digest`, `hh`, `dummyNull`): mirrors
+  `WormholeSpec`'s felt/digest interface (cast `ℕ → ZMod p` in, `ZMod.val` out) and
+  gives the *computational realization* of the abstract `ro.H`. `dummyNull_eq` proves
+  `dummyNull u = H (H u)` by `rfl` — exactly the shape the spec's `hh`/`dummyNull`
+  (and `WA`/`Null`/`leafHash`/`nodeHash`) are written in.
+- **No concrete `RandomOracle` instance *here* — deliberately (superseded in Step 5).**
+  At the time of Step 3c, `WormholeSpec.RandomOracle` bundled *total injectivity*, which is
+  consistent **only over an infinite carrier**: a compressing hash over finite Goldilocks is
+  never injective, so a concrete finite-field `RandomOracle` would have been *uninhabited* and
+  made every downstream theorem vacuous. So Step 3c supplied only the honest computational `H`
+  (the object `ro.H` stands for) and left the instantiation to later. **Step 5 removes this
+  obstruction** (the collision-resistance refactor drops the `injective` field), and
+  `Plonky2Bridge.spongeRO` *does* instantiate `RandomOracle` with this sponge.
+- **Differential test (the wrapper's faithfulness anchor).** The sponge *wrapper*
+  (pad/absorb/squeeze) is not exporter-extracted, so a Rust test
+  (`sponge_structure_matches_lean_model`) transliterates the Lean `pad10`/`addBlock`/
+  `absorbMsg`/`squeeze4` over the *same* `<GoldilocksField as P2Permuter>::permute`
+  and checks it equals the real `Poseidon2Hash::hash_no_pad` at random inputs of every
+  length 0–20 (covering the empty/full-pad-block, `< rate`, `== rate`, and multi-block
+  boundaries). Runs in the existing `cargo test -p qp-plonky2-constraint-exporter` CI job.
+- **Acceptance (met):** `Sponge.lean` builds clean; `dummyNull_eq`, `spongeHash_short`,
+  `absorbMsg_short`, `pad10_length_short` are standard-axioms-only; sponge differential
+  test green alongside the gate/primitive ones.
+- *Checkpoint: review + commit.*
+
+### Step 4 — T4 axiomatize `verify_proof` + aggregation bridge  ✅ DONE
+Landed in **`qp-zk-circuits/formal/WormholeSpec`** (not `Plonky2Spec`): the relations
+`RL0`/`RL1`/`Rleaf` live there, and that package is deliberately mathlib-free over
+`Felt = ℕ`. Mirroring the relations into `Plonky2Spec` would be a large, drift-prone
+duplication; instead the bridge is stated where the relations are, and the
+gadget-fidelity half stays in `Plonky2Spec.Wrapper` (composed at the `ZMod.val ↔ Felt`
+seam, as in Step 3c).
+- **`WormholeSpec/Trusted.lean` (the trusted base, fully enumerated).** The abstract
+  acceptance predicates `LeafProofAccepted` / `Layer0ProofAccepted` (what
+  `add_recursive_verifiers → verify_proof` attests under the baked child VK) are `opaque`,
+  not `axiom`s — they assert nothing, so they stay out of the trusted axiom set. The only
+  genuine `axiom`s are the two `verify_proof`-soundness facts `leaf_proof_sound`
+  (`accepted ⟹ ∃ w, Rleaf`) and `layer0_proof_sound` (`accepted ⟹ ∃ leaves us, RL0`).
+  Each is documented with what it asserts, its justification (proof-system soundness (1):
+  FRI/Plonk/Fiat–Shamir-QROM/recursion), and what it would take to discharge.
+- **`WormholeSpec/AggregationBridge.lean` (the bridge lemmas).** Models the L0/L1
+  wrapper constraints (`build_layer{0,1}_wrapper_constraints`) as the facts the circuit
+  enforces on decoded public inputs (`Layer0Circuit`; `Layer1Circuit`) and proves:
+  - `layer0_bridge : Layer0Circuit ⟹ RL0` — the substantive bridge: the select/grouping/
+    scan outputs give `nullifiersReplaced`, `groupExits`, the metadata/reference clauses,
+    with `nullifiersReplaced_build`/`buildNullifiers_length` discharging the per-slot select
+    and the length bookkeeping by induction;
+  - `layer1_bridge : Layer1Circuit ⟹ RL1` — the layer-1 wrapper conditions are
+    field-for-field `RL1`, so `Layer1Circuit` is *defined as* `RL1` (an `abbrev`) and the
+    bridge is definitionally the identity (no L1 analogue of the layer-0 select/grouping);
+  - `layer0_sound` / `layer1_sound`: a satisfied aggregation circuit whose recursion
+    gadget accepted every child attests **both** its own relation (`RL0`/`RL1`) **and**
+    each child's relation (`Rleaf` / inner `RL0`), via the trusted axioms.
+- **Axiom hygiene (checked).** `layer{0,1}_bridge` are standard-axioms-only (the bridge
+  is unconditional); `layer0_sound`/`layer1_sound` depend on exactly the two trusted
+  axioms; pre-existing results (`RL0_value_conservation`) are unchanged — the trusted
+  base does not leak. No-`sorry` gate stays green (`axiom` ≠ `sorry`).
+- **Acceptance (met):** aggregation bridge lemmas build clean; trusted base fully
+  enumerated in `Trusted.lean`.
+- *Checkpoint: review + commit.*
+
+### Step 5 — Collision-resistance refactor + the cross-package composition  ✅ DONE
+The seam Steps 2c/3c left open (`circuit ⟹ RL0` across the `ZMod.val ↔ Felt` boundary, with
+the oracle instantiated by the real hash) is now closed for the nullifier/hash path, and the
+trust stack is assembled into one statement.
+
+#### Step 5a — Collision resistance as an explicit assumption (`qp-zk-circuits/formal`)
+`WormholeSpec.RandomOracle` no longer carries the `injective` field; the hash is just
+`H : List Felt → Digest`, so the structure is inhabited over a *finite* field too (where an
+injective `H` cannot exist). Collision resistance is now the opt-in predicate
+`RandomOracle.CollisionResistant`. `Security.lean`/`LeafBinding.lean` are restated as
+**reductions** (`*_or_collision`, no assumption: a break *constructs* an `H` collision) plus
+**corollaries** under `CollisionResistant`. `Security.Demo.collapsingRO` exhibits a
+non-injective oracle that now inhabits `RandomOracle` (impossible under the old field).
+Reductions are axiom-free; corollaries standard-axioms-only.
+
+#### Step 5b — `spongeRO`: instantiate the oracle with the verified sponge (`Plonky2Bridge.lean`)
+With 5a, `Plonky2Bridge.spongeRO perm : WormholeSpec.RandomOracle := { H := spongeH perm }`
+realizes the spec oracle by the Step-3b/3c sponge — the first object to actually join the two
+packages. The `.val` seam is pinned: the input cast `ℕ → ZMod p` is non-injective
+(`spongeRO_not_collisionResistant`: `[0]`/`[p]` collide), the output `ZMod.val` is injective,
+and on **canonical** (`< p`) preimages a realized-oracle collision is exactly a field-level
+Poseidon2 collision (`spongeH_canonical_collision_is_field_collision` + converse).
+
+#### Step 5c — Wrapper-logic `.val` bridge (`Plonky2Bridge.lean`)
+The `Plonky2Spec.Wrapper` field gadget proofs are lifted across `.val` into the
+`WormholeSpec` building blocks: `valDigest`/`valDigest_bselect`, the headline
+`nullifier_slot_bridge` (a field `select(is_dummy, dnull, real)` slot read through `.val`
+equals `buildNullifiers`' per-slot body, with the dummy digest realized by `spongeRO`),
+`nullifiers_val_bridge` (list-level), and `layer0_val_RL0` (concludes a genuine `RL0
+(spongeRO perm) …`). `match_contribution_val`/`scan_val` lift the exit/reference primitives.
+What stays an explicit hypothesis is the public-input *decode* (which wire is which value) —
+the wiring/copy-constraint model (gap (a) below).
+
+#### Step 5d — End-to-end soundness over the verified sponge (`Plonky2Bridge.layer0_end_to_end`)
+The capstone the §1 trust stack builds toward, at the real hash: a satisfied layer-0
+aggregation circuit whose recursion accepted every child (i) satisfies `RL0`, (ii) conserves
+value (`outputExitTotal = rawOutputTotal`), and (iii) attests every child's `Rleaf`. Clauses
+(i)–(ii) are standard-axioms-only; (iii) pulls in *exactly* the two trusted recursion axioms
+from `Trusted.lean` (`#print axioms`-checked).
+- **Acceptance (met):** `lake build Plonky2Bridge` clean; all 5b–5d lemmas standard-axioms-only
+  except `layer0_end_to_end`, which adds only the documented trusted axioms; default
+  `Plonky2Spec` build and the hermetic spec build unaffected.
+- *Checkpoint: review + commit.*
+
+## 9. Definition of done
+
+`R_leaf` fully bridged (T0–T3), `R_L0`/`R_L1` bridged modulo the enumerated
+trusted assumptions (T4 + layer 1), each gate proven **sound and complete** with
+its `Assumptions`/`Spec` split, CI green on all gates, and the trusted base
+documented in `Trusted.lean`. The oracle is now instantiated by the concrete
+verified sponge (Step 5), and the nullifier/hash path of `circuit ⟹ RL0` is
+composed across `.val` end to end (`layer0_end_to_end`). The remaining gap is
+exactly (a) the residual **wiring/copy-constraint** model fidelity (§3 — gate
+constraints are exporter-backed and the wrapper *logic* is bridged, but the
+public-input **decode** that feeds the bridges its `hd`/`hnull`/`hexits`/… wire
+assignments is still hand-modeled) and (b) the layer-1 assumptions (§7) — both
+explicit.

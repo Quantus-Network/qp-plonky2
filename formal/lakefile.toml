@@ -1,0 +1,49 @@
+# Lean 4 formal-spec package for the qp-plonky2 gadget→constraint layer.
+#
+# This is the "layer-2" bridge package described in `PLAN.md`: it formalizes the
+# *constraint semantics* of the plonky2 gadgets the wormhole circuits use, so the
+# spec relations in `qp-zk-circuits/formal` can be proved to be what the circuit
+# constraints actually enforce.
+#
+# mathlib is pinned to the `v4.30.0` tag, which matches `lean-toolchain`
+# (leanprover/lean4:v4.30.0) exactly. It provides the concrete Goldilocks field
+# `ZMod p`, the prime-field integral-domain fact the range primitive's product
+# form rests on, and the `.val` bridge to the spec. After editing this file:
+#     lake update mathlib      # resolves mathlib + transitive deps (writes the manifest)
+#     lake exe cache get        # downloads prebuilt .olean cache (run BEFORE `lake build`)
+#     lake build
+# CI: flip the `formal-spec` job to `use-mathlib-cache: "true"` so the runner
+# fetches the cache instead of compiling mathlib from source.
+# `defaultTargets` is *only* `Plonky2Spec`: the hermetic `lake build` (and the
+# `formal-spec` CI job) build the mathlib gadget model alone, with no dependency on
+# the `qp-zk-circuits` spec package. The cross-package bridge below is an explicit,
+# opt-in target (`lake build Plonky2Bridge`) that pulls the spec from GitHub.
+defaultTargets = ["Plonky2Spec"]
+name = "plonky2Spec"
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+version = "git#v4.30.0"
+
+# The spec package (`qp-zk-circuits/formal`), pulled in as a light dependency for the
+# composition bridge only (PLAN.md §6). It is mathlib-free and builds in seconds;
+# requiring it here does not affect the `Plonky2Spec` default build. Pinned to an
+# explicit commit (not a floating branch) so the trust-anchoring artifact is
+# reproducible from `lakefile.toml` alone; bump with `lake update wormholeSpec` after
+# advancing the pin when qp-zk-circuits formal changes land.
+[[require]]
+name = "wormholeSpec"
+git = "https://github.com/Quantus-Network/qp-zk-circuits.git"
+rev = "ce68068f85395c072969c0694554f55d63810b9d"
+subDir = "formal"
+
+[[lean_lib]]
+name = "Plonky2Spec"
+
+# The composition bridge (PLAN.md §6): instantiates the spec's `WormholeSpec.RandomOracle`
+# with the concrete finite-field Poseidon2 sponge and pins down the `.val` carrier seam.
+# Imports BOTH packages, so it is kept out of `defaultTargets` to preserve the hermetic,
+# mathlib-free spec build and the `wormholeSpec`-free `Plonky2Spec` CI job.
+[[lean_lib]]
+name = "Plonky2Bridge"

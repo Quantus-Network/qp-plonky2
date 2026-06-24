@@ -1,0 +1,39 @@
+# Constraint exporter (formal-verification dev tool, see ../formal/PLAN.md Step 2b).
+#
+# Symbolically executes a gate's *real* `Gate::eval_unfiltered` with a symbolic
+# field type, so the constraint polynomials are extracted mechanically (no
+# hand-transcription gap) and emitted as Lean definitions. The Lean output is
+# committed under `formal/Plonky2Spec/Generated/` and pinned to the hand models
+# by `ring`-proved equivalence lemmas, so the spec can't drift from the gate code.
+#
+# Not in workspace `default-members`: this is a dev tool, not part of the proving
+# stack, and pulling the full `plonky2` build for every workspace command is
+# unnecessary. Build/run explicitly:
+#     cargo run -p qp-plonky2-constraint-exporter --bin export-constraints
+#     cargo test -p qp-plonky2-constraint-exporter
+[package]
+name = "qp-plonky2-constraint-exporter"
+version = "1.5.1"
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+plonky2 = { package = "qp-plonky2", path = "../plonky2", features = [
+  "formal-export",
+] }
+qp-plonky2-core = { version = "=1.5.1", path = "../core" }
+num = { workspace = true }
+rand = { workspace = true }
+serde = { workspace = true }
+
+[lib]
+name = "constraint_exporter"
+path = "src/lib.rs"
+
+[[bin]]
+name = "export-constraints"
+path = "src/main.rs"
+
+[lints]
+workspace = true

@@ -1,6 +1,7 @@
 [workspace]
 members = [
   "core",
+  "constraint-exporter",
   "field",
   "maybe_rayon",
   "plonky2",
