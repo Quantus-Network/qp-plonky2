@@ -53,7 +53,7 @@ pub fn generate_lean() -> String {
          \x20     cargo run -p qp-plonky2-constraint-exporter --bin export-constraints\n\n\
          \x20 Each `def …_c{i}` is the i-th constraint the gate forces to zero, with `w{j}`\n\
          \x20 the j-th `local_wires` entry and `c{j}` the j-th `local_constants` entry.\n\
-         \x20 `Generated/Bridge.lean` proves each of these equals the corresponding\n\
+         \x20 `Bridges/Bridge.lean` proves each of these equals the corresponding\n\
          \x20 hand-written model in `Arithmetic.lean` / `RangeCheck.lean` (by `ring`), so a\n\
          \x20 drift between the gate code and the spec breaks `lake build`.\n\
          -/\n\
@@ -68,7 +68,7 @@ pub fn generate_lean() -> String {
     // single thread-local cleared at the start of every extraction, so a handle
     // is only valid until the *next* extraction — never hold handles from two
     // gates at once. These gates are exactly those hand-modeled in
-    // `Arithmetic.lean` / `RangeCheck.lean`; `Generated/Bridge.lean` pins them.
+    // `Arithmetic.lean` / `RangeCheck.lean`; `Bridges/Bridge.lean` pins them.
     emit(&mut out, &extract::arithmetic_gate());
     // BaseSumGate<2>, 2 limbs: reconstruction `(w1 + 2·w2) − w0` plus one
     // degree-2 range product `wi·(wi − 1)` per limb.
@@ -139,7 +139,7 @@ pub fn generate_poseidon2_lean() -> String {
 /// permutation *primitives* (`sbox7`, `mdsLight`, `internalMix`), each extracted by
 /// running the **real** helper (`sbox7_base` / `mds_light_base` / `internal_mix_base`,
 /// poseidon2.rs) over the symbolic field. They are small (linear MDS / mix; one
-/// `x^7`), so they are emitted inline. `Generated/Poseidon2Bridge.lean` proves each
+/// `x^7`), so they are emitted inline. `Bridges/Poseidon2Bridge.lean` proves each
 /// equals the hand model `Plonky2Spec.Poseidon2.{…}` by `ring`, so the arithmetic of
 /// the permutation is machine-checked against the live Rust — the structural round
 /// composition in `Plonky2Spec.Poseidon2.gateConstraints` is differentially tested
@@ -166,7 +166,7 @@ pub fn generate_poseidon2_prims_lean() -> String {
          \x20 * `sbox7 w0`            = `sbox7_base(w0)`               (the `x^7` S-box)\n\
          \x20 * `mdsLight w0..w11`    = `mds_light_base([w0..w11])`    (external light MDS)\n\
          \x20 * `internalMix w0..w23` = `internal_mix_base([w0..w11], diag=[w12..w23])`\n\n\
-         \x20 `Generated/Poseidon2Bridge.lean` proves each equals the opaque hand model\n\
+         \x20 `Bridges/Poseidon2Bridge.lean` proves each equals the opaque hand model\n\
          \x20 `Plonky2Spec.Poseidon2.{sbox7,mdsLight,internalMix}` by `ring`.\n\
          -/\n\
          import Mathlib.Algebra.Field.ZMod\n\

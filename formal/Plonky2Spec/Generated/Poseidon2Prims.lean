@@ -10,7 +10,7 @@
   * `mdsLight w0..w11`    = `mds_light_base([w0..w11])`    (external light MDS)
   * `internalMix w0..w23` = `internal_mix_base([w0..w11], diag=[w12..w23])`
 
-  `Generated/Poseidon2Bridge.lean` proves each equals the opaque hand model
+  `Bridges/Poseidon2Bridge.lean` proves each equals the opaque hand model
   `Plonky2Spec.Poseidon2.{sbox7,mdsLight,internalMix}` by `ring`.
 -/
 import Mathlib.Algebra.Field.ZMod

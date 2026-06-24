@@ -262,7 +262,7 @@ code rather than hand-transcribed.
      the extracted DAGs, evaluated at 200 random points, match the real
      `GoldilocksField` `eval_unfiltered` (run over the degree-2 extension) — i.e.
      the symbolic arithmetic faithfully mirrors the field.
-  2. *Lean equivalence* (`Generated/Bridge.lean`): each extracted def is proved
+  2. *Lean equivalence* (`Bridges/Bridge.lean`): each extracted def is proved
      **equal to the Step-1/2a hand model** by `ring`/`linear_combination`
      (`arithmeticGate_c0 = 0 ↔ ArithmeticConstraint …`; `baseSum2_c0 = 0 ↔
      reconstructF 2 [·,·] = sum`; `baseSum2_c{1,2} = limbRangeProduct 2 ·`). So the
@@ -378,7 +378,7 @@ Built `Plonky2Spec/Poseidon2.lean`:
     as `pub`. The exporter symbolically executes *those real helpers* and emits
     `Generated/Poseidon2Prims.lean` (`sbox7`, `mdsLight`, `internalMix`), regenerated and
     staleness-guarded in CI like every other `Generated/` file.
-  - `Generated/Poseidon2Bridge.lean` proves `Plonky2Spec.Poseidon2.{sbox7,mdsLight,internalMix}`
+  - `Bridges/Poseidon2Bridge.lean` proves `Plonky2Spec.Poseidon2.{sbox7,mdsLight,internalMix}`
     (the `@[irreducible]` hand model) equal their extracted counterparts by `ring`
     (`unseal`ed locally). Standard-axioms-only; any drift in the S-box, the light-MDS
     matrix, or the internal diffusion breaks `lake build`.

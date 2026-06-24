@@ -22,15 +22,17 @@
                              scan) bridged to the `RL0` building blocks
   * `Plonky2Spec.Generated.Gates`  constraint polynomials auto-extracted from the
                              real `Gate::eval_unfiltered` by the Rust exporter
-                             (`constraint-exporter/`), and `Generated.Bridge`,
-                             which pins them to the hand models by `ring` (2b)
+                             (`constraint-exporter/`)
+  * `Plonky2Spec.Bridges.Bridge` / `Bridges.Poseidon2Bridge` pin extracted
+                             constraints and Poseidon2 primitives to the hand models
+                             by `ring` (2b / 3b)
   * `Plonky2Spec.Generated.Poseidon2`  the 118 `Poseidon2Gate` constraints,
                              auto-extracted as a straight-line `let`-program (3a)
   * `Plonky2Spec.Poseidon2`  the Poseidon2 permutation model + the meaning theorem
                              `gate_sound_complete` (3b): the checkpointed gate
                              constraints are satisfiable iff `output = perm(input)`;
-                             `Generated.Poseidon2Prims`/`Poseidon2Bridge` pin its
-                             primitives to the real Rust helpers by `ring`
+                             `Generated.Poseidon2Prims` pins its primitives to the
+                             real Rust helpers by `ring`
   * `Plonky2Spec.Sponge`     the `hash_no_pad` sponge over the verified permutation
                              (3c): `pad10`/absorb/squeeze, the `H : List Felt → Digest`
                              computational realization of the spec's `RandomOracle.H`,
@@ -47,9 +49,9 @@ import Plonky2Spec.Arithmetic
 import Plonky2Spec.Boolean
 import Plonky2Spec.Wrapper
 import Plonky2Spec.Generated.Gates
-import Plonky2Spec.Generated.Bridge
+import Plonky2Spec.Bridges.Bridge
 import Plonky2Spec.Generated.Poseidon2
 import Plonky2Spec.Poseidon2
 import Plonky2Spec.Generated.Poseidon2Prims
-import Plonky2Spec.Generated.Poseidon2Bridge
+import Plonky2Spec.Bridges.Poseidon2Bridge
 import Plonky2Spec.Sponge

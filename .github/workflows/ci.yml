@@ -75,7 +75,7 @@ jobs:
       # match the real `GoldilocksField` `eval_unfiltered`, (b) the extracted Poseidon2
       # primitives match the real helpers, and (c) the Lean sponge model's wrapper
       # matches `Poseidon2Hash::hash_no_pad` — the Rust half of the guarantees whose
-      # Lean half is the `Generated/*Bridge.lean` `ring` lemmas and `Sponge.lean`.
+      # Lean half is the `Bridges/*Bridge.lean` `ring` lemmas and `Sponge.lean`.
       - name: Test constraint exporter (extraction == real gate)
         run: cargo test --release -p qp-plonky2-constraint-exporter
       # Guard against a stale committed generated Lean: regenerate from the live

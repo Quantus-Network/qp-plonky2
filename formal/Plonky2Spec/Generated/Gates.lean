@@ -9,7 +9,7 @@
 
   Each `def …_c{i}` is the i-th constraint the gate forces to zero, with `w{j}`
   the j-th `local_wires` entry and `c{j}` the j-th `local_constants` entry.
-  `Generated/Bridge.lean` proves each of these equals the corresponding
+  `Bridges/Bridge.lean` proves each of these equals the corresponding
   hand-written model in `Arithmetic.lean` / `RangeCheck.lean` (by `ring`), so a
   drift between the gate code and the spec breaks `lake build`.
 -/
