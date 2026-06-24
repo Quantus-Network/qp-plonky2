@@ -360,7 +360,8 @@ mod tests {
     #[test]
     fn poseidon2_primitives_match_real_helpers() {
         use plonky2::gates::poseidon2::{
-            internal_mix_base, mds_light_base, sbox7_base, SPONGE_WIDTH,
+            formal_export::{internal_mix_base, mds_light_base, sbox7_base},
+            SPONGE_WIDTH,
         };
 
         let mut rng = Lcg(0xdead_d00d_face_b00c);
@@ -423,7 +424,8 @@ mod tests {
     #[test]
     fn poseidon2_hand_gate_constraints_match_real_gate() {
         use plonky2::gates::poseidon2::{
-            internal_mix_base, mds_light_base, sbox7_base, SPONGE_WIDTH,
+            formal_export::{internal_mix_base, mds_light_base, sbox7_base},
+            SPONGE_WIDTH,
         };
 
         /// One external round: `mdsLight (sboxAll (addRC rc s))` — mirrors `extRound`.
