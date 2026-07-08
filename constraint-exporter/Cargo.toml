@@ -22,7 +22,7 @@ publish = false
 plonky2 = { package = "qp-plonky2", path = "../plonky2", features = [
   "formal-export",
 ] }
-qp-plonky2-core = { version = "=1.5.1", path = "../core" }
+qp-plonky2-core = { version = "=1.5.2", path = "../core" }
 num = { workspace = true }
 rand = { workspace = true }
 serde = { workspace = true }
