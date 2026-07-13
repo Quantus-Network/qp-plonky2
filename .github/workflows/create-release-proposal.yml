@@ -73,7 +73,15 @@ jobs:
           CUSTOM_VERSION: ${{ github.event.inputs.custom_version }}
         run: |
           # Remove 'v' prefix for processing
-          current_version=${LATEST_TAG#v}
+          tag_version=${LATEST_TAG#v}
+
+          # The Cargo.toml versions can drift ahead of the latest git tag (e.g. if a
+          # previous change bumped them without cutting a tag). Base the bump on the
+          # higher of the latest tag and the current workspace version so we never
+          # recompute a version that already exists in the Cargo.toml files.
+          cargo_version=$(grep -m1 -E '^version\s*=' field/Cargo.toml | sed -E 's/.*"([^"]+)".*/\1/')
+          current_version=$(printf '%s\n%s\n' "$tag_version" "$cargo_version" | sort -V | tail -n 1)
+          echo "Latest tag version: $tag_version, current Cargo.toml version: $cargo_version, using base: $current_version"
 
           if [[ "$VERSION_TYPE" == "custom" ]]; then
             if [[ -z "$CUSTOM_VERSION" ]]; then
@@ -166,6 +174,13 @@ jobs:
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           
           git add field/Cargo.toml core/Cargo.toml verifier/Cargo.toml plonky2/Cargo.toml starky/Cargo.toml constraint-exporter/Cargo.toml
+
+          if git diff --cached --quiet; then
+            echo "Error: no version changes to commit. The workspace Cargo.toml files are already at $new_cargo_version." >&2
+            echo "This usually means the versions were bumped without cutting a matching git tag." >&2
+            exit 1
+          fi
+
           git commit -m "ci: Automate version bump to $NEW_VERSION"
           git push origin "$branch_name"
 
