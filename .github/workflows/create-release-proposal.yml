@@ -72,8 +72,38 @@ jobs:
           VERSION_TYPE: ${{ github.event.inputs.version_type }}
           CUSTOM_VERSION: ${{ github.event.inputs.custom_version }}
         run: |
+          set -euo pipefail
+
           # Remove 'v' prefix for processing
-          current_version=${LATEST_TAG#v}
+          tag_version=${LATEST_TAG#v}
+
+          # Workspace crates released together share a single version. Cargo.toml
+          # can drift ahead of the latest git tag (e.g. a bump landed without
+          # cutting a matching tag). Base the bump on max(tag, cargo) so
+          # patch/minor/major never re-proposes a version already in the tree.
+          release_crates=(field core verifier plonky2 starky)
+          cargo_versions=()
+          for crate in "${release_crates[@]}"; do
+            ver=$(grep -m1 -E '^version\s*=' "$crate/Cargo.toml" | sed -E 's/.*"([^"]+)".*/\1/')
+            if [[ ! "$ver" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9a-zA-Z.-]+)?$ ]]; then
+              echo "Error: could not parse a semver package version from $crate/Cargo.toml (got: '${ver:-<empty>}')." >&2
+              exit 1
+            fi
+            cargo_versions+=("$ver")
+          done
+
+          # All release crates must agree; otherwise a single-file sample is unsafe.
+          cargo_version="${cargo_versions[0]}"
+          for ver in "${cargo_versions[@]}"; do
+            if [[ "$ver" != "$cargo_version" ]]; then
+              echo "Error: release crate package versions diverge: ${cargo_versions[*]}" >&2
+              echo "Keep field/core/verifier/plonky2/starky package versions identical before releasing." >&2
+              exit 1
+            fi
+          done
+
+          current_version=$(printf '%s\n%s\n' "$tag_version" "$cargo_version" | sort -V | tail -n 1)
+          echo "Latest tag version: $tag_version, current Cargo.toml version: $cargo_version, using base: $current_version"
 
           if [[ "$VERSION_TYPE" == "custom" ]]; then
             if [[ -z "$CUSTOM_VERSION" ]]; then
@@ -166,6 +196,16 @@ jobs:
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           
           git add field/Cargo.toml core/Cargo.toml verifier/Cargo.toml plonky2/Cargo.toml starky/Cargo.toml constraint-exporter/Cargo.toml
+
+          if git diff --cached --quiet; then
+            echo "Error: no version changes to commit. Workspace Cargo.toml files are already at $new_cargo_version." >&2
+            echo "Common causes:" >&2
+            echo "  - custom version equals the current Cargo package versions" >&2
+            echo "  - sed patterns did not match (check package/dep version formatting)" >&2
+            echo "Re-run with a higher version_type/custom_version, or cut a git tag for the current version if that is the intended release." >&2
+            exit 1
+          fi
+
           git commit -m "ci: Automate version bump to $NEW_VERSION"
           git push origin "$branch_name"
 
