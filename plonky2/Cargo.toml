@@ -47,7 +47,7 @@ critical-section = { version = "=1.2.0", default-features = false, features = [
 hashbrown = { workspace = true }
 itertools = { workspace = true }
 keccak-hash = { version = "=0.8.0", default-features = false }
-qp-poseidon-core = { version = "=3.0.0", default-features = false }
+qp-poseidon-core = { version = "=3.0.2", default-features = false }
 rand = { workspace = true }
 log = { workspace = true }
 num = { workspace = true }
@@ -70,7 +70,9 @@ getrandom = { version = "=0.4.2", default-features = false, features = [
 ], optional = true }
 
 [dev-dependencies]
-criterion = { version = "=0.5.1", default-features = false }
+criterion = { version = "=0.8.2", default-features = false, features = [
+  "cargo_bench_support",
+] }
 env_logger = { version = "=0.9.3", default-features = false }
 num_cpus = { version = "=1.17.0", default-features = false }
 rand = { version = "=0.10.1", features = ["std_rng", "thread_rng"] }
