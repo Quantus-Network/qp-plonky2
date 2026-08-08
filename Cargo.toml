@@ -24,7 +24,7 @@ resolver = "2"
 # No compile-time-rng: that pulled const-random → getrandom 0.2 alongside
 # rand 0.10's getrandom 0.4. Fixed keys are fine for a deterministic prover.
 ahash = { version = "=0.8.12", default-features = false } # NOTE: Be sure to keep this version the same as the dependency in `hashbrown`.
-anyhow = { version = "=1.0.100", default-features = false }
+anyhow = { version = "=1.0.104", default-features = false }
 hashbrown = { version = "=0.14.5", default-features = false, features = [
   "ahash",
   "serde",
