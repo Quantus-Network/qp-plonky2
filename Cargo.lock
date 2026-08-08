@@ -701,7 +701,7 @@ dependencies = [
 
 [[package]]
 name = "qp-plonky2"
-version = "1.5.3"
+version = "1.5.4"
 dependencies = [
  "ahash",
  "anyhow",
@@ -747,7 +747,7 @@ dependencies = [
 
 [[package]]
 name = "qp-plonky2-core"
-version = "1.5.3"
+version = "1.5.4"
 dependencies = [
  "ahash",
  "anyhow",
@@ -766,7 +766,7 @@ dependencies = [
 
 [[package]]
 name = "qp-plonky2-field"
-version = "1.5.3"
+version = "1.5.4"
 dependencies = [
  "anyhow",
  "itertools",
@@ -781,7 +781,7 @@ dependencies = [
 
 [[package]]
 name = "qp-plonky2-verifier"
-version = "1.5.3"
+version = "1.5.4"
 dependencies = [
  "ahash",
  "anyhow",
@@ -807,9 +807,9 @@ dependencies = [
 
 [[package]]
 name = "qp-poseidon-core"
-version = "3.0.2"
+version = "3.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "55e32db7b3a5d70086f82f198ecfc021f17cb7ec70a416512dba3488f4a116c1"
+checksum = "5872607e25ea4ee5fb37e64bf1462168e1a36a4e719cdc8a105533c708253918"
 
 [[package]]
 name = "quote"
@@ -979,7 +979,7 @@ checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
 
 [[package]]
 name = "starky"
-version = "1.5.3"
+version = "1.5.4"
 dependencies = [
  "ahash",
  "anyhow",
