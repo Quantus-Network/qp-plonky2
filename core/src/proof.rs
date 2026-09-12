@@ -31,3 +31,20 @@ pub struct ProofChallenges<F: RichField + Extendable<D>, const D: usize> {
 
 /// Coset elements that can be inferred in the FRI reduction steps.
 pub struct FriInferredElements<F: RichField + Extendable<D>, const D: usize>(pub Vec<F::Extension>);
+
+/// Validate the serialized public-input length before allocating a proof's inputs.
+pub fn checked_public_input_len(
+    encoded: [u8; 8],
+    expected: usize,
+    remaining_bytes: usize,
+) -> anyhow::Result<usize> {
+    anyhow::ensure!(
+        u64::from_le_bytes(encoded) == expected as u64,
+        "proof public-input count does not match circuit"
+    );
+    anyhow::ensure!(
+        expected <= remaining_bytes / 8,
+        "truncated proof public inputs"
+    );
+    Ok(expected)
+}
