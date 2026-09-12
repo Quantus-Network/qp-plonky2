@@ -636,7 +636,14 @@ pub trait Read {
         C: GenericConfig<D, F = F>,
     {
         let proof = self.read_proof(common_data)?;
-        let pi_len = self.read_usize()?;
+        let mut encoded_len = [0u8; 8];
+        self.read_exact(&mut encoded_len)?;
+        let pi_len = qp_plonky2_core::proof::checked_public_input_len(
+            encoded_len,
+            common_data.num_public_inputs,
+            self.remaining(),
+        )
+        .map_err(|_| IoError)?;
         let public_inputs = self.read_field_vec(pi_len)?;
         Ok(ProofWithPublicInputs {
             proof,
