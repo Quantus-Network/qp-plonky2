@@ -6,6 +6,7 @@
 
 pub mod circuit;
 pub mod extract;
+pub mod gadget;
 pub mod render;
 pub mod symbolic;
 

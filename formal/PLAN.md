@@ -595,7 +595,7 @@ this explicit hypothesis rather than proved here.
   standard-axioms-only.
 - Follow-up: prove routability of the `n`-round odd-even network to discharge `routable`.
 
-### Step 8 — Wiring-level decode: spike on the nullifier-select path (`n = 2`)  ✅ SPIKE DONE
+### Step 8 — Wiring-level decode: spike on the nullifier-select path (`n = 2`)  ✅ SPIKE DONE, 8b DONE
 Attacks §9 gap (a) — the public-input decode hypotheses (`hd`/`hnull`/…) are hand-stated
 — by exporting the builder's **pre-`build` constraint system** and proving the decode from
 it. Pieces:
@@ -644,11 +644,10 @@ it. Pieces:
    `(looking_in, looking_out)` lists and `circuit::export` refuses a builder that has any
    (`export_rejects_pending_lookups`), since `build` would add lookup rows the export
    would silently lack. The wrapper places none.
-2. *Gate coverage.* `Satisfies` interprets only `ArithmeticGate`. The wrapper also places
-   `BaseSumGate` (range checks), `Poseidon2Gate`, `ConstantGate`, `PublicInputGate`, and
-   the recursive-verifier gates. `BaseSumGate`/`Poseidon2Gate` have
-   exporter-backed per-gate models already (Steps 2b/3a) and slot in as further
-   `GateKind`s; the verifier gates stay `.other` (T4 is axiomatized regardless).
+2. *Gate coverage.* `Satisfies` interprets `ArithmeticGate` and (since 8b) `BaseSumGate<2>`;
+   `Poseidon2Gate` rows are stated through `Poseidon2Rows`. The wrapper also places
+   `ConstantGate`, `PublicInputGate` (both `build`-time, absent pre-`build`) and the
+   recursive-verifier gates, which stay `.other` (T4 is axiomatized regardless).
 3. *Proof scaling.* The `n = 2` decode is 56 copies + 18 ops, proved by instantiating each
    op, orienting each copy constraint as a rewrite (sink → source), and `ring`. The proof
    text is mechanical and was produced from the export, but it is hand-indexed against
@@ -671,16 +670,48 @@ it. Pieces:
 4. *Constants.* Goldilocks constants are rendered generically over `ZMod p` when small
    (`n` or `-(n)` for `n ≤ 2^32`); anything else is emitted as its canonical `u64` and
    flagged, faithful only at `p = goldilocks`. The wrapper's constants are all small.
-- **Acceptance (met):** `cargo test -p qp-plonky2-constraint-exporter` green (13 tests);
+- **Acceptance (met):** `cargo test -p qp-plonky2-constraint-exporter` green (15 tests);
   `lake build Plonky2Spec Plonky2Bridge` clean (Bridge now four roots); exporter output
   byte-stable across runs.
-- **Next (8b, needs a decision):** release the fork with `formal_export_view`, then add a
-  `formal-export` dev feature in `wormhole/aggregator` whose test exports the real `n = 2`
-  wrapper via `wrapper_only_n2_builds_without_verifiers`, and extend `GateKind` with
-  `BaseSumGate<2>` (its `.baseSum2` lift) and `Poseidon2Gate`. Estimate for the `n = 2`
-  decode theorem `Satisfies (exportedWrapper 2) a → PrivateBatchConstraints …`: ~1 week
-  exporter (gadget-call indices + skeleton), ~1–2 weeks Lean, mostly the Poseidon2 rows
-  (`gate_sound_complete` → `hdnull`) and the switch network (`hsw`).
+- **8b (done, fork-side):** the two pieces the wrapper export needs and that do not depend
+  on a release.
+  - *Gate kinds.* `GateKind.baseSum2 n` — `rowConstraints` is `BaseSum 2 (sum) (limbs)`
+    on wires `0` / `1..=n` (the Step 2b model; `check_satisfied` mirrors it) — and
+    `GateKind.poseidon2`, whose row constraint stays `True` in `Satisfies` and is instead
+    stated separately as `Poseidon2Rows perm c a` (outputs `12..24` = `perm` of inputs
+    `0..12`), so a decode theorem can assume it for the verified permutation without
+    re-proving the 130-wire gate inline; `check_satisfied` checks the real
+    `P2Permuter::permute`. `classify` recognises `BaseSumGate { num_limbs: n } + Base: 2`
+    and `Poseidon2Gate<WIDTH=12>`. Lifts: `Satisfies.baseSum2`, `rangeCheck_of_row`
+    (zero-pinned tail ⟹ `rangeCheck (sum) n`), `arithEq_of_rows` (one op as its wire
+    equation). The view also reports `num_virtual_targets`.
+  - *Skeleton generator.* `constraint-exporter/src/gadget.rs`: `Recorder` wraps the
+    builder and mirrors the wrapper's gadget calls (`add_virtual_bool_target_safe`,
+    `select`, `not`/`and`/`or`, `add`/`sub`/`mul`, `is_equal`, `range_check`, `connect`),
+    recording per call the `Fact` it denotes plus the row/copy ranges the builder actually
+    emitted (so constant folding, memoisation and lazily allocated `one`/`zero` are
+    observed, not assumed; `is_equal`'s `inv` is the fresh non-constant virtual target).
+    `render_decode_theorem` emits `Satisfies c a → fact₁ ∧ … ∧ factₙ` *with its proof*:
+    destructure copies/constants, one `arithEq_of_rows` per used op, one oriented
+    `simp only` rewrite set (gate input wires → their sources, zero-pinned outputs → `0`,
+    constants → values), then one fixed tactic block per fact kind using only the ops
+    internal to that call (`bselect`/`bnot`/`band`/`bor`/`sub` by `simp only; ring`;
+    `assert_bool` and `is_equal` by `linear_combination` on the zero-pinned checks;
+    `range_check` by `rangeCheck_of_row` with `interval_cases` over the tail). Validated on
+    `Generated/GadgetZooCircuit.lean` (5 rows, 93 copies, 9 facts: the wrapper's whole
+    gadget mix), which compiled first time from the generator; the test suite checks a
+    real prover witness satisfies the export (exercising the `BaseSumGate<2>` arm) and
+    every recorded fact, and that the checked-in Lean is current.
+  - Poseidon2 rows are not part of a `Fact` yet: the wrapper's hashes will be stated via
+    `Poseidon2Rows` + the named input/output wires, and the recorder needs a
+    `hash_n_to_hash_no_pad` mirror that records which rows the sponge landed on.
+- **Next (8c, needs a release):** ship `formal_export_view` in a fork release, then add a
+  `formal-export` dev feature in `wormhole/aggregator` whose test builds the real `n = 2`
+  wrapper via `wrapper_only_n2_builds_without_verifiers` through the `Recorder` (the
+  wrapper's builder calls are exactly its mirrored set plus the sponge) and checks in the
+  generated `Satisfies (exportedWrapper 2) a → …` theorem. Remaining estimate: ~1 week
+  Lean, mostly composing the generated facts into `PrivateBatchConstraints` (the
+  `Poseidon2Rows` ⟹ `hdnull` step via `gate_sound_complete`, and the switch network `hsw`).
 
 ## 9. Definition of done
 

@@ -37,11 +37,13 @@ fn main() -> std::io::Result<()> {
     let poseidon2 = constraint_exporter::generate_poseidon2_lean();
     let poseidon2_prims = constraint_exporter::generate_poseidon2_prims_lean();
     let nullifier_select = constraint_exporter::circuit::generate_nullifier_select_lean();
+    let gadget_zoo = constraint_exporter::gadget::generate_gadget_zoo_lean();
 
     write(&dir, "Gates.lean", &gates)?;
     write(&dir, "Poseidon2.lean", &poseidon2)?;
     write(&dir, "Poseidon2Prims.lean", &poseidon2_prims)?;
     write(&dir, "NullifierSelectCircuit.lean", &nullifier_select)?;
+    write(&dir, "GadgetZooCircuit.lean", &gadget_zoo)?;
 
     print!("{gates}");
     println!("\n-- ===== Poseidon2.lean =====");
@@ -50,5 +52,7 @@ fn main() -> std::io::Result<()> {
     print!("{poseidon2_prims}");
     println!("\n-- ===== NullifierSelectCircuit.lean =====");
     print!("{nullifier_select}");
+    println!("\n-- ===== GadgetZooCircuit.lean =====");
+    print!("{gadget_zoo}");
     Ok(())
 }
