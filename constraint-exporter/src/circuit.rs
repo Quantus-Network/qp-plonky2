@@ -75,8 +75,22 @@ fn classify(id: &str) -> GateKind {
 }
 
 /// Snapshot the builder's constraint system.
-pub fn export(builder: &CircuitBuilder<F, D>, named: Vec<(String, Vec<Target>)>) -> CircuitExport {
+///
+/// Fails if the builder has pending lookups: `build` would add `LookupGate`/`LookupTableGate`
+/// rows tying each `(looking_in, looking_out)` pair to its table, which this export does not
+/// model, so a snapshot that dropped them would admit assignments the built circuit rejects.
+pub fn export(
+    builder: &CircuitBuilder<F, D>,
+    named: Vec<(String, Vec<Target>)>,
+) -> Result<CircuitExport, String> {
     let view = builder.formal_export_view();
+    let pending: usize = view.lookups.iter().map(Vec::len).sum();
+    if pending > 0 {
+        return Err(format!(
+            "builder has {pending} pending lookup(s) across {} table(s); lookups are not modeled",
+            view.lookups.len()
+        ));
+    }
     let rows = view
         .gate_instances
         .iter()
@@ -90,13 +104,13 @@ pub fn export(builder: &CircuitBuilder<F, D>, named: Vec<(String, Vec<Target>)>)
         .collect();
     // Deterministic order (the builder's map is a hash map).
     constants.sort_by_key(|(_, c)| c.to_canonical_u64());
-    CircuitExport {
+    Ok(CircuitExport {
         rows,
         copies,
         constants,
         public_inputs: view.public_inputs.to_vec(),
         named,
-    }
+    })
 }
 
 // --- Lean rendering -----------------------------------------------------------------------
@@ -286,7 +300,7 @@ pub fn build_nullifier_select(n: usize) -> (CircuitBuilder<F, D>, NullifierSelec
 /// Export of [`build_nullifier_select`].
 pub fn nullifier_select_circuit(n: usize) -> CircuitExport {
     let (b, t) = build_nullifier_select(n);
-    export(&b, t.named())
+    export(&b, t.named()).expect("nullifier-select path has no lookups")
 }
 
 /// Build `formal/Plonky2Spec/Generated/NullifierSelectCircuit.lean`.
@@ -322,9 +336,12 @@ pub fn generate_nullifier_select_lean() -> String {
 
 #[cfg(test)]
 mod tests {
+    use std::sync::Arc;
+
     use plonky2::field::types::{Field, Sample};
     use plonky2::iop::generator::generate_partial_witness;
     use plonky2::iop::witness::{PartialWitness, Witness, WitnessWrite};
+    use plonky2::plonk::circuit_data::CircuitConfig;
     use plonky2::plonk::config::PoseidonGoldilocksConfig;
 
     use super::*;
@@ -372,7 +389,7 @@ mod tests {
     #[test]
     fn nullifier_select_export_satisfied_by_real_witness() {
         let (b, t) = build_nullifier_select(2);
-        let ex = export(&b, t.named());
+        let ex = export(&b, t.named()).unwrap();
         let data = b.build::<PoseidonGoldilocksConfig>();
 
         let mut seed = 0x5eed_u64;
@@ -408,7 +425,7 @@ mod tests {
     #[test]
     fn check_satisfied_rejects_bad_assignment() {
         let (b, t) = build_nullifier_select(1);
-        let ex = export(&b, t.named());
+        let ex = export(&b, t.named()).unwrap();
         let data = b.build::<PoseidonGoldilocksConfig>();
         let mut pw = PartialWitness::new();
         pw.set_target(t.is_dummy[0], F::ONE).unwrap();
@@ -418,5 +435,20 @@ mod tests {
         check_satisfied(&ex, |tg| val(&w, tg)).unwrap();
         let bad = t.out[2];
         assert!(check_satisfied(&ex, |tg| if tg == bad { F::TWO } else { val(&w, tg) }).is_err());
+    }
+
+    /// A builder with a pending lookup is refused rather than exported without it.
+    #[test]
+    fn export_rejects_pending_lookups() {
+        let mut b = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+        let lut = b.add_lookup_table_from_pairs(Arc::new(vec![(0, 0), (1, 1)]));
+        assert!(
+            export(&b, vec![]).is_ok(),
+            "an unused table adds no constraint"
+        );
+        let x = b.add_virtual_target();
+        let _ = b.add_lookup_from_index(x, lut);
+        let err = export(&b, vec![]).unwrap_err();
+        assert!(err.contains("1 pending lookup"), "{err}");
     }
 }

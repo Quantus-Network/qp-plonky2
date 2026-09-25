@@ -85,6 +85,10 @@ pub struct FormalExportView<'a, F: RichField + Extendable<D>, const D: usize> {
     pub copy_constraints: &'a [CopyConstraint],
     pub constant_targets: &'a HashMap<Target, F>,
     pub public_inputs: &'a [Target],
+    /// Per lookup table, the `(looking_in, looking_out)` pairs registered so far. `build`
+    /// turns these into `LookupGate`/`LookupTableGate` rows; the exporter does not model
+    /// them and must reject a builder with any.
+    pub lookups: &'a [Lookup],
 }
 
 /// Structure containing, for each lookup table, the indices of the last lookup row,
@@ -290,8 +294,9 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     /// Read-only view of the pre-`build` constraint system, for the formal-verification
     /// constraint exporter (`constraint-exporter/`, `formal/PLAN.md` Step 8). Returns the
     /// placed gate instances, the copy constraints accumulated so far, the constant targets
-    /// (`build` materializes each as a `ConstantGate` wire copied to the target), and the
-    /// registered public inputs, in registration order.
+    /// (`build` materializes each as a `ConstantGate` wire copied to the target), the
+    /// registered public inputs, in registration order, and the pending lookups (which
+    /// `build` materializes as lookup gate rows).
     #[cfg(feature = "formal-export")]
     #[doc(hidden)]
     pub fn formal_export_view(&self) -> FormalExportView<'_, F, D> {
@@ -300,6 +305,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             copy_constraints: &self.copy_constraints,
             constant_targets: &self.targets_to_constants,
             public_inputs: &self.public_inputs,
+            lookups: &self.lut_to_lookups,
         }
     }
 

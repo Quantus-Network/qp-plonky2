@@ -50,6 +50,11 @@
                              2-slot nullifier-select path, and
                              `Bridges.CircuitBridge` derives the public-input decode
                              from it
+  * `Plonky2Spec.WiringGadgets` the gadget-trace layer over `Wiring`: named
+                             `Constraint`s lifted out of `Satisfies`, and the exact
+                             op sequences of `select`/`not`/`and`/`or`/`is_equal`/
+                             `range_check` proved to denote `bselect`/`bnot`/`band`/
+                             `bor`/`IsEqual`/`rangeCheck`
 
   Methodology follows Zellic's *Formal Verification of a Plonky2 Gate*: each gadget
   separates an `Assumptions` side-condition (what the surrounding circuit must
@@ -73,3 +78,4 @@ import Plonky2Spec.Sponge
 import Plonky2Spec.Wiring
 import Plonky2Spec.Generated.NullifierSelectCircuit
 import Plonky2Spec.Bridges.CircuitBridge
+import Plonky2Spec.WiringGadgets
