@@ -543,7 +543,9 @@ leaf 32-bit ranges, the 64-leaf cap and `goldilocks ≤ p`), `valDigest_mask`/`v
 the public-batch forwarding lifts `forwardedSlots_val_bridge`/`forwardedNullifiers_val_bridge`.
 `private_batch_val` assembles them into `RPrivateBatch (spongeRO perm) …`; the capstone is
 now `private_batch_end_to_end`, which adds `RPrivateBatch_settles_distinct_spends`
-(value = raw real outputs ∧ real nullifiers `Nodup`) as clause (iii).
+(value = raw real outputs ∧ real nullifiers `Nodup`) as clause (iii). The children's 32-bit
+amount/fee ranges that `fee_val_bridge` needs are not a premise of the capstone: they are
+read off each child's `Rleaf` (`Rleaf_ranges`) via `leaf_proof_sound`.
 - **Acceptance (met):** `lake build Plonky2Spec` and `lake build Plonky2Bridge` clean;
   every 6a/6b lemma standard-axioms-only except `private_batch_end_to_end`
   (`+ leaf_proof_sound`, gated by `ci/AxiomsCheck.lean`).
