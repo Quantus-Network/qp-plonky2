@@ -575,6 +575,26 @@ and each inner's `RPrivateBatch` via `private_batch_proof_sound` (its only axiom
 - **Acceptance (met):** `lake build Plonky2Bridge` clean (the lib now has two roots);
   `public_batch_val` standard-axioms-only.
 
+#### Step 7b — Private-batch completeness across `.val` (`Plonky2Bridge/Complete.lean`)  ✅ DONE
+The converse of `private_batch_val`. One predicate `PrivateBatchConstraints` bundles the
+wrapper constraints exactly as `private_batch_val` consumes them, with
+`PrivateBatchConstraints.sound` (= `private_batch_val`) and `private_batch_complete`:
+every `RPrivateBatch (spongeRO perm) …` instance is realized by a field witness — the honest
+rows (`honestRows`: sentinel flag, both digests cast in via `castDigest`), the routing
+switches, and the cast-in fee wires (`feeCheck_complete`). `private_batch_iff` states both
+directions. The deliverable is `CompletenessAssumptions`, the full list of what an honest
+prover must arrange beyond the relation itself:
+`goldilocks ≤ p`, `≤ 64` leaves, one preimage per slot, the children's 32-bit ranges
+(free for accepted leaf proofs, `Rleaf_ranges`), canonical nullifier lanes (free for hash
+outputs), and `routable` — that the `n`-round odd-even network can route
+`buildNullifiers` into the claimed output order. `nullsPerm` gives the permutation; that
+the network realizes *every* permutation (the `permutation_switches` witness in
+`common/src/gadgets.rs`) is the odd-even transposition sorting-network theorem, left as
+this explicit hypothesis rather than proved here.
+- **Acceptance (met):** `lake build Plonky2Bridge` clean (three roots); every 7b theorem
+  standard-axioms-only.
+- Follow-up: prove routability of the `n`-round odd-even network to discharge `routable`.
+
 ## 9. Definition of done
 
 `R_leaf` fully bridged (T0–T3), `R_L0`/`R_L1` bridged modulo the enumerated
