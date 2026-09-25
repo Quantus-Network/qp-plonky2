@@ -488,13 +488,24 @@ theorem private_batch_val (perm : St p → St p) (hpg : WormholeSpec.goldilocks 
     (iv)  attests every child's leaf relation `Rleaf` — the trusted recursion seam (1),
           `leaf_proof_sound`.
 
+  The children's 32-bit amount/fee ranges that the fee comparator's no-wrap bounds rest on
+  are not assumed: they are read off each child's `Rleaf` (its `collect_32_bit_targets`
+  range checks), obtained from the accepted proof through `leaf_proof_sound`.
+
   Two things sit *outside* the Lean hypotheses, by design:
   * **Fidelity to the Rust** — that `spongeRO`/the wrapper gadgets *are* the deployed circuit —
     is carried by the constraint exporter + differential tests, not re-proved here.
   * The public-input **decode** (`hd`/`hdnull`/`hreal`/`hnull`/`hexits`/`hmeta`/`href`/the
     fee accumulator decodes) is the wiring/copy-constraint model (PLAN §9 gap (a)).
-  The only trusted *axiom* this theorem depends on is `leaf_proof_sound` (pulled in solely by
-  clause (iv)); clauses (i)–(iii) are standard-axioms-only. -/
+  The only trusted *axiom* this theorem depends on is `leaf_proof_sound` (used for clause (iv)
+  and for the children's range facts feeding clause (i)); `private_batch_val`, which takes
+  those ranges as an explicit premise, is standard-axioms-only. -/
+theorem Rleaf_ranges {ro : RandomOracle} {q : LeafPublic} {w : LeafWitness}
+    (h : Rleaf ro q w) :
+    WormholeSpec.inRange 32 q.inputAmount ∧ WormholeSpec.inRange 32 q.outputAmount1 ∧
+      WormholeSpec.inRange 32 q.outputAmount2 ∧ WormholeSpec.inRange 32 q.volumeFeeBps :=
+  ⟨h.2.2.1, h.1, h.2.1, h.2.2.2.2.1⟩
+
 theorem private_batch_end_to_end (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     (rounds : List (List (ZMod p))) (rows : List (SlotRow p)) {out : PrivateBatchOutput}
     {fee totalIn totalOut : ZMod p}
@@ -508,9 +519,6 @@ theorem private_batch_end_to_end (perm : St p → St p) (hpg : WormholeSpec.gold
       ∃ eq : ZMod p, (eq = 1 ↔ rows[i].1.real = rows[j].1.real) ∧
         band (band (bnot rows[i].1.isDummy) (bnot rows[j].1.isDummy)) eq = 0)
     (hlen : rows.length ≤ 64)
-    (h32 : ∀ q ∈ rows.map (fun t => t.2.1), WormholeSpec.inRange 32 q.inputAmount ∧
-      WormholeSpec.inRange 32 q.outputAmount1 ∧ WormholeSpec.inRange 32 q.outputAmount2 ∧
-      WormholeSpec.inRange 32 q.volumeFeeBps)
     (hfee : fee.val = out.volumeFeeBps)
     (hin : totalIn.val = maskedInputTotal (rows.map (fun t => t.2.1)))
     (hout : totalOut.val = maskedOutputTotal (rows.map (fun t => t.2.1)))
@@ -525,10 +533,17 @@ theorem private_batch_end_to_end (perm : St p → St p) (hpg : WormholeSpec.gold
       ∧ (outputExitTotal out = rawOutputTotal (realLeaves (rows.map (fun t => t.2.1)))
           ∧ (realNullifiers (rows.map (fun t => t.2.1))).Nodup)
       ∧ ∀ pub ∈ rows.map (fun t => t.2.1), ∃ w : LeafWitness, Rleaf (spongeRO perm) pub w := by
+  have hleaf : ∀ pub ∈ rows.map (fun t => t.2.1), ∃ w : LeafWitness, Rleaf (spongeRO perm) pub w :=
+    fun pub hp => leaf_proof_sound (spongeRO perm) pub (hacc pub hp)
+  have h32 : ∀ q ∈ rows.map (fun t => t.2.1), WormholeSpec.inRange 32 q.inputAmount ∧
+      WormholeSpec.inRange 32 q.outputAmount1 ∧ WormholeSpec.inRange 32 q.outputAmount2 ∧
+      WormholeSpec.inRange 32 q.volumeFeeBps := by
+    intro q hq
+    obtain ⟨w, hw⟩ := hleaf q hq
+    exact Rleaf_ranges hw
   have hR := private_batch_val perm hpg rounds rows hsw hb hd hdnull hreal hnull hcol hlen h32
     hfee hin hout hfc hexits hmeta href hnum
-  exact ⟨hR, RPrivateBatch_value_conservation hR, RPrivateBatch_settles_distinct_spends hR,
-    fun pub hp => leaf_proof_sound (spongeRO perm) pub (hacc pub hp)⟩
+  exact ⟨hR, RPrivateBatch_value_conservation hR, RPrivateBatch_settles_distinct_spends hR, hleaf⟩
 
 /-! ## Public-batch forwarding across `.val`
 
