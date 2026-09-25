@@ -4,6 +4,7 @@
 //! the resulting constraint polynomials as Lean definitions, for the formal
 //! spec under `../formal`. See `../formal/PLAN.md` Step 2b and `symbolic.rs`.
 
+pub mod circuit;
 pub mod extract;
 pub mod render;
 pub mod symbolic;
@@ -70,6 +71,12 @@ pub fn generate_lean() -> String {
     // gates at once. These gates are exactly those hand-modeled in
     // `Arithmetic.lean` / `RangeCheck.lean`; `Bridges/Bridge.lean` pins them.
     emit(&mut out, &extract::arithmetic_gate());
+    // The 20-op instance the standard recursion config actually places; each of its
+    // 20 constraints is `arithmeticGate_c0` on wires `4i..4i+3` (`Bridges/CircuitBridge.lean`).
+    emit(
+        &mut out,
+        &extract::arithmetic_gate_n(20, "arithmeticGate20"),
+    );
     // BaseSumGate<2>, 2 limbs: reconstruction `(w1 + 2·w2) − w0` plus one
     // degree-2 range product `wi·(wi − 1)` per limb.
     emit(&mut out, &extract::base_sum_gate::<2>(2, "baseSum2"));
@@ -282,6 +289,38 @@ mod tests {
             ));
 
             assert_eq!(sym_vals, real, "arithmetic gate constraint mismatch");
+        }
+    }
+
+    #[test]
+    fn arithmetic20_extraction_matches_real_gate() {
+        let ex = extract::arithmetic_gate_n(20, "arithmeticGate20");
+        assert_eq!(ex.constraints.len(), 20);
+        let mut rng = Lcg(0x2020_2020_1234_5678);
+        for _ in 0..200 {
+            let wires: Vec<GF> = (0..ex.num_wires).map(|_| rng.next()).collect();
+            let consts: Vec<GF> = (0..ex.num_consts).map(|_| rng.next()).collect();
+
+            let sym_vals: Vec<GF> = ex
+                .constraints
+                .iter()
+                .map(|&c| render::eval(c, &wires, &consts))
+                .collect();
+
+            let gate = ArithmeticGate { num_ops: 20 };
+            let we = embed(&wires);
+            let ce = embed(&consts);
+            let pih = HashOut::<GF>::ZERO;
+            let vars = EvaluationVars {
+                local_constants: &ce,
+                local_wires: &we,
+                public_inputs_hash: &pih,
+            };
+            let real = real_eval(<ArithmeticGate as Gate<GF, 2>>::eval_unfiltered(
+                &gate, vars,
+            ));
+
+            assert_eq!(sym_vals, real, "arithmetic20 gate constraint mismatch");
         }
     }
 

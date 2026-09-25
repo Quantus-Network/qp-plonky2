@@ -3,6 +3,7 @@
 //!   * `Gates.lean`          — ArithmeticGate + BaseSumGate<2>     (Step 2b)
 //!   * `Poseidon2.lean`      — Poseidon2Gate permutation (flat)    (Step 3a)
 //!   * `Poseidon2Prims.lean` — Poseidon2 sbox7/mdsLight/internalMix (Step 3b)
+//!   * `NullifierSelectCircuit.lean` — pre-`build` wiring of the nullifier-select path (Step 8)
 //!
 //!     cargo run -p qp-plonky2-constraint-exporter --bin export-constraints
 //!
@@ -35,15 +36,19 @@ fn main() -> std::io::Result<()> {
     let gates = constraint_exporter::generate_lean();
     let poseidon2 = constraint_exporter::generate_poseidon2_lean();
     let poseidon2_prims = constraint_exporter::generate_poseidon2_prims_lean();
+    let nullifier_select = constraint_exporter::circuit::generate_nullifier_select_lean();
 
     write(&dir, "Gates.lean", &gates)?;
     write(&dir, "Poseidon2.lean", &poseidon2)?;
     write(&dir, "Poseidon2Prims.lean", &poseidon2_prims)?;
+    write(&dir, "NullifierSelectCircuit.lean", &nullifier_select)?;
 
     print!("{gates}");
     println!("\n-- ===== Poseidon2.lean =====");
     print!("{poseidon2}");
     println!("\n-- ===== Poseidon2Prims.lean =====");
     print!("{poseidon2_prims}");
+    println!("\n-- ===== NullifierSelectCircuit.lean =====");
+    print!("{nullifier_select}");
     Ok(())
 }

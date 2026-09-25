@@ -32,10 +32,17 @@ pub struct Extracted {
 /// `ArithmeticGate` with a single op: `output = c0·m0·m1 + c1·addend`.
 /// Wires: `w0=m0, w1=m1, w2=addend, w3=output`; constants `c0, c1`.
 pub fn arithmetic_gate() -> Extracted {
+    arithmetic_gate_n(1, "arithmeticGate")
+}
+
+/// `ArithmeticGate { num_ops }` as placed by `CircuitConfig::standard_recursion_config()`
+/// (`num_ops = 20`): op `i` reads wires `4i..4i+3` and shares the row's two constants.
+pub fn arithmetic_gate_n(num_ops: usize, name: &'static str) -> Extracted {
     reset();
-    let gate = ArithmeticGate { num_ops: 1 };
+    let gate = ArithmeticGate { num_ops };
     let consts = [Sym::local_const(0), Sym::local_const(1)];
-    let wires = [Sym::wire(0), Sym::wire(1), Sym::wire(2), Sym::wire(3)];
+    let num_wires = 4 * num_ops;
+    let wires: Vec<Sym> = (0..num_wires).map(Sym::wire).collect();
     let pih = HashOut::<Sym>::ZERO;
     let vars = EvaluationVars {
         local_constants: &consts,
@@ -44,8 +51,8 @@ pub fn arithmetic_gate() -> Extracted {
     };
     let constraints = <ArithmeticGate as Gate<Sym, 1>>::eval_unfiltered(&gate, vars);
     Extracted {
-        name: "arithmeticGate",
-        num_wires: 4,
+        name,
+        num_wires,
         num_consts: 2,
         constraints,
     }

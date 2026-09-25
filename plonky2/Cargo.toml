@@ -18,8 +18,7 @@ categories.workspace = true
 [features]
 default = ["gate_testing", "parallel", "chacha", "timing", "thread_rng", "rand"]
 gate_testing = []
-# Exposes Poseidon2 primitive helpers and `CircuitBuilder::formal_snapshot` for the
-# formal-verification exporter (`constraint-exporter/`, `formal/PLAN.md` Step 8).
+# Exposes Poseidon2 primitive helpers for `qp-plonky2-constraint-exporter` only.
 formal-export = []
 parallel = ["hashbrown/rayon", "plonky2_maybe_rayon/parallel"]
 std = [

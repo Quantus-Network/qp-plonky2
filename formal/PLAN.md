@@ -595,80 +595,64 @@ this explicit hypothesis rather than proved here.
   standard-axioms-only.
 - Follow-up: prove routability of the `n`-round odd-even network to discharge `routable`.
 
-### Step 8 — Machine-checked public-input decode (the §9(a) gap)
+### Step 8 — Wiring-level decode: spike on the nullifier-select path (`n = 2`)  ✅ SPIKE DONE
+Attacks §9 gap (a) — the public-input decode hypotheses (`hd`/`hnull`/…) are hand-stated
+— by exporting the builder's **pre-`build` constraint system** and proving the decode from
+it. Pieces:
+- **Fork:** `CircuitBuilder::formal_export_view` (`#[cfg(feature = "formal-export")]`,
+  `#[doc(hidden)]`) — read-only borrow of `gate_instances`, `copy_constraints`,
+  `targets_to_constants`, `public_inputs`. This is exactly what `build` consumes: it only
+  adds `ConstantGate` wires copied to the constant targets, turns copies into the
+  permutation argument, and pads.
+- **Exporter:** `constraint-exporter/src/circuit.rs` — `CircuitExport` (rows classified
+  from `Gate::id()`, copies, constants, public inputs, named targets) + Lean renderer +
+  `check_satisfied` (a Rust evaluator mirroring the Lean `Satisfies`). The spike circuit
+  `build_nullifier_select(n)` uses the wrapper's own builder calls
+  (`add_virtual_bool_target_safe`, `select`, `register_public_inputs`). Tests: the export
+  is satisfied by every witness the *real* prover generates (`generate_partial_witness`)
+  and the public inputs decode as `select`; `check_satisfied` rejects a perturbed output;
+  `ArithmeticGate { num_ops: 20 }` (the standard-config instance) is now also extracted
+  (`arithmeticGate20_c{i}`) with its own 200-point differential test.
+  Output: `Generated/NullifierSelectCircuit.lean` (staleness-checked in CI like the rest).
+- **Model:** `Plonky2Spec/Wiring.lean` — `Target`, `GateKind`, `Row`, `Circuit`,
+  `Assignment`, `Satisfies` (rows op-by-op via the extracted `arithmeticGate_c0`, copies as
+  equalities, constant targets as equalities; uninterpreted gate kinds contribute `True`, so
+  theorems hold a fortiori).
+- **Proofs:** `Bridges/CircuitBridge.lean` — `arithmeticRow20_iff` (the 20-op gate is
+  op-by-op the one-op polynomial on wires `4i..4i+3`; `rowConstraints_arithmetic20`), and
+  `nullifierSelect2_decode`: every `Satisfies` assignment has boolean flags and public
+  input `k = bselect flag[k/4] dnull[k] real[k]`. `Plonky2Bridge/Wiring.lean` lands this
+  as `nullifierSelect2_wiredSlots`: the induced `NullSlot`s have boolean flags and each
+  public input is `NullSlot.sel` — the shape `nullifiers_val_bridge` consumes. All
+  standard-axioms-only.
 
-Every `*_val` bridge takes the wrapper's wire assignments as hypotheses (`hd`, `hnull`,
-`hexits`, `hfee`, …): *that* the wrapper computes `is_dummy` as `bytes_digest_eq(block_hash,
-0)`, forwards `select(is_dummy, 0, ·)` into the exit region, range-checks
-`10000 − fee` to 14 bits, and so on, is read off `circuit_logic.rs` by hand. Step 8 closes
-that gap by exporting the wrapper's *logical circuit* and proving those hypotheses from it.
-
-#### Step 8a — Spike: snapshot API, sizing, Lean semantics  ✅ DONE
-- **`CircuitBuilder::formal_snapshot()`** (`plonky2/src/plonk/formal_snapshot.rs`, behind
-  `formal-export`, serde-serializable): the gate rows with `id()` + constants, every copy
-  constraint, the constant-pinned targets, the registered public inputs and the
-  virtual-target count — the builder state *before* `build()`, so none of the compilation
-  (selectors, padding, PI hash) is in scope. Exercised by
-  `constraint-exporter/tests/formal_snapshot.rs` on the wrapper's gadget mix.
-- **The wrapper is exportable alone.** `build_private_batch_constraints` only reads
-  `leaf_proofs[i].public_inputs`, so it can be run on `add_virtual_proof_with_pis(&leaf.common)`
-  targets with no verifier in the builder (qp-zk-circuits test
-  `wrapper_only_n2_builds_without_verifiers`). The 26 PI targets per child are then the
-  decode boundary — exactly the `LeafPublic`-shaped inputs the bridges take.
-- **Measured, `n_leaf = 2`** (wormhole config, 60 routed wires): 65 gate rows =
-  55 `ArithmeticGate{15 ops}` (rows are keyed by their `(c0, c1)` constant pair, so most are
-  partially filled; ≲ 800 ops) + 6 `BaseSumGate{59}` (the `range_check`s: 14, 52, 4 × 32 bits)
-  + 4 `Poseidon2Gate` (two `hash_dummy_nullifier_pre_image`s); 2 818 copy constraints
-  (484 to the zero constant — the range-check tails and the ingress masks); 5 pinned
-  constants; 52 public inputs (= `pi_len(2)`); 185 KB of JSON. Everything but the Poseidon2
-  rows is `arith`/`copy`/`const`/`baseSum2`, which is the whole `Constraint` type in
-  `Plonky2Spec/Circuit.lean`; the Poseidon2 rows plug into `Poseidon2.gate_sound_complete`.
-- **`Plonky2Spec/Circuit.lean`**: `Target`/`Witness`/`Constraint`/`Circuit.Sat` for that
-  dump, plus the per-primitive rungs a generated proof chains: `selectGadget_spec`,
-  `notGadget_spec`, `andGadget_spec`, `orGadget_spec`, `isEqualGadget_spec` (the exact op
-  sequences of `select.rs` / `arithmetic.rs`) and `rangeCheckGadget_spec` (a
-  `BaseSumGate<2>` row with `x` on the sum and limbs `n..59` copied to zero ⟹ `rangeCheck x n`,
-  via `baseSum_take`). All standard-axioms-only.
-
-#### Step 8b — Design (the decision to make before 8c)
-The snapshot is a flat gate/copy list; the bridges want gadget-shaped facts (`hd : ∀ i,
-is_dummy_i = digestEq …`). Two ways to connect them:
-1. **Flat decode proof (generated).** Emit the whole snapshot as a `Circuit p` literal plus
-   a generated Lean proof that walks the copy-constraint forest to name each wire by its
-   defining op and applies the `*Gadget_spec` lemmas. Zero trust in the exporter beyond
-   "it dumped the builder faithfully"; but ~3 000 constraints per `n = 2` instance and a
-   proof term that grows with `n` — `n = 64` (the production capstone) is ~30× larger,
-   likely infeasible to elaborate as one theorem without a decision procedure.
-2. **Structured gadget trace (recommended).** Instrument the *gadget* calls the wrapper
-   makes (`select`, `is_equal`, `range_check`, `hash_n_to_hash_no_pad_p2`, `connect`,
-   `register_public_input`) to record a trace with concrete target indices, and export
-   that alongside the snapshot with a *Rust-side* check that the trace's op sequences are
-   present verbatim in the snapshot (a projection check, not a semantic one). The Lean side
-   then receives a `PrivateBatchConstraints`-shaped record whose fields are `Circuit.Sat`
-   instances of the `*Gadget` lists — linear in `n`, and each field discharged by one lemma.
-   The trust added is only "the trace-vs-snapshot projection check ran", which is the same
-   kind of mechanical check as the existing `Generated/Gates.lean` `ring` pins.
-Either way the deliverable is `private_batch_val`'s hypotheses *proved* from `Circuit.Sat w
-(exportedWrapper n)` for a concrete `n`, so `PrivateBatchConstraints` becomes a theorem
-rather than an input.
-
-**Dependency friction (needs a decision):** qp-zk-circuits consumes the *published*
-`qp-plonky2 =1.5.6`, and a local `[patch.crates-io]` does not resolve (rayon `=1.11.0` vs
-`=1.12.0` pins). So `formal_snapshot` must ship in a qp-plonky2 release before the
-qp-zk-circuits export test can call it, or the export must run from a qp-plonky2-side
-harness that re-implements the wrapper build (rejected: it would fork the very code under
-verification). Recommended: release `qp-plonky2 1.5.7` with 8a, then add a
-`formal-export` dev feature in `wormhole/aggregator` whose test writes
-`private_batch_n2.json`, consumed by a new `export-decode` bin in `constraint-exporter`.
-
-#### Step 8c — `n = 2` decode theorem (estimate)
-With option 2: exporter bin + trace instrumentation ~1 week; the generated Lean
-(`Plonky2Spec/Generated/PrivateBatchN2.lean`) and the theorem
-`private_batch_constraints_of_export : Circuit.Sat w (exportedWrapper 2) → PrivateBatchConstraints …`
-~1–2 weeks, most of it in the Poseidon2 rows (wiring `gate_sound_complete` to the
-`hdnull` hypothesis) and the odd-even switch network (`hsw`). Scaling to the production
-`n_leaf` is then a regeneration, not new proof work, if the per-gadget lemmas are stated
-per slot as they are now.
+**Findings (what a full Path 3 costs):**
+1. *Export surface.* The fork change is small and stable. The blocker for the real wrapper
+   is on the qp-zk-circuits side: `build_private_batch_constraints` is private and takes
+   `PrivateBatchCircuitTargets` including the recursive-verifier proof targets, so exporting
+   it needs a refactor that lets the wrapper logic run against plain virtual targets in
+   place of `add_recursive_verifiers` outputs (the T4 seam is then a list of named
+   virtual targets, which is the right boundary anyway). Deferred until circuit edits
+   resume.
+2. *Gate coverage.* `Satisfies` interprets only `ArithmeticGate`. The wrapper also places
+   `BaseSumGate` (range checks), `Poseidon2Gate`, `ConstantGate`, `PublicInputGate`, and
+   the recursive-verifier gates. `BaseSumGate`/`Poseidon2Gate` have
+   exporter-backed per-gate models already (Steps 2b/3a) and slot in as further
+   `GateKind`s; the verifier gates stay `.other` (T4 is axiomatized regardless).
+3. *Proof scaling.* The `n = 2` decode is 56 copies + 18 ops, proved by instantiating each
+   op, orienting each copy constraint as a rewrite (sink → source), and `ring`. The proof
+   text is mechanical and was produced from the export, but it is hand-indexed against
+   wire numbers, so it does not survive a re-export that moves ops. For the real wrapper
+   (thousands of ops) the exporter must also emit the *proof skeleton* — per-op `have`s and
+   the oriented rewrite set — or the Lean side needs a decision procedure that evaluates
+   `Satisfies` symbolically (a `simp` set over a normalized copy-closure). The rewrite-set
+   approach is the cheaper of the two and is what the spike's proof already is by hand.
+4. *Constants.* Goldilocks constants are rendered generically over `ZMod p` when small
+   (`n` or `-(n)` for `n ≤ 2^32`); anything else is emitted as its canonical `u64` and
+   flagged, faithful only at `p = goldilocks`. The wrapper's constants are all small.
+- **Acceptance (met):** `cargo test -p qp-plonky2-constraint-exporter` green (11 tests);
+  `lake build Plonky2Spec Plonky2Bridge` clean (Bridge now four roots); exporter output
+  byte-stable across runs.
 
 ## 9. Definition of done
 
@@ -683,6 +667,5 @@ the same way (`public_batch_end_to_end`, Step 7a). The remaining gap is exactly
 (a) the residual **wiring/copy-constraint** model fidelity (§3 — gate constraints
 are exporter-backed and the wrapper *logic* is bridged, but the public-input
 **decode** that feeds the bridges its `hd`/`hnull`/`hexits`/… wire assignments
-is still hand-modeled; Step 8a has the snapshot API, sizing and Lean semantics in
-place, 8b/8c are the remaining design decision and proof) and (b) the layer-1
-assumptions (§7) — both explicit.
+is still hand-modeled; Step 8 closes it for the nullifier-select path on `n = 2` and
+sizes the rest) and (b) the layer-1 assumptions (§7) — both explicit.
