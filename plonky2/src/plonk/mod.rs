@@ -7,6 +7,8 @@ pub mod circuit_builder;
 pub mod circuit_data;
 pub mod config;
 pub(crate) mod copy_constraint;
+#[cfg(feature = "formal-export")]
+pub mod formal_snapshot;
 mod get_challenges;
 pub(crate) mod permutation_argument;
 pub mod plonk_common;

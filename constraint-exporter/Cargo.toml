@@ -27,6 +27,9 @@ num = { workspace = true }
 rand = { workspace = true }
 serde = { workspace = true }
 
+[dev-dependencies]
+serde_json = { version = "=1.0.145" }
+
 [lib]
 name = "constraint_exporter"
 path = "src/lib.rs"

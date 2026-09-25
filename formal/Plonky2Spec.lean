@@ -43,6 +43,10 @@
                              (3c): `pad10`/absorb/squeeze, the `H : List Felt → Digest`
                              computational realization of the spec's `RandomOracle.H`,
                              and the `dummyNull = H (H ·)` structural bridge
+  * `Plonky2Spec.Circuit`    logical-circuit semantics for the `formal_snapshot` decode
+                             exporter (Step 8): targets, witnesses, per-op/copy/const/
+                             `BaseSumGate<2>` constraints, and the `select`/`not`/`and`/
+                             `or`/`is_equal`/`range_check` op-sequence lemmas
 
   Methodology follows Zellic's *Formal Verification of a Plonky2 Gate*: each gadget
   separates an `Assumptions` side-condition (what the surrounding circuit must
@@ -63,3 +67,4 @@ import Plonky2Spec.Poseidon2
 import Plonky2Spec.Generated.Poseidon2Prims
 import Plonky2Spec.Bridges.Poseidon2Bridge
 import Plonky2Spec.Sponge
+import Plonky2Spec.Circuit

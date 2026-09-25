@@ -157,12 +157,12 @@ pub struct CircuitBuilder<F: RichField + Extendable<D>, const D: usize> {
     pub(crate) gate_instances: Vec<GateInstance<F, D>>,
 
     /// Targets to be made public.
-    public_inputs: Vec<Target>,
+    pub(crate) public_inputs: Vec<Target>,
 
     /// The next available index for a `VirtualTarget`.
-    virtual_target_index: usize,
+    pub(crate) virtual_target_index: usize,
 
-    copy_constraints: Vec<CopyConstraint>,
+    pub(crate) copy_constraints: Vec<CopyConstraint>,
 
     /// A tree of named scopes, used for debugging.
     context_log: ContextTree,
@@ -171,7 +171,7 @@ pub struct CircuitBuilder<F: RichField + Extendable<D>, const D: usize> {
     generators: Vec<WitnessGeneratorRef<F, D>>,
 
     constants_to_targets: HashMap<F, Target>,
-    targets_to_constants: HashMap<Target, F>,
+    pub(crate) targets_to_constants: HashMap<Target, F>,
 
     /// Memoized results of `arithmetic` calls.
     pub(crate) base_arithmetic_results: HashMap<BaseArithmeticOperation<F>, Target>,
