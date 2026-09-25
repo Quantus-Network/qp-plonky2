@@ -202,7 +202,6 @@ theorem rangeCheckGadget_spec {a : Assignment p} {zero x sum : Target} {limbs : 
 
 /-! ### Lifting constraints out of an exported `Wiring.Circuit` -/
 
-omit [Fact p.Prime] in
 theorem rowsSatisfied_get {a : Assignment p} :
     ∀ {start : ℕ} {rs : List (Row p)}, rowsSatisfied a start rs →
       ∀ {i : ℕ} {r : Row p}, rs[i]? = some r → rowConstraints a (start + i) r
@@ -226,6 +225,52 @@ theorem Satisfies.arith {c : Circuit p} {a : Assignment p} (h : Satisfies c a)
   have := (arithOp_iff a row i _ _).mp (hrow i hi)
   show ArithmeticConstraint _ _ _ _ _ _
   rw [arithmetic_iff, this]; ring
+
+/-- `Satisfies.arith` as the plain wire equation, with the row's constants read off the
+    exported literal — the form the generated decode proofs instantiate per op. -/
+theorem arithEq_of_rows {c : Circuit p} {a : Assignment p} (h : Satisfies c a)
+    {row n i : ℕ} {c0 c1 : ZMod p} (hr : c.rows[row]? = some ⟨.arithmetic n, [c0, c1]⟩)
+    (hi : i < n) :
+    a (.wire row (4 * i + 3)) =
+      c0 * a (.wire row (4 * i)) * a (.wire row (4 * i + 1)) + c1 * a (.wire row (4 * i + 2)) := by
+  have := h.arith hr rfl hi
+  simp only [List.getD_cons_zero, List.getD_cons_succ] at this
+  exact arithmetic_iff.mp this
+
+/-- A `BaseSumGate<2>` row of an exported circuit, as a named constraint on its sum wire
+    and limb wires (base_sum.rs:45-46). -/
+theorem Satisfies.baseSum2 {c : Circuit p} {a : Assignment p} (h : Satisfies c a)
+    {row n : ℕ} {r : Row p} (hr : c.rows[row]? = some r) (hk : r.kind = .baseSum2 n) :
+    Constraint.Sat a (.baseSum2 (.wire row 0) (limbWires row n)) := by
+  have hrow := rowsSatisfied_get h.1 hr
+  rw [Nat.zero_add, rowConstraints, hk] at hrow
+  exact hrow
+
+theorem mem_drop_limbWires {row N n : ℕ} {t : Target} (ht : t ∈ (limbWires row N).drop n) :
+    ∃ i, n ≤ i ∧ i < N ∧ t = .wire row (i + 1) := by
+  obtain ⟨j, hj, rfl⟩ := List.mem_iff_getElem.mp ht
+  simp only [List.getElem_drop, limbWires, List.getElem_map, List.getElem_range]
+  simp only [List.length_drop, limbWires, List.length_map, List.length_range] at hj
+  exact ⟨n + j, Nat.le_add_right n j, by omega, rfl⟩
+
+/-- `range_check(x, n)` read off an exported row (split_join.rs:25-50): a `BaseSumGate<2>`
+    row with `N ≥ n` limbs whose limbs from position `n` on are zero range-checks its sum
+    wire to `n` bits. The generated decode proof discharges `hz` limb by limb from the
+    copies to the zero constant, and `Satisfies.copy` moves the result from the sum wire
+    to the checked target. -/
+theorem rangeCheck_of_row {c : Circuit p} {a : Assignment p} (h : Satisfies c a)
+    {row N n : ℕ} {r : Row p} (hr : c.rows[row]? = some r) (hk : r.kind = .baseSum2 N)
+    (hn : n ≤ N) (hz : ∀ i, n ≤ i → i < N → a (.wire row (i + 1)) = 0) :
+    rangeCheck (a (.wire row 0)) n := by
+  have hb : BaseSum 2 (a (.wire row 0)) ((limbWires row N).map a) := h.baseSum2 hr hk
+  refine ⟨((limbWires row N).map a).take n, ?_, baseSum_take hb ?_⟩
+  · rw [List.length_take, List.length_map, limbWires, List.length_map, List.length_range]
+    exact Nat.min_eq_left hn
+  · intro v hv
+    rw [← List.map_drop, List.mem_map] at hv
+    obtain ⟨t, ht, rfl⟩ := hv
+    obtain ⟨i, hi1, hi2, rfl⟩ := mem_drop_limbWires ht
+    exact hz i hi1 hi2
 
 theorem Satisfies.copy {c : Circuit p} {a : Assignment p} (h : Satisfies c a)
     {x y : Target} (hm : (x, y) ∈ c.copies) : Constraint.Sat a (.copy x y) :=

@@ -13,7 +13,8 @@
 use core::fmt::Write as _;
 
 use plonky2::field::goldilocks_field::GoldilocksField;
-use plonky2::field::types::PrimeField64;
+use plonky2::field::types::{Field, PrimeField64};
+use plonky2::hash::poseidon2::P2Permuter;
 use plonky2::iop::target::Target;
 use plonky2::plonk::circuit_builder::CircuitBuilder;
 
@@ -25,10 +26,20 @@ const D: usize = 2;
 /// A gate row as placed by the builder, classified by gate kind.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum GateKind {
-    Arithmetic { num_ops: usize },
-    Constant { num_consts: usize },
+    Arithmetic {
+        num_ops: usize,
+    },
+    Constant {
+        num_consts: usize,
+    },
     PublicInput,
     Noop,
+    /// `BaseSumGate { num_limbs } + Base: 2`.
+    BaseSum2 {
+        num_limbs: usize,
+    },
+    /// `Poseidon2Gate<WIDTH=12>`.
+    Poseidon2,
     Other(String),
 }
 
@@ -70,6 +81,14 @@ fn classify(id: &str) -> GateKind {
     }
     if id.starts_with("NoopGate") {
         return GateKind::Noop;
+    }
+    if id.starts_with("BaseSumGate") && id.ends_with("+ Base: 2") {
+        if let Some(n) = field(id, "num_limbs:") {
+            return GateKind::BaseSum2 { num_limbs: n };
+        }
+    }
+    if id == "Poseidon2Gate<WIDTH=12>" {
+        return GateKind::Poseidon2;
     }
     GateKind::Other(id.to_string())
 }
@@ -115,7 +134,7 @@ pub fn export(
 
 // --- Lean rendering -----------------------------------------------------------------------
 
-fn lean_target(t: Target) -> String {
+pub(crate) fn lean_target(t: Target) -> String {
     match t {
         Target::Wire(w) => format!(".wire {} {}", w.row, w.column),
         Target::VirtualTarget { index } => format!(".virt {index}"),
@@ -142,6 +161,8 @@ fn lean_kind(k: &GateKind) -> String {
         GateKind::Constant { num_consts } => format!(".constant {num_consts}"),
         GateKind::PublicInput => ".publicInput".to_string(),
         GateKind::Noop => ".noop".to_string(),
+        GateKind::BaseSum2 { num_limbs } => format!(".baseSum2 {num_limbs}"),
+        GateKind::Poseidon2 => ".poseidon2".to_string(),
         GateKind::Other(id) => format!(".other {id:?}"),
     }
 }
@@ -205,14 +226,36 @@ pub fn render_lean(name: &str, doc: &str, ex: &CircuitExport) -> String {
 
 // --- The spike circuit ------------------------------------------------------------------
 
-/// Check an assignment against the exported system, mirroring the Lean `Satisfies`:
-/// arithmetic rows op-by-op (`out = c0·m0·m1 + c1·addend`), constant rows wire-by-wire,
-/// every copy pair equal, every constant target at its constant. Gate kinds the Lean
-/// model leaves unconstrained are skipped here too.
+/// Check an assignment against the exported system, mirroring the Lean `Satisfies ∧
+/// Poseidon2Rows`: arithmetic rows op-by-op (`out = c0·m0·m1 + c1·addend`), constant rows
+/// wire-by-wire, `BaseSumGate<2>` rows as `sum = Σ limbᵢ·2ⁱ` with binary limbs,
+/// `Poseidon2Gate` rows as `out = perm(in)` on wires `12..24` / `0..12`, every copy pair
+/// equal, every constant target at its constant. Gate kinds the Lean model leaves
+/// unconstrained are skipped here too.
 pub fn check_satisfied(ex: &CircuitExport, a: impl Fn(Target) -> F) -> Result<(), String> {
     let w = |row: usize, col: usize| a(Target::wire(row, col));
     for (row, (kind, consts)) in ex.rows.iter().enumerate() {
         match kind {
+            GateKind::BaseSum2 { num_limbs } => {
+                let mut sum = F::ZERO;
+                for i in (0..*num_limbs).rev() {
+                    let limb = w(row, 1 + i);
+                    if limb != F::ZERO && limb != F::ONE {
+                        return Err(format!("base-sum row {row} limb {i} not binary"));
+                    }
+                    sum = sum.double() + limb;
+                }
+                if w(row, 0) != sum {
+                    return Err(format!("base-sum row {row} reconstruction violated"));
+                }
+            }
+            GateKind::Poseidon2 => {
+                let input: [F; 12] = core::array::from_fn(|i| w(row, i));
+                let output: [F; 12] = core::array::from_fn(|i| w(row, 12 + i));
+                if output != <F as P2Permuter>::permute(input) {
+                    return Err(format!("poseidon2 row {row} output is not the permutation"));
+                }
+            }
             GateKind::Arithmetic { num_ops } => {
                 let (c0, c1) = (consts[0], consts[1]);
                 for i in 0..*num_ops {
@@ -363,8 +406,17 @@ mod tests {
         );
         assert_eq!(classify("PublicInputGate"), GateKind::PublicInput);
         assert_eq!(classify("NoopGate"), GateKind::Noop);
-        assert!(matches!(
+        assert_eq!(
             classify("BaseSumGate { num_limbs: 32 } + Base: 2"),
+            GateKind::BaseSum2 { num_limbs: 32 }
+        );
+        assert!(matches!(
+            classify("BaseSumGate { num_limbs: 32 } + Base: 4"),
+            GateKind::Other(_)
+        ));
+        assert_eq!(classify("Poseidon2Gate<WIDTH=12>"), GateKind::Poseidon2);
+        assert!(matches!(
+            classify("PoseidonGate(..)<WIDTH=12>"),
             GateKind::Other(_)
         ));
     }
