@@ -512,16 +512,56 @@ from `Trusted.lean` (`#print axioms`-checked).
   `Plonky2Spec` build and the hermetic spec build unaffected.
 - *Checkpoint: review + commit.*
 
+### Step 6 — Aggregation gadgets + re-pin to the private/public-batch spec  ✅ DONE
+`qp-zk-circuits/formal` renamed `RL0`/`RL1` to `RPrivateBatch`/`RPublicBatch` and hardened
+them (real-nullifier uniqueness, `numExitSlots = 2N`, `totalExitSlots` accounting, all-dummy
+scan references pinned to zero, two-sided fee no-wrap bounds, dummy-sentinel compatibility as
+a zero-preimage reduction). This step re-pins `wormholeSpec` to that commit and closes the
+remaining private-batch gadget paths so `PrivateBatchCircuit` is discharged from gadgets
+rather than assumed field by field.
+
+#### Step 6a — Gadget-level lemmas (`Plonky2Spec`, hermetic)
+- `Permutation.lean`: `permute_digests4` modeled as the odd-even adjacent-swap network
+  (`layerEven`/`layerOdd`/`network`), with `network_perm`: for boolean switches the output is
+  a `List.Perm` of the input (`network_perm_of_assertBool` takes the `assertBool` witnesses
+  directly). This is the only fact `RPrivateBatch.nullsPerm` needs from the network.
+- `FeeCheck.lean`: the two fee range checks `range_check(10000−fee, 14)` and
+  `range_check(in·(10000−fee) − out·10000, 52)` as `FeeCheck`, with `feeCheck_sound`
+  (`fee ≤ 10000 ∧ out·10000 ≤ in·(10000−fee)` over `.val`) and `feeCheck_complete`, under
+  `FeeCheck.Assumptions` = {`fee < 2^32`, rhs `< 2^52`, lhs `+ 2^52 < p`}. The two-sided bound
+  is what makes the field subtraction a `Nat` comparison; `2^53 ≤ p` is the only modulus fact.
+- `Wrapper.lean`: `digestEq`/`bytesDigestEq_spec` (the four-lane `is_equal` conjunction),
+  `uniqueness_pair`/`uniqueness_pair_dummy` (one `and(and(¬d_i, ¬d_j), eq) = 0` constraint
+  rules out one real-real collision), and `ingress_mask` (`select(is_dummy, 0, x)`).
+
+#### Step 6b — `.val` bridges into `PrivateBatchCircuit` (`Plonky2Bridge.lean`)
+`nullifiers_perm_bridge` (network output through `valDigest` is a `Perm` of
+`buildNullifiers`), `uniqueness_val_bridge` (the pairwise constraints over all `i < j` give
+`realNullifiersDistinct`, via `valDigest_injective`), `fee_val_bridge` (`FeeCheck` on the
+accumulator wires gives `privateBatchFeeOk`; the `Assumptions` are discharged from the spec's
+leaf 32-bit ranges, the 64-leaf cap and `goldilocks ≤ p`), `valDigest_mask`/`val_mask`, and
+the public-batch forwarding lifts `forwardedSlots_val_bridge`/`forwardedNullifiers_val_bridge`.
+`private_batch_val` assembles them into `RPrivateBatch (spongeRO perm) …`; the capstone is
+now `private_batch_end_to_end`, which adds `RPrivateBatch_settles_distinct_spends`
+(value = raw real outputs ∧ real nullifiers `Nodup`) as clause (iii).
+- **Acceptance (met):** `lake build Plonky2Spec` and `lake build Plonky2Bridge` clean;
+  every 6a/6b lemma standard-axioms-only except `private_batch_end_to_end`
+  (`+ leaf_proof_sound`, gated by `ci/AxiomsCheck.lean`).
+- Toolchain note: `omega` in v4.30.0 hits max recursion on goals containing `x * c` for
+  literal `c ≳ 1000` on the right; `FeeCheck.lean` uses explicit `Nat` lemmas there.
+
 ## 9. Definition of done
 
 `R_leaf` fully bridged (T0–T3), `R_L0`/`R_L1` bridged modulo the enumerated
 trusted assumptions (T4 + layer 1), each gate proven **sound and complete** with
 its `Assumptions`/`Spec` split, CI green on all gates, and the trusted base
 documented in `Trusted.lean`. The oracle is now instantiated by the concrete
-verified sponge (Step 5), and the nullifier/hash path of `circuit ⟹ RL0` is
-composed across `.val` end to end (`layer0_end_to_end`). The remaining gap is
-exactly (a) the residual **wiring/copy-constraint** model fidelity (§3 — gate
-constraints are exporter-backed and the wrapper *logic* is bridged, but the
-public-input **decode** that feeds the bridges its `hd`/`hnull`/`hexits`/… wire
-assignments is still hand-modeled) and (b) the layer-1 assumptions (§7) — both
+verified sponge (Step 5), and the nullifier/permutation, uniqueness and fee paths
+of `circuit ⟹ RPrivateBatch` are composed across `.val` end to end
+(`private_batch_end_to_end`, Step 6). The remaining gap is exactly (a) the
+residual **wiring/copy-constraint** model fidelity (§3 — gate constraints are
+exporter-backed and the wrapper *logic* is bridged, but the public-input
+**decode** that feeds the bridges its `hd`/`hnull`/`hexits`/… wire assignments
+is still hand-modeled), (b) the public-batch wrapper's dedup/first-real/header
+paths beyond the forwarding masks, and (c) the layer-1 assumptions (§7) — all
 explicit.

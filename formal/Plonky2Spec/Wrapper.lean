@@ -173,4 +173,94 @@ theorem scanFirst_correct : ∀ (xs : List (ZMod p × ZMod p)) (init : ZMod p),
         rw [bselect_true rfl, scan_locked rest v]
         simp [firstRealVal]
 
+/-! ### `bytes_digest_eq` as the circuit builds it (common/gadgets.rs:143-157)
+
+  `and(and(e0, e1), and(e2, e3))` over the four per-limb `is_equal` flags. `andAll`
+  above is the list-fold form; the circuit's is this balanced tree. -/
+
+/-- The digest-equality flag from four per-limb flags. -/
+def digestEq (e : Fin 4 → ZMod p) : ZMod p := band (band (e 0) (e 1)) (band (e 2) (e 3))
+
+theorem digestEq_isBool {e : Fin 4 → ZMod p} (hb : ∀ j, IsBool (e j)) : IsBool (digestEq e) :=
+  band_isBool (band_isBool (hb 0) (hb 1)) (band_isBool (hb 2) (hb 3))
+
+theorem digestEq_eq_one_iff {e : Fin 4 → ZMod p} (hb : ∀ j, IsBool (e j)) :
+    digestEq e = 1 ↔ ∀ j, e j = 1 := by
+  unfold digestEq
+  rw [band_eq_one (band_isBool (hb 0) (hb 1)) (band_isBool (hb 2) (hb 3)),
+      band_eq_one (hb 0) (hb 1), band_eq_one (hb 2) (hb 3)]
+  constructor
+  · rintro ⟨⟨h0, h1⟩, ⟨h2, h3⟩⟩ j
+    match j with
+    | 0 => exact h0
+    | 1 => exact h1
+    | 2 => exact h2
+    | 3 => exact h3
+  · intro h; exact ⟨⟨h 0, h 1⟩, ⟨h 2, h 3⟩⟩
+
+/-- **`bytes_digest_eq` correctness.** With each limb flag constrained by `is_equal`
+    (`IsEqual`), the combined flag is boolean and is `1` iff the digests agree limbwise. -/
+theorem bytesDigestEq_spec {a c e inv : Fin 4 → ZMod p}
+    (h : ∀ j, IsEqual (a j) (c j) (e j) (inv j)) :
+    IsBool (digestEq e) ∧ (digestEq e = 1 ↔ a = c) := by
+  have hb : ∀ j, IsBool (e j) := fun j => isEqual_isBool (h j)
+  refine ⟨digestEq_isBool hb, ?_⟩
+  rw [digestEq_eq_one_iff hb]
+  constructor
+  · intro hall; funext j; exact (isEqual_iff (h j)).mp (hall j)
+  · intro hac j; exact (isEqual_iff (h j)).mpr (congrFun hac j)
+
+/-! ### Real-nullifier uniqueness (circuit_logic.rs, "Real-nullifier uniqueness")
+
+  For every pair `i < j`: `collision = and(and(is_real_i, is_real_j), nullifiers_equal)`
+  connected to `zero`, where `is_real = not(is_dummy)`. -/
+
+/-- **One pair.** With a correct equality flag (`eq = 1 ↔ P`), the constraint
+    `and(and(ri, rj), eq) = 0` forces: both real ⟹ `¬P`. (No booleanity needed for
+    this direction: `1·1·1 ≠ 0`.) -/
+theorem uniqueness_pair {ri rj eq : ZMod p} {P : Prop} (hP : eq = 1 ↔ P)
+    (h : band (band ri rj) eq = 0) : ri = 1 → rj = 1 → ¬ P := by
+  intro h1 h2 hp
+  have he : eq = 1 := hP.mpr hp
+  rw [h1, h2, he] at h
+  simp [band] at h
+
+/-- The same, with `is_real = not(is_dummy)` as the circuit derives it: two non-dummy
+    slots cannot carry equal nullifiers. -/
+theorem uniqueness_pair_dummy {di dj eq : ZMod p} {P : Prop}
+    (hdi : IsBool di) (hdj : IsBool dj) (hP : eq = 1 ↔ P)
+    (h : band (band (bnot di) (bnot dj)) eq = 0) : di ≠ 1 → dj ≠ 1 → ¬ P := by
+  intro hi hj
+  have hi0 : di = 0 := hdi.resolve_right hi
+  have hj0 : dj = 0 := hdj.resolve_right hj
+  exact uniqueness_pair hP h (bnot_eq_one.mpr hi0) (bnot_eq_one.mpr hj0)
+
+/-! ### Ingress dummy mask (circuit_logic.rs, "Masked per-slot (exit, amount)")
+
+  `select(is_dummy, zero, x)` on each exit limb and on the amount / input — the mask
+  that makes `maskedChildPairs` / `maskedInputTotal` the right spec objects. -/
+
+/-- `select(is_dummy, 0, x) = if is_dummy = 1 then 0 else x`. -/
+theorem ingress_mask {is_dummy x : ZMod p} (h : IsBool is_dummy) :
+    bselect is_dummy 0 x = if is_dummy = 1 then 0 else x :=
+  nullifier_replacement h
+
+/-! ### The public-batch wrapper (public_batch/circuit/circuit_logic.rs)
+
+  `build_public_batch_constraints` is built from the *same* primitives, so no new
+  gadget lemmas are needed; the mapping to `RPublicBatch` is:
+
+  | circuit primitive                                  | `RPublicBatch` definition        | lemma                          |
+  |----------------------------------------------------|----------------------------------|--------------------------------|
+  | `bytes_digest_eq(block_i, 0)`                      | `isDummyInner`                   | `bytesDigestEq_spec`           |
+  | first-real prefix scan (block/number/asset/fee)    | `innerReferenceFromFirstReal`    | `scanFirst_correct`            |
+  | `or(is_dummy_i, is_equal(asset_i, asset_ref)) = 1` | metadata clause (asset)          | `real_block_matches`           |
+  | `or(is_dummy_i, is_equal(fee_i, fee_ref)) = 1`     | metadata clause (fee)            | `real_block_matches`           |
+  | `or(is_dummy_i, bytes_digest_eq(block_i, ref)) = 1`| metadata clause (block)          | `real_block_matches`           |
+  | `select(is_dummy_i, 0, slot_limb)`                 | `forwardedSlots`                 | `ingress_mask`                 |
+  | `select(is_dummy_i, 0, nullifier_limb)`            | `forwardedNullifiers`            | `ingress_mask`                 |
+  | `constant(n_inner · slots_per_inner)`              | `totalExitSlots`                 | (constant)                     |
+
+  The `.val` lifts of the zeroing selects are in `Plonky2Bridge` (`valDigest_mask`). -/
+
 end Plonky2Spec

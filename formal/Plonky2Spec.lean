@@ -17,9 +17,15 @@
                              reduced to the weighted multiply-add constraint
   * `Plonky2Spec.Boolean`    booleanity, `not/and/or/_if/select`, and the `is_equal`
                              gadget (T1), with soundness and completeness
-  * `Plonky2Spec.Wrapper`    the layer-0 wrapper logic (nullifier replacement, exit
+  * `Plonky2Spec.Wrapper`    the aggregation wrapper logic (nullifier replacement, exit
                              dedup, dummy flag, block consistency, first-real prefix
-                             scan) bridged to the `RL0` building blocks
+                             scan, `bytes_digest_eq`, real-nullifier uniqueness, ingress
+                             mask) bridged to the `RPrivateBatch`/`RPublicBatch` building blocks
+  * `Plonky2Spec.Permutation` the `permute_digests4` odd-even switch network: boolean
+                             switches ⟹ the output is a permutation of the input
+  * `Plonky2Spec.FeeCheck`   the aggregate fee comparator (`range_check(10000−fee, 14)`,
+                             `range_check(rhs−lhs, 52)`): sound and complete for
+                             `privateBatchFeeOk` over `.val`, with explicit `Assumptions`
   * `Plonky2Spec.Generated.Gates`  constraint polynomials auto-extracted from the
                              real `Gate::eval_unfiltered` by the Rust exporter
                              (`constraint-exporter/`)
@@ -48,6 +54,8 @@ import Plonky2Spec.RangeCheck
 import Plonky2Spec.Arithmetic
 import Plonky2Spec.Boolean
 import Plonky2Spec.Wrapper
+import Plonky2Spec.Permutation
+import Plonky2Spec.FeeCheck
 import Plonky2Spec.Generated.Gates
 import Plonky2Spec.Bridges.Bridge
 import Plonky2Spec.Generated.Poseidon2
