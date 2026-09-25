@@ -627,13 +627,23 @@ it. Pieces:
   standard-axioms-only.
 
 **Findings (what a full Path 3 costs):**
-1. *Export surface.* The fork change is small and stable. The blocker for the real wrapper
-   is on the qp-zk-circuits side: `build_private_batch_constraints` is private and takes
-   `PrivateBatchCircuitTargets` including the recursive-verifier proof targets, so exporting
-   it needs a refactor that lets the wrapper logic run against plain virtual targets in
-   place of `add_recursive_verifiers` outputs (the T4 seam is then a list of named
-   virtual targets, which is the right boundary anyway). Deferred until circuit edits
-   resume.
+1. *Export surface.* The fork change is small and stable. **No qp-zk-circuits refactor is
+   needed to export the real wrapper:** `build_private_batch_constraints` only reads
+   `leaf_proofs[i].public_inputs`, so it runs unchanged on
+   `add_virtual_proof_with_pis(&leaf.common)` targets with no verifier in the builder
+   (qp-zk-circuits test `wrapper_only_n2_builds_without_verifiers`, in-crate since the fn
+   is private). Measured that way at `n_leaf = 2` (wormhole config, 60 routed wires):
+   65 gate rows = 55 `ArithmeticGate{15}` (rows keyed by their `(c0, c1)` pair, so most are
+   partially filled; ≲ 800 ops) + 6 `BaseSumGate{59}` (`range_check`s 14, 52, 4 × 32 bits)
+   + 4 `Poseidon2Gate`; 2 818 copy constraints (484 to the zero constant — the range-check
+   tails and the ingress masks); 5 constants; 52 public inputs (= `pi_len(2)`). The real
+   blocker is the dependency: qp-zk-circuits consumes the *published* `qp-plonky2 =1.5.6`
+   and a local `[patch.crates-io]` does not resolve (rayon `=1.11.0` vs `=1.12.0` pins), so
+   `formal_export_view` must ship in a release before an in-crate export test can call it.
+   *Lookups* are outside the model: `formal_export_view` exposes the pending
+   `(looking_in, looking_out)` lists and `circuit::export` refuses a builder that has any
+   (`export_rejects_pending_lookups`), since `build` would add lookup rows the export
+   would silently lack. The wrapper places none.
 2. *Gate coverage.* `Satisfies` interprets only `ArithmeticGate`. The wrapper also places
    `BaseSumGate` (range checks), `Poseidon2Gate`, `ConstantGate`, `PublicInputGate`, and
    the recursive-verifier gates. `BaseSumGate`/`Poseidon2Gate` have
@@ -647,12 +657,30 @@ it. Pieces:
    the oriented rewrite set — or the Lean side needs a decision procedure that evaluates
    `Satisfies` symbolically (a `simp` set over a normalized copy-closure). The rewrite-set
    approach is the cheaper of the two and is what the spike's proof already is by hand.
+   `Plonky2Spec/WiringGadgets.lean` fixes the unit the skeleton should be generated at:
+   one lemma application per *gadget call*, not per op. `Satisfies.arith/copy/const` lift
+   named `Constraint`s out of the exported circuit, and `selectGadget_spec`,
+   `notGadget_spec`, `andGadget_spec`, `orGadget_spec`, `isEqualGadget_spec`,
+   `rangeCheckGadget_spec` state the exact op sequences of `select.rs` / `arithmetic.rs` /
+   `split_join.rs` and prove `bselect` / `bnot` / `band` / `bor` / `IsEqual` / `rangeCheck`
+   — the predicates `Plonky2Bridge` already consumes. So the exporter's job per gadget
+   call is to emit the (row, op) / copy indices its ops landed on; the Lean side is a fixed
+   lemma. `constraint-exporter/tests/gadget_zoo.rs` checks the export carries what those
+   lemmas read (one `BaseSumGate<2>` row per `range_check`, `num_limbs = min(63, routed−1)`,
+   the zero-pinned tail, `is_equal`'s two zero copies).
 4. *Constants.* Goldilocks constants are rendered generically over `ZMod p` when small
    (`n` or `-(n)` for `n ≤ 2^32`); anything else is emitted as its canonical `u64` and
    flagged, faithful only at `p = goldilocks`. The wrapper's constants are all small.
-- **Acceptance (met):** `cargo test -p qp-plonky2-constraint-exporter` green (11 tests);
+- **Acceptance (met):** `cargo test -p qp-plonky2-constraint-exporter` green (13 tests);
   `lake build Plonky2Spec Plonky2Bridge` clean (Bridge now four roots); exporter output
   byte-stable across runs.
+- **Next (8b, needs a decision):** release the fork with `formal_export_view`, then add a
+  `formal-export` dev feature in `wormhole/aggregator` whose test exports the real `n = 2`
+  wrapper via `wrapper_only_n2_builds_without_verifiers`, and extend `GateKind` with
+  `BaseSumGate<2>` (its `.baseSum2` lift) and `Poseidon2Gate`. Estimate for the `n = 2`
+  decode theorem `Satisfies (exportedWrapper 2) a → PrivateBatchConstraints …`: ~1 week
+  exporter (gadget-call indices + skeleton), ~1–2 weeks Lean, mostly the Poseidon2 rows
+  (`gate_sound_complete` → `hdnull`) and the switch network (`hsw`).
 
 ## 9. Definition of done
 
