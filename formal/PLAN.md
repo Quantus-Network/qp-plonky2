@@ -552,6 +552,26 @@ read off each child's `Rleaf` (`Rleaf_ranges`) via `leaf_proof_sound`.
 - Toolchain note: `omega` in v4.30.0 hits max recursion on goals containing `x * c` for
   literal `c ≳ 1000` on the right; `FeeCheck.lean` uses explicit `Nat` lemmas there.
 
+### Step 7 — Public-batch parity + aggregation completeness
+
+#### Step 7a — Public-batch wrapper across `.val` (`Plonky2Bridge/PublicBatch.lean`)  ✅ DONE
+`build_public_batch_constraints` bridged conjunct by conjunct into `RPublicBatch`, with the
+same decode-hypothesis boundary as the private batch and every gadget meaning *derived*:
+- dummy flag: `bytes_digest_eq(block_hash, 0)` decodes to `isDummyInner` (`innerDummy_val`,
+  via `valDigest_injective`);
+- header: the first-real prefix scan on each of block-hash limbs / block number / asset /
+  fee (`scanRef`, `blockRef`) is `innerReferenceFromFirstReal`, including the all-dummy
+  zero case (`firstRealVal_find?` + `scanFirst_correct`);
+- consistency: each satisfied `or(is_dummy, is_equal(·, ref)) == 1` gives the non-dummy
+  metadata clause (`ConsistencyCheck`, `real_block_matches`);
+- forwarding: the masked slot/nullifier regions are `forwardedSlots`/`forwardedNullifiers`
+  (`forwardedSlotsF_val`, `forwardedNullsF_val`), and the `n_inner · slots_per_inner`
+  constant is the region length (`forwardedSlotsF_length`).
+`public_batch_val` assembles them; `public_batch_end_to_end` adds `RPublicBatch_totalExitSlots`
+and each inner's `RPrivateBatch` via `private_batch_proof_sound` (its only axiom).
+- **Acceptance (met):** `lake build Plonky2Bridge` clean (the lib now has two roots);
+  `public_batch_val` standard-axioms-only.
+
 ## 9. Definition of done
 
 `R_leaf` fully bridged (T0–T3), `R_L0`/`R_L1` bridged modulo the enumerated
@@ -560,10 +580,9 @@ its `Assumptions`/`Spec` split, CI green on all gates, and the trusted base
 documented in `Trusted.lean`. The oracle is now instantiated by the concrete
 verified sponge (Step 5), and the nullifier/permutation, uniqueness and fee paths
 of `circuit ⟹ RPrivateBatch` are composed across `.val` end to end
-(`private_batch_end_to_end`, Step 6). The remaining gap is exactly (a) the
-residual **wiring/copy-constraint** model fidelity (§3 — gate constraints are
-exporter-backed and the wrapper *logic* is bridged, but the public-input
+(`private_batch_end_to_end`, Step 6), and the public-batch wrapper is bridged
+the same way (`public_batch_end_to_end`, Step 7a). The remaining gap is exactly
+(a) the residual **wiring/copy-constraint** model fidelity (§3 — gate constraints
+are exporter-backed and the wrapper *logic* is bridged, but the public-input
 **decode** that feeds the bridges its `hd`/`hnull`/`hexits`/… wire assignments
-is still hand-modeled), (b) the public-batch wrapper's dedup/first-real/header
-paths beyond the forwarding masks, and (c) the layer-1 assumptions (§7) — all
-explicit.
+is still hand-modeled) and (b) the layer-1 assumptions (§7) — both explicit.
