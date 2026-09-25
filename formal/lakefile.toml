@@ -47,4 +47,4 @@ name = "Plonky2Spec"
 # mathlib-free spec build and the `wormholeSpec`-free `Plonky2Spec` CI job.
 [[lean_lib]]
 name = "Plonky2Bridge"
-roots = ["Plonky2Bridge", "Plonky2Bridge.PublicBatch", "Plonky2Bridge.Complete"]
+roots = ["Plonky2Bridge", "Plonky2Bridge.PublicBatch", "Plonky2Bridge.Complete", "Plonky2Bridge.Wiring"]
