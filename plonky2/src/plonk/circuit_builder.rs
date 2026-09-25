@@ -75,6 +75,18 @@ pub enum LookupChallenges {
     ChallengeDelta = 3,
 }
 
+/// Read-only borrow of a [`CircuitBuilder`]'s pre-`build` constraint system, exposed for the
+/// formal-verification constraint exporter. See [`CircuitBuilder::formal_export_view`].
+#[cfg(feature = "formal-export")]
+#[doc(hidden)]
+#[derive(Debug)]
+pub struct FormalExportView<'a, F: RichField + Extendable<D>, const D: usize> {
+    pub gate_instances: &'a [GateInstance<F, D>],
+    pub copy_constraints: &'a [CopyConstraint],
+    pub constant_targets: &'a HashMap<Target, F>,
+    pub public_inputs: &'a [Target],
+}
+
 /// Structure containing, for each lookup table, the indices of the last lookup row,
 /// the last lookup table row and the first lookup table row. Since the rows are in
 /// reverse order in the trace, they actually correspond, respectively, to: the indices
@@ -273,6 +285,22 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     /// Outputs the number of gates in this circuit.
     pub fn num_gates(&self) -> usize {
         self.gate_instances.len()
+    }
+
+    /// Read-only view of the pre-`build` constraint system, for the formal-verification
+    /// constraint exporter (`constraint-exporter/`, `formal/PLAN.md` Step 8). Returns the
+    /// placed gate instances, the copy constraints accumulated so far, the constant targets
+    /// (`build` materializes each as a `ConstantGate` wire copied to the target), and the
+    /// registered public inputs, in registration order.
+    #[cfg(feature = "formal-export")]
+    #[doc(hidden)]
+    pub fn formal_export_view(&self) -> FormalExportView<'_, F, D> {
+        FormalExportView {
+            gate_instances: &self.gate_instances,
+            copy_constraints: &self.copy_constraints,
+            constant_targets: &self.targets_to_constants,
+            public_inputs: &self.public_inputs,
+        }
     }
 
     /// Registers the given target as a public input.
