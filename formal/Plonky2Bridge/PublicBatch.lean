@@ -23,7 +23,8 @@ import Plonky2Bridge
 namespace Plonky2Bridge
 
 open Plonky2Spec (IsBool bselect band bnot bor bnot_isBool bnot_eq_one Digest4 scanStep
-  firstRealVal scanFirst_correct real_block_matches)
+  firstRealVal scanFirst_correct real_block_matches IsEqual isEqual_isBool isEqual_iff digestEq
+  bytesDigestEq_spec)
 open WormholeSpec (Digest RandomOracle PrivateBatchOutput PublicBatchOutput RPublicBatch
   isDummyInner isRealInnerB forwardedSlots forwardedNullifiers innerReferenceFromFirstReal
   ExitSlot PrivateBatchProofAccepted private_batch_proof_sound RPrivateBatch
@@ -34,15 +35,26 @@ variable {p : ℕ} [Fact p.Prime]
 /-! ### Field witness for one inner proof -/
 
 /-- The public-input wires of one inner private-batch proof that the public-batch wrapper
-    reads, plus its derived dummy flag. -/
+    reads, plus the `is_equal` witnesses (`equal` flag and auxiliary inverse per limb) of the
+    `bytes_digest_eq(block_hash, 0)` dummy check. The dummy flag itself is not a field: it is
+    the gadget's output, `InnerRow.isDummy`. -/
 structure InnerRow (p : ℕ) where
-  isDummy : ZMod p
   blockHash : Digest4 p
+  dummyEq : Fin 4 → ZMod p
+  dummyInv : Fin 4 → ZMod p
   blockNumber : ZMod p
   assetId : ZMod p
   fee : ZMod p
   slots : List (SlotF p)
   nulls : List (Digest4 p)
+
+/-- `is_dummy = bytes_digest_eq(block_hash, 0)`: the `and`-tree of the per-limb flags. -/
+def InnerRow.isDummy (r : InnerRow p) : ZMod p := digestEq r.dummyEq
+
+/-- The constraints `bytes_digest_eq(block_hash, 0)` emits: one `is_equal` per limb against
+    the zero sentinel. -/
+def DummyCheck (r : InnerRow p) : Prop :=
+  ∀ j, IsEqual (r.blockHash j) 0 (r.dummyEq j) (r.dummyInv j)
 
 /-- One aligned witness row: the field wires and the decoded inner output. -/
 abbrev InnerPair (p : ℕ) := InnerRow p × PrivateBatchOutput
@@ -53,13 +65,17 @@ def zeroDigest4 : Digest4 p := fun _ => 0
 theorem valDigest_zeroDigest4 : valDigest (zeroDigest4 (p := p)) = Digest.zero := by
   simp [valDigest, zeroDigest4, Digest.zero]
 
-/-- The dummy flag's field meaning (`bytes_digest_eq(block_hash, 0) = 1 ↔ block_hash = 0`,
-    from `bytesDigestEq_spec`) decodes to the spec's `isDummyInner`. -/
-theorem innerDummy_val {t : InnerPair p}
-    (hflag : t.1.isDummy = 1 ↔ t.1.blockHash = zeroDigest4)
+/-- The dummy check's constraints force the flag boolean and `= 1` iff the block hash is the
+    zero sentinel (`bytesDigestEq_spec`). -/
+theorem dummyCheck_spec {r : InnerRow p} (h : DummyCheck r) :
+    IsBool r.isDummy ∧ (r.isDummy = 1 ↔ r.blockHash = zeroDigest4) :=
+  bytesDigestEq_spec (a := r.blockHash) (c := zeroDigest4) h
+
+/-- The dummy flag, derived from its constraints, decodes to the spec's `isDummyInner`. -/
+theorem innerDummy_val {t : InnerPair p} (h : DummyCheck t.1)
     (hdec : valDigest t.1.blockHash = t.2.blockHash) :
     t.1.isDummy = 1 ↔ isDummyInner t.2 := by
-  rw [hflag]
+  rw [(dummyCheck_spec h).2]
   show t.1.blockHash = zeroDigest4 ↔ t.2.blockHash = Digest.zero
   rw [← hdec, ← valDigest_zeroDigest4 (p := p)]
   exact ⟨fun h => h ▸ rfl, fun h => valDigest_injective h⟩
@@ -167,24 +183,28 @@ theorem innerReference_val_bridge (rows : List (InnerPair p)) {out : PublicBatch
 
 /-! ### Metadata consistency -/
 
-/-- One satisfied `or(is_dummy, is_equal(x, ref)) == 1` constraint, with its `is_equal`
-    flag correct. -/
+/-- The constraints of one `or(is_dummy, is_equal(x, ref)) == 1` check: an `is_equal`
+    witness (`m`, `inv`) for `x` against `ref`, and the `or` connected to `one`. -/
 def ConsistencyCheck (is_dummy x ref : ZMod p) : Prop :=
-  ∃ m : ZMod p, IsBool m ∧ bor is_dummy m = 1 ∧ (m = 1 ↔ x = ref)
+  ∃ m inv : ZMod p, IsEqual x ref m inv ∧ bor is_dummy m = 1
 
 theorem consistency_val {is_dummy x ref : ZMod p} (hb : IsBool is_dummy)
     (hnd : is_dummy ≠ 1) (h : ConsistencyCheck is_dummy x ref) : x.val = ref.val := by
-  obtain ⟨m, hm, hcons, hmEq⟩ := h
-  exact congrArg ZMod.val (real_block_matches hb hm hcons hmEq hnd)
+  obtain ⟨m, inv, heq, hcons⟩ := h
+  exact congrArg ZMod.val
+    (real_block_matches hb (isEqual_isBool heq) hcons (isEqual_iff heq) hnd)
 
-/-- The digest-valued consistency check, one `bytes_digest_eq` flag for all four limbs. -/
+/-- The digest-valued check: `or(is_dummy, bytes_digest_eq(x, ref)) == 1`, with the four
+    per-limb `is_equal` witnesses. -/
 def DigestConsistencyCheck (is_dummy : ZMod p) (x ref : Digest4 p) : Prop :=
-  ∃ m : ZMod p, IsBool m ∧ bor is_dummy m = 1 ∧ (m = 1 ↔ x = ref)
+  ∃ e inv : Fin 4 → ZMod p,
+    (∀ j, IsEqual (x j) (ref j) (e j) (inv j)) ∧ bor is_dummy (digestEq e) = 1
 
 theorem digestConsistency_val {is_dummy : ZMod p} {x ref : Digest4 p} (hb : IsBool is_dummy)
     (hnd : is_dummy ≠ 1) (h : DigestConsistencyCheck is_dummy x ref) :
     valDigest x = valDigest ref := by
-  obtain ⟨m, hm, hcons, hmEq⟩ := h
+  obtain ⟨e, inv, heq, hcons⟩ := h
+  obtain ⟨hm, hmEq⟩ := bytesDigestEq_spec heq
   exact congrArg valDigest (real_block_matches hb hm hcons hmEq hnd)
 
 /-- **Metadata bridge.** Every non-dummy inner agrees with the scanned header. -/
@@ -262,16 +282,19 @@ theorem forwardedSlotsF_length (rows : List (InnerPair p)) {k : ℕ}
 
 /-! ### Composition -/
 
-/-- **Wrapper-logic `.val` composition (public batch).** With the per-inner dummy flags
-    derived from `bytes_digest_eq` against zero, the header from the first-real scan, the
-    per-inner consistency constraints satisfied, and the forwarded regions decoded from the
-    masked field regions, the public-batch wrapper satisfies `RPublicBatch`. -/
+/-- **Wrapper-logic `.val` composition (public batch).** From the gadget *constraints* —
+    the per-limb `is_equal` witnesses of each `bytes_digest_eq(block_hash_i, 0)` dummy check
+    (`DummyCheck`), the `or(is_dummy, is_equal(·, ref)) == 1` consistency constraints with
+    their `is_equal` witnesses (`ConsistencyCheck` / `DigestConsistencyCheck`) — plus the
+    header wires as the first-real scan results and the forwarded regions decoded from the
+    masked field regions, the public-batch wrapper satisfies `RPublicBatch`. Booleanity of
+    the dummy flags and every equality flag's meaning are derived (`isEqual_isBool`,
+    `isEqual_iff`, `bytesDigestEq_spec`), not assumed. -/
 theorem public_batch_val (ro : RandomOracle) (rows : List (InnerPair p)) {addr : Digest}
     {out : PublicBatchOutput} {k : ℕ}
     (haddr : out.aggregatorAddress = addr)
-    -- dummy flags
-    (hb : ∀ t ∈ rows, IsBool t.1.isDummy)
-    (hflag : ∀ t ∈ rows, t.1.isDummy = 1 ↔ t.1.blockHash = zeroDigest4)
+    -- dummy checks: `bytes_digest_eq(block_hash_i, 0)` constraints
+    (hdummy : ∀ t ∈ rows, DummyCheck t.1)
     -- inner public-input decodes
     (hdecBlock : ∀ t ∈ rows, valDigest t.1.blockHash = t.2.blockHash)
     (hdecNum : ∀ t ∈ rows, t.1.blockNumber.val = t.2.blockNumber)
@@ -294,8 +317,9 @@ theorem public_batch_val (ro : RandomOracle) (rows : List (InnerPair p)) {addr :
     (hshape : ∀ t ∈ rows, t.1.slots.length = k)
     (htot : out.totalExitSlots = rows.length * k) :
     RPublicBatch ro (rows.map Prod.snd) addr out := by
+  have hb : ∀ t ∈ rows, IsBool t.1.isDummy := fun t ht => (dummyCheck_spec (hdummy t ht)).1
   have hd : ∀ t ∈ rows, t.1.isDummy = 1 ↔ isDummyInner t.2 :=
-    fun t ht => innerDummy_val (hflag t ht) (hdecBlock t ht)
+    fun t ht => innerDummy_val (hdummy t ht) (hdecBlock t ht)
   refine ⟨haddr,
     innerReference_val_bridge rows hb hd hdecBlock hdecNum hdecAsset hdecFee hblock hnum hasset hfee,
     innerMetadata_val_bridge rows hb hd hdecBlock hdecAsset hdecFee hblock hasset hfee
@@ -313,8 +337,7 @@ theorem public_batch_val (ro : RandomOracle) (rows : List (InnerPair p)) {addr :
 theorem public_batch_end_to_end (ro : RandomOracle) (rows : List (InnerPair p)) {addr : Digest}
     {out : PublicBatchOutput} {k : ℕ}
     (haddr : out.aggregatorAddress = addr)
-    (hb : ∀ t ∈ rows, IsBool t.1.isDummy)
-    (hflag : ∀ t ∈ rows, t.1.isDummy = 1 ↔ t.1.blockHash = zeroDigest4)
+    (hdummy : ∀ t ∈ rows, DummyCheck t.1)
     (hdecBlock : ∀ t ∈ rows, valDigest t.1.blockHash = t.2.blockHash)
     (hdecNum : ∀ t ∈ rows, t.1.blockNumber.val = t.2.blockNumber)
     (hdecAsset : ∀ t ∈ rows, t.1.assetId.val = t.2.assetId)
@@ -336,7 +359,7 @@ theorem public_batch_end_to_end (ro : RandomOracle) (rows : List (InnerPair p)) 
     RPublicBatch ro (rows.map Prod.snd) addr out
       ∧ out.totalExitSlots = ((rows.map Prod.snd).map fun o => o.exitSlots.length).sum
       ∧ ∀ o ∈ rows.map Prod.snd, ∃ leaves us, RPrivateBatch ro leaves us o := by
-  have hR := public_batch_val ro rows haddr hb hflag hdecBlock hdecNum hdecAsset hdecFee hdecSlots
+  have hR := public_batch_val ro rows haddr hdummy hdecBlock hdecNum hdecAsset hdecFee hdecSlots
     hdecNulls hblock hnum hasset hfee hcAsset hcFee hcBlock hexits hnulls hshape htot
   exact ⟨hR, RPublicBatch_totalExitSlots hR,
     fun o ho => private_batch_proof_sound ro o (hacc o ho)⟩
