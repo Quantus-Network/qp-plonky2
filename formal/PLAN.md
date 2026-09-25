@@ -557,13 +557,16 @@ read off each child's `Rleaf` (`Rleaf_ranges`) via `leaf_proof_sound`.
 #### Step 7a — Public-batch wrapper across `.val` (`Plonky2Bridge/PublicBatch.lean`)  ✅ DONE
 `build_public_batch_constraints` bridged conjunct by conjunct into `RPublicBatch`, with the
 same decode-hypothesis boundary as the private batch and every gadget meaning *derived*:
-- dummy flag: `bytes_digest_eq(block_hash, 0)` decodes to `isDummyInner` (`innerDummy_val`,
-  via `valDigest_injective`);
+- dummy flag: `InnerRow.isDummy` *is* `digestEq` of the per-limb `is_equal` flags, and the
+  `bytes_digest_eq(block_hash, 0)` constraints (`DummyCheck`, four `IsEqual` witnesses) make
+  it boolean and decode it to `isDummyInner` (`dummyCheck_spec`, `innerDummy_val`);
 - header: the first-real prefix scan on each of block-hash limbs / block number / asset /
   fee (`scanRef`, `blockRef`) is `innerReferenceFromFirstReal`, including the all-dummy
   zero case (`firstRealVal_find?` + `scanFirst_correct`);
-- consistency: each satisfied `or(is_dummy, is_equal(·, ref)) == 1` gives the non-dummy
-  metadata clause (`ConsistencyCheck`, `real_block_matches`);
+- consistency: each `or(is_dummy, is_equal(·, ref)) == 1` constraint, carried with its
+  `is_equal` witness (`ConsistencyCheck`; four per-limb witnesses for the block hash,
+  `DigestConsistencyCheck`), gives the non-dummy metadata clause via `isEqual_iff` /
+  `bytesDigestEq_spec` + `real_block_matches`;
 - forwarding: the masked slot/nullifier regions are `forwardedSlots`/`forwardedNullifiers`
   (`forwardedSlotsF_val`, `forwardedNullsF_val`), and the `n_inner · slots_per_inner`
   constant is the region length (`forwardedSlotsF_length`).
