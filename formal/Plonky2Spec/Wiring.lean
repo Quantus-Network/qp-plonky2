@@ -14,13 +14,20 @@
   turns the copy list into the permutation argument (`a x = a y`), and pads with no-ops.
   Gate kinds this model does not interpret (`.other`, `.publicInput`, `.noop`) contribute
   `True`; a theorem proved from `Satisfies` therefore holds a fortiori for the real system,
-  which enforces *more*. Only `ArithmeticGate` is interpreted, via the extracted
+  which enforces *more*. Interpreted kinds: `ArithmeticGate`, via the extracted
   `arithmeticGate_c0` polynomial (one op) — `Bridges/CircuitBridge.lean` pins the 20-op
-  row the standard config places to this per-op reading.
+  row the standard config places to this per-op reading; `BaseSumGate<2>`, via the hand
+  model `BaseSum 2` of `RangeCheck.lean` (pinned to the extracted gate at two limbs in
+  `Bridges/Bridge.lean`), on the sum wire (column 0) and the `numLimbs` limb wires
+  (columns `1..=numLimbs`, base_sum.rs:45-46). `Poseidon2Gate` rows are classified but
+  their meaning — output wires `12..24` are the permutation of input wires `0..12`
+  (`Poseidon2.gate_sound_complete`) — is stated separately as `Poseidon2Rows perm`, so
+  `Satisfies` stays independent of the permutation.
 -/
 import Mathlib.Algebra.Field.ZMod
 import Mathlib.Data.Fin.VecNotation
 import Plonky2Spec.Generated.Gates
+import Plonky2Spec.RangeCheck
 
 namespace Plonky2Spec.Wiring
 
@@ -37,6 +44,10 @@ inductive GateKind
   | constant (numConsts : ℕ)
   | publicInput
   | noop
+  /-- `BaseSumGate { num_limbs } + Base: 2`. -/
+  | baseSum2 (numLimbs : ℕ)
+  /-- `Poseidon2Gate<WIDTH=12>`. -/
+  | poseidon2
   | other (id : String)
   deriving DecidableEq, Repr
 
@@ -70,6 +81,13 @@ theorem arithOp_iff (a : Assignment p) (row i : ℕ) (c0 c1 : ZMod p) :
   unfold arithOp Generated.arithmeticGate_c0
   exact sub_eq_zero
 
+/-- The limb wires of a `BaseSumGate` row: columns `1..=n` (base_sum.rs:46). -/
+def limbWires (row n : ℕ) : List Target := (List.range n).map fun i => .wire row (i + 1)
+
+-- `BaseSum` lives in the prime-field section of `RangeCheck.lean`, so from here on the
+-- system semantics carry the instance too.
+variable [Fact p.Prime]
+
 /-- The constraints a row imposes on an assignment. -/
 def rowConstraints (a : Assignment p) (row : ℕ) (r : Row p) : Prop :=
   match r.kind with
@@ -77,6 +95,8 @@ def rowConstraints (a : Assignment p) (row : ℕ) (r : Row p) : Prop :=
   | .constant n => ∀ i < n, a (.wire row i) = r.consts.getD i 0
   | .publicInput => True
   | .noop => True
+  | .baseSum2 n => BaseSum 2 (a (.wire row 0)) ((limbWires row n).map a)
+  | .poseidon2 => True
   | .other _ => True
 
 /-- Rows `row, row+1, …` all satisfied. -/
@@ -89,5 +109,17 @@ def Satisfies (c : Circuit p) (a : Assignment p) : Prop :=
   rowsSatisfied a 0 c.rows ∧
   (∀ xy ∈ c.copies, a xy.1 = a xy.2) ∧
   (∀ tc ∈ c.constants, a tc.1 = tc.2)
+
+/-- Input / output wires of a `Poseidon2Gate` row (poseidon2.rs:452-453). -/
+def poseidon2In (a : Assignment p) (row : ℕ) : Fin 12 → ZMod p := fun i => a (.wire row i)
+def poseidon2Out (a : Assignment p) (row : ℕ) : Fin 12 → ZMod p := fun i => a (.wire row (12 + i))
+
+/-- Every `Poseidon2Gate` row computes `perm`: the meaning `gate_sound_complete` gives the
+    118 gate constraints, stated on the row's wires. Conjoin with `Satisfies` for the full
+    system; kept separate so `Satisfies` does not depend on the permutation. -/
+def Poseidon2Rows (perm : (Fin 12 → ZMod p) → Fin 12 → ZMod p) (c : Circuit p)
+    (a : Assignment p) : Prop :=
+  ∀ row r, c.rows[row]? = some r → r.kind = .poseidon2 →
+    poseidon2Out a row = perm (poseidon2In a row)
 
 end Plonky2Spec.Wiring

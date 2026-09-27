@@ -89,6 +89,8 @@ pub struct FormalExportView<'a, F: RichField + Extendable<D>, const D: usize> {
     /// turns these into `LookupGate`/`LookupTableGate` rows; the exporter does not model
     /// them and must reject a builder with any.
     pub lookups: &'a [Lookup],
+    /// Number of virtual targets allocated so far (`add_virtual_target` indices are `0..n`).
+    pub num_virtual_targets: usize,
 }
 
 /// Structure containing, for each lookup table, the indices of the last lookup row,
@@ -306,6 +308,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             constant_targets: &self.targets_to_constants,
             public_inputs: &self.public_inputs,
             lookups: &self.lut_to_lookups,
+            num_virtual_targets: self.virtual_target_index,
         }
     }
 
