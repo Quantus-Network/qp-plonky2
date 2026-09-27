@@ -728,13 +728,29 @@ it. Pieces:
   - Poseidon2 rows are not part of a `Fact` yet: the wrapper's hashes will be stated via
     `Poseidon2Rows` + the named input/output wires, and the recorder needs a
     `hash_n_to_hash_no_pad` mirror that records which rows the sponge landed on.
-- **Next (8c, needs a release):** ship `formal_export_view` in a fork release, then add a
-  `formal-export` dev feature in `wormhole/aggregator` whose test builds the real `n = 2`
-  wrapper via `wrapper_only_n2_builds_without_verifiers` through the `Recorder` (the
-  wrapper's builder calls are exactly its mirrored set plus the sponge) and checks in the
-  generated `Satisfies (exportedWrapper 2) a → …` theorem. Remaining estimate: ~1 week
-  Lean, mostly composing the generated facts into `PrivateBatchConstraints` (the
-  `Poseidon2Rows` ⟹ `hdnull` step via `gate_sound_complete`, and the switch network `hsw`).
+  - The generated output is sized for the wrapper. Exports with more than 64 copies or
+    constants are rendered as `≤ 32`-element `def`s joined by a balanced `++` tree
+    (`chunks`/`render_list` in `circuit.rs`), the decode proof destructures them chunk by
+    chunk (`destructure` in `gadget.rs`), and a decode theorem with more than 32 facts
+    states them in parenthesised groups of 32 under a raised `maxHeartbeats`. Measured on
+    a synthetic chain at wrapper scale (49 rows, 2131 copies, 702 calls): ~2 minutes,
+    dominated by the kernel's processing of the single proof term (destructuring a flat
+    list literal of that size took ~1 minute on its own and positional `rfl` lookups
+    exhausted heartbeats). If that ceiling bites, the next step is one theorem per fact
+    sharing per-chunk copy lemmas, which Lean elaborates in parallel.
+- **Next (8c):** `formal_export_view` shipped in `qp-plonky2 1.6.0`. The wrapper lives in
+  `qp-zk-circuits` and its exporter here depends on a path `plonky2`, so a dev feature in
+  `wormhole/aggregator` cannot link against the `Recorder` directly. Plan: in
+  `qp-zk-circuits`, bump to `1.6.0`, abstract the wrapper's builder calls behind a
+  `GadgetBuilder` trait in `zk-circuits-common` (passthrough impl for `CircuitBuilder`),
+  and behind a `formal-export` dev feature a `TracingBuilder` that records each call
+  (kind, arguments, outputs, and the rows/copies it emitted via `formal_export_view`) to a
+  JSON trace checked into `qp-zk-circuits/formal/` with a staleness test. The exporter
+  reads that trace from the pinned `wormholeSpec` lake package, gains a `Fact::Poseidon2`
+  (stated through `Poseidon2Rows`, so the theorem takes `perm` and `hp`), and generates
+  `Generated/PrivateBatchWrapper2.lean`. Remaining estimate: ~1 week Lean, mostly
+  composing the generated facts into `PrivateBatchConstraints` (the `Poseidon2Rows` ⟹
+  `hdnull` step via `gate_sound_complete`, and the switch network `hsw`).
 
 ## 9. Definition of done
 

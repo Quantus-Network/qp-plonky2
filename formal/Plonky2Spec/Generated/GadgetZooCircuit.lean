@@ -22,16 +22,8 @@ set_option linter.unusedSimpArgs false
 
 variable {p : ℕ} [Fact p.Prime]
 
-/-- The gadget zoo: `assert_bool flag`, `eq = is_equal x y`, `sel = select flag x y`, `either = or eq flag`, `nflag = not flag`, `both = and eq nflag`, `head = sub 10000 fee`, `range_check head 14`, `connect sel either`; public inputs `x`, `sel`, `both`. -/
-def gadgetZoo (p : ℕ) : Circuit p where
-  rows := [
-    ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 0
-    ⟨.arithmetic 20, [1, 0]⟩,  -- row 1
-    ⟨.arithmetic 20, [(-1), 1]⟩,  -- row 2
-    ⟨.arithmetic 20, [1, 1]⟩,  -- row 3
-    ⟨.baseSum2 63, []⟩  -- row 4
-  ]
-  copies := [
+/-- `gadgetZoo.copies`, items `0..32`. -/
+def gadgetZoo.copies0 : List (Target × Target) := [
     (.virt 3, .wire 0 0),
     (.virt 3, .wire 0 1),
     (.virt 3, .wire 0 2),
@@ -63,7 +55,11 @@ def gadgetZoo (p : ℕ) : Circuit p where
     (.virt 3, .wire 2 1),
     (.virt 5, .wire 2 2),
     (.wire 2 3, .wire 3 0),
-    (.virt 6, .wire 3 1),
+    (.virt 6, .wire 3 1)
+  ]
+
+/-- `gadgetZoo.copies`, items `32..64`. -/
+def gadgetZoo.copies1 : List (Target × Target) := [
     (.virt 3, .wire 3 2),
     (.virt 6, .wire 0 24),
     (.virt 6, .wire 0 25),
@@ -95,7 +91,11 @@ def gadgetZoo (p : ℕ) : Circuit p where
     (.wire 4 33, .virt 4),
     (.wire 4 34, .virt 4),
     (.wire 4 35, .virt 4),
-    (.wire 4 36, .virt 4),
+    (.wire 4 36, .virt 4)
+  ]
+
+/-- `gadgetZoo.copies`, items `64..93`. -/
+def gadgetZoo.copies2 : List (Target × Target) := [
     (.wire 4 37, .virt 4),
     (.wire 4 38, .virt 4),
     (.wire 4 39, .virt 4),
@@ -126,6 +126,17 @@ def gadgetZoo (p : ℕ) : Circuit p where
     (.wire 4 0, .wire 0 31),
     (.wire 0 23, .wire 3 3)
   ]
+
+/-- The gadget zoo: `assert_bool flag`, `eq = is_equal x y`, `sel = select flag x y`, `either = or eq flag`, `nflag = not flag`, `both = and eq nflag`, `head = sub 10000 fee`, `range_check head 14`, `connect sel either`; public inputs `x`, `sel`, `both`. -/
+def gadgetZoo (p : ℕ) : Circuit p where
+  rows := [
+    ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 0
+    ⟨.arithmetic 20, [1, 0]⟩,  -- row 1
+    ⟨.arithmetic 20, [(-1), 1]⟩,  -- row 2
+    ⟨.arithmetic 20, [1, 1]⟩,  -- row 3
+    ⟨.baseSum2 63, []⟩  -- row 4
+  ]
+  copies := (gadgetZoo.copies0 ++ (gadgetZoo.copies1 ++ gadgetZoo.copies2))
   constants := [
     (.virt 4, 0),
     (.virt 6, 1),
@@ -171,25 +182,58 @@ theorem gadgetZoo_decode (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
     rangeCheck (a (.wire 0 31)) 14 ∧
     a (.wire 0 23) = a (.wire 3 3) := by
   have hcopy := h.2.1
+  simp only [gadgetZoo, List.forall_mem_append] at hcopy
+  have hcopy0 := hcopy.1
+  simp only [gadgetZoo.copies0, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hcopy0
+  obtain ⟨c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18, c19, c20, c21, c22, c23, c24, c25, c26, c27, c28, c29, c30, c31⟩ := hcopy0
+  have hcopy1 := hcopy.2.1
+  simp only [gadgetZoo.copies1, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hcopy1
+  obtain ⟨c32, c33, c34, c35, c36, c37, c38, c39, c40, c41, c42, c43, c44, c45, c46, c47, c48, c49, c50, c51, c52, c53, c54, c55, c56, c57, c58, c59, c60, c61, c62, c63⟩ := hcopy1
+  have hcopy2 := hcopy.2.2
+  simp only [gadgetZoo.copies2, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hcopy2
+  obtain ⟨c64, c65, c66, c67, c68, c69, c70, c71, c72, c73, c74, c75, c76, c77, c78, c79, c80, c81, c82, c83, c84, c85, c86, c87, c88, c89, c90, c91, c92⟩ := hcopy2
   have hconst := h.2.2
-  simp only [gadgetZoo, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hcopy hconst
-  obtain ⟨c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18, c19, c20, c21, c22, c23, c24, c25, c26, c27, c28, c29, c30, c31, c32, c33, c34, c35, c36, c37, c38, c39, c40, c41, c42, c43, c44, c45, c46, c47, c48, c49, c50, c51, c52, c53, c54, c55, c56, c57, c58, c59, c60, c61, c62, c63, c64, c65, c66, c67, c68, c69, c70, c71, c72, c73, c74, c75, c76, c77, c78, c79, c80, c81, c82, c83, c84, c85, c86, c87, c88, c89, c90, c91, c92⟩ := hcopy
+  simp only [gadgetZoo, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hconst
   obtain ⟨k0, k1, k2, k3⟩ := hconst
   have e_0_0 := arithEq_of_rows h (row := 0) (i := 0) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_0
+  simp only [← c0, ← c1, ← c2] at e_0_0
   have e_0_1 := arithEq_of_rows h (row := 0) (i := 1) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_1
+  simp only [← c4, k1, ← c5, k1, ← c6] at e_0_1
   have e_0_2 := arithEq_of_rows h (row := 0) (i := 2) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_2
+  simp only [← c7, ← c8, k1, ← c9] at e_0_2
   have e_1_0 := arithEq_of_rows h (row := 1) (i := 0) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_1_0
+  simp only [← c10, ← c11, ← c12] at e_1_0
   have e_1_1 := arithEq_of_rows h (row := 1) (i := 1) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_1_1
+  simp only [← c13, ← c14, ← c15] at e_1_1
   have e_0_3 := arithEq_of_rows h (row := 0) (i := 3) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_3
+  simp only [← c16, ← c17, k1, ← c18] at e_0_3
   have e_0_4 := arithEq_of_rows h (row := 0) (i := 4) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_4
+  simp only [← c21, ← c22, ← c23] at e_0_4
   have e_0_5 := arithEq_of_rows h (row := 0) (i := 5) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_5
+  simp only [← c24, ← c25, ← c26] at e_0_5
   have e_2_0 := arithEq_of_rows h (row := 2) (i := 0) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_2_0
+  simp only [← c27, ← c28, ← c29] at e_2_0
   have e_3_0 := arithEq_of_rows h (row := 3) (i := 0) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_3_0
+  simp only [← c30, ← c31, k1, ← c32] at e_3_0
   have e_0_6 := arithEq_of_rows h (row := 0) (i := 6) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_6
+  simp only [← c33, k1, ← c34, k1, ← c35] at e_0_6
   have e_1_2 := arithEq_of_rows h (row := 1) (i := 2) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_1_2
+  simp only [← c36, ← c37, ← c38] at e_1_2
   have e_0_7 := arithEq_of_rows h (row := 0) (i := 7) rfl (by norm_num)
-  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_0 e_0_1 e_0_2 e_1_0 e_1_1 e_0_3 e_0_4 e_0_5 e_2_0 e_3_0 e_0_6 e_1_2 e_0_7
-  simp only [← c0, ← c1, ← c2, ← c4, ← c5, ← c6, ← c7, ← c8, ← c9, ← c10, ← c11, ← c12, ← c13, ← c14, ← c15, ← c16, ← c17, ← c18, ← c21, ← c22, ← c23, ← c24, ← c25, ← c26, ← c27, ← c28, ← c29, ← c30, ← c31, ← c32, ← c33, ← c34, ← c35, ← c36, ← c37, ← c38, ← c39, ← c40, ← c41, k0, k1, k2, k3] at e_0_0 e_0_1 e_0_2 e_1_0 e_1_1 e_0_3 e_0_4 e_0_5 e_2_0 e_3_0 e_0_6 e_1_2 e_0_7
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_7
+  simp only [← c39, k2, ← c40, k1, ← c41] at e_0_7
   have f0 : IsBool (a (.virt 3)) := by
     refine isBool_iff_assertBool.mpr ?_
     have hc := e_0_0

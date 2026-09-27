@@ -11,6 +11,7 @@
 //! wrapper *logic* imposes is already present in the builder state.
 
 use core::fmt::Write as _;
+use core::ops::Range;
 
 use plonky2::field::goldilocks_field::GoldilocksField;
 use plonky2::field::types::{Field, PrimeField64};
@@ -176,10 +177,107 @@ fn lean_kind(k: &GateKind) -> String {
     }
 }
 
+/// Lists longer than `2 * CHUNK` are rendered as a balanced `++` tree of `CHUNK`-sized
+/// chunk definitions (`<name>.copies3`), so a proof can split `∀ xy ∈ copies, …` with
+/// `List.forall_mem_append` into per-chunk facts and destructure each chunk separately:
+/// destructuring one flat conjunction is superlinear in its length and unusable past a few
+/// hundred copies, while the chunked form stays linear.
+pub const CHUNK: usize = 32;
+
+/// The chunk ranges of a list of `len` items, or `None` if it is rendered flat.
+pub fn chunks(len: usize) -> Option<Vec<Range<usize>>> {
+    (len > 2 * CHUNK).then(|| {
+        (0..len)
+            .step_by(CHUNK)
+            .map(|s| s..(s + CHUNK).min(len))
+            .collect()
+    })
+}
+
+/// The `++` tree over chunk definitions `prefix{k}` for `k` in `lo..hi`.
+fn chunk_tree(prefix: &str, lo: usize, hi: usize) -> String {
+    if hi - lo == 1 {
+        format!("{prefix}{lo}")
+    } else {
+        let mid = lo + (hi - lo) / 2;
+        format!(
+            "({} ++ {})",
+            chunk_tree(prefix, lo, mid),
+            chunk_tree(prefix, mid, hi)
+        )
+    }
+}
+
+/// The projection path (`.1`/`.2` per `And`) to chunk `k`'s conjunct after
+/// `simp only [List.forall_mem_append]` on the tree over `n` chunks.
+pub fn chunk_path(n: usize, k: usize) -> String {
+    fn go(lo: usize, hi: usize, k: usize, path: &mut String) {
+        if hi - lo == 1 {
+            return;
+        }
+        let mid = lo + (hi - lo) / 2;
+        if k < mid {
+            path.push_str(".1");
+            go(lo, mid, k, path);
+        } else {
+            path.push_str(".2");
+            go(mid, hi, k, path);
+        }
+    }
+    let mut path = String::new();
+    go(0, n, k, &mut path);
+    path
+}
+
+/// Render a `List` field: flat, or as chunk definitions (emitted into `defs`) plus the
+/// `++` tree over them.
+fn render_list(defs: &mut String, name: &str, field: &str, ty: &str, items: &[String]) -> String {
+    let flat = |items: &[String]| -> String {
+        let mut s = String::from("[\n");
+        for (i, it) in items.iter().enumerate() {
+            let sep = if i + 1 == items.len() { "" } else { "," };
+            let _ = writeln!(s, "    {it}{sep}");
+        }
+        s.push_str("  ]");
+        s
+    };
+    match chunks(items.len()) {
+        None => flat(items),
+        Some(ranges) => {
+            for (k, r) in ranges.iter().enumerate() {
+                let _ = writeln!(
+                    defs,
+                    "/-- `{name}.{field}`, items `{}..{}`. -/\ndef {name}.{field}{k} : List ({ty}) := {}\n",
+                    r.start,
+                    r.end,
+                    flat(&items[r.clone()])
+                );
+            }
+            chunk_tree(&format!("{name}.{field}"), 0, ranges.len())
+        }
+    }
+}
+
 /// Render the export as a Lean `def <name> (p : ℕ) : Circuit p` plus one `def <name>.<role>`
 /// per named target group (a single `Target`, or a `Fin n → Target` vector).
 pub fn render_lean(name: &str, doc: &str, ex: &CircuitExport) -> String {
+    let mut defs = String::new();
+    let copies: Vec<String> = ex
+        .copies
+        .iter()
+        .map(|(x, y)| format!("({}, {})", lean_target(*x), lean_target(*y)))
+        .collect();
+    let copies = render_list(&mut defs, name, "copies", "Target × Target", &copies);
+    let constants: Vec<String> = ex
+        .constants
+        .iter()
+        .map(|(t, c)| format!("({}, {})", lean_target(*t), lean_const(*c)))
+        .collect();
+    let constants = render_list(&mut defs, name, "constants", "Target × ZMod p", &constants);
     let mut out = String::new();
+    if !defs.is_empty() {
+        out.push_str(&defs);
+    }
     let _ = writeln!(out, "/-- {doc} -/");
     let _ = writeln!(out, "def {name} (p : ℕ) : Circuit p where");
     out.push_str("  rows := [\n");
@@ -193,17 +291,9 @@ pub fn render_lean(name: &str, doc: &str, ex: &CircuitExport) -> String {
             cs.join(", ")
         );
     }
-    out.push_str("  ]\n  copies := [\n");
-    for (i, (x, y)) in ex.copies.iter().enumerate() {
-        let sep = if i + 1 == ex.copies.len() { "" } else { "," };
-        let _ = writeln!(out, "    ({}, {}){sep}", lean_target(*x), lean_target(*y));
-    }
-    out.push_str("  ]\n  constants := [\n");
-    for (i, (t, c)) in ex.constants.iter().enumerate() {
-        let sep = if i + 1 == ex.constants.len() { "" } else { "," };
-        let _ = writeln!(out, "    ({}, {}){sep}", lean_target(*t), lean_const(*c));
-    }
-    out.push_str("  ]\n  publicInputs := [\n");
+    let _ = writeln!(out, "  ]\n  copies := {copies}");
+    let _ = writeln!(out, "  constants := {constants}");
+    out.push_str("  publicInputs := [\n");
     for (i, t) in ex.public_inputs.iter().enumerate() {
         let sep = if i + 1 == ex.public_inputs.len() {
             ""

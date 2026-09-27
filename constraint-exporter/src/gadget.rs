@@ -733,11 +733,68 @@ fn check_script(
     s
 }
 
+/// Bind `prefix<i>` to item `i` of a rendered list field (`hyp := proj` is the
+/// `∀ x ∈ list, …` hypothesis), flat or chunked as `render_lean` laid it out.
+fn destructure(
+    out: &mut String,
+    name: &str,
+    field: &str,
+    hyp: &str,
+    proj: &str,
+    prefix: &str,
+    len: usize,
+) {
+    if len == 0 {
+        return;
+    }
+    let names = |r: Range<usize>| -> String {
+        r.map(|i| format!("{prefix}{i}"))
+            .collect::<Vec<_>>()
+            .join(", ")
+    };
+    let cons = "List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true";
+    let bind = |out: &mut String, h: &str, r: Range<usize>| {
+        if r.len() > 1 {
+            let _ = writeln!(out, "  obtain ⟨{}⟩ := {h}", names(r));
+        } else {
+            let _ = writeln!(out, "  have {}{} := {h}", prefix, r.start);
+        }
+    };
+    let _ = writeln!(out, "  have {hyp} := {proj}");
+    match crate::circuit::chunks(len) {
+        None => {
+            let _ = writeln!(out, "  simp only [{name}, {cons}] at {hyp}");
+            bind(out, hyp, 0..len);
+        }
+        Some(ranges) => {
+            let _ = writeln!(out, "  simp only [{name}, List.forall_mem_append] at {hyp}");
+            for (k, r) in ranges.iter().enumerate() {
+                let m = format!("{hyp}{k}");
+                let _ = writeln!(
+                    out,
+                    "  have {m} := {hyp}{}",
+                    crate::circuit::chunk_path(ranges.len(), k)
+                );
+                let _ = writeln!(out, "  simp only [{name}.{field}{k}, {cons}] at {m}");
+                bind(out, &m, r.clone());
+            }
+        }
+    }
+}
+
+/// Facts per parenthesised group in a decode theorem's conclusion.
+pub const FACT_GROUP: usize = 32;
+/// Heartbeat budget for decode theorems with more than one fact group.
+const LARGE_HEARTBEATS: usize = 4_000_000;
+
 /// Render `theorem <name>_decode (a) (h : Satisfies (<name> p) a) : fact₁ ∧ … := by …`.
 pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> String {
     let ops = Ops::new(ex);
     let mut out = String::new();
     let facts: Vec<String> = calls.iter().map(|c| c.fact.lean()).collect();
+    if facts.len() > FACT_GROUP {
+        let _ = writeln!(out, "set_option maxHeartbeats {LARGE_HEARTBEATS} in");
+    }
     let _ = writeln!(
         out,
         "/-- Every satisfying assignment of `{name}` has the meaning of each recorded gadget \
@@ -751,88 +808,81 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
         );
         return out;
     }
+    // Facts are grouped `FACT_GROUP` to a parenthesised conjunction, groups conjoined in
+    // turn: a flat `∧` chain hundreds deep is superlinear to elaborate and to destructure.
+    let groups: Vec<&[String]> = facts.chunks(FACT_GROUP).collect();
     let _ = writeln!(
         out,
         "theorem {name}_decode (a : Assignment p) (h : Satisfies ({name} p) a) :"
     );
-    for (i, f) in facts.iter().enumerate() {
-        let sep = if i + 1 == facts.len() {
-            " := by"
+    for (g, group) in groups.iter().enumerate() {
+        let (open, close) = if groups.len() > 1 {
+            ("(", ")")
         } else {
-            " ∧"
+            ("", "")
         };
-        let _ = writeln!(out, "    {f}{sep}");
+        for (i, f) in group.iter().enumerate() {
+            let pre = if i == 0 { open } else { "" };
+            let sep = match (i + 1 == group.len(), g + 1 == groups.len()) {
+                (false, _) => " ∧",
+                (true, false) => &*format!("{close} ∧"),
+                (true, true) => &*format!("{close} := by"),
+            };
+            let _ = writeln!(out, "    {pre}{f}{sep}");
+        }
     }
-    // Copies and constants, by position.
-    out.push_str("  have hcopy := h.2.1\n  have hconst := h.2.2\n");
-    let _ = writeln!(
-        out,
-        "  simp only [{name}, List.forall_mem_cons, List.not_mem_nil, false_implies, \
-         implies_true, and_true] at hcopy hconst"
+    // Copies and constants, by position: `c<i>` / `k<i>` for item `i`. Flat lists are
+    // destructured at once; chunked lists (`circuit.rs`) are split per chunk.
+    destructure(
+        &mut out,
+        name,
+        "copies",
+        "hcopy",
+        "h.2.1",
+        "c",
+        ex.copies.len(),
     );
-    let names = |prefix: &str, n: usize| -> String {
-        (0..n)
-            .map(|i| format!("{prefix}{i}"))
-            .collect::<Vec<_>>()
-            .join(", ")
-    };
-    if ex.copies.len() > 1 {
-        let _ = writeln!(out, "  obtain ⟨{}⟩ := hcopy", names("c", ex.copies.len()));
-    } else if ex.copies.len() == 1 {
-        out.push_str("  have c0 := hcopy\n");
-    }
-    if ex.constants.len() > 1 {
-        let _ = writeln!(
-            out,
-            "  obtain ⟨{}⟩ := hconst",
-            names("k", ex.constants.len())
-        );
-    } else if ex.constants.len() == 1 {
-        out.push_str("  have k0 := hconst\n");
-    }
-    // Every used op, as its wire equation.
+    destructure(
+        &mut out,
+        name,
+        "constants",
+        "hconst",
+        "h.2.2",
+        "k",
+        ex.constants.len(),
+    );
+    // Every used op, as its wire equation, its input wires oriented to their sources and
+    // constant sources to their values. Output wires stay atoms; a pin on one is used only
+    // by the check that owns it.
     for &(row, i) in &ops.used {
         let _ = writeln!(
             out,
             "  have {} := arithEq_of_rows h (row := {row}) (i := {i}) rfl (by norm_num)",
             e((row, i))
         );
-    }
-    let all_e: Vec<String> = ops.used.iter().map(|&op| e(op)).collect();
-    if !all_e.is_empty() {
+        let mut rules: Vec<String> = Vec::new();
+        for col in [4 * i, 4 * i + 1, 4 * i + 2] {
+            let Some(&(src, ci)) = ops.input_source.get(&(row, col)) else {
+                continue;
+            };
+            let (x, _) = ex.copies[ci];
+            // `connect(source, wire)`: rewrite `a wire` into `a source`.
+            rules.push(if x == Target::wire(row, col) {
+                format!("c{ci}")
+            } else {
+                format!("← c{ci}")
+            });
+            if let Some(&k) = ops.const_idx.get(&src) {
+                rules.push(format!("k{k}"));
+            }
+        }
+        rules.dedup();
         let _ = writeln!(
             out,
             "  norm_num only [Nat.reduceMul, Nat.reduceAdd] at {}",
-            all_e.join(" ")
+            e((row, i))
         );
-        // Orient: gate input wires → their sources; constants → their values. Output wires
-        // stay atoms; a pin on one is used only by the check that owns it.
-        let mut rules: Vec<String> = Vec::new();
-        let mut in_copies: Vec<usize> = ops.input_source.values().map(|(_, ci)| *ci).collect();
-        in_copies.sort();
-        in_copies.dedup();
-        for ci in in_copies {
-            let (x, _) = ex.copies[ci];
-            // `connect(source, wire)`: rewrite `a wire` into `a source`.
-            rules.push(
-                if wire(x).is_some_and(|(r, c)| {
-                    matches!(ex.rows.get(r), Some((GateKind::Arithmetic { .. }, _))) && c % 4 != 3
-                }) {
-                    format!("c{ci}")
-                } else {
-                    format!("← c{ci}")
-                },
-            );
-        }
-        for i in 0..ex.constants.len() {
-            rules.push(format!("k{i}"));
-        }
-        let _ = writeln!(
-            out,
-            "  simp only [{}] at {}",
-            rules.join(", "),
-            all_e.join(" ")
-        );
+        out.push_str(&indent_lines(&simp_only(&rules, Some(&e((row, i)))), "  "));
     }
     // One block per call.
     for (n, call) in calls.iter().enumerate() {
@@ -1003,8 +1053,14 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
     let fs: Vec<String> = (0..calls.len()).map(|i| format!("f{i}")).collect();
     if let [f0] = &fs[..] {
         let _ = writeln!(out, "  exact {f0}");
-    } else {
+    } else if fs.len() <= FACT_GROUP {
         let _ = writeln!(out, "  exact ⟨{}⟩", fs.join(", "));
+    } else {
+        let gs: Vec<String> = fs
+            .chunks(FACT_GROUP)
+            .map(|g| format!("⟨{}⟩", g.join(", ")))
+            .collect();
+        let _ = writeln!(out, "  exact ⟨{}⟩", gs.join(", "));
     }
     out
 }
