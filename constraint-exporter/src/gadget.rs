@@ -292,10 +292,23 @@ struct Ops<'a> {
     used: Vec<(usize, usize)>,
     /// Input wire `(row, col)` → the target `connect`ed to it (`copies` index).
     input_source: HashMap<(usize, usize), (Target, usize)>,
-    /// Output wire `(row, col)` → index of the copy pinning it to a constant target.
-    pinned: HashMap<(usize, usize), usize>,
+    /// Output wire `(row, col)` → every copy pinning it to a constant target, in copy order.
+    pinned: HashMap<(usize, usize), Vec<usize>>,
     /// Constant target → its `constants` index.
     const_idx: HashMap<Target, usize>,
+}
+
+/// A copy in a call's range that pins a target to a constant.
+#[derive(Debug, Clone, Copy)]
+enum Check {
+    /// A pinned arithmetic op output: after orientation its equation reads `0 = RHS`
+    /// (more precisely `v = RHS` for the constant's value `v`).
+    Op((usize, usize)),
+    /// A non-constant virtual target pinned by copy `ci` (`fwd`: the copy is
+    /// `(target, constant)`), to constant number `k`.
+    Virt { ci: usize, fwd: bool, k: usize },
+    /// A constant pinned to a constant: carries nothing.
+    Const,
 }
 
 impl<'a> Ops<'a> {
@@ -313,7 +326,7 @@ impl<'a> Ops<'a> {
         let mut used = Vec::new();
         let mut seen = HashSet::new();
         let mut input_source = HashMap::new();
-        let mut pinned = HashMap::new();
+        let mut pinned: HashMap<(usize, usize), Vec<usize>> = HashMap::new();
         for (ci, &(x, y)) in ex.copies.iter().enumerate() {
             for (t, other) in [(x, y), (y, x)] {
                 if let Some((row, col)) = is_arith_wire(t) {
@@ -323,7 +336,7 @@ impl<'a> Ops<'a> {
                     if col % 4 != 3 {
                         input_source.insert((row, col), (other, ci));
                     } else if const_idx.contains_key(&other) {
-                        pinned.insert((row, col), ci);
+                        pinned.entry((row, col)).or_default().push(ci);
                     }
                 }
             }
@@ -347,49 +360,151 @@ impl<'a> Ops<'a> {
         .then_some((row, col / 4))
     }
 
-    /// Ops whose outputs are reachable from `roots` through op inputs. The roots themselves
-    /// are always expanded; below them the walk stops at `stop` targets and does not enter
-    /// ops whose output is pinned to a constant (those are checks, not definitions).
+    fn is_pinned(&self, op: (usize, usize)) -> bool {
+        self.pinned.contains_key(&(op.0, 4 * op.1 + 3))
+    }
+
+    /// Ops whose outputs are reachable from `roots` through op inputs, not crossing `stop`
+    /// targets and not entering ops whose output is pinned to a constant: the global
+    /// rewrite already replaced such outputs by the constant's value everywhere, so their
+    /// equations are checks, not definitions.
     fn internal_defs(&self, roots: &[Target], stop: &[Target]) -> Vec<(usize, usize)> {
         let mut out = Vec::new();
         let mut seen = BTreeSet::new();
-        let mut stack: Vec<(Target, bool)> = roots.iter().map(|&t| (t, true)).collect();
-        while let Some((t, is_root)) = stack.pop() {
-            if !is_root && stop.contains(&t) {
+        let mut stack: Vec<Target> = roots.to_vec();
+        while let Some(t) = stack.pop() {
+            if stop.contains(&t) {
                 continue;
             }
             let Some((row, i)) = self.op_of_output(t) else {
                 continue;
             };
-            if self.pinned.contains_key(&(row, 4 * i + 3)) || !seen.insert((row, i)) {
+            if self.is_pinned((row, i)) || !seen.insert((row, i)) {
                 continue;
             }
             out.push((row, i));
-            for col in [4 * i, 4 * i + 1, 4 * i + 2] {
-                if let Some((src, _)) = self.input_source.get(&(row, col)) {
-                    stack.push((*src, false));
-                }
-            }
+            self.push_inputs((row, i), &mut stack);
         }
         out
     }
 
-    /// Check ops (output pinned to a constant) whose pinning copy lies in `copies`, in
-    /// copy order.
-    fn checks_in(&self, copies: &Range<usize>) -> Vec<(usize, usize)> {
-        let mut v: Vec<(usize, (usize, usize))> = self
-            .pinned
-            .iter()
-            .filter(|(_, &ci)| copies.contains(&ci))
-            .map(|(&(row, col), &ci)| (ci, (row, col / 4)))
-            .collect();
-        v.sort();
-        v.into_iter().map(|(_, op)| op).collect()
+    fn push_inputs(&self, (row, i): (usize, usize), stack: &mut Vec<Target>) {
+        for col in [4 * i, 4 * i + 1, 4 * i + 2] {
+            if let Some((src, _)) = self.input_source.get(&(row, col)) {
+                stack.push(*src);
+            }
+        }
+    }
+
+    /// Input sources of an op.
+    fn inputs(&self, op: (usize, usize)) -> Vec<Target> {
+        let mut v = Vec::new();
+        self.push_inputs(op, &mut v);
+        v
+    }
+
+    /// The constant-pinning copies in a call's copy range, in copy order. Discovered from
+    /// the copies themselves, so repeated pins of one output by later calls cannot hide
+    /// earlier evidence, and checks that constant-folded to a virtual target or to a
+    /// constant are still seen.
+    fn checks_in(&self, copies: &Range<usize>) -> Vec<Check> {
+        let mut v = Vec::new();
+        for ci in copies.clone() {
+            let (x, y) = self.ex.copies[ci];
+            let (t, fwd, k) = match (self.const_idx.get(&x), self.const_idx.get(&y)) {
+                (Some(_), Some(_)) => {
+                    v.push(Check::Const);
+                    continue;
+                }
+                (None, Some(&k)) => (x, true, k),
+                (Some(&k), None) => (y, false, k),
+                (None, None) => continue,
+            };
+            if let Some(op) = self.op_of_output(t) {
+                v.push(Check::Op(op));
+            } else if matches!(t, Target::VirtualTarget { .. }) {
+                v.push(Check::Virt { ci, fwd, k });
+            }
+            // A gate input wire connected to a constant is an operand feed, not a check.
+        }
+        v
+    }
+
+    /// Rewrites that bring the goal's named targets into the form the oriented equations
+    /// use: constants to their values, pinned outputs to the constant then its value.
+    fn goal_rules(&self, named: &[Target]) -> Vec<String> {
+        let mut rules = Vec::new();
+        for &t in named {
+            if let Some(&k) = self.const_idx.get(&t) {
+                rules.push(format!("k{k}"));
+            } else if let Some(op) = self.op_of_output(t) {
+                if let Some(cis) = self.pinned.get(&(op.0, 4 * op.1 + 3)) {
+                    let ci = cis[0];
+                    let (x, y) = self.ex.copies[ci];
+                    let (rule, konst) = if self.const_idx.contains_key(&x) {
+                        (format!("← c{ci}"), x)
+                    } else {
+                        (format!("c{ci}"), y)
+                    };
+                    rules.push(rule);
+                    rules.push(format!("k{}", self.const_idx[&konst]));
+                }
+            }
+        }
+        rules.dedup();
+        rules
     }
 }
 
 fn e(op: (usize, usize)) -> String {
     format!("e_{}_{}", op.0, op.1)
+}
+
+fn simp_only(rules: &[String], at: Option<&str>) -> String {
+    if rules.is_empty() {
+        return String::new();
+    }
+    match at {
+        Some(h) => format!("simp only [{}] at {h}\n", rules.join(", ")),
+        None => format!("simp only [{}]\n", rules.join(", ")),
+    }
+}
+
+/// Tactic script proving one zero-check from a `Check`: for an op, its oriented equation
+/// with the call-internal definitions substituted, closed by `linear_combination`; for a
+/// pinned virtual target, rewrite it to the constant's value and `ring`; for a
+/// constant-to-constant copy, `ring` alone.
+fn check_script(ops: &Ops, chk: Check, stop: &[Target], indent: &str) -> String {
+    let mut s = String::new();
+    match chk {
+        Check::Op(op) => {
+            let defs: Vec<String> = ops
+                .internal_defs(&ops.inputs(op), stop)
+                .into_iter()
+                .map(e)
+                .collect();
+            let _ = writeln!(s, "{indent}have hc := {}", e(op));
+            s.push_str(&indent_lines(&simp_only(&defs, Some("hc")), indent));
+            let _ = writeln!(s, "{indent}linear_combination -hc");
+        }
+        Check::Virt { ci, fwd, k } => {
+            let c = if fwd {
+                format!("c{ci}")
+            } else {
+                format!("c{ci}.symm")
+            };
+            let _ = writeln!(s, "{indent}rw [{c}.trans k{k}]");
+            let _ = writeln!(s, "{indent}ring");
+        }
+        Check::Const => {
+            let _ = writeln!(s, "{indent}ring");
+        }
+    }
+    s
+}
+
+fn indent_lines(block: &str, indent: &str) -> String {
+    block.lines().map(|l| format!("{indent}{l}\n")).collect()
 }
 
 /// Render `theorem <name>_decode (a) (h : Satisfies (<name> p) a) : fact₁ ∧ … := by …`.
@@ -475,7 +590,7 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
                 },
             );
         }
-        let mut pin_copies: Vec<usize> = ops.pinned.values().copied().collect();
+        let mut pin_copies: Vec<usize> = ops.pinned.values().flatten().copied().collect();
         pin_copies.sort();
         for ci in pin_copies {
             let (x, _) = ex.copies[ci];
@@ -499,11 +614,6 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
     for (n, call) in calls.iter().enumerate() {
         let f = &call.fact;
         let stop = f.named();
-        let ks: Vec<String> = (0..ex.constants.len()).map(|i| format!("k{i}")).collect();
-        let with_ks = |mut v: Vec<String>| {
-            v.extend(ks.iter().cloned());
-            v.join(", ")
-        };
         let _ = writeln!(out, "  have f{n} : {} := by", f.lean());
         match *f {
             Fact::Select { out: o, .. }
@@ -520,53 +630,64 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
                     Fact::Or { .. } => Some("bor"),
                     _ => None,
                 };
-                let defs: Vec<String> = ops.internal_defs(&[o], &stop).into_iter().map(e).collect();
-                let mut lemmas: Vec<String> = spec.map(|s| s.to_string()).into_iter().collect();
-                lemmas.extend(defs);
-                let _ = writeln!(out, "    simp only [{}]", with_ks(lemmas));
-                out.push_str("    ring\n");
-            }
-            Fact::AssertBool { b } => {
-                let checks = ops.checks_in(&call.copies);
-                assert_eq!(
-                    checks.len(),
-                    1,
-                    "assert_bool pins exactly one op: {checks:?}"
-                );
-                let chk = e(checks[0]);
-                let defs: Vec<String> = ops.internal_defs(&[b], &stop).into_iter().map(e).collect();
-                if !defs.is_empty() {
-                    let _ = writeln!(out, "    simp only [{}] at {chk}", with_ks(defs));
+                let mut goal: Vec<String> = spec.map(|s| s.to_string()).into_iter().collect();
+                goal.extend(ops.goal_rules(&stop));
+                // The output's own equation (if the builder placed an op for it; a folded
+                // call has none and the fact is an identity after the goal rewrites),
+                // with the definitions internal to this call substituted.
+                match ops.op_of_output(o) {
+                    Some(root) => {
+                        let inner: Vec<Target> = ops.inputs(root);
+                        let defs: Vec<String> = ops
+                            .internal_defs(&inner, &stop)
+                            .into_iter()
+                            .map(e)
+                            .collect();
+                        let _ = writeln!(out, "    have hr := {}", e(root));
+                        out.push_str(&indent_lines(&simp_only(&defs, Some("hr")), "    "));
+                        out.push_str(&indent_lines(&simp_only(&goal, None), "    "));
+                        out.push_str("    linear_combination hr\n");
+                    }
+                    None => {
+                        out.push_str(&indent_lines(&simp_only(&goal, None), "    "));
+                        out.push_str("    ring\n");
+                    }
                 }
-                let _ = writeln!(
-                    out,
-                    "    exact isBool_iff_assertBool.mpr (by linear_combination -{chk})"
-                );
+            }
+            Fact::AssertBool { .. } => {
+                let checks = ops.checks_in(&call.copies);
+                let [chk] = checks[..] else {
+                    panic!("assert_bool pins exactly one target: {checks:?}")
+                };
+                out.push_str(&indent_lines(
+                    &simp_only(&ops.goal_rules(&stop), None),
+                    "    ",
+                ));
+                out.push_str("    refine isBool_iff_assertBool.mpr ?_\n");
+                out.push_str(&check_script(&ops, chk, &stop, "    "));
             }
             Fact::IsEqual { .. } => {
                 let checks = ops.checks_in(&call.copies);
-                assert_eq!(checks.len(), 2, "is_equal pins two ops: {checks:?}");
-                let mut roots: Vec<Target> = Vec::new();
-                for &(row, i) in &checks {
-                    for col in [4 * i, 4 * i + 1, 4 * i + 2] {
-                        if let Some((t, _)) = ops.input_source.get(&(row, col)) {
-                            roots.push(*t);
-                        }
+                // `connect(not_equal_check, zero)` then `connect(equal_check, zero)`
+                // (arithmetic.rs), each possibly constant-folded.
+                let [ne, eq] = checks[..] else {
+                    panic!("is_equal pins exactly two targets: {checks:?}")
+                };
+                out.push_str(&indent_lines(
+                    &simp_only(&ops.goal_rules(&stop), None),
+                    "    ",
+                ));
+                out.push_str("    refine ⟨?_, ?_⟩\n");
+                for chk in [ne, eq] {
+                    let script = check_script(&ops, chk, &stop, "      ");
+                    let mut lines = script.lines();
+                    if let Some(first) = lines.next() {
+                        let _ = writeln!(out, "    · {}", first.trim_start());
+                    }
+                    for l in lines {
+                        let _ = writeln!(out, "{l}");
                     }
                 }
-                let defs: Vec<String> = ops
-                    .internal_defs(&roots, &stop)
-                    .into_iter()
-                    .map(e)
-                    .collect();
-                let (ne, eq) = (e(checks[0]), e(checks[1]));
-                if !defs.is_empty() {
-                    let _ = writeln!(out, "    simp only [{}] at {ne} {eq}", with_ks(defs));
-                }
-                let _ = writeln!(
-                    out,
-                    "    exact ⟨by linear_combination -{ne}, by linear_combination -{eq}⟩"
-                );
             }
             Fact::RangeCheck { bits, .. } => {
                 assert_eq!(
@@ -714,12 +835,121 @@ impl GadgetZooTargets {
 pub fn generate_gadget_zoo_lean() -> String {
     let (r, t) = build_gadget_zoo();
     let ex = r.export(t.named()).expect("gadget zoo has no lookups");
+    render_module(
+        "gadget-zoo",
+        "gadgetZoo",
+        "The gadget zoo: `assert_bool flag`, `eq = is_equal x y`, `sel = select flag x y`, \
+         `either = or eq flag`, `nflag = not flag`, `both = and eq nflag`, \
+         `head = sub 10000 fee`, `range_check head 14`, `connect sel either`; \
+         public inputs `x`, `sel`, `both`.",
+        &ex,
+        &r.calls,
+    )
+}
+
+// --- Builder folding and re-pinning edge cases ----------------------------------------------
+
+/// Named targets of the edge-case circuit.
+#[derive(Debug, Clone)]
+pub struct GadgetEdgeCasesTargets {
+    pub x: Target,
+    pub y: Target,
+    pub zero: Target,
+    pub one: Target,
+    pub sum: Target,
+    pub eq_zz: Target,
+    pub eq_oz: Target,
+    pub eq_xx: Target,
+    pub eq_xy: Target,
+    pub diff: Target,
+    pub check: Target,
+}
+
+/// Gadget calls whose lowering differs from the plain case:
+/// `sum = add x y` pinned to zero (a gadget output that is also a check),
+/// `is_equal zero zero` (both checks fold: one to a constant copy, one to a real op with
+/// constant operands), `is_equal one zero` (the first check folds to the `equal` target
+/// itself), `is_equal x x`, and `eq_xy = is_equal x y; diff = sub x y; check = mul eq_xy
+/// diff; connect check zero` (the memoized `check` op is the one `is_equal` already pinned,
+/// so the same output wire is pinned twice).
+pub fn build_gadget_edge_cases() -> (Recorder, GadgetEdgeCasesTargets) {
+    let mut r = Recorder::new(CircuitConfig::standard_recursion_config());
+    let x = r.add_virtual_target();
+    let y = r.add_virtual_target();
+    let zero = r.constant(F::ZERO);
+    let one = r.constant(F::ONE);
+    let sum = r.add(x, y);
+    r.connect(sum, zero);
+    let eq_zz = r.is_equal(zero, zero);
+    let eq_oz = r.is_equal(one, zero);
+    let eq_xx = r.is_equal(x, x);
+    let eq_xy = r.is_equal(x, y);
+    let diff = r.sub(x, y);
+    let check = r.mul(eq_xy.target, diff);
+    r.connect(check, zero);
+    r.register_public_input(eq_zz.target);
+    r.register_public_input(eq_oz.target);
+    r.register_public_input(eq_xx.target);
+    r.register_public_input(eq_xy.target);
+    let t = GadgetEdgeCasesTargets {
+        x,
+        y,
+        zero,
+        one,
+        sum,
+        eq_zz: eq_zz.target,
+        eq_oz: eq_oz.target,
+        eq_xx: eq_xx.target,
+        eq_xy: eq_xy.target,
+        diff,
+        check,
+    };
+    (r, t)
+}
+
+impl GadgetEdgeCasesTargets {
+    fn named(&self) -> Vec<(String, Vec<Target>)> {
+        vec![
+            ("x".to_string(), vec![self.x]),
+            ("y".to_string(), vec![self.y]),
+            ("zero".to_string(), vec![self.zero]),
+            ("one".to_string(), vec![self.one]),
+            ("sum".to_string(), vec![self.sum]),
+            ("eq_zz".to_string(), vec![self.eq_zz]),
+            ("eq_oz".to_string(), vec![self.eq_oz]),
+            ("eq_xx".to_string(), vec![self.eq_xx]),
+            ("eq_xy".to_string(), vec![self.eq_xy]),
+            ("diff".to_string(), vec![self.diff]),
+            ("check".to_string(), vec![self.check]),
+        ]
+    }
+}
+
+/// Build `formal/Plonky2Spec/Generated/GadgetEdgeCasesCircuit.lean`.
+pub fn generate_gadget_edge_cases_lean() -> String {
+    let (r, t) = build_gadget_edge_cases();
+    let ex = r.export(t.named()).expect("edge cases have no lookups");
+    render_module(
+        "gadget edge-case",
+        "gadgetEdgeCases",
+        "Builder folding and re-pinning edge cases: `sum = add x y; connect sum zero`, \
+         `is_equal zero zero`, `is_equal one zero`, `is_equal x x`, \
+         `eq_xy = is_equal x y; diff = sub x y; check = mul eq_xy diff; connect check zero`; \
+         public inputs the four `equal` targets.",
+        &ex,
+        &r.calls,
+    )
+}
+
+/// A complete `Plonky2Spec.Generated` module: header, the export, and the decode theorem.
+fn render_module(what: &str, name: &str, doc: &str, ex: &CircuitExport, calls: &[Call]) -> String {
     let mut out = String::new();
-    out.push_str(
+    let _ = write!(
+        out,
         "/-\n\
          \x20 AUTO-GENERATED — do not edit by hand.\n\n\
          \x20 Produced by `qp-plonky2-constraint-exporter` (`gadget.rs`) by building the\n\
-         \x20 gadget-zoo circuit through the recording builder and walking its pre-`build`\n\
+         \x20 {what} circuit through the recording builder and walking its pre-`build`\n\
          \x20 constraint system. The theorem's proof is generated too, one block per recorded\n\
          \x20 gadget call, from the ops and copy constraints the builder emitted for it.\n\
          \x20 Regenerate with:\n\n\
@@ -733,16 +963,9 @@ pub fn generate_gadget_zoo_lean() -> String {
          set_option linter.unusedVariables false\n\
          set_option linter.unusedSimpArgs false\n\n",
     );
-    out.push_str(&crate::circuit::render_lean(
-        "gadgetZoo",
-        "The gadget zoo: `assert_bool flag`, `eq = is_equal x y`, `sel = select flag x y`, \
-         `either = or eq flag`, `nflag = not flag`, `both = and eq nflag`, \
-         `head = sub 10000 fee`, `range_check head 14`, `connect sel either`; \
-         public inputs `x`, `sel`, `both`.",
-        &ex,
-    ));
+    out.push_str(&crate::circuit::render_lean(name, doc, ex));
     out.push_str("variable {p : ℕ} [Fact p.Prime]\n\n");
-    out.push_str(&render_decode_theorem("gadgetZoo", &ex, &r.calls));
+    out.push_str(&render_decode_theorem(name, ex, calls));
     out.push_str("\nend Plonky2Spec.Generated\n");
     out
 }

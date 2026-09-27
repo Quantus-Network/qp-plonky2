@@ -7,11 +7,13 @@
 use constraint_exporter::circuit::{check_satisfied, GateKind};
 use constraint_exporter::gadget::{build_gadget_zoo, generate_gadget_zoo_lean, Fact};
 use plonky2::field::goldilocks_field::GoldilocksField;
-use plonky2::field::types::{Field, PrimeField64};
+use plonky2::field::types::Field;
 use plonky2::iop::target::Target;
 use plonky2::iop::witness::{PartialWitness, Witness, WitnessWrite};
 use plonky2::plonk::circuit_data::CircuitConfig;
 use plonky2::plonk::config::PoseidonGoldilocksConfig;
+
+mod common;
 
 type F = GoldilocksField;
 
@@ -165,28 +167,10 @@ fn gadget_zoo_export_satisfied_by_real_witness() {
         let val = |tg: Target| w.try_get_target(tg).unwrap_or(F::ZERO);
         check_satisfied(&ex, val).unwrap();
 
+        common::assert_facts_hold(&r.calls, val);
         for c in &r.calls {
-            match c.fact {
-                Fact::Select { b, x, y, out } => {
-                    assert_eq!(val(out), val(b) * (val(x) - val(y)) + val(y))
-                }
-                Fact::Not { b, out } => assert_eq!(val(out), F::ONE - val(b)),
-                Fact::And { b1, b2, out } => assert_eq!(val(out), val(b1) * val(b2)),
-                Fact::Or { b1, b2, out } => {
-                    assert_eq!(val(out), val(b1) + val(b2) - val(b1) * val(b2))
-                }
-                Fact::Add { x, y, out } => assert_eq!(val(out), val(x) + val(y)),
-                Fact::Sub { x, y, out } => assert_eq!(val(out), val(x) - val(y)),
-                Fact::Mul { x, y, out } => assert_eq!(val(out), val(x) * val(y)),
-                Fact::AssertBool { b } => assert!(val(b) == F::ZERO || val(b) == F::ONE),
-                Fact::IsEqual { x, y, equal, inv } => {
-                    let d = val(x) - val(y);
-                    assert_eq!(val(equal) * d, F::ZERO);
-                    assert_eq!(d * val(inv) - (F::ONE - val(equal)), F::ZERO);
-                    assert_eq!(val(equal), F::from_bool(eq));
-                }
-                Fact::RangeCheck { x, bits } => assert!(val(x).to_canonical_u64() < 1 << bits),
-                Fact::Connect { x, y } => assert_eq!(val(x), val(y)),
+            if let Fact::IsEqual { equal, .. } = c.fact {
+                assert_eq!(val(equal), F::from_bool(eq));
             }
         }
 

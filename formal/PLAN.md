@@ -695,13 +695,17 @@ it. Pieces:
     destructure copies/constants, one `arithEq_of_rows` per used op, one oriented
     `simp only` rewrite set (gate input wires → their sources, zero-pinned outputs → `0`,
     constants → values), then one fixed tactic block per fact kind using only the ops
-    internal to that call (`bselect`/`bnot`/`band`/`bor`/`sub` by `simp only; ring`;
-    `assert_bool` and `is_equal` by `linear_combination` on the zero-pinned checks;
-    `range_check` by `rangeCheck_of_row` with `interval_cases` over the tail). Validated on
+    internal to that call (value facts by `linear_combination` on the output's own
+    equation; `assert_bool` and `is_equal` by `linear_combination` on the checks the
+    call's own copies pin to a constant, which may be a pinned op, a pinned virtual
+    target after folding, or a constant-to-constant copy; `range_check` by
+    `rangeCheck_of_row` with `interval_cases` over the tail). Validated on
     `Generated/GadgetZooCircuit.lean` (5 rows, 93 copies, 9 facts: the wrapper's whole
-    gadget mix), which compiled first time from the generator; the test suite checks a
-    real prover witness satisfies the export (exercising the `BaseSumGate<2>` arm) and
-    every recorded fact, and that the checked-in Lean is current.
+    gadget mix) and `Generated/GadgetEdgeCasesCircuit.lean` (a gadget output pinned to
+    zero, `is_equal` on constant operands where a check folds to a constant copy or onto
+    `equal` itself, and one output wire pinned twice via memoisation); the test suite
+    checks a real prover witness satisfies each export (exercising the `BaseSumGate<2>`
+    arm) and every recorded fact, and that the checked-in Lean is current.
   - Poseidon2 rows are not part of a `Fact` yet: the wrapper's hashes will be stated via
     `Poseidon2Rows` + the named input/output wires, and the recorder needs a
     `hash_n_to_hash_no_pad` mirror that records which rows the sponge landed on.

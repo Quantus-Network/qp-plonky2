@@ -191,25 +191,39 @@ theorem gadgetZoo_decode (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
   norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_0 e_0_1 e_0_2 e_1_0 e_1_1 e_0_3 e_0_4 e_0_5 e_2_0 e_3_0 e_0_6 e_1_2 e_0_7
   simp only [← c0, ← c1, ← c2, ← c4, ← c5, ← c6, ← c7, ← c8, ← c9, ← c10, ← c11, ← c12, ← c13, ← c14, ← c15, ← c16, ← c17, ← c18, ← c21, ← c22, ← c23, ← c24, ← c25, ← c26, ← c27, ← c28, ← c29, ← c30, ← c31, ← c32, ← c33, ← c34, ← c35, ← c36, ← c37, ← c38, ← c39, ← c40, ← c41, c3, c19, c20, k0, k1, k2, k3] at e_0_0 e_0_1 e_0_2 e_1_0 e_1_1 e_0_3 e_0_4 e_0_5 e_2_0 e_3_0 e_0_6 e_1_2 e_0_7
   have f0 : IsBool (a (.virt 3)) := by
-    exact isBool_iff_assertBool.mpr (by linear_combination -e_0_0)
+    refine isBool_iff_assertBool.mpr ?_
+    have hc := e_0_0
+    linear_combination -hc
   have f1 : IsEqual (a (.virt 0)) (a (.virt 1)) (a (.virt 5)) (a (.virt 7)) := by
-    simp only [e_0_1, e_1_1, e_0_2, k0, k1, k2, k3] at e_1_0 e_0_3
-    exact ⟨by linear_combination -e_1_0, by linear_combination -e_0_3⟩
+    refine ⟨?_, ?_⟩
+    · have hc := e_1_0
+      simp only [e_0_2] at hc
+      linear_combination -hc
+    · have hc := e_0_3
+      simp only [e_0_1, e_1_1, e_0_2] at hc
+      linear_combination -hc
   have f2 : a (.wire 0 23) = bselect (a (.virt 3)) (a (.virt 0)) (a (.virt 1)) := by
-    simp only [bselect, e_0_5, e_0_4, k0, k1, k2, k3]
-    ring
+    have hr := e_0_5
+    simp only [e_0_4] at hr
+    simp only [bselect]
+    linear_combination hr
   have f3 : a (.wire 3 3) = bor (a (.virt 5)) (a (.virt 3)) := by
-    simp only [bor, e_3_0, e_2_0, k0, k1, k2, k3]
-    ring
+    have hr := e_3_0
+    simp only [e_2_0] at hr
+    simp only [bor]
+    linear_combination hr
   have f4 : a (.wire 0 27) = bnot (a (.virt 3)) := by
-    simp only [bnot, e_0_6, k0, k1, k2, k3]
-    ring
+    have hr := e_0_6
+    simp only [bnot]
+    linear_combination hr
   have f5 : a (.wire 1 11) = band (a (.virt 5)) (a (.wire 0 27)) := by
-    simp only [band, e_1_2, k0, k1, k2, k3]
-    ring
+    have hr := e_1_2
+    simp only [band]
+    linear_combination hr
   have f6 : a (.wire 0 31) = a (.virt 8) - a (.virt 2) := by
-    simp only [e_0_7, k0, k1, k2, k3]
-    ring
+    have hr := e_0_7
+    simp only [k2]
+    linear_combination hr
   have f7 : rangeCheck (a (.wire 0 31)) 14 := by
     have hr := rangeCheck_of_row h (row := 4) (N := 63) (n := 14) rfl rfl (by norm_num) (by
       intro i hi1 hi2

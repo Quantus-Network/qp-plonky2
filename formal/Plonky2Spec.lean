@@ -59,7 +59,9 @@
                              per-row lifts the generated decode proofs use, and
                              `Generated.GadgetZooCircuit` is the exporter's walk
                              of a builder mixing all those gadgets, with its decode
-                             theorem *and proof* emitted by the exporter (Step 8b)
+                             theorem *and proof* emitted by the exporter (Step 8b);
+                             `Generated.GadgetEdgeCasesCircuit` does the same for
+                             the builder's constant-folding and re-pinning corners
 
   Methodology follows Zellic's *Formal Verification of a Plonky2 Gate*: each gadget
   separates an `Assumptions` side-condition (what the surrounding circuit must
@@ -85,3 +87,4 @@ import Plonky2Spec.Generated.NullifierSelectCircuit
 import Plonky2Spec.Bridges.CircuitBridge
 import Plonky2Spec.WiringGadgets
 import Plonky2Spec.Generated.GadgetZooCircuit
+import Plonky2Spec.Generated.GadgetEdgeCasesCircuit
