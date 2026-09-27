@@ -21,8 +21,12 @@
                              dedup, dummy flag, block consistency, first-real prefix
                              scan, `bytes_digest_eq`, real-nullifier uniqueness, ingress
                              mask) bridged to the `RPrivateBatch`/`RPublicBatch` building blocks
+  * `Plonky2Spec.OddEvenSort` odd-even transposition sort: `n` comparator rounds sort
+                             any list of length `n` (0-1 principle + rank tracking)
   * `Plonky2Spec.Permutation` the `permute_digests4` odd-even switch network: boolean
-                             switches ⟹ the output is a permutation of the input
+                             switches ⟹ the output is a permutation of the input, and
+                             every permutation is realized by some `n`-round boolean
+                             switch witness (`network_routable`)
   * `Plonky2Spec.FeeCheck`   the aggregate fee comparator (`range_check(10000−fee, 14)`,
                              `range_check(rhs−lhs, 52)`): sound and complete for
                              `privateBatchFeeOk` over `.val`, with explicit `Assumptions`
@@ -66,6 +70,7 @@ import Plonky2Spec.RangeCheck
 import Plonky2Spec.Arithmetic
 import Plonky2Spec.Boolean
 import Plonky2Spec.Wrapper
+import Plonky2Spec.OddEvenSort
 import Plonky2Spec.Permutation
 import Plonky2Spec.FeeCheck
 import Plonky2Spec.Generated.Gates
