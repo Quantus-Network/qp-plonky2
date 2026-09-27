@@ -9,15 +9,18 @@
 
   The assumptions record is the point of the exercise. It is the complete list of things
   an honest prover must arrange that the spec relation itself does not force:
-  the modulus, the 64-leaf cap, one preimage per slot, the children's 32-bit ranges,
-  canonical (`< p`) nullifier lanes, and a routing witness for the permutation network.
+  the modulus, the 64-leaf cap, one preimage per slot, the children's 32-bit ranges, and
+  canonical (`< p`) nullifier lanes. The routing witness for the permutation network is
+  *not* an assumption: `network_routable` (the odd-even transposition sorting-network
+  theorem, `Plonky2Spec/OddEvenSort.lean`) constructs it from `RPrivateBatch`'s `Perm`
+  conjunct.
 -/
 import Plonky2Bridge
 
 namespace Plonky2Bridge
 
 open Plonky2Spec (IsBool bselect band bnot bselect_true bselect_false Digest4 network
-  FeeCheck feeCheck_complete)
+  network_routable FeeCheck feeCheck_complete)
 open Plonky2Spec.Poseidon2 (St)
 open WormholeSpec (Digest RandomOracle LeafPublic PrivateBatchOutput isDummyPrivateBatch
   buildNullifiers nullifiersReplaced RPrivateBatch realNullifiersDistinct maskedInputTotal
@@ -70,6 +73,18 @@ theorem map_valDigest_castDigest {ds : List Digest} (h : ∀ d ∈ ds, DigestCan
   apply List.map_congr_left
   intro d hd
   exact valDigest_castDigest (h d hd)
+
+/-- `nullifiersReplaced` is functional: its only witness is `buildNullifiers`. -/
+theorem nullifiersReplaced_eq_build (ro : RandomOracle) :
+    ∀ (ls : List LeafPublic) (us : List (List Felt)) (raw : List Digest),
+      nullifiersReplaced ro ls us raw → raw = buildNullifiers ro ls us
+  | [], [], [], _ => rfl
+  | q :: qs, u :: us, n :: ns, ⟨hn, hrest⟩ => by
+      rw [buildNullifiers, hn, nullifiersReplaced_eq_build ro qs us ns hrest]
+  | [], [], _ :: _, h => nomatch h
+  | [], _ :: _, _, h => nomatch h
+  | _ :: _, [], _, h => nomatch h
+  | _ :: _, _ :: _, [], h => nomatch h
 
 /-- Every pre-permutation nullifier is a dummy replacement or a child's nullifier. -/
 theorem mem_of_nullifiersReplaced (ro : RandomOracle) :
@@ -255,12 +270,12 @@ theorem hcol_of_distinct (rows : List (SlotRow p))
     * `uslen` — one dummy-nullifier preimage per slot;
     * `ranges32` — each child's amounts and fee are 32-bit (guaranteed for children with
       accepted leaf proofs by `Rleaf_ranges`);
-    * `nullCanon` — each child's nullifier lanes are canonical (`< p`), as hash outputs are;
-    * `routable` — the odd-even switch network can route the pre-permutation list into the
-      claimed output order. `nullsPerm` says the two lists are a permutation; that the
-      `n`-round odd-even transposition network realizes *every* permutation (the
-      `permutation_switches` witness in `common/src/gadgets.rs`) is the sorting-network
-      theorem, left here as the explicit hypothesis. -/
+    * `nullCanon` — each child's nullifier lanes are canonical (`< p`), as hash outputs are.
+
+    The routing witness for the odd-even switch network is derived, not assumed: the
+    `Perm` conjunct of `RPrivateBatch` plus `network_routable` (the `n`-round odd-even
+    transposition network realizes every permutation) yield the switches the
+    `permutation_switches` witness in `common/src/gadgets.rs` computes. -/
 structure CompletenessAssumptions (perm : St p → St p) (leaves : List LeafPublic)
     (us : List (List Felt)) (out : PrivateBatchOutput) : Prop where
   modulus : goldilocks ≤ p
@@ -269,9 +284,6 @@ structure CompletenessAssumptions (perm : St p → St p) (leaves : List LeafPubl
   ranges32 : ∀ q ∈ leaves, inRange 32 q.inputAmount ∧ inRange 32 q.outputAmount1 ∧
     inRange 32 q.outputAmount2 ∧ inRange 32 q.volumeFeeBps
   nullCanon : ∀ q ∈ leaves, DigestCanonical p q.nullifier
-  routable : ∃ rounds : List (List (ZMod p)), (∀ ss ∈ rounds, ∀ s ∈ ss, IsBool s) ∧
-    network rounds ((buildNullifiers (spongeRO perm) leaves us).map castDigest)
-      = out.nullifiers.map castDigest
 
 omit [Fact p.Prime] in
 /-- The three fee-comparator wires, cast in from the spec totals. -/
@@ -308,7 +320,12 @@ theorem private_batch_complete (perm : St p → St p) {leaves : List LeafPublic}
     ∃ (rounds : List (List (ZMod p))) (rows : List (SlotRow p)) (fee totalIn totalOut : ZMod p),
       rows.map (fun t => t.2.1) = leaves ∧ rows.map (fun t => t.2.2) = us ∧
       PrivateBatchConstraints perm rounds rows fee totalIn totalOut out := by
-  obtain ⟨rounds, hsw, hroute⟩ := ha.routable
+  obtain ⟨rounds, -, hsw, hroute⟩ :=
+    network_routable ((buildNullifiers (spongeRO perm) leaves us).map castDigest)
+      (out.nullifiers.map castDigest) (by
+        obtain ⟨raw, hrep, hperm⟩ := h.2.2.1
+        rw [← nullifiersReplaced_eq_build _ _ _ _ hrep]
+        exact hperm.map (castDigest (p := p)))
   have hL := honestRows_leaves (p := p) perm ha.uslen
   have hU := honestRows_us (p := p) perm ha.uslen
   have hmem : ∀ t ∈ honestRows (p := p) perm leaves us,

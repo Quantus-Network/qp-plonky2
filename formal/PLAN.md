@@ -585,15 +585,25 @@ switches, and the cast-in fee wires (`feeCheck_complete`). `private_batch_iff` s
 directions. The deliverable is `CompletenessAssumptions`, the full list of what an honest
 prover must arrange beyond the relation itself:
 `goldilocks ≤ p`, `≤ 64` leaves, one preimage per slot, the children's 32-bit ranges
-(free for accepted leaf proofs, `Rleaf_ranges`), canonical nullifier lanes (free for hash
-outputs), and `routable` — that the `n`-round odd-even network can route
-`buildNullifiers` into the claimed output order. `nullsPerm` gives the permutation; that
-the network realizes *every* permutation (the `permutation_switches` witness in
-`common/src/gadgets.rs`) is the odd-even transposition sorting-network theorem, left as
-this explicit hypothesis rather than proved here.
+(free for accepted leaf proofs, `Rleaf_ranges`), and canonical nullifier lanes (free for
+hash outputs). The routing witness — that the `n`-round odd-even network can route
+`buildNullifiers` into the claimed output order — was initially a sixth hypothesis
+(`routable`) and is now a theorem: `network_routable` (`Plonky2Spec/Permutation.lean`)
+builds, for any `ys ~ xs`, a boolean switch witness with exactly `xs.length` rounds
+(the circuit's `for round in 0..n`) such that `network rounds xs = ys`. It is the
+`permutation_switches` construction: tag each digest with its target position, run the
+comparator network on the tags, set each switch to the comparator's decision
+(`keyedLayerEven` / `switchesEven`, with `layerEven_switchesEven` tying the digest network
+to the tag network). Sorting the tags is the odd-even transposition sorting-network
+theorem, `Plonky2Spec/OddEvenSort.lean`: `run_sorted` for any linear order via the 0-1
+principle (`run_map`: comparator layers commute with monotone maps), and `run_sorted_bool`
+for booleans by tracking each `true`'s rank from the right (`Inv`, `inv_step`: a `true` of
+rank `k ≤ t` is final after round `t` or sits at a comparator-left position having advanced
+every round since round `k`). `private_batch_complete` now takes the `Perm` conjunct of
+`RPrivateBatch` (with `nullifiersReplaced_eq_build` identifying its witness as
+`buildNullifiers`) and derives the switches.
 - **Acceptance (met):** `lake build Plonky2Bridge` clean (three roots); every 7b theorem
-  standard-axioms-only.
-- Follow-up: prove routability of the `n`-round odd-even network to discharge `routable`.
+  standard-axioms-only; `CompletenessAssumptions` has five fields, all operational.
 
 ### Step 8 — Wiring-level decode: spike on the nullifier-select path (`n = 2`)  ✅ SPIKE DONE, 8b DONE
 Attacks §9 gap (a) — the public-input decode hypotheses (`hd`/`hnull`/…) are hand-stated
