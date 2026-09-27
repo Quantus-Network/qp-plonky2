@@ -2,8 +2,8 @@
   AUTO-GENERATED — do not edit by hand.
 
   Produced by `qp-plonky2-constraint-exporter` (`gadget.rs`) by building the
-  gadget-zoo circuit through the recording builder and walking its pre-`build`
-  constraint system. The theorem's proof is generated too, one block per recorded
+  gadget-zoo circuit(s) through the recording builder and walking the pre-`build`
+  constraint system. Each theorem's proof is generated too, one block per recorded
   gadget call, from the ops and copy constraints the builder emitted for it.
   Regenerate with:
 
@@ -19,6 +19,8 @@ open Plonky2Spec.Wiring
 
 set_option linter.unusedVariables false
 set_option linter.unusedSimpArgs false
+
+variable {p : ℕ} [Fact p.Prime]
 
 /-- The gadget zoo: `assert_bool flag`, `eq = is_equal x y`, `sel = select flag x y`, `either = or eq flag`, `nflag = not flag`, `both = and eq nflag`, `head = sub 10000 fee`, `range_check head 14`, `connect sel either`; public inputs `x`, `sel`, `both`. -/
 def gadgetZoo (p : ℕ) : Circuit p where
@@ -157,8 +159,6 @@ def gadgetZoo.sel : Target := .wire 0 23
 /-- Named target `head`. -/
 def gadgetZoo.head : Target := .wire 0 31
 
-variable {p : ℕ} [Fact p.Prime]
-
 /-- Every satisfying assignment of `gadgetZoo` has the meaning of each recorded gadget call. Generated at gadget-call granularity; see `gadget.rs`. -/
 theorem gadgetZoo_decode (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
     IsBool (a (.virt 3)) ∧
@@ -189,19 +189,19 @@ theorem gadgetZoo_decode (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
   have e_1_2 := arithEq_of_rows h (row := 1) (i := 2) rfl (by norm_num)
   have e_0_7 := arithEq_of_rows h (row := 0) (i := 7) rfl (by norm_num)
   norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_0 e_0_1 e_0_2 e_1_0 e_1_1 e_0_3 e_0_4 e_0_5 e_2_0 e_3_0 e_0_6 e_1_2 e_0_7
-  simp only [← c0, ← c1, ← c2, ← c4, ← c5, ← c6, ← c7, ← c8, ← c9, ← c10, ← c11, ← c12, ← c13, ← c14, ← c15, ← c16, ← c17, ← c18, ← c21, ← c22, ← c23, ← c24, ← c25, ← c26, ← c27, ← c28, ← c29, ← c30, ← c31, ← c32, ← c33, ← c34, ← c35, ← c36, ← c37, ← c38, ← c39, ← c40, ← c41, c3, c19, c20, k0, k1, k2, k3] at e_0_0 e_0_1 e_0_2 e_1_0 e_1_1 e_0_3 e_0_4 e_0_5 e_2_0 e_3_0 e_0_6 e_1_2 e_0_7
+  simp only [← c0, ← c1, ← c2, ← c4, ← c5, ← c6, ← c7, ← c8, ← c9, ← c10, ← c11, ← c12, ← c13, ← c14, ← c15, ← c16, ← c17, ← c18, ← c21, ← c22, ← c23, ← c24, ← c25, ← c26, ← c27, ← c28, ← c29, ← c30, ← c31, ← c32, ← c33, ← c34, ← c35, ← c36, ← c37, ← c38, ← c39, ← c40, ← c41, k0, k1, k2, k3] at e_0_0 e_0_1 e_0_2 e_1_0 e_1_1 e_0_3 e_0_4 e_0_5 e_2_0 e_3_0 e_0_6 e_1_2 e_0_7
   have f0 : IsBool (a (.virt 3)) := by
     refine isBool_iff_assertBool.mpr ?_
     have hc := e_0_0
-    linear_combination -hc
+    linear_combination c3.trans k0 - hc
   have f1 : IsEqual (a (.virt 0)) (a (.virt 1)) (a (.virt 5)) (a (.virt 7)) := by
     refine ⟨?_, ?_⟩
     · have hc := e_1_0
       simp only [e_0_2] at hc
-      linear_combination -hc
+      linear_combination c19.trans k0 - hc
     · have hc := e_0_3
       simp only [e_0_1, e_1_1, e_0_2] at hc
-      linear_combination -hc
+      linear_combination c20.trans k0 - hc
   have f2 : a (.wire 0 23) = bselect (a (.virt 3)) (a (.virt 0)) (a (.virt 1)) := by
     have hr := e_0_5
     simp only [e_0_4] at hr

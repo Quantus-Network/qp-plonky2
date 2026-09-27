@@ -699,11 +699,17 @@ it. Pieces:
     equation; `assert_bool` and `is_equal` by `linear_combination` on the checks the
     call's own copies pin to a constant, which may be a pinned op, a pinned virtual
     target after folding, or a constant-to-constant copy; `range_check` by
-    `rangeCheck_of_row` with `interval_cases` over the tail). Validated on
-    `Generated/GadgetZooCircuit.lean` (5 rows, 93 copies, 9 facts: the wrapper's whole
-    gadget mix) and `Generated/GadgetEdgeCasesCircuit.lean` (a gadget output pinned to
-    zero, `is_equal` on constant operands where a check folds to a constant copy or onto
-    `equal` itself, and one output wire pinned twice via memoisation); the test suite
+    `rangeCheck_of_row` with `interval_cases` over the tail). Before emitting a
+    `linear_combination`/`ring` step the generator checks the polynomial identity it
+    relies on at random field points, so a call the builder folded onto another call's
+    output is proved as an identity, and a fact the recorded evidence cannot establish
+    is reported instead of emitted. Validated on `Generated/GadgetZooCircuit.lean`
+    (5 rows, 93 copies, 9 facts: the wrapper's whole gadget mix) and
+    `Generated/GadgetEdgeCasesCircuit.lean` (a gadget output pinned to zero, `is_equal`
+    on constant operands where a check folds to a constant copy or onto `equal` itself,
+    one output wire pinned twice via memoisation, an identity fold onto an earlier op,
+    an intermediate pinned after `is_equal` reused it, and one- and zero-fact
+    theorems); the test suite
     checks a real prover witness satisfies each export (exercising the `BaseSumGate<2>`
     arm) and every recorded fact, and that the checked-in Lean is current.
   - Poseidon2 rows are not part of a `Fact` yet: the wrapper's hashes will be stated via

@@ -284,29 +284,46 @@ fn wire(t: Target) -> Option<(usize, usize)> {
     }
 }
 
-/// Op-level view of an export: which `(row, op)` slots are in use, what each input wire is
-/// connected to, and which output wires are pinned to a constant.
+/// Op-level view of an export: which `(row, op)` slots are in use and what each input wire
+/// is connected to.
 struct Ops<'a> {
     ex: &'a CircuitExport,
     /// Used ops, in first-copy order.
     used: Vec<(usize, usize)>,
     /// Input wire `(row, col)` → the target `connect`ed to it (`copies` index).
     input_source: HashMap<(usize, usize), (Target, usize)>,
-    /// Output wire `(row, col)` → every copy pinning it to a constant target, in copy order.
-    pinned: HashMap<(usize, usize), Vec<usize>>,
     /// Constant target → its `constants` index.
     const_idx: HashMap<Target, usize>,
+}
+
+/// Copy `ci` pins a target to constant number `k`; `fwd` if the copy is `(target, const)`.
+#[derive(Debug, Clone, Copy)]
+struct Pin {
+    ci: usize,
+    fwd: bool,
+    k: usize,
+}
+
+impl Pin {
+    /// A proof of `a target = v` from the copy and the constant's value.
+    fn lean(&self) -> String {
+        let Pin { ci, fwd, k } = *self;
+        if fwd {
+            format!("c{ci}.trans k{k}")
+        } else {
+            format!("c{ci}.symm.trans k{k}")
+        }
+    }
 }
 
 /// A copy in a call's range that pins a target to a constant.
 #[derive(Debug, Clone, Copy)]
 enum Check {
-    /// A pinned arithmetic op output: after orientation its equation reads `0 = RHS`
-    /// (more precisely `v = RHS` for the constant's value `v`).
-    Op((usize, usize)),
-    /// A non-constant virtual target pinned by copy `ci` (`fwd`: the copy is
-    /// `(target, constant)`), to constant number `k`.
-    Virt { ci: usize, fwd: bool, k: usize },
+    /// A pinned arithmetic op output: its equation and its pin together give `v = RHS`.
+    Op { op: (usize, usize), pin: Pin },
+    /// A non-constant virtual target pinned to a constant (a check that folded onto one of
+    /// its operands).
+    Virt { t: Target, pin: Pin },
     /// A constant pinned to a constant: carries nothing.
     Const,
 }
@@ -326,7 +343,6 @@ impl<'a> Ops<'a> {
         let mut used = Vec::new();
         let mut seen = HashSet::new();
         let mut input_source = HashMap::new();
-        let mut pinned: HashMap<(usize, usize), Vec<usize>> = HashMap::new();
         for (ci, &(x, y)) in ex.copies.iter().enumerate() {
             for (t, other) in [(x, y), (y, x)] {
                 if let Some((row, col)) = is_arith_wire(t) {
@@ -335,8 +351,6 @@ impl<'a> Ops<'a> {
                     }
                     if col % 4 != 3 {
                         input_source.insert((row, col), (other, ci));
-                    } else if const_idx.contains_key(&other) {
-                        pinned.entry((row, col)).or_default().push(ci);
                     }
                 }
             }
@@ -345,7 +359,6 @@ impl<'a> Ops<'a> {
             ex,
             used,
             input_source,
-            pinned,
             const_idx,
         }
     }
@@ -360,14 +373,28 @@ impl<'a> Ops<'a> {
         .then_some((row, col / 4))
     }
 
-    fn is_pinned(&self, op: (usize, usize)) -> bool {
-        self.pinned.contains_key(&(op.0, 4 * op.1 + 3))
+    fn row_consts(&self, row: usize) -> (F, F) {
+        let c = &self.ex.rows[row].1;
+        (c[0], c[1])
+    }
+
+    /// What an op's input wire reads after the global orientation: its connected source,
+    /// or the wire itself if nothing was connected.
+    fn src(&self, row: usize, col: usize) -> Target {
+        match self.input_source.get(&(row, col)) {
+            Some((t, _)) => *t,
+            None => Target::wire(row, col),
+        }
+    }
+
+    /// Input sources of an op.
+    fn inputs(&self, (row, i): (usize, usize)) -> Vec<Target> {
+        (0..3).map(|j| self.src(row, 4 * i + j)).collect()
     }
 
     /// Ops whose outputs are reachable from `roots` through op inputs, not crossing `stop`
-    /// targets and not entering ops whose output is pinned to a constant: the global
-    /// rewrite already replaced such outputs by the constant's value everywhere, so their
-    /// equations are checks, not definitions.
+    /// targets. Every op is a definition of its output wire, pinned or not; a pin is a
+    /// separate equation the check that owns it uses.
     fn internal_defs(&self, roots: &[Target], stop: &[Target]) -> Vec<(usize, usize)> {
         let mut out = Vec::new();
         let mut seen = BTreeSet::new();
@@ -376,31 +403,16 @@ impl<'a> Ops<'a> {
             if stop.contains(&t) {
                 continue;
             }
-            let Some((row, i)) = self.op_of_output(t) else {
+            let Some(op) = self.op_of_output(t) else {
                 continue;
             };
-            if self.is_pinned((row, i)) || !seen.insert((row, i)) {
+            if !seen.insert(op) {
                 continue;
             }
-            out.push((row, i));
-            self.push_inputs((row, i), &mut stack);
+            out.push(op);
+            stack.extend(self.inputs(op));
         }
         out
-    }
-
-    fn push_inputs(&self, (row, i): (usize, usize), stack: &mut Vec<Target>) {
-        for col in [4 * i, 4 * i + 1, 4 * i + 2] {
-            if let Some((src, _)) = self.input_source.get(&(row, col)) {
-                stack.push(*src);
-            }
-        }
-    }
-
-    /// Input sources of an op.
-    fn inputs(&self, op: (usize, usize)) -> Vec<Target> {
-        let mut v = Vec::new();
-        self.push_inputs(op, &mut v);
-        v
     }
 
     /// The constant-pinning copies in a call's copy range, in copy order. Discovered from
@@ -420,40 +432,115 @@ impl<'a> Ops<'a> {
                 (Some(&k), None) => (y, false, k),
                 (None, None) => continue,
             };
+            let pin = Pin { ci, fwd, k };
             if let Some(op) = self.op_of_output(t) {
-                v.push(Check::Op(op));
+                v.push(Check::Op { op, pin });
             } else if matches!(t, Target::VirtualTarget { .. }) {
-                v.push(Check::Virt { ci, fwd, k });
+                v.push(Check::Virt { t, pin });
             }
             // A gate input wire connected to a constant is an operand feed, not a check.
         }
         v
     }
 
-    /// Rewrites that bring the goal's named targets into the form the oriented equations
-    /// use: constants to their values, pinned outputs to the constant then its value.
-    fn goal_rules(&self, named: &[Target]) -> Vec<String> {
-        let mut rules = Vec::new();
-        for &t in named {
-            if let Some(&k) = self.const_idx.get(&t) {
-                rules.push(format!("k{k}"));
-            } else if let Some(op) = self.op_of_output(t) {
-                if let Some(cis) = self.pinned.get(&(op.0, 4 * op.1 + 3)) {
-                    let ci = cis[0];
-                    let (x, y) = self.ex.copies[ci];
-                    let (rule, konst) = if self.const_idx.contains_key(&x) {
-                        (format!("← c{ci}"), x)
-                    } else {
-                        (format!("c{ci}"), y)
-                    };
-                    rules.push(rule);
-                    rules.push(format!("k{}", self.const_idx[&konst]));
-                }
+    /// `k` rewrites for the named targets that are constants, so the goal reads constants
+    /// as values like the oriented equations do.
+    fn const_rules(&self, named: &[Target]) -> Vec<String> {
+        let mut ks: Vec<usize> = named
+            .iter()
+            .filter_map(|t| self.const_idx.get(t).copied())
+            .collect();
+        ks.sort();
+        ks.dedup();
+        ks.into_iter().map(|k| format!("k{k}")).collect()
+    }
+}
+
+/// Random-point evaluation of the polynomials the generated tactics equate. A tactic is
+/// emitted only if the identity it relies on (`linear_combination` closes a goal iff
+/// `goal.lhs - goal.rhs - (h.lhs - h.rhs)` is zero by `ring`) holds at every sampled
+/// point; over Goldilocks a false positive on these low-degree polynomials is negligible,
+/// and Lean re-checks the result anyway.
+struct Eval<'o, 'a> {
+    ops: &'o Ops<'a>,
+    rho: HashMap<Target, F>,
+    seed: u64,
+}
+
+impl<'o, 'a> Eval<'o, 'a> {
+    fn new(ops: &'o Ops<'a>, seed: u64) -> Self {
+        Eval {
+            ops,
+            rho: HashMap::new(),
+            seed,
+        }
+    }
+
+    fn fresh(&mut self) -> F {
+        self.seed = self
+            .seed
+            .wrapping_mul(6364136223846793005)
+            .wrapping_add(1442695040888963407);
+        F::from_noncanonical_u64(self.seed)
+    }
+
+    /// A target as the goal sees it: a constant's value, otherwise an atom.
+    fn atom(&mut self, t: Target) -> F {
+        if let Some(&k) = self.ops.const_idx.get(&t) {
+            return self.ops.ex.constants[k].1;
+        }
+        if let Some(&v) = self.rho.get(&t) {
+            return v;
+        }
+        let v = self.fresh();
+        self.rho.insert(t, v);
+        v
+    }
+
+    /// A target after `simp only [defs]`: op outputs in `defs` unfold to their equations.
+    fn expand(&mut self, t: Target, defs: &[(usize, usize)]) -> F {
+        match self.ops.op_of_output(t) {
+            Some(op) if defs.contains(&op) => self.op_rhs(op, defs),
+            _ => self.atom(t),
+        }
+    }
+
+    /// `c0 * m0 * m1 + c1 * addend` of an op, operands unfolded through `defs`.
+    fn op_rhs(&mut self, (row, i): (usize, usize), defs: &[(usize, usize)]) -> F {
+        let (c0, c1) = self.ops.row_consts(row);
+        let m0 = self.expand(self.ops.src(row, 4 * i), defs);
+        let m1 = self.expand(self.ops.src(row, 4 * i + 1), defs);
+        let ad = self.expand(self.ops.src(row, 4 * i + 2), defs);
+        c0 * m0 * m1 + c1 * ad
+    }
+
+    /// `lhs - rhs` of a value fact, on atoms.
+    fn fact_poly(&mut self, f: &Fact) -> F {
+        let mut a = |t: Target| self.atom(t);
+        match *f {
+            Fact::Select { b, x, y, out } => a(out) - (a(b) * (a(x) - a(y)) + a(y)),
+            Fact::Not { b, out } => a(out) - (F::ONE - a(b)),
+            Fact::And { b1, b2, out } => a(out) - a(b1) * a(b2),
+            Fact::Or { b1, b2, out } => a(out) - (a(b1) + a(b2) - a(b1) * a(b2)),
+            Fact::Add { x, y, out } => a(out) - (a(x) + a(y)),
+            Fact::Sub { x, y, out } => a(out) - (a(x) - a(y)),
+            Fact::Mul { x, y, out } => a(out) - a(x) * a(y),
+            Fact::Connect { x, y } => a(x) - a(y),
+            Fact::AssertBool { .. } | Fact::IsEqual { .. } | Fact::RangeCheck { .. } => {
+                unreachable!("not a value fact")
             }
         }
-        rules.dedup();
-        rules
     }
+}
+
+/// `f` holds at several random points.
+fn holds(ops: &Ops, mut f: impl FnMut(&mut Eval) -> bool) -> bool {
+    (1..=3u64).all(|seed| {
+        f(&mut Eval::new(
+            ops,
+            seed.wrapping_mul(0x9e37_79b9_7f4a_7c15),
+        ))
+    })
 }
 
 fn e(op: (usize, usize)) -> String {
@@ -470,41 +557,58 @@ fn simp_only(rules: &[String], at: Option<&str>) -> String {
     }
 }
 
-/// Tactic script proving one zero-check from a `Check`: for an op, its oriented equation
-/// with the call-internal definitions substituted, closed by `linear_combination`; for a
-/// pinned virtual target, rewrite it to the constant's value and `ring`; for a
-/// constant-to-constant copy, `ring` alone.
-fn check_script(ops: &Ops, chk: Check, stop: &[Target], indent: &str) -> String {
+fn indent_lines(block: &str, indent: &str) -> String {
+    block.lines().map(|l| format!("{indent}{l}\n")).collect()
+}
+
+/// Tactic script closing a goal `g = 0` (its `lhs - rhs` computed by `goal`) from one
+/// `Check`. For a pinned op, its equation with the call-internal definitions substituted,
+/// combined with the pin; for a pinned virtual target, rewrite it to the constant's value
+/// and `ring`; for a constant-to-constant copy, `ring` alone. Panics if the identity the
+/// script relies on does not hold, naming the fact.
+fn check_script(
+    ops: &Ops,
+    chk: Check,
+    stop: &[Target],
+    goal: &dyn Fn(&mut Eval) -> F,
+    what: &str,
+    indent: &str,
+) -> String {
     let mut s = String::new();
     match chk {
-        Check::Op(op) => {
-            let defs: Vec<String> = ops
-                .internal_defs(&ops.inputs(op), stop)
-                .into_iter()
-                .map(e)
-                .collect();
+        Check::Op { op, pin } => {
+            let defs = ops.internal_defs(&ops.inputs(op), stop);
+            let v = ops.ex.constants[pin.k].1;
+            assert!(
+                holds(ops, |ev| goal(ev) == ev.op_rhs(op, &defs) - v),
+                "{what}: pinned op {op:?} does not establish the check"
+            );
+            let defs: Vec<String> = defs.into_iter().map(e).collect();
             let _ = writeln!(s, "{indent}have hc := {}", e(op));
             s.push_str(&indent_lines(&simp_only(&defs, Some("hc")), indent));
-            let _ = writeln!(s, "{indent}linear_combination -hc");
+            let _ = writeln!(s, "{indent}linear_combination {} - hc", pin.lean());
         }
-        Check::Virt { ci, fwd, k } => {
-            let c = if fwd {
-                format!("c{ci}")
-            } else {
-                format!("c{ci}.symm")
-            };
-            let _ = writeln!(s, "{indent}rw [{c}.trans k{k}]");
+        Check::Virt { t, pin } => {
+            let v = ops.ex.constants[pin.k].1;
+            assert!(
+                holds(ops, |ev| {
+                    ev.rho.insert(t, v);
+                    goal(ev) == F::ZERO
+                }),
+                "{what}: pinning {t:?} does not establish the check"
+            );
+            let _ = writeln!(s, "{indent}rw [{}]", pin.lean());
             let _ = writeln!(s, "{indent}ring");
         }
         Check::Const => {
+            assert!(
+                holds(ops, |ev| goal(ev) == F::ZERO),
+                "{what}: constant-folded check is not an identity"
+            );
             let _ = writeln!(s, "{indent}ring");
         }
     }
     s
-}
-
-fn indent_lines(block: &str, indent: &str) -> String {
-    block.lines().map(|l| format!("{indent}{l}\n")).collect()
 }
 
 /// Render `theorem <name>_decode (a) (h : Satisfies (<name> p) a) : fact₁ ∧ … := by …`.
@@ -517,6 +621,14 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
         "/-- Every satisfying assignment of `{name}` has the meaning of each recorded gadget \
          call. Generated at gadget-call granularity; see `gadget.rs`. -/"
     );
+    if facts.is_empty() {
+        let _ = writeln!(
+            out,
+            "theorem {name}_decode (a : Assignment p) (h : Satisfies ({name} p) a) : True :=\n  \
+             trivial"
+        );
+        return out;
+    }
     let _ = writeln!(
         out,
         "theorem {name}_decode (a : Assignment p) (h : Satisfies ({name} p) a) :"
@@ -571,8 +683,8 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
             "  norm_num only [Nat.reduceMul, Nat.reduceAdd] at {}",
             all_e.join(" ")
         );
-        // Orient: gate input wires → their sources; pinned outputs → the constant; constants
-        // → their values.
+        // Orient: gate input wires → their sources; constants → their values. Output wires
+        // stay atoms; a pin on one is used only by the check that owns it.
         let mut rules: Vec<String> = Vec::new();
         let mut in_copies: Vec<usize> = ops.input_source.values().map(|(_, ci)| *ci).collect();
         in_copies.sort();
@@ -590,16 +702,6 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
                 },
             );
         }
-        let mut pin_copies: Vec<usize> = ops.pinned.values().flatten().copied().collect();
-        pin_copies.sort();
-        for ci in pin_copies {
-            let (x, _) = ex.copies[ci];
-            rules.push(if ops.const_idx.contains_key(&x) {
-                format!("← c{ci}")
-            } else {
-                format!("c{ci}")
-            });
-        }
         for i in 0..ex.constants.len() {
             rules.push(format!("k{i}"));
         }
@@ -614,7 +716,9 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
     for (n, call) in calls.iter().enumerate() {
         let f = &call.fact;
         let stop = f.named();
-        let _ = writeln!(out, "  have f{n} : {} := by", f.lean());
+        let what = f.lean();
+        let ks = ops.const_rules(&stop);
+        let _ = writeln!(out, "  have f{n} : {what} := by");
         match *f {
             Fact::Select { out: o, .. }
             | Fact::Not { out: o, .. }
@@ -631,55 +735,59 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
                     _ => None,
                 };
                 let mut goal: Vec<String> = spec.map(|s| s.to_string()).into_iter().collect();
-                goal.extend(ops.goal_rules(&stop));
-                // The output's own equation (if the builder placed an op for it; a folded
-                // call has none and the fact is an identity after the goal rewrites),
-                // with the definitions internal to this call substituted.
-                match ops.op_of_output(o) {
-                    Some(root) => {
-                        let inner: Vec<Target> = ops.inputs(root);
-                        let defs: Vec<String> = ops
-                            .internal_defs(&inner, &stop)
-                            .into_iter()
-                            .map(e)
-                            .collect();
-                        let _ = writeln!(out, "    have hr := {}", e(root));
-                        out.push_str(&indent_lines(&simp_only(&defs, Some("hr")), "    "));
-                        out.push_str(&indent_lines(&simp_only(&goal, None), "    "));
-                        out.push_str("    linear_combination hr\n");
-                    }
-                    None => {
-                        out.push_str(&indent_lines(&simp_only(&goal, None), "    "));
-                        out.push_str("    ring\n");
-                    }
+                goal.extend(ks);
+                if holds(&ops, |ev| ev.fact_poly(f) == F::ZERO) {
+                    // The builder folded the call onto an operand (or a constant): the
+                    // fact is an identity.
+                    out.push_str(&indent_lines(&simp_only(&goal, None), "    "));
+                    out.push_str("    ring\n");
+                } else {
+                    // The output's own equation, with the definitions internal to this
+                    // call substituted, is the fact. An output wire whose op belongs to
+                    // another call (an identity fold onto it) fails this test and is
+                    // reported rather than emitted.
+                    let root = ops
+                        .op_of_output(o)
+                        .unwrap_or_else(|| panic!("{what}: output has no op and is no identity"));
+                    let defs = ops.internal_defs(&ops.inputs(root), &stop);
+                    assert!(
+                        holds(&ops, |ev| ev.fact_poly(f)
+                            == ev.atom(o) - ev.op_rhs(root, &defs)),
+                        "{what}: op {root:?} does not establish the fact"
+                    );
+                    let defs: Vec<String> = defs.into_iter().map(e).collect();
+                    let _ = writeln!(out, "    have hr := {}", e(root));
+                    out.push_str(&indent_lines(&simp_only(&defs, Some("hr")), "    "));
+                    out.push_str(&indent_lines(&simp_only(&goal, None), "    "));
+                    out.push_str("    linear_combination hr\n");
                 }
             }
-            Fact::AssertBool { .. } => {
+            Fact::AssertBool { b } => {
                 let checks = ops.checks_in(&call.copies);
                 let [chk] = checks[..] else {
-                    panic!("assert_bool pins exactly one target: {checks:?}")
+                    panic!("{what}: assert_bool pins exactly one target: {checks:?}")
                 };
-                out.push_str(&indent_lines(
-                    &simp_only(&ops.goal_rules(&stop), None),
-                    "    ",
-                ));
+                out.push_str(&indent_lines(&simp_only(&ks, None), "    "));
                 out.push_str("    refine isBool_iff_assertBool.mpr ?_\n");
-                out.push_str(&check_script(&ops, chk, &stop, "    "));
+                let goal = |ev: &mut Eval| ev.atom(b) * ev.atom(b) - ev.atom(b);
+                out.push_str(&check_script(&ops, chk, &stop, &goal, &what, "    "));
             }
-            Fact::IsEqual { .. } => {
+            Fact::IsEqual { x, y, equal, inv } => {
                 let checks = ops.checks_in(&call.copies);
                 // `connect(not_equal_check, zero)` then `connect(equal_check, zero)`
                 // (arithmetic.rs), each possibly constant-folded.
                 let [ne, eq] = checks[..] else {
-                    panic!("is_equal pins exactly two targets: {checks:?}")
+                    panic!("{what}: is_equal pins exactly two targets: {checks:?}")
                 };
-                out.push_str(&indent_lines(
-                    &simp_only(&ops.goal_rules(&stop), None),
-                    "    ",
-                ));
+                out.push_str(&indent_lines(&simp_only(&ks, None), "    "));
                 out.push_str("    refine ⟨?_, ?_⟩\n");
-                for chk in [ne, eq] {
-                    let script = check_script(&ops, chk, &stop, "      ");
+                let c1 = |ev: &mut Eval| ev.atom(equal) * (ev.atom(x) - ev.atom(y));
+                let c2 = |ev: &mut Eval| {
+                    (ev.atom(x) - ev.atom(y)) * ev.atom(inv) - (F::ONE - ev.atom(equal))
+                };
+                let goals: [&dyn Fn(&mut Eval) -> F; 2] = [&c1, &c2];
+                for (chk, goal) in [ne, eq].into_iter().zip(goals) {
+                    let script = check_script(&ops, chk, &stop, goal, &what, "      ");
                     let mut lines = script.lines();
                     if let Some(first) = lines.next() {
                         let _ = writeln!(out, "    · {}", first.trim_start());
@@ -765,7 +873,11 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
         }
     }
     let fs: Vec<String> = (0..calls.len()).map(|i| format!("f{i}")).collect();
-    let _ = writeln!(out, "  exact ⟨{}⟩", fs.join(", "));
+    if let [f0] = &fs[..] {
+        let _ = writeln!(out, "  exact {f0}");
+    } else {
+        let _ = writeln!(out, "  exact ⟨{}⟩", fs.join(", "));
+    }
     out
 }
 
@@ -830,20 +942,40 @@ impl GadgetZooTargets {
     }
 }
 
+/// One exported circuit with its recorded calls, ready to render.
+pub struct GeneratedCircuit {
+    pub name: String,
+    pub doc: String,
+    pub ex: CircuitExport,
+    pub calls: Vec<Call>,
+}
+
+impl GeneratedCircuit {
+    fn new(name: &str, doc: &str, r: &Recorder, named: Vec<(String, Vec<Target>)>) -> Self {
+        GeneratedCircuit {
+            name: name.to_string(),
+            doc: doc.to_string(),
+            ex: r.export(named).expect("no lookups"),
+            calls: r.calls.clone(),
+        }
+    }
+}
+
 /// Build `formal/Plonky2Spec/Generated/GadgetZooCircuit.lean`: the export plus the
 /// generated decode theorem.
 pub fn generate_gadget_zoo_lean() -> String {
     let (r, t) = build_gadget_zoo();
-    let ex = r.export(t.named()).expect("gadget zoo has no lookups");
     render_module(
         "gadget-zoo",
-        "gadgetZoo",
-        "The gadget zoo: `assert_bool flag`, `eq = is_equal x y`, `sel = select flag x y`, \
-         `either = or eq flag`, `nflag = not flag`, `both = and eq nflag`, \
-         `head = sub 10000 fee`, `range_check head 14`, `connect sel either`; \
-         public inputs `x`, `sel`, `both`.",
-        &ex,
-        &r.calls,
+        &[GeneratedCircuit::new(
+            "gadgetZoo",
+            "The gadget zoo: `assert_bool flag`, `eq = is_equal x y`, `sel = select flag x y`, \
+             `either = or eq flag`, `nflag = not flag`, `both = and eq nflag`, \
+             `head = sub 10000 fee`, `range_check head 14`, `connect sel either`; \
+             public inputs `x`, `sel`, `both`.",
+            &r,
+            t.named(),
+        )],
     )
 }
 
@@ -925,32 +1057,115 @@ impl GadgetEdgeCasesTargets {
     }
 }
 
-/// Build `formal/Plonky2Spec/Generated/GadgetEdgeCasesCircuit.lean`.
+/// `sum = add x y; prod = mul sum one`: the multiplication folds onto `sum`, whose op is
+/// the addition, so the recorded `mul` fact is an identity and not an op equation.
+/// Returns `(recorder, x, y, one, sum, prod)`.
+pub fn build_identity_fold() -> (Recorder, [Target; 5]) {
+    let mut r = Recorder::new(CircuitConfig::standard_recursion_config());
+    let x = r.add_virtual_target();
+    let y = r.add_virtual_target();
+    let one = r.constant(F::ONE);
+    let sum = r.add(x, y);
+    let prod = r.mul(sum, one);
+    (r, [x, y, one, sum, prod])
+}
+
+/// `diff = sub x y; eq = is_equal x y; connect diff zero`: `is_equal` reuses the memoized
+/// subtraction, which a later call pins to zero, so the equality checks must still unfold
+/// `diff` through its op rather than through the pin. Returns `(recorder, x, y, zero, diff,
+/// equal)`.
+pub fn build_pinned_intermediate() -> (Recorder, [Target; 5]) {
+    let mut r = Recorder::new(CircuitConfig::standard_recursion_config());
+    let x = r.add_virtual_target();
+    let y = r.add_virtual_target();
+    let zero = r.constant(F::ZERO);
+    let diff = r.sub(x, y);
+    let eq = r.is_equal(x, y);
+    r.connect(diff, zero);
+    (r, [x, y, zero, diff, eq.target])
+}
+
+/// A single recorded call: `sum = add x y`. Returns `(recorder, x, y, sum)`.
+pub fn build_single_fact() -> (Recorder, [Target; 3]) {
+    let mut r = Recorder::new(CircuitConfig::standard_recursion_config());
+    let x = r.add_virtual_target();
+    let y = r.add_virtual_target();
+    let sum = r.add(x, y);
+    (r, [x, y, sum])
+}
+
+/// No recorded calls at all. Returns `(recorder, x, y)`.
+pub fn build_no_facts() -> (Recorder, [Target; 2]) {
+    let mut r = Recorder::new(CircuitConfig::standard_recursion_config());
+    let x = r.add_virtual_target();
+    let y = r.add_virtual_target();
+    (r, [x, y])
+}
+
+fn named(names: &[&str], targets: &[Target]) -> Vec<(String, Vec<Target>)> {
+    names
+        .iter()
+        .zip(targets)
+        .map(|(n, t)| (n.to_string(), vec![*t]))
+        .collect()
+}
+
+/// Build `formal/Plonky2Spec/Generated/GadgetEdgeCasesCircuit.lean`: the edge-case circuit
+/// and the smaller reproductions, each with its generated decode theorem.
 pub fn generate_gadget_edge_cases_lean() -> String {
     let (r, t) = build_gadget_edge_cases();
-    let ex = r.export(t.named()).expect("edge cases have no lookups");
-    render_module(
-        "gadget edge-case",
+    let edge = GeneratedCircuit::new(
         "gadgetEdgeCases",
         "Builder folding and re-pinning edge cases: `sum = add x y; connect sum zero`, \
          `is_equal zero zero`, `is_equal one zero`, `is_equal x x`, \
          `eq_xy = is_equal x y; diff = sub x y; check = mul eq_xy diff; connect check zero`; \
          public inputs the four `equal` targets.",
-        &ex,
-        &r.calls,
-    )
+        &r,
+        t.named(),
+    );
+    let (r, t) = build_identity_fold();
+    let fold = GeneratedCircuit::new(
+        "gadgetIdentityFold",
+        "`sum = add x y; prod = mul sum one`: the product folds onto `sum`.",
+        &r,
+        named(&["x", "y", "one", "sum", "prod"], &t),
+    );
+    let (r, t) = build_pinned_intermediate();
+    let pinned = GeneratedCircuit::new(
+        "gadgetPinnedIntermediate",
+        "`diff = sub x y; eq = is_equal x y; connect diff zero`: `is_equal` reuses `diff`, \
+         which is then pinned to zero.",
+        &r,
+        named(&["x", "y", "zero", "diff", "equal"], &t),
+    );
+    let (r, t) = build_single_fact();
+    let single = GeneratedCircuit::new(
+        "gadgetSingleFact",
+        "One recorded call, `sum = add x y`.",
+        &r,
+        named(&["x", "y", "sum"], &t),
+    );
+    let (r, t) = build_no_facts();
+    let none = GeneratedCircuit::new(
+        "gadgetNoFacts",
+        "No recorded calls.",
+        &r,
+        named(&["x", "y"], &t),
+    );
+    render_module("gadget edge-case", &[edge, fold, pinned, single, none])
 }
 
-/// A complete `Plonky2Spec.Generated` module: header, the export, and the decode theorem.
-fn render_module(what: &str, name: &str, doc: &str, ex: &CircuitExport, calls: &[Call]) -> String {
+/// A complete `Plonky2Spec.Generated` module: header, then each circuit's export and
+/// decode theorem.
+fn render_module(what: &str, circuits: &[GeneratedCircuit]) -> String {
     let mut out = String::new();
     let _ = write!(
         out,
         "/-\n\
          \x20 AUTO-GENERATED — do not edit by hand.\n\n\
          \x20 Produced by `qp-plonky2-constraint-exporter` (`gadget.rs`) by building the\n\
-         \x20 {what} circuit through the recording builder and walking its pre-`build`\n\
-         \x20 constraint system. The theorem's proof is generated too, one block per recorded\n\
+         \x20 {what} circuit(s) through the recording builder and walking the pre-`build`\n\
+         \x20 constraint system. Each theorem's proof is generated too, one block per recorded\n\
          \x20 gadget call, from the ops and copy constraints the builder emitted for it.\n\
          \x20 Regenerate with:\n\n\
          \x20     cargo run -p qp-plonky2-constraint-exporter --bin export-constraints\n\
@@ -961,11 +1176,14 @@ fn render_module(what: &str, name: &str, doc: &str, ex: &CircuitExport, calls: &
          namespace Plonky2Spec.Generated\n\n\
          open Plonky2Spec.Wiring\n\n\
          set_option linter.unusedVariables false\n\
-         set_option linter.unusedSimpArgs false\n\n",
+         set_option linter.unusedSimpArgs false\n\n\
+         variable {{p : ℕ}} [Fact p.Prime]\n\n",
     );
-    out.push_str(&crate::circuit::render_lean(name, doc, ex));
-    out.push_str("variable {p : ℕ} [Fact p.Prime]\n\n");
-    out.push_str(&render_decode_theorem(name, ex, calls));
-    out.push_str("\nend Plonky2Spec.Generated\n");
+    for c in circuits {
+        out.push_str(&crate::circuit::render_lean(&c.name, &c.doc, &c.ex));
+        out.push_str(&render_decode_theorem(&c.name, &c.ex, &c.calls));
+        out.push('\n');
+    }
+    out.push_str("end Plonky2Spec.Generated\n");
     out
 }
