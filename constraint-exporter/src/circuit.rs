@@ -141,17 +141,26 @@ pub(crate) fn lean_target(t: Target) -> String {
     }
 }
 
-/// Render a Goldilocks constant generically over `ZMod p`: small values as numerals,
-/// small negatives as `-(numeral)`. Anything else is emitted as its canonical `u64`,
-/// which is only faithful at `p = goldilocks` (flagged in a comment).
+/// The integer a Goldilocks constant is rendered as, generically over `ZMod p`: small
+/// values as themselves, small negatives as negative integers. Anything else is its
+/// canonical `u64`, which is only faithful at `p = goldilocks`.
+pub(crate) fn lean_const_int(c: F) -> i128 {
+    let n = c.to_canonical_u64();
+    if GOLDILOCKS_ORDER - n <= 1 << 32 && n > 1 << 32 {
+        -((GOLDILOCKS_ORDER - n) as i128)
+    } else {
+        n as i128
+    }
+}
+
+/// Render a Goldilocks constant as `lean_const_int` reads it, flagging the unfaithful
+/// large case in a comment.
 fn lean_const(c: F) -> String {
     let n = c.to_canonical_u64();
-    if n <= 1 << 32 {
-        n.to_string()
-    } else if GOLDILOCKS_ORDER - n <= 1 << 32 {
-        format!("(-{})", GOLDILOCKS_ORDER - n)
-    } else {
-        format!("{n} /- canonical u64; faithful only at p = goldilocks -/")
+    match lean_const_int(c) {
+        i if i < 0 => format!("({i})"),
+        i if i <= 1 << 32 => i.to_string(),
+        _ => format!("{n} /- canonical u64; faithful only at p = goldilocks -/"),
     }
 }
 

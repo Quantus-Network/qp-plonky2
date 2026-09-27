@@ -5,9 +5,10 @@
 //! one or zero facts. Each was a generator failure (unprovable block, panic, or syntax
 //! error) at some point.
 
-use constraint_exporter::circuit::check_satisfied;
+use constraint_exporter::circuit::{check_satisfied, render_lean};
 use constraint_exporter::gadget::{
-    build_gadget_edge_cases, build_identity_fold, build_no_facts, build_pinned_intermediate,
+    build_constant_fold, build_gadget_edge_cases, build_goldilocks_fold_mul,
+    build_goldilocks_fold_sub, build_identity_fold, build_no_facts, build_pinned_intermediate,
     build_single_fact, generate_gadget_edge_cases_lean, render_decode_theorem, Fact,
 };
 use plonky2::field::goldilocks_field::GoldilocksField;
@@ -178,6 +179,51 @@ fn pinned_intermediate_keeps_its_definition() {
         let bad = |tg: Target| if tg == equal { F::ZERO } else { val(tg) };
         assert!(check_satisfied(&ex, bad).is_err());
     }
+}
+
+/// Constant folds are proved as identities of the integers the constants render as, so
+/// only folds that hold over `ℤ` (hence for every prime `p`) pass.
+#[test]
+fn constant_folds_are_identities_over_the_integers() {
+    let (r, [zero, three, five, nine, eight, neg5]) = build_constant_fold();
+    let ex = r.export(vec![]).unwrap();
+    let value = |t: Target| ex.constants.iter().find(|(k, _)| *k == t).map(|(_, v)| *v);
+    assert_eq!(value(nine), Some(F::from_canonical_u64(9)));
+    assert_eq!(value(eight), Some(F::from_canonical_u64(8)));
+    assert_eq!(value(neg5), Some(-F::from_canonical_u64(5)));
+    assert!(render_lean("t", "", &ex).contains("(.virt 6, (-5))"));
+    let lean = render_decode_theorem("t", &ex, &r.calls);
+    assert_eq!(lean.matches("    ring\n").count(), 3, "{lean}");
+    assert!(!lean.contains("hr"), "{lean}");
+    let _ = (zero, three, five);
+}
+
+/// `2^32 * 2^32` folds to `2^32 - 1` in Goldilocks; over `ℤ` (any other prime) it does
+/// not, so the generic theorem would be false and the generator refuses to emit it.
+#[test]
+#[should_panic(expected = "holds only modulo the Goldilocks order")]
+fn goldilocks_only_mul_fold_is_rejected() {
+    let r = build_goldilocks_fold_mul();
+    let ex = r.export(vec![]).unwrap();
+    // The circuit itself is fine in Goldilocks.
+    check_satisfied(&ex, |t| {
+        ex.constants
+            .iter()
+            .find(|(k, _)| *k == t)
+            .map(|(_, v)| *v)
+            .unwrap_or(F::ZERO)
+    })
+    .unwrap();
+    render_decode_theorem("t", &ex, &r.calls);
+}
+
+/// `0 - (2^32 + 1)` folds past the renderer's negative cutoff to a large canonical value.
+#[test]
+#[should_panic(expected = "holds only modulo the Goldilocks order")]
+fn goldilocks_only_sub_fold_is_rejected() {
+    let r = build_goldilocks_fold_sub();
+    let ex = r.export(vec![]).unwrap();
+    render_decode_theorem("t", &ex, &r.calls);
 }
 
 /// One fact closes with `exact f0`; no facts states `True`.

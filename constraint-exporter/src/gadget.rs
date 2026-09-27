@@ -24,7 +24,8 @@ use plonky2::iop::target::{BoolTarget, Target};
 use plonky2::plonk::circuit_builder::CircuitBuilder;
 use plonky2::plonk::circuit_data::CircuitConfig;
 
-use crate::circuit::{export, lean_target, CircuitExport, GateKind};
+use crate::circuit::{export, lean_const_int, lean_target, CircuitExport, GateKind};
+use crate::symbolic::GOLDILOCKS_ORDER;
 
 type F = GoldilocksField;
 const D: usize = 2;
@@ -456,38 +457,113 @@ impl<'a> Ops<'a> {
     }
 }
 
+/// A residue modulo the prime `m` (`m < 2^64`), with the modulus carried so the polynomial
+/// closures below read like field arithmetic.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct V {
+    v: u64,
+    m: u64,
+}
+
+impl V {
+    fn of_int(n: i128, m: u64) -> V {
+        V {
+            v: n.rem_euclid(m as i128) as u64,
+            m,
+        }
+    }
+
+    fn is_zero(self) -> bool {
+        self.v == 0
+    }
+}
+
+impl core::ops::Add for V {
+    type Output = V;
+    fn add(self, o: V) -> V {
+        debug_assert_eq!(self.m, o.m);
+        V {
+            v: ((self.v as u128 + o.v as u128) % self.m as u128) as u64,
+            m: self.m,
+        }
+    }
+}
+
+impl core::ops::Sub for V {
+    type Output = V;
+    fn sub(self, o: V) -> V {
+        debug_assert_eq!(self.m, o.m);
+        V {
+            v: ((self.v as u128 + self.m as u128 - o.v as u128) % self.m as u128) as u64,
+            m: self.m,
+        }
+    }
+}
+
+impl core::ops::Mul for V {
+    type Output = V;
+    fn mul(self, o: V) -> V {
+        debug_assert_eq!(self.m, o.m);
+        V {
+            v: ((self.v as u128 * o.v as u128) % self.m as u128) as u64,
+            m: self.m,
+        }
+    }
+}
+
 /// Random-point evaluation of the polynomials the generated tactics equate. A tactic is
 /// emitted only if the identity it relies on (`linear_combination` closes a goal iff
 /// `goal.lhs - goal.rhs - (h.lhs - h.rhs)` is zero by `ring`) holds at every sampled
-/// point; over Goldilocks a false positive on these low-degree polynomials is negligible,
+/// point.
+///
+/// The theorem is stated over `ZMod p` for an arbitrary prime `p`, with every constant
+/// written as the integer `lean_const` renders it, so the identity has to hold over `ℤ`,
+/// i.e. modulo every prime — not just modulo the Goldilocks order the builder folded
+/// constants in. Each identity is therefore sampled modulo several unrelated primes
+/// (`MODULI`); one that holds only modulo Goldilocks is a characteristic-dependent constant
+/// fold and is rejected. A false positive on these low-degree polynomials is negligible,
 /// and Lean re-checks the result anyway.
 struct Eval<'o, 'a> {
     ops: &'o Ops<'a>,
-    rho: HashMap<Target, F>,
+    m: u64,
+    rho: HashMap<Target, V>,
     seed: u64,
 }
 
+/// Goldilocks (the builder's field), Mersenne-61, and Baby Bear.
+const MODULI: [u64; 3] = [GOLDILOCKS_ORDER, (1 << 61) - 1, 2_013_265_921];
+
 impl<'o, 'a> Eval<'o, 'a> {
-    fn new(ops: &'o Ops<'a>, seed: u64) -> Self {
+    fn new(ops: &'o Ops<'a>, m: u64, seed: u64) -> Self {
         Eval {
             ops,
+            m,
             rho: HashMap::new(),
             seed,
         }
     }
 
-    fn fresh(&mut self) -> F {
+    fn fresh(&mut self) -> V {
         self.seed = self
             .seed
             .wrapping_mul(6364136223846793005)
             .wrapping_add(1442695040888963407);
-        F::from_noncanonical_u64(self.seed)
+        V::of_int(self.seed as i128, self.m)
+    }
+
+    /// A Goldilocks constant, as the integer Lean sees.
+    fn konst(&self, c: F) -> V {
+        V::of_int(lean_const_int(c), self.m)
+    }
+
+    fn one(&self) -> V {
+        V::of_int(1, self.m)
     }
 
     /// A target as the goal sees it: a constant's value, otherwise an atom.
-    fn atom(&mut self, t: Target) -> F {
+    fn atom(&mut self, t: Target) -> V {
         if let Some(&k) = self.ops.const_idx.get(&t) {
-            return self.ops.ex.constants[k].1;
+            return self.konst(self.ops.ex.constants[k].1);
         }
         if let Some(&v) = self.rho.get(&t) {
             return v;
@@ -498,7 +574,7 @@ impl<'o, 'a> Eval<'o, 'a> {
     }
 
     /// A target after `simp only [defs]`: op outputs in `defs` unfold to their equations.
-    fn expand(&mut self, t: Target, defs: &[(usize, usize)]) -> F {
+    fn expand(&mut self, t: Target, defs: &[(usize, usize)]) -> V {
         match self.ops.op_of_output(t) {
             Some(op) if defs.contains(&op) => self.op_rhs(op, defs),
             _ => self.atom(t),
@@ -506,8 +582,9 @@ impl<'o, 'a> Eval<'o, 'a> {
     }
 
     /// `c0 * m0 * m1 + c1 * addend` of an op, operands unfolded through `defs`.
-    fn op_rhs(&mut self, (row, i): (usize, usize), defs: &[(usize, usize)]) -> F {
+    fn op_rhs(&mut self, (row, i): (usize, usize), defs: &[(usize, usize)]) -> V {
         let (c0, c1) = self.ops.row_consts(row);
+        let (c0, c1) = (self.konst(c0), self.konst(c1));
         let m0 = self.expand(self.ops.src(row, 4 * i), defs);
         let m1 = self.expand(self.ops.src(row, 4 * i + 1), defs);
         let ad = self.expand(self.ops.src(row, 4 * i + 2), defs);
@@ -515,11 +592,12 @@ impl<'o, 'a> Eval<'o, 'a> {
     }
 
     /// `lhs - rhs` of a value fact, on atoms.
-    fn fact_poly(&mut self, f: &Fact) -> F {
+    fn fact_poly(&mut self, f: &Fact) -> V {
+        let one = self.one();
         let mut a = |t: Target| self.atom(t);
         match *f {
             Fact::Select { b, x, y, out } => a(out) - (a(b) * (a(x) - a(y)) + a(y)),
-            Fact::Not { b, out } => a(out) - (F::ONE - a(b)),
+            Fact::Not { b, out } => a(out) - (one - a(b)),
             Fact::And { b1, b2, out } => a(out) - a(b1) * a(b2),
             Fact::Or { b1, b2, out } => a(out) - (a(b1) + a(b2) - a(b1) * a(b2)),
             Fact::Add { x, y, out } => a(out) - (a(x) + a(y)),
@@ -533,14 +611,51 @@ impl<'o, 'a> Eval<'o, 'a> {
     }
 }
 
-/// `f` holds at several random points.
-fn holds(ops: &Ops, mut f: impl FnMut(&mut Eval) -> bool) -> bool {
-    (1..=3u64).all(|seed| {
-        f(&mut Eval::new(
-            ops,
-            seed.wrapping_mul(0x9e37_79b9_7f4a_7c15),
-        ))
-    })
+/// Whether an identity holds at random points modulo each of `MODULI`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Identity {
+    /// Holds modulo every sampled prime: an identity over `ℤ`, provable for generic `p`.
+    Holds,
+    /// Holds modulo the Goldilocks order only: a constant fold the builder reduced modulo
+    /// its field, not an identity of the rendered integers.
+    GoldilocksOnly,
+    /// Fails modulo Goldilocks too.
+    Fails,
+}
+
+fn identity(ops: &Ops, mut f: impl FnMut(&mut Eval) -> bool) -> Identity {
+    let per_modulus = MODULI.map(|m| {
+        (1..=3u64).all(|seed| {
+            f(&mut Eval::new(
+                ops,
+                m,
+                seed.wrapping_mul(0x9e37_79b9_7f4a_7c15),
+            ))
+        })
+    });
+    match (per_modulus[0], per_modulus[1..].iter().all(|ok| *ok)) {
+        (true, true) => Identity::Holds,
+        (true, false) => Identity::GoldilocksOnly,
+        (false, _) => Identity::Fails,
+    }
+}
+
+/// Panics unless `id` is `Holds`; `fail` names the evidence in the `Fails` message.
+fn reject_unless_holds(what: &str, fail: &str, id: Identity) {
+    match id {
+        Identity::Holds => {}
+        Identity::GoldilocksOnly => panic!(
+            "{what}: holds only modulo the Goldilocks order (a constant fold reduced in the \
+             builder's field); the theorem is stated for a generic prime, so this circuit \
+             cannot be decoded generically"
+        ),
+        Identity::Fails => panic!("{what}: {fail}"),
+    }
+}
+
+/// Panics unless `f` is an identity over `ℤ`.
+fn require_identity(ops: &Ops, what: &str, fail: &str, f: impl FnMut(&mut Eval) -> bool) {
+    reject_unless_holds(what, fail, identity(ops, f));
 }
 
 fn e(op: (usize, usize)) -> String {
@@ -570,7 +685,7 @@ fn check_script(
     ops: &Ops,
     chk: Check,
     stop: &[Target],
-    goal: &dyn Fn(&mut Eval) -> F,
+    goal: &dyn Fn(&mut Eval) -> V,
     what: &str,
     indent: &str,
 ) -> String {
@@ -578,10 +693,12 @@ fn check_script(
     match chk {
         Check::Op { op, pin } => {
             let defs = ops.internal_defs(&ops.inputs(op), stop);
-            let v = ops.ex.constants[pin.k].1;
-            assert!(
-                holds(ops, |ev| goal(ev) == ev.op_rhs(op, &defs) - v),
-                "{what}: pinned op {op:?} does not establish the check"
+            let c = ops.ex.constants[pin.k].1;
+            require_identity(
+                ops,
+                what,
+                &format!("pinned op {op:?} does not establish the check"),
+                |ev| goal(ev) == ev.op_rhs(op, &defs) - ev.konst(c),
             );
             let defs: Vec<String> = defs.into_iter().map(e).collect();
             let _ = writeln!(s, "{indent}have hc := {}", e(op));
@@ -589,21 +706,26 @@ fn check_script(
             let _ = writeln!(s, "{indent}linear_combination {} - hc", pin.lean());
         }
         Check::Virt { t, pin } => {
-            let v = ops.ex.constants[pin.k].1;
-            assert!(
-                holds(ops, |ev| {
+            let c = ops.ex.constants[pin.k].1;
+            require_identity(
+                ops,
+                what,
+                &format!("pinning {t:?} does not establish the check"),
+                |ev| {
+                    let v = ev.konst(c);
                     ev.rho.insert(t, v);
-                    goal(ev) == F::ZERO
-                }),
-                "{what}: pinning {t:?} does not establish the check"
+                    goal(ev).is_zero()
+                },
             );
             let _ = writeln!(s, "{indent}rw [{}]", pin.lean());
             let _ = writeln!(s, "{indent}ring");
         }
         Check::Const => {
-            assert!(
-                holds(ops, |ev| goal(ev) == F::ZERO),
-                "{what}: constant-folded check is not an identity"
+            require_identity(
+                ops,
+                what,
+                "constant-folded check is not an identity",
+                |ev| goal(ev).is_zero(),
             );
             let _ = writeln!(s, "{indent}ring");
         }
@@ -736,30 +858,36 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
                 };
                 let mut goal: Vec<String> = spec.map(|s| s.to_string()).into_iter().collect();
                 goal.extend(ks);
-                if holds(&ops, |ev| ev.fact_poly(f) == F::ZERO) {
-                    // The builder folded the call onto an operand (or a constant): the
-                    // fact is an identity.
-                    out.push_str(&indent_lines(&simp_only(&goal, None), "    "));
-                    out.push_str("    ring\n");
-                } else {
-                    // The output's own equation, with the definitions internal to this
-                    // call substituted, is the fact. An output wire whose op belongs to
-                    // another call (an identity fold onto it) fails this test and is
-                    // reported rather than emitted.
-                    let root = ops
-                        .op_of_output(o)
-                        .unwrap_or_else(|| panic!("{what}: output has no op and is no identity"));
-                    let defs = ops.internal_defs(&ops.inputs(root), &stop);
-                    assert!(
-                        holds(&ops, |ev| ev.fact_poly(f)
-                            == ev.atom(o) - ev.op_rhs(root, &defs)),
-                        "{what}: op {root:?} does not establish the fact"
-                    );
-                    let defs: Vec<String> = defs.into_iter().map(e).collect();
-                    let _ = writeln!(out, "    have hr := {}", e(root));
-                    out.push_str(&indent_lines(&simp_only(&defs, Some("hr")), "    "));
-                    out.push_str(&indent_lines(&simp_only(&goal, None), "    "));
-                    out.push_str("    linear_combination hr\n");
+                let id = identity(&ops, |ev| ev.fact_poly(f).is_zero());
+                match id {
+                    Identity::Holds => {
+                        // The builder folded the call onto an operand or a constant: the
+                        // fact is an identity of the rendered integers.
+                        out.push_str(&indent_lines(&simp_only(&goal, None), "    "));
+                        out.push_str("    ring\n");
+                    }
+                    Identity::GoldilocksOnly => reject_unless_holds(&what, "", id),
+                    Identity::Fails => {
+                        // The output's own equation, with the definitions internal to
+                        // this call substituted, is the fact. An output wire whose op
+                        // belongs to another call (an identity fold onto it) fails this
+                        // test and is reported rather than emitted.
+                        let root = ops.op_of_output(o).unwrap_or_else(|| {
+                            panic!("{what}: output has no op and is no identity")
+                        });
+                        let defs = ops.internal_defs(&ops.inputs(root), &stop);
+                        require_identity(
+                            &ops,
+                            &what,
+                            &format!("op {root:?} does not establish the fact"),
+                            |ev| ev.fact_poly(f) == ev.atom(o) - ev.op_rhs(root, &defs),
+                        );
+                        let defs: Vec<String> = defs.into_iter().map(e).collect();
+                        let _ = writeln!(out, "    have hr := {}", e(root));
+                        out.push_str(&indent_lines(&simp_only(&defs, Some("hr")), "    "));
+                        out.push_str(&indent_lines(&simp_only(&goal, None), "    "));
+                        out.push_str("    linear_combination hr\n");
+                    }
                 }
             }
             Fact::AssertBool { b } => {
@@ -783,9 +911,9 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
                 out.push_str("    refine ⟨?_, ?_⟩\n");
                 let c1 = |ev: &mut Eval| ev.atom(equal) * (ev.atom(x) - ev.atom(y));
                 let c2 = |ev: &mut Eval| {
-                    (ev.atom(x) - ev.atom(y)) * ev.atom(inv) - (F::ONE - ev.atom(equal))
+                    (ev.atom(x) - ev.atom(y)) * ev.atom(inv) - (ev.one() - ev.atom(equal))
                 };
-                let goals: [&dyn Fn(&mut Eval) -> F; 2] = [&c1, &c2];
+                let goals: [&dyn Fn(&mut Eval) -> V; 2] = [&c1, &c2];
                 for (chk, goal) in [ne, eq].into_iter().zip(goals) {
                     let script = check_script(&ops, chk, &stop, goal, &what, "      ");
                     let mut lines = script.lines();
@@ -1085,6 +1213,40 @@ pub fn build_pinned_intermediate() -> (Recorder, [Target; 5]) {
     (r, [x, y, zero, diff, eq.target])
 }
 
+/// Constant folds that are identities of the rendered integers: `nine = mul three three`
+/// (`9 = 3 * 3`), `eight = add three five`, and `neg5 = sub zero five` (`(-5) = 0 - 5`, the
+/// renderer's negative form). Returns `(recorder, zero, three, five, nine, eight, neg5)`.
+pub fn build_constant_fold() -> (Recorder, [Target; 6]) {
+    let mut r = Recorder::new(CircuitConfig::standard_recursion_config());
+    let zero = r.constant(F::ZERO);
+    let three = r.constant(F::from_canonical_u64(3));
+    let five = r.constant(F::from_canonical_u64(5));
+    let nine = r.mul(three, three);
+    let eight = r.add(three, five);
+    let neg5 = r.sub(zero, five);
+    (r, [zero, three, five, nine, eight, neg5])
+}
+
+/// A constant fold the builder reduced modulo the Goldilocks order: `mul c c` for
+/// `c = 2^32` folds to `2^32 - 1`, which `9 = 3 * 3`-style generic reasoning cannot see.
+/// The generator rejects it.
+pub fn build_goldilocks_fold_mul() -> Recorder {
+    let mut r = Recorder::new(CircuitConfig::standard_recursion_config());
+    let c = r.constant(F::from_canonical_u64(1 << 32));
+    r.mul(c, c);
+    r
+}
+
+/// `sub zero c` for `c = 2^32 + 1` folds to `p - 2^32 - 1`, past the renderer's negative
+/// cutoff, so it is rendered as a large positive canonical value: also Goldilocks-only.
+pub fn build_goldilocks_fold_sub() -> Recorder {
+    let mut r = Recorder::new(CircuitConfig::standard_recursion_config());
+    let zero = r.constant(F::ZERO);
+    let c = r.constant(F::from_canonical_u64((1 << 32) + 1));
+    r.sub(zero, c);
+    r
+}
+
 /// A single recorded call: `sum = add x y`. Returns `(recorder, x, y, sum)`.
 pub fn build_single_fact() -> (Recorder, [Target; 3]) {
     let mut r = Recorder::new(CircuitConfig::standard_recursion_config());
@@ -1138,6 +1300,14 @@ pub fn generate_gadget_edge_cases_lean() -> String {
         &r,
         named(&["x", "y", "zero", "diff", "equal"], &t),
     );
+    let (r, t) = build_constant_fold();
+    let folds = GeneratedCircuit::new(
+        "gadgetConstantFold",
+        "Constant folds that hold over `ℤ`: `nine = mul three three`, `eight = add three \
+         five`, `neg5 = sub zero five`.",
+        &r,
+        named(&["zero", "three", "five", "nine", "eight", "neg5"], &t),
+    );
     let (r, t) = build_single_fact();
     let single = GeneratedCircuit::new(
         "gadgetSingleFact",
@@ -1152,7 +1322,10 @@ pub fn generate_gadget_edge_cases_lean() -> String {
         &r,
         named(&["x", "y"], &t),
     );
-    render_module("gadget edge-case", &[edge, fold, pinned, single, none])
+    render_module(
+        "gadget edge-case",
+        &[edge, fold, pinned, folds, single, none],
+    )
 }
 
 /// A complete `Plonky2Spec.Generated` module: header, then each circuit's export and

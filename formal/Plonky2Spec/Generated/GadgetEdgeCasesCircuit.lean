@@ -341,6 +341,62 @@ theorem gadgetPinnedIntermediate_decode (a : Assignment p) (h : Satisfies (gadge
     exact c17
   exact ⟨f0, f1, f2⟩
 
+/-- Constant folds that hold over `ℤ`: `nine = mul three three`, `eight = add three five`, `neg5 = sub zero five`. -/
+def gadgetConstantFold (p : ℕ) : Circuit p where
+  rows := [
+  ]
+  copies := [
+  ]
+  constants := [
+    (.virt 0, 0),
+    (.virt 4, 1),
+    (.virt 1, 3),
+    (.virt 2, 5),
+    (.virt 5, 8),
+    (.virt 3, 9),
+    (.virt 6, (-5))
+  ]
+  publicInputs := [
+  ]
+
+/-- Named target `zero`. -/
+def gadgetConstantFold.zero : Target := .virt 0
+
+/-- Named target `three`. -/
+def gadgetConstantFold.three : Target := .virt 1
+
+/-- Named target `five`. -/
+def gadgetConstantFold.five : Target := .virt 2
+
+/-- Named target `nine`. -/
+def gadgetConstantFold.nine : Target := .virt 3
+
+/-- Named target `eight`. -/
+def gadgetConstantFold.eight : Target := .virt 5
+
+/-- Named target `neg5`. -/
+def gadgetConstantFold.neg5 : Target := .virt 6
+
+/-- Every satisfying assignment of `gadgetConstantFold` has the meaning of each recorded gadget call. Generated at gadget-call granularity; see `gadget.rs`. -/
+theorem gadgetConstantFold_decode (a : Assignment p) (h : Satisfies (gadgetConstantFold p) a) :
+    a (.virt 3) = a (.virt 1) * a (.virt 1) ∧
+    a (.virt 5) = a (.virt 1) + a (.virt 2) ∧
+    a (.virt 6) = a (.virt 0) - a (.virt 2) := by
+  have hcopy := h.2.1
+  have hconst := h.2.2
+  simp only [gadgetConstantFold, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hcopy hconst
+  obtain ⟨k0, k1, k2, k3, k4, k5, k6⟩ := hconst
+  have f0 : a (.virt 3) = a (.virt 1) * a (.virt 1) := by
+    simp only [k2, k5]
+    ring
+  have f1 : a (.virt 5) = a (.virt 1) + a (.virt 2) := by
+    simp only [k2, k3, k4]
+    ring
+  have f2 : a (.virt 6) = a (.virt 0) - a (.virt 2) := by
+    simp only [k0, k3, k6]
+    ring
+  exact ⟨f0, f1, f2⟩
+
 /-- One recorded call, `sum = add x y`. -/
 def gadgetSingleFact (p : ℕ) : Circuit p where
   rows := [
