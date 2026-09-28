@@ -65,6 +65,9 @@ pub enum Fact {
     RangeCheck { x: Target, bits: usize },
     /// `a x = a y`
     Connect { x: Target, y: Target },
+    /// `hash_n_to_hash_no_pad_p2` on four inputs: one `Poseidon2Gate` row at `row`, whose
+    /// first four output wires are `spongeHash perm [a x0, a x1, a x2, a x3]`.
+    Poseidon2 { row: usize, inputs: [Target; 4] },
 }
 
 impl Fact {
@@ -81,7 +84,16 @@ impl Fact {
             Fact::IsEqual { x, y, equal, inv } => vec![x, y, equal, inv],
             Fact::RangeCheck { x, .. } => vec![x],
             Fact::Connect { x, y } => vec![x, y],
+            Fact::Poseidon2 { row, inputs } => {
+                let mut v = inputs.to_vec();
+                v.extend((12..16).map(|col| Target::wire(row, col)));
+                v
+            }
         }
+    }
+
+    fn is_poseidon2(&self) -> bool {
+        matches!(self, Fact::Poseidon2 { .. })
     }
 
     fn lean(&self) -> String {
@@ -102,6 +114,22 @@ impl Fact {
             }
             Fact::RangeCheck { x, bits } => format!("rangeCheck ({}) {bits}", a(x)),
             Fact::Connect { x, y } => format!("{} = {}", a(x), a(y)),
+            Fact::Poseidon2 { row, inputs } => {
+                let digest = format!(
+                    "spongeHash perm [{}, {}, {}, {}]",
+                    a(inputs[0]),
+                    a(inputs[1]),
+                    a(inputs[2]),
+                    a(inputs[3])
+                );
+                format!(
+                    "({})",
+                    (0..4)
+                        .map(|i| format!("a (.wire {row} {}) = {digest} {i}", 12 + i))
+                        .collect::<Vec<_>>()
+                        .join(" ∧ ")
+                )
+            }
         }
     }
 }
@@ -604,9 +632,10 @@ impl<'o, 'a> Eval<'o, 'a> {
             Fact::Sub { x, y, out } => a(out) - (a(x) - a(y)),
             Fact::Mul { x, y, out } => a(out) - a(x) * a(y),
             Fact::Connect { x, y } => a(x) - a(y),
-            Fact::AssertBool { .. } | Fact::IsEqual { .. } | Fact::RangeCheck { .. } => {
-                unreachable!("not a value fact")
-            }
+            Fact::AssertBool { .. }
+            | Fact::IsEqual { .. }
+            | Fact::RangeCheck { .. }
+            | Fact::Poseidon2 { .. } => unreachable!("not a value fact"),
         }
     }
 }
@@ -811,9 +840,20 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
     // Facts are grouped `FACT_GROUP` to a parenthesised conjunction, groups conjoined in
     // turn: a flat `∧` chain hundreds deep is superlinear to elaborate and to destructure.
     let groups: Vec<&[String]> = facts.chunks(FACT_GROUP).collect();
+    let sponge = calls.iter().any(|c| c.fact.is_poseidon2());
     let _ = writeln!(
         out,
-        "theorem {name}_decode (a : Assignment p) (h : Satisfies ({name} p) a) :"
+        "theorem {name}_decode {}(a : Assignment p) (h : Satisfies ({name} p) a){} :",
+        if sponge {
+            "(perm : St p → St p) "
+        } else {
+            ""
+        },
+        if sponge {
+            format!("\n    (hp : Poseidon2Rows perm ({name} p) a)")
+        } else {
+            String::new()
+        }
     );
     for (g, group) in groups.iter().enumerate() {
         let (open, close) = if groups.len() > 1 {
@@ -1044,9 +1084,63 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
                     }
                 );
             }
-            Fact::Connect { .. } => {
+            Fact::Connect { x, y } => {
                 assert_eq!(call.copies.len(), 1, "connect adds one copy");
-                let _ = writeln!(out, "    exact c{}", call.copies.start);
+                if x == y {
+                    // The copy `(x, x)` destructures to `True`.
+                    out.push_str("    rfl\n");
+                } else {
+                    let _ = writeln!(out, "    exact c{}", call.copies.start);
+                }
+            }
+            Fact::Poseidon2 { row, inputs } => {
+                assert_eq!(
+                    ex.rows.get(row).map(|r| &r.0),
+                    Some(&GateKind::Poseidon2),
+                    "{what}: row {row} is not a Poseidon2Gate"
+                );
+                // Input wire `j` is connected, within this call, to input `j` (`j < 4`), to
+                // the `one` constant (`j = 4`) or to the `zero` constant (`j > 4`): the
+                // `add(zero, ·)` absorption folds (hashing.rs:94, arithmetic.rs:144).
+                let mut feeds: Vec<String> = Vec::new();
+                for j in 0..12 {
+                    let w = Target::wire(row, j);
+                    let (ci, src) = call
+                        .copies
+                        .clone()
+                        .find_map(|ci| match ex.copies[ci] {
+                            (x, y) if x == w => Some((ci, (y, false))),
+                            (x, y) if y == w => Some((ci, (x, true))),
+                            _ => None,
+                        })
+                        .unwrap_or_else(|| panic!("{what}: input wire {j} is not connected"));
+                    let (src, fwd) = src;
+                    let copy = if fwd {
+                        format!("c{ci}.symm")
+                    } else {
+                        format!("c{ci}")
+                    };
+                    if let Some(&input) = inputs.get(j) {
+                        assert_eq!(src, input, "{what}: input wire {j} is not input {j}");
+                        feeds.push(copy);
+                    } else {
+                        let expect = if j == 4 { F::ONE } else { F::ZERO };
+                        let k = ops.const_idx.get(&src).copied().unwrap_or_else(|| {
+                            panic!("{what}: input wire {j} is not fed by a constant")
+                        });
+                        assert_eq!(
+                            ex.constants[k].1, expect,
+                            "{what}: input wire {j} is not the {expect} constant"
+                        );
+                        feeds.push(format!("({copy}.trans k{k})"));
+                    }
+                }
+                let _ = writeln!(
+                    out,
+                    "    exact poseidon2Row_hash4 perm hp (row := {row}) rfl rfl
+      {}",
+                    feeds.join(" ")
+                );
             }
         }
     }
@@ -1153,7 +1247,7 @@ impl GeneratedCircuit {
 pub fn generate_gadget_zoo_lean() -> String {
     let (r, t) = build_gadget_zoo();
     render_module(
-        "gadget-zoo",
+        "the gadget-zoo circuit built through the recording builder",
         &[GeneratedCircuit::new(
             "gadgetZoo",
             "The gadget zoo: `assert_bool flag`, `eq = is_equal x y`, `sel = select flag x y`, \
@@ -1402,34 +1496,47 @@ pub fn generate_gadget_edge_cases_lean() -> String {
         named(&["x", "y"], &t),
     );
     render_module(
-        "gadget edge-case",
+        "the gadget edge-case circuits built through the recording builder",
         &[edge, fold, pinned, folds, single, none, boundary],
     )
 }
 
 /// A complete `Plonky2Spec.Generated` module: header, then each circuit's export and
 /// decode theorem.
-fn render_module(what: &str, circuits: &[GeneratedCircuit]) -> String {
+pub fn render_module(what: &str, circuits: &[GeneratedCircuit]) -> String {
+    let sponge = circuits
+        .iter()
+        .any(|c| c.calls.iter().any(|call| call.fact.is_poseidon2()));
     let mut out = String::new();
     let _ = write!(
         out,
         "/-\n\
          \x20 AUTO-GENERATED — do not edit by hand.\n\n\
-         \x20 Produced by `qp-plonky2-constraint-exporter` (`gadget.rs`) by building the\n\
-         \x20 {what} circuit(s) through the recording builder and walking the pre-`build`\n\
-         \x20 constraint system. Each theorem's proof is generated too, one block per recorded\n\
-         \x20 gadget call, from the ops and copy constraints the builder emitted for it.\n\
+         \x20 Produced by `qp-plonky2-constraint-exporter` (`gadget.rs`) from {what}: the\n\
+         \x20 pre-`build` constraint system and the gadget calls recorded while building it.\n\
+         \x20 Each theorem's proof is generated too, one block per recorded gadget call, from\n\
+         \x20 the ops and copy constraints the builder emitted for it.\n\
          \x20 Regenerate with:\n\n\
          \x20     cargo run -p qp-plonky2-constraint-exporter --bin export-constraints\n\
          -/\n\
          import Mathlib.Tactic.IntervalCases\n\
          import Mathlib.Tactic.LinearCombination\n\
-         import Plonky2Spec.WiringGadgets\n\n\
+         import Plonky2Spec.WiringGadgets\n{}\n\
          namespace Plonky2Spec.Generated\n\n\
-         open Plonky2Spec.Wiring\n\n\
+         open Plonky2Spec.Wiring\n{}\n\
          set_option linter.unusedVariables false\n\
          set_option linter.unusedSimpArgs false\n\n\
          variable {{p : ℕ}} [Fact p.Prime]\n\n",
+        if sponge {
+            "import Plonky2Spec.WiringSponge\n"
+        } else {
+            ""
+        },
+        if sponge {
+            "open Plonky2Spec.Poseidon2 (St)\nopen Plonky2Spec.Sponge (spongeHash)\n"
+        } else {
+            ""
+        },
     );
     for c in circuits {
         out.push_str(&crate::circuit::render_lean(&c.name, &c.doc, &c.ex));

@@ -1,7 +1,9 @@
 use constraint_exporter::gadget::{Call, Fact};
 use plonky2::field::goldilocks_field::GoldilocksField as F;
 use plonky2::field::types::{Field, PrimeField64};
+use plonky2::hash::poseidon2::Poseidon2Hash;
 use plonky2::iop::target::Target;
+use plonky2::plonk::config::Hasher;
 
 /// Every recorded fact holds numerically on the witness `val`.
 pub fn assert_facts_hold(calls: &[Call], val: impl Fn(Target) -> F) {
@@ -26,6 +28,12 @@ pub fn assert_facts_hold(calls: &[Call], val: impl Fn(Target) -> F) {
             }
             Fact::RangeCheck { x, bits } => assert!(val(x).to_canonical_u64() < 1 << bits),
             Fact::Connect { x, y } => assert_eq!(val(x), val(y)),
+            Fact::Poseidon2 { row, inputs } => {
+                let digest = Poseidon2Hash::hash_no_pad(&inputs.map(&val));
+                for (i, d) in digest.elements.iter().enumerate() {
+                    assert_eq!(val(Target::wire(row, 12 + i)), *d);
+                }
+            }
         }
     }
 }

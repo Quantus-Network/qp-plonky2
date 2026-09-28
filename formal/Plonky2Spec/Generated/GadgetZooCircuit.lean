@@ -1,10 +1,10 @@
 /-
   AUTO-GENERATED — do not edit by hand.
 
-  Produced by `qp-plonky2-constraint-exporter` (`gadget.rs`) by building the
-  gadget-zoo circuit(s) through the recording builder and walking the pre-`build`
-  constraint system. Each theorem's proof is generated too, one block per recorded
-  gadget call, from the ops and copy constraints the builder emitted for it.
+  Produced by `qp-plonky2-constraint-exporter` (`gadget.rs`) from the gadget-zoo circuit built through the recording builder: the
+  pre-`build` constraint system and the gadget calls recorded while building it.
+  Each theorem's proof is generated too, one block per recorded gadget call, from
+  the ops and copy constraints the builder emitted for it.
   Regenerate with:
 
       cargo run -p qp-plonky2-constraint-exporter --bin export-constraints

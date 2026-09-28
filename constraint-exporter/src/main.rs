@@ -4,6 +4,7 @@
 //!   * `Poseidon2.lean`      — Poseidon2Gate permutation (flat)    (Step 3a)
 //!   * `Poseidon2Prims.lean` — Poseidon2 sbox7/mdsLight/internalMix (Step 3b)
 //!   * `NullifierSelectCircuit.lean` — pre-`build` wiring of the nullifier-select path (Step 8)
+//!   * `PrivateBatchWrapper2.lean` — the recorded `n = 2` private-batch wrapper (Step 8c)
 //!
 //!     cargo run -p qp-plonky2-constraint-exporter --bin export-constraints
 //!
@@ -39,6 +40,8 @@ fn main() -> std::io::Result<()> {
     let nullifier_select = constraint_exporter::circuit::generate_nullifier_select_lean();
     let gadget_zoo = constraint_exporter::gadget::generate_gadget_zoo_lean();
     let gadget_edge_cases = constraint_exporter::gadget::generate_gadget_edge_cases_lean();
+    let wrapper = constraint_exporter::trace::generate_private_batch_wrapper_lean()
+        .map_err(std::io::Error::other)?;
 
     write(&dir, "Gates.lean", &gates)?;
     write(&dir, "Poseidon2.lean", &poseidon2)?;
@@ -46,6 +49,7 @@ fn main() -> std::io::Result<()> {
     write(&dir, "NullifierSelectCircuit.lean", &nullifier_select)?;
     write(&dir, "GadgetZooCircuit.lean", &gadget_zoo)?;
     write(&dir, "GadgetEdgeCasesCircuit.lean", &gadget_edge_cases)?;
+    write(&dir, "PrivateBatchWrapper2.lean", &wrapper)?;
 
     print!("{gates}");
     println!("\n-- ===== Poseidon2.lean =====");
@@ -58,5 +62,7 @@ fn main() -> std::io::Result<()> {
     print!("{gadget_zoo}");
     println!("\n-- ===== GadgetEdgeCasesCircuit.lean =====");
     print!("{gadget_edge_cases}");
+    println!("\n-- ===== PrivateBatchWrapper2.lean =====");
+    print!("{wrapper}");
     Ok(())
 }

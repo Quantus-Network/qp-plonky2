@@ -65,7 +65,12 @@
                              of a builder mixing all those gadgets, with its decode
                              theorem *and proof* emitted by the exporter (Step 8b);
                              `Generated.GadgetEdgeCasesCircuit` does the same for
-                             the builder's constant-folding and re-pinning corners
+                             the builder's constant-folding and re-pinning corners;
+                             `WiringSponge` lifts a `Poseidon2Gate` row fed by a
+                             four-input sponge call to `Sponge.spongeHash`, and
+                             `Generated.PrivateBatchWrapper2` is the real `n = 2`
+                             private-batch wrapper, decoded from the gadget-call
+                             trace recorded in qp-zk-circuits (Step 8c)
 
   Methodology follows Zellic's *Formal Verification of a Plonky2 Gate*: each gadget
   separates an `Assumptions` side-condition (what the surrounding circuit must
@@ -93,3 +98,5 @@ import Plonky2Spec.Bridges.CircuitBridge
 import Plonky2Spec.WiringGadgets
 import Plonky2Spec.Generated.GadgetZooCircuit
 import Plonky2Spec.Generated.GadgetEdgeCasesCircuit
+import Plonky2Spec.WiringSponge
+import Plonky2Spec.Generated.PrivateBatchWrapper2
