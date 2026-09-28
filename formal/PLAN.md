@@ -760,11 +760,35 @@ it. Pieces:
   `.lake/packages/wormholeSpec/formal/traces/*.json` into `constraint-exporter/traces/`,
   rerun `export-constraints`; `vendored_trace_matches_pinned_package` and
   `wrapper_lean_is_current` fail until both are done.
-- **Next (8d):** compose `privateBatchWrapper2_decode` into `PrivateBatchConstraints`
-  (`Plonky2Bridge/Complete.lean`): read the named leaf/dummy/switch targets and the
-  aggregated public inputs off the export, and discharge `hsw`/`hb`/`hd`/`hdnull`/`hreal`
-  /`hnull`/`hcol`/`hlen` from the 344 facts (the `hdnull` step is `dummyNull_eq` against
-  the two chained `spongeHash` facts). Estimate: ~1 week Lean.
+- **8d — the wrapper on `PrivateBatchConstraints` (done).** `Plonky2Bridge/Wrapper2.lean`
+  reads the children (`leaf`), preimages (`u`) and aggregated output (`out`) off the named
+  targets and public inputs of the export, and `Wrapper2.constraints` derives every clause
+  of `PrivateBatchConstraints` from the 344 facts: the dummy flags from the `is_equal`/`and`
+  folds, `hdnull` from the two chained `Poseidon2` facts (`spongeRO_dummyNull`), the
+  nullifier network from the eight switch selects, the uniqueness `and`-tree, the two
+  masked totals and the fee comparator, the first-real scan (`select` chain with the
+  `take` flags), per-child header consistency (`real_block_matches`), and the four exit
+  slots as `groupExits (maskedChildPairs …)` via a generic `exit_slot_val` lemma over the
+  recorded `(match, select, add, dedup)` shape. `Wrapper2.sound` lands on
+  `RPrivateBatch (spongeRO perm) leaves us out`; `#print axioms` is the bare
+  `{propext, Classical.choice, Quot.sound}`. The facts are taken as projections
+  (`hf.2.2.….1`) rather than one `obtain` pattern — the latter took ~4 minutes, the
+  projections ~6 s; the whole file checks in ~25 s. Two hypotheses are not discharged by
+  the wrapper's constraints and stay explicit: the children's 32-bit
+  `inputAmount`/`outputAmount*`/`volumeFeeBps` ranges (the leaf circuit's range checks,
+  `Rleaf_ranges`), and **`hbn`: the real children's `blockNumber` equals the header's.**
+  The circuit selects the header's block number from the first real child but only
+  constrains the other real children's block *hash* (`or(is_dummy, bytes_digest_eq)`),
+  asset id (`connect`) and fee; `WormholeSpec.metadataConsistent` nevertheless demands
+  `p.blockNumber = out.blockNumber` for every real child. The public-batch spec records
+  the same gap explicitly (`Aggregation.lean`, "the wrapper does not constrain per-inner
+  `blockNumber` equality"); the private-batch spec does not. Options: weaken `metadataConsistent` in `qp-zk-circuits`
+  to match the circuit, or derive `hbn` from equal block hashes through the leaf circuit's
+  header parse (`Rleaf` ties `blockNumber` to the parsed header, and equal hashes give
+  equal headers under collision resistance).
+- **Next (8e):** carry the Step 8d statement to the `2^k`-ary trees the deployment uses
+  (`n = 4, 8, …`): generalise `E`/`slot`/`rounds` to the trace's `N`, and let the exporter
+  emit the projection list so `constraints` is generated rather than hand-indexed.
 
 ## 9. Definition of done
 
@@ -779,5 +803,6 @@ the same way (`public_batch_end_to_end`, Step 7a). The remaining gap is exactly
 (a) the residual **wiring/copy-constraint** model fidelity (§3 — gate constraints
 are exporter-backed and the wrapper *logic* is bridged, but the public-input
 **decode** that feeds the bridges its `hd`/`hnull`/`hexits`/… wire assignments
-is still hand-modeled; Step 8 closes it for the nullifier-select path on `n = 2` and
-sizes the rest) and (b) the layer-1 assumptions (§7) — both explicit.
+is still hand-modeled; Step 8 closes it for the whole private-batch wrapper on `n = 2`
+— `Wrapper2.sound` — modulo the leaf ranges and the `blockNumber` hypothesis noted in 8d)
+and (b) the layer-1 assumptions (§7) — both explicit.
