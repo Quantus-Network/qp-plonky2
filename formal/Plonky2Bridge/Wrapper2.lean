@@ -419,20 +419,14 @@ set_option maxHeartbeats 2000000 in
 /-- **The wrapper's constraints, decoded from the wiring.** Every satisfying assignment (with
     the `Poseidon2Gate` rows computing `perm`) satisfies `PrivateBatchConstraints` on the
     decoded children, preimages and output, with the reference fee and the two dummy-masked
-    totals read off their accumulator wires. Two hypotheses come from outside the wrapper:
-    * `h32` — the children's 32-bit amount/fee ranges, which the *leaf* circuit range-checks
-      (`Rleaf_ranges` obtains them from accepted leaf proofs);
-    * `hbn` — the real children's block numbers agree with the header. The wrapper selects
-      the header's block number from the first real child but does **not** constrain the
-      other real children's block numbers (only their block hashes, asset ids and fees), so
-      `metadataConsistent`'s `blockNumber` conjunct is not circuit-enforced at this layer;
-      it follows from equal block hashes only through the leaf circuit's header parse. -/
+    totals read off their accumulator wires. One hypothesis comes from outside the wrapper:
+    `h32`, the children's 32-bit amount/fee ranges, which the *leaf* circuit range-checks
+    (`Rleaf_ranges` obtains them from accepted leaf proofs). -/
 theorem constraints (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a)
     (hp : Poseidon2Rows perm (privateBatchWrapper2 p) a)
     (h32 : ∀ q ∈ leaves a, inRange 32 q.inputAmount ∧ inRange 32 q.outputAmount1 ∧
-      inRange 32 q.outputAmount2 ∧ inRange 32 q.volumeFeeBps)
-    (hbn : ∀ q ∈ leaves a, ¬ isDummyPrivateBatch q → q.blockNumber = (out a).blockNumber) :
+      inRange 32 q.outputAmount2 ∧ inRange 32 q.volumeFeeBps) :
     PrivateBatchConstraints perm (rounds a) (rows a) (a (.wire 4 27)) (a (.wire 6 23))
       (a (.wire 6 35)) (out a) := by
   obtain ⟨hsw, hb, hd, hdnull, hreal, hnull, hcol, hlen, hnum⟩ := nullifier_path perm hpg a h hp
@@ -1124,7 +1118,7 @@ theorem constraints (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     simp only [leaves, List.mem_cons, List.not_mem_nil, or_false] at hq
     rcases hq with rfl | rfl
     · have hnd : a (.wire 1 43) ≠ 1 := fun h1 => hreal_q (hd0.mp h1)
-      refine ⟨rfl, ?_, ?_, hbn _ List.mem_cons_self hreal_q⟩
+      refine ⟨rfl, ?_, ?_⟩
       · have := real_block_matches hb0 (isEqual_isBool cf0) (cfo0.symm.trans (cfk0.trans kone))
           (isEqual_iff cf0) hnd
         show (a (.virt 9466)).val = (a (.wire 4 27)).val
@@ -1138,7 +1132,7 @@ theorem constraints (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
           = valDigest ![a (.wire 3 47), a (.wire 3 55), a (.wire 4 3), a (.wire 4 11)]
         rw [this]
     · have hnd : a (.wire 2 27) ≠ 1 := fun h1 => hreal_q (hd1.mp h1)
-      refine ⟨?_, ?_, ?_, hbn _ (List.mem_cons_of_mem _ List.mem_cons_self) hreal_q⟩
+      refine ⟨?_, ?_, ?_⟩
       · show (a (leafPis 1 0)).val = (a (leafPis 0 0)).val
         rw [show a (leafPis 1 0) = a (leafPis 0 0) from ca1]
       · have := real_block_matches hb1 (isEqual_isBool cf1) (cfo1.symm.trans (cfk1.trans kone))
@@ -1225,17 +1219,15 @@ theorem constraints (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
           rw [sc1_5, bselect_false htk0, sc0_5, bselect_false hr0', kzero, ZMod.val_zero]
 
 /-- **Soundness of the recorded wrapper.** A satisfying assignment of the `n = 2` private-batch
-    wrapper — with the `Poseidon2Gate` rows computing `perm`, the children's leaf-level 32-bit
-    ranges, and the real children's block numbers agreeing with the header (see `constraints`)
-    — decodes to an `RPrivateBatch` instance over the realized sponge oracle. -/
+    wrapper — with the `Poseidon2Gate` rows computing `perm` and the children's leaf-level
+    32-bit ranges — decodes to an `RPrivateBatch` instance over the realized sponge oracle. -/
 theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a)
     (hp : Poseidon2Rows perm (privateBatchWrapper2 p) a)
     (h32 : ∀ q ∈ leaves a, inRange 32 q.inputAmount ∧ inRange 32 q.outputAmount1 ∧
-      inRange 32 q.outputAmount2 ∧ inRange 32 q.volumeFeeBps)
-    (hbn : ∀ q ∈ leaves a, ¬ isDummyPrivateBatch q → q.blockNumber = (out a).blockNumber) :
+      inRange 32 q.outputAmount2 ∧ inRange 32 q.volumeFeeBps) :
     RPrivateBatch (spongeRO perm) (leaves a) (us a) (out a) := by
-  have := (constraints perm hpg a h hp h32 hbn).sound hpg
+  have := (constraints perm hpg a h hp h32).sound hpg
   rwa [rows_leaves, rows_us] at this
 
 end Plonky2Bridge.Wrapper2
