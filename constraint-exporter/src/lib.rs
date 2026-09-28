@@ -9,6 +9,7 @@ pub mod extract;
 pub mod gadget;
 pub mod render;
 pub mod symbolic;
+pub mod trace;
 
 use core::fmt::Write as _;
 

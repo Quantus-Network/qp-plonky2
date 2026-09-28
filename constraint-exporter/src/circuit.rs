@@ -56,7 +56,7 @@ pub struct CircuitExport {
 }
 
 /// Classify a gate by its `Gate::id()` string (the `Debug` rendering of the gate struct).
-fn classify(id: &str) -> GateKind {
+pub(crate) fn classify(id: &str) -> GateKind {
     fn field(id: &str, key: &str) -> Option<usize> {
         let start = id.find(key)? + key.len();
         let rest = &id[start..];

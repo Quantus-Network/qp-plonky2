@@ -725,9 +725,6 @@ it. Pieces:
     and zero-fact theorems, and a theorem whose last fact group is a single fact); the test suite
     checks a real prover witness satisfies each export (exercising the `BaseSumGate<2>`
     arm) and every recorded fact, and that the checked-in Lean is current.
-  - Poseidon2 rows are not part of a `Fact` yet: the wrapper's hashes will be stated via
-    `Poseidon2Rows` + the named input/output wires, and the recorder needs a
-    `hash_n_to_hash_no_pad` mirror that records which rows the sponge landed on.
   - The generated output is sized for the wrapper. Exports with more than 64 copies or
     constants are rendered as `≤ 32`-element `def`s joined by a balanced `++` tree
     (`chunks`/`render_list` in `circuit.rs`), the decode proof destructures them chunk by
@@ -738,19 +735,36 @@ it. Pieces:
     list literal of that size took ~1 minute on its own and positional `rfl` lookups
     exhausted heartbeats). If that ceiling bites, the next step is one theorem per fact
     sharing per-chunk copy lemmas, which Lean elaborates in parallel.
-- **Next (8c):** `formal_export_view` shipped in `qp-plonky2 1.6.0`. The wrapper lives in
-  `qp-zk-circuits` and its exporter here depends on a path `plonky2`, so a dev feature in
-  `wormhole/aggregator` cannot link against the `Recorder` directly. Plan: in
-  `qp-zk-circuits`, bump to `1.6.0`, abstract the wrapper's builder calls behind a
-  `GadgetBuilder` trait in `zk-circuits-common` (passthrough impl for `CircuitBuilder`),
-  and behind a `formal-export` dev feature a `TracingBuilder` that records each call
-  (kind, arguments, outputs, and the rows/copies it emitted via `formal_export_view`) to a
-  JSON trace checked into `qp-zk-circuits/formal/` with a staleness test. The exporter
-  reads that trace from the pinned `wormholeSpec` lake package, gains a `Fact::Poseidon2`
-  (stated through `Poseidon2Rows`, so the theorem takes `perm` and `hp`), and generates
-  `Generated/PrivateBatchWrapper2.lean`. Remaining estimate: ~1 week Lean, mostly
-  composing the generated facts into `PrivateBatchConstraints` (the `Poseidon2Rows` ⟹
-  `hdnull` step via `gate_sound_complete`, and the switch network `hsw`).
+- **8c — the real wrapper (done).** The wrapper lives in `qp-zk-circuits` and the exporter
+  depends on a path `plonky2`, so neither side can link the other's builder. Instead the
+  wrapper's builder calls go through a `GadgetBuilder` trait
+  (`qp-zk-circuits/common/src/gadget_builder.rs`, passthrough impl for `CircuitBuilder`,
+  qp-zk-circuits #186), and a `TracingBuilder` (`common/src/formal_trace.rs`, dev-only)
+  records each call with the rows and copies it emitted into
+  `qp-zk-circuits/formal/traces/private_batch_wrapper_n2.json`, kept current by an
+  aggregator unit test. A copy of that file at the pinned `wormholeSpec` revision is
+  checked in as `constraint-exporter/traces/private_batch_wrapper_n2.json`, so the Rust
+  tests and `export-constraints` need neither Lake nor the network;
+  `vendored_trace_matches_pinned_package` compares it with the lake package whenever
+  `formal/.lake` has been populated, and `WORMHOLE_TRACES` overrides the directory for
+  developing against a local `qp-zk-circuits` checkout. `trace.rs` rebuilds the
+  `CircuitExport` and `Call`s from it, and `export-constraints` writes
+  `Generated/PrivateBatchWrapper2.lean`: 65 rows (55 arithmetic, 6 `BaseSumGate<2>`,
+  4 `Poseidon2Gate`), 2818 copies, 344 facts, ~4 minutes to check. The dummy-nullifier
+  hashes are `Fact::Poseidon2`: `WiringSponge.poseidon2Row_hash4` turns `Poseidon2Rows
+  perm` plus the twelve input-wire copies (inputs, the `one` delimiter, `zero` fill —
+  `add(zero, ·)` folds, so the sponge's absorption is copy-only) into
+  `a out_i = spongeHash perm [a x0, a x1, a x2, a x3] i`, so the decode theorem takes
+  `(perm : St p → St p)` and `(hp : Poseidon2Rows perm (privateBatchWrapper2 p) a)`.
+  Bumping the pin: advance `rev` in `lakefile.toml`, `lake update wormholeSpec`, copy
+  `.lake/packages/wormholeSpec/formal/traces/*.json` into `constraint-exporter/traces/`,
+  rerun `export-constraints`; `vendored_trace_matches_pinned_package` and
+  `wrapper_lean_is_current` fail until both are done.
+- **Next (8d):** compose `privateBatchWrapper2_decode` into `PrivateBatchConstraints`
+  (`Plonky2Bridge/Complete.lean`): read the named leaf/dummy/switch targets and the
+  aggregated public inputs off the export, and discharge `hsw`/`hb`/`hd`/`hdnull`/`hreal`
+  /`hnull`/`hcol`/`hlen` from the 344 facts (the `hdnull` step is `dummyNull_eq` against
+  the two chained `spongeHash` facts). Estimate: ~1 week Lean.
 
 ## 9. Definition of done
 
