@@ -6,6 +6,8 @@
   calls `build_private_batch_constraints` made. This module reads the spec objects off the
   named targets and public inputs (`leaf`, `us`, `out`) and derives the clauses of
   `PrivateBatchConstraints` that `Plonky2Bridge` used to take as decode hypotheses.
+  `private_batch_end_to_end_wired` at the end restates the capstone
+  `private_batch_end_to_end` on that wiring, with `leaf_proof_sound` as its only axiom.
 -/
 import Plonky2Bridge.Complete
 import Plonky2Spec.Generated.PrivateBatchWrapper2
@@ -1231,3 +1233,40 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
   rwa [rows_leaves, rows_us] at this
 
 end Plonky2Bridge.Wrapper2
+
+namespace Plonky2Bridge
+
+open Plonky2Spec.Wiring
+open Plonky2Spec.Generated (privateBatchWrapper2)
+open Plonky2Spec.Poseidon2 (St)
+open WormholeSpec (RPrivateBatch maskedOutputTotal realLeaves realNullifiers rawOutputTotal
+  outputExitTotal RPrivateBatch_value_conservation RPrivateBatch_settles_distinct_spends
+  LeafWitness Rleaf LeafProofAccepted leaf_proof_sound)
+
+variable {p : ℕ} [Fact p.Prime]
+
+/-- **The capstone on the recorded wiring.** `private_batch_end_to_end` with its decode
+    hypotheses discharged by `Wrapper2.constraints`: a satisfying assignment of the `n = 2`
+    private-batch wrapper the `CircuitBuilder` emitted, whose `Poseidon2Gate` rows compute
+    `perm` and whose recursion gadgets accepted the two child leaf proofs, (i) satisfies
+    `RPrivateBatch` on the decoded children/preimages/output, (ii) conserves value,
+    (iii) settles only pairwise-distinct spends and (iv) attests every child's `Rleaf`. The
+    children's 32-bit ranges come from `Rleaf` through `leaf_proof_sound`, the one trusted
+    axiom; the wiring model and the exporter carry fidelity to the Rust. -/
+theorem private_batch_end_to_end_wired (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
+    (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a)
+    (hp : Poseidon2Rows perm (privateBatchWrapper2 p) a)
+    (hacc : ∀ pub ∈ Wrapper2.leaves a, LeafProofAccepted (spongeRO perm) pub) :
+    RPrivateBatch (spongeRO perm) (Wrapper2.leaves a) (Wrapper2.us a) (Wrapper2.out a)
+      ∧ outputExitTotal (Wrapper2.out a) = maskedOutputTotal (Wrapper2.leaves a)
+      ∧ (outputExitTotal (Wrapper2.out a) = rawOutputTotal (realLeaves (Wrapper2.leaves a))
+          ∧ (realNullifiers (Wrapper2.leaves a)).Nodup)
+      ∧ ∀ pub ∈ Wrapper2.leaves a, ∃ w : LeafWitness, Rleaf (spongeRO perm) pub w := by
+  have hleaf : ∀ pub ∈ Wrapper2.leaves a, ∃ w : LeafWitness, Rleaf (spongeRO perm) pub w :=
+    fun pub hq => leaf_proof_sound (spongeRO perm) pub (hacc pub hq)
+  have hR := Wrapper2.sound perm hpg a h hp fun q hq =>
+    let ⟨_, hw⟩ := hleaf q hq
+    Rleaf_ranges hw
+  exact ⟨hR, RPrivateBatch_value_conservation hR, RPrivateBatch_settles_distinct_spends hR, hleaf⟩
+
+end Plonky2Bridge

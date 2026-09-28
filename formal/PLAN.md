@@ -786,6 +786,11 @@ it. Pieces:
   private-batch spec was aligned with it (qp-zk-circuits #187; `Rleaf`'s header parse
   still pins the number to the hash up to a collision), and the pin here advanced past
   it, so `Wrapper2.sound` needs no block-number hypothesis.
+  `private_batch_end_to_end_wired` (same file) restates the Step-6 capstone on the wiring:
+  `Satisfies (privateBatchWrapper2 p) a`, `Poseidon2Rows perm`, and `LeafProofAccepted` for
+  the two decoded children give `RPrivateBatch`, value conservation, distinct spends and
+  the children's `Rleaf`; the ranges come from `Rleaf` via `leaf_proof_sound`, its only
+  axiom. It is gated in `ci/AxiomsCheck.lean` like `private_batch_end_to_end`.
 - **Next (8e):** carry the Step 8d statement to the `2^k`-ary trees the deployment uses
   (`n = 4, 8, …`): generalise `E`/`slot`/`rounds` to the trace's `N`, and let the exporter
   emit the projection list so `constraints` is generated rather than hand-indexed.
@@ -803,6 +808,7 @@ the same way (`public_batch_end_to_end`, Step 7a). The remaining gap is exactly
 (a) the residual **wiring/copy-constraint** model fidelity (§3 — gate constraints
 are exporter-backed and the wrapper *logic* is bridged, but the public-input
 **decode** that feeds the bridges its `hd`/`hnull`/`hexits`/… wire assignments
-is still hand-modeled; Step 8 closes it for the whole private-batch wrapper on `n = 2`
-— `Wrapper2.sound` — modulo the leaf ranges)
+was hand-modeled; Step 8 closes it for the whole private-batch wrapper on `n = 2`:
+`private_batch_end_to_end_wired` is the capstone stated on the exported wiring, with no
+decode hypotheses; the public-batch wrapper and larger `n` are still hand-modeled)
 and (b) the layer-1 assumptions (§7) — both explicit.
