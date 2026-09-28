@@ -791,7 +791,24 @@ it. Pieces:
   the two decoded children give `RPrivateBatch`, value conservation, distinct spends and
   the children's `Rleaf`; the ranges come from `Rleaf` via `leaf_proof_sound`, its only
   axiom. It is gated in `ci/AxiomsCheck.lean` like `private_batch_end_to_end`.
-- **Next (8e):** carry the Step 8d statement to the `2^k`-ary trees the deployment uses
+- **8f — the public-batch wrapper (done).** The same pipeline for
+  `build_public_batch_constraints` at `n_inner = 2` over `2`-leaf private batches: the
+  wrapper body is written against `GadgetBuilder` and
+  `public_batch_wrapper_n2_trace_is_current` records it (qp-zk-circuits #188,
+  `formal/traces/public_batch_wrapper_n2.json`: 15 arithmetic rows, 122 calls — no hashes,
+  no range checks); `generate_public_batch_wrapper_lean` emits
+  `Generated/PublicBatchWrapper2.lean` (`publicBatchWrapper2_decode`, ~34 s);
+  `Plonky2Bridge/PublicWrapper2.lean` reads the two `InnerRow`s, the inner outputs, the
+  `aggregator_address` witness and the aggregated output off the named targets and public
+  inputs and discharges every hypothesis of `public_batch_val`: the dummy checks, the
+  first-real scan (`scanRef_two` folds the two recorded `select`s), the header references,
+  the six `or(is_dummy, …) = 1` consistency checks, the 56 masked forwards, and
+  `total_exit_slots = 8` (the one place `goldilocks ≤ p` is needed, for `.val` of the
+  constant). `PublicWrapper2.sound` is axiom-free; `public_batch_end_to_end_wired`
+  restates the Step-7a capstone on the wiring with `PrivateBatchProofAccepted` for the two
+  decoded inners and `private_batch_proof_sound` as its only axiom, gated in
+  `ci/AxiomsCheck.lean`. The file checks in ~6 s.
+- **Next (8e):** carry the Step 8d/8f statements to the `2^k`-ary trees the deployment uses
   (`n = 4, 8, …`): generalise `E`/`slot`/`rounds` to the trace's `N`, and let the exporter
   emit the projection list so `constraints` is generated rather than hand-indexed.
 
@@ -808,7 +825,7 @@ the same way (`public_batch_end_to_end`, Step 7a). The remaining gap is exactly
 (a) the residual **wiring/copy-constraint** model fidelity (§3 — gate constraints
 are exporter-backed and the wrapper *logic* is bridged, but the public-input
 **decode** that feeds the bridges its `hd`/`hnull`/`hexits`/… wire assignments
-was hand-modeled; Step 8 closes it for the whole private-batch wrapper on `n = 2`:
-`private_batch_end_to_end_wired` is the capstone stated on the exported wiring, with no
-decode hypotheses; the public-batch wrapper and larger `n` are still hand-modeled)
+was hand-modeled; Step 8 closes it for both wrappers at `n = 2`:
+`private_batch_end_to_end_wired` and `public_batch_end_to_end_wired` are the capstones
+stated on the exported wiring, with no decode hypotheses; larger `n` is still hand-modeled)
 and (b) the layer-1 assumptions (§7) — both explicit.

@@ -48,4 +48,4 @@ name = "Plonky2Spec"
 [[lean_lib]]
 name = "Plonky2Bridge"
 roots = ["Plonky2Bridge", "Plonky2Bridge.PublicBatch", "Plonky2Bridge.Complete", "Plonky2Bridge.Wiring",
-  "Plonky2Bridge.Wrapper2"]
+  "Plonky2Bridge.Wrapper2", "Plonky2Bridge.PublicWrapper2"]

@@ -294,21 +294,51 @@ pub fn pinned_package_traces_dir() -> PathBuf {
 /// Build `formal/Plonky2Spec/Generated/PrivateBatchWrapper2.lean` from the recorded
 /// `n = 2` private-batch wrapper.
 pub fn generate_private_batch_wrapper_lean() -> Result<String, String> {
-    let t = load(&traces_dir().join("private_batch_wrapper_n2.json"))?;
-    if t.circuit != "private_batch_wrapper_n2" {
-        return Err(format!("unexpected trace circuit {:?}", t.circuit));
-    }
-    Ok(render_module(
+    generate_wrapper_lean(
+        "private_batch_wrapper_n2",
         "the `n = 2` private-batch wrapper trace\n\
          \x20 (`qp-zk-circuits/formal/traces/private_batch_wrapper_n2.json`, recorded by\n\
          \x20 `TracingBuilder` while `build_private_batch_constraints` ran on the real builder)",
+        "privateBatchWrapper2",
+        "The private-batch aggregation wrapper at `n = 2` without the leaf verifiers \
+         (`wormhole/aggregator/src/private_batch/circuit/circuit_logic.rs`): leaf \
+         public inputs `leaf_pis_0/1`, dummy-nullifier preimages `dummy_pre_image_0/1`, \
+         the permutation switch `switches`, and the aggregated public inputs.",
+    )
+}
+
+/// Build `formal/Plonky2Spec/Generated/PublicBatchWrapper2.lean` from the recorded
+/// `n_inner = 2` public-batch wrapper over `2`-leaf private batches.
+pub fn generate_public_batch_wrapper_lean() -> Result<String, String> {
+    generate_wrapper_lean(
+        "public_batch_wrapper_n2",
+        "the `n_inner = 2` public-batch wrapper trace\n\
+         \x20 (`qp-zk-circuits/formal/traces/public_batch_wrapper_n2.json`, recorded by\n\
+         \x20 `TracingBuilder` while `build_public_batch_constraints` ran on the real builder)",
+        "publicBatchWrapper2",
+        "The public-batch aggregation wrapper at `n_inner = 2` over `2`-leaf private batches, \
+         without the inner verifiers \
+         (`wormhole/aggregator/src/public_batch/circuit/circuit_logic.rs`): inner \
+         public inputs `inner_pis_0/1`, the `aggregator_address` witness, and the aggregated \
+         public inputs.",
+    )
+}
+
+fn generate_wrapper_lean(
+    circuit: &str,
+    source: &str,
+    name: &str,
+    doc: &str,
+) -> Result<String, String> {
+    let t = load(&traces_dir().join(format!("{circuit}.json")))?;
+    if t.circuit != circuit {
+        return Err(format!("unexpected trace circuit {:?}", t.circuit));
+    }
+    Ok(render_module(
+        source,
         &[GeneratedCircuit {
-            name: "privateBatchWrapper2".into(),
-            doc: "The private-batch aggregation wrapper at `n = 2` without the leaf verifiers \
-                  (`wormhole/aggregator/src/private_batch/circuit/circuit_logic.rs`): leaf \
-                  public inputs `leaf_pis_0/1`, dummy-nullifier preimages `dummy_pre_image_0/1`, \
-                  the permutation switch `switches`, and the aggregated public inputs."
-                .into(),
+            name: name.into(),
+            doc: doc.into(),
             ex: t.ex,
             calls: t.calls,
         }],
