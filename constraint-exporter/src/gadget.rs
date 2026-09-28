@@ -1058,7 +1058,10 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
     } else {
         let gs: Vec<String> = fs
             .chunks(FACT_GROUP)
-            .map(|g| format!("⟨{}⟩", g.join(", ")))
+            .map(|g| match g {
+                [f] => f.clone(),
+                _ => format!("⟨{}⟩", g.join(", ")),
+            })
             .collect();
         let _ = writeln!(out, "  exact ⟨{}⟩", gs.join(", "));
     }
@@ -1320,6 +1323,18 @@ pub fn build_no_facts() -> (Recorder, [Target; 2]) {
     (r, [x, y])
 }
 
+/// `FACT_GROUP + 1` recorded calls: `connect x y` repeated, so the decode theorem's last
+/// fact group holds a single fact. Returns `(recorder, x, y)`.
+pub fn build_fact_group_boundary() -> (Recorder, [Target; 2]) {
+    let mut r = Recorder::new(CircuitConfig::standard_recursion_config());
+    let x = r.add_virtual_target();
+    let y = r.add_virtual_target();
+    for _ in 0..=FACT_GROUP {
+        r.connect(x, y);
+    }
+    (r, [x, y])
+}
+
 fn named(names: &[&str], targets: &[Target]) -> Vec<(String, Vec<Target>)> {
     names
         .iter()
@@ -1378,9 +1393,17 @@ pub fn generate_gadget_edge_cases_lean() -> String {
         &r,
         named(&["x", "y"], &t),
     );
+    let (r, t) = build_fact_group_boundary();
+    let boundary = GeneratedCircuit::new(
+        "gadgetFactGroupBoundary",
+        "`FACT_GROUP + 1` recorded calls (`connect x y` repeated): the last fact group of the \
+         decode theorem is a single fact.",
+        &r,
+        named(&["x", "y"], &t),
+    );
     render_module(
         "gadget edge-case",
-        &[edge, fold, pinned, folds, single, none],
+        &[edge, fold, pinned, folds, single, none, boundary],
     )
 }
 

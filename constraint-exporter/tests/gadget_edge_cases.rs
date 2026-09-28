@@ -7,9 +7,10 @@
 
 use constraint_exporter::circuit::{check_satisfied, render_lean};
 use constraint_exporter::gadget::{
-    build_constant_fold, build_gadget_edge_cases, build_goldilocks_fold_mul,
-    build_goldilocks_fold_sub, build_identity_fold, build_no_facts, build_pinned_intermediate,
-    build_single_fact, generate_gadget_edge_cases_lean, render_decode_theorem, Fact,
+    build_constant_fold, build_fact_group_boundary, build_gadget_edge_cases,
+    build_goldilocks_fold_mul, build_goldilocks_fold_sub, build_identity_fold, build_no_facts,
+    build_pinned_intermediate, build_single_fact, generate_gadget_edge_cases_lean,
+    render_decode_theorem, Fact, FACT_GROUP,
 };
 use plonky2::field::goldilocks_field::GoldilocksField;
 use plonky2::field::types::Field;
@@ -241,6 +242,26 @@ fn one_and_zero_facts_assemble() {
     let lean = render_decode_theorem("t", &ex, &r.calls);
     assert!(
         lean.contains("(h : Satisfies (t p) a) : True :=\n  trivial\n"),
+        "{lean}"
+    );
+}
+
+/// A final fact group of one fact is supplied as that fact, not wrapped in `⟨…⟩` (Lean
+/// reads `⟨f⟩` as a constructor application for the fact's own type).
+#[test]
+fn singleton_final_fact_group_is_bare() {
+    let (r, _) = build_fact_group_boundary();
+    assert_eq!(r.calls.len(), FACT_GROUP + 1);
+    let ex = r.export(vec![]).unwrap();
+    let lean = render_decode_theorem("t", &ex, &r.calls);
+    let last = lean.lines().last().unwrap();
+    assert!(last.starts_with("  exact ⟨⟨f0, f1, "), "{last}");
+    assert!(
+        last.ends_with(&format!("f{}⟩, f{}⟩", FACT_GROUP - 1, FACT_GROUP)),
+        "{last}"
+    );
+    assert!(
+        lean.contains(") ∧\n    (a (.virt 0) = a (.virt 1)) := by\n"),
         "{lean}"
     );
 }

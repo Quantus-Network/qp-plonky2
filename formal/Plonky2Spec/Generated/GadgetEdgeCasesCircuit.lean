@@ -499,4 +499,161 @@ def gadgetNoFacts.y : Target := .virt 1
 theorem gadgetNoFacts_decode (a : Assignment p) (h : Satisfies (gadgetNoFacts p) a) : True :=
   trivial
 
+/-- `FACT_GROUP + 1` recorded calls (`connect x y` repeated): the last fact group of the decode theorem is a single fact. -/
+def gadgetFactGroupBoundary (p : ℕ) : Circuit p where
+  rows := [
+  ]
+  copies := [
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1)
+  ]
+  constants := [
+  ]
+  publicInputs := [
+  ]
+
+/-- Named target `x`. -/
+def gadgetFactGroupBoundary.x : Target := .virt 0
+
+/-- Named target `y`. -/
+def gadgetFactGroupBoundary.y : Target := .virt 1
+
+set_option maxHeartbeats 4000000 in
+/-- Every satisfying assignment of `gadgetFactGroupBoundary` has the meaning of each recorded gadget call. Generated at gadget-call granularity; see `gadget.rs`. -/
+theorem gadgetFactGroupBoundary_decode (a : Assignment p) (h : Satisfies (gadgetFactGroupBoundary p) a) :
+    (a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1)) ∧
+    (a (.virt 0) = a (.virt 1)) := by
+  have hcopy := h.2.1
+  simp only [gadgetFactGroupBoundary, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hcopy
+  obtain ⟨c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18, c19, c20, c21, c22, c23, c24, c25, c26, c27, c28, c29, c30, c31, c32⟩ := hcopy
+  have f0 : a (.virt 0) = a (.virt 1) := by
+    exact c0
+  have f1 : a (.virt 0) = a (.virt 1) := by
+    exact c1
+  have f2 : a (.virt 0) = a (.virt 1) := by
+    exact c2
+  have f3 : a (.virt 0) = a (.virt 1) := by
+    exact c3
+  have f4 : a (.virt 0) = a (.virt 1) := by
+    exact c4
+  have f5 : a (.virt 0) = a (.virt 1) := by
+    exact c5
+  have f6 : a (.virt 0) = a (.virt 1) := by
+    exact c6
+  have f7 : a (.virt 0) = a (.virt 1) := by
+    exact c7
+  have f8 : a (.virt 0) = a (.virt 1) := by
+    exact c8
+  have f9 : a (.virt 0) = a (.virt 1) := by
+    exact c9
+  have f10 : a (.virt 0) = a (.virt 1) := by
+    exact c10
+  have f11 : a (.virt 0) = a (.virt 1) := by
+    exact c11
+  have f12 : a (.virt 0) = a (.virt 1) := by
+    exact c12
+  have f13 : a (.virt 0) = a (.virt 1) := by
+    exact c13
+  have f14 : a (.virt 0) = a (.virt 1) := by
+    exact c14
+  have f15 : a (.virt 0) = a (.virt 1) := by
+    exact c15
+  have f16 : a (.virt 0) = a (.virt 1) := by
+    exact c16
+  have f17 : a (.virt 0) = a (.virt 1) := by
+    exact c17
+  have f18 : a (.virt 0) = a (.virt 1) := by
+    exact c18
+  have f19 : a (.virt 0) = a (.virt 1) := by
+    exact c19
+  have f20 : a (.virt 0) = a (.virt 1) := by
+    exact c20
+  have f21 : a (.virt 0) = a (.virt 1) := by
+    exact c21
+  have f22 : a (.virt 0) = a (.virt 1) := by
+    exact c22
+  have f23 : a (.virt 0) = a (.virt 1) := by
+    exact c23
+  have f24 : a (.virt 0) = a (.virt 1) := by
+    exact c24
+  have f25 : a (.virt 0) = a (.virt 1) := by
+    exact c25
+  have f26 : a (.virt 0) = a (.virt 1) := by
+    exact c26
+  have f27 : a (.virt 0) = a (.virt 1) := by
+    exact c27
+  have f28 : a (.virt 0) = a (.virt 1) := by
+    exact c28
+  have f29 : a (.virt 0) = a (.virt 1) := by
+    exact c29
+  have f30 : a (.virt 0) = a (.virt 1) := by
+    exact c30
+  have f31 : a (.virt 0) = a (.virt 1) := by
+    exact c31
+  have f32 : a (.virt 0) = a (.virt 1) := by
+    exact c32
+  exact ⟨⟨f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25, f26, f27, f28, f29, f30, f31⟩, f32⟩
+
 end Plonky2Spec.Generated

@@ -721,8 +721,8 @@ it. Pieces:
     `Generated/GadgetEdgeCasesCircuit.lean` (a gadget output pinned to zero, `is_equal`
     on constant operands where a check folds to a constant copy or onto `equal` itself,
     one output wire pinned twice via memoisation, an identity fold onto an earlier op,
-    an intermediate pinned after `is_equal` reused it, generic constant folds, and one-
-    and zero-fact theorems); the test suite
+    an intermediate pinned after `is_equal` reused it, generic constant folds, one-
+    and zero-fact theorems, and a theorem whose last fact group is a single fact); the test suite
     checks a real prover witness satisfies each export (exercising the `BaseSumGate<2>`
     arm) and every recorded fact, and that the checked-in Lean is current.
   - Poseidon2 rows are not part of a `Fact` yet: the wrapper's hashes will be stated via
