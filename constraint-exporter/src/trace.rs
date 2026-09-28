@@ -271,12 +271,22 @@ pub fn load(path: &Path) -> Result<LoadedTrace, String> {
     parse(&json)
 }
 
-/// The trace directory of the pinned `wormholeSpec` lake package, or `WORMHOLE_TRACES`
-/// when set (for developing against a local `qp-zk-circuits` checkout).
+/// The traces the exporter reads: `constraint-exporter/traces/`, a checked-in copy of
+/// `qp-zk-circuits/formal/traces/` at the `wormholeSpec` revision pinned in
+/// `formal/lakefile.toml`, so `cargo test` needs neither Lake nor the network.
+/// `WORMHOLE_TRACES` overrides the directory (for developing against a local
+/// `qp-zk-circuits` checkout). `vendored_trace_matches_pinned_package` checks the copy
+/// against the lake package whenever the latter has been fetched.
 pub fn traces_dir() -> PathBuf {
     if let Some(dir) = std::env::var_os("WORMHOLE_TRACES") {
         return PathBuf::from(dir);
     }
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("traces")
+}
+
+/// The same traces inside the `wormholeSpec` lake package, present only after
+/// `lake build`/`lake update` in `formal/`.
+pub fn pinned_package_traces_dir() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../formal/.lake/packages/wormholeSpec/formal/traces")
 }

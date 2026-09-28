@@ -742,9 +742,13 @@ it. Pieces:
   qp-zk-circuits #186), and a `TracingBuilder` (`common/src/formal_trace.rs`, dev-only)
   records each call with the rows and copies it emitted into
   `qp-zk-circuits/formal/traces/private_batch_wrapper_n2.json`, kept current by an
-  aggregator unit test. `trace.rs` here reads that file from the pinned `wormholeSpec`
-  lake package (`WORMHOLE_TRACES` overrides the directory for local development),
-  rebuilds the `CircuitExport` and `Call`s, and `export-constraints` writes
+  aggregator unit test. A copy of that file at the pinned `wormholeSpec` revision is
+  checked in as `constraint-exporter/traces/private_batch_wrapper_n2.json`, so the Rust
+  tests and `export-constraints` need neither Lake nor the network;
+  `vendored_trace_matches_pinned_package` compares it with the lake package whenever
+  `formal/.lake` has been populated, and `WORMHOLE_TRACES` overrides the directory for
+  developing against a local `qp-zk-circuits` checkout. `trace.rs` rebuilds the
+  `CircuitExport` and `Call`s from it, and `export-constraints` writes
   `Generated/PrivateBatchWrapper2.lean`: 65 rows (55 arithmetic, 6 `BaseSumGate<2>`,
   4 `Poseidon2Gate`), 2818 copies, 344 facts, ~4 minutes to check. The dummy-nullifier
   hashes are `Fact::Poseidon2`: `WiringSponge.poseidon2Row_hash4` turns `Poseidon2Rows
@@ -752,8 +756,10 @@ it. Pieces:
   `add(zero, ·)` folds, so the sponge's absorption is copy-only) into
   `a out_i = spongeHash perm [a x0, a x1, a x2, a x3] i`, so the decode theorem takes
   `(perm : St p → St p)` and `(hp : Poseidon2Rows perm (privateBatchWrapper2 p) a)`.
-  Bumping the pin: advance `rev` in `lakefile.toml`, `lake update wormholeSpec`, rerun
-  `export-constraints`; `wrapper_lean_is_current` fails until the Lean is regenerated.
+  Bumping the pin: advance `rev` in `lakefile.toml`, `lake update wormholeSpec`, copy
+  `.lake/packages/wormholeSpec/formal/traces/*.json` into `constraint-exporter/traces/`,
+  rerun `export-constraints`; `vendored_trace_matches_pinned_package` and
+  `wrapper_lean_is_current` fail until both are done.
 - **Next (8d):** compose `privateBatchWrapper2_decode` into `PrivateBatchConstraints`
   (`Plonky2Bridge/Complete.lean`): read the named leaf/dummy/switch targets and the
   aggregated public inputs off the export, and discharge `hsw`/`hb`/`hd`/`hdnull`/`hreal`

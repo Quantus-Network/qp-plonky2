@@ -1,15 +1,38 @@
-//! The recorded `n = 2` private-batch wrapper (`trace.rs`): the trace pinned through the
-//! `wormholeSpec` lake package parses into the export + calls the generator expects, and
-//! the checked-in `Generated/PrivateBatchWrapper2.lean` is what it generates. See
-//! `../formal/PLAN.md` Step 8c.
+//! The recorded `n = 2` private-batch wrapper (`trace.rs`): the vendored trace parses into
+//! the export + calls the generator expects, it matches the `wormholeSpec` lake package
+//! when that has been fetched, and the checked-in `Generated/PrivateBatchWrapper2.lean` is
+//! what it generates. See `../formal/PLAN.md` Step 8c.
 
 use constraint_exporter::circuit::GateKind;
 use constraint_exporter::gadget::{Fact, FACT_GROUP};
-use constraint_exporter::trace::{generate_private_batch_wrapper_lean, load, parse, traces_dir};
+use constraint_exporter::trace::{
+    generate_private_batch_wrapper_lean, load, parse, pinned_package_traces_dir, traces_dir,
+};
 use plonky2::iop::target::Target;
 
+const TRACE: &str = "private_batch_wrapper_n2.json";
+
 fn wrapper() -> constraint_exporter::trace::LoadedTrace {
-    load(&traces_dir().join("private_batch_wrapper_n2.json")).expect("pinned wrapper trace")
+    load(&traces_dir().join(TRACE)).expect("vendored wrapper trace")
+}
+
+/// The vendored copy must be the file at the pinned `wormholeSpec` revision. The lake
+/// package only exists after `lake build`/`lake update` in `formal/`, so this is a no-op
+/// on the Rust CI runners and bites locally and wherever Lean has been set up.
+#[test]
+fn vendored_trace_matches_pinned_package() {
+    let pinned = pinned_package_traces_dir().join(TRACE);
+    let Ok(expected) = std::fs::read(&pinned) else {
+        eprintln!("skipping: {} not fetched", pinned.display());
+        return;
+    };
+    let vendored = std::fs::read(traces_dir().join(TRACE)).unwrap();
+    assert!(
+        vendored == expected,
+        "constraint-exporter/traces/{TRACE} differs from the pinned wormholeSpec copy; \
+         `cp {} constraint-exporter/traces/` and rerun export-constraints",
+        pinned.display()
+    );
 }
 
 #[test]
