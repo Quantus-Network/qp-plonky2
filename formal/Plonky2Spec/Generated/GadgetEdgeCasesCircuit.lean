@@ -142,27 +142,56 @@ theorem gadgetEdgeCases_decode (a : Assignment p) (h : Satisfies (gadgetEdgeCase
     a (.wire 2 11) = a (.virt 10) * a (.wire 1 35) ∧
     a (.wire 2 11) = a (.virt 2) := by
   have hcopy := h.2.1
-  have hconst := h.2.2
-  simp only [gadgetEdgeCases, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hcopy hconst
+  simp only [gadgetEdgeCases, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hcopy
   obtain ⟨c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18, c19, c20, c21, c22, c23, c24, c25, c26, c27, c28, c29, c30, c31, c32, c33, c34, c35, c36, c37, c38, c39, c40, c41, c42, c43, c44, c45, c46, c47, c48, c49, c50, c51, c52, c53, c54⟩ := hcopy
+  have hconst := h.2.2
+  simp only [gadgetEdgeCases, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hconst
   obtain ⟨k0, k1⟩ := hconst
   have e_0_0 := arithEq_of_rows h (row := 0) (i := 0) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_0
+  simp only [← c0, ← c1, k1, ← c2] at e_0_0
   have e_1_0 := arithEq_of_rows h (row := 1) (i := 0) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_1_0
+  simp only [← c4, k1, ← c5, k1, ← c6] at e_1_0
   have e_1_1 := arithEq_of_rows h (row := 1) (i := 1) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_1_1
+  simp only [← c7, k0, ← c8, k1, ← c9] at e_1_1
   have e_1_2 := arithEq_of_rows h (row := 1) (i := 2) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_1_2
+  simp only [← c12, k1, ← c13, k1, ← c14] at e_1_2
   have e_1_3 := arithEq_of_rows h (row := 1) (i := 3) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_1_3
+  simp only [← c15, ← c16, k1, ← c17] at e_1_3
   have e_1_4 := arithEq_of_rows h (row := 1) (i := 4) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_1_4
+  simp only [← c20, k1, ← c21, k1, ← c22] at e_1_4
   have e_1_5 := arithEq_of_rows h (row := 1) (i := 5) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_1_5
+  simp only [← c23, ← c24, k1, ← c25] at e_1_5
   have e_2_0 := arithEq_of_rows h (row := 2) (i := 0) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_2_0
+  simp only [← c26, ← c27, ← c28] at e_2_0
   have e_2_1 := arithEq_of_rows h (row := 2) (i := 1) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_2_1
+  simp only [← c29, ← c30, ← c31] at e_2_1
   have e_1_6 := arithEq_of_rows h (row := 1) (i := 6) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_1_6
+  simp only [← c32, ← c33, k1, ← c34] at e_1_6
   have e_1_7 := arithEq_of_rows h (row := 1) (i := 7) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_1_7
+  simp only [← c37, k1, ← c38, k1, ← c39] at e_1_7
   have e_1_8 := arithEq_of_rows h (row := 1) (i := 8) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_1_8
+  simp only [← c40, ← c41, k1, ← c42] at e_1_8
   have e_2_2 := arithEq_of_rows h (row := 2) (i := 2) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_2_2
+  simp only [← c43, ← c44, ← c45] at e_2_2
   have e_2_3 := arithEq_of_rows h (row := 2) (i := 3) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_2_3
+  simp only [← c46, ← c47, ← c48] at e_2_3
   have e_1_9 := arithEq_of_rows h (row := 1) (i := 9) rfl (by norm_num)
-  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_0 e_1_0 e_1_1 e_1_2 e_1_3 e_1_4 e_1_5 e_2_0 e_2_1 e_1_6 e_1_7 e_1_8 e_2_2 e_2_3 e_1_9
-  simp only [← c0, ← c1, ← c2, ← c4, ← c5, ← c6, ← c7, ← c8, ← c9, ← c12, ← c13, ← c14, ← c15, ← c16, ← c17, ← c20, ← c21, ← c22, ← c23, ← c24, ← c25, ← c26, ← c27, ← c28, ← c29, ← c30, ← c31, ← c32, ← c33, ← c34, ← c37, ← c38, ← c39, ← c40, ← c41, ← c42, ← c43, ← c44, ← c45, ← c46, ← c47, ← c48, ← c49, ← c50, ← c51, k0, k1] at e_0_0 e_1_0 e_1_1 e_1_2 e_1_3 e_1_4 e_1_5 e_2_0 e_2_1 e_1_6 e_1_7 e_1_8 e_2_2 e_2_3 e_1_9
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_1_9
+  simp only [← c49, ← c50, k1, ← c51] at e_1_9
   have f0 : a (.wire 0 3) = a (.virt 0) + a (.virt 1) := by
     have hr := e_0_0
     linear_combination hr
@@ -246,13 +275,14 @@ theorem gadgetIdentityFold_decode (a : Assignment p) (h : Satisfies (gadgetIdent
     a (.wire 0 3) = a (.virt 0) + a (.virt 1) ∧
     a (.wire 0 3) = a (.wire 0 3) * a (.virt 2) := by
   have hcopy := h.2.1
-  have hconst := h.2.2
-  simp only [gadgetIdentityFold, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hcopy hconst
+  simp only [gadgetIdentityFold, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hcopy
   obtain ⟨c0, c1, c2⟩ := hcopy
+  have hconst := h.2.2
+  simp only [gadgetIdentityFold, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hconst
   obtain ⟨k0, k1⟩ := hconst
   have e_0_0 := arithEq_of_rows h (row := 0) (i := 0) rfl (by norm_num)
   norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_0
-  simp only [← c0, ← c1, ← c2, k0, k1] at e_0_0
+  simp only [← c0, ← c1, k1, ← c2] at e_0_0
   have f0 : a (.wire 0 3) = a (.virt 0) + a (.virt 1) := by
     have hr := e_0_0
     linear_combination hr
@@ -315,17 +345,26 @@ theorem gadgetPinnedIntermediate_decode (a : Assignment p) (h : Satisfies (gadge
     IsEqual (a (.virt 0)) (a (.virt 1)) (a (.virt 4)) (a (.virt 5)) ∧
     a (.wire 0 3) = a (.virt 2) := by
   have hcopy := h.2.1
-  have hconst := h.2.2
-  simp only [gadgetPinnedIntermediate, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hcopy hconst
+  simp only [gadgetPinnedIntermediate, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hcopy
   obtain ⟨c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17⟩ := hcopy
+  have hconst := h.2.2
+  simp only [gadgetPinnedIntermediate, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hconst
   obtain ⟨k0, k1⟩ := hconst
   have e_0_0 := arithEq_of_rows h (row := 0) (i := 0) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_0
+  simp only [← c0, ← c1, k1, ← c2] at e_0_0
   have e_0_1 := arithEq_of_rows h (row := 0) (i := 1) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_1
+  simp only [← c3, k1, ← c4, k1, ← c5] at e_0_1
   have e_1_0 := arithEq_of_rows h (row := 1) (i := 0) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_1_0
+  simp only [← c6, ← c7, ← c8] at e_1_0
   have e_1_1 := arithEq_of_rows h (row := 1) (i := 1) rfl (by norm_num)
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_1_1
+  simp only [← c9, ← c10, ← c11] at e_1_1
   have e_0_2 := arithEq_of_rows h (row := 0) (i := 2) rfl (by norm_num)
-  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_0 e_0_1 e_1_0 e_1_1 e_0_2
-  simp only [← c0, ← c1, ← c2, ← c3, ← c4, ← c5, ← c6, ← c7, ← c8, ← c9, ← c10, ← c11, ← c12, ← c13, ← c14, k0, k1] at e_0_0 e_0_1 e_1_0 e_1_1 e_0_2
+  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_2
+  simp only [← c12, ← c13, k1, ← c14] at e_0_2
   have f0 : a (.wire 0 3) = a (.virt 0) - a (.virt 1) := by
     have hr := e_0_0
     linear_combination hr
@@ -382,9 +421,8 @@ theorem gadgetConstantFold_decode (a : Assignment p) (h : Satisfies (gadgetConst
     a (.virt 3) = a (.virt 1) * a (.virt 1) ∧
     a (.virt 5) = a (.virt 1) + a (.virt 2) ∧
     a (.virt 6) = a (.virt 0) - a (.virt 2) := by
-  have hcopy := h.2.1
   have hconst := h.2.2
-  simp only [gadgetConstantFold, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hcopy hconst
+  simp only [gadgetConstantFold, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hconst
   obtain ⟨k0, k1, k2, k3, k4, k5, k6⟩ := hconst
   have f0 : a (.virt 3) = a (.virt 1) * a (.virt 1) := by
     simp only [k2, k5]
@@ -427,13 +465,14 @@ def gadgetSingleFact.sum : Target := .wire 0 3
 theorem gadgetSingleFact_decode (a : Assignment p) (h : Satisfies (gadgetSingleFact p) a) :
     a (.wire 0 3) = a (.virt 0) + a (.virt 1) := by
   have hcopy := h.2.1
-  have hconst := h.2.2
-  simp only [gadgetSingleFact, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hcopy hconst
+  simp only [gadgetSingleFact, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hcopy
   obtain ⟨c0, c1, c2⟩ := hcopy
+  have hconst := h.2.2
+  simp only [gadgetSingleFact, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hconst
   obtain ⟨k0, k1⟩ := hconst
   have e_0_0 := arithEq_of_rows h (row := 0) (i := 0) rfl (by norm_num)
   norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_0
-  simp only [← c0, ← c1, ← c2, k0, k1] at e_0_0
+  simp only [← c0, ← c1, k1, ← c2] at e_0_0
   have f0 : a (.wire 0 3) = a (.virt 0) + a (.virt 1) := by
     have hr := e_0_0
     linear_combination hr
@@ -459,5 +498,162 @@ def gadgetNoFacts.y : Target := .virt 1
 /-- Every satisfying assignment of `gadgetNoFacts` has the meaning of each recorded gadget call. Generated at gadget-call granularity; see `gadget.rs`. -/
 theorem gadgetNoFacts_decode (a : Assignment p) (h : Satisfies (gadgetNoFacts p) a) : True :=
   trivial
+
+/-- `FACT_GROUP + 1` recorded calls (`connect x y` repeated): the last fact group of the decode theorem is a single fact. -/
+def gadgetFactGroupBoundary (p : ℕ) : Circuit p where
+  rows := [
+  ]
+  copies := [
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1),
+    (.virt 0, .virt 1)
+  ]
+  constants := [
+  ]
+  publicInputs := [
+  ]
+
+/-- Named target `x`. -/
+def gadgetFactGroupBoundary.x : Target := .virt 0
+
+/-- Named target `y`. -/
+def gadgetFactGroupBoundary.y : Target := .virt 1
+
+set_option maxHeartbeats 4000000 in
+/-- Every satisfying assignment of `gadgetFactGroupBoundary` has the meaning of each recorded gadget call. Generated at gadget-call granularity; see `gadget.rs`. -/
+theorem gadgetFactGroupBoundary_decode (a : Assignment p) (h : Satisfies (gadgetFactGroupBoundary p) a) :
+    (a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1) ∧
+    a (.virt 0) = a (.virt 1)) ∧
+    (a (.virt 0) = a (.virt 1)) := by
+  have hcopy := h.2.1
+  simp only [gadgetFactGroupBoundary, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hcopy
+  obtain ⟨c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18, c19, c20, c21, c22, c23, c24, c25, c26, c27, c28, c29, c30, c31, c32⟩ := hcopy
+  have f0 : a (.virt 0) = a (.virt 1) := by
+    exact c0
+  have f1 : a (.virt 0) = a (.virt 1) := by
+    exact c1
+  have f2 : a (.virt 0) = a (.virt 1) := by
+    exact c2
+  have f3 : a (.virt 0) = a (.virt 1) := by
+    exact c3
+  have f4 : a (.virt 0) = a (.virt 1) := by
+    exact c4
+  have f5 : a (.virt 0) = a (.virt 1) := by
+    exact c5
+  have f6 : a (.virt 0) = a (.virt 1) := by
+    exact c6
+  have f7 : a (.virt 0) = a (.virt 1) := by
+    exact c7
+  have f8 : a (.virt 0) = a (.virt 1) := by
+    exact c8
+  have f9 : a (.virt 0) = a (.virt 1) := by
+    exact c9
+  have f10 : a (.virt 0) = a (.virt 1) := by
+    exact c10
+  have f11 : a (.virt 0) = a (.virt 1) := by
+    exact c11
+  have f12 : a (.virt 0) = a (.virt 1) := by
+    exact c12
+  have f13 : a (.virt 0) = a (.virt 1) := by
+    exact c13
+  have f14 : a (.virt 0) = a (.virt 1) := by
+    exact c14
+  have f15 : a (.virt 0) = a (.virt 1) := by
+    exact c15
+  have f16 : a (.virt 0) = a (.virt 1) := by
+    exact c16
+  have f17 : a (.virt 0) = a (.virt 1) := by
+    exact c17
+  have f18 : a (.virt 0) = a (.virt 1) := by
+    exact c18
+  have f19 : a (.virt 0) = a (.virt 1) := by
+    exact c19
+  have f20 : a (.virt 0) = a (.virt 1) := by
+    exact c20
+  have f21 : a (.virt 0) = a (.virt 1) := by
+    exact c21
+  have f22 : a (.virt 0) = a (.virt 1) := by
+    exact c22
+  have f23 : a (.virt 0) = a (.virt 1) := by
+    exact c23
+  have f24 : a (.virt 0) = a (.virt 1) := by
+    exact c24
+  have f25 : a (.virt 0) = a (.virt 1) := by
+    exact c25
+  have f26 : a (.virt 0) = a (.virt 1) := by
+    exact c26
+  have f27 : a (.virt 0) = a (.virt 1) := by
+    exact c27
+  have f28 : a (.virt 0) = a (.virt 1) := by
+    exact c28
+  have f29 : a (.virt 0) = a (.virt 1) := by
+    exact c29
+  have f30 : a (.virt 0) = a (.virt 1) := by
+    exact c30
+  have f31 : a (.virt 0) = a (.virt 1) := by
+    exact c31
+  have f32 : a (.virt 0) = a (.virt 1) := by
+    exact c32
+  exact ⟨⟨f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25, f26, f27, f28, f29, f30, f31⟩, f32⟩
 
 end Plonky2Spec.Generated
