@@ -3200,7 +3200,7 @@ def privateBatchWrapper2.copies88 : List (Target × Target) := [
     (.wire 64 11, .wire 64 14)
   ]
 
-/-- The private-batch aggregation wrapper at `n = 2` without the leaf verifiers (`wormhole/aggregator/src/private_batch/circuit/circuit_logic.rs`): leaf public inputs `leaf_pis_0/1`, dummy-nullifier preimages `dummy_pre_image_0/1`, the permutation switch `switches`, and the aggregated public inputs. -/
+/-- The private-batch aggregation wrapper at `n = 2` without the leaf verifiers (`wormhole/aggregator/src/private_batch/circuit/circuit_logic.rs`): leaf public inputs `leaf_pis_0..1`, dummy-nullifier preimages `dummy_pre_image_0..1`, the permutation switches `switches`, and the aggregated public inputs. -/
 def privateBatchWrapper2 (p : ℕ) : Circuit p where
   rows := [
     ⟨.arithmetic 15, [1, (-1)]⟩,  -- row 0

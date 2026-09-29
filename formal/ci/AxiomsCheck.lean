@@ -18,7 +18,7 @@
 -/
 import Plonky2Bridge
 import Plonky2Bridge.PublicBatch
-import Plonky2Bridge.Wrapper2
+import Plonky2Bridge.PrivateWrapper
 import Plonky2Bridge.PublicWrapper
 
 #print axioms Plonky2Bridge.private_batch_end_to_end
