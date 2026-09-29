@@ -84,8 +84,8 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           cargo run --release -p qp-plonky2-constraint-exporter --bin export-constraints >/dev/null
-          git diff --exit-code -- formal/Plonky2Spec/Generated/ \
-            || (echo "::error::formal/Plonky2Spec/Generated/ is stale; rerun the exporter" && exit 1)
+          git diff --exit-code -- formal/Plonky2Spec/Generated/ formal/Plonky2Bridge/Generated/ \
+            || (echo "::error::formal/*/Generated/ is stale; rerun the exporter" && exit 1)
 
   analysis:
     name: 🤖 Analysis (Doc)
@@ -202,6 +202,7 @@ jobs:
           check Plonky2Bridge.public_batch_end_to_end WormholeSpec.private_batch_proof_sound
           check Plonky2Bridge.private_batch_end_to_end_wired WormholeSpec.leaf_proof_sound
           check Plonky2Bridge.public_batch_end_to_end_wired WormholeSpec.private_batch_proof_sound
+          check Plonky2Bridge.public_batch_end_to_end_wired_n4 WormholeSpec.private_batch_proof_sound
 
   security-audit:
     name: 🔒 Security Audit
