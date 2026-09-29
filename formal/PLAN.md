@@ -808,9 +808,26 @@ it. Pieces:
   restates the Step-7a capstone on the wiring with `PrivateBatchProofAccepted` for the two
   decoded inners and `private_batch_proof_sound` as its only axiom, gated in
   `ci/AxiomsCheck.lean`. The file checks in ~6 s.
-- **Next (8e):** carry the Step 8d/8f statements to the `2^k`-ary trees the deployment uses
-  (`n = 4, 8, …`): generalise `E`/`slot`/`rounds` to the trace's `N`, and let the exporter
-  emit the projection list so `constraints` is generated rather than hand-indexed.
+- **8e — generated bridges, larger `n` (public wrapper done).** The Step 8f composition is
+  no longer hand-indexed: `constraint-exporter/src/public_wrapper.rs` reads a recorded
+  public-batch trace, indexes its gadget calls *positionally* by the fixed order
+  `build_public_batch_constraints` emits them in (per-inner dummy checks, the first-real
+  scan, per-inner consistency checks, masked forwards) and checks every call against its
+  role — which named targets it reads, which constants, how outputs chain, that inner 0's
+  `not(false)`/`and(·, one)`/`or(false, ·)` folded — so a structural change to the wrapper
+  is a generator error, not a proof about other wires (`shape_rejects_perturbed_traces`).
+  It then emits `Plonky2Bridge/Generated/PublicWrapper{N}.lean`: the decode defs, a
+  concrete-`N` unfolding `scanRef_N` of the prefix scan, the projection list, and `sound` /
+  `end_to_end_wired` proofs in the Step 8f shape. Traces at `n_inner = 2` and `4`
+  (qp-zk-circuits #189) both go through unchanged: the `N = 4` decode has 244 facts
+  (~3 min), its bridge checks in ~16 s. `Plonky2Bridge/PublicWrapper.lean` aliases the
+  capstones (`public_batch_end_to_end_wired`, `public_batch_end_to_end_wired_n4`) for the
+  axiom gate; `wrapper_lean_is_current` covers all four generated files and CI diffs
+  `Plonky2Bridge/Generated/` too.
+- **Next (8e, private wrapper):** the same for `privateBatchWrapper{N}`: the sorting
+  network (`N log N` switches), the `2N`-candidate exit-slot dedup and the uniqueness tree
+  each need a role finder and a generic lemma in the shape of `exit_slot_val`, so
+  `Wrapper2.constraints` becomes generated too.
 
 ## 9. Definition of done
 
@@ -825,7 +842,9 @@ the same way (`public_batch_end_to_end`, Step 7a). The remaining gap is exactly
 (a) the residual **wiring/copy-constraint** model fidelity (§3 — gate constraints
 are exporter-backed and the wrapper *logic* is bridged, but the public-input
 **decode** that feeds the bridges its `hd`/`hnull`/`hexits`/… wire assignments
-was hand-modeled; Step 8 closes it for both wrappers at `n = 2`:
-`private_batch_end_to_end_wired` and `public_batch_end_to_end_wired` are the capstones
-stated on the exported wiring, with no decode hypotheses; larger `n` is still hand-modeled)
+was hand-modeled; Step 8 closes it for the private-batch wrapper at `n = 2` and for the
+public-batch wrapper at every recorded `n_inner` (`2`, `4`, bridge generated from the
+trace): `private_batch_end_to_end_wired` and `public_batch_end_to_end_wired{,_n4}` are the
+capstones stated on the exported wiring, with no decode hypotheses; the private wrapper at
+larger `n` is still hand-modeled)
 and (b) the layer-1 assumptions (§7) — both explicit.

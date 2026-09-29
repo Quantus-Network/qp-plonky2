@@ -104,6 +104,10 @@ def scanRef (rows : List (InnerPair p)) (f : InnerPair p → ZMod p) : ZMod p :=
 def blockRef (rows : List (InnerPair p)) : Digest4 p :=
   fun j => scanRef rows (fun t => t.1.blockHash j)
 
+theorem bnot_zero : bnot (0 : ZMod p) = 1 := by simp [bnot]
+theorem bor_zero_left (x : ZMod p) : bor 0 x = x := by simp [bor]
+theorem band_one_right (x : ZMod p) : band x 1 = x := by simp [band]
+
 theorem firstRealVal_find? (f : InnerPair p → ZMod p) (init : ZMod p) :
     ∀ rows : List (InnerPair p), (∀ t ∈ rows, IsBool t.1.isDummy) →
     (∀ t ∈ rows, t.1.isDummy = 1 ↔ isDummyInner t.2) →
