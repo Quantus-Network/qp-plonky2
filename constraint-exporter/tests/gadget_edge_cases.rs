@@ -121,12 +121,14 @@ fn identity_fold_is_proved_as_identity() {
     assert!(r.calls[1].rows.is_empty() && r.calls[1].copies.is_empty());
     let ex = r.export(vec![]).unwrap();
     let lean = render_decode_theorem("t", &ex, &r.calls);
-    let f1 = &lean[lean.find("have f1").unwrap()..];
+    let f1 = &lean[lean.find("theorem t_f1 ").unwrap()..lean.find("/--").unwrap()];
     assert!(f1.starts_with(
-        "have f1 : a (.wire 0 3) = a (.wire 0 3) * a (.virt 2) := by
-    simp only [k"
+        "theorem t_f1 (a : Assignment p) (h : Satisfies (t p) a) :
+    a (.wire 0 3) = a (.wire 0 3) * a (.virt 2) := by
+  obtain ⟨k0, k1⟩ := t_consts a h
+  simp only [k"
     ));
-    assert!(!f1[..f1.find("exact").unwrap()].contains("hr"), "{f1}");
+    assert!(!f1.contains("hr"), "{f1}");
 
     let data = r.builder.build::<PoseidonGoldilocksConfig>();
     let mut pw = PartialWitness::new();
@@ -159,7 +161,7 @@ fn pinned_intermediate_keeps_its_definition() {
     let lean = render_decode_theorem("t", &ex, &r.calls);
     // Both equality checks unfold `diff` through its op (`e_0_0`) and close against their
     // own pins; `diff`'s own pin is not what proves them.
-    let f1 = &lean[lean.find("have f1").unwrap()..lean.find("have f2").unwrap()];
+    let f1 = &lean[lean.find("theorem t_f1 ").unwrap()..lean.find("theorem t_f2 ").unwrap()];
     assert_eq!(f1.matches("simp only [e_0_0] at hc").count(), 1, "{f1}");
     assert!(f1.contains("simp only [e_0_1, e_1_1, e_0_0] at hc"), "{f1}");
     assert_eq!(f1.matches(".trans k0 - hc").count(), 2, "{f1}");
@@ -194,7 +196,7 @@ fn constant_folds_are_identities_over_the_integers() {
     assert_eq!(value(neg5), Some(-F::from_canonical_u64(5)));
     assert!(render_lean("t", "", &ex).contains("(.virt 6, (-5))"));
     let lean = render_decode_theorem("t", &ex, &r.calls);
-    assert_eq!(lean.matches("    ring\n").count(), 3, "{lean}");
+    assert_eq!(lean.matches("  ring\n").count(), 3, "{lean}");
     assert!(!lean.contains("hr"), "{lean}");
     let _ = (zero, three, five);
 }
@@ -227,14 +229,14 @@ fn goldilocks_only_sub_fold_is_rejected() {
     render_decode_theorem("t", &ex, &r.calls);
 }
 
-/// One fact closes with `exact f0`; no facts states `True`.
+/// One fact is supplied bare; no facts states `True`.
 #[test]
 fn one_and_zero_facts_assemble() {
     let (r, _) = build_single_fact();
     let ex = r.export(vec![]).unwrap();
     let lean = render_decode_theorem("t", &ex, &r.calls);
-    assert!(lean.ends_with("  exact f0\n"), "{lean}");
-    assert!(!lean.contains("exact ⟨"), "{lean}");
+    assert!(lean.ends_with(" :=\n  t_f0 a h\n"), "{lean}");
+    assert!(!lean.contains("⟨t_f0"), "{lean}");
 
     let (r, _) = build_no_facts();
     let ex = r.export(vec![]).unwrap();
@@ -255,13 +257,17 @@ fn singleton_final_fact_group_is_bare() {
     let ex = r.export(vec![]).unwrap();
     let lean = render_decode_theorem("t", &ex, &r.calls);
     let last = lean.lines().last().unwrap();
-    assert!(last.starts_with("  exact ⟨⟨f0, f1, "), "{last}");
+    assert!(last.starts_with("  ⟨⟨t_f0 a h, t_f1 a h, "), "{last}");
     assert!(
-        last.ends_with(&format!("f{}⟩, f{}⟩", FACT_GROUP - 1, FACT_GROUP)),
+        last.ends_with(&format!(
+            "t_f{} a h⟩, t_f{} a h⟩",
+            FACT_GROUP - 1,
+            FACT_GROUP
+        )),
         "{last}"
     );
     assert!(
-        lean.contains(") ∧\n    (a (.virt 0) = a (.virt 1)) := by\n"),
+        lean.contains(") ∧\n    (a (.virt 0) = a (.virt 1)) :=\n"),
         "{lean}"
     );
 }
