@@ -35,7 +35,7 @@ version = "git#v4.30.0"
 [[require]]
 name = "wormholeSpec"
 git = "https://github.com/Quantus-Network/qp-zk-circuits.git"
-rev = "de7e1b189ef21b19d18e76a2a7c06a630408152b"
+rev = "fe539306794567db73f58aae379d0d025a53992b"
 subDir = "formal"
 
 [[lean_lib]]
