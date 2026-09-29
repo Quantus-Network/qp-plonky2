@@ -109,7 +109,7 @@ jobs:
   formal-spec:
     name: 📐 Formal Spec (Lean)
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       # Builds the Lean 4 gadget→constraint model under `formal/` (see formal/PLAN.md).
@@ -144,12 +144,13 @@ jobs:
   # `Plonky2Bridge.public_batch_end_to_end`) live outside `defaultTargets`, so the
   # `formal-spec` job above never compiles them. This job builds the cross-package bridge
   # (wormholeSpec pinned in lake-manifest.json) and asserts each capstone's axiom footprint
-  # is exactly the standard Lean axioms plus its one trusted `WormholeSpec` axiom — not
-  # e.g. `sorryAx`, `Lean.ofReduceBool`, or a silent compile failure.
+  # is exactly the standard Lean axioms plus its one trusted `WormholeSpec` axiom (none for
+  # the leaf capstone, the base of the recursion) — not e.g. `sorryAx`,
+  # `Lean.ofReduceBool`, or a silent compile failure.
   formal-bridge:
     name: 📐 Formal Bridge (Lean)
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - name: Prepare Lean toolchain + mathlib cache
@@ -211,6 +212,8 @@ jobs:
           check Plonky2Bridge.Wrapper4.sound
           check Plonky2Bridge.PublicWrapper2.sound
           check Plonky2Bridge.PublicWrapper4.sound
+          check Plonky2Bridge.leaf_wired
+          check Plonky2Bridge.LeafCircuit.sound
 
   security-audit:
     name: 🔒 Security Audit
