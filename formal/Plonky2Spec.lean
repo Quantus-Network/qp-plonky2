@@ -71,8 +71,8 @@
                              `Generated.PrivateBatchWrapper2` is the real `n = 2`
                              private-batch wrapper, decoded from the gadget-call
                              trace recorded in qp-zk-circuits (Step 8c), and
-                             `Generated.PublicBatchWrapper2` the `n_inner = 2`
-                             public-batch wrapper over it (Step 8f)
+                             `Generated.PublicBatchWrapper{2,4}` the `n_inner = 2, 4`
+                             public-batch wrappers over it (Steps 8f, 8e)
 
   Methodology follows Zellic's *Formal Verification of a Plonky2 Gate*: each gadget
   separates an `Assumptions` side-condition (what the surrounding circuit must
@@ -103,3 +103,4 @@ import Plonky2Spec.Generated.GadgetEdgeCasesCircuit
 import Plonky2Spec.WiringSponge
 import Plonky2Spec.Generated.PrivateBatchWrapper2
 import Plonky2Spec.Generated.PublicBatchWrapper2
+import Plonky2Spec.Generated.PublicBatchWrapper4

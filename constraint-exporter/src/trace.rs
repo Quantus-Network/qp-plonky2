@@ -331,20 +331,25 @@ pub fn generate_private_batch_wrapper_lean() -> Result<String, String> {
     )
 }
 
-/// Build `formal/Plonky2Spec/Generated/PublicBatchWrapper2.lean` from the recorded
-/// `n_inner = 2` public-batch wrapper over `2`-leaf private batches.
-pub fn generate_public_batch_wrapper_lean() -> Result<String, String> {
+/// Build `formal/Plonky2Spec/Generated/PublicBatchWrapper{n}.lean` from the recorded
+/// `n_inner = n` public-batch wrapper over `2`-leaf private batches.
+pub fn generate_public_batch_wrapper_lean(n: usize) -> Result<String, String> {
     generate_wrapper_lean(
-        "public_batch_wrapper_n2",
-        "the `n_inner = 2` public-batch wrapper trace\n\
-         \x20 (`qp-zk-circuits/formal/traces/public_batch_wrapper_n2.json`, recorded by\n\
-         \x20 `TracingBuilder` while `build_public_batch_constraints` ran on the real builder)",
-        "publicBatchWrapper2",
-        "The public-batch aggregation wrapper at `n_inner = 2` over `2`-leaf private batches, \
-         without the inner verifiers \
-         (`wormhole/aggregator/src/public_batch/circuit/circuit_logic.rs`): inner \
-         public inputs `inner_pis_0/1`, the `aggregator_address` witness, and the aggregated \
-         public inputs.",
+        &format!("public_batch_wrapper_n{n}"),
+        &format!(
+            "the `n_inner = {n}` public-batch wrapper trace\n\
+             \x20 (`qp-zk-circuits/formal/traces/public_batch_wrapper_n{n}.json`, recorded by\n\
+             \x20 `TracingBuilder` while `build_public_batch_constraints` ran on the real builder)"
+        ),
+        &format!("publicBatchWrapper{n}"),
+        &format!(
+            "The public-batch aggregation wrapper at `n_inner = {n}` over `2`-leaf private \
+             batches, without the inner verifiers \
+             (`wormhole/aggregator/src/public_batch/circuit/circuit_logic.rs`): inner \
+             public inputs `inner_pis_0..{}`, the `aggregator_address` witness, and the \
+             aggregated public inputs.",
+            n - 1
+        ),
     )
 }
 
