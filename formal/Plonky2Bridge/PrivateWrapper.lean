@@ -9,10 +9,14 @@
   `ci/AxiomsCheck.lean`; the aliases carry the generated statements verbatim.
 -/
 import Plonky2Bridge.Generated.Wrapper2
+import Plonky2Bridge.Generated.Wrapper4
 
 namespace Plonky2Bridge
 
 /-- `private_batch_end_to_end` on the `n = 2` wiring (`Wrapper2.end_to_end_wired`). -/
 alias private_batch_end_to_end_wired := Wrapper2.end_to_end_wired
+
+/-- `private_batch_end_to_end` on the `n = 4` wiring (`Wrapper4.end_to_end_wired`). -/
+alias private_batch_end_to_end_wired_n4 := Wrapper4.end_to_end_wired
 
 end Plonky2Bridge

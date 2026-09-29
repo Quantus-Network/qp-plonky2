@@ -12,7 +12,7 @@
 //! quietly talks about different wires. [`render`] then emits the decode definitions (`row`,
 //! `out`, `cands`, `slots`, `rounds`, …), the concrete-`N` unfolding of `scanRefL`, and a
 //! `sound` proof that discharges every hypothesis of `Plonky2Bridge.private_batch_val_rows`
-//! by rewriting with the facts of the exporter-generated `privateBatchWrapper{N}_decode`.
+//! by rewriting with the exporter-generated per-call decode lemmas `privateBatchWrapper{N}_f{k}`.
 
 use core::fmt::Write as _;
 
@@ -20,7 +20,7 @@ use plonky2::field::types::PrimeField64;
 use plonky2::iop::target::Target;
 
 use crate::circuit::lean_target;
-use crate::gadget::{Call, Fact, FACT_GROUP};
+use crate::gadget::{Call, Fact};
 use crate::trace::{load, traces_dir, LoadedTrace};
 
 /// The leaf public-input layout (`wormhole/aggregator/src/private_batch/circuit/constants.rs`).
@@ -881,24 +881,14 @@ impl Shape {
         }
     }
 
-    /// `hf.2.….1` projection path of fact `k` in the grouped decode conjunction.
+    /// The per-call decode lemma of fact `k`, applied to the wrapper hypotheses.
     fn projection(&self, k: usize) -> String {
-        let total = self.calls.len();
-        let groups = total.div_ceil(FACT_GROUP);
-        let (g, j) = (k / FACT_GROUP, k % FACT_GROUP);
-        let group_len = (total - g * FACT_GROUP).min(FACT_GROUP);
-        let mut path = String::from("hf");
-        if groups > 1 {
-            path.push_str(&".2".repeat(g));
-            if g + 1 < groups {
-                path.push_str(".1");
-            }
+        let name = format!("privateBatchWrapper{}_f{k}", self.n);
+        if self.fact(k).is_poseidon2() {
+            format!("{name} perm a h hp")
+        } else {
+            format!("{name} a h")
         }
-        path.push_str(&".2".repeat(j));
-        if j + 1 < group_len {
-            path.push_str(".1");
-        }
-        path
     }
 
     fn is_equal_witness(&self, k: usize) -> (Target, Target) {
@@ -937,7 +927,6 @@ pub fn render(shape: &Shape) -> String {
     let n = shape.n;
     let s2 = 2 * n;
     let circuit = format!("privateBatchWrapper{n}");
-    let decode = format!("{circuit}_decode");
     let leaves = &shape.leaves;
     let mut o = String::new();
     macro_rules! w {
@@ -968,7 +957,7 @@ pub fn render(shape: &Shape) -> String {
     w!("open Plonky2Spec (IsBool bselect band bnot bor scanStep rangeCheck feeDen FeeCheck network digestEq");
     w!("  Digest4)");
     w!("open Plonky2Spec.Wiring");
-    w!("open Plonky2Spec.Generated ({circuit} {decode})");
+    w!("open Plonky2Spec.Generated");
     w!("open Plonky2Spec.Poseidon2 (St)");
     w!("open Plonky2Spec.Sponge (spongeHash)");
     w!("open WormholeSpec (Digest Felt LeafPublic PrivateBatchOutput ExitSlot inRange RPrivateBatch");
@@ -1228,15 +1217,13 @@ pub fn render(shape: &Shape) -> String {
     w!("      inRange 32 q.outputAmount2 ∧ inRange 32 q.volumeFeeBps) :");
     w!("    RPrivateBatch (spongeRO perm) (leaves a) (us a) (out a) := by");
     w!("  obtain ⟨{}⟩ := consts a h", const_names.join(", "));
-    w!("  have hf := {decode} perm a h hp");
 
     // Projections.
-    let mut zero_facts: Vec<String> = Vec::new();
     let mut proj_lines: Vec<String> = Vec::new();
     let mut proj = |name: String, k: usize| {
         proj_lines.push(format!("  have {name} := {}", shape.projection(k)));
         if shape.mentions_zero(k) {
-            zero_facts.push(name);
+            proj_lines.push(format!("  rw [kzero] at {name}"));
         }
     };
     let digest_eq_proj = |proj: &mut dyn FnMut(String, usize), prefix: &str, de: &DigestEq| {
@@ -1359,7 +1346,6 @@ pub fn render(shape: &Shape) -> String {
         );
     }
     w!("");
-    w!("  rw [kzero] at {}", zero_facts.join(" "));
     for i in 0..n {
         w!(
             "  have hd{i} : {} = (row a {i}).isDummy := by rw [e{i}m, e{i}a, e{i}b]; rfl",

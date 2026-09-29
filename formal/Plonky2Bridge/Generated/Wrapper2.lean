@@ -19,7 +19,7 @@ namespace Plonky2Bridge.Wrapper2
 open Plonky2Spec (IsBool bselect band bnot bor scanStep rangeCheck feeDen FeeCheck network digestEq
   Digest4)
 open Plonky2Spec.Wiring
-open Plonky2Spec.Generated (privateBatchWrapper2 privateBatchWrapper2_decode)
+open Plonky2Spec.Generated
 open Plonky2Spec.Poseidon2 (St)
 open Plonky2Spec.Sponge (spongeHash)
 open WormholeSpec (Digest Felt LeafPublic PrivateBatchOutput ExitSlot inRange RPrivateBatch
@@ -147,334 +147,405 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
       inRange 32 q.outputAmount2 ∧ inRange 32 q.volumeFeeBps) :
     RPrivateBatch (spongeRO perm) (leaves a) (us a) (out a) := by
   obtain ⟨kone, kzero, ktot, kten, -⟩ := consts a h
-  have hf := privateBatchWrapper2_decode perm a h hp
-  have e0_0 := hf.1.1
-  have e0_1 := hf.1.2.1
-  have e0_2 := hf.1.2.2.1
-  have e0_3 := hf.1.2.2.2.1
-  have e0a := hf.1.2.2.2.2.1
-  have e0b := hf.1.2.2.2.2.2.1
-  have e0m := hf.1.2.2.2.2.2.2.1
-  have e1_0 := hf.1.2.2.2.2.2.2.2.1
-  have e1_1 := hf.1.2.2.2.2.2.2.2.2.1
-  have e1_2 := hf.1.2.2.2.2.2.2.2.2.2.1
-  have e1_3 := hf.1.2.2.2.2.2.2.2.2.2.2.1
-  have e1a := hf.1.2.2.2.2.2.2.2.2.2.2.2.1
-  have e1b := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e1m := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have r0 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sb0_0 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sb0_1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sb0_2 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sb0_3 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sn0 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sf0 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have r1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have nf1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have tk1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sb1_0 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sb1_1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sb1_2 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sb1_3 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sn1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have sf1 := hf.2.1.1
-  have cb0_0 := hf.2.1.2.2.1
-  have cb0_1 := hf.2.1.2.2.2.1
-  have cb0_2 := hf.2.1.2.2.2.2.1
-  have cb0_3 := hf.2.1.2.2.2.2.2.1
-  have cb0a := hf.2.1.2.2.2.2.2.2.1
-  have cb0b := hf.2.1.2.2.2.2.2.2.2.1
-  have cb0m := hf.2.1.2.2.2.2.2.2.2.2.1
-  have cbo0 := hf.2.1.2.2.2.2.2.2.2.2.2.1
-  have cbk0 := hf.2.1.2.2.2.2.2.2.2.2.2.2.1
-  have cf0 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cfo0 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cfk0 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb1_0 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb1_1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb1_2 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb1_3 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb1a := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb1b := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb1m := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cbo1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cbk1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have ca1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cf1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cfo1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cfk1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have mE0_0 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have mE0_1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have mE0_2 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have mE0_3 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have mA0 := hf.2.2.1.1
-  have mE1_0 := hf.2.2.1.2.1
-  have mE1_1 := hf.2.2.1.2.2.1
-  have mE1_2 := hf.2.2.1.2.2.2.1
-  have mE1_3 := hf.2.2.1.2.2.2.2.1
-  have mA1 := hf.2.2.1.2.2.2.2.2.1
-  have mE2_0 := hf.2.2.1.2.2.2.2.2.2.1
-  have mE2_1 := hf.2.2.1.2.2.2.2.2.2.2.1
-  have mE2_2 := hf.2.2.1.2.2.2.2.2.2.2.2.1
-  have mE2_3 := hf.2.2.1.2.2.2.2.2.2.2.2.2.1
-  have mA2 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.1
-  have mE3_0 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.1
-  have mE3_1 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have mE3_2 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have mE3_3 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have mA3 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have mi0 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have mi1 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have ai1 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have ao1 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have ao2 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have ao3 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fc := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fcr := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fr := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fl := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fd := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fdr := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y0_0_0 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y0_0_1 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have y0_0_2 := hf.2.2.2.1.1
-  have y0_0_3 := hf.2.2.2.1.2.1
-  have y0_0a := hf.2.2.2.1.2.2.1
-  have y0_0b := hf.2.2.2.1.2.2.2.1
-  have y0_0m := hf.2.2.2.1.2.2.2.2.1
-  have ys0_0 := hf.2.2.2.1.2.2.2.2.2.1
-  have y0_1_0 := hf.2.2.2.1.2.2.2.2.2.2.2.1
-  have y0_1_1 := hf.2.2.2.1.2.2.2.2.2.2.2.2.1
-  have y0_1_2 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.1
-  have y0_1_3 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.1
-  have y0_1a := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.1
-  have y0_1b := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y0_1m := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have ys0_1 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have yd0_1 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y0_2_0 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y0_2_1 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y0_2_2 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y0_2_3 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y0_2a := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y0_2b := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y0_2m := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have ys0_2 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have yd0_2 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y0_3_0 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y0_3_1 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y0_3_2 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y0_3_3 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y0_3a := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y0_3b := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y0_3m := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have ys0_3 := hf.2.2.2.2.1.1
-  have yd0_3 := hf.2.2.2.2.1.2.1
-  have os0 := hf.2.2.2.2.1.2.2.1
-  have oe0_0 := hf.2.2.2.2.1.2.2.2.1
-  have oe0_1 := hf.2.2.2.2.1.2.2.2.2.1
-  have oe0_2 := hf.2.2.2.2.1.2.2.2.2.2.1
-  have oe0_3 := hf.2.2.2.2.1.2.2.2.2.2.2.1
-  have x1_0_0 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.1
-  have x1_0_1 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.1
-  have x1_0_2 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.1
-  have x1_0_3 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.1
-  have x1_0a := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have x1_0b := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have x1_0m := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y1_0_0 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y1_0_1 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y1_0_2 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y1_0_3 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y1_0a := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y1_0b := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y1_0m := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have ys1_0 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y1_1_0 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y1_1_1 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y1_1_2 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y1_1_3 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y1_1a := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y1_1b := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y1_1m := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have ys1_1 := hf.2.2.2.2.2.1.1
-  have yd1_1 := hf.2.2.2.2.2.1.2.1
-  have y1_2_0 := hf.2.2.2.2.2.1.2.2.1
-  have y1_2_1 := hf.2.2.2.2.2.1.2.2.2.1
-  have y1_2_2 := hf.2.2.2.2.2.1.2.2.2.2.1
-  have y1_2_3 := hf.2.2.2.2.2.1.2.2.2.2.2.1
-  have y1_2a := hf.2.2.2.2.2.1.2.2.2.2.2.2.1
-  have y1_2b := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.1
-  have y1_2m := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.1
-  have ys1_2 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.1
-  have yd1_2 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.1
-  have y1_3_0 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.1
-  have y1_3_1 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y1_3_2 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y1_3_3 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y1_3a := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y1_3b := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y1_3m := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have ys1_3 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have yd1_3 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have os1 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have oe1_0 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have oe1_1 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have oe1_2 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have oe1_3 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have x2_0_0 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have x2_0_1 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have x2_0_2 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have x2_0_3 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have x2_0a := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have x2_0b := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have x2_0m := hf.2.2.2.2.2.2.1.1
-  have x2_1_0 := hf.2.2.2.2.2.2.1.2.2.1
-  have x2_1_1 := hf.2.2.2.2.2.2.1.2.2.2.1
-  have x2_1_2 := hf.2.2.2.2.2.2.1.2.2.2.2.1
-  have x2_1_3 := hf.2.2.2.2.2.2.1.2.2.2.2.2.1
-  have x2_1a := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.1
-  have x2_1b := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.1
-  have x2_1m := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.1
-  have xo2_1 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.1
-  have y2_0_0 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.1
-  have y2_0_1 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.1
-  have y2_0_2 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y2_0_3 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y2_0a := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y2_0b := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y2_0m := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have ys2_0 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y2_1_0 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y2_1_1 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y2_1_2 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y2_1_3 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y2_1a := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y2_1b := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y2_1m := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have ys2_1 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have yd2_1 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y2_2_0 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y2_2_1 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y2_2_2 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y2_2_3 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have y2_2a := hf.2.2.2.2.2.2.2.1.1
-  have y2_2b := hf.2.2.2.2.2.2.2.1.2.1
-  have y2_2m := hf.2.2.2.2.2.2.2.1.2.2.1
-  have ys2_2 := hf.2.2.2.2.2.2.2.1.2.2.2.1
-  have yd2_2 := hf.2.2.2.2.2.2.2.1.2.2.2.2.1
-  have y2_3_0 := hf.2.2.2.2.2.2.2.1.2.2.2.2.2.1
-  have y2_3_1 := hf.2.2.2.2.2.2.2.1.2.2.2.2.2.2.1
-  have y2_3_2 := hf.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.1
-  have y2_3_3 := hf.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.1
-  have y2_3a := hf.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.1
-  have y2_3b := hf.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.1
-  have y2_3m := hf.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.1
-  have ys2_3 := hf.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have yd2_3 := hf.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have os2 := hf.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have oe2_0 := hf.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have oe2_1 := hf.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have oe2_2 := hf.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have oe2_3 := hf.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have x3_0_0 := hf.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have x3_0_1 := hf.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have x3_0_2 := hf.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have x3_0_3 := hf.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have x3_0a := hf.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have x3_0b := hf.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have x3_0m := hf.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have x3_1_0 := hf.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have x3_1_1 := hf.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have x3_1_2 := hf.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have x3_1_3 := hf.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have x3_1a := hf.2.2.2.2.2.2.2.2.1.1
-  have x3_1b := hf.2.2.2.2.2.2.2.2.1.2.1
-  have x3_1m := hf.2.2.2.2.2.2.2.2.1.2.2.1
-  have xo3_1 := hf.2.2.2.2.2.2.2.2.1.2.2.2.1
-  have x3_2_0 := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.1
-  have x3_2_1 := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.1
-  have x3_2_2 := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.1
-  have x3_2_3 := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.1
-  have x3_2a := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.1
-  have x3_2b := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.1
-  have x3_2m := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.1
-  have xo3_2 := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.1
-  have y3_0_0 := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y3_0_1 := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y3_0_2 := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y3_0_3 := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y3_0a := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y3_0b := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y3_0m := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have ys3_0 := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y3_1_0 := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y3_1_1 := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y3_1_2 := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y3_1_3 := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y3_1a := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y3_1b := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y3_1m := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have ys3_1 := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have yd3_1 := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y3_2_0 := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y3_2_1 := hf.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have y3_2_2 := hf.2.2.2.2.2.2.2.2.2.1.1
-  have y3_2_3 := hf.2.2.2.2.2.2.2.2.2.1.2.1
-  have y3_2a := hf.2.2.2.2.2.2.2.2.2.1.2.2.1
-  have y3_2b := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.1
-  have y3_2m := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.1
-  have ys3_2 := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.1
-  have yd3_2 := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.1
-  have y3_3_0 := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.1
-  have y3_3_1 := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.1
-  have y3_3_2 := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.1
-  have y3_3_3 := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.1
-  have y3_3a := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.1
-  have y3_3b := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have y3_3m := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have ys3_3 := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have yd3_3 := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have os3 := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have oe3_0 := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have oe3_1 := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have oe3_2 := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have oe3_3 := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have un0_1 := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have um0_1 := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have ub0_1 := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have q0_1_0 := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have q0_1_1 := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have q0_1_2 := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have q0_1_3 := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have q0_1a := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have q0_1b := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have q0_1m := hf.2.2.2.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have uc0_1 := hf.2.2.2.2.2.2.2.2.2.2.1
-  have uz0_1 := hf.2.2.2.2.2.2.2.2.2.2.2.1
-  have s0_0 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have s0_1 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have s0_2 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have s0_3 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have s1_0 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have s1_1 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have s1_2 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have s1_3 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have ab0_0 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have w0_0_0_0 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have w0_0_0_1 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have w0_0_1_0 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have w0_0_1_1 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have w0_0_2_0 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have w0_0_2_1 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have w0_0_3_0 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have w0_0_3_1 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  obtain ⟨hi0_0, hi0_1, hi0_2, hi0_3⟩ := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  obtain ⟨ho0_0, ho0_1, ho0_2, ho0_3⟩ := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  obtain ⟨hi1_0, hi1_1, hi1_2, hi1_3⟩ := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  obtain ⟨ho1_0, ho1_1, ho1_2, ho1_3⟩ := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have e0_0 := privateBatchWrapper2_f0 a h
+  rw [kzero] at e0_0
+  have e0_1 := privateBatchWrapper2_f1 a h
+  rw [kzero] at e0_1
+  have e0_2 := privateBatchWrapper2_f2 a h
+  rw [kzero] at e0_2
+  have e0_3 := privateBatchWrapper2_f3 a h
+  rw [kzero] at e0_3
+  have e0a := privateBatchWrapper2_f4 a h
+  have e0b := privateBatchWrapper2_f5 a h
+  have e0m := privateBatchWrapper2_f6 a h
+  have e1_0 := privateBatchWrapper2_f7 a h
+  rw [kzero] at e1_0
+  have e1_1 := privateBatchWrapper2_f8 a h
+  rw [kzero] at e1_1
+  have e1_2 := privateBatchWrapper2_f9 a h
+  rw [kzero] at e1_2
+  have e1_3 := privateBatchWrapper2_f10 a h
+  rw [kzero] at e1_3
+  have e1a := privateBatchWrapper2_f11 a h
+  have e1b := privateBatchWrapper2_f12 a h
+  have e1m := privateBatchWrapper2_f13 a h
+  have r0 := privateBatchWrapper2_f14 a h
+  have sb0_0 := privateBatchWrapper2_f17 a h
+  rw [kzero] at sb0_0
+  have sb0_1 := privateBatchWrapper2_f18 a h
+  rw [kzero] at sb0_1
+  have sb0_2 := privateBatchWrapper2_f19 a h
+  rw [kzero] at sb0_2
+  have sb0_3 := privateBatchWrapper2_f20 a h
+  rw [kzero] at sb0_3
+  have sn0 := privateBatchWrapper2_f21 a h
+  rw [kzero] at sn0
+  have sf0 := privateBatchWrapper2_f22 a h
+  rw [kzero] at sf0
+  have r1 := privateBatchWrapper2_f24 a h
+  have nf1 := privateBatchWrapper2_f25 a h
+  have tk1 := privateBatchWrapper2_f26 a h
+  have sb1_0 := privateBatchWrapper2_f27 a h
+  have sb1_1 := privateBatchWrapper2_f28 a h
+  have sb1_2 := privateBatchWrapper2_f29 a h
+  have sb1_3 := privateBatchWrapper2_f30 a h
+  have sn1 := privateBatchWrapper2_f31 a h
+  have sf1 := privateBatchWrapper2_f32 a h
+  have cb0_0 := privateBatchWrapper2_f34 a h
+  have cb0_1 := privateBatchWrapper2_f35 a h
+  have cb0_2 := privateBatchWrapper2_f36 a h
+  have cb0_3 := privateBatchWrapper2_f37 a h
+  have cb0a := privateBatchWrapper2_f38 a h
+  have cb0b := privateBatchWrapper2_f39 a h
+  have cb0m := privateBatchWrapper2_f40 a h
+  have cbo0 := privateBatchWrapper2_f41 a h
+  have cbk0 := privateBatchWrapper2_f42 a h
+  have cf0 := privateBatchWrapper2_f44 a h
+  have cfo0 := privateBatchWrapper2_f45 a h
+  have cfk0 := privateBatchWrapper2_f46 a h
+  have cb1_0 := privateBatchWrapper2_f47 a h
+  have cb1_1 := privateBatchWrapper2_f48 a h
+  have cb1_2 := privateBatchWrapper2_f49 a h
+  have cb1_3 := privateBatchWrapper2_f50 a h
+  have cb1a := privateBatchWrapper2_f51 a h
+  have cb1b := privateBatchWrapper2_f52 a h
+  have cb1m := privateBatchWrapper2_f53 a h
+  have cbo1 := privateBatchWrapper2_f54 a h
+  have cbk1 := privateBatchWrapper2_f55 a h
+  have ca1 := privateBatchWrapper2_f56 a h
+  have cf1 := privateBatchWrapper2_f57 a h
+  have cfo1 := privateBatchWrapper2_f58 a h
+  have cfk1 := privateBatchWrapper2_f59 a h
+  have mE0_0 := privateBatchWrapper2_f60 a h
+  rw [kzero] at mE0_0
+  have mE0_1 := privateBatchWrapper2_f61 a h
+  rw [kzero] at mE0_1
+  have mE0_2 := privateBatchWrapper2_f62 a h
+  rw [kzero] at mE0_2
+  have mE0_3 := privateBatchWrapper2_f63 a h
+  rw [kzero] at mE0_3
+  have mA0 := privateBatchWrapper2_f64 a h
+  rw [kzero] at mA0
+  have mE1_0 := privateBatchWrapper2_f65 a h
+  rw [kzero] at mE1_0
+  have mE1_1 := privateBatchWrapper2_f66 a h
+  rw [kzero] at mE1_1
+  have mE1_2 := privateBatchWrapper2_f67 a h
+  rw [kzero] at mE1_2
+  have mE1_3 := privateBatchWrapper2_f68 a h
+  rw [kzero] at mE1_3
+  have mA1 := privateBatchWrapper2_f69 a h
+  rw [kzero] at mA1
+  have mE2_0 := privateBatchWrapper2_f70 a h
+  rw [kzero] at mE2_0
+  have mE2_1 := privateBatchWrapper2_f71 a h
+  rw [kzero] at mE2_1
+  have mE2_2 := privateBatchWrapper2_f72 a h
+  rw [kzero] at mE2_2
+  have mE2_3 := privateBatchWrapper2_f73 a h
+  rw [kzero] at mE2_3
+  have mA2 := privateBatchWrapper2_f74 a h
+  rw [kzero] at mA2
+  have mE3_0 := privateBatchWrapper2_f75 a h
+  rw [kzero] at mE3_0
+  have mE3_1 := privateBatchWrapper2_f76 a h
+  rw [kzero] at mE3_1
+  have mE3_2 := privateBatchWrapper2_f77 a h
+  rw [kzero] at mE3_2
+  have mE3_3 := privateBatchWrapper2_f78 a h
+  rw [kzero] at mE3_3
+  have mA3 := privateBatchWrapper2_f79 a h
+  rw [kzero] at mA3
+  have mi0 := privateBatchWrapper2_f80 a h
+  rw [kzero] at mi0
+  have mi1 := privateBatchWrapper2_f82 a h
+  rw [kzero] at mi1
+  have ai1 := privateBatchWrapper2_f83 a h
+  have ao1 := privateBatchWrapper2_f85 a h
+  have ao2 := privateBatchWrapper2_f86 a h
+  have ao3 := privateBatchWrapper2_f87 a h
+  have fc := privateBatchWrapper2_f88 a h
+  have fcr := privateBatchWrapper2_f89 a h
+  have fr := privateBatchWrapper2_f90 a h
+  have fl := privateBatchWrapper2_f91 a h
+  have fd := privateBatchWrapper2_f92 a h
+  have fdr := privateBatchWrapper2_f93 a h
+  have y0_0_0 := privateBatchWrapper2_f94 a h
+  have y0_0_1 := privateBatchWrapper2_f95 a h
+  have y0_0_2 := privateBatchWrapper2_f96 a h
+  have y0_0_3 := privateBatchWrapper2_f97 a h
+  have y0_0a := privateBatchWrapper2_f98 a h
+  have y0_0b := privateBatchWrapper2_f99 a h
+  have y0_0m := privateBatchWrapper2_f100 a h
+  have ys0_0 := privateBatchWrapper2_f101 a h
+  rw [kzero] at ys0_0
+  have y0_1_0 := privateBatchWrapper2_f103 a h
+  have y0_1_1 := privateBatchWrapper2_f104 a h
+  have y0_1_2 := privateBatchWrapper2_f105 a h
+  have y0_1_3 := privateBatchWrapper2_f106 a h
+  have y0_1a := privateBatchWrapper2_f107 a h
+  have y0_1b := privateBatchWrapper2_f108 a h
+  have y0_1m := privateBatchWrapper2_f109 a h
+  have ys0_1 := privateBatchWrapper2_f110 a h
+  rw [kzero] at ys0_1
+  have yd0_1 := privateBatchWrapper2_f111 a h
+  have y0_2_0 := privateBatchWrapper2_f112 a h
+  have y0_2_1 := privateBatchWrapper2_f113 a h
+  have y0_2_2 := privateBatchWrapper2_f114 a h
+  have y0_2_3 := privateBatchWrapper2_f115 a h
+  have y0_2a := privateBatchWrapper2_f116 a h
+  have y0_2b := privateBatchWrapper2_f117 a h
+  have y0_2m := privateBatchWrapper2_f118 a h
+  have ys0_2 := privateBatchWrapper2_f119 a h
+  rw [kzero] at ys0_2
+  have yd0_2 := privateBatchWrapper2_f120 a h
+  have y0_3_0 := privateBatchWrapper2_f121 a h
+  have y0_3_1 := privateBatchWrapper2_f122 a h
+  have y0_3_2 := privateBatchWrapper2_f123 a h
+  have y0_3_3 := privateBatchWrapper2_f124 a h
+  have y0_3a := privateBatchWrapper2_f125 a h
+  have y0_3b := privateBatchWrapper2_f126 a h
+  have y0_3m := privateBatchWrapper2_f127 a h
+  have ys0_3 := privateBatchWrapper2_f128 a h
+  rw [kzero] at ys0_3
+  have yd0_3 := privateBatchWrapper2_f129 a h
+  have os0 := privateBatchWrapper2_f130 a h
+  rw [kzero] at os0
+  have oe0_0 := privateBatchWrapper2_f131 a h
+  rw [kzero] at oe0_0
+  have oe0_1 := privateBatchWrapper2_f132 a h
+  rw [kzero] at oe0_1
+  have oe0_2 := privateBatchWrapper2_f133 a h
+  rw [kzero] at oe0_2
+  have oe0_3 := privateBatchWrapper2_f134 a h
+  rw [kzero] at oe0_3
+  have x1_0_0 := privateBatchWrapper2_f136 a h
+  have x1_0_1 := privateBatchWrapper2_f137 a h
+  have x1_0_2 := privateBatchWrapper2_f138 a h
+  have x1_0_3 := privateBatchWrapper2_f139 a h
+  have x1_0a := privateBatchWrapper2_f140 a h
+  have x1_0b := privateBatchWrapper2_f141 a h
+  have x1_0m := privateBatchWrapper2_f142 a h
+  have y1_0_0 := privateBatchWrapper2_f144 a h
+  have y1_0_1 := privateBatchWrapper2_f145 a h
+  have y1_0_2 := privateBatchWrapper2_f146 a h
+  have y1_0_3 := privateBatchWrapper2_f147 a h
+  have y1_0a := privateBatchWrapper2_f148 a h
+  have y1_0b := privateBatchWrapper2_f149 a h
+  have y1_0m := privateBatchWrapper2_f150 a h
+  have ys1_0 := privateBatchWrapper2_f151 a h
+  rw [kzero] at ys1_0
+  have y1_1_0 := privateBatchWrapper2_f153 a h
+  have y1_1_1 := privateBatchWrapper2_f154 a h
+  have y1_1_2 := privateBatchWrapper2_f155 a h
+  have y1_1_3 := privateBatchWrapper2_f156 a h
+  have y1_1a := privateBatchWrapper2_f157 a h
+  have y1_1b := privateBatchWrapper2_f158 a h
+  have y1_1m := privateBatchWrapper2_f159 a h
+  have ys1_1 := privateBatchWrapper2_f160 a h
+  rw [kzero] at ys1_1
+  have yd1_1 := privateBatchWrapper2_f161 a h
+  have y1_2_0 := privateBatchWrapper2_f162 a h
+  have y1_2_1 := privateBatchWrapper2_f163 a h
+  have y1_2_2 := privateBatchWrapper2_f164 a h
+  have y1_2_3 := privateBatchWrapper2_f165 a h
+  have y1_2a := privateBatchWrapper2_f166 a h
+  have y1_2b := privateBatchWrapper2_f167 a h
+  have y1_2m := privateBatchWrapper2_f168 a h
+  have ys1_2 := privateBatchWrapper2_f169 a h
+  rw [kzero] at ys1_2
+  have yd1_2 := privateBatchWrapper2_f170 a h
+  have y1_3_0 := privateBatchWrapper2_f171 a h
+  have y1_3_1 := privateBatchWrapper2_f172 a h
+  have y1_3_2 := privateBatchWrapper2_f173 a h
+  have y1_3_3 := privateBatchWrapper2_f174 a h
+  have y1_3a := privateBatchWrapper2_f175 a h
+  have y1_3b := privateBatchWrapper2_f176 a h
+  have y1_3m := privateBatchWrapper2_f177 a h
+  have ys1_3 := privateBatchWrapper2_f178 a h
+  rw [kzero] at ys1_3
+  have yd1_3 := privateBatchWrapper2_f179 a h
+  have os1 := privateBatchWrapper2_f180 a h
+  rw [kzero] at os1
+  have oe1_0 := privateBatchWrapper2_f181 a h
+  rw [kzero] at oe1_0
+  have oe1_1 := privateBatchWrapper2_f182 a h
+  rw [kzero] at oe1_1
+  have oe1_2 := privateBatchWrapper2_f183 a h
+  rw [kzero] at oe1_2
+  have oe1_3 := privateBatchWrapper2_f184 a h
+  rw [kzero] at oe1_3
+  have x2_0_0 := privateBatchWrapper2_f186 a h
+  have x2_0_1 := privateBatchWrapper2_f187 a h
+  have x2_0_2 := privateBatchWrapper2_f188 a h
+  have x2_0_3 := privateBatchWrapper2_f189 a h
+  have x2_0a := privateBatchWrapper2_f190 a h
+  have x2_0b := privateBatchWrapper2_f191 a h
+  have x2_0m := privateBatchWrapper2_f192 a h
+  have x2_1_0 := privateBatchWrapper2_f194 a h
+  have x2_1_1 := privateBatchWrapper2_f195 a h
+  have x2_1_2 := privateBatchWrapper2_f196 a h
+  have x2_1_3 := privateBatchWrapper2_f197 a h
+  have x2_1a := privateBatchWrapper2_f198 a h
+  have x2_1b := privateBatchWrapper2_f199 a h
+  have x2_1m := privateBatchWrapper2_f200 a h
+  have xo2_1 := privateBatchWrapper2_f201 a h
+  have y2_0_0 := privateBatchWrapper2_f202 a h
+  have y2_0_1 := privateBatchWrapper2_f203 a h
+  have y2_0_2 := privateBatchWrapper2_f204 a h
+  have y2_0_3 := privateBatchWrapper2_f205 a h
+  have y2_0a := privateBatchWrapper2_f206 a h
+  have y2_0b := privateBatchWrapper2_f207 a h
+  have y2_0m := privateBatchWrapper2_f208 a h
+  have ys2_0 := privateBatchWrapper2_f209 a h
+  rw [kzero] at ys2_0
+  have y2_1_0 := privateBatchWrapper2_f211 a h
+  have y2_1_1 := privateBatchWrapper2_f212 a h
+  have y2_1_2 := privateBatchWrapper2_f213 a h
+  have y2_1_3 := privateBatchWrapper2_f214 a h
+  have y2_1a := privateBatchWrapper2_f215 a h
+  have y2_1b := privateBatchWrapper2_f216 a h
+  have y2_1m := privateBatchWrapper2_f217 a h
+  have ys2_1 := privateBatchWrapper2_f218 a h
+  rw [kzero] at ys2_1
+  have yd2_1 := privateBatchWrapper2_f219 a h
+  have y2_2_0 := privateBatchWrapper2_f220 a h
+  have y2_2_1 := privateBatchWrapper2_f221 a h
+  have y2_2_2 := privateBatchWrapper2_f222 a h
+  have y2_2_3 := privateBatchWrapper2_f223 a h
+  have y2_2a := privateBatchWrapper2_f224 a h
+  have y2_2b := privateBatchWrapper2_f225 a h
+  have y2_2m := privateBatchWrapper2_f226 a h
+  have ys2_2 := privateBatchWrapper2_f227 a h
+  rw [kzero] at ys2_2
+  have yd2_2 := privateBatchWrapper2_f228 a h
+  have y2_3_0 := privateBatchWrapper2_f229 a h
+  have y2_3_1 := privateBatchWrapper2_f230 a h
+  have y2_3_2 := privateBatchWrapper2_f231 a h
+  have y2_3_3 := privateBatchWrapper2_f232 a h
+  have y2_3a := privateBatchWrapper2_f233 a h
+  have y2_3b := privateBatchWrapper2_f234 a h
+  have y2_3m := privateBatchWrapper2_f235 a h
+  have ys2_3 := privateBatchWrapper2_f236 a h
+  rw [kzero] at ys2_3
+  have yd2_3 := privateBatchWrapper2_f237 a h
+  have os2 := privateBatchWrapper2_f238 a h
+  rw [kzero] at os2
+  have oe2_0 := privateBatchWrapper2_f239 a h
+  rw [kzero] at oe2_0
+  have oe2_1 := privateBatchWrapper2_f240 a h
+  rw [kzero] at oe2_1
+  have oe2_2 := privateBatchWrapper2_f241 a h
+  rw [kzero] at oe2_2
+  have oe2_3 := privateBatchWrapper2_f242 a h
+  rw [kzero] at oe2_3
+  have x3_0_0 := privateBatchWrapper2_f244 a h
+  have x3_0_1 := privateBatchWrapper2_f245 a h
+  have x3_0_2 := privateBatchWrapper2_f246 a h
+  have x3_0_3 := privateBatchWrapper2_f247 a h
+  have x3_0a := privateBatchWrapper2_f248 a h
+  have x3_0b := privateBatchWrapper2_f249 a h
+  have x3_0m := privateBatchWrapper2_f250 a h
+  have x3_1_0 := privateBatchWrapper2_f252 a h
+  have x3_1_1 := privateBatchWrapper2_f253 a h
+  have x3_1_2 := privateBatchWrapper2_f254 a h
+  have x3_1_3 := privateBatchWrapper2_f255 a h
+  have x3_1a := privateBatchWrapper2_f256 a h
+  have x3_1b := privateBatchWrapper2_f257 a h
+  have x3_1m := privateBatchWrapper2_f258 a h
+  have xo3_1 := privateBatchWrapper2_f259 a h
+  have x3_2_0 := privateBatchWrapper2_f260 a h
+  have x3_2_1 := privateBatchWrapper2_f261 a h
+  have x3_2_2 := privateBatchWrapper2_f262 a h
+  have x3_2_3 := privateBatchWrapper2_f263 a h
+  have x3_2a := privateBatchWrapper2_f264 a h
+  have x3_2b := privateBatchWrapper2_f265 a h
+  have x3_2m := privateBatchWrapper2_f266 a h
+  have xo3_2 := privateBatchWrapper2_f267 a h
+  have y3_0_0 := privateBatchWrapper2_f268 a h
+  have y3_0_1 := privateBatchWrapper2_f269 a h
+  have y3_0_2 := privateBatchWrapper2_f270 a h
+  have y3_0_3 := privateBatchWrapper2_f271 a h
+  have y3_0a := privateBatchWrapper2_f272 a h
+  have y3_0b := privateBatchWrapper2_f273 a h
+  have y3_0m := privateBatchWrapper2_f274 a h
+  have ys3_0 := privateBatchWrapper2_f275 a h
+  rw [kzero] at ys3_0
+  have y3_1_0 := privateBatchWrapper2_f277 a h
+  have y3_1_1 := privateBatchWrapper2_f278 a h
+  have y3_1_2 := privateBatchWrapper2_f279 a h
+  have y3_1_3 := privateBatchWrapper2_f280 a h
+  have y3_1a := privateBatchWrapper2_f281 a h
+  have y3_1b := privateBatchWrapper2_f282 a h
+  have y3_1m := privateBatchWrapper2_f283 a h
+  have ys3_1 := privateBatchWrapper2_f284 a h
+  rw [kzero] at ys3_1
+  have yd3_1 := privateBatchWrapper2_f285 a h
+  have y3_2_0 := privateBatchWrapper2_f286 a h
+  have y3_2_1 := privateBatchWrapper2_f287 a h
+  have y3_2_2 := privateBatchWrapper2_f288 a h
+  have y3_2_3 := privateBatchWrapper2_f289 a h
+  have y3_2a := privateBatchWrapper2_f290 a h
+  have y3_2b := privateBatchWrapper2_f291 a h
+  have y3_2m := privateBatchWrapper2_f292 a h
+  have ys3_2 := privateBatchWrapper2_f293 a h
+  rw [kzero] at ys3_2
+  have yd3_2 := privateBatchWrapper2_f294 a h
+  have y3_3_0 := privateBatchWrapper2_f295 a h
+  have y3_3_1 := privateBatchWrapper2_f296 a h
+  have y3_3_2 := privateBatchWrapper2_f297 a h
+  have y3_3_3 := privateBatchWrapper2_f298 a h
+  have y3_3a := privateBatchWrapper2_f299 a h
+  have y3_3b := privateBatchWrapper2_f300 a h
+  have y3_3m := privateBatchWrapper2_f301 a h
+  have ys3_3 := privateBatchWrapper2_f302 a h
+  rw [kzero] at ys3_3
+  have yd3_3 := privateBatchWrapper2_f303 a h
+  have os3 := privateBatchWrapper2_f304 a h
+  rw [kzero] at os3
+  have oe3_0 := privateBatchWrapper2_f305 a h
+  rw [kzero] at oe3_0
+  have oe3_1 := privateBatchWrapper2_f306 a h
+  rw [kzero] at oe3_1
+  have oe3_2 := privateBatchWrapper2_f307 a h
+  rw [kzero] at oe3_2
+  have oe3_3 := privateBatchWrapper2_f308 a h
+  rw [kzero] at oe3_3
+  have un0_1 := privateBatchWrapper2_f310 a h
+  have um0_1 := privateBatchWrapper2_f311 a h
+  have ub0_1 := privateBatchWrapper2_f312 a h
+  have q0_1_0 := privateBatchWrapper2_f313 a h
+  have q0_1_1 := privateBatchWrapper2_f314 a h
+  have q0_1_2 := privateBatchWrapper2_f315 a h
+  have q0_1_3 := privateBatchWrapper2_f316 a h
+  have q0_1a := privateBatchWrapper2_f317 a h
+  have q0_1b := privateBatchWrapper2_f318 a h
+  have q0_1m := privateBatchWrapper2_f319 a h
+  have uc0_1 := privateBatchWrapper2_f320 a h
+  have uz0_1 := privateBatchWrapper2_f321 a h
+  rw [kzero] at uz0_1
+  have s0_0 := privateBatchWrapper2_f325 a h
+  have s0_1 := privateBatchWrapper2_f326 a h
+  have s0_2 := privateBatchWrapper2_f327 a h
+  have s0_3 := privateBatchWrapper2_f328 a h
+  have s1_0 := privateBatchWrapper2_f331 a h
+  have s1_1 := privateBatchWrapper2_f332 a h
+  have s1_2 := privateBatchWrapper2_f333 a h
+  have s1_3 := privateBatchWrapper2_f334 a h
+  have ab0_0 := privateBatchWrapper2_f335 a h
+  have w0_0_0_0 := privateBatchWrapper2_f336 a h
+  have w0_0_0_1 := privateBatchWrapper2_f337 a h
+  have w0_0_1_0 := privateBatchWrapper2_f338 a h
+  have w0_0_1_1 := privateBatchWrapper2_f339 a h
+  have w0_0_2_0 := privateBatchWrapper2_f340 a h
+  have w0_0_2_1 := privateBatchWrapper2_f341 a h
+  have w0_0_3_0 := privateBatchWrapper2_f342 a h
+  have w0_0_3_1 := privateBatchWrapper2_f343 a h
+  obtain ⟨hi0_0, hi0_1, hi0_2, hi0_3⟩ := privateBatchWrapper2_f323 perm a h hp
+  obtain ⟨ho0_0, ho0_1, ho0_2, ho0_3⟩ := privateBatchWrapper2_f324 perm a h hp
+  obtain ⟨hi1_0, hi1_1, hi1_2, hi1_3⟩ := privateBatchWrapper2_f329 perm a h hp
+  obtain ⟨ho1_0, ho1_1, ho1_2, ho1_3⟩ := privateBatchWrapper2_f330 perm a h hp
 
-  rw [kzero] at e0_0 e0_1 e0_2 e0_3 e1_0 e1_1 e1_2 e1_3 sb0_0 sb0_1 sb0_2 sb0_3 sn0 sf0 mE0_0 mE0_1 mE0_2 mE0_3 mA0 mE1_0 mE1_1 mE1_2 mE1_3 mA1 mE2_0 mE2_1 mE2_2 mE2_3 mA2 mE3_0 mE3_1 mE3_2 mE3_3 mA3 mi0 mi1 ys0_0 ys0_1 ys0_2 ys0_3 os0 oe0_0 oe0_1 oe0_2 oe0_3 ys1_0 ys1_1 ys1_2 ys1_3 os1 oe1_0 oe1_1 oe1_2 oe1_3 ys2_0 ys2_1 ys2_2 ys2_3 os2 oe2_0 oe2_1 oe2_2 oe2_3 ys3_0 ys3_1 ys3_2 ys3_3 os3 oe3_0 oe3_1 oe3_2 oe3_3 uz0_1
   have hd0 : a (.wire 1 43) = (row a 0).isDummy := by rw [e0m, e0a, e0b]; rfl
   have hd1 : a (.wire 2 27) = (row a 1).isDummy := by rw [e1m, e1a, e1b]; rfl
   have hmem : ∀ r ∈ rows a, r = row a 0 ∨ r = row a 1 := by

@@ -91,7 +91,7 @@ impl Fact {
         }
     }
 
-    fn is_poseidon2(&self) -> bool {
+    pub(crate) fn is_poseidon2(&self) -> bool {
         matches!(self, Fact::Poseidon2 { .. })
     }
 

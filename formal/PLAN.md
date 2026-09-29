@@ -605,7 +605,7 @@ every round since round `k`). `private_batch_complete` now takes the `Perm` conj
 - **Acceptance (met):** `lake build Plonky2Bridge` clean (three roots); every 7b theorem
   standard-axioms-only; `CompletenessAssumptions` has five fields, all operational.
 
-### Step 8 — Wiring-level decode: spike on the nullifier-select path (`n = 2`)  ✅ SPIKE DONE, 8b DONE
+### Step 8 — Wiring-level decode: spike on the nullifier-select path (`n = 2`)  ✅ DONE (8b–8f)
 Attacks §9 gap (a) — the public-input decode hypotheses (`hd`/`hnull`/…) are hand-stated
 — by exporting the builder's **pre-`build` constraint system** and proving the decode from
 it. Pieces:
@@ -760,8 +760,9 @@ it. Pieces:
   `.lake/packages/wormholeSpec/formal/traces/*.json` into `constraint-exporter/traces/`,
   rerun `export-constraints`; `vendored_trace_matches_pinned_package` and
   `wrapper_lean_is_current` fail until both are done.
-- **8d — the wrapper on `PrivateBatchConstraints` (done).** `Plonky2Bridge/Wrapper2.lean`
-  reads the children (`leaf`), preimages (`u`) and aggregated output (`out`) off the named
+- **8d — the wrapper on `PrivateBatchConstraints` (done; superseded by the generated bridge of
+  8e).** `Plonky2Bridge/Wrapper2.lean` (hand-written, since deleted)
+  read the children (`leaf`), preimages (`u`) and aggregated output (`out`) off the named
   targets and public inputs of the export, and `Wrapper2.constraints` derives every clause
   of `PrivateBatchConstraints` from the 344 facts: the dummy flags from the `is_equal`/`and`
   folds, `hdnull` from the two chained `Poseidon2` facts (`spongeRO_dummyNull`), the
@@ -808,7 +809,7 @@ it. Pieces:
   restates the Step-7a capstone on the wiring with `PrivateBatchProofAccepted` for the two
   decoded inners and `private_batch_proof_sound` as its only axiom, gated in
   `ci/AxiomsCheck.lean`. The file checks in ~6 s.
-- **8e — generated bridges, larger `n` (public wrapper done).** The Step 8f composition is
+- **8e — generated bridges, larger `n` (public wrapper, done).** The Step 8f composition is
   no longer hand-indexed: `constraint-exporter/src/public_wrapper.rs` reads a recorded
   public-batch trace, indexes its gadget calls *positionally* by the fixed order
   `build_public_batch_constraints` emits them in (per-inner dummy checks, the first-real
@@ -824,10 +825,29 @@ it. Pieces:
   capstones (`public_batch_end_to_end_wired`, `public_batch_end_to_end_wired_n4`) for the
   axiom gate; `wrapper_lean_is_current` covers all four generated files and CI diffs
   `Plonky2Bridge/Generated/` too.
-- **Next (8e, private wrapper):** the same for `privateBatchWrapper{N}`: the sorting
-  network (`N log N` switches), the `2N`-candidate exit-slot dedup and the uniqueness tree
-  each need a role finder and a generic lemma in the shape of `exit_slot_val`, so
-  `Wrapper2.constraints` becomes generated too.
+- **8e — generated bridges, private wrapper (done).** `constraint-exporter/src/private_wrapper.rs`
+  does the same for `privateBatchWrapper{N}`. `Shape::read` walks the recorded calls in the
+  order `build_private_batch_constraints` emits them — per-leaf dummy checks, the first-real
+  scan, per-leaf header consistency, the `2N` slot masks, the two totals, the fee comparator,
+  the `2N` exit slots (per slot: dedup against earlier candidates, match/select/add over all
+  `2N`, the dedup selects and the 32-bit check), the nullifier-uniqueness pairs, the two
+  chained dummy hashes with the nullifier selects, and the `N`-round odd-even switch network
+  — checking every call's operands, constants and output chaining, and that leaf 0's
+  `not(false)`/`and(·, one)`/`or(false, ·)`/`add(zero, ·)` folded. The hand-indexed
+  `Wrapper2.constraints` is replaced by one generic lemma over list-shaped hypotheses,
+  `Plonky2Bridge/PrivateBatch.lean` `private_batch_val_rows`: a `LeafRow` per child,
+  `scanRefL` for the prefix scan, `candsL`/`SlotsOk`/`SlotCheck` for the exit slots (with
+  `slotsOk_val` landing on `groupAux`), `UniqCheck` pairwise, and the network as
+  `network rounds`; the generated `Plonky2Bridge/Generated/Wrapper{N}.lean` reads the rows,
+  candidates, slots and switch rounds off the wiring and discharges each hypothesis by
+  rewriting with the per-call decode lemmas. Two scaling lessons at `N = 4` (1178 calls):
+  take each fact from its own `privateBatchWrapper{N}_f{k}` lemma rather than projecting a
+  1178-way conjunction, and rewrite `zero` into a fact right after introducing it — `rw … at
+  h` re-asserts every later hypothesis, so one `rw` over hundreds of facts in a
+  thousand-hypothesis context took ~4 minutes. Traces at `n = 2` and `4` (qp-zk-circuits
+  #190) both go through unchanged: the `N = 4` decode has 1178 facts (~4.5 min), its bridge
+  checks in ~3.5 min; `N = 2` in ~35 s. `Plonky2Bridge/PrivateWrapper.lean` aliases
+  `private_batch_end_to_end_wired` / `private_batch_end_to_end_wired_n4` for the axiom gate.
 
 ## 9. Definition of done
 
@@ -842,9 +862,8 @@ the same way (`public_batch_end_to_end`, Step 7a). The remaining gap is exactly
 (a) the residual **wiring/copy-constraint** model fidelity (§3 — gate constraints
 are exporter-backed and the wrapper *logic* is bridged, but the public-input
 **decode** that feeds the bridges its `hd`/`hnull`/`hexits`/… wire assignments
-was hand-modeled; Step 8 closes it for the private-batch wrapper at `n = 2` and for the
-public-batch wrapper at every recorded `n_inner` (`2`, `4`, bridge generated from the
-trace): `private_batch_end_to_end_wired` and `public_batch_end_to_end_wired{,_n4}` are the
-capstones stated on the exported wiring, with no decode hypotheses; the private wrapper at
-larger `n` is still hand-modeled)
+was hand-modeled; Step 8 closes it for both wrappers at every recorded size (`n = 2, 4`
+and `n_inner = 2, 4`, bridges generated from the traces):
+`private_batch_end_to_end_wired{,_n4}` and `public_batch_end_to_end_wired{,_n4}` are the
+capstones stated on the exported wiring, with no decode hypotheses)
 and (b) the layer-1 assumptions (§7) — both explicit.

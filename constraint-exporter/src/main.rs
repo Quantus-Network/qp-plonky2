@@ -20,7 +20,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 /// The private-batch wrapper sizes with recorded traces.
-const PRIVATE_WRAPPER_SIZES: [usize; 1] = [2];
+const PRIVATE_WRAPPER_SIZES: [usize; 2] = [2, 4];
 /// The public-batch wrapper sizes with recorded traces.
 const PUBLIC_WRAPPER_SIZES: [usize; 2] = [2, 4];
 

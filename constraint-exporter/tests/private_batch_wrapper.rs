@@ -15,7 +15,7 @@ use constraint_exporter::trace::{
 };
 use plonky2::iop::target::Target;
 
-const SIZES: [usize; 1] = [2];
+const SIZES: [usize; 2] = [2, 4];
 
 fn trace_name(n: usize) -> String {
     format!("private_batch_wrapper_n{n}.json")
