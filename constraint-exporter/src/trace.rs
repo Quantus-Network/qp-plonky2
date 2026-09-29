@@ -180,23 +180,47 @@ fn call(ex: &CircuitExport, c: &TraceCall) -> Result<Call, String> {
             let b = out1(&outs)?;
             Fact::AssertBool { b }
         }
-        "poseidon2_hash" => {
-            let inputs = fixed(args, &what)?;
+        "split_le" => {
+            let [x] = fixed(args, &what)?;
+            let bits = c.bits.ok_or("split_le call without bits")?;
             let rows: Vec<usize> = (c.rows[0]..c.rows[1])
-                .filter(|&r| ex.rows[r].0 == GateKind::Poseidon2)
+                .filter(|&r| matches!(ex.rows[r].0, GateKind::BaseSum2 { .. }))
                 .collect();
             let [row] = rows[..] else {
                 return Err(format!(
-                    "{what}: expected one Poseidon2Gate row, got {rows:?}"
+                    "{what}: expected one BaseSumGate<2> row, got {rows:?}"
                 ));
             };
-            let expect: Vec<Target> = (12..16).map(|col| Target::wire(row, col)).collect();
+            let expect: Vec<Target> = (1..=bits).map(|col| Target::wire(row, col)).collect();
             if outs != expect {
                 return Err(format!(
-                    "{what}: outputs {outs:?} are not the row's first four output wires"
+                    "{what}: outputs {outs:?} are not the row's first {bits} limb wires"
                 ));
             }
-            Fact::Poseidon2 { row, inputs }
+            Fact::SplitLe { x, row, bits }
+        }
+        "poseidon2_hash" => {
+            let blocks = args.len() / 8 + 1;
+            let rows: Vec<usize> = (c.rows[0]..c.rows[1])
+                .filter(|&r| ex.rows[r].0 == GateKind::Poseidon2)
+                .collect();
+            if rows.len() != blocks {
+                return Err(format!(
+                    "{what}: expected {blocks} Poseidon2Gate rows for {} inputs, got {rows:?}",
+                    args.len()
+                ));
+            }
+            let last = rows[blocks - 1];
+            let expect: Vec<Target> = (12..16).map(|col| Target::wire(last, col)).collect();
+            if outs != expect {
+                return Err(format!(
+                    "{what}: outputs {outs:?} are not the last row's first four output wires"
+                ));
+            }
+            Fact::Poseidon2 { rows, inputs: args }
+        }
+        "split_low_high" => {
+            return Err(format!("{what}: not modelled by the decode generator"));
         }
         other => return Err(format!("unknown gadget call kind {other:?}")),
     };
@@ -357,6 +381,22 @@ pub fn generate_public_batch_wrapper_lean(n: usize) -> Result<String, String> {
              aggregated public inputs.",
             n - 1
         ),
+    )
+}
+
+/// Build `formal/Plonky2Spec/Generated/LeafCircuit.lean` from the recorded leaf circuit.
+pub fn generate_leaf_circuit_lean() -> Result<String, String> {
+    generate_wrapper_lean(
+        "leaf_circuit",
+        "the leaf circuit trace\n\
+         \x20 (`qp-zk-circuits/formal/traces/leaf_circuit.json`, recorded by `TracingBuilder`\n\
+         \x20 while `build_leaf_constraints` ran on the real builder)",
+        "leafCircuit",
+        "The wormhole leaf circuit (`wormhole/circuit/src/circuit.rs`): the unspendable \
+         account, the zk-tree Merkle proof, the block header and the shared-target wiring \
+         with the nullifier and block-hash bindings, on the witness targets `secret`, \
+         `transfer_count`, `to_account`, `account_id`, `root_hash`, `depth`, `positions`, \
+         `is_not_dummy`, `siblings_0..15` and the header fields.",
     )
 }
 

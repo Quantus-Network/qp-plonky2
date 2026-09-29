@@ -28,10 +28,23 @@ pub fn assert_facts_hold(calls: &[Call], val: impl Fn(Target) -> F) {
             }
             Fact::RangeCheck { x, bits } => assert!(val(x).to_canonical_u64() < 1 << bits),
             Fact::Connect { x, y } => assert_eq!(val(x), val(y)),
-            Fact::Poseidon2 { row, inputs } => {
-                let digest = Poseidon2Hash::hash_no_pad(&inputs.map(&val));
+            Fact::SplitLe { x, row, bits } => {
+                let limbs: Vec<u64> = (1..=bits)
+                    .map(|col| val(Target::wire(row, col)).to_canonical_u64())
+                    .collect();
+                assert!(limbs.iter().all(|&b| b < 2));
+                let sum: u64 = limbs.iter().rev().fold(0, |acc, &b| 2 * acc + b);
+                assert_eq!(val(x).to_canonical_u64(), sum);
+            }
+            Fact::Poseidon2 {
+                ref rows,
+                ref inputs,
+            } => {
+                let digest =
+                    Poseidon2Hash::hash_no_pad(&inputs.iter().map(|&t| val(t)).collect::<Vec<_>>());
+                let last = *rows.last().unwrap();
                 for (i, d) in digest.elements.iter().enumerate() {
-                    assert_eq!(val(Target::wire(row, 12 + i)), *d);
+                    assert_eq!(val(Target::wire(last, 12 + i)), *d);
                 }
             }
         }

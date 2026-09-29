@@ -20,7 +20,7 @@ namespace Plonky2Spec.Generated
 
 open Plonky2Spec.Wiring
 open Plonky2Spec.Poseidon2 (St)
-open Plonky2Spec.Sponge (spongeHash)
+open Plonky2Spec.Sponge (spongeHash pad10 addBlock rate absorbMsg_block8 absorbMsg_nil)
 
 set_option linter.all false
 
@@ -11803,8 +11803,14 @@ theorem privateBatchWrapper2_f323 (perm : St p → St p) (a : Assignment p) (h :
   have c2680 := (privateBatchWrapper2_copies83 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c2681 := (privateBatchWrapper2_copies83 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4⟩ := privateBatchWrapper2_consts a h
-  exact poseidon2Row_hash4 perm hp (row := 59) rfl rfl
-    c2670.symm c2671.symm c2672.symm c2673.symm (c2674.symm.trans k0) (c2675.symm.trans k1) (c2676.symm.trans k1) (c2677.symm.trans k1) (c2678.symm.trans k1) (c2679.symm.trans k1) (c2680.symm.trans k1) (c2681.symm.trans k1)
+  have hin0 : poseidon2In a 59 = addBlock (fun _ => 0) [a (.virt 18970), a (.virt 18971), a (.virt 18972), a (.virt 18973), 1, 0, 0, 0] :=
+    poseidon2In_first c2670.symm c2671.symm c2672.symm c2673.symm (c2674.symm.trans k0) (c2675.symm.trans k1) (c2676.symm.trans k1) (c2677.symm.trans k1) (c2678.symm.trans k1) (c2679.symm.trans k1) (c2680.symm.trans k1) (c2681.symm.trans k1)
+  have hout0 := poseidon2Row_absorb perm hp (row := 59) rfl rfl hin0
+  have hpad : pad10 [a (.virt 18970), a (.virt 18971), a (.virt 18972), a (.virt 18973)] =
+      [a (.virt 18970), a (.virt 18971), a (.virt 18972), a (.virt 18973), 1, 0, 0, 0] ++ [] := by
+    simp [pad10, rate, List.replicate]
+  rw [spongeHash, hpad, absorbMsg_block8, absorbMsg_nil, ← hout0]
+  exact ⟨rfl, rfl, rfl, rfl⟩
 
 theorem privateBatchWrapper2_f324 (perm : St p → St p) (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a)
     (hp : Poseidon2Rows perm (privateBatchWrapper2 p) a) :
@@ -11822,8 +11828,14 @@ theorem privateBatchWrapper2_f324 (perm : St p → St p) (a : Assignment p) (h :
   have c2692 := (privateBatchWrapper2_copies84 a h).2.2.2.2.1
   have c2693 := (privateBatchWrapper2_copies84 a h).2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4⟩ := privateBatchWrapper2_consts a h
-  exact poseidon2Row_hash4 perm hp (row := 60) rfl rfl
-    c2682.symm c2683.symm c2684.symm c2685.symm (c2686.symm.trans k0) (c2687.symm.trans k1) (c2688.symm.trans k1) (c2689.symm.trans k1) (c2690.symm.trans k1) (c2691.symm.trans k1) (c2692.symm.trans k1) (c2693.symm.trans k1)
+  have hin0 : poseidon2In a 60 = addBlock (fun _ => 0) [a (.wire 59 12), a (.wire 59 13), a (.wire 59 14), a (.wire 59 15), 1, 0, 0, 0] :=
+    poseidon2In_first c2682.symm c2683.symm c2684.symm c2685.symm (c2686.symm.trans k0) (c2687.symm.trans k1) (c2688.symm.trans k1) (c2689.symm.trans k1) (c2690.symm.trans k1) (c2691.symm.trans k1) (c2692.symm.trans k1) (c2693.symm.trans k1)
+  have hout0 := poseidon2Row_absorb perm hp (row := 60) rfl rfl hin0
+  have hpad : pad10 [a (.wire 59 12), a (.wire 59 13), a (.wire 59 14), a (.wire 59 15)] =
+      [a (.wire 59 12), a (.wire 59 13), a (.wire 59 14), a (.wire 59 15), 1, 0, 0, 0] ++ [] := by
+    simp [pad10, rate, List.replicate]
+  rw [spongeHash, hpad, absorbMsg_block8, absorbMsg_nil, ← hout0]
+  exact ⟨rfl, rfl, rfl, rfl⟩
 
 theorem privateBatchWrapper2_f325 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
     a (.wire 58 11) = bselect (a (.wire 1 43)) (a (.wire 60 12)) (a (.virt 9467)) := by
@@ -11917,8 +11929,14 @@ theorem privateBatchWrapper2_f329 (perm : St p → St p) (a : Assignment p) (h :
   have c2728 := (privateBatchWrapper2_copies85 a h).2.2.2.2.2.2.2.2.1
   have c2729 := (privateBatchWrapper2_copies85 a h).2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4⟩ := privateBatchWrapper2_consts a h
-  exact poseidon2Row_hash4 perm hp (row := 61) rfl rfl
-    c2718.symm c2719.symm c2720.symm c2721.symm (c2722.symm.trans k0) (c2723.symm.trans k1) (c2724.symm.trans k1) (c2725.symm.trans k1) (c2726.symm.trans k1) (c2727.symm.trans k1) (c2728.symm.trans k1) (c2729.symm.trans k1)
+  have hin0 : poseidon2In a 61 = addBlock (fun _ => 0) [a (.virt 18974), a (.virt 18975), a (.virt 18976), a (.virt 18977), 1, 0, 0, 0] :=
+    poseidon2In_first c2718.symm c2719.symm c2720.symm c2721.symm (c2722.symm.trans k0) (c2723.symm.trans k1) (c2724.symm.trans k1) (c2725.symm.trans k1) (c2726.symm.trans k1) (c2727.symm.trans k1) (c2728.symm.trans k1) (c2729.symm.trans k1)
+  have hout0 := poseidon2Row_absorb perm hp (row := 61) rfl rfl hin0
+  have hpad : pad10 [a (.virt 18974), a (.virt 18975), a (.virt 18976), a (.virt 18977)] =
+      [a (.virt 18974), a (.virt 18975), a (.virt 18976), a (.virt 18977), 1, 0, 0, 0] ++ [] := by
+    simp [pad10, rate, List.replicate]
+  rw [spongeHash, hpad, absorbMsg_block8, absorbMsg_nil, ← hout0]
+  exact ⟨rfl, rfl, rfl, rfl⟩
 
 theorem privateBatchWrapper2_f330 (perm : St p → St p) (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a)
     (hp : Poseidon2Rows perm (privateBatchWrapper2 p) a) :
@@ -11936,8 +11954,14 @@ theorem privateBatchWrapper2_f330 (perm : St p → St p) (a : Assignment p) (h :
   have c2740 := (privateBatchWrapper2_copies85 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c2741 := (privateBatchWrapper2_copies85 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4⟩ := privateBatchWrapper2_consts a h
-  exact poseidon2Row_hash4 perm hp (row := 62) rfl rfl
-    c2730.symm c2731.symm c2732.symm c2733.symm (c2734.symm.trans k0) (c2735.symm.trans k1) (c2736.symm.trans k1) (c2737.symm.trans k1) (c2738.symm.trans k1) (c2739.symm.trans k1) (c2740.symm.trans k1) (c2741.symm.trans k1)
+  have hin0 : poseidon2In a 62 = addBlock (fun _ => 0) [a (.wire 61 12), a (.wire 61 13), a (.wire 61 14), a (.wire 61 15), 1, 0, 0, 0] :=
+    poseidon2In_first c2730.symm c2731.symm c2732.symm c2733.symm (c2734.symm.trans k0) (c2735.symm.trans k1) (c2736.symm.trans k1) (c2737.symm.trans k1) (c2738.symm.trans k1) (c2739.symm.trans k1) (c2740.symm.trans k1) (c2741.symm.trans k1)
+  have hout0 := poseidon2Row_absorb perm hp (row := 62) rfl rfl hin0
+  have hpad : pad10 [a (.wire 61 12), a (.wire 61 13), a (.wire 61 14), a (.wire 61 15)] =
+      [a (.wire 61 12), a (.wire 61 13), a (.wire 61 14), a (.wire 61 15), 1, 0, 0, 0] ++ [] := by
+    simp [pad10, rate, List.replicate]
+  rw [spongeHash, hpad, absorbMsg_block8, absorbMsg_nil, ← hout0]
+  exact ⟨rfl, rfl, rfl, rfl⟩
 
 theorem privateBatchWrapper2_f331 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
     a (.wire 58 43) = bselect (a (.wire 2 27)) (a (.wire 62 12)) (a (.virt 18952)) := by

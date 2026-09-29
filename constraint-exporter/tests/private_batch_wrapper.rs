@@ -91,11 +91,11 @@ fn wrapper_trace_shape() {
 
         // Each `hash_dummy_nullifier_pre_image` is a sponge on the preimage then a sponge on
         // that digest.
-        let hashes: Vec<(usize, [Target; 4])> = t
+        let hashes: Vec<(usize, &[Target])> = t
             .calls
             .iter()
-            .filter_map(|c| match c.fact {
-                Fact::Poseidon2 { row, inputs } => Some((row, inputs)),
+            .filter_map(|c| match &c.fact {
+                Fact::Poseidon2 { rows, inputs } => Some((rows[0], &inputs[..])),
                 _ => None,
             })
             .collect();
@@ -107,7 +107,12 @@ fn wrapper_trace_shape() {
             assert!(pre
                 .iter()
                 .all(|t| matches!(t, Target::VirtualTarget { .. })));
-            assert_eq!(*mid, core::array::from_fn(|i| Target::wire(*r0, 12 + i)));
+            assert_eq!(
+                *mid,
+                (0..4)
+                    .map(|i| Target::wire(*r0, 12 + i))
+                    .collect::<Vec<_>>()
+            );
             assert_eq!(*r1, r0 + 1);
         }
         let count = |f: fn(&Fact) -> bool| t.calls.iter().filter(|c| f(&c.fact)).count();
@@ -204,9 +209,13 @@ fn wrapper_lean_is_current() {
         )));
         assert_eq!(
             generated
-                .matches("exact poseidon2Row_hash4 perm hp")
+                .matches("have hout0 := poseidon2Row_absorb perm hp")
                 .count(),
             2 * n
+        );
+        assert!(
+            !generated.contains("hout1"),
+            "wrapper hashes are single-block"
         );
 
         let bridge_path = format!(
@@ -254,7 +263,17 @@ fn malformed_traces_are_rejected() {
         r#"{"kind":"poseidon2_hash","args":["v0","v1","v2","v3"],"outs":["w0:12","w0:13","w0:14","w0:15"],"fresh":[],"rows":[0,0],"copies":[0,0]}"#,
     )
     .unwrap_err();
-    assert!(err.contains("expected one Poseidon2Gate row"), "{err}");
+    assert!(err.contains("expected 1 Poseidon2Gate rows"), "{err}");
+    let err = with(
+        r#"{"kind":"split_le","args":["v0"],"outs":["w0:1"],"fresh":[],"bits":1,"rows":[0,0],"copies":[0,0]}"#,
+    )
+    .unwrap_err();
+    assert!(err.contains("expected one BaseSumGate<2> row"), "{err}");
+    let err = with(
+        r#"{"kind":"split_low_high","args":["v0"],"outs":["v1","v2"],"fresh":[],"rows":[0,0],"copies":[0,0]}"#,
+    )
+    .unwrap_err();
+    assert!(err.contains("not modelled"), "{err}");
     let err = parse(
         &base
             .replace("CALLS", "")
