@@ -17,8 +17,7 @@ namespace Plonky2Spec.Generated
 
 open Plonky2Spec.Wiring
 
-set_option linter.unusedVariables false
-set_option linter.unusedSimpArgs false
+set_option linter.all false
 
 variable {p : ℕ} [Fact p.Prime]
 
@@ -170,6 +169,278 @@ def gadgetZoo.sel : Target := .wire 0 23
 /-- Named target `head`. -/
 def gadgetZoo.head : Target := .wire 0 31
 
+theorem gadgetZoo_copies0 (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
+    a (.virt 3) = a (.wire 0 0) ∧ a (.virt 3) = a (.wire 0 1) ∧ a (.virt 3) = a (.wire 0 2) ∧ a (.wire 0 3) = a (.virt 4) ∧ a (.virt 6) = a (.wire 0 4) ∧ a (.virt 6) = a (.wire 0 5) ∧ a (.virt 5) = a (.wire 0 6) ∧ a (.virt 0) = a (.wire 0 8) ∧ a (.virt 6) = a (.wire 0 9) ∧ a (.virt 1) = a (.wire 0 10) ∧ a (.virt 5) = a (.wire 1 0) ∧ a (.wire 0 11) = a (.wire 1 1) ∧ a (.virt 5) = a (.wire 1 2) ∧ a (.wire 0 11) = a (.wire 1 4) ∧ a (.virt 7) = a (.wire 1 5) ∧ a (.wire 0 11) = a (.wire 1 6) ∧ a (.wire 1 7) = a (.wire 0 12) ∧ a (.virt 6) = a (.wire 0 13) ∧ a (.wire 0 7) = a (.wire 0 14) ∧ a (.wire 1 3) = a (.virt 4) ∧ a (.wire 0 15) = a (.virt 4) ∧ a (.virt 3) = a (.wire 0 16) ∧ a (.virt 1) = a (.wire 0 17) ∧ a (.virt 1) = a (.wire 0 18) ∧ a (.virt 3) = a (.wire 0 20) ∧ a (.virt 0) = a (.wire 0 21) ∧ a (.wire 0 19) = a (.wire 0 22) ∧ a (.virt 5) = a (.wire 2 0) ∧ a (.virt 3) = a (.wire 2 1) ∧ a (.virt 5) = a (.wire 2 2) ∧ a (.wire 2 3) = a (.wire 3 0) ∧ a (.virt 6) = a (.wire 3 1) := by
+  have hc : ∀ q ∈ gadgetZoo.copies0, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ hq)
+  simp only [gadgetZoo.copies0, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
+  exact hc
+
+theorem gadgetZoo_copies1 (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
+    a (.virt 3) = a (.wire 3 2) ∧ a (.virt 6) = a (.wire 0 24) ∧ a (.virt 6) = a (.wire 0 25) ∧ a (.virt 3) = a (.wire 0 26) ∧ a (.virt 5) = a (.wire 1 8) ∧ a (.wire 0 27) = a (.wire 1 9) ∧ a (.virt 5) = a (.wire 1 10) ∧ a (.virt 8) = a (.wire 0 28) ∧ a (.virt 6) = a (.wire 0 29) ∧ a (.virt 2) = a (.wire 0 30) ∧ a (.wire 4 15) = a (.virt 4) ∧ a (.wire 4 16) = a (.virt 4) ∧ a (.wire 4 17) = a (.virt 4) ∧ a (.wire 4 18) = a (.virt 4) ∧ a (.wire 4 19) = a (.virt 4) ∧ a (.wire 4 20) = a (.virt 4) ∧ a (.wire 4 21) = a (.virt 4) ∧ a (.wire 4 22) = a (.virt 4) ∧ a (.wire 4 23) = a (.virt 4) ∧ a (.wire 4 24) = a (.virt 4) ∧ a (.wire 4 25) = a (.virt 4) ∧ a (.wire 4 26) = a (.virt 4) ∧ a (.wire 4 27) = a (.virt 4) ∧ a (.wire 4 28) = a (.virt 4) ∧ a (.wire 4 29) = a (.virt 4) ∧ a (.wire 4 30) = a (.virt 4) ∧ a (.wire 4 31) = a (.virt 4) ∧ a (.wire 4 32) = a (.virt 4) ∧ a (.wire 4 33) = a (.virt 4) ∧ a (.wire 4 34) = a (.virt 4) ∧ a (.wire 4 35) = a (.virt 4) ∧ a (.wire 4 36) = a (.virt 4) := by
+  have hc : ∀ q ∈ gadgetZoo.copies1, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_left _ hq))
+  simp only [gadgetZoo.copies1, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
+  exact hc
+
+theorem gadgetZoo_copies2 (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
+    a (.wire 4 37) = a (.virt 4) ∧ a (.wire 4 38) = a (.virt 4) ∧ a (.wire 4 39) = a (.virt 4) ∧ a (.wire 4 40) = a (.virt 4) ∧ a (.wire 4 41) = a (.virt 4) ∧ a (.wire 4 42) = a (.virt 4) ∧ a (.wire 4 43) = a (.virt 4) ∧ a (.wire 4 44) = a (.virt 4) ∧ a (.wire 4 45) = a (.virt 4) ∧ a (.wire 4 46) = a (.virt 4) ∧ a (.wire 4 47) = a (.virt 4) ∧ a (.wire 4 48) = a (.virt 4) ∧ a (.wire 4 49) = a (.virt 4) ∧ a (.wire 4 50) = a (.virt 4) ∧ a (.wire 4 51) = a (.virt 4) ∧ a (.wire 4 52) = a (.virt 4) ∧ a (.wire 4 53) = a (.virt 4) ∧ a (.wire 4 54) = a (.virt 4) ∧ a (.wire 4 55) = a (.virt 4) ∧ a (.wire 4 56) = a (.virt 4) ∧ a (.wire 4 57) = a (.virt 4) ∧ a (.wire 4 58) = a (.virt 4) ∧ a (.wire 4 59) = a (.virt 4) ∧ a (.wire 4 60) = a (.virt 4) ∧ a (.wire 4 61) = a (.virt 4) ∧ a (.wire 4 62) = a (.virt 4) ∧ a (.wire 4 63) = a (.virt 4) ∧ a (.wire 4 0) = a (.wire 0 31) ∧ a (.wire 0 23) = a (.wire 3 3) := by
+  have hc : ∀ q ∈ gadgetZoo.copies2, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_right _ hq))
+  simp only [gadgetZoo.copies2, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
+  exact hc
+
+theorem gadgetZoo_consts (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
+    a (.virt 4) = 0 ∧ a (.virt 6) = 1 ∧ a (.virt 8) = 10000 ∧ a (.virt 9) = 9223372036854775808 := by
+  have hconst := h.2.2
+  simp only [gadgetZoo, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hconst
+  obtain ⟨k0, k1, k2, k3⟩ := hconst
+  exact ⟨k0, k1, k2, k3⟩
+
+theorem gadgetZoo_f0 (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
+    IsBool (a (.virt 3)) := by
+  have c0 := (gadgetZoo_copies0 a h).1
+  have c1 := (gadgetZoo_copies0 a h).2.1
+  have c2 := (gadgetZoo_copies0 a h).2.2.1
+  have c3 := (gadgetZoo_copies0 a h).2.2.2.1
+  obtain ⟨k0, k1, k2, k3⟩ := gadgetZoo_consts a h
+  have e_0_0 := arithEq_of_rows h (row := 0) (i := 0) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_0
+  simp only [← c0, ← c1, ← c2] at e_0_0
+  refine isBool_iff_assertBool.mpr ?_
+  have hc := e_0_0
+  linear_combination c3.trans k0 - hc
+
+theorem gadgetZoo_f1 (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
+    IsEqual (a (.virt 0)) (a (.virt 1)) (a (.virt 5)) (a (.virt 7)) := by
+  have c4 := (gadgetZoo_copies0 a h).2.2.2.2.1
+  have c5 := (gadgetZoo_copies0 a h).2.2.2.2.2.1
+  have c6 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.1
+  have c7 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.1
+  have c8 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.1
+  have c9 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.1
+  have c10 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.1
+  have c11 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.1
+  have c12 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c13 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c14 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c15 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c16 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c17 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c18 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c19 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c20 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  obtain ⟨k0, k1, k2, k3⟩ := gadgetZoo_consts a h
+  have e_0_1 := arithEq_of_rows h (row := 0) (i := 1) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_1
+  simp only [← c4, k1, ← c5, k1, ← c6] at e_0_1
+  have e_0_2 := arithEq_of_rows h (row := 0) (i := 2) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_2
+  simp only [← c7, ← c8, k1, ← c9] at e_0_2
+  have e_0_3 := arithEq_of_rows h (row := 0) (i := 3) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_3
+  simp only [← c16, ← c17, k1, ← c18] at e_0_3
+  have e_1_0 := arithEq_of_rows h (row := 1) (i := 0) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_0
+  simp only [← c10, ← c11, ← c12] at e_1_0
+  have e_1_1 := arithEq_of_rows h (row := 1) (i := 1) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_1
+  simp only [← c13, ← c14, ← c15] at e_1_1
+  refine ⟨?_, ?_⟩
+  · have hc := e_1_0
+    simp only [e_0_2] at hc
+    linear_combination c19.trans k0 - hc
+  · have hc := e_0_3
+    simp only [e_0_1, e_1_1, e_0_2] at hc
+    linear_combination c20.trans k0 - hc
+
+theorem gadgetZoo_f2 (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
+    a (.wire 0 23) = bselect (a (.virt 3)) (a (.virt 0)) (a (.virt 1)) := by
+  have c21 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c22 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c23 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c24 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c25 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c26 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have e_0_4 := arithEq_of_rows h (row := 0) (i := 4) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_4
+  simp only [← c21, ← c22, ← c23] at e_0_4
+  have e_0_5 := arithEq_of_rows h (row := 0) (i := 5) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_5
+  simp only [← c24, ← c25, ← c26] at e_0_5
+  have hr := e_0_5
+  simp only [e_0_4] at hr
+  simp only [bselect]
+  linear_combination hr
+
+theorem gadgetZoo_f3 (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
+    a (.wire 3 3) = bor (a (.virt 5)) (a (.virt 3)) := by
+  have c27 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c28 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c29 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c30 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c31 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
+  have c32 := (gadgetZoo_copies1 a h).1
+  obtain ⟨k0, k1, k2, k3⟩ := gadgetZoo_consts a h
+  have e_2_0 := arithEq_of_rows h (row := 2) (i := 0) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_0
+  simp only [← c27, ← c28, ← c29] at e_2_0
+  have e_3_0 := arithEq_of_rows h (row := 3) (i := 0) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_0
+  simp only [← c30, ← c31, k1, ← c32] at e_3_0
+  have hr := e_3_0
+  simp only [e_2_0] at hr
+  simp only [bor]
+  linear_combination hr
+
+theorem gadgetZoo_f4 (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
+    a (.wire 0 27) = bnot (a (.virt 3)) := by
+  have c33 := (gadgetZoo_copies1 a h).2.1
+  have c34 := (gadgetZoo_copies1 a h).2.2.1
+  have c35 := (gadgetZoo_copies1 a h).2.2.2.1
+  obtain ⟨k0, k1, k2, k3⟩ := gadgetZoo_consts a h
+  have e_0_6 := arithEq_of_rows h (row := 0) (i := 6) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_6
+  simp only [← c33, k1, ← c34, k1, ← c35] at e_0_6
+  have hr := e_0_6
+  simp only [bnot]
+  linear_combination hr
+
+theorem gadgetZoo_f5 (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
+    a (.wire 1 11) = band (a (.virt 5)) (a (.wire 0 27)) := by
+  have c36 := (gadgetZoo_copies1 a h).2.2.2.2.1
+  have c37 := (gadgetZoo_copies1 a h).2.2.2.2.2.1
+  have c38 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.1
+  have e_1_2 := arithEq_of_rows h (row := 1) (i := 2) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_2
+  simp only [← c36, ← c37, ← c38] at e_1_2
+  have hr := e_1_2
+  simp only [band]
+  linear_combination hr
+
+theorem gadgetZoo_f6 (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
+    a (.wire 0 31) = a (.virt 8) - a (.virt 2) := by
+  have c39 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.1
+  have c40 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.1
+  have c41 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.2.1
+  obtain ⟨k0, k1, k2, k3⟩ := gadgetZoo_consts a h
+  have e_0_7 := arithEq_of_rows h (row := 0) (i := 7) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_7
+  simp only [← c39, k2, ← c40, k1, ← c41] at e_0_7
+  have hr := e_0_7
+  simp only [k2]
+  linear_combination hr
+
+theorem gadgetZoo_f7 (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
+    rangeCheck (a (.wire 0 31)) 14 := by
+  have c42 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.2.2.1
+  have c43 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.1
+  have c44 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c45 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c46 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c47 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c48 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c49 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c50 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c51 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c52 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c53 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c54 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c55 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c56 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c57 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c58 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c59 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c60 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c61 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c62 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c63 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
+  have c64 := (gadgetZoo_copies2 a h).1
+  have c65 := (gadgetZoo_copies2 a h).2.1
+  have c66 := (gadgetZoo_copies2 a h).2.2.1
+  have c67 := (gadgetZoo_copies2 a h).2.2.2.1
+  have c68 := (gadgetZoo_copies2 a h).2.2.2.2.1
+  have c69 := (gadgetZoo_copies2 a h).2.2.2.2.2.1
+  have c70 := (gadgetZoo_copies2 a h).2.2.2.2.2.2.1
+  have c71 := (gadgetZoo_copies2 a h).2.2.2.2.2.2.2.1
+  have c72 := (gadgetZoo_copies2 a h).2.2.2.2.2.2.2.2.1
+  have c73 := (gadgetZoo_copies2 a h).2.2.2.2.2.2.2.2.2.1
+  have c74 := (gadgetZoo_copies2 a h).2.2.2.2.2.2.2.2.2.2.1
+  have c75 := (gadgetZoo_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.1
+  have c76 := (gadgetZoo_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c77 := (gadgetZoo_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c78 := (gadgetZoo_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c79 := (gadgetZoo_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c80 := (gadgetZoo_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c81 := (gadgetZoo_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c82 := (gadgetZoo_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c83 := (gadgetZoo_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c84 := (gadgetZoo_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c85 := (gadgetZoo_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c86 := (gadgetZoo_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c87 := (gadgetZoo_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c88 := (gadgetZoo_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c89 := (gadgetZoo_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c90 := (gadgetZoo_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have c91 := (gadgetZoo_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  obtain ⟨k0, k1, k2, k3⟩ := gadgetZoo_consts a h
+  have hr := rangeCheck_of_row h (row := 4) (N := 63) (n := 14) rfl rfl (by decide) (by
+    intro i hi1 hi2
+    interval_cases i
+    · exact c42.trans k0
+    · exact c43.trans k0
+    · exact c44.trans k0
+    · exact c45.trans k0
+    · exact c46.trans k0
+    · exact c47.trans k0
+    · exact c48.trans k0
+    · exact c49.trans k0
+    · exact c50.trans k0
+    · exact c51.trans k0
+    · exact c52.trans k0
+    · exact c53.trans k0
+    · exact c54.trans k0
+    · exact c55.trans k0
+    · exact c56.trans k0
+    · exact c57.trans k0
+    · exact c58.trans k0
+    · exact c59.trans k0
+    · exact c60.trans k0
+    · exact c61.trans k0
+    · exact c62.trans k0
+    · exact c63.trans k0
+    · exact c64.trans k0
+    · exact c65.trans k0
+    · exact c66.trans k0
+    · exact c67.trans k0
+    · exact c68.trans k0
+    · exact c69.trans k0
+    · exact c70.trans k0
+    · exact c71.trans k0
+    · exact c72.trans k0
+    · exact c73.trans k0
+    · exact c74.trans k0
+    · exact c75.trans k0
+    · exact c76.trans k0
+    · exact c77.trans k0
+    · exact c78.trans k0
+    · exact c79.trans k0
+    · exact c80.trans k0
+    · exact c81.trans k0
+    · exact c82.trans k0
+    · exact c83.trans k0
+    · exact c84.trans k0
+    · exact c85.trans k0
+    · exact c86.trans k0
+    · exact c87.trans k0
+    · exact c88.trans k0
+    · exact c89.trans k0
+    · exact c90.trans k0
+    )
+  rwa [c91] at hr
+
+theorem gadgetZoo_f8 (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
+    a (.wire 0 23) = a (.wire 3 3) := by
+  have c92 := (gadgetZoo_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
+  exact c92
+
 /-- Every satisfying assignment of `gadgetZoo` has the meaning of each recorded gadget call. Generated at gadget-call granularity; see `gadget.rs`. -/
 theorem gadgetZoo_decode (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
     IsBool (a (.virt 3)) ∧
@@ -180,151 +451,7 @@ theorem gadgetZoo_decode (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
     a (.wire 1 11) = band (a (.virt 5)) (a (.wire 0 27)) ∧
     a (.wire 0 31) = a (.virt 8) - a (.virt 2) ∧
     rangeCheck (a (.wire 0 31)) 14 ∧
-    a (.wire 0 23) = a (.wire 3 3) := by
-  have hcopy := h.2.1
-  simp only [gadgetZoo, List.forall_mem_append] at hcopy
-  have hcopy0 := hcopy.1
-  simp only [gadgetZoo.copies0, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hcopy0
-  obtain ⟨c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18, c19, c20, c21, c22, c23, c24, c25, c26, c27, c28, c29, c30, c31⟩ := hcopy0
-  have hcopy1 := hcopy.2.1
-  simp only [gadgetZoo.copies1, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hcopy1
-  obtain ⟨c32, c33, c34, c35, c36, c37, c38, c39, c40, c41, c42, c43, c44, c45, c46, c47, c48, c49, c50, c51, c52, c53, c54, c55, c56, c57, c58, c59, c60, c61, c62, c63⟩ := hcopy1
-  have hcopy2 := hcopy.2.2
-  simp only [gadgetZoo.copies2, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hcopy2
-  obtain ⟨c64, c65, c66, c67, c68, c69, c70, c71, c72, c73, c74, c75, c76, c77, c78, c79, c80, c81, c82, c83, c84, c85, c86, c87, c88, c89, c90, c91, c92⟩ := hcopy2
-  have hconst := h.2.2
-  simp only [gadgetZoo, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hconst
-  obtain ⟨k0, k1, k2, k3⟩ := hconst
-  have e_0_0 := arithEq_of_rows h (row := 0) (i := 0) rfl (by norm_num)
-  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_0
-  simp only [← c0, ← c1, ← c2] at e_0_0
-  have e_0_1 := arithEq_of_rows h (row := 0) (i := 1) rfl (by norm_num)
-  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_1
-  simp only [← c4, k1, ← c5, k1, ← c6] at e_0_1
-  have e_0_2 := arithEq_of_rows h (row := 0) (i := 2) rfl (by norm_num)
-  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_2
-  simp only [← c7, ← c8, k1, ← c9] at e_0_2
-  have e_1_0 := arithEq_of_rows h (row := 1) (i := 0) rfl (by norm_num)
-  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_1_0
-  simp only [← c10, ← c11, ← c12] at e_1_0
-  have e_1_1 := arithEq_of_rows h (row := 1) (i := 1) rfl (by norm_num)
-  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_1_1
-  simp only [← c13, ← c14, ← c15] at e_1_1
-  have e_0_3 := arithEq_of_rows h (row := 0) (i := 3) rfl (by norm_num)
-  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_3
-  simp only [← c16, ← c17, k1, ← c18] at e_0_3
-  have e_0_4 := arithEq_of_rows h (row := 0) (i := 4) rfl (by norm_num)
-  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_4
-  simp only [← c21, ← c22, ← c23] at e_0_4
-  have e_0_5 := arithEq_of_rows h (row := 0) (i := 5) rfl (by norm_num)
-  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_5
-  simp only [← c24, ← c25, ← c26] at e_0_5
-  have e_2_0 := arithEq_of_rows h (row := 2) (i := 0) rfl (by norm_num)
-  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_2_0
-  simp only [← c27, ← c28, ← c29] at e_2_0
-  have e_3_0 := arithEq_of_rows h (row := 3) (i := 0) rfl (by norm_num)
-  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_3_0
-  simp only [← c30, ← c31, k1, ← c32] at e_3_0
-  have e_0_6 := arithEq_of_rows h (row := 0) (i := 6) rfl (by norm_num)
-  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_6
-  simp only [← c33, k1, ← c34, k1, ← c35] at e_0_6
-  have e_1_2 := arithEq_of_rows h (row := 1) (i := 2) rfl (by norm_num)
-  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_1_2
-  simp only [← c36, ← c37, ← c38] at e_1_2
-  have e_0_7 := arithEq_of_rows h (row := 0) (i := 7) rfl (by norm_num)
-  norm_num only [Nat.reduceMul, Nat.reduceAdd] at e_0_7
-  simp only [← c39, k2, ← c40, k1, ← c41] at e_0_7
-  have f0 : IsBool (a (.virt 3)) := by
-    refine isBool_iff_assertBool.mpr ?_
-    have hc := e_0_0
-    linear_combination c3.trans k0 - hc
-  have f1 : IsEqual (a (.virt 0)) (a (.virt 1)) (a (.virt 5)) (a (.virt 7)) := by
-    refine ⟨?_, ?_⟩
-    · have hc := e_1_0
-      simp only [e_0_2] at hc
-      linear_combination c19.trans k0 - hc
-    · have hc := e_0_3
-      simp only [e_0_1, e_1_1, e_0_2] at hc
-      linear_combination c20.trans k0 - hc
-  have f2 : a (.wire 0 23) = bselect (a (.virt 3)) (a (.virt 0)) (a (.virt 1)) := by
-    have hr := e_0_5
-    simp only [e_0_4] at hr
-    simp only [bselect]
-    linear_combination hr
-  have f3 : a (.wire 3 3) = bor (a (.virt 5)) (a (.virt 3)) := by
-    have hr := e_3_0
-    simp only [e_2_0] at hr
-    simp only [bor]
-    linear_combination hr
-  have f4 : a (.wire 0 27) = bnot (a (.virt 3)) := by
-    have hr := e_0_6
-    simp only [bnot]
-    linear_combination hr
-  have f5 : a (.wire 1 11) = band (a (.virt 5)) (a (.wire 0 27)) := by
-    have hr := e_1_2
-    simp only [band]
-    linear_combination hr
-  have f6 : a (.wire 0 31) = a (.virt 8) - a (.virt 2) := by
-    have hr := e_0_7
-    simp only [k2]
-    linear_combination hr
-  have f7 : rangeCheck (a (.wire 0 31)) 14 := by
-    have hr := rangeCheck_of_row h (row := 4) (N := 63) (n := 14) rfl rfl (by norm_num) (by
-      intro i hi1 hi2
-      interval_cases i
-      · exact c42.trans k0
-      · exact c43.trans k0
-      · exact c44.trans k0
-      · exact c45.trans k0
-      · exact c46.trans k0
-      · exact c47.trans k0
-      · exact c48.trans k0
-      · exact c49.trans k0
-      · exact c50.trans k0
-      · exact c51.trans k0
-      · exact c52.trans k0
-      · exact c53.trans k0
-      · exact c54.trans k0
-      · exact c55.trans k0
-      · exact c56.trans k0
-      · exact c57.trans k0
-      · exact c58.trans k0
-      · exact c59.trans k0
-      · exact c60.trans k0
-      · exact c61.trans k0
-      · exact c62.trans k0
-      · exact c63.trans k0
-      · exact c64.trans k0
-      · exact c65.trans k0
-      · exact c66.trans k0
-      · exact c67.trans k0
-      · exact c68.trans k0
-      · exact c69.trans k0
-      · exact c70.trans k0
-      · exact c71.trans k0
-      · exact c72.trans k0
-      · exact c73.trans k0
-      · exact c74.trans k0
-      · exact c75.trans k0
-      · exact c76.trans k0
-      · exact c77.trans k0
-      · exact c78.trans k0
-      · exact c79.trans k0
-      · exact c80.trans k0
-      · exact c81.trans k0
-      · exact c82.trans k0
-      · exact c83.trans k0
-      · exact c84.trans k0
-      · exact c85.trans k0
-      · exact c86.trans k0
-      · exact c87.trans k0
-      · exact c88.trans k0
-      · exact c89.trans k0
-      · exact c90.trans k0
-      )
-    rwa [c91] at hr
-  have f8 : a (.wire 0 23) = a (.wire 3 3) := by
-    exact c92
-  exact ⟨f0, f1, f2, f3, f4, f5, f6, f7, f8⟩
+    a (.wire 0 23) = a (.wire 3 3) :=
+  ⟨gadgetZoo_f0 a h, gadgetZoo_f1 a h, gadgetZoo_f2 a h, gadgetZoo_f3 a h, gadgetZoo_f4 a h, gadgetZoo_f5 a h, gadgetZoo_f6 a h, gadgetZoo_f7 a h, gadgetZoo_f8 a h⟩
 
 end Plonky2Spec.Generated

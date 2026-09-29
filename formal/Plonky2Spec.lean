@@ -68,11 +68,12 @@
                              the builder's constant-folding and re-pinning corners;
                              `WiringSponge` lifts a `Poseidon2Gate` row fed by a
                              four-input sponge call to `Sponge.spongeHash`, and
-                             `Generated.PrivateBatchWrapper2` is the real `n = 2`
-                             private-batch wrapper, decoded from the gadget-call
-                             trace recorded in qp-zk-circuits (Step 8c), and
-                             `Generated.PublicBatchWrapper{2,4}` the `n_inner = 2, 4`
-                             public-batch wrappers over it (Steps 8f, 8e)
+                             `Generated.PrivateBatchWrapper{2,4}` are the real
+                             `n = 2, 4` private-batch wrappers, decoded from the
+                             gadget-call traces recorded in qp-zk-circuits (Steps
+                             8c, 8e), and `Generated.PublicBatchWrapper{2,4}` the
+                             `n_inner = 2, 4` public-batch wrappers over the `n = 2`
+                             one (Steps 8f, 8e)
 
   Methodology follows Zellic's *Formal Verification of a Plonky2 Gate*: each gadget
   separates an `Assumptions` side-condition (what the surrounding circuit must
@@ -102,5 +103,6 @@ import Plonky2Spec.Generated.GadgetZooCircuit
 import Plonky2Spec.Generated.GadgetEdgeCasesCircuit
 import Plonky2Spec.WiringSponge
 import Plonky2Spec.Generated.PrivateBatchWrapper2
+import Plonky2Spec.Generated.PrivateBatchWrapper4
 import Plonky2Spec.Generated.PublicBatchWrapper2
 import Plonky2Spec.Generated.PublicBatchWrapper4

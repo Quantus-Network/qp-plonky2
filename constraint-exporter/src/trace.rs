@@ -315,19 +315,26 @@ pub fn assert_vendored_trace_matches_pinned(name: &str) {
     );
 }
 
-/// Build `formal/Plonky2Spec/Generated/PrivateBatchWrapper2.lean` from the recorded
-/// `n = 2` private-batch wrapper.
-pub fn generate_private_batch_wrapper_lean() -> Result<String, String> {
+/// Build `formal/Plonky2Spec/Generated/PrivateBatchWrapper{n}.lean` from the recorded `n`-leaf
+/// private-batch wrapper.
+pub fn generate_private_batch_wrapper_lean(n: usize) -> Result<String, String> {
     generate_wrapper_lean(
-        "private_batch_wrapper_n2",
-        "the `n = 2` private-batch wrapper trace\n\
-         \x20 (`qp-zk-circuits/formal/traces/private_batch_wrapper_n2.json`, recorded by\n\
-         \x20 `TracingBuilder` while `build_private_batch_constraints` ran on the real builder)",
-        "privateBatchWrapper2",
-        "The private-batch aggregation wrapper at `n = 2` without the leaf verifiers \
-         (`wormhole/aggregator/src/private_batch/circuit/circuit_logic.rs`): leaf \
-         public inputs `leaf_pis_0/1`, dummy-nullifier preimages `dummy_pre_image_0/1`, \
-         the permutation switch `switches`, and the aggregated public inputs.",
+        &format!("private_batch_wrapper_n{n}"),
+        &format!(
+            "the `n = {n}` private-batch wrapper trace\n\
+             \x20 (`qp-zk-circuits/formal/traces/private_batch_wrapper_n{n}.json`, recorded by\n\
+             \x20 `TracingBuilder` while `build_private_batch_constraints` ran on the real builder)"
+        ),
+        &format!("privateBatchWrapper{n}"),
+        &format!(
+            "The private-batch aggregation wrapper at `n = {n}` without the leaf verifiers \
+             (`wormhole/aggregator/src/private_batch/circuit/circuit_logic.rs`): leaf \
+             public inputs `leaf_pis_0..{}`, dummy-nullifier preimages \
+             `dummy_pre_image_0..{}`, the permutation switches `switches`, and the aggregated \
+             public inputs.",
+            n - 1,
+            n - 1
+        ),
     )
 }
 

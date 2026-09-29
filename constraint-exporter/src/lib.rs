@@ -7,6 +7,7 @@
 pub mod circuit;
 pub mod extract;
 pub mod gadget;
+pub mod private_wrapper;
 pub mod public_wrapper;
 pub mod render;
 pub mod symbolic;

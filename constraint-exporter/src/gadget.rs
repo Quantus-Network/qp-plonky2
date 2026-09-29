@@ -8,15 +8,14 @@
 //! memoisation inside `CircuitBuilder::arithmetic` are observed, not assumed.
 //!
 //! `render_decode_theorem` then emits a Lean theorem `∀ a, Satisfies circuit a → fact₁ ∧ …`
-//! whose proof is generated at *gadget-call* granularity: every used arithmetic op is
-//! instantiated once (`arithEq_of_rows`), copy constraints are oriented so gate input wires
-//! rewrite to the targets connected to them, and each fact is closed by one fixed
-//! tactic block per fact kind using only the ops internal to that call
-//! (`Plonky2Spec/WiringGadgets.lean`).
+//! assembled from one lemma per recorded call: each lemma instantiates the arithmetic ops
+//! internal to its call (`arithEq_of_rows`), with copy constraints oriented so gate input
+//! wires rewrite to the targets connected to them, and closes its fact by one fixed tactic
+//! block per fact kind (`Plonky2Spec/WiringGadgets.lean`).
 
 use core::fmt::Write as _;
 use core::ops::Range;
-use std::collections::{BTreeSet, HashMap, HashSet};
+use std::collections::{BTreeSet, HashMap};
 
 use plonky2::field::goldilocks_field::GoldilocksField;
 use plonky2::field::types::Field;
@@ -92,7 +91,7 @@ impl Fact {
         }
     }
 
-    fn is_poseidon2(&self) -> bool {
+    pub(crate) fn is_poseidon2(&self) -> bool {
         matches!(self, Fact::Poseidon2 { .. })
     }
 
@@ -317,8 +316,6 @@ fn wire(t: Target) -> Option<(usize, usize)> {
 /// is connected to.
 struct Ops<'a> {
     ex: &'a CircuitExport,
-    /// Used ops, in first-copy order.
-    used: Vec<(usize, usize)>,
     /// Input wire `(row, col)` → the target `connect`ed to it (`copies` index).
     input_source: HashMap<(usize, usize), (Target, usize)>,
     /// Constant target → its `constants` index.
@@ -369,15 +366,10 @@ impl<'a> Ops<'a> {
             let (row, col) = wire(t)?;
             matches!(ex.rows.get(row), Some((GateKind::Arithmetic { .. }, _))).then_some((row, col))
         };
-        let mut used = Vec::new();
-        let mut seen = HashSet::new();
         let mut input_source = HashMap::new();
         for (ci, &(x, y)) in ex.copies.iter().enumerate() {
             for (t, other) in [(x, y), (y, x)] {
                 if let Some((row, col)) = is_arith_wire(t) {
-                    if seen.insert((row, col / 4)) {
-                        used.push((row, col / 4));
-                    }
                     if col % 4 != 3 {
                         input_source.insert((row, col), (other, ci));
                     }
@@ -386,7 +378,6 @@ impl<'a> Ops<'a> {
         }
         Ops {
             ex,
-            used,
             input_source,
             const_idx,
         }
@@ -811,25 +802,85 @@ fn destructure(
     }
 }
 
+/// Identifier-like tokens `prefix<digits>[…]` in a tactic script (`c12`, `k0`, `e_3_1`),
+/// not preceded by an identifier character.
+fn tokens<'s>(script: &'s str, prefix: &str) -> Vec<&'s str> {
+    let bytes = script.as_bytes();
+    let is_ident = |b: u8| b.is_ascii_alphanumeric() || b == b'_';
+    let mut found = Vec::new();
+    let mut i = 0;
+    while let Some(off) = script[i..].find(prefix) {
+        let start = i + off;
+        let end0 = start + prefix.len();
+        let boundary = start == 0 || !is_ident(bytes[start - 1]);
+        let mut end = end0;
+        while end < bytes.len() && (bytes[end].is_ascii_digit() || bytes[end] == b'_') {
+            end += 1;
+        }
+        if boundary && end > end0 && bytes[end0].is_ascii_digit() {
+            found.push(&script[start..end]);
+        }
+        i = end0;
+    }
+    found
+}
+
+/// Copy indices `c<i>` a script mentions.
+fn copy_refs(script: &str) -> BTreeSet<usize> {
+    tokens(script, "c")
+        .into_iter()
+        .filter_map(|t| t[1..].parse().ok())
+        .collect()
+}
+
+/// Ops `e_<row>_<i>` a script mentions.
+fn op_refs(script: &str) -> BTreeSet<(usize, usize)> {
+    tokens(script, "e_")
+        .into_iter()
+        .filter_map(|t| {
+            let mut it = t[2..].split('_');
+            Some((it.next()?.parse().ok()?, it.next()?.parse().ok()?))
+        })
+        .collect()
+}
+
+/// `List.mem_append_left/right` path from membership in chunk `k` to membership in the
+/// `++` tree over `n` chunks (`circuit.rs::chunk_tree`), applied to `hq`.
+fn chunk_mem(n: usize, k: usize) -> String {
+    fn go(lo: usize, hi: usize, k: usize) -> String {
+        if hi - lo == 1 {
+            return "hq".into();
+        }
+        let mid = lo + (hi - lo) / 2;
+        if k < mid {
+            format!("(List.mem_append_left _ {})", go(lo, mid, k))
+        } else {
+            format!("(List.mem_append_right _ {})", go(mid, hi, k))
+        }
+    }
+    go(0, n, k)
+}
+
 /// Facts per parenthesised group in a decode theorem's conclusion.
 pub const FACT_GROUP: usize = 32;
 /// Heartbeat budget for decode theorems with more than one fact group.
 const LARGE_HEARTBEATS: usize = 4_000_000;
 
-/// Render `theorem <name>_decode (a) (h : Satisfies (<name> p) a) : fact₁ ∧ … := by …`.
+/// Render `theorem <name>_decode (a) (h : Satisfies (<name> p) a) : fact₁ ∧ …`, assembled
+/// from one lemma `<name>_f<k>` per recorded call. Each lemma destructures only the copy
+/// chunks, constants and op equations its own tactic block mentions, so elaboration time is
+/// linear in the number of calls (a single tactic block over every copy and op is
+/// superlinear and unusable past a few hundred calls).
 pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> String {
     let ops = Ops::new(ex);
     let mut out = String::new();
     let facts: Vec<String> = calls.iter().map(|c| c.fact.lean()).collect();
-    if facts.len() > FACT_GROUP {
-        let _ = writeln!(out, "set_option maxHeartbeats {LARGE_HEARTBEATS} in");
-    }
-    let _ = writeln!(
-        out,
+    let doc = format!(
         "/-- Every satisfying assignment of `{name}` has the meaning of each recorded gadget \
          call. Generated at gadget-call granularity; see `gadget.rs`. -/"
     );
     if facts.is_empty() {
+        let _ = writeln!(out, "{doc}");
         let _ = writeln!(
             out,
             "theorem {name}_decode (a : Assignment p) (h : Satisfies ({name} p) a) : True :=\n  \
@@ -837,67 +888,144 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
         );
         return out;
     }
-    // Facts are grouped `FACT_GROUP` to a parenthesised conjunction, groups conjoined in
-    // turn: a flat `∧` chain hundreds deep is superlinear to elaborate and to destructure.
-    let groups: Vec<&[String]> = facts.chunks(FACT_GROUP).collect();
     let sponge = calls.iter().any(|c| c.fact.is_poseidon2());
-    let _ = writeln!(
-        out,
-        "theorem {name}_decode {}(a : Assignment p) (h : Satisfies ({name} p) a){} :",
-        if sponge {
-            "(perm : St p → St p) "
-        } else {
-            ""
-        },
-        if sponge {
-            format!("\n    (hp : Poseidon2Rows perm ({name} p) a)")
-        } else {
-            String::new()
+    let hyps = |poseidon: bool| -> String {
+        format!(
+            "{}(a : Assignment p) (h : Satisfies ({name} p) a){}",
+            if poseidon {
+                "(perm : St p → St p) "
+            } else {
+                ""
+            },
+            if poseidon {
+                format!("\n    (hp : Poseidon2Rows perm ({name} p) a)")
+            } else {
+                String::new()
+            }
+        )
+    };
+    let cons = "List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true";
+
+    // Copies: one lemma per chunk (or one for a flat list) stating the chunk's copies as a
+    // conjunction, in the normal form `simp only [List.forall_mem_cons, …]` leaves: a copy
+    // `(x, x)` is `True`, and trailing `True`s are absorbed. Fact lemmas project out of it.
+    let chunked = crate::circuit::chunks(ex.copies.len());
+    let chunk_ranges: Vec<Range<usize>> = match &chunked {
+        Some(ranges) => ranges.clone(),
+        None => vec![0..ex.copies.len()],
+    };
+    let conj = |r: &Range<usize>| -> Vec<Option<String>> {
+        let mut v: Vec<Option<String>> = r
+            .clone()
+            .map(|ci| {
+                let (x, y) = ex.copies[ci];
+                (x != y).then(|| format!("a ({}) = a ({})", lean_target(x), lean_target(y)))
+            })
+            .collect();
+        while matches!(v.last(), Some(None)) {
+            v.pop();
         }
-    );
-    for (g, group) in groups.iter().enumerate() {
-        let (open, close) = if groups.len() > 1 {
-            ("(", ")")
-        } else {
-            ("", "")
-        };
-        for (i, f) in group.iter().enumerate() {
-            let pre = if i == 0 { open } else { "" };
-            let sep = match (i + 1 == group.len(), g + 1 == groups.len()) {
-                (false, _) => " ∧",
-                (true, false) => &*format!("{close} ∧"),
-                (true, true) => &*format!("{close} := by"),
+        v
+    };
+    let chunk_lemma = |k: usize| -> String {
+        match &chunked {
+            Some(_) => format!("{name}_copies{k}"),
+            None => format!("{name}_copies"),
+        }
+    };
+    if !ex.copies.is_empty() {
+        for (k, r) in chunk_ranges.iter().enumerate() {
+            let cj = conj(r);
+            let stmt: Vec<String> = cj
+                .iter()
+                .map(|c| c.clone().unwrap_or_else(|| "True".into()))
+                .collect();
+            let stmt = if stmt.is_empty() {
+                "True".to_string()
+            } else {
+                stmt.join(" ∧ ")
             };
-            let _ = writeln!(out, "    {pre}{f}{sep}");
+            let _ = writeln!(
+                out,
+                "theorem {} (a : Assignment p) (h : Satisfies ({name} p) a) :\n    {stmt} := by",
+                chunk_lemma(k)
+            );
+            match &chunked {
+                Some(ranges) => {
+                    let _ = writeln!(
+                        out,
+                        "  have hc : ∀ q ∈ {name}.copies{k}, a q.1 = a q.2 := fun q hq => h.2.1 q {}",
+                        chunk_mem(ranges.len(), k)
+                    );
+                    let _ = writeln!(out, "  simp only [{name}.copies{k}, {cons}] at hc");
+                }
+                None => {
+                    let _ = writeln!(out, "  have hc := h.2.1");
+                    let _ = writeln!(out, "  simp only [{name}, {cons}] at hc");
+                }
+            }
+            let _ = writeln!(out, "  exact hc\n");
         }
     }
-    // Copies and constants, by position: `c<i>` / `k<i>` for item `i`. Flat lists are
-    // destructured at once; chunked lists (`circuit.rs`) are split per chunk.
-    destructure(
-        &mut out,
-        name,
-        "copies",
-        "hcopy",
-        "h.2.1",
-        "c",
-        ex.copies.len(),
-    );
-    destructure(
-        &mut out,
-        name,
-        "constants",
-        "hconst",
-        "h.2.2",
-        "k",
-        ex.constants.len(),
-    );
-    // Every used op, as its wire equation, its input wires oriented to their sources and
-    // constant sources to their values. Output wires stay atoms; a pin on one is used only
-    // by the check that owns it.
-    for &(row, i) in &ops.used {
+    // `have c<i> := <chunk lemma>.2.….1` for copy `i`.
+    let copy_have = |ci: usize| -> String {
+        let (k, r) = chunk_ranges
+            .iter()
+            .enumerate()
+            .find(|(_, r)| r.contains(&ci))
+            .expect("copy index in range");
+        let cj = conj(r);
+        let j = ci - r.start;
+        assert!(
+            cj.get(j).is_some_and(|c| c.is_some()),
+            "copy {ci} is a self-copy and carries nothing"
+        );
+        let mut path = String::new();
+        if cj.len() > 1 {
+            path.push_str(&".2".repeat(j));
+            if j + 1 < cj.len() {
+                path.push_str(".1");
+            }
+        }
+        format!("  have c{ci} := ({} a h){path}\n", chunk_lemma(k))
+    };
+    // Constants, once.
+    if !ex.constants.is_empty() {
+        let stmt: Vec<String> = ex
+            .constants
+            .iter()
+            .map(|(t, v)| format!("a ({}) = {}", lean_target(*t), lean_const_int(*v)))
+            .collect();
         let _ = writeln!(
             out,
-            "  have {} := arithEq_of_rows h (row := {row}) (i := {i}) rfl (by norm_num)",
+            "theorem {name}_consts (a : Assignment p) (h : Satisfies ({name} p) a) :\n    {} := by",
+            stmt.join(" ∧ ")
+        );
+        destructure(
+            &mut out,
+            name,
+            "constants",
+            "hconst",
+            "h.2.2",
+            "k",
+            ex.constants.len(),
+        );
+        let ks: Vec<String> = (0..ex.constants.len()).map(|k| format!("k{k}")).collect();
+        if let [k0] = &ks[..] {
+            let _ = writeln!(out, "  exact {k0}\n");
+        } else {
+            let _ = writeln!(out, "  exact ⟨{}⟩\n", ks.join(", "));
+        }
+    }
+
+    // The op equation of `(row, i)`: its input wires oriented to their sources and constant
+    // sources to their values. Output wires stay atoms; a pin on one is used only by the
+    // check that owns it.
+    let op_block = |(row, i): (usize, usize)| -> String {
+        let mut s = String::new();
+        let _ = writeln!(
+            s,
+            "  have {} := arithEq_of_rows h (row := {row}) (i := {i}) rfl (by decide)",
             e((row, i))
         );
         let mut rules: Vec<String> = Vec::new();
@@ -918,237 +1046,85 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
         }
         rules.dedup();
         let _ = writeln!(
-            out,
-            "  norm_num only [Nat.reduceMul, Nat.reduceAdd] at {}",
+            s,
+            "  simp only [Nat.reduceMul, Nat.reduceAdd] at {}",
             e((row, i))
         );
-        out.push_str(&indent_lines(&simp_only(&rules, Some(&e((row, i)))), "  "));
-    }
-    // One block per call.
+        s.push_str(&indent_lines(&simp_only(&rules, Some(&e((row, i)))), "  "));
+        s
+    };
+
+    // One lemma per call.
     for (n, call) in calls.iter().enumerate() {
         let f = &call.fact;
-        let stop = f.named();
         let what = f.lean();
-        let ks = ops.const_rules(&stop);
-        let _ = writeln!(out, "  have f{n} : {what} := by");
-        match *f {
-            Fact::Select { out: o, .. }
-            | Fact::Not { out: o, .. }
-            | Fact::And { out: o, .. }
-            | Fact::Or { out: o, .. }
-            | Fact::Add { out: o, .. }
-            | Fact::Sub { out: o, .. }
-            | Fact::Mul { out: o, .. } => {
-                let spec = match f {
-                    Fact::Select { .. } => Some("bselect"),
-                    Fact::Not { .. } => Some("bnot"),
-                    Fact::And { .. } => Some("band"),
-                    Fact::Or { .. } => Some("bor"),
-                    _ => None,
-                };
-                let mut goal: Vec<String> = spec.map(|s| s.to_string()).into_iter().collect();
-                goal.extend(ks);
-                let id = identity(&ops, |ev| ev.fact_poly(f).is_zero());
-                match id {
-                    Identity::Holds => {
-                        // The builder folded the call onto an operand or a constant: the
-                        // fact is an identity of the rendered integers.
-                        out.push_str(&indent_lines(&simp_only(&goal, None), "    "));
-                        out.push_str("    ring\n");
-                    }
-                    Identity::GoldilocksOnly => reject_unless_holds(&what, "", id),
-                    Identity::Fails => {
-                        // The output's own equation, with the definitions internal to
-                        // this call substituted, is the fact. An output wire whose op
-                        // belongs to another call (an identity fold onto it) fails this
-                        // test and is reported rather than emitted.
-                        let root = ops.op_of_output(o).unwrap_or_else(|| {
-                            panic!("{what}: output has no op and is no identity")
-                        });
-                        let defs = ops.internal_defs(&ops.inputs(root), &stop);
-                        require_identity(
-                            &ops,
-                            &what,
-                            &format!("op {root:?} does not establish the fact"),
-                            |ev| ev.fact_poly(f) == ev.atom(o) - ev.op_rhs(root, &defs),
-                        );
-                        let defs: Vec<String> = defs.into_iter().map(e).collect();
-                        let _ = writeln!(out, "    have hr := {}", e(root));
-                        out.push_str(&indent_lines(&simp_only(&defs, Some("hr")), "    "));
-                        out.push_str(&indent_lines(&simp_only(&goal, None), "    "));
-                        out.push_str("    linear_combination hr\n");
-                    }
-                }
-            }
-            Fact::AssertBool { b } => {
-                let checks = ops.checks_in(&call.copies);
-                let [chk] = checks[..] else {
-                    panic!("{what}: assert_bool pins exactly one target: {checks:?}")
-                };
-                out.push_str(&indent_lines(&simp_only(&ks, None), "    "));
-                out.push_str("    refine isBool_iff_assertBool.mpr ?_\n");
-                let goal = |ev: &mut Eval| ev.atom(b) * ev.atom(b) - ev.atom(b);
-                out.push_str(&check_script(&ops, chk, &stop, &goal, &what, "    "));
-            }
-            Fact::IsEqual { x, y, equal, inv } => {
-                let checks = ops.checks_in(&call.copies);
-                // `connect(not_equal_check, zero)` then `connect(equal_check, zero)`
-                // (arithmetic.rs), each possibly constant-folded.
-                let [ne, eq] = checks[..] else {
-                    panic!("{what}: is_equal pins exactly two targets: {checks:?}")
-                };
-                out.push_str(&indent_lines(&simp_only(&ks, None), "    "));
-                out.push_str("    refine ⟨?_, ?_⟩\n");
-                let c1 = |ev: &mut Eval| ev.atom(equal) * (ev.atom(x) - ev.atom(y));
-                let c2 = |ev: &mut Eval| {
-                    (ev.atom(x) - ev.atom(y)) * ev.atom(inv) - (ev.one() - ev.atom(equal))
-                };
-                let goals: [&dyn Fn(&mut Eval) -> V; 2] = [&c1, &c2];
-                for (chk, goal) in [ne, eq].into_iter().zip(goals) {
-                    let script = check_script(&ops, chk, &stop, goal, &what, "      ");
-                    let mut lines = script.lines();
-                    if let Some(first) = lines.next() {
-                        let _ = writeln!(out, "    · {}", first.trim_start());
-                    }
-                    for l in lines {
-                        let _ = writeln!(out, "{l}");
-                    }
-                }
-            }
-            Fact::RangeCheck { bits, .. } => {
-                assert_eq!(
-                    call.rows.len(),
-                    1,
-                    "range_check ≤ num_limbs bits places one row"
-                );
-                let row = call.rows.start;
-                let GateKind::BaseSum2 { num_limbs } = ex.rows[row].0 else {
-                    panic!(
-                        "range_check row {row} is not BaseSumGate<2>: {:?}",
-                        ex.rows[row].0
-                    )
-                };
-                // Zero-pinned limbs `bits..num_limbs`, and the sum-wire copy, from this call.
-                let zero_t = ex
-                    .constants
-                    .iter()
-                    .find(|(_, c)| *c == F::ZERO)
-                    .map(|(t, _)| *t)
-                    .expect("range_check pins limbs to the zero constant");
-                let kz = ops.const_idx[&zero_t];
-                let mut limb_copy: HashMap<usize, (usize, bool)> = HashMap::new();
-                let mut sum_copy: Option<(usize, bool)> = None;
-                for ci in call.copies.clone() {
-                    let (x, y) = ex.copies[ci];
-                    for (t, other, fwd) in [(x, y, true), (y, x, false)] {
-                        if let Some((r, col)) = wire(t) {
-                            if r == row {
-                                if col == 0 {
-                                    sum_copy = Some((ci, fwd));
-                                } else if other == zero_t {
-                                    limb_copy.insert(col - 1, (ci, fwd));
-                                }
-                            }
-                        }
-                    }
-                }
-                let (sci, sfwd) = sum_copy.expect("range_check connects the sum wire");
-                let _ = writeln!(
-                    out,
-                    "    have hr := rangeCheck_of_row h (row := {row}) (N := {num_limbs}) \
-                     (n := {bits}) rfl rfl (by norm_num) (by"
-                );
-                out.push_str("      intro i hi1 hi2\n      interval_cases i\n");
-                for i in bits..num_limbs {
-                    let (ci, fwd) = limb_copy
-                        .get(&i)
-                        .unwrap_or_else(|| panic!("limb {i} of row {row} is not pinned to zero"));
-                    let _ = writeln!(
-                        out,
-                        "      · exact {}.trans k{kz}",
-                        if *fwd {
-                            format!("c{ci}")
-                        } else {
-                            format!("c{ci}.symm")
-                        }
-                    );
-                }
-                out.push_str("      )\n");
-                let _ = writeln!(
-                    out,
-                    "    rwa [{}] at hr",
-                    if sfwd {
-                        format!("c{sci}")
-                    } else {
-                        format!("← c{sci}")
-                    }
-                );
-            }
-            Fact::Connect { x, y } => {
-                assert_eq!(call.copies.len(), 1, "connect adds one copy");
-                if x == y {
-                    // The copy `(x, x)` destructures to `True`.
-                    out.push_str("    rfl\n");
-                } else {
-                    let _ = writeln!(out, "    exact c{}", call.copies.start);
-                }
-            }
-            Fact::Poseidon2 { row, inputs } => {
-                assert_eq!(
-                    ex.rows.get(row).map(|r| &r.0),
-                    Some(&GateKind::Poseidon2),
-                    "{what}: row {row} is not a Poseidon2Gate"
-                );
-                // Input wire `j` is connected, within this call, to input `j` (`j < 4`), to
-                // the `one` constant (`j = 4`) or to the `zero` constant (`j > 4`): the
-                // `add(zero, ·)` absorption folds (hashing.rs:94, arithmetic.rs:144).
-                let mut feeds: Vec<String> = Vec::new();
-                for j in 0..12 {
-                    let w = Target::wire(row, j);
-                    let (ci, src) = call
-                        .copies
-                        .clone()
-                        .find_map(|ci| match ex.copies[ci] {
-                            (x, y) if x == w => Some((ci, (y, false))),
-                            (x, y) if y == w => Some((ci, (x, true))),
-                            _ => None,
-                        })
-                        .unwrap_or_else(|| panic!("{what}: input wire {j} is not connected"));
-                    let (src, fwd) = src;
-                    let copy = if fwd {
-                        format!("c{ci}.symm")
-                    } else {
-                        format!("c{ci}")
-                    };
-                    if let Some(&input) = inputs.get(j) {
-                        assert_eq!(src, input, "{what}: input wire {j} is not input {j}");
-                        feeds.push(copy);
-                    } else {
-                        let expect = if j == 4 { F::ONE } else { F::ZERO };
-                        let k = ops.const_idx.get(&src).copied().unwrap_or_else(|| {
-                            panic!("{what}: input wire {j} is not fed by a constant")
-                        });
-                        assert_eq!(
-                            ex.constants[k].1, expect,
-                            "{what}: input wire {j} is not the {expect} constant"
-                        );
-                        feeds.push(format!("({copy}.trans k{k})"));
-                    }
-                }
-                let _ = writeln!(
-                    out,
-                    "    exact poseidon2Row_hash4 perm hp (row := {row}) rfl rfl
-      {}",
-                    feeds.join(" ")
-                );
+        let script = fact_script(&ops, ex, call);
+        let mut body = String::new();
+        for op in op_refs(&script) {
+            body.push_str(&op_block(op));
+        }
+        body.push_str(&script);
+        let mut pre = String::new();
+        for ci in copy_refs(&body) {
+            pre.push_str(&copy_have(ci));
+        }
+        if !tokens(&body, "k").is_empty() {
+            let ks: Vec<String> = (0..ex.constants.len()).map(|k| format!("k{k}")).collect();
+            if let [k0] = &ks[..] {
+                let _ = writeln!(pre, "  have {k0} := {name}_consts a h");
+            } else {
+                let _ = writeln!(pre, "  obtain ⟨{}⟩ := {name}_consts a h", ks.join(", "));
             }
         }
+        let _ = writeln!(
+            out,
+            "theorem {name}_f{n} {} :\n    {what} := by",
+            hyps(f.is_poseidon2())
+        );
+        out.push_str(&pre);
+        out.push_str(&body);
+        out.push('\n');
     }
-    let fs: Vec<String> = (0..calls.len()).map(|i| format!("f{i}")).collect();
+
+    // The conjunction, grouped `FACT_GROUP` to a parenthesised conjunction: a flat `∧`
+    // chain hundreds deep is superlinear to elaborate.
+    if facts.len() > FACT_GROUP {
+        let _ = writeln!(out, "set_option maxHeartbeats {LARGE_HEARTBEATS} in");
+    }
+    let _ = writeln!(out, "{doc}");
+    let groups: Vec<&[String]> = facts.chunks(FACT_GROUP).collect();
+    let _ = writeln!(out, "theorem {name}_decode {} :", hyps(sponge));
+    for (g, group) in groups.iter().enumerate() {
+        let (open, close) = if groups.len() > 1 {
+            ("(", ")")
+        } else {
+            ("", "")
+        };
+        for (i, f) in group.iter().enumerate() {
+            let pre = if i == 0 { open } else { "" };
+            let sep = match (i + 1 == group.len(), g + 1 == groups.len()) {
+                (false, _) => " ∧",
+                (true, false) => &*format!("{close} ∧"),
+                (true, true) => &*format!("{close} :="),
+            };
+            let _ = writeln!(out, "    {pre}{f}{sep}");
+        }
+    }
+    let fs: Vec<String> = calls
+        .iter()
+        .enumerate()
+        .map(|(i, c)| {
+            if c.fact.is_poseidon2() {
+                format!("{name}_f{i} perm a h hp")
+            } else {
+                format!("{name}_f{i} a h")
+            }
+        })
+        .collect();
     if let [f0] = &fs[..] {
-        let _ = writeln!(out, "  exact {f0}");
+        let _ = writeln!(out, "  {f0}");
     } else if fs.len() <= FACT_GROUP {
-        let _ = writeln!(out, "  exact ⟨{}⟩", fs.join(", "));
+        let _ = writeln!(out, "  ⟨{}⟩", fs.join(", "));
     } else {
         let gs: Vec<String> = fs
             .chunks(FACT_GROUP)
@@ -1157,7 +1133,229 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
                 _ => format!("⟨{}⟩", g.join(", ")),
             })
             .collect();
-        let _ = writeln!(out, "  exact ⟨{}⟩", gs.join(", "));
+        let _ = writeln!(out, "  ⟨{}⟩", gs.join(", "));
+    }
+    out
+}
+
+/// The tactic block closing one recorded call's fact, at two-space indentation, referring
+/// to `c<i>`, `k<i>` and `e_<row>_<i>` by name.
+fn fact_script(ops: &Ops, ex: &CircuitExport, call: &Call) -> String {
+    let mut out = String::new();
+    let f = &call.fact;
+    let stop = f.named();
+    let what = f.lean();
+    let ks = ops.const_rules(&stop);
+    match *f {
+        Fact::Select { out: o, .. }
+        | Fact::Not { out: o, .. }
+        | Fact::And { out: o, .. }
+        | Fact::Or { out: o, .. }
+        | Fact::Add { out: o, .. }
+        | Fact::Sub { out: o, .. }
+        | Fact::Mul { out: o, .. } => {
+            let spec = match f {
+                Fact::Select { .. } => Some("bselect"),
+                Fact::Not { .. } => Some("bnot"),
+                Fact::And { .. } => Some("band"),
+                Fact::Or { .. } => Some("bor"),
+                _ => None,
+            };
+            let mut goal: Vec<String> = spec.map(|s| s.to_string()).into_iter().collect();
+            goal.extend(ks);
+            let id = identity(ops, |ev| ev.fact_poly(f).is_zero());
+            match id {
+                Identity::Holds => {
+                    // The builder folded the call onto an operand or a constant: the
+                    // fact is an identity of the rendered integers.
+                    out.push_str(&indent_lines(&simp_only(&goal, None), "  "));
+                    out.push_str("  ring\n");
+                }
+                Identity::GoldilocksOnly => reject_unless_holds(&what, "", id),
+                Identity::Fails => {
+                    // The output's own equation, with the definitions internal to
+                    // this call substituted, is the fact. An output wire whose op
+                    // belongs to another call (an identity fold onto it) fails this
+                    // test and is reported rather than emitted.
+                    let root = ops
+                        .op_of_output(o)
+                        .unwrap_or_else(|| panic!("{what}: output has no op and is no identity"));
+                    let defs = ops.internal_defs(&ops.inputs(root), &stop);
+                    require_identity(
+                        ops,
+                        &what,
+                        &format!("op {root:?} does not establish the fact"),
+                        |ev| ev.fact_poly(f) == ev.atom(o) - ev.op_rhs(root, &defs),
+                    );
+                    let defs: Vec<String> = defs.into_iter().map(e).collect();
+                    let _ = writeln!(out, "  have hr := {}", e(root));
+                    out.push_str(&indent_lines(&simp_only(&defs, Some("hr")), "  "));
+                    out.push_str(&indent_lines(&simp_only(&goal, None), "  "));
+                    out.push_str("  linear_combination hr\n");
+                }
+            }
+        }
+        Fact::AssertBool { b } => {
+            let checks = ops.checks_in(&call.copies);
+            let [chk] = checks[..] else {
+                panic!("{what}: assert_bool pins exactly one target: {checks:?}")
+            };
+            out.push_str(&indent_lines(&simp_only(&ks, None), "  "));
+            out.push_str("  refine isBool_iff_assertBool.mpr ?_\n");
+            let goal = |ev: &mut Eval| ev.atom(b) * ev.atom(b) - ev.atom(b);
+            out.push_str(&check_script(ops, chk, &stop, &goal, &what, "  "));
+        }
+        Fact::IsEqual { x, y, equal, inv } => {
+            let checks = ops.checks_in(&call.copies);
+            // `connect(not_equal_check, zero)` then `connect(equal_check, zero)`
+            // (arithmetic.rs), each possibly constant-folded.
+            let [ne, eq] = checks[..] else {
+                panic!("{what}: is_equal pins exactly two targets: {checks:?}")
+            };
+            out.push_str(&indent_lines(&simp_only(&ks, None), "  "));
+            out.push_str("  refine ⟨?_, ?_⟩\n");
+            let c1 = |ev: &mut Eval| ev.atom(equal) * (ev.atom(x) - ev.atom(y));
+            let c2 = |ev: &mut Eval| {
+                (ev.atom(x) - ev.atom(y)) * ev.atom(inv) - (ev.one() - ev.atom(equal))
+            };
+            let goals: [&dyn Fn(&mut Eval) -> V; 2] = [&c1, &c2];
+            for (chk, goal) in [ne, eq].into_iter().zip(goals) {
+                let script = check_script(ops, chk, &stop, goal, &what, "    ");
+                let mut lines = script.lines();
+                if let Some(first) = lines.next() {
+                    let _ = writeln!(out, "  · {}", first.trim_start());
+                }
+                for l in lines {
+                    let _ = writeln!(out, "{l}");
+                }
+            }
+        }
+        Fact::RangeCheck { bits, .. } => {
+            assert_eq!(
+                call.rows.len(),
+                1,
+                "range_check ≤ num_limbs bits places one row"
+            );
+            let row = call.rows.start;
+            let GateKind::BaseSum2 { num_limbs } = ex.rows[row].0 else {
+                panic!(
+                    "range_check row {row} is not BaseSumGate<2>: {:?}",
+                    ex.rows[row].0
+                )
+            };
+            // Zero-pinned limbs `bits..num_limbs`, and the sum-wire copy, from this call.
+            let zero_t = ex
+                .constants
+                .iter()
+                .find(|(_, c)| *c == F::ZERO)
+                .map(|(t, _)| *t)
+                .expect("range_check pins limbs to the zero constant");
+            let kz = ops.const_idx[&zero_t];
+            let mut limb_copy: HashMap<usize, (usize, bool)> = HashMap::new();
+            let mut sum_copy: Option<(usize, bool)> = None;
+            for ci in call.copies.clone() {
+                let (x, y) = ex.copies[ci];
+                for (t, other, fwd) in [(x, y, true), (y, x, false)] {
+                    if let Some((r, col)) = wire(t) {
+                        if r == row {
+                            if col == 0 {
+                                sum_copy = Some((ci, fwd));
+                            } else if other == zero_t {
+                                limb_copy.insert(col - 1, (ci, fwd));
+                            }
+                        }
+                    }
+                }
+            }
+            let (sci, sfwd) = sum_copy.expect("range_check connects the sum wire");
+            let _ = writeln!(
+                out,
+                "  have hr := rangeCheck_of_row h (row := {row}) (N := {num_limbs}) \
+                 (n := {bits}) rfl rfl (by decide) (by"
+            );
+            out.push_str("    intro i hi1 hi2\n    interval_cases i\n");
+            for i in bits..num_limbs {
+                let (ci, fwd) = limb_copy
+                    .get(&i)
+                    .unwrap_or_else(|| panic!("limb {i} of row {row} is not pinned to zero"));
+                let _ = writeln!(
+                    out,
+                    "    · exact {}.trans k{kz}",
+                    if *fwd {
+                        format!("c{ci}")
+                    } else {
+                        format!("c{ci}.symm")
+                    }
+                );
+            }
+            out.push_str("    )\n");
+            let _ = writeln!(
+                out,
+                "  rwa [{}] at hr",
+                if sfwd {
+                    format!("c{sci}")
+                } else {
+                    format!("← c{sci}")
+                }
+            );
+        }
+        Fact::Connect { x, y } => {
+            assert_eq!(call.copies.len(), 1, "connect adds one copy");
+            if x == y {
+                // The copy `(x, x)` destructures to `True`.
+                out.push_str("  rfl\n");
+            } else {
+                let _ = writeln!(out, "  exact c{}", call.copies.start);
+            }
+        }
+        Fact::Poseidon2 { row, inputs } => {
+            assert_eq!(
+                ex.rows.get(row).map(|r| &r.0),
+                Some(&GateKind::Poseidon2),
+                "{what}: row {row} is not a Poseidon2Gate"
+            );
+            // Input wire `j` is connected, within this call, to input `j` (`j < 4`), to
+            // the `one` constant (`j = 4`) or to the `zero` constant (`j > 4`): the
+            // `add(zero, ·)` absorption folds (hashing.rs:94, arithmetic.rs:144).
+            let mut feeds: Vec<String> = Vec::new();
+            for j in 0..12 {
+                let w = Target::wire(row, j);
+                let (ci, src) = call
+                    .copies
+                    .clone()
+                    .find_map(|ci| match ex.copies[ci] {
+                        (x, y) if x == w => Some((ci, (y, false))),
+                        (x, y) if y == w => Some((ci, (x, true))),
+                        _ => None,
+                    })
+                    .unwrap_or_else(|| panic!("{what}: input wire {j} is not connected"));
+                let (src, fwd) = src;
+                let copy = if fwd {
+                    format!("c{ci}.symm")
+                } else {
+                    format!("c{ci}")
+                };
+                if let Some(&input) = inputs.get(j) {
+                    assert_eq!(src, input, "{what}: input wire {j} is not input {j}");
+                    feeds.push(copy);
+                } else {
+                    let expect = if j == 4 { F::ONE } else { F::ZERO };
+                    let k = ops.const_idx.get(&src).copied().unwrap_or_else(|| {
+                        panic!("{what}: input wire {j} is not fed by a constant")
+                    });
+                    assert_eq!(
+                        ex.constants[k].1, expect,
+                        "{what}: input wire {j} is not the {expect} constant"
+                    );
+                    feeds.push(format!("({copy}.trans k{k})"));
+                }
+            }
+            let _ = writeln!(
+                out,
+                "  exact poseidon2Row_hash4 perm hp (row := {row}) rfl rfl\n    {}",
+                feeds.join(" ")
+            );
+        }
     }
     out
 }
@@ -1524,8 +1722,7 @@ pub fn render_module(what: &str, circuits: &[GeneratedCircuit]) -> String {
          import Plonky2Spec.WiringGadgets\n{}\n\
          namespace Plonky2Spec.Generated\n\n\
          open Plonky2Spec.Wiring\n{}\n\
-         set_option linter.unusedVariables false\n\
-         set_option linter.unusedSimpArgs false\n\n\
+         set_option linter.all false\n\n\
          variable {{p : ℕ}} [Fact p.Prime]\n\n",
         if sponge {
             "import Plonky2Spec.WiringSponge\n"
