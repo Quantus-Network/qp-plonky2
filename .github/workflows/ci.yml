@@ -159,6 +159,20 @@ jobs:
           use-mathlib-cache: "true"
       - name: Build Plonky2Bridge (cross-package capstone)
         run: cd formal && lake build Plonky2Bridge
+      # The exporter's `Generated/*Wrapper2.lean` are produced from the vendored copies of
+      # the qp-zk-circuits gadget-call traces in `constraint-exporter/traces/`. The only job
+      # with the pinned `wormholeSpec` package on disk is this one (after `lake build`), so
+      # this is where vendored == pinned is enforced; `FORMAL_TRACES_STRICT` turns the
+      # tests' "package not fetched" skip into a failure.
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@nightly
+      - name: Assert vendored traces match the pinned wormholeSpec package
+        env:
+          FORMAL_TRACES_STRICT: "1"
+        run: |
+          cargo test -p qp-plonky2-constraint-exporter \
+            --test private_batch_wrapper --test public_batch_wrapper \
+            vendored_trace_matches_pinned_package -- --nocapture
       - name: Assert capstone axiom footprints
         run: |
           set -euo pipefail
@@ -187,6 +201,7 @@ jobs:
           check Plonky2Bridge.private_batch_end_to_end WormholeSpec.leaf_proof_sound
           check Plonky2Bridge.public_batch_end_to_end WormholeSpec.private_batch_proof_sound
           check Plonky2Bridge.private_batch_end_to_end_wired WormholeSpec.leaf_proof_sound
+          check Plonky2Bridge.public_batch_end_to_end_wired WormholeSpec.private_batch_proof_sound
 
   security-audit:
     name: 🔒 Security Audit
