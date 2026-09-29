@@ -291,6 +291,30 @@ pub fn pinned_package_traces_dir() -> PathBuf {
         .join("../formal/.lake/packages/wormholeSpec/formal/traces")
 }
 
+/// Assert the vendored `constraint-exporter/traces/{name}` is byte-identical to the copy in
+/// the pinned `wormholeSpec` package. When the package has not been fetched this skips,
+/// unless `FORMAL_TRACES_STRICT` is set, in which case a missing file is a failure (the
+/// `formal-bridge` CI job, which has run `lake build`, sets it).
+pub fn assert_vendored_trace_matches_pinned(name: &str) {
+    let strict = std::env::var_os("FORMAL_TRACES_STRICT").is_some();
+    let pinned = pinned_package_traces_dir().join(name);
+    let expected = match std::fs::read(&pinned) {
+        Ok(bytes) => bytes,
+        Err(e) if strict => panic!("cannot read pinned trace {}: {e}", pinned.display()),
+        Err(_) => {
+            eprintln!("skipping: {} not fetched", pinned.display());
+            return;
+        }
+    };
+    let vendored = std::fs::read(traces_dir().join(name)).unwrap();
+    assert!(
+        vendored == expected,
+        "constraint-exporter/traces/{name} differs from the pinned wormholeSpec copy; \
+         `cp {} constraint-exporter/traces/` and rerun export-constraints",
+        pinned.display()
+    );
+}
+
 /// Build `formal/Plonky2Spec/Generated/PrivateBatchWrapper2.lean` from the recorded
 /// `n = 2` private-batch wrapper.
 pub fn generate_private_batch_wrapper_lean() -> Result<String, String> {
