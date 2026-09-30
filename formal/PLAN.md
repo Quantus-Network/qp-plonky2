@@ -913,14 +913,13 @@ sponges, bit decompositions, a bit-serial comparator and a 16-level gated Merkle
   `Plonky2Bridge/LeafWired.lean` aliases `leaf_wired := LeafCircuit.sound`; it is gated in
   `ci/AxiomsCheck.lean` on the bare allow-list — no trusted `WormholeSpec` axiom, this is
   the base case.
-- **The salt caveat.** `WormholeSpec.wormholeSalt` / `nullifierSalt` are `opaque` in the spec,
-  so `sound` takes their concrete values as hypotheses (`hws`, `hns`), read off the trace's
-  constant targets: `[1836216183, 1701605224, 1]` = `string_to_felts("wormhole")` and
+- **The salts.** `WormholeSpec.wormholeSalt` / `nullifierSalt` are concrete `def`s (since
+  qp-zk-circuits #192): `[1836216183, 1701605224, 1]` = `string_to_felts("wormhole")` and
   `[1819635326, 2120640876, 1]` = `string_to_felts("~nullif~")` (four little-endian bytes per
-  felt, then `1`; `leaf_bridge_lean_is_current` pins that reading). Follow-up in
-  qp-zk-circuits: make the salts concrete `def`s with a Rust test pinning them to
-  `string_to_felts`, then drop the two hypotheses here.
-- **Pinning.** `wormholeSpec` is pinned at qp-zk-circuits `868b857` (the #191 merge), whose
+  felt, then the `1` terminator word), pinned to the Rust encoder by `salts_match_formal_spec`
+  there. `WA_of_hashes` / `Null_of_hashes` are stated on those literals, and `Shape::read`
+  rejects a trace whose salt constants differ, so `sound` takes no salt hypotheses.
+- **Pinning.** `wormholeSpec` is pinned at qp-zk-circuits `c424630` (the #192 merge), whose
   `formal/traces/leaf_circuit.json` the strict vendored-trace CI step checks byte-for-byte
   against `constraint-exporter/traces/leaf_circuit.json`, alongside the wrapper traces.
   `LeafProofAccepted`/`leaf_proof_sound` remain the layer-1 seam:
@@ -944,6 +943,5 @@ was hand-modeled; Step 8 closes it for both wrappers at every recorded size (`n 
 and `n_inner = 2, 4`, bridges generated from the traces):
 `private_batch_end_to_end_wired{,_n4}` and `public_batch_end_to_end_wired{,_n4}` are the
 capstones stated on the exported wiring, with no decode hypotheses; Step 9 closes it for
-the leaf: `leaf_wired` is `Rleaf` on the exported leaf wiring, axiom-free modulo the two
-salt values)
+the leaf: `leaf_wired` is `Rleaf` on the exported leaf wiring, standard-axioms-only)
 and (b) the layer-1 assumptions (§7) — both explicit.

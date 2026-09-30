@@ -92,8 +92,6 @@ pub struct Shape {
     header_extrinsics_root: [Target; 4],
     header_zk_tree_root: [Target; 4],
     header_digest: Vec<Target>,
-    wormhole_salt: [u64; 3],
-    nullifier_salt: [u64; 3],
     assert_bool: usize,
     wa_hash: (usize, usize),
     wa_connect: [usize; 4],
@@ -407,6 +405,26 @@ impl Shape {
                 .map(|(_, v)| *v)
                 .ok_or_else(|| format!("{} is not a constant target", lean_target(x)))
         };
+        // The salts must be the `string_to_felts` encodings `WormholeSpec.wormholeSalt` /
+        // `nullifierSalt` are defined as; `WA_of_hashes` / `Null_of_hashes` are stated on them.
+        let check_salt = |name: &str, salt: &[u8; 8], inputs: &[Target]| -> Result<(), String> {
+            let expected = [
+                u64::from(u32::from_le_bytes([salt[0], salt[1], salt[2], salt[3]])),
+                u64::from(u32::from_le_bytes([salt[4], salt[5], salt[6], salt[7]])),
+                1,
+            ];
+            let found = [
+                const_value(inputs[0])?,
+                const_value(inputs[1])?,
+                const_value(inputs[2])?,
+            ];
+            if found != expected {
+                return Err(format!(
+                    "{name} salt is {found:?}, but WormholeSpec defines it as {expected:?}"
+                ));
+            }
+            Ok(())
+        };
         let k = Consts {
             zero: const_target(0)?,
             one: const_target(1)?,
@@ -434,11 +452,7 @@ impl Shape {
             _ => None,
         })?;
         let (wa_inputs, wa_mid) = wa_mid;
-        let wormhole_salt = [
-            const_value(wa_inputs[0])?,
-            const_value(wa_inputs[1])?,
-            const_value(wa_inputs[2])?,
-        ];
+        check_salt("wormhole-address", b"wormhole", &wa_inputs)?;
         let wa_secret = arr4(&wa_inputs[3..])?;
         let (wa2, wa_out) = c.poseidon2(&wa_mid, "the wormhole-address outer hash")?;
         let mut wa_connect = [0; 4];
@@ -628,11 +642,7 @@ impl Shape {
             }
             _ => None,
         })?;
-        let nullifier_salt = [
-            const_value(null_salt[0])?,
-            const_value(null_salt[1])?,
-            const_value(null_salt[2])?,
-        ];
+        check_salt("nullifier", b"~nullif~", &null_salt)?;
         let (n2, null_out) = c.poseidon2(&null_mid, "the nullifier outer hash")?;
         let mut null_bind = [Gate {
             sub: 0,
@@ -707,8 +717,6 @@ impl Shape {
             header_extrinsics_root,
             header_zk_tree_root,
             header_digest,
-            wormhole_salt,
-            nullifier_salt,
             assert_bool,
             wa_hash: (wa1, wa2),
             wa_connect,
@@ -785,10 +793,6 @@ fn val(t: Target) -> String {
     format!("({}).val", a(t))
 }
 
-fn salt(s: &[u64; 3]) -> String {
-    format!("[{}, {}, {}]", s[0], s[1], s[2])
-}
-
 impl Shape {
     /// `⟨(a pos).val, D4 s0, D4 s1, D4 s2⟩` of level `i`, as a `MerkleLevel`.
     fn level_term(&self, i: usize, positions: &[Target], siblings: &[Vec<Target>]) -> String {
@@ -859,8 +863,8 @@ pub fn render(shape: &Shape, t: &LoadedTrace) -> String {
     w!("  lemmas of `Plonky2Bridge/Leaf.lean`: the wormhole address and nullifier double hashes,");
     w!("  the leaf hash, the depth bound, the sixteen gated Merkle levels (`gatedWalk` =");
     w!("  `computeRoot` over the first `depth` levels), the dummy flag and the `is_not_dummy`-gated");
-    w!("  bindings. The salts the circuit bakes in are taken as hypotheses on the spec's opaque");
-    w!("  `wormholeSalt` / `nullifierSalt`.");
+    w!("  bindings. The salts the circuit bakes in are checked by the exporter against the");
+    w!("  spec's `wormholeSalt` / `nullifierSalt` encodings, which the hash lemmas are stated on.");
     w!("-/");
     w!("import Plonky2Bridge.Leaf");
     w!("import Plonky2Spec.Generated.LeafCircuit");
@@ -873,8 +877,8 @@ pub fn render(shape: &Shape, t: &LoadedTrace) -> String {
     w!("open Plonky2Spec.Poseidon2 (St)");
     w!("open Plonky2Spec.Sponge (spongeHash)");
     w!("open Plonky2Bridge.Leaf");
-    w!("open WormholeSpec (Digest LeafPublic LeafWitness MerkleLevel Rleaf goldilocks wormholeSalt");
-    w!("  nullifierSalt stepUp computeRoot headerPreimage)");
+    w!("open WormholeSpec (Digest LeafPublic LeafWitness MerkleLevel Rleaf goldilocks stepUp");
+    w!("  computeRoot headerPreimage)");
     w!("");
     w!("variable {{p : ℕ}} [Fact p.Prime]");
     w!("");
@@ -947,13 +951,8 @@ pub fn render(shape: &Shape, t: &LoadedTrace) -> String {
     w!("set_option maxHeartbeats 4000000 in");
     w!("/-- **The recorded leaf circuit satisfies `Rleaf`.** Every satisfying assignment whose");
     w!("    Poseidon2 rows compute `perm` decodes to an `Rleaf` instance on its public inputs and");
-    w!("    witness, for the realized oracle `spongeRO perm`, given the salts the circuit bakes in. -/");
+    w!("    witness, for the realized oracle `spongeRO perm`. -/");
     w!("theorem sound (perm : St p → St p) (hpg : goldilocks ≤ p)");
-    w!(
-        "    (hws : wormholeSalt = {}) (hns : nullifierSalt = {})",
-        salt(&shape.wormhole_salt),
-        salt(&shape.nullifier_salt)
-    );
     w!("    (a : Assignment p) (h : Satisfies (leafCircuit p) a)");
     w!("    (hp : Poseidon2Rows perm (leafCircuit p) a) :");
     w!("    Rleaf (spongeRO perm) (pub a) (wit a) := by");
@@ -978,7 +977,7 @@ pub fn render(shape: &Shape, t: &LoadedTrace) -> String {
     for k in shape.account_connect {
         shape.have_fact(&mut o, k);
     }
-    w!("  have hWA := WA_of_hashes perm hpg hws f{wa1} f{wa2}");
+    w!("  have hWA := WA_of_hashes perm hpg f{wa1} f{wa2}");
     w!(
         "  rw [{}, {}] at hWA",
         shape
@@ -1157,7 +1156,7 @@ pub fn render(shape: &Shape, t: &LoadedTrace) -> String {
     let (n1, n2) = shape.null_hash;
     shape.have_fact(&mut o, n1);
     shape.have_fact(&mut o, n2);
-    w!("  have hnull := Null_of_hashes perm hpg hns f{n1} f{n2}");
+    w!("  have hnull := Null_of_hashes perm hpg f{n1} f{n2}");
     for g in shape
         .null_bind
         .iter()
