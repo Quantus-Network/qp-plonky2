@@ -10,6 +10,8 @@
 //!     (Steps 8f, 8e)
 //!   * `Plonky2Bridge/Generated/Wrapper{2,4}.lean` and `PublicWrapper{2,4}.lean` — their
 //!     compositions into `RPrivateBatch` / `RPublicBatch` (Step 8e)
+//!   * `LeafCircuit.lean`    — the recorded leaf circuit                (Step 9b)
+//!   * `Plonky2Bridge/Generated/Leaf.lean` — its composition into `Rleaf` (Step 9d)
 //!
 //!     cargo run -p qp-plonky2-constraint-exporter --bin export-constraints
 //!
@@ -64,6 +66,10 @@ fn main() -> std::io::Result<()> {
             .map_err(std::io::Error::other)?;
         private_wrappers.push((n, decode, bridge));
     }
+    let leaf =
+        constraint_exporter::trace::generate_leaf_circuit_lean().map_err(std::io::Error::other)?;
+    let leaf_bridge =
+        constraint_exporter::leaf::generate_leaf_bridge_lean().map_err(std::io::Error::other)?;
     let mut public_wrappers = Vec::new();
     for n in PUBLIC_WRAPPER_SIZES {
         let decode = constraint_exporter::trace::generate_public_batch_wrapper_lean(n)
@@ -89,6 +95,8 @@ fn main() -> std::io::Result<()> {
         write(&dir, &format!("PublicBatchWrapper{n}.lean"), decode)?;
         write(&bridge_dir, &format!("PublicWrapper{n}.lean"), bridge)?;
     }
+    write(&dir, "LeafCircuit.lean", &leaf)?;
+    write(&bridge_dir, "Leaf.lean", &leaf_bridge)?;
 
     print!("{gates}");
     println!("\n-- ===== Poseidon2.lean =====");
@@ -113,5 +121,9 @@ fn main() -> std::io::Result<()> {
         println!("\n-- ===== Plonky2Bridge/Generated/PublicWrapper{n}.lean =====");
         print!("{bridge}");
     }
+    println!("\n-- ===== LeafCircuit.lean =====");
+    print!("{leaf}");
+    println!("\n-- ===== Plonky2Bridge/Generated/Leaf.lean =====");
+    print!("{leaf_bridge}");
     Ok(())
 }

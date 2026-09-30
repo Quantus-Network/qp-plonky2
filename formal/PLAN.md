@@ -849,6 +849,84 @@ it. Pieces:
   checks in ~3.5 min; `N = 2` in ~35 s. `Plonky2Bridge/PrivateWrapper.lean` aliases
   `private_batch_end_to_end_wired` / `private_batch_end_to_end_wired_n4` for the axiom gate.
 
+### Step 9 — Wiring-level decode of the leaf circuit: `circuit ⟹ Rleaf`  ✅ DONE
+
+The base of the recursion. Steps 6–8 bridge the two aggregation wrappers *given*
+`leaf_proof_sound`; the leaf circuit itself (`wormhole/circuit/src/circuit.rs`,
+`build_leaf_constraints`) is where `Rleaf` has to come out of the constraints directly. The
+Step 8 pipeline — trace the real builder, generate the per-call decode, generate the bridge
+from the call structure — carries over; what is new is the *shape* of the circuit: multi-block
+sponges, bit decompositions, a bit-serial comparator and a 16-level gated Merkle walk.
+
+- **9a — leaf trace (qp-zk-circuits #191).** `build_leaf_constraints` runs on the
+  `GadgetBuilder` with `TracingBuilder` recording; the trace `leaf_circuit.json` has 1566
+  gadget calls over 22 public inputs and the named witness targets `secret`,
+  `transfer_count`, `to_account`, `account_id`, `root_hash`, `depth`, `positions`,
+  `is_not_dummy`, `siblings_0..15` and the five header fields. New recorded gadgets:
+  `split_le` (one `BaseSumGate<2>` row, `Fact::SplitLe`) and `poseidon2_hash` over any input
+  length (`Fact::Poseidon2 { rows, inputs }`, one row per `pad10` block). `split_low_high`
+  is deliberately unmodelled; the leaf does not use it.
+- **9b — multi-block sponge decode.** `Sponge.lean` gains `absorbMsg_block`/`absorbMsg_block8`
+  (one block of `absorbMsg` at a time) and `WiringSponge.lean` is restated block by block:
+  `poseidon2In_first` (the first row's inputs are the padded block over the zero state),
+  `poseidon2In_chain` (a later row's rate lanes are the previous row's outputs plus the block —
+  either copied, when the block element is the folded `zero`, or the output of an
+  `add` `ArithmeticGate` op, possibly placed in an earlier partially filled row — and its
+  capacity lanes are copied), and `poseidon2Row_absorb`. The exporter's `sponge_script`
+  emits, per block, `hin{k}` from the row's copy/op facts and `hout{k}` from
+  `Poseidon2Rows`, then `rw [spongeHash, hpad, absorbMsg_block8 …, absorbMsg_nil, ← hout…]`.
+  `baseSum_of_row` reads a `split_le` row as `BaseSum 2 x (limbWires row bits)`. The
+  1566-fact `Generated/LeafCircuit.lean` (2.5 MB) checks in ~3 min; the 45-input header hash
+  spans six rows.
+- **9c — `Plonky2Bridge/Leaf.lean`, the leaf's pieces across `.val`.** Digests are passed
+  component-wise (`D4 x0 x1 x2 x3`, the shape of the generated four-conjunct hash facts).
+  `ltLoop` is the comparator loop of `is_const_less_than` in the circuit's own operand order
+  and is proved equal to `RangeCheck.cmp`; `isActive5` reads it on a `split_le(depth, 5)` row
+  as the indicator `c < depth.val`, `depth_le_of_loop` is
+  `enforce_target_less_than_const(depth, 17, 5)`. `stepUp_of_level` is one Merkle level — the
+  2-bit position check, the four `is_equal`s, the child selects (including the two inner
+  selects and the `or(e0, e1)`), the 16-felt hash — as `stepUp`; `gatedStep` adds the
+  `is_active` select; `gatedWalk` walks all sixteen recorded levels applying level `i` iff
+  `i < depth` and `gatedWalk_eq` lands it on `computeRoot` over `levels.take depth`.
+  `notDummy_spec` is the six-`is_equal` and-tree with `is_not_dummy = 1 - is_dummy` as
+  `¬ LeafPublic.isDummy`; `bind_of_gate` is `(x - y) * flag = 0` with `flag = 1`;
+  `WA_of_hashes` / `Null_of_hashes` / `leafHash_of_hash` / `H_of_hash` are the sponge calls as
+  the realized oracle's derivations.
+- **9d — generated bridge and capstone.** `constraint-exporter/src/leaf.rs` walks the 1566
+  calls positionally in the order `build_leaf_constraints` emits them — `assert_bool`, the
+  unspendable-account double hash and its four `connect`s, the seven 32-bit checks and the
+  leaf hash, the depth comparator, sixteen levels (each `split_le`, 50 comparator ops
+  checked bit by bit against the constant's bits, `range_check 2`, four `is_equal`s, 24
+  selects, one `or` re-emitted per limb, the node hash, four `is_active` selects), the gated
+  root binding, the block-number check, the ten shared-target `connect`s, the dummy tree,
+  the nullifier double hash, the header hash and the twelve gated bindings — and rejects
+  anything else (`shape_rejects_perturbed_traces`). It emits
+  `Plonky2Bridge/Generated/Leaf.lean`: `pub a : LeafPublic` off the public inputs, `wit a :
+  LeafWitness` off the named targets with `levels := (levels a).take depth.val`, and
+  `LeafCircuit.sound : Satisfies → Poseidon2Rows perm → Rleaf (spongeRO perm) (pub a) (wit a)`.
+  The comparator loops are closed by one `simp only [ltLoop, cb, …, ← f…]` per loop over the
+  reverse-oriented op facts: constant folding in the builder (`not(one) = zero`,
+  `and(zero, b) = zero`, `or(res, zero) = res`, …) leaves each recorded fact a valid equation
+  between constants, so after rewriting `leafCircuit_consts` in, the facts are exactly the
+  rewrite rules that collapse the unfolded `ltLoop` to the output wire. The Merkle walk is a
+  16-deep `Eq.trans` chain of `gatedWalk_step`. The bridge checks in ~20 s.
+  `Plonky2Bridge/LeafWired.lean` aliases `leaf_wired := LeafCircuit.sound`; it is gated in
+  `ci/AxiomsCheck.lean` on the bare allow-list — no trusted `WormholeSpec` axiom, this is
+  the base case.
+- **The salt caveat.** `WormholeSpec.wormholeSalt` / `nullifierSalt` are `opaque` in the spec,
+  so `sound` takes their concrete values as hypotheses (`hws`, `hns`), read off the trace's
+  constant targets: `[1836216183, 1701605224, 1]` = `string_to_felts("wormhole")` and
+  `[1819635326, 2120640876, 1]` = `string_to_felts("~nullif~")` (four little-endian bytes per
+  felt, then `1`; `leaf_bridge_lean_is_current` pins that reading). Follow-up in
+  qp-zk-circuits: make the salts concrete `def`s with a Rust test pinning them to
+  `string_to_felts`, then drop the two hypotheses here.
+- **Pinning.** `wormholeSpec` is pinned at qp-zk-circuits `868b857` (the #191 merge), whose
+  `formal/traces/leaf_circuit.json` the strict vendored-trace CI step checks byte-for-byte
+  against `constraint-exporter/traces/leaf_circuit.json`, alongside the wrapper traces.
+  `LeafProofAccepted`/`leaf_proof_sound` remain the layer-1 seam:
+  `leaf_wired` establishes `Rleaf` for a *satisfying assignment*, the aggregators' recursion
+  gadgets are what tie a verified proof to one.
+
 ## 9. Definition of done
 
 `R_leaf` fully bridged (T0–T3), `R_L0`/`R_L1` bridged modulo the enumerated
@@ -865,5 +943,7 @@ are exporter-backed and the wrapper *logic* is bridged, but the public-input
 was hand-modeled; Step 8 closes it for both wrappers at every recorded size (`n = 2, 4`
 and `n_inner = 2, 4`, bridges generated from the traces):
 `private_batch_end_to_end_wired{,_n4}` and `public_batch_end_to_end_wired{,_n4}` are the
-capstones stated on the exported wiring, with no decode hypotheses)
+capstones stated on the exported wiring, with no decode hypotheses; Step 9 closes it for
+the leaf: `leaf_wired` is `Rleaf` on the exported leaf wiring, axiom-free modulo the two
+salt values)
 and (b) the layer-1 assumptions (§7) — both explicit.

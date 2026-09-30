@@ -272,6 +272,24 @@ theorem rangeCheck_of_row {c : Circuit p} {a : Assignment p} (h : Satisfies c a)
     obtain ⟨i, hi1, hi2, rfl⟩ := mem_drop_limbWires ht
     exact hz i hi1 hi2
 
+/-- `split_le(x, n)` read off an exported row (split_join.rs:25-50): the same row as
+    `rangeCheck_of_row`, keeping the first `n` limb wires as the bits of the sum wire. -/
+theorem baseSum_of_row {c : Circuit p} {a : Assignment p} (h : Satisfies c a)
+    {row N n : ℕ} {r : Row p} (hr : c.rows[row]? = some r) (hk : r.kind = .baseSum2 N)
+    (hn : n ≤ N) (hz : ∀ i, n ≤ i → i < N → a (.wire row (i + 1)) = 0) :
+    BaseSum 2 (a (.wire row 0)) ((limbWires row n).map a) := by
+  have hb : BaseSum 2 (a (.wire row 0)) ((limbWires row N).map a) := h.baseSum2 hr hk
+  have ht : (limbWires row n).map a = ((limbWires row N).map a).take n := by
+    rw [← List.map_take, limbWires, limbWires, ← List.map_take, List.take_range,
+      Nat.min_eq_left hn]
+  rw [ht]
+  refine baseSum_take hb ?_
+  intro v hv
+  rw [← List.map_drop, List.mem_map] at hv
+  obtain ⟨t, ht, rfl⟩ := hv
+  obtain ⟨i, hi1, hi2, rfl⟩ := mem_drop_limbWires ht
+  exact hz i hi1 hi2
+
 theorem Satisfies.copy {c : Circuit p} {a : Assignment p} (h : Satisfies c a)
     {x y : Target} (hm : (x, y) ∈ c.copies) : Constraint.Sat a (.copy x y) :=
   h.2.1 (x, y) hm

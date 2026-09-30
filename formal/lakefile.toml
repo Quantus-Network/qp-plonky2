@@ -35,7 +35,7 @@ version = "git#v4.30.0"
 [[require]]
 name = "wormholeSpec"
 git = "https://github.com/Quantus-Network/qp-zk-circuits.git"
-rev = "fe539306794567db73f58aae379d0d025a53992b"
+rev = "868b857ec8edb4627e8b5cb65a1b398385938104"
 subDir = "formal"
 
 [[lean_lib]]
@@ -48,4 +48,5 @@ name = "Plonky2Spec"
 [[lean_lib]]
 name = "Plonky2Bridge"
 roots = ["Plonky2Bridge", "Plonky2Bridge.PublicBatch", "Plonky2Bridge.Complete", "Plonky2Bridge.Wiring",
-  "Plonky2Bridge.PrivateBatch", "Plonky2Bridge.PrivateWrapper", "Plonky2Bridge.PublicWrapper"]
+  "Plonky2Bridge.PrivateBatch", "Plonky2Bridge.PrivateWrapper", "Plonky2Bridge.PublicWrapper",
+  "Plonky2Bridge.Leaf", "Plonky2Bridge.LeafWired"]

@@ -13,13 +13,16 @@
   `n_inner = 2` / `4` public-batch wrapper wiring — like `public_batch_end_to_end` (allow-list
   plus `WormholeSpec.private_batch_proof_sound`). `Wrapper{2,4}.sound` and
   `PublicWrapper{2,4}.sound`, the wiring-to-relation steps underneath them, are printed as
-  well and are expected to use no trusted axiom.
+  well and are expected to use no trusted axiom. `leaf_wired` (`LeafCircuit.sound`, the leaf
+  circuit's `Rleaf` on the recorded wiring) is the base of the recursion and is gated on the
+  bare allow-list.
   It is not part of `defaultTargets` or `Plonky2Bridge`; import-only.
 -/
 import Plonky2Bridge
 import Plonky2Bridge.PublicBatch
 import Plonky2Bridge.PrivateWrapper
 import Plonky2Bridge.PublicWrapper
+import Plonky2Bridge.LeafWired
 
 #print axioms Plonky2Bridge.private_batch_end_to_end
 #print axioms Plonky2Bridge.public_batch_end_to_end
@@ -31,3 +34,5 @@ import Plonky2Bridge.PublicWrapper
 #print axioms Plonky2Bridge.PublicWrapper2.sound
 #print axioms Plonky2Bridge.public_batch_end_to_end_wired_n4
 #print axioms Plonky2Bridge.PublicWrapper4.sound
+#print axioms Plonky2Bridge.leaf_wired
+#print axioms Plonky2Bridge.LeafCircuit.sound

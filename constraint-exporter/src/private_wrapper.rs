@@ -281,9 +281,14 @@ impl Cursor<'_> {
 
     fn poseidon2(&mut self, inputs: [Target; 4], what: &str) -> Result<(usize, usize), String> {
         let (k, f) = self.next(what)?;
-        match *f {
-            Fact::Poseidon2 { row, inputs: i } if i == inputs => Ok((k, row)),
-            ref f => Err(format!(
+        match f {
+            Fact::Poseidon2 { rows, inputs: i } if *i == inputs => match rows[..] {
+                [row] => Ok((k, row)),
+                _ => Err(format!(
+                    "call {k}: expected a one-block poseidon2 for {what}, got rows {rows:?}"
+                )),
+            },
+            f => Err(format!(
                 "call {k}: expected poseidon2 for {what}, got {f:?}"
             )),
         }
@@ -875,9 +880,9 @@ impl Shape {
             }
             Fact::AssertBool { b } => b == z,
             Fact::IsEqual { x, y, equal, inv } => [x, y, equal, inv].contains(&z),
-            Fact::RangeCheck { x, .. } => x == z,
+            Fact::RangeCheck { x, .. } | Fact::SplitLe { x, .. } => x == z,
             Fact::Connect { x, y } => [x, y].contains(&z),
-            Fact::Poseidon2 { inputs, .. } => inputs.contains(&z),
+            Fact::Poseidon2 { ref inputs, .. } => inputs.contains(&z),
         }
     }
 
@@ -994,10 +999,7 @@ pub fn render(shape: &Shape) -> String {
             .iter()
             .map(|&k| shape.is_equal_witness(k))
             .unzip();
-        let row_out = match *shape.fact(leaf.hash_outer) {
-            Fact::Poseidon2 { row, .. } => row,
-            _ => unreachable!(),
-        };
+        let row_out = shape.fact(leaf.hash_outer).digest_row().unwrap();
         w!("  | {i} =>");
         w!(
             "    {{ assetId := a (leafPis {i} {}), out1 := a (leafPis {i} {}), out2 := a (leafPis {i} {}),",
@@ -1671,10 +1673,7 @@ pub fn render(shape: &Shape) -> String {
     w!("      intro r hr");
     w!("      rcases hmem r hr with {rfls}");
     for leaf in leaves.iter() {
-        let row_in = match *shape.fact(leaf.hash_inner) {
-            Fact::Poseidon2 { row, .. } => row,
-            _ => unreachable!(),
-        };
+        let row_in = shape.fact(leaf.hash_inner).digest_row().unwrap();
         w!("      · exact ⟨fun j => a (.wire {row_in} (12 + j)), fun j => by fin_cases j <;> assumption,");
         w!("          fun j => by fin_cases j <;> assumption⟩");
     }

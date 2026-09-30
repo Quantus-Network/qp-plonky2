@@ -126,6 +126,33 @@ theorem absorbMsg_short (perm : St p → St p) (s : St p) (msg : List (ZMod p))
     have hdp : (hd :: tl).drop rate = [] := List.drop_eq_nil_of_le hle
     simp only [absorbMsg, ht, hdp]
 
+@[simp] theorem absorbMsg_nil (perm : St p → St p) (s : St p) : absorbMsg perm s [] = s := by
+  simp [absorbMsg]
+
+/-- Absorbing a message that starts with a full `rate`-block is one permutation step
+    followed by absorbing the rest. -/
+theorem absorbMsg_block (perm : St p → St p) (s : St p) (blk rest : List (ZMod p))
+    (h : blk.length = rate) :
+    absorbMsg perm s (blk ++ rest) = absorbMsg perm (perm (addBlock s blk)) rest := by
+  obtain _ | ⟨hd, tl⟩ := blk
+  · simp [rate] at h
+  · have ht : ((hd :: tl) ++ rest).take rate = hd :: tl := by
+      rw [List.take_append_of_le_length (le_of_eq h.symm), List.take_of_length_le (le_of_eq h)]
+    have hd' : ((hd :: tl) ++ rest).drop rate = rest := by
+      rw [List.drop_append_of_le_length (le_of_eq h.symm), List.drop_eq_nil_of_le (le_of_eq h),
+        List.nil_append]
+    rw [List.cons_append]
+    simp only [absorbMsg]
+    rw [← List.cons_append, ht, hd']
+
+/-- `absorbMsg_block` on a literal block, in the form the generated decode proofs rewrite
+    with (`pad10` of the call's inputs, split into its eight-element blocks). -/
+theorem absorbMsg_block8 (perm : St p → St p) (s : St p) (b0 b1 b2 b3 b4 b5 b6 b7 : ZMod p)
+    (rest : List (ZMod p)) :
+    absorbMsg perm s ([b0, b1, b2, b3, b4, b5, b6, b7] ++ rest) =
+      absorbMsg perm (perm (addBlock s [b0, b1, b2, b3, b4, b5, b6, b7])) rest :=
+  absorbMsg_block perm s _ rest rfl
+
 /-- The padded message length: short inputs (`len + 1 ≤ rate`) pad to exactly one
     `rate`-block. -/
 theorem pad10_length_short (inputs : List (ZMod p)) (hle : inputs.length + 1 ≤ rate) :

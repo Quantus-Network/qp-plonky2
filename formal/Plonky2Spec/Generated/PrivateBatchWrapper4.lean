@@ -20,7 +20,7 @@ namespace Plonky2Spec.Generated
 
 open Plonky2Spec.Wiring
 open Plonky2Spec.Poseidon2 (St)
-open Plonky2Spec.Sponge (spongeHash)
+open Plonky2Spec.Sponge (spongeHash pad10 addBlock rate absorbMsg_block8 absorbMsg_nil)
 
 set_option linter.all false
 
@@ -41238,8 +41238,14 @@ theorem privateBatchWrapper4_f1100 (perm : St p → St p) (a : Assignment p) (h 
   have c9442 := (privateBatchWrapper4_copies295 a h).2.2.1
   have c9443 := (privateBatchWrapper4_copies295 a h).2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4⟩ := privateBatchWrapper4_consts a h
-  exact poseidon2Row_hash4 perm hp (row := 196) rfl rfl
-    c9432.symm c9433.symm c9434.symm c9435.symm (c9436.symm.trans k0) (c9437.symm.trans k1) (c9438.symm.trans k1) (c9439.symm.trans k1) (c9440.symm.trans k1) (c9441.symm.trans k1) (c9442.symm.trans k1) (c9443.symm.trans k1)
+  have hin0 : poseidon2In a 196 = addBlock (fun _ => 0) [a (.virt 37940), a (.virt 37941), a (.virt 37942), a (.virt 37943), 1, 0, 0, 0] :=
+    poseidon2In_first c9432.symm c9433.symm c9434.symm c9435.symm (c9436.symm.trans k0) (c9437.symm.trans k1) (c9438.symm.trans k1) (c9439.symm.trans k1) (c9440.symm.trans k1) (c9441.symm.trans k1) (c9442.symm.trans k1) (c9443.symm.trans k1)
+  have hout0 := poseidon2Row_absorb perm hp (row := 196) rfl rfl hin0
+  have hpad : pad10 [a (.virt 37940), a (.virt 37941), a (.virt 37942), a (.virt 37943)] =
+      [a (.virt 37940), a (.virt 37941), a (.virt 37942), a (.virt 37943), 1, 0, 0, 0] ++ [] := by
+    simp [pad10, rate, List.replicate]
+  rw [spongeHash, hpad, absorbMsg_block8, absorbMsg_nil, ← hout0]
+  exact ⟨rfl, rfl, rfl, rfl⟩
 
 theorem privateBatchWrapper4_f1101 (perm : St p → St p) (a : Assignment p) (h : Satisfies (privateBatchWrapper4 p) a)
     (hp : Poseidon2Rows perm (privateBatchWrapper4 p) a) :
@@ -41257,8 +41263,14 @@ theorem privateBatchWrapper4_f1101 (perm : St p → St p) (a : Assignment p) (h 
   have c9454 := (privateBatchWrapper4_copies295 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c9455 := (privateBatchWrapper4_copies295 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4⟩ := privateBatchWrapper4_consts a h
-  exact poseidon2Row_hash4 perm hp (row := 197) rfl rfl
-    c9444.symm c9445.symm c9446.symm c9447.symm (c9448.symm.trans k0) (c9449.symm.trans k1) (c9450.symm.trans k1) (c9451.symm.trans k1) (c9452.symm.trans k1) (c9453.symm.trans k1) (c9454.symm.trans k1) (c9455.symm.trans k1)
+  have hin0 : poseidon2In a 197 = addBlock (fun _ => 0) [a (.wire 196 12), a (.wire 196 13), a (.wire 196 14), a (.wire 196 15), 1, 0, 0, 0] :=
+    poseidon2In_first c9444.symm c9445.symm c9446.symm c9447.symm (c9448.symm.trans k0) (c9449.symm.trans k1) (c9450.symm.trans k1) (c9451.symm.trans k1) (c9452.symm.trans k1) (c9453.symm.trans k1) (c9454.symm.trans k1) (c9455.symm.trans k1)
+  have hout0 := poseidon2Row_absorb perm hp (row := 197) rfl rfl hin0
+  have hpad : pad10 [a (.wire 196 12), a (.wire 196 13), a (.wire 196 14), a (.wire 196 15)] =
+      [a (.wire 196 12), a (.wire 196 13), a (.wire 196 14), a (.wire 196 15), 1, 0, 0, 0] ++ [] := by
+    simp [pad10, rate, List.replicate]
+  rw [spongeHash, hpad, absorbMsg_block8, absorbMsg_nil, ← hout0]
+  exact ⟨rfl, rfl, rfl, rfl⟩
 
 theorem privateBatchWrapper4_f1102 (a : Assignment p) (h : Satisfies (privateBatchWrapper4 p) a) :
     a (.wire 198 3) = bselect (a (.wire 1 43)) (a (.wire 197 12)) (a (.virt 9467)) := by
@@ -41352,8 +41364,14 @@ theorem privateBatchWrapper4_f1106 (perm : St p → St p) (a : Assignment p) (h 
   have c9490 := (privateBatchWrapper4_copies296 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c9491 := (privateBatchWrapper4_copies296 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4⟩ := privateBatchWrapper4_consts a h
-  exact poseidon2Row_hash4 perm hp (row := 199) rfl rfl
-    c9480.symm c9481.symm c9482.symm c9483.symm (c9484.symm.trans k0) (c9485.symm.trans k1) (c9486.symm.trans k1) (c9487.symm.trans k1) (c9488.symm.trans k1) (c9489.symm.trans k1) (c9490.symm.trans k1) (c9491.symm.trans k1)
+  have hin0 : poseidon2In a 199 = addBlock (fun _ => 0) [a (.virt 37944), a (.virt 37945), a (.virt 37946), a (.virt 37947), 1, 0, 0, 0] :=
+    poseidon2In_first c9480.symm c9481.symm c9482.symm c9483.symm (c9484.symm.trans k0) (c9485.symm.trans k1) (c9486.symm.trans k1) (c9487.symm.trans k1) (c9488.symm.trans k1) (c9489.symm.trans k1) (c9490.symm.trans k1) (c9491.symm.trans k1)
+  have hout0 := poseidon2Row_absorb perm hp (row := 199) rfl rfl hin0
+  have hpad : pad10 [a (.virt 37944), a (.virt 37945), a (.virt 37946), a (.virt 37947)] =
+      [a (.virt 37944), a (.virt 37945), a (.virt 37946), a (.virt 37947), 1, 0, 0, 0] ++ [] := by
+    simp [pad10, rate, List.replicate]
+  rw [spongeHash, hpad, absorbMsg_block8, absorbMsg_nil, ← hout0]
+  exact ⟨rfl, rfl, rfl, rfl⟩
 
 theorem privateBatchWrapper4_f1107 (perm : St p → St p) (a : Assignment p) (h : Satisfies (privateBatchWrapper4 p) a)
     (hp : Poseidon2Rows perm (privateBatchWrapper4 p) a) :
@@ -41371,8 +41389,14 @@ theorem privateBatchWrapper4_f1107 (perm : St p → St p) (a : Assignment p) (h 
   have c9502 := (privateBatchWrapper4_copies296 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c9503 := (privateBatchWrapper4_copies296 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   obtain ⟨k0, k1, k2, k3, k4⟩ := privateBatchWrapper4_consts a h
-  exact poseidon2Row_hash4 perm hp (row := 200) rfl rfl
-    c9492.symm c9493.symm c9494.symm c9495.symm (c9496.symm.trans k0) (c9497.symm.trans k1) (c9498.symm.trans k1) (c9499.symm.trans k1) (c9500.symm.trans k1) (c9501.symm.trans k1) (c9502.symm.trans k1) (c9503.symm.trans k1)
+  have hin0 : poseidon2In a 200 = addBlock (fun _ => 0) [a (.wire 199 12), a (.wire 199 13), a (.wire 199 14), a (.wire 199 15), 1, 0, 0, 0] :=
+    poseidon2In_first c9492.symm c9493.symm c9494.symm c9495.symm (c9496.symm.trans k0) (c9497.symm.trans k1) (c9498.symm.trans k1) (c9499.symm.trans k1) (c9500.symm.trans k1) (c9501.symm.trans k1) (c9502.symm.trans k1) (c9503.symm.trans k1)
+  have hout0 := poseidon2Row_absorb perm hp (row := 200) rfl rfl hin0
+  have hpad : pad10 [a (.wire 199 12), a (.wire 199 13), a (.wire 199 14), a (.wire 199 15)] =
+      [a (.wire 199 12), a (.wire 199 13), a (.wire 199 14), a (.wire 199 15), 1, 0, 0, 0] ++ [] := by
+    simp [pad10, rate, List.replicate]
+  rw [spongeHash, hpad, absorbMsg_block8, absorbMsg_nil, ← hout0]
+  exact ⟨rfl, rfl, rfl, rfl⟩
 
 theorem privateBatchWrapper4_f1108 (a : Assignment p) (h : Satisfies (privateBatchWrapper4 p) a) :
     a (.wire 198 35) = bselect (a (.wire 2 27)) (a (.wire 200 12)) (a (.virt 18952)) := by
@@ -41466,8 +41490,14 @@ theorem privateBatchWrapper4_f1112 (perm : St p → St p) (a : Assignment p) (h 
   have c9538 := (privateBatchWrapper4_copies298 a h).2.2.1
   have c9539 := (privateBatchWrapper4_copies298 a h).2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4⟩ := privateBatchWrapper4_consts a h
-  exact poseidon2Row_hash4 perm hp (row := 201) rfl rfl
-    c9528.symm c9529.symm c9530.symm c9531.symm (c9532.symm.trans k0) (c9533.symm.trans k1) (c9534.symm.trans k1) (c9535.symm.trans k1) (c9536.symm.trans k1) (c9537.symm.trans k1) (c9538.symm.trans k1) (c9539.symm.trans k1)
+  have hin0 : poseidon2In a 201 = addBlock (fun _ => 0) [a (.virt 37948), a (.virt 37949), a (.virt 37950), a (.virt 37951), 1, 0, 0, 0] :=
+    poseidon2In_first c9528.symm c9529.symm c9530.symm c9531.symm (c9532.symm.trans k0) (c9533.symm.trans k1) (c9534.symm.trans k1) (c9535.symm.trans k1) (c9536.symm.trans k1) (c9537.symm.trans k1) (c9538.symm.trans k1) (c9539.symm.trans k1)
+  have hout0 := poseidon2Row_absorb perm hp (row := 201) rfl rfl hin0
+  have hpad : pad10 [a (.virt 37948), a (.virt 37949), a (.virt 37950), a (.virt 37951)] =
+      [a (.virt 37948), a (.virt 37949), a (.virt 37950), a (.virt 37951), 1, 0, 0, 0] ++ [] := by
+    simp [pad10, rate, List.replicate]
+  rw [spongeHash, hpad, absorbMsg_block8, absorbMsg_nil, ← hout0]
+  exact ⟨rfl, rfl, rfl, rfl⟩
 
 theorem privateBatchWrapper4_f1113 (perm : St p → St p) (a : Assignment p) (h : Satisfies (privateBatchWrapper4 p) a)
     (hp : Poseidon2Rows perm (privateBatchWrapper4 p) a) :
@@ -41485,8 +41515,14 @@ theorem privateBatchWrapper4_f1113 (perm : St p → St p) (a : Assignment p) (h 
   have c9550 := (privateBatchWrapper4_copies298 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c9551 := (privateBatchWrapper4_copies298 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4⟩ := privateBatchWrapper4_consts a h
-  exact poseidon2Row_hash4 perm hp (row := 202) rfl rfl
-    c9540.symm c9541.symm c9542.symm c9543.symm (c9544.symm.trans k0) (c9545.symm.trans k1) (c9546.symm.trans k1) (c9547.symm.trans k1) (c9548.symm.trans k1) (c9549.symm.trans k1) (c9550.symm.trans k1) (c9551.symm.trans k1)
+  have hin0 : poseidon2In a 202 = addBlock (fun _ => 0) [a (.wire 201 12), a (.wire 201 13), a (.wire 201 14), a (.wire 201 15), 1, 0, 0, 0] :=
+    poseidon2In_first c9540.symm c9541.symm c9542.symm c9543.symm (c9544.symm.trans k0) (c9545.symm.trans k1) (c9546.symm.trans k1) (c9547.symm.trans k1) (c9548.symm.trans k1) (c9549.symm.trans k1) (c9550.symm.trans k1) (c9551.symm.trans k1)
+  have hout0 := poseidon2Row_absorb perm hp (row := 202) rfl rfl hin0
+  have hpad : pad10 [a (.wire 201 12), a (.wire 201 13), a (.wire 201 14), a (.wire 201 15)] =
+      [a (.wire 201 12), a (.wire 201 13), a (.wire 201 14), a (.wire 201 15), 1, 0, 0, 0] ++ [] := by
+    simp [pad10, rate, List.replicate]
+  rw [spongeHash, hpad, absorbMsg_block8, absorbMsg_nil, ← hout0]
+  exact ⟨rfl, rfl, rfl, rfl⟩
 
 theorem privateBatchWrapper4_f1114 (a : Assignment p) (h : Satisfies (privateBatchWrapper4 p) a) :
     a (.wire 203 7) = bselect (a (.wire 4 11)) (a (.wire 202 12)) (a (.virt 28437)) := by
@@ -41580,8 +41616,14 @@ theorem privateBatchWrapper4_f1118 (perm : St p → St p) (a : Assignment p) (h 
   have c9586 := (privateBatchWrapper4_copies299 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c9587 := (privateBatchWrapper4_copies299 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4⟩ := privateBatchWrapper4_consts a h
-  exact poseidon2Row_hash4 perm hp (row := 204) rfl rfl
-    c9576.symm c9577.symm c9578.symm c9579.symm (c9580.symm.trans k0) (c9581.symm.trans k1) (c9582.symm.trans k1) (c9583.symm.trans k1) (c9584.symm.trans k1) (c9585.symm.trans k1) (c9586.symm.trans k1) (c9587.symm.trans k1)
+  have hin0 : poseidon2In a 204 = addBlock (fun _ => 0) [a (.virt 37952), a (.virt 37953), a (.virt 37954), a (.virt 37955), 1, 0, 0, 0] :=
+    poseidon2In_first c9576.symm c9577.symm c9578.symm c9579.symm (c9580.symm.trans k0) (c9581.symm.trans k1) (c9582.symm.trans k1) (c9583.symm.trans k1) (c9584.symm.trans k1) (c9585.symm.trans k1) (c9586.symm.trans k1) (c9587.symm.trans k1)
+  have hout0 := poseidon2Row_absorb perm hp (row := 204) rfl rfl hin0
+  have hpad : pad10 [a (.virt 37952), a (.virt 37953), a (.virt 37954), a (.virt 37955)] =
+      [a (.virt 37952), a (.virt 37953), a (.virt 37954), a (.virt 37955), 1, 0, 0, 0] ++ [] := by
+    simp [pad10, rate, List.replicate]
+  rw [spongeHash, hpad, absorbMsg_block8, absorbMsg_nil, ← hout0]
+  exact ⟨rfl, rfl, rfl, rfl⟩
 
 theorem privateBatchWrapper4_f1119 (perm : St p → St p) (a : Assignment p) (h : Satisfies (privateBatchWrapper4 p) a)
     (hp : Poseidon2Rows perm (privateBatchWrapper4 p) a) :
@@ -41599,8 +41641,14 @@ theorem privateBatchWrapper4_f1119 (perm : St p → St p) (a : Assignment p) (h 
   have c9598 := (privateBatchWrapper4_copies299 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c9599 := (privateBatchWrapper4_copies299 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   obtain ⟨k0, k1, k2, k3, k4⟩ := privateBatchWrapper4_consts a h
-  exact poseidon2Row_hash4 perm hp (row := 205) rfl rfl
-    c9588.symm c9589.symm c9590.symm c9591.symm (c9592.symm.trans k0) (c9593.symm.trans k1) (c9594.symm.trans k1) (c9595.symm.trans k1) (c9596.symm.trans k1) (c9597.symm.trans k1) (c9598.symm.trans k1) (c9599.symm.trans k1)
+  have hin0 : poseidon2In a 205 = addBlock (fun _ => 0) [a (.wire 204 12), a (.wire 204 13), a (.wire 204 14), a (.wire 204 15), 1, 0, 0, 0] :=
+    poseidon2In_first c9588.symm c9589.symm c9590.symm c9591.symm (c9592.symm.trans k0) (c9593.symm.trans k1) (c9594.symm.trans k1) (c9595.symm.trans k1) (c9596.symm.trans k1) (c9597.symm.trans k1) (c9598.symm.trans k1) (c9599.symm.trans k1)
+  have hout0 := poseidon2Row_absorb perm hp (row := 205) rfl rfl hin0
+  have hpad : pad10 [a (.wire 204 12), a (.wire 204 13), a (.wire 204 14), a (.wire 204 15)] =
+      [a (.wire 204 12), a (.wire 204 13), a (.wire 204 14), a (.wire 204 15), 1, 0, 0, 0] ++ [] := by
+    simp [pad10, rate, List.replicate]
+  rw [spongeHash, hpad, absorbMsg_block8, absorbMsg_nil, ← hout0]
+  exact ⟨rfl, rfl, rfl, rfl⟩
 
 theorem privateBatchWrapper4_f1120 (a : Assignment p) (h : Satisfies (privateBatchWrapper4 p) a) :
     a (.wire 203 39) = bselect (a (.wire 4 55)) (a (.wire 205 12)) (a (.virt 37922)) := by

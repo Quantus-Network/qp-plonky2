@@ -64,14 +64,31 @@ pub enum Fact {
     RangeCheck { x: Target, bits: usize },
     /// `a x = a y`
     Connect { x: Target, y: Target },
-    /// `hash_n_to_hash_no_pad_p2` on four inputs: one `Poseidon2Gate` row at `row`, whose
-    /// first four output wires are `spongeHash perm [a x0, a x1, a x2, a x3]`.
-    Poseidon2 { row: usize, inputs: [Target; 4] },
+    /// `split_le(x, bits)`: `BaseSum 2 (a x) [a (.wire row 1), …, a (.wire row bits)]`, the
+    /// first `bits` limb wires of the `BaseSumGate<2>` row at `row` being the bits.
+    SplitLe { x: Target, row: usize, bits: usize },
+    /// `hash_n_to_hash_no_pad_p2` on `inputs`: one `Poseidon2Gate` row per block of
+    /// `pad10 inputs`, in absorption order, the last row's first four output wires being
+    /// `spongeHash perm [a x0, …]`.
+    Poseidon2 {
+        rows: Vec<usize>,
+        inputs: Vec<Target>,
+    },
+}
+
+impl Fact {
+    /// The row whose output wires carry a hash's digest.
+    pub fn digest_row(&self) -> Option<usize> {
+        match self {
+            Fact::Poseidon2 { rows, .. } => rows.last().copied(),
+            _ => None,
+        }
+    }
 }
 
 impl Fact {
     /// Targets the fact is stated on; the generated proof never rewrites these away.
-    fn named(&self) -> Vec<Target> {
+    pub(crate) fn named(&self) -> Vec<Target> {
         match *self {
             Fact::Select { b, x, y, out } => vec![b, x, y, out],
             Fact::Not { b, out } => vec![b, out],
@@ -83,9 +100,18 @@ impl Fact {
             Fact::IsEqual { x, y, equal, inv } => vec![x, y, equal, inv],
             Fact::RangeCheck { x, .. } => vec![x],
             Fact::Connect { x, y } => vec![x, y],
-            Fact::Poseidon2 { row, inputs } => {
-                let mut v = inputs.to_vec();
-                v.extend((12..16).map(|col| Target::wire(row, col)));
+            Fact::SplitLe { x, row, bits } => {
+                let mut v = vec![x];
+                v.extend((1..=bits).map(|col| Target::wire(row, col)));
+                v
+            }
+            Fact::Poseidon2 {
+                ref rows,
+                ref inputs,
+            } => {
+                let mut v = inputs.clone();
+                let last = *rows.last().expect("a hash has a row");
+                v.extend((12..16).map(|col| Target::wire(last, col)));
                 v
             }
         }
@@ -113,18 +139,27 @@ impl Fact {
             }
             Fact::RangeCheck { x, bits } => format!("rangeCheck ({}) {bits}", a(x)),
             Fact::Connect { x, y } => format!("{} = {}", a(x), a(y)),
-            Fact::Poseidon2 { row, inputs } => {
+            Fact::SplitLe { x, row, bits } => format!(
+                "BaseSum 2 ({}) [{}]",
+                a(x),
+                (1..=bits)
+                    .map(|col| format!("a (.wire {row} {col})"))
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            ),
+            Fact::Poseidon2 {
+                ref rows,
+                ref inputs,
+            } => {
                 let digest = format!(
-                    "spongeHash perm [{}, {}, {}, {}]",
-                    a(inputs[0]),
-                    a(inputs[1]),
-                    a(inputs[2]),
-                    a(inputs[3])
+                    "spongeHash perm [{}]",
+                    inputs.iter().map(|&t| a(t)).collect::<Vec<_>>().join(", ")
                 );
+                let last = rows.last().expect("a hash has a row");
                 format!(
                     "({})",
                     (0..4)
-                        .map(|i| format!("a (.wire {row} {}) = {digest} {i}", 12 + i))
+                        .map(|i| format!("a (.wire {last} {}) = {digest} {i}", 12 + i))
                         .collect::<Vec<_>>()
                         .join(" ∧ ")
                 )
@@ -626,6 +661,7 @@ impl<'o, 'a> Eval<'o, 'a> {
             Fact::AssertBool { .. }
             | Fact::IsEqual { .. }
             | Fact::RangeCheck { .. }
+            | Fact::SplitLe { .. }
             | Fact::Poseidon2 { .. } => unreachable!("not a value fact"),
         }
     }
@@ -1231,73 +1267,15 @@ fn fact_script(ops: &Ops, ex: &CircuitExport, call: &Call) -> String {
             }
         }
         Fact::RangeCheck { bits, .. } => {
-            assert_eq!(
-                call.rows.len(),
-                1,
-                "range_check ≤ num_limbs bits places one row"
-            );
-            let row = call.rows.start;
-            let GateKind::BaseSum2 { num_limbs } = ex.rows[row].0 else {
-                panic!(
-                    "range_check row {row} is not BaseSumGate<2>: {:?}",
-                    ex.rows[row].0
-                )
-            };
-            // Zero-pinned limbs `bits..num_limbs`, and the sum-wire copy, from this call.
-            let zero_t = ex
-                .constants
-                .iter()
-                .find(|(_, c)| *c == F::ZERO)
-                .map(|(t, _)| *t)
-                .expect("range_check pins limbs to the zero constant");
-            let kz = ops.const_idx[&zero_t];
-            let mut limb_copy: HashMap<usize, (usize, bool)> = HashMap::new();
-            let mut sum_copy: Option<(usize, bool)> = None;
-            for ci in call.copies.clone() {
-                let (x, y) = ex.copies[ci];
-                for (t, other, fwd) in [(x, y, true), (y, x, false)] {
-                    if let Some((r, col)) = wire(t) {
-                        if r == row {
-                            if col == 0 {
-                                sum_copy = Some((ci, fwd));
-                            } else if other == zero_t {
-                                limb_copy.insert(col - 1, (ci, fwd));
-                            }
-                        }
-                    }
-                }
-            }
-            let (sci, sfwd) = sum_copy.expect("range_check connects the sum wire");
-            let _ = writeln!(
-                out,
-                "  have hr := rangeCheck_of_row h (row := {row}) (N := {num_limbs}) \
-                 (n := {bits}) rfl rfl (by decide) (by"
-            );
-            out.push_str("    intro i hi1 hi2\n    interval_cases i\n");
-            for i in bits..num_limbs {
-                let (ci, fwd) = limb_copy
-                    .get(&i)
-                    .unwrap_or_else(|| panic!("limb {i} of row {row} is not pinned to zero"));
-                let _ = writeln!(
-                    out,
-                    "    · exact {}.trans k{kz}",
-                    if *fwd {
-                        format!("c{ci}")
-                    } else {
-                        format!("c{ci}.symm")
-                    }
-                );
-            }
-            out.push_str("    )\n");
-            let _ = writeln!(
-                out,
-                "  rwa [{}] at hr",
-                if sfwd {
-                    format!("c{sci}")
-                } else {
-                    format!("← c{sci}")
-                }
-            );
+            let (row, hr) = base_sum_row(ops, ex, call, "rangeCheck_of_row", bits, &what);
+            let _ = write!(out, "{hr}");
+            let _ = writeln!(out, "  rwa [{}] at hr", sum_wire_rule(ex, call, row, &what));
+        }
+        Fact::SplitLe { row, bits, .. } => {
+            let (r, hr) = base_sum_row(ops, ex, call, "baseSum_of_row", bits, &what);
+            assert_eq!(r, row, "{what}: the call's row is not the recorded one");
+            let _ = write!(out, "{hr}");
+            let _ = writeln!(out, "  rwa [{}] at hr", sum_wire_rule(ex, call, row, &what));
         }
         Fact::Connect { x, y } => {
             assert_eq!(call.copies.len(), 1, "connect adds one copy");
@@ -1308,55 +1286,287 @@ fn fact_script(ops: &Ops, ex: &CircuitExport, call: &Call) -> String {
                 let _ = writeln!(out, "  exact c{}", call.copies.start);
             }
         }
-        Fact::Poseidon2 { row, inputs } => {
-            assert_eq!(
-                ex.rows.get(row).map(|r| &r.0),
-                Some(&GateKind::Poseidon2),
-                "{what}: row {row} is not a Poseidon2Gate"
-            );
-            // Input wire `j` is connected, within this call, to input `j` (`j < 4`), to
-            // the `one` constant (`j = 4`) or to the `zero` constant (`j > 4`): the
-            // `add(zero, ·)` absorption folds (hashing.rs:94, arithmetic.rs:144).
-            let mut feeds: Vec<String> = Vec::new();
-            for j in 0..12 {
-                let w = Target::wire(row, j);
-                let (ci, src) = call
-                    .copies
-                    .clone()
-                    .find_map(|ci| match ex.copies[ci] {
-                        (x, y) if x == w => Some((ci, (y, false))),
-                        (x, y) if y == w => Some((ci, (x, true))),
-                        _ => None,
-                    })
-                    .unwrap_or_else(|| panic!("{what}: input wire {j} is not connected"));
-                let (src, fwd) = src;
-                let copy = if fwd {
-                    format!("c{ci}.symm")
-                } else {
-                    format!("c{ci}")
-                };
-                if let Some(&input) = inputs.get(j) {
-                    assert_eq!(src, input, "{what}: input wire {j} is not input {j}");
-                    feeds.push(copy);
-                } else {
-                    let expect = if j == 4 { F::ONE } else { F::ZERO };
-                    let k = ops.const_idx.get(&src).copied().unwrap_or_else(|| {
-                        panic!("{what}: input wire {j} is not fed by a constant")
-                    });
-                    assert_eq!(
-                        ex.constants[k].1, expect,
-                        "{what}: input wire {j} is not the {expect} constant"
-                    );
-                    feeds.push(format!("({copy}.trans k{k})"));
-                }
-            }
-            let _ = writeln!(
-                out,
-                "  exact poseidon2Row_hash4 perm hp (row := {row}) rfl rfl\n    {}",
-                feeds.join(" ")
-            );
+        Fact::Poseidon2 {
+            ref rows,
+            ref inputs,
+        } => {
+            out.push_str(&sponge_script(ops, ex, call, rows, inputs, &what));
         }
     }
+    out
+}
+
+/// `have hr := <lemma> h (row := …) (N := …) (n := bits) rfl rfl (by decide) (by …)` for the
+/// `BaseSumGate<2>` row a `range_check`/`split_le` call placed, the tail limbs `bits..N`
+/// discharged from this call's copies to the zero constant. Returns the row too.
+fn base_sum_row(
+    ops: &Ops,
+    ex: &CircuitExport,
+    call: &Call,
+    lemma: &str,
+    bits: usize,
+    what: &str,
+) -> (usize, String) {
+    assert_eq!(
+        call.rows.len(),
+        1,
+        "{what}: a split of ≤ num_limbs bits places one row"
+    );
+    let row = call.rows.start;
+    let GateKind::BaseSum2 { num_limbs } = ex.rows[row].0 else {
+        panic!(
+            "{what}: row {row} is not BaseSumGate<2>: {:?}",
+            ex.rows[row].0
+        )
+    };
+    let zero_t = ex
+        .constants
+        .iter()
+        .find(|(_, c)| *c == F::ZERO)
+        .map(|(t, _)| *t)
+        .unwrap_or_else(|| panic!("{what}: limbs are pinned to the zero constant"));
+    let kz = ops.const_idx[&zero_t];
+    let mut limb_copy: HashMap<usize, (usize, bool)> = HashMap::new();
+    for ci in call.copies.clone() {
+        let (x, y) = ex.copies[ci];
+        for (t, other, fwd) in [(x, y, true), (y, x, false)] {
+            if let Some((r, col)) = wire(t) {
+                if r == row && col > 0 && other == zero_t {
+                    limb_copy.insert(col - 1, (ci, fwd));
+                }
+            }
+        }
+    }
+    let mut out = String::new();
+    let _ = writeln!(
+        out,
+        "  have hr := {lemma} h (row := {row}) (N := {num_limbs}) (n := {bits}) rfl rfl \
+         (by decide) (by"
+    );
+    out.push_str("    intro i hi1 hi2\n    interval_cases i\n");
+    for i in bits..num_limbs {
+        let (ci, fwd) = limb_copy
+            .get(&i)
+            .unwrap_or_else(|| panic!("{what}: limb {i} of row {row} is not pinned to zero"));
+        let _ = writeln!(
+            out,
+            "    · exact {}.trans k{kz}",
+            if *fwd {
+                format!("c{ci}")
+            } else {
+                format!("c{ci}.symm")
+            }
+        );
+    }
+    out.push_str("    )\n");
+    (row, out)
+}
+
+/// The rewrite moving a fact off a `BaseSumGate<2>` row's sum wire onto the target this
+/// call connected to it.
+fn sum_wire_rule(ex: &CircuitExport, call: &Call, row: usize, what: &str) -> String {
+    let sum = Target::wire(row, 0);
+    for ci in call.copies.clone() {
+        let (x, y) = ex.copies[ci];
+        if x == sum {
+            return format!("c{ci}");
+        }
+        if y == sum {
+            return format!("← c{ci}");
+        }
+    }
+    panic!("{what}: the sum wire of row {row} is not connected")
+}
+
+/// An element of the padded sponge message.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Elem {
+    Input(Target),
+    One,
+    Zero,
+}
+
+impl Elem {
+    fn lean(self) -> String {
+        match self {
+            Elem::Input(t) => format!("a ({})", lean_target(t)),
+            Elem::One => "1".into(),
+            Elem::Zero => "0".into(),
+        }
+    }
+
+    fn value(self, ev: &mut Eval) -> V {
+        match self {
+            Elem::Input(t) => ev.atom(t),
+            Elem::One => ev.one(),
+            Elem::Zero => ev.one() - ev.one(),
+        }
+    }
+}
+
+/// The copy in this call connecting `w` (a row input wire) to its source, as the source and
+/// a proof of `a w = a source`.
+fn feed(ex: &CircuitExport, call: &Call, w: Target, what: &str) -> (Target, usize, bool) {
+    call.copies
+        .clone()
+        .find_map(|ci| match ex.copies[ci] {
+            (x, y) if x == w => Some((y, ci, true)),
+            (x, y) if y == w => Some((x, ci, false)),
+            _ => None,
+        })
+        .unwrap_or_else(|| panic!("{what}: input wire {w:?} is not connected"))
+}
+
+fn copy_term(ci: usize, fwd: bool) -> String {
+    if fwd {
+        format!("c{ci}")
+    } else {
+        format!("c{ci}.symm")
+    }
+}
+
+/// The tactic block for a `poseidon2_hash` call: per row, the twelve input-wire facts
+/// packaged by `poseidon2In_first`/`poseidon2In_chain` and permuted by
+/// `poseidon2Row_absorb`; then `spongeHash` unfolded block by block onto the row outputs.
+fn sponge_script(
+    ops: &Ops,
+    ex: &CircuitExport,
+    call: &Call,
+    rows: &[usize],
+    inputs: &[Target],
+    what: &str,
+) -> String {
+    let mut out = String::new();
+    let mut msg: Vec<Elem> = inputs.iter().map(|&t| Elem::Input(t)).collect();
+    msg.push(Elem::One);
+    while msg.len() % 8 != 0 {
+        msg.push(Elem::Zero);
+    }
+    assert_eq!(
+        msg.len(),
+        8 * rows.len(),
+        "{what}: {} padded elements need {} Poseidon2Gate rows, got {rows:?}",
+        msg.len(),
+        msg.len() / 8
+    );
+    let const_val = |t: Target| ops.const_idx.get(&t).map(|&k| (k, ex.constants[k].1));
+    let expect_const = |src: Target, ci: usize, fwd: bool, v: F, lane: &str| -> String {
+        let (k, actual) =
+            const_val(src).unwrap_or_else(|| panic!("{what}: {lane} is not fed by a constant"));
+        assert_eq!(actual, v, "{what}: {lane} is not the {v} constant");
+        format!("({}.trans k{k})", copy_term(ci, fwd))
+    };
+    for (k, &row) in rows.iter().enumerate() {
+        assert_eq!(
+            ex.rows.get(row).map(|r| &r.0),
+            Some(&GateKind::Poseidon2),
+            "{what}: row {row} is not a Poseidon2Gate"
+        );
+        let block = &msg[8 * k..8 * k + 8];
+        let mut terms: Vec<String> = Vec::with_capacity(12);
+        for j in 0..12 {
+            let w = Target::wire(row, j);
+            let (src, ci, fwd) = feed(ex, call, w, what);
+            let lane = format!("input wire {j} of row {row}");
+            let term = if k == 0 {
+                match if j < 8 { block[j] } else { Elem::Zero } {
+                    Elem::Input(t) if src == t => copy_term(ci, fwd),
+                    Elem::Input(t) => match (const_val(src), const_val(t)) {
+                        (Some((ks, vs)), Some((kt, vt))) if vs == vt => {
+                            format!("({}.trans (k{ks}.trans k{kt}.symm))", copy_term(ci, fwd))
+                        }
+                        _ => panic!("{what}: {lane} is not input {j}"),
+                    },
+                    Elem::One => expect_const(src, ci, fwd, F::ONE, &lane),
+                    Elem::Zero => expect_const(src, ci, fwd, F::ZERO, &lane),
+                }
+            } else {
+                let prev = Target::wire(rows[k - 1], 12 + j);
+                if j >= 8 || src == prev {
+                    assert_eq!(src, prev, "{what}: {lane} is not the previous output");
+                    if j >= 8 {
+                        copy_term(ci, fwd)
+                    } else {
+                        assert_eq!(
+                            block[j],
+                            Elem::Zero,
+                            "{what}: {lane} skips a nonzero block element"
+                        );
+                        format!("({}.trans (add_zero _).symm)", copy_term(ci, fwd))
+                    }
+                } else {
+                    // `add(state, element)` placed an op: `a src = 1 * a prev * 1 + 1 * elem`.
+                    let op = ops.op_of_output(src).unwrap_or_else(|| {
+                        panic!("{what}: {lane} is fed by neither the previous output nor an op")
+                    });
+                    let b = block[j];
+                    require_identity(
+                        ops,
+                        what,
+                        &format!("op {op:?} does not add the block element onto {lane}"),
+                        |ev| ev.op_rhs(op, &[]) == ev.atom(prev) + b.value(ev),
+                    );
+                    let sign = if fwd { "" } else { "-" };
+                    let konst = match b {
+                        Elem::Input(t) => const_val(t)
+                            .map(|(kt, _)| format!(" - k{kt}"))
+                            .unwrap_or_default(),
+                        _ => String::new(),
+                    };
+                    format!("(by linear_combination {sign}c{ci} + {}{konst})", e(op))
+                }
+            };
+            terms.push(term);
+        }
+        let blk: Vec<String> = block.iter().map(|b| b.lean()).collect();
+        let (state, lemma) = if k == 0 {
+            ("(fun _ => 0)".to_string(), "poseidon2In_first")
+        } else {
+            (
+                format!("(poseidon2Out a {})", rows[k - 1]),
+                "poseidon2In_chain",
+            )
+        };
+        let _ = writeln!(
+            out,
+            "  have hin{k} : poseidon2In a {row} = addBlock {state} [{}] :=\n    {lemma} {}",
+            blk.join(", "),
+            terms.join(" ")
+        );
+        let _ = writeln!(
+            out,
+            "  have hout{k} := poseidon2Row_absorb perm hp (row := {row}) rfl rfl hin{k}"
+        );
+    }
+    let blocks: Vec<String> = msg
+        .chunks(8)
+        .map(|b| {
+            format!(
+                "[{}]",
+                b.iter().map(|e| e.lean()).collect::<Vec<_>>().join(", ")
+            )
+        })
+        .collect();
+    let mut padded = String::new();
+    for b in blocks.iter().rev() {
+        padded = if padded.is_empty() {
+            format!("{b} ++ []")
+        } else {
+            format!("{b} ++ ({padded})")
+        };
+    }
+    let _ =
+        writeln!(
+        out,
+        "  have hpad : pad10 [{}] =\n      {padded} := by\n    simp [pad10, rate, List.replicate]",
+        inputs.iter().map(|&t| format!("a ({})", lean_target(t))).collect::<Vec<_>>().join(", ")
+    );
+    let mut rules = vec!["spongeHash".to_string(), "hpad".to_string()];
+    rules.extend(rows.iter().map(|_| "absorbMsg_block8".to_string()));
+    rules.push("absorbMsg_nil".into());
+    rules.extend((0..rows.len()).map(|k| format!("← hout{k}")));
+    let _ = writeln!(out, "  rw [{}]", rules.join(", "));
+    out.push_str("  exact ⟨rfl, rfl, rfl, rfl⟩\n");
     out
 }
 
@@ -1730,7 +1940,8 @@ pub fn render_module(what: &str, circuits: &[GeneratedCircuit]) -> String {
             ""
         },
         if sponge {
-            "open Plonky2Spec.Poseidon2 (St)\nopen Plonky2Spec.Sponge (spongeHash)\n"
+            "open Plonky2Spec.Poseidon2 (St)\n\
+             open Plonky2Spec.Sponge (spongeHash pad10 addBlock rate absorbMsg_block8 absorbMsg_nil)\n"
         } else {
             ""
         },
