@@ -920,10 +920,10 @@ sponges, bit decompositions, a bit-serial comparator and a 16-level gated Merkle
   felt, then `1`; `leaf_bridge_lean_is_current` pins that reading). Follow-up in
   qp-zk-circuits: make the salts concrete `def`s with a Rust test pinning them to
   `string_to_felts`, then drop the two hypotheses here.
-- **Follow-ups.** Bump the `wormholeSpec` pin past qp-zk-circuits #191 and add
-  `--test leaf_circuit` to the strict vendored-trace CI step (the pinned package does not
-  yet carry `leaf_circuit.json`, so `vendored_trace_matches_pinned_package` skips locally
-  and would fail strictly). `LeafProofAccepted`/`leaf_proof_sound` remain the layer-1 seam:
+- **Pinning.** `wormholeSpec` is pinned at qp-zk-circuits `868b857` (the #191 merge), whose
+  `formal/traces/leaf_circuit.json` the strict vendored-trace CI step checks byte-for-byte
+  against `constraint-exporter/traces/leaf_circuit.json`, alongside the wrapper traces.
+  `LeafProofAccepted`/`leaf_proof_sound` remain the layer-1 seam:
   `leaf_wired` establishes `Rleaf` for a *satisfying assignment*, the aggregators' recursion
   gadgets are what tie a verified proof to one.
 
