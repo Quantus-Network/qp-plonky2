@@ -172,7 +172,7 @@ jobs:
           FORMAL_TRACES_STRICT: "1"
         run: |
           cargo test -p qp-plonky2-constraint-exporter \
-            --test private_batch_wrapper --test public_batch_wrapper \
+            --test private_batch_wrapper --test public_batch_wrapper --test leaf_circuit \
             vendored_trace_matches_pinned_package -- --nocapture
       - name: Assert capstone axiom footprints
         run: |
