@@ -189,6 +189,28 @@ fn shape_rejects_perturbed_traces() {
     }
     let err = Shape::read(&fold).unwrap_err();
     assert!(err.contains("should fold to masked_input_0"), "{err}");
+    // The recursion gadgets: one `verify_proof` per leaf, under the leaf key, on `leaf_pis_i`.
+    let mut missing = wrapper(2);
+    missing.ex.verifiers.pop();
+    let err = Shape::read(&missing).unwrap_err();
+    assert!(
+        err.contains("expected 2 verify_proof gadgets, trace has 1"),
+        "{err}"
+    );
+    let mut key = wrapper(2);
+    key.ex.verifiers[1].0 = "private_batch_wrapper_n2".into();
+    let err = Shape::read(&key).unwrap_err();
+    assert!(
+        err.contains("verifier 1 is for \"private_batch_wrapper_n2\", expected \"leaf_circuit\""),
+        "{err}"
+    );
+    let mut targets = wrapper(2);
+    targets.ex.verifiers[0].1.swap(0, 1);
+    let err = Shape::read(&targets).unwrap_err();
+    assert!(
+        err.contains("verifier 0 public inputs are not the slot's pis_0 targets"),
+        "{err}"
+    );
 }
 
 #[test]
@@ -228,8 +250,29 @@ fn wrapper_lean_is_current() {
         assert!(generated.contains(&format!("namespace Plonky2Bridge.Wrapper{n}\n")));
         assert!(generated.contains("RPrivateBatch (spongeRO perm) (leaves a) (us a) (out a) := by"));
         assert!(generated.contains("theorem end_to_end_wired"));
+        assert!(generated.contains(&format!(
+            "(hacc : ∀ i : Fin {n}, ProofAccepted perm LeafCircuit.tree ((List.ofFn (leafPis i)).map a))"
+        )));
         assert!(generated.contains("refine private_batch_val_rows perm hpg (rows a) (rounds a)"));
         assert_eq!(generated.matches("· -- slot ").count(), 8 * 2 * n);
+        assert!(generated.contains(&format!(
+            ".node \"private_batch_wrapper_n{n}\" (privateBatchWrapper{n} p)"
+        )));
+        assert_eq!(
+            generated
+                .matches("(LeafCircuit.tree, List.ofFn (leafPis ")
+                .count(),
+            2 * n,
+            "one child per leaf in `tree`, one membership per leaf in `accepted_sound`"
+        );
+        assert!(generated.contains(&format!("def pi : Fin {} → Target :=", 22 * n + 8)));
+        assert!(generated.contains("theorem accepted_sound"));
+        assert!(
+            generated.contains("RPrivateBatch (spongeRO perm) leaves us (outOf (a ∘ ts)) := by")
+        );
+        assert!(generated.contains("proof_sound perm _ _ _ _ h"));
+        assert!(!generated.contains("leaf_proof_sound"));
+        assert!(!generated.contains("LeafProofAccepted"));
     }
 }
 

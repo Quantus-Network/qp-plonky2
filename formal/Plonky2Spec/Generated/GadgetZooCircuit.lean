@@ -169,6 +169,11 @@ def gadgetZoo.sel : Target := .wire 0 23
 /-- Named target `head`. -/
 def gadgetZoo.head : Target := .wire 0 31
 
+/-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
+    name and the targets carrying its public inputs (`Recursive.children`). -/
+def gadgetZoo.verifiers : List (String × List Target) :=
+  []
+
 theorem gadgetZoo_copies0 (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
     a (.virt 3) = a (.wire 0 0) ∧ a (.virt 3) = a (.wire 0 1) ∧ a (.virt 3) = a (.wire 0 2) ∧ a (.wire 0 3) = a (.virt 4) ∧ a (.virt 6) = a (.wire 0 4) ∧ a (.virt 6) = a (.wire 0 5) ∧ a (.virt 5) = a (.wire 0 6) ∧ a (.virt 0) = a (.wire 0 8) ∧ a (.virt 6) = a (.wire 0 9) ∧ a (.virt 1) = a (.wire 0 10) ∧ a (.virt 5) = a (.wire 1 0) ∧ a (.wire 0 11) = a (.wire 1 1) ∧ a (.virt 5) = a (.wire 1 2) ∧ a (.wire 0 11) = a (.wire 1 4) ∧ a (.virt 7) = a (.wire 1 5) ∧ a (.wire 0 11) = a (.wire 1 6) ∧ a (.wire 1 7) = a (.wire 0 12) ∧ a (.virt 6) = a (.wire 0 13) ∧ a (.wire 0 7) = a (.wire 0 14) ∧ a (.wire 1 3) = a (.virt 4) ∧ a (.wire 0 15) = a (.virt 4) ∧ a (.virt 3) = a (.wire 0 16) ∧ a (.virt 1) = a (.wire 0 17) ∧ a (.virt 1) = a (.wire 0 18) ∧ a (.virt 3) = a (.wire 0 20) ∧ a (.virt 0) = a (.wire 0 21) ∧ a (.wire 0 19) = a (.wire 0 22) ∧ a (.virt 5) = a (.wire 2 0) ∧ a (.virt 3) = a (.wire 2 1) ∧ a (.virt 5) = a (.wire 2 2) ∧ a (.wire 2 3) = a (.wire 3 0) ∧ a (.virt 6) = a (.wire 3 1) := by
   have hc : ∀ q ∈ gadgetZoo.copies0, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ hq)

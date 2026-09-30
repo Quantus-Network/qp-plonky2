@@ -922,9 +922,85 @@ sponges, bit decompositions, a bit-serial comparator and a 16-level gated Merkle
 - **Pinning.** `wormholeSpec` is pinned at qp-zk-circuits `c424630` (the #192 merge), whose
   `formal/traces/leaf_circuit.json` the strict vendored-trace CI step checks byte-for-byte
   against `constraint-exporter/traces/leaf_circuit.json`, alongside the wrapper traces.
-  `LeafProofAccepted`/`leaf_proof_sound` remain the layer-1 seam:
-  `leaf_wired` establishes `Rleaf` for a *satisfying assignment*, the aggregators' recursion
-  gadgets are what tie a verified proof to one.
+  `leaf_wired` establishes `Rleaf` for a *satisfying assignment*; tying a verified proof to
+  one is Step 10's `LeafCircuit.accepted_sound`.
+
+### Step 10 — One trusted axiom: proof-system soundness on the exported recursion tree  ✅ DONE (10a–10c; 10d pending)
+Attacks §7 directly. The trusted base before this step was two *circuit-specific* axioms in
+`WormholeSpec/Trusted.lean`: `leaf_proof_sound` (`LeafProofAccepted ro p → ∃ w, Rleaf ro p w`)
+and `private_batch_proof_sound`. Each bundles proof-system soundness with "this circuit enforces
+this relation" — and the second half is now a theorem (`leaf_wired`, `Wrapper{2,4}.sound`,
+`PublicWrapper{2,4}.sound`). Step 10 replaces both with a single axiom that mentions no
+relation and no particular circuit.
+
+- **Why the export alone is not enough.** The wrapper traces allocate the child proof targets
+  (`add_virtual_proof_with_pis`) but do not run `verify_proof`, so the recursion gadgets are
+  outside the exported wiring: `Satisfies (privateBatchWrapper2 p) a` says nothing about the
+  leaf proofs, which is why every wired capstone takes child acceptance (`hacc`) as a
+  hypothesis and why `RPrivateBatch` cannot be derived from a satisfying wrapper assignment
+  alone (it needs the children's `Rleaf` ranges). The axiom therefore has to be about a circuit
+  *together with* its `verify_proof` gadgets.
+- **10a — trace the verifiers (qp-zk-circuits).** `Trace` gains `verifiers: [{child, public_inputs}]`,
+  recorded by `TracingBuilder::verify_proof(child_tag, &proof)`: the child circuit's trace name
+  and the parent targets carrying its public inputs. The wrapper trace tests call it where
+  production calls `add_recursive_verifiers`; `private_batch_wrapper_n{2,4}` name
+  `leaf_circuit` per slot, `public_batch_wrapper_n{2,4}` name `private_batch_wrapper_n2`. The
+  binding "the verifier key baked in is that of the circuit so named" is the fidelity claim of
+  this step, stated in the axiom's docstring; production passes the built child's
+  `VerifierCircuitData` into `add_recursive_verifiers`, so it is the same object by
+  construction.
+- **10b — the tree and the axiom (qp-plonky2).** `Plonky2Spec.Wiring.Recursive`:
+  `node (tag : String) (circuit : Circuit p) (children : List (Recursive p × List Target))` —
+  an exported circuit plus, per gadget, the child tree and the parent targets that carry the
+  child's public inputs. The exporter emits each wrapper's `verifiers` (tag, targets) as a
+  definition next to its named targets, and the bridge generator emits the tree
+  (`Wrapper2.tree := .node "private_batch_wrapper_n2" (privateBatchWrapper2 p)
+  [(LeafCircuit.tree, leafPis 0 …), …]`) with a `rfl` check that its children match the
+  exported `verifiers` list, so the tag → Lean-tree resolution is pinned by the kernel.
+  `Plonky2Bridge/Trusted.lean` then holds the whole trusted base:
+  `opaque ProofAccepted (perm) (r : Recursive p) (pis : List (ZMod p)) : Prop` ("the recursion
+  gadget under `r`'s verifier key accepted a proof whose public inputs are `pis`") and
+  ```
+  axiom proof_sound : ProofAccepted perm (.node tag c children) pis →
+    ∃ a, Satisfies c a ∧ Poseidon2Rows perm c a ∧ c.publicInputs.map a = pis ∧
+      ∀ v ∈ children, ProofAccepted perm v.1 (v.2.map a)
+  ```
+  — proof-system soundness (FRI, Plonk/AIR arithmetization, Fiat–Shamir/QROM, recursion) for
+  an exported constraint system, and nothing else. `perm` is the permutation the Poseidon2 gate
+  computes, carried as a parameter exactly as `LeafProofAccepted` carried `ro`.
+- **10c — derive the old axioms.** `leaf_accepted_sound : ProofAccepted perm LeafCircuit.tree pis →
+  ∃ w, Rleaf (spongeRO perm) (decode pis) w` is `proof_sound` + `leaf_wired`; the wired wrapper
+  capstones take `hacc : ∀ i, ProofAccepted perm LeafCircuit.tree (leafPis i |>.map a)` and
+  recover each child's `Rleaf` through it, with the 22 public-input equations identifying the
+  child's `pub a'` with the parent's `(row a i).leaf`. `private_batch_accepted_sound` likewise:
+  `proof_sound` on `Wrapper2.tree` yields the wrapper assignment *and* its children's
+  acceptance, so `Wrapper2.sound`'s range hypothesis is discharged the same way; the public
+  wrapper capstones consume it. `Plonky2Bridge.private_batch_end_to_end` /
+  `public_batch_end_to_end` (the decode-hypothesis forms) take the child relations as
+  hypotheses instead of `LeafProofAccepted`, so nothing in qp-plonky2 mentions the WormholeSpec
+  acceptance predicates or axioms.
+- **10d — retire the WormholeSpec axioms (qp-zk-circuits).** `Trusted.lean` loses
+  `leaf_proof_sound` / `private_batch_proof_sound`; `AggregationBridge.private_batch_sound` /
+  `public_batch_sound` take the child-soundness fact as an explicit hypothesis (which qp-plonky2
+  now supplies). `WormholeSpec` becomes axiom-free; the only `axiom` in either package is
+  `Plonky2Bridge.proof_sound`.
+- **Axiom gate.** Every capstone's footprint is either bare or `[…, Plonky2Bridge.proof_sound]`;
+  `ci.yml` `check`s are updated accordingly. Acceptance: `#print axioms` over the whole
+  development names exactly one non-standard axiom.
+- **Status.** 10a landed as qp-zk-circuits #193 (`TracingBuilder::verify_proof`, `verifiers` in
+  the five traces). 10b/10c landed in qp-plonky2: `Plonky2Spec.Wiring.Recursive`,
+  `Plonky2Bridge/Trusted.lean` (`ProofAccepted`, `proof_sound`, `pis_eq`), `<name>.verifiers`
+  in every generated circuit, and per bridge `tree` / `tree_verifiers` (`rfl` against the
+  export) / `accepted_sound` (`LeafCircuit`, `Wrapper{2,4}`); `Wrapper{2,4}.end_to_end_wired`
+  take `hacc : ∀ i, ProofAccepted perm LeafCircuit.tree …`, `PublicWrapper{2,4}.end_to_end_wired`
+  take `ProofAccepted perm Wrapper2.tree …`; `private_batch_end_to_end` /
+  `public_batch_end_to_end` take the child relations (`hleaf` / `hinner`) and are bare. The
+  exporter's `check_verifiers` rejects a trace whose recursion gadgets do not match the tree the
+  bridge states (count, child tag, targets), and the leaf trace must have none. Footprints: the
+  eight `*_wired` / `accepted_sound` capstones are `[…, Plonky2Bridge.proof_sound]`, everything
+  else bare — nothing in qp-plonky2 mentions `leaf_proof_sound` / `private_batch_proof_sound`
+  any more. 10d (retiring them from `WormholeSpec/Trusted.lean`) is the remaining
+  qp-zk-circuits change.
 
 ## 9. Definition of done
 

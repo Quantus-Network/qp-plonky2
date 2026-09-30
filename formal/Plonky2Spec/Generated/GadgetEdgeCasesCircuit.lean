@@ -129,6 +129,11 @@ def gadgetEdgeCases.diff : Target := .wire 1 35
 /-- Named target `check`. -/
 def gadgetEdgeCases.check : Target := .wire 2 11
 
+/-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
+    name and the targets carrying its public inputs (`Recursive.children`). -/
+def gadgetEdgeCases.verifiers : List (String × List Target) :=
+  []
+
 theorem gadgetEdgeCases_copies (a : Assignment p) (h : Satisfies (gadgetEdgeCases p) a) :
     a (.virt 0) = a (.wire 0 0) ∧ a (.virt 3) = a (.wire 0 1) ∧ a (.virt 1) = a (.wire 0 2) ∧ a (.wire 0 3) = a (.virt 2) ∧ a (.virt 3) = a (.wire 1 0) ∧ a (.virt 3) = a (.wire 1 1) ∧ a (.virt 4) = a (.wire 1 2) ∧ a (.virt 2) = a (.wire 1 4) ∧ a (.virt 3) = a (.wire 1 5) ∧ a (.wire 1 3) = a (.wire 1 6) ∧ True ∧ a (.wire 1 7) = a (.virt 2) ∧ a (.virt 3) = a (.wire 1 8) ∧ a (.virt 3) = a (.wire 1 9) ∧ a (.virt 6) = a (.wire 1 10) ∧ a (.virt 7) = a (.wire 1 12) ∧ a (.virt 3) = a (.wire 1 13) ∧ a (.wire 1 11) = a (.wire 1 14) ∧ a (.virt 6) = a (.virt 2) ∧ a (.wire 1 15) = a (.virt 2) ∧ a (.virt 3) = a (.wire 1 16) ∧ a (.virt 3) = a (.wire 1 17) ∧ a (.virt 8) = a (.wire 1 18) ∧ a (.virt 0) = a (.wire 1 20) ∧ a (.virt 3) = a (.wire 1 21) ∧ a (.virt 0) = a (.wire 1 22) ∧ a (.virt 8) = a (.wire 2 0) ∧ a (.wire 1 23) = a (.wire 2 1) ∧ a (.virt 8) = a (.wire 2 2) ∧ a (.wire 1 23) = a (.wire 2 4) ∧ a (.virt 9) = a (.wire 2 5) ∧ a (.wire 1 23) = a (.wire 2 6) ∧ a (.wire 2 7) = a (.wire 1 24) ∧ a (.virt 3) = a (.wire 1 25) ∧ a (.wire 1 19) = a (.wire 1 26) ∧ a (.wire 2 3) = a (.virt 2) ∧ a (.wire 1 27) = a (.virt 2) ∧ a (.virt 3) = a (.wire 1 28) ∧ a (.virt 3) = a (.wire 1 29) ∧ a (.virt 10) = a (.wire 1 30) ∧ a (.virt 0) = a (.wire 1 32) ∧ a (.virt 3) = a (.wire 1 33) ∧ a (.virt 1) = a (.wire 1 34) ∧ a (.virt 10) = a (.wire 2 8) ∧ a (.wire 1 35) = a (.wire 2 9) ∧ a (.virt 10) = a (.wire 2 10) ∧ a (.wire 1 35) = a (.wire 2 12) ∧ a (.virt 11) = a (.wire 2 13) ∧ a (.wire 1 35) = a (.wire 2 14) ∧ a (.wire 2 15) = a (.wire 1 36) ∧ a (.virt 3) = a (.wire 1 37) ∧ a (.wire 1 31) = a (.wire 1 38) ∧ a (.wire 2 11) = a (.virt 2) ∧ a (.wire 1 39) = a (.virt 2) ∧ a (.wire 2 11) = a (.virt 2) := by
   have hc := h.2.1
@@ -366,6 +371,11 @@ def gadgetIdentityFold.sum : Target := .wire 0 3
 /-- Named target `prod`. -/
 def gadgetIdentityFold.prod : Target := .wire 0 3
 
+/-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
+    name and the targets carrying its public inputs (`Recursive.children`). -/
+def gadgetIdentityFold.verifiers : List (String × List Target) :=
+  []
+
 theorem gadgetIdentityFold_copies (a : Assignment p) (h : Satisfies (gadgetIdentityFold p) a) :
     a (.virt 0) = a (.wire 0 0) ∧ a (.virt 2) = a (.wire 0 1) ∧ a (.virt 1) = a (.wire 0 2) := by
   have hc := h.2.1
@@ -450,6 +460,11 @@ def gadgetPinnedIntermediate.diff : Target := .wire 0 3
 
 /-- Named target `equal`. -/
 def gadgetPinnedIntermediate.equal : Target := .virt 4
+
+/-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
+    name and the targets carrying its public inputs (`Recursive.children`). -/
+def gadgetPinnedIntermediate.verifiers : List (String × List Target) :=
+  []
 
 theorem gadgetPinnedIntermediate_copies (a : Assignment p) (h : Satisfies (gadgetPinnedIntermediate p) a) :
     a (.virt 0) = a (.wire 0 0) ∧ a (.virt 3) = a (.wire 0 1) ∧ a (.virt 1) = a (.wire 0 2) ∧ a (.virt 3) = a (.wire 0 4) ∧ a (.virt 3) = a (.wire 0 5) ∧ a (.virt 4) = a (.wire 0 6) ∧ a (.virt 4) = a (.wire 1 0) ∧ a (.wire 0 3) = a (.wire 1 1) ∧ a (.virt 4) = a (.wire 1 2) ∧ a (.wire 0 3) = a (.wire 1 4) ∧ a (.virt 5) = a (.wire 1 5) ∧ a (.wire 0 3) = a (.wire 1 6) ∧ a (.wire 1 7) = a (.wire 0 8) ∧ a (.virt 3) = a (.wire 0 9) ∧ a (.wire 0 7) = a (.wire 0 10) ∧ a (.wire 1 3) = a (.virt 2) ∧ a (.wire 0 11) = a (.virt 2) ∧ a (.wire 0 3) = a (.virt 2) := by
@@ -567,6 +582,11 @@ def gadgetConstantFold.eight : Target := .virt 5
 /-- Named target `neg5`. -/
 def gadgetConstantFold.neg5 : Target := .virt 6
 
+/-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
+    name and the targets carrying its public inputs (`Recursive.children`). -/
+def gadgetConstantFold.verifiers : List (String × List Target) :=
+  []
+
 theorem gadgetConstantFold_consts (a : Assignment p) (h : Satisfies (gadgetConstantFold p) a) :
     a (.virt 0) = 0 ∧ a (.virt 4) = 1 ∧ a (.virt 1) = 3 ∧ a (.virt 2) = 5 ∧ a (.virt 5) = 8 ∧ a (.virt 3) = 9 ∧ a (.virt 6) = -5 := by
   have hconst := h.2.2
@@ -625,6 +645,11 @@ def gadgetSingleFact.y : Target := .virt 1
 /-- Named target `sum`. -/
 def gadgetSingleFact.sum : Target := .wire 0 3
 
+/-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
+    name and the targets carrying its public inputs (`Recursive.children`). -/
+def gadgetSingleFact.verifiers : List (String × List Target) :=
+  []
+
 theorem gadgetSingleFact_copies (a : Assignment p) (h : Satisfies (gadgetSingleFact p) a) :
     a (.virt 0) = a (.wire 0 0) ∧ a (.virt 2) = a (.wire 0 1) ∧ a (.virt 1) = a (.wire 0 2) := by
   have hc := h.2.1
@@ -671,6 +696,11 @@ def gadgetNoFacts.x : Target := .virt 0
 
 /-- Named target `y`. -/
 def gadgetNoFacts.y : Target := .virt 1
+
+/-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
+    name and the targets carrying its public inputs (`Recursive.children`). -/
+def gadgetNoFacts.verifiers : List (String × List Target) :=
+  []
 
 /-- Every satisfying assignment of `gadgetNoFacts` has the meaning of each recorded gadget call. Generated at gadget-call granularity; see `gadget.rs`. -/
 theorem gadgetNoFacts_decode (a : Assignment p) (h : Satisfies (gadgetNoFacts p) a) : True :=
@@ -725,6 +755,11 @@ def gadgetFactGroupBoundary.x : Target := .virt 0
 
 /-- Named target `y`. -/
 def gadgetFactGroupBoundary.y : Target := .virt 1
+
+/-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
+    name and the targets carrying its public inputs (`Recursive.children`). -/
+def gadgetFactGroupBoundary.verifiers : List (String × List Target) :=
+  []
 
 theorem gadgetFactGroupBoundary_copies (a : Assignment p) (h : Satisfies (gadgetFactGroupBoundary p) a) :
     a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) ∧ a (.virt 0) = a (.virt 1) := by

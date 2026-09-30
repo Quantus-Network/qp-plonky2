@@ -10130,6 +10130,11 @@ def leafCircuit.header_zk_tree_root : Fin 4 → Target :=
 def leafCircuit.header_digest : Fin 28 → Target :=
   ![.virt 273, .virt 274, .virt 275, .virt 276, .virt 277, .virt 278, .virt 279, .virt 280, .virt 281, .virt 282, .virt 283, .virt 284, .virt 285, .virt 286, .virt 287, .virt 288, .virt 289, .virt 290, .virt 291, .virt 292, .virt 293, .virt 294, .virt 295, .virt 296, .virt 297, .virt 298, .virt 299, .virt 300]
 
+/-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
+    name and the targets carrying its public inputs (`Recursive.children`). -/
+def leafCircuit.verifiers : List (String × List Target) :=
+  []
+
 theorem leafCircuit_copies0 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
     a (.virt 16) = a (.wire 0 0) ∧ a (.virt 16) = a (.wire 0 1) ∧ a (.virt 16) = a (.wire 0 2) ∧ a (.wire 0 3) = a (.virt 17) ∧ a (.virt 301) = a (.wire 1 0) ∧ a (.virt 302) = a (.wire 1 1) ∧ a (.virt 303) = a (.wire 1 2) ∧ a (.virt 240) = a (.wire 1 3) ∧ a (.virt 241) = a (.wire 1 4) ∧ a (.virt 242) = a (.wire 1 5) ∧ a (.virt 243) = a (.wire 1 6) ∧ a (.virt 303) = a (.wire 1 7) ∧ a (.virt 17) = a (.wire 1 8) ∧ a (.virt 17) = a (.wire 1 9) ∧ a (.virt 17) = a (.wire 1 10) ∧ a (.virt 17) = a (.wire 1 11) ∧ a (.wire 1 12) = a (.wire 2 0) ∧ a (.wire 1 13) = a (.wire 2 1) ∧ a (.wire 1 14) = a (.wire 2 2) ∧ a (.wire 1 15) = a (.wire 2 3) ∧ a (.virt 303) = a (.wire 2 4) ∧ a (.virt 17) = a (.wire 2 5) ∧ a (.virt 17) = a (.wire 2 6) ∧ a (.virt 17) = a (.wire 2 7) ∧ a (.virt 17) = a (.wire 2 8) ∧ a (.virt 17) = a (.wire 2 9) ∧ a (.virt 17) = a (.wire 2 10) ∧ a (.virt 17) = a (.wire 2 11) ∧ a (.wire 2 12) = a (.virt 236) ∧ a (.wire 2 13) = a (.virt 237) ∧ a (.wire 2 14) = a (.virt 238) ∧ a (.wire 2 15) = a (.virt 239) := by
   have hc : ∀ q ∈ leafCircuit.copies0, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ hq))))))))

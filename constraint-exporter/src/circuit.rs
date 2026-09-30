@@ -53,6 +53,9 @@ pub struct CircuitExport {
     pub public_inputs: Vec<Target>,
     /// Named targets of interest, so Lean statements can refer to them by role.
     pub named: Vec<(String, Vec<Target>)>,
+    /// `verify_proof` gadgets the rows do not contain: the child circuit's trace name and the
+    /// targets carrying its public inputs (`Recursive` in Lean; PLAN.md Step 10).
+    pub verifiers: Vec<(String, Vec<Target>)>,
 }
 
 /// Classify a gate by its `Gate::id()` string (the `Debug` rendering of the gate struct).
@@ -130,6 +133,7 @@ pub fn export(
         constants,
         public_inputs: view.public_inputs.to_vec(),
         named,
+        verifiers: Vec::new(),
     })
 }
 
@@ -320,6 +324,25 @@ pub fn render_lean(name: &str, doc: &str, ex: &CircuitExport) -> String {
             );
         }
     }
+    let verifiers: Vec<String> = ex
+        .verifiers
+        .iter()
+        .map(|(child, ts)| {
+            let items: Vec<String> = ts.iter().map(|&t| lean_target(t)).collect();
+            format!("({child:?}, [{}])", items.join(", "))
+        })
+        .collect();
+    let _ = writeln!(
+        out,
+        "/-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace\n    \
+         name and the targets carrying its public inputs (`Recursive.children`). -/\n\
+         def {name}.verifiers : List (String × List Target) :=\n  [{}]\n",
+        if verifiers.is_empty() {
+            String::new()
+        } else {
+            format!("\n    {}\n  ", verifiers.join(",\n    "))
+        }
+    );
     out
 }
 

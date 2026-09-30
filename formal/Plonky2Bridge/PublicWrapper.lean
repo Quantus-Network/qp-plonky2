@@ -5,7 +5,9 @@
   Each `Generated/PublicWrapper{N}.lean` is emitted by the exporter (`src/public_wrapper.rs`)
   from the `n_inner = N` trace: it reads the inner outputs and the aggregated output off the
   wiring and proves `PublicWrapper{N}.sound : RPublicBatch …` and
-  `PublicWrapper{N}.end_to_end_wired`. This module names the capstones for the axiom gate in
+  `PublicWrapper{N}.end_to_end_wired` (inners given as accepted private-batch proofs, through
+  `proof_sound` and `Wrapper{2}.accepted_sound`). This module names the capstones for the
+  axiom gate in
   `ci/AxiomsCheck.lean`; the aliases carry the generated statements verbatim.
 -/
 import Plonky2Bridge.Generated.PublicWrapper2

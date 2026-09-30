@@ -46,7 +46,15 @@ struct Trace {
     constants: Vec<(String, String)>,
     public_inputs: Vec<String>,
     named: Vec<(String, Vec<String>)>,
+    #[serde(default)]
+    verifiers: Vec<TraceVerifier>,
     calls: Vec<TraceCall>,
+}
+
+#[derive(Deserialize)]
+struct TraceVerifier {
+    child: String,
+    public_inputs: Vec<String>,
 }
 
 /// `w{row}:{column}` or `v{index}`.
@@ -270,12 +278,18 @@ pub fn parse(json: &str) -> Result<LoadedTrace, String> {
         .iter()
         .map(|(n, ts)| Ok((n.clone(), targets(ts)?)))
         .collect::<Result<Vec<_>, String>>()?;
+    let verifiers = t
+        .verifiers
+        .iter()
+        .map(|v| Ok((v.child.clone(), targets(&v.public_inputs)?)))
+        .collect::<Result<Vec<_>, String>>()?;
     let ex = CircuitExport {
         rows,
         copies,
         constants,
         public_inputs,
         named,
+        verifiers,
     };
     let calls = t
         .calls
@@ -287,6 +301,30 @@ pub fn parse(json: &str) -> Result<LoadedTrace, String> {
         ex,
         calls,
     })
+}
+
+/// The trace's `verify_proof` gadgets are one per child slot, under `child`, on exactly the
+/// slot's public-input targets — what the generated `tree` states, so its `tree_verifiers`
+/// check against `<name>.verifiers` holds.
+pub fn check_verifiers(t: &LoadedTrace, child: &str, pis: &[Vec<Target>]) -> Result<(), String> {
+    if t.ex.verifiers.len() != pis.len() {
+        return Err(format!(
+            "expected {} verify_proof gadgets, trace has {}",
+            pis.len(),
+            t.ex.verifiers.len()
+        ));
+    }
+    for (i, ((tag, ts), slot)) in t.ex.verifiers.iter().zip(pis).enumerate() {
+        if tag != child {
+            return Err(format!("verifier {i} is for {tag:?}, expected {child:?}"));
+        }
+        if ts != slot {
+            return Err(format!(
+                "verifier {i} public inputs are not the slot's pis_{i} targets"
+            ));
+        }
+    }
+    Ok(())
 }
 
 pub fn load(path: &Path) -> Result<LoadedTrace, String> {
