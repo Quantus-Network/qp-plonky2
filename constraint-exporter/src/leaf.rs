@@ -19,7 +19,7 @@ use plonky2::iop::target::Target;
 
 use crate::circuit::lean_target;
 use crate::gadget::{Call, Fact};
-use crate::trace::{load, traces_dir, LoadedTrace};
+use crate::trace::{check_verifiers, load, traces_dir, LoadedTrace};
 
 /// The leaf public-input layout (`qp-wormhole-inputs`).
 mod layout {
@@ -337,6 +337,8 @@ fn arr4(v: &[Target]) -> Result<[Target; 4], String> {
 
 impl Shape {
     pub fn read(t: &LoadedTrace) -> Result<Shape, String> {
+        // The leaf is the base of the recursion: no `verify_proof` gadgets.
+        check_verifiers(t, "", &[])?;
         let named = |name: &str| -> Result<&Vec<Target>, String> {
             t.ex.named
                 .iter()
@@ -867,6 +869,7 @@ pub fn render(shape: &Shape, t: &LoadedTrace) -> String {
     w!("  spec's `wormholeSalt` / `nullifierSalt` encodings, which the hash lemmas are stated on.");
     w!("-/");
     w!("import Plonky2Bridge.Leaf");
+    w!("import Plonky2Bridge.Trusted");
     w!("import Plonky2Spec.Generated.LeafCircuit");
     w!("");
     w!("namespace Plonky2Bridge.LeafCircuit");
@@ -1237,6 +1240,68 @@ pub fn render(shape: &Shape, t: &LoadedTrace) -> String {
     w!("    · rw [hhb0, hhb1, hhb2, hhb3]; exact hhdr");
     w!("    · rw [hzb0, hzb1, hzb2, hzb3]");
     w!("    · rw [← hleaf, hwalk, hroot0, hroot1, hroot2, hroot3]");
+    w!("");
+    w!("/-! ### The leaf as a recursion-tree node (PLAN.md Step 10) -/");
+    w!("");
+    w!("/-- The 22 public inputs in registration order. -/");
+    w!("def pi : Fin {} → Target :=", layout::LEAF_PI_LEN);
+    let pi_items: Vec<String> = pis.iter().map(|&t| lean_target(t)).collect();
+    w!("  ![{}]", pi_items.join(", "));
+    w!("");
+    w!("omit [Fact p.Prime] in");
+    w!("theorem publicInputs_eq : (leafCircuit p).publicInputs = List.ofFn pi := rfl");
+    w!("");
+    w!("/-- `pub` as a function of the public-input values alone. -/");
+    w!(
+        "def pubOf (v : Fin {} → ZMod p) : LeafPublic :=",
+        layout::LEAF_PI_LEN
+    );
+    let v = |k: usize| format!("(v {k}).val");
+    let vd4 = |k: usize| format!("D4 (v {k}) (v {}) (v {}) (v {})", k + 1, k + 2, k + 3);
+    w!(
+        "  {{ assetId := {}, outputAmount1 := {}, outputAmount2 := {}, volumeFeeBps := {},",
+        v(0),
+        v(1),
+        v(2),
+        v(3)
+    );
+    w!(
+        "    nullifier := {}, exitAccount1 := {}, exitAccount2 := {},",
+        vd4(layout::NULLIFIER),
+        vd4(8),
+        vd4(12)
+    );
+    w!(
+        "    blockHash := {}, blockNumber := {}, inputAmount := {} }}",
+        vd4(layout::BLOCK_HASH),
+        v(layout::BLOCK_NUMBER),
+        v(layout::INPUT_AMOUNT)
+    );
+    w!("");
+    w!("omit [Fact p.Prime] in");
+    w!("theorem pub_eq (a : Assignment p) : pub a = pubOf (a ∘ pi) := rfl");
+    w!("");
+    w!("/-- The leaf verifies no proofs of its own. -/");
+    w!(
+        "def tree : Recursive p := .node {:?} (leafCircuit p) []",
+        t.circuit
+    );
+    w!("");
+    w!("omit [Fact p.Prime] in");
+    w!("theorem tree_verifiers : (tree (p := p)).verifiers = leafCircuit.verifiers := rfl");
+    w!("");
+    w!("/-- **An accepted leaf proof attests `Rleaf`.** Through the one trusted axiom");
+    w!("    `proof_sound`: the accepted public inputs are those of an assignment satisfying the");
+    w!("    leaf's exported wiring, hence (`sound`) an `Rleaf` instance. This is what");
+    w!("    `WormholeSpec.leaf_proof_sound` used to assume. -/");
+    w!("theorem accepted_sound (perm : St p → St p) (hpg : goldilocks ≤ p) {{ts : Fin {} → Target}}", layout::LEAF_PI_LEN);
+    w!("    {{a : Assignment p}} (h : ProofAccepted perm tree ((List.ofFn ts).map a)) :");
+    w!("    ∃ w : LeafWitness, Rleaf (spongeRO perm) (pubOf (a ∘ ts)) w := by");
+    w!("  obtain ⟨a', h', hp', hpis, -⟩ := proof_sound perm _ _ _ _ h");
+    w!("  rw [publicInputs_eq] at hpis");
+    w!("  have hR := sound perm hpg a' h' hp'");
+    w!("  rw [pub_eq, pis_eq hpis] at hR");
+    w!("  exact ⟨wit a', hR⟩");
     w!("");
     w!("end Plonky2Bridge.LeafCircuit");
     o

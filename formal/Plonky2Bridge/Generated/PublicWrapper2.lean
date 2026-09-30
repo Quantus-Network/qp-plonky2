@@ -8,10 +8,12 @@
   `build_public_batch_constraints` made over 2 `2`-leaf private batches. This module
   reads the inner outputs and the aggregated output off the named targets and public inputs
   and discharges every hypothesis of `public_batch_val` (`Plonky2Bridge/PublicBatch.lean`),
-  so `public_batch_end_to_end` is restated on the wiring with `private_batch_proof_sound`
-  as its only axiom (`end_to_end_wired`).
+  so `public_batch_end_to_end` is restated on the wiring (`end_to_end_wired`), with each
+  inner's `RPrivateBatch` recovered from its accepted proof through the one trusted axiom
+  `proof_sound` and the private-batch wrapper bridge (Step 10).
 -/
 import Plonky2Bridge.PublicBatch
+import Plonky2Bridge.Generated.Wrapper2
 import Plonky2Spec.Generated.PublicBatchWrapper2
 
 namespace Plonky2Bridge.PublicWrapper2
@@ -19,8 +21,9 @@ namespace Plonky2Bridge.PublicWrapper2
 open Plonky2Spec (bselect band bnot bor scanStep)
 open Plonky2Spec.Wiring
 open Plonky2Spec.Generated (publicBatchWrapper2 publicBatchWrapper2_decode)
+open Plonky2Spec.Poseidon2 (St)
 open WormholeSpec (Digest Felt PrivateBatchOutput PublicBatchOutput ExitSlot RandomOracle RPublicBatch
-  RPrivateBatch PrivateBatchProofAccepted private_batch_proof_sound RPublicBatch_totalExitSlots)
+  RPrivateBatch RPublicBatch_totalExitSlots)
 
 variable {p : ℕ} [Fact p.Prime]
 
@@ -352,19 +355,46 @@ theorem sound (ro : RandomOracle) (hpg : WormholeSpec.goldilocks ≤ p)
     have hc : (8 : ℕ) < p := lt_of_lt_of_le (by decide) hpg
     rw [← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]
 
+/-! ### The wrapper as a recursion tree (PLAN.md Step 10) -/
+
+/-- The wrapper with its recursion gadgets: `verify_proof` under the `2`-leaf private-batch
+    verifier key on each `inner_pis_i`. -/
+def tree : Recursive p :=
+  .node "public_batch_wrapper_n2" (publicBatchWrapper2 p)
+    [(Wrapper2.tree, List.ofFn (innerPis 0)),
+     (Wrapper2.tree, List.ofFn (innerPis 1))]
+
+omit [Fact p.Prime] in
+set_option maxRecDepth 8192 in
+/-- The tree's gadgets are the recorded ones. -/
+theorem tree_verifiers : (tree (p := p)).verifiers = publicBatchWrapper2.verifiers := rfl
+
+omit [Fact p.Prime] in
+set_option maxRecDepth 8192 in
+/-- Inner `i`'s public inputs, as the wrapper reads them, are the private-batch wrapper's
+    `outOf`. -/
+theorem inner_eq (a : Assignment p) (i : Fin 2) :
+    inner a i = Wrapper2.outOf (a ∘ innerPis i) := by
+  fin_cases i <;> rfl
+
 /-- **The public-batch capstone on the recorded wiring.** `public_batch_end_to_end` with its
     decode hypotheses discharged by `sound`: a satisfying assignment of the `n_inner = 2`
     public-batch wrapper whose recursion gadgets accepted every inner private-batch proof
     (i) satisfies `RPublicBatch`, (ii) has the slot-count header equal to the sum of the
     inners' slot counts and (iii) attests every inner's `RPrivateBatch` — through
-    `private_batch_proof_sound`, the only axiom. -/
-theorem end_to_end_wired (ro : RandomOracle) (hpg : WormholeSpec.goldilocks ≤ p)
+    `proof_sound`, the only axiom, and the wired wrapper bridges below it. -/
+theorem end_to_end_wired (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a)
-    (hacc : ∀ o ∈ inners a, PrivateBatchProofAccepted ro o) :
-    RPublicBatch ro (inners a) (addr a) (out a)
+    (hacc : ∀ i : Fin 2, ProofAccepted perm Wrapper2.tree ((List.ofFn (innerPis i)).map a)) :
+    RPublicBatch (spongeRO perm) (inners a) (addr a) (out a)
       ∧ (out a).totalExitSlots = ((inners a).map fun o => o.exitSlots.length).sum
-      ∧ ∀ o ∈ inners a, ∃ leaves us, RPrivateBatch ro leaves us o := by
-  have hR := sound ro hpg a h
-  exact ⟨hR, RPublicBatch_totalExitSlots hR, fun o ho => private_batch_proof_sound ro o (hacc o ho)⟩
+      ∧ ∀ o ∈ inners a, ∃ leaves us, RPrivateBatch (spongeRO perm) leaves us o := by
+  have hR := sound (spongeRO perm) hpg a h
+  refine ⟨hR, RPublicBatch_totalExitSlots hR, ?_⟩
+  intro o ho
+  simp only [inners, List.mem_cons, List.mem_nil_iff, or_false] at ho
+  rcases ho with rfl | rfl
+  · rw [inner_eq]; exact Wrapper2.accepted_sound perm hpg (hacc 0)
+  · rw [inner_eq]; exact Wrapper2.accepted_sound perm hpg (hacc 1)
 
 end Plonky2Bridge.PublicWrapper2

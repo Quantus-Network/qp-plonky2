@@ -125,6 +125,31 @@ fn shape_rejects_perturbed_traces() {
     }
     let err = Shape::read(&pin).unwrap_err();
     assert!(err.contains("expected connect(asset_ok, one)"), "{err}");
+    // The recursion gadgets: one `verify_proof` per inner, under the private-batch key, on
+    // `inner_pis_i`.
+    let mut extra = wrapper(2);
+    let dup = extra.ex.verifiers[0].clone();
+    extra.ex.verifiers.push(dup);
+    let err = Shape::read(&extra).unwrap_err();
+    assert!(
+        err.contains("expected 2 verify_proof gadgets, trace has 3"),
+        "{err}"
+    );
+    let mut key = wrapper(2);
+    key.ex.verifiers[0].0 = "leaf_circuit".into();
+    let err = Shape::read(&key).unwrap_err();
+    assert!(
+        err.contains("verifier 0 is for \"leaf_circuit\", expected \"private_batch_wrapper_n2\""),
+        "{err}"
+    );
+    let mut targets = wrapper(2);
+    let t0 = targets.ex.verifiers[0].1.clone();
+    targets.ex.verifiers[1].1 = t0;
+    let err = Shape::read(&targets).unwrap_err();
+    assert!(
+        err.contains("verifier 1 public inputs are not the slot's pis_1 targets"),
+        "{err}"
+    );
 }
 
 #[test]
@@ -154,8 +179,30 @@ fn wrapper_lean_is_current() {
         assert!(generated.contains("RPublicBatch ro (inners a) (addr a) (out a) := by"));
         assert!(generated.contains("theorem end_to_end_wired"));
         assert!(generated.contains(&format!(
+            "(hacc : ∀ i : Fin {n}, ProofAccepted perm Wrapper{LEAVES}.tree ((List.ofFn (innerPis i)).map a))"
+        )));
+        assert!(generated.contains(&format!(
             "refine public_batch_val ro (rows a) (k := {})",
             2 * LEAVES
         )));
+        assert!(generated.contains(&format!(
+            ".node \"public_batch_wrapper_n{n}\" (publicBatchWrapper{n} p)"
+        )));
+        assert_eq!(
+            generated
+                .matches(&format!("(Wrapper{LEAVES}.tree, List.ofFn (innerPis "))
+                .count(),
+            n
+        );
+        assert_eq!(
+            generated
+                .matches(&format!(
+                    "exact Wrapper{LEAVES}.accepted_sound perm hpg (hacc "
+                ))
+                .count(),
+            n
+        );
+        assert!(!generated.contains("private_batch_proof_sound"));
+        assert!(!generated.contains("PrivateBatchProofAccepted"));
     }
 }

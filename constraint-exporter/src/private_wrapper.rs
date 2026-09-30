@@ -21,7 +21,7 @@ use plonky2::iop::target::Target;
 
 use crate::circuit::lean_target;
 use crate::gadget::{Call, Fact};
-use crate::trace::{load, traces_dir, LoadedTrace};
+use crate::trace::{check_verifiers, load, traces_dir, LoadedTrace};
 
 /// The leaf public-input layout (`wormhole/aggregator/src/private_batch/circuit/constants.rs`).
 mod layout {
@@ -127,6 +127,8 @@ struct Switch {
 #[derive(Debug, Clone)]
 pub struct Shape {
     pub n: usize,
+    /// The `22n + 8` registered public inputs.
+    public_inputs: Vec<Target>,
     leaves: Vec<Leaf>,
     /// The output-total `add`s over the `2n` masked amounts (the first is folded).
     add_output: Vec<Option<usize>>,
@@ -366,6 +368,7 @@ impl Shape {
         if pis.iter().any(|p| p.len() != layout::LEAF_PI_LEN) {
             return Err("leaf_pis_i is not 22 targets".into());
         }
+        check_verifiers(t, "leaf_circuit", &pis)?;
         let pres: Vec<Vec<Target>> = (0..n)
             .map(|i| named(&format!("dummy_pre_image_{i}")).cloned())
             .collect::<Result<_, _>>()?;
@@ -839,6 +842,7 @@ impl Shape {
 
         Ok(Shape {
             n,
+            public_inputs: t.ex.public_inputs.clone(),
             leaves,
             add_output,
             fee,
@@ -931,6 +935,7 @@ fn digest_fun(ts: &[Target]) -> String {
 pub fn render(shape: &Shape) -> String {
     let n = shape.n;
     let s2 = 2 * n;
+    let pi_total = shape.public_inputs.len();
     let circuit = format!("privateBatchWrapper{n}");
     let leaves = &shape.leaves;
     let mut o = String::new();
@@ -951,10 +956,13 @@ pub fn render(shape: &Shape) -> String {
     w!("  gadget calls `build_private_batch_constraints` made over {n} leaves. This module reads the");
     w!("  spec objects off the named targets and public inputs (`row`, `leaves`, `us`, `out`) and");
     w!("  discharges every hypothesis of `private_batch_val_rows` (`Plonky2Bridge/PrivateBatch.lean`),");
-    w!("  so `private_batch_end_to_end` is restated on the wiring with `leaf_proof_sound` as its only");
-    w!("  axiom (`end_to_end_wired`).");
+    w!("  so `private_batch_end_to_end` is restated on the wiring (`end_to_end_wired`), with the");
+    w!("  children's `Rleaf` recovered from their accepted proofs through the one trusted axiom");
+    w!("  `proof_sound` and the leaf bridge (Step 10). `accepted_sound` is the wrapper's own");
+    w!("  `proof_sound` consequence, for the public-batch wrapper above it.");
     w!("-/");
     w!("import Plonky2Bridge.PrivateBatch");
+    w!("import Plonky2Bridge.Generated.Leaf");
     w!("import Plonky2Spec.Generated.PrivateBatchWrapper{n}");
     w!("");
     w!("namespace Plonky2Bridge.Wrapper{n}");
@@ -967,8 +975,7 @@ pub fn render(shape: &Shape) -> String {
     w!("open Plonky2Spec.Sponge (spongeHash)");
     w!("open WormholeSpec (Digest Felt LeafPublic PrivateBatchOutput ExitSlot inRange RPrivateBatch");
     w!("  maskedOutputTotal realLeaves realNullifiers rawOutputTotal outputExitTotal");
-    w!("  RPrivateBatch_value_conservation RPrivateBatch_settles_distinct_spends LeafWitness Rleaf");
-    w!("  LeafProofAccepted leaf_proof_sound)");
+    w!("  RPrivateBatch_value_conservation RPrivateBatch_settles_distinct_spends LeafWitness Rleaf)");
     w!("");
     w!("variable {{p : ℕ}} [Fact p.Prime]");
     w!("");
@@ -1724,25 +1731,131 @@ pub fn render(shape: &Shape) -> String {
     w!("      rw [← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]");
     w!("  rwa [rows_leaves, rows_us] at hR");
     w!("");
+    w!("/-! ### The wrapper as a recursion tree (PLAN.md Step 10) -/");
+    w!("");
+    w!("/-- The wrapper with its recursion gadgets: `verify_proof` under the leaf verifier key on");
+    w!("    each `leaf_pis_i`. -/");
+    w!("def tree : Recursive p :=");
+    w!("  .node \"private_batch_wrapper_n{n}\" ({circuit} p)");
+    let children: Vec<String> = (0..n)
+        .map(|i| format!("(LeafCircuit.tree, List.ofFn (leafPis {i}))"))
+        .collect();
+    w!("    [{}]", children.join(",\n     "));
+    w!("");
+    w!("omit [Fact p.Prime] in");
+    w!("set_option maxRecDepth 8192 in");
+    w!("/-- The tree's gadgets are the recorded ones. -/");
+    w!("theorem tree_verifiers : (tree (p := p)).verifiers = {circuit}.verifiers := rfl");
+    w!("");
+    w!("omit [Fact p.Prime] in");
+    w!("/-- Child `i`'s public inputs, as the wrapper reads them, are the leaf's `pubOf`. -/");
+    w!("theorem row_leaf (a : Assignment p) (i : Fin {n}) :");
+    w!("    (row a i).leaf = LeafCircuit.pubOf (a ∘ leafPis i) := by");
+    w!("  fin_cases i <;> rfl");
+    w!("");
     w!("/-- **The capstone on the recorded wiring.** `private_batch_end_to_end` with its decode");
     w!("    hypotheses discharged by `sound`: a satisfying assignment of the `n = {n}` private-batch");
     w!("    wrapper whose recursion gadgets accepted every child leaf proof (i) satisfies");
     w!("    `RPrivateBatch`, (ii) conserves value, (iii) settles distinct spends and (iv) attests");
-    w!("    every child's `Rleaf` — through `leaf_proof_sound`, the only axiom. -/");
+    w!("    every child's `Rleaf` — through `proof_sound`, the only axiom, and `leaf_wired`. -/");
     w!("theorem end_to_end_wired (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)");
     w!("    (a : Assignment p) (h : Satisfies ({circuit} p) a)");
     w!("    (hp : Poseidon2Rows perm ({circuit} p) a)");
-    w!("    (hacc : ∀ pub ∈ leaves a, LeafProofAccepted (spongeRO perm) pub) :");
+    w!("    (hacc : ∀ i : Fin {n}, ProofAccepted perm LeafCircuit.tree ((List.ofFn (leafPis i)).map a)) :");
     w!("    RPrivateBatch (spongeRO perm) (leaves a) (us a) (out a)");
     w!("      ∧ outputExitTotal (out a) = maskedOutputTotal (leaves a)");
     w!("      ∧ (outputExitTotal (out a) = rawOutputTotal (realLeaves (leaves a))");
     w!("          ∧ (realNullifiers (leaves a)).Nodup)");
     w!("      ∧ ∀ pub ∈ leaves a, ∃ w : LeafWitness, Rleaf (spongeRO perm) pub w := by");
-    w!("  have hleaf := fun pub hq => leaf_proof_sound (spongeRO perm) pub (hacc pub hq)");
+    w!("  have hleaf : ∀ pub ∈ leaves a, ∃ w : LeafWitness, Rleaf (spongeRO perm) pub w := by");
+    w!("    intro pub hq");
+    w!("    simp only [leaves, List.mem_cons, List.mem_nil_iff, or_false] at hq");
+    let alts: Vec<&str> = (0..n).map(|_| "rfl").collect();
+    w!("    rcases hq with {}", alts.join(" | "));
+    for i in 0..n {
+        w!("    · rw [row_leaf]; exact LeafCircuit.accepted_sound perm hpg (hacc {i})");
+    }
     w!("  have hR := sound perm hpg a h hp fun q hq =>");
     w!("    let ⟨_, hw⟩ := hleaf q hq");
     w!("    Rleaf_ranges hw");
     w!("  exact ⟨hR, RPrivateBatch_value_conservation hR, RPrivateBatch_settles_distinct_spends hR, hleaf⟩");
+    w!("");
+    w!("/-- The {pi_total} public inputs in registration order. -/");
+    w!("def pi : Fin {pi_total} → Target :=");
+    let pi_items: Vec<String> = shape
+        .public_inputs
+        .iter()
+        .map(|&t| lean_target(t))
+        .collect();
+    w!("  ![{}]", pi_items.join(", "));
+    w!("");
+    w!("omit [Fact p.Prime] in");
+    w!("set_option maxRecDepth 8192 in");
+    w!("theorem publicInputs_eq : ({circuit} p).publicInputs = List.ofFn pi := rfl");
+    w!("");
+    w!("/-- `out` as a function of the public-input values alone. -/");
+    w!("def outOf (v : Fin {pi_total} → ZMod p) : PrivateBatchOutput :=");
+    let vv = |k: usize| format!("(v {k}).val");
+    let slot_vs: Vec<String> = (0..s2)
+        .map(|k| {
+            let b = header + 5 * k;
+            format!(
+                "⟨{}, ⟨{}, {}, {}, {}⟩⟩",
+                vv(b),
+                vv(b + 1),
+                vv(b + 2),
+                vv(b + 3),
+                vv(b + 4)
+            )
+        })
+        .collect();
+    let null_vs: Vec<String> = (0..n)
+        .map(|i| {
+            let b = null_base + 4 * i;
+            format!("⟨{}, {}, {}, {}⟩", vv(b), vv(b + 1), vv(b + 2), vv(b + 3))
+        })
+        .collect();
+    w!(
+        "  {{ numExitSlots := {}, assetId := {}, volumeFeeBps := {},",
+        vv(0),
+        vv(1),
+        vv(2)
+    );
+    w!(
+        "    blockHash := ⟨{}, {}, {}, {}⟩, blockNumber := {},",
+        vv(3),
+        vv(4),
+        vv(5),
+        vv(6),
+        vv(7)
+    );
+    w!("    exitSlots := [{}],", slot_vs.join(",\n      "));
+    w!("    nullifiers := [{}] }}", null_vs.join(",\n      "));
+    w!("");
+    w!("omit [Fact p.Prime] in");
+    w!("set_option maxRecDepth 8192 in");
+    w!("theorem out_eq (a : Assignment p) : out a = outOf (a ∘ pi) := rfl");
+    w!("");
+    w!("/-- **An accepted private-batch proof attests `RPrivateBatch`.** Through `proof_sound`: the");
+    w!("    accepted public inputs are those of an assignment satisfying the wrapper's exported");
+    w!("    wiring whose own recursion gadgets accepted every leaf proof, hence (`end_to_end_wired`)");
+    w!("    an `RPrivateBatch` instance. This is what `WormholeSpec.private_batch_proof_sound` used");
+    w!("    to assume. -/");
+    w!("theorem accepted_sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)");
+    w!("    {{ts : Fin {pi_total} → Target}} {{a : Assignment p}}");
+    w!("    (h : ProofAccepted perm tree ((List.ofFn ts).map a)) :");
+    w!("    ∃ leaves us, RPrivateBatch (spongeRO perm) leaves us (outOf (a ∘ ts)) := by");
+    w!("  obtain ⟨a', h', hp', hpis, hch⟩ := proof_sound perm _ _ _ _ h");
+    w!("  rw [publicInputs_eq] at hpis");
+    w!("  have hacc : ∀ i : Fin {n}, ProofAccepted perm LeafCircuit.tree ((List.ofFn (leafPis i)).map a') := by");
+    w!("    intro i");
+    w!("    fin_cases i");
+    for i in 0..n {
+        w!("    · exact hch (LeafCircuit.tree, List.ofFn (leafPis {i})) (by simp)");
+    }
+    w!("  have hR := (end_to_end_wired perm hpg a' h' hp' hacc).1");
+    w!("  rw [out_eq, pis_eq hpis] at hR");
+    w!("  exact ⟨_, _, hR⟩");
     w!("");
     w!("end Plonky2Bridge.Wrapper{n}");
     o

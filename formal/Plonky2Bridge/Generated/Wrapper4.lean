@@ -8,10 +8,13 @@
   gadget calls `build_private_batch_constraints` made over 4 leaves. This module reads the
   spec objects off the named targets and public inputs (`row`, `leaves`, `us`, `out`) and
   discharges every hypothesis of `private_batch_val_rows` (`Plonky2Bridge/PrivateBatch.lean`),
-  so `private_batch_end_to_end` is restated on the wiring with `leaf_proof_sound` as its only
-  axiom (`end_to_end_wired`).
+  so `private_batch_end_to_end` is restated on the wiring (`end_to_end_wired`), with the
+  children's `Rleaf` recovered from their accepted proofs through the one trusted axiom
+  `proof_sound` and the leaf bridge (Step 10). `accepted_sound` is the wrapper's own
+  `proof_sound` consequence, for the public-batch wrapper above it.
 -/
 import Plonky2Bridge.PrivateBatch
+import Plonky2Bridge.Generated.Leaf
 import Plonky2Spec.Generated.PrivateBatchWrapper4
 
 namespace Plonky2Bridge.Wrapper4
@@ -24,8 +27,7 @@ open Plonky2Spec.Poseidon2 (St)
 open Plonky2Spec.Sponge (spongeHash)
 open WormholeSpec (Digest Felt LeafPublic PrivateBatchOutput ExitSlot inRange RPrivateBatch
   maskedOutputTotal realLeaves realNullifiers rawOutputTotal outputExitTotal
-  RPrivateBatch_value_conservation RPrivateBatch_settles_distinct_spends LeafWitness Rleaf
-  LeafProofAccepted leaf_proof_sound)
+  RPrivateBatch_value_conservation RPrivateBatch_settles_distinct_spends LeafWitness Rleaf)
 
 variable {p : ℕ} [Fact p.Prime]
 
@@ -1943,24 +1945,104 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
       rw [← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]
   rwa [rows_leaves, rows_us] at hR
 
+/-! ### The wrapper as a recursion tree (PLAN.md Step 10) -/
+
+/-- The wrapper with its recursion gadgets: `verify_proof` under the leaf verifier key on
+    each `leaf_pis_i`. -/
+def tree : Recursive p :=
+  .node "private_batch_wrapper_n4" (privateBatchWrapper4 p)
+    [(LeafCircuit.tree, List.ofFn (leafPis 0)),
+     (LeafCircuit.tree, List.ofFn (leafPis 1)),
+     (LeafCircuit.tree, List.ofFn (leafPis 2)),
+     (LeafCircuit.tree, List.ofFn (leafPis 3))]
+
+omit [Fact p.Prime] in
+set_option maxRecDepth 8192 in
+/-- The tree's gadgets are the recorded ones. -/
+theorem tree_verifiers : (tree (p := p)).verifiers = privateBatchWrapper4.verifiers := rfl
+
+omit [Fact p.Prime] in
+/-- Child `i`'s public inputs, as the wrapper reads them, are the leaf's `pubOf`. -/
+theorem row_leaf (a : Assignment p) (i : Fin 4) :
+    (row a i).leaf = LeafCircuit.pubOf (a ∘ leafPis i) := by
+  fin_cases i <;> rfl
+
 /-- **The capstone on the recorded wiring.** `private_batch_end_to_end` with its decode
     hypotheses discharged by `sound`: a satisfying assignment of the `n = 4` private-batch
     wrapper whose recursion gadgets accepted every child leaf proof (i) satisfies
     `RPrivateBatch`, (ii) conserves value, (iii) settles distinct spends and (iv) attests
-    every child's `Rleaf` — through `leaf_proof_sound`, the only axiom. -/
+    every child's `Rleaf` — through `proof_sound`, the only axiom, and `leaf_wired`. -/
 theorem end_to_end_wired (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     (a : Assignment p) (h : Satisfies (privateBatchWrapper4 p) a)
     (hp : Poseidon2Rows perm (privateBatchWrapper4 p) a)
-    (hacc : ∀ pub ∈ leaves a, LeafProofAccepted (spongeRO perm) pub) :
+    (hacc : ∀ i : Fin 4, ProofAccepted perm LeafCircuit.tree ((List.ofFn (leafPis i)).map a)) :
     RPrivateBatch (spongeRO perm) (leaves a) (us a) (out a)
       ∧ outputExitTotal (out a) = maskedOutputTotal (leaves a)
       ∧ (outputExitTotal (out a) = rawOutputTotal (realLeaves (leaves a))
           ∧ (realNullifiers (leaves a)).Nodup)
       ∧ ∀ pub ∈ leaves a, ∃ w : LeafWitness, Rleaf (spongeRO perm) pub w := by
-  have hleaf := fun pub hq => leaf_proof_sound (spongeRO perm) pub (hacc pub hq)
+  have hleaf : ∀ pub ∈ leaves a, ∃ w : LeafWitness, Rleaf (spongeRO perm) pub w := by
+    intro pub hq
+    simp only [leaves, List.mem_cons, List.mem_nil_iff, or_false] at hq
+    rcases hq with rfl | rfl | rfl | rfl
+    · rw [row_leaf]; exact LeafCircuit.accepted_sound perm hpg (hacc 0)
+    · rw [row_leaf]; exact LeafCircuit.accepted_sound perm hpg (hacc 1)
+    · rw [row_leaf]; exact LeafCircuit.accepted_sound perm hpg (hacc 2)
+    · rw [row_leaf]; exact LeafCircuit.accepted_sound perm hpg (hacc 3)
   have hR := sound perm hpg a h hp fun q hq =>
     let ⟨_, hw⟩ := hleaf q hq
     Rleaf_ranges hw
   exact ⟨hR, RPrivateBatch_value_conservation hR, RPrivateBatch_settles_distinct_spends hR, hleaf⟩
+
+/-- The 96 public inputs in registration order. -/
+def pi : Fin 96 → Target :=
+  ![.virt 37958, .virt 9463, .wire 11 23, .wire 10 43, .wire 10 51, .wire 10 59, .wire 11 7, .wire 11 15, .wire 40 27, .wire 40 35, .wire 40 43, .wire 40 51, .wire 40 59, .wire 56 35, .wire 56 43, .wire 56 51, .wire 56 59, .wire 58 7, .wire 74 15, .wire 74 23, .wire 74 31, .wire 74 39, .wire 74 47, .wire 93 27, .wire 93 35, .wire 93 43, .wire 93 51, .wire 93 59, .wire 115 11, .wire 115 19, .wire 115 27, .wire 115 35, .wire 115 43, .wire 135 27, .wire 135 35, .wire 135 43, .wire 135 51, .wire 135 59, .wire 158 15, .wire 158 23, .wire 158 31, .wire 158 39, .wire 158 47, .wire 183 35, .wire 183 43, .wire 183 51, .wire 183 59, .wire 185 7, .wire 209 39, .wire 209 55, .wire 210 11, .wire 210 27, .wire 211 55, .wire 212 11, .wire 212 27, .wire 212 43, .wire 212 3, .wire 212 19, .wire 212 35, .wire 212 51, .wire 210 55, .wire 211 11, .wire 211 27, .wire 211 43, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957, .virt 37957]
+
+omit [Fact p.Prime] in
+set_option maxRecDepth 8192 in
+theorem publicInputs_eq : (privateBatchWrapper4 p).publicInputs = List.ofFn pi := rfl
+
+/-- `out` as a function of the public-input values alone. -/
+def outOf (v : Fin 96 → ZMod p) : PrivateBatchOutput :=
+  { numExitSlots := (v 0).val, assetId := (v 1).val, volumeFeeBps := (v 2).val,
+    blockHash := ⟨(v 3).val, (v 4).val, (v 5).val, (v 6).val⟩, blockNumber := (v 7).val,
+    exitSlots := [⟨(v 8).val, ⟨(v 9).val, (v 10).val, (v 11).val, (v 12).val⟩⟩,
+      ⟨(v 13).val, ⟨(v 14).val, (v 15).val, (v 16).val, (v 17).val⟩⟩,
+      ⟨(v 18).val, ⟨(v 19).val, (v 20).val, (v 21).val, (v 22).val⟩⟩,
+      ⟨(v 23).val, ⟨(v 24).val, (v 25).val, (v 26).val, (v 27).val⟩⟩,
+      ⟨(v 28).val, ⟨(v 29).val, (v 30).val, (v 31).val, (v 32).val⟩⟩,
+      ⟨(v 33).val, ⟨(v 34).val, (v 35).val, (v 36).val, (v 37).val⟩⟩,
+      ⟨(v 38).val, ⟨(v 39).val, (v 40).val, (v 41).val, (v 42).val⟩⟩,
+      ⟨(v 43).val, ⟨(v 44).val, (v 45).val, (v 46).val, (v 47).val⟩⟩],
+    nullifiers := [⟨(v 48).val, (v 49).val, (v 50).val, (v 51).val⟩,
+      ⟨(v 52).val, (v 53).val, (v 54).val, (v 55).val⟩,
+      ⟨(v 56).val, (v 57).val, (v 58).val, (v 59).val⟩,
+      ⟨(v 60).val, (v 61).val, (v 62).val, (v 63).val⟩] }
+
+omit [Fact p.Prime] in
+set_option maxRecDepth 8192 in
+theorem out_eq (a : Assignment p) : out a = outOf (a ∘ pi) := rfl
+
+/-- **An accepted private-batch proof attests `RPrivateBatch`.** Through `proof_sound`: the
+    accepted public inputs are those of an assignment satisfying the wrapper's exported
+    wiring whose own recursion gadgets accepted every leaf proof, hence (`end_to_end_wired`)
+    an `RPrivateBatch` instance. This is what `WormholeSpec.private_batch_proof_sound` used
+    to assume. -/
+theorem accepted_sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
+    {ts : Fin 96 → Target} {a : Assignment p}
+    (h : ProofAccepted perm tree ((List.ofFn ts).map a)) :
+    ∃ leaves us, RPrivateBatch (spongeRO perm) leaves us (outOf (a ∘ ts)) := by
+  obtain ⟨a', h', hp', hpis, hch⟩ := proof_sound perm _ _ _ _ h
+  rw [publicInputs_eq] at hpis
+  have hacc : ∀ i : Fin 4, ProofAccepted perm LeafCircuit.tree ((List.ofFn (leafPis i)).map a') := by
+    intro i
+    fin_cases i
+    · exact hch (LeafCircuit.tree, List.ofFn (leafPis 0)) (by simp)
+    · exact hch (LeafCircuit.tree, List.ofFn (leafPis 1)) (by simp)
+    · exact hch (LeafCircuit.tree, List.ofFn (leafPis 2)) (by simp)
+    · exact hch (LeafCircuit.tree, List.ofFn (leafPis 3)) (by simp)
+  have hR := (end_to_end_wired perm hpg a' h' hp' hacc).1
+  rw [out_eq, pis_eq hpis] at hR
+  exact ⟨_, _, hR⟩
 
 end Plonky2Bridge.Wrapper4

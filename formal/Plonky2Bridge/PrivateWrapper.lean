@@ -4,8 +4,10 @@
 
   Each `Generated/Wrapper{N}.lean` is emitted by the exporter (`src/private_wrapper.rs`)
   from the `n = N` trace: it reads the children, the preimages and the aggregated output off
-  the wiring and proves `Wrapper{N}.sound : RPrivateBatch …` and
-  `Wrapper{N}.end_to_end_wired`. This module names the capstones for the axiom gate in
+  the wiring and proves `Wrapper{N}.sound : RPrivateBatch …`, `Wrapper{N}.end_to_end_wired`
+  (children given as accepted leaf proofs, through `proof_sound`) and
+  `Wrapper{N}.accepted_sound` (an accepted proof of the wrapper's own tree attests
+  `RPrivateBatch`). This module names the capstones for the axiom gate in
   `ci/AxiomsCheck.lean`; the aliases carry the generated statements verbatim.
 -/
 import Plonky2Bridge.Generated.Wrapper2

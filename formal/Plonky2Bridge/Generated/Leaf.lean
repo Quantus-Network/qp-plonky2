@@ -14,6 +14,7 @@
   spec's `wormholeSalt` / `nullifierSalt` encodings, which the hash lemmas are stated on.
 -/
 import Plonky2Bridge.Leaf
+import Plonky2Bridge.Trusted
 import Plonky2Spec.Generated.LeafCircuit
 
 namespace Plonky2Bridge.LeafCircuit
@@ -2486,5 +2487,42 @@ theorem sound (perm : St p → St p) (hpg : goldilocks ≤ p)
     · rw [hhb0, hhb1, hhb2, hhb3]; exact hhdr
     · rw [hzb0, hzb1, hzb2, hzb3]
     · rw [← hleaf, hwalk, hroot0, hroot1, hroot2, hroot3]
+
+/-! ### The leaf as a recursion-tree node (PLAN.md Step 10) -/
+
+/-- The 22 public inputs in registration order. -/
+def pi : Fin 22 → Target :=
+  ![.virt 0, .virt 1, .virt 2, .virt 3, .virt 226, .virt 227, .virt 228, .virt 229, .virt 244, .virt 245, .virt 246, .virt 247, .virt 248, .virt 249, .virt 250, .virt 251, .virt 252, .virt 253, .virt 254, .virt 255, .virt 260, .virt 10]
+
+omit [Fact p.Prime] in
+theorem publicInputs_eq : (leafCircuit p).publicInputs = List.ofFn pi := rfl
+
+/-- `pub` as a function of the public-input values alone. -/
+def pubOf (v : Fin 22 → ZMod p) : LeafPublic :=
+  { assetId := (v 0).val, outputAmount1 := (v 1).val, outputAmount2 := (v 2).val, volumeFeeBps := (v 3).val,
+    nullifier := D4 (v 4) (v 5) (v 6) (v 7), exitAccount1 := D4 (v 8) (v 9) (v 10) (v 11), exitAccount2 := D4 (v 12) (v 13) (v 14) (v 15),
+    blockHash := D4 (v 16) (v 17) (v 18) (v 19), blockNumber := (v 20).val, inputAmount := (v 21).val }
+
+omit [Fact p.Prime] in
+theorem pub_eq (a : Assignment p) : pub a = pubOf (a ∘ pi) := rfl
+
+/-- The leaf verifies no proofs of its own. -/
+def tree : Recursive p := .node "leaf_circuit" (leafCircuit p) []
+
+omit [Fact p.Prime] in
+theorem tree_verifiers : (tree (p := p)).verifiers = leafCircuit.verifiers := rfl
+
+/-- **An accepted leaf proof attests `Rleaf`.** Through the one trusted axiom
+    `proof_sound`: the accepted public inputs are those of an assignment satisfying the
+    leaf's exported wiring, hence (`sound`) an `Rleaf` instance. This is what
+    `WormholeSpec.leaf_proof_sound` used to assume. -/
+theorem accepted_sound (perm : St p → St p) (hpg : goldilocks ≤ p) {ts : Fin 22 → Target}
+    {a : Assignment p} (h : ProofAccepted perm tree ((List.ofFn ts).map a)) :
+    ∃ w : LeafWitness, Rleaf (spongeRO perm) (pubOf (a ∘ ts)) w := by
+  obtain ⟨a', h', hp', hpis, -⟩ := proof_sound perm _ _ _ _ h
+  rw [publicInputs_eq] at hpis
+  have hR := sound perm hpg a' h' hp'
+  rw [pub_eq, pis_eq hpis] at hR
+  exact ⟨wit a', hR⟩
 
 end Plonky2Bridge.LeafCircuit

@@ -39,9 +39,10 @@
   The capstone (`private_batch_end_to_end`) composes *this* package's sponge/wrapper `.val`
   bridge with definitions and lemmas from the pinned `wormholeSpec` dependency
   (`RPrivateBatch`, `private_batch_bridge`, `RPrivateBatch_value_conservation`,
-  `RPrivateBatch_settles_distinct_spends`, `leaf_proof_sound`, …). Those objects are stated
-  and proved (or axiomatized, for `leaf_proof_sound`) in qp-zk-circuits/formal at the commit
-  pinned in `formal/lakefile.toml` — this package does not restate or re-verify them. What
+  `RPrivateBatch_settles_distinct_spends`, …). Those objects are stated and proved in
+  qp-zk-circuits/formal at the commit pinned in `formal/lakefile.toml` — this package does
+  not restate or re-verify them. The one trusted axiom of the whole stack, proof-system
+  soundness on the exported recursion tree, lives in `Plonky2Bridge/Trusted.lean`. What
   *is* here: `spongeRO`, the `.val` seam, and the gadget-level bridges (nullifier selection
   + permutation network, uniqueness loop, fee comparator, public-batch forwarding masks)
   into `RPrivateBatch (spongeRO perm) …`.
@@ -192,7 +193,7 @@ open WormholeSpec (LeafPublic PrivateBatchOutput isDummyPrivateBatch buildNullif
   metadataConsistent referenceFromFirstReal realNullifiersDistinct privateBatchFeeOk
   maskedInputTotal maskedOutputTotal realLeaves realNullifiers rawOutputTotal
   outputExitTotal RPrivateBatch_value_conservation RPrivateBatch_settles_distinct_spends
-  LeafWitness Rleaf LeafProofAccepted leaf_proof_sound ExitSlot isDummyInner
+  LeafWitness Rleaf ExitSlot isDummyInner
   forwardedSlots forwardedNullifiers)
 
 variable [Fact p.Prime]
@@ -477,29 +478,28 @@ theorem private_batch_val (perm : St p → St p) (hpg : WormholeSpec.goldilocks 
 /-! ## End-to-end private-batch soundness over the verified sponge (the trust stack, assembled)
 
   The capstone: for the *concrete* random oracle `spongeRO perm` (the Step-3b/3c verified
-  Poseidon2 sponge), a satisfied private-batch aggregation circuit whose recursion gadget
-  accepted every child leaf proof
+  Poseidon2 sponge), a satisfied private-batch aggregation circuit each of whose children
+  satisfies the leaf relation
 
     (i)   satisfies the private-batch relation `RPrivateBatch` — rung (2)→(3), via
           `private_batch_val`, built on the exporter-verified gadget semantics;
     (ii)  conserves value (`outputExitTotal = maskedOutputTotal`) — rung (4);
     (iii) settles only pairwise-distinct spends (`RPrivateBatch_settles_distinct_spends`) —
           the anti-replay property the uniqueness loop exists for;
-    (iv)  attests every child's leaf relation `Rleaf` — the trusted recursion seam (1),
-          `leaf_proof_sound`.
+    (iv)  re-attests every child's leaf relation `Rleaf`.
 
   The children's 32-bit amount/fee ranges that the fee comparator's no-wrap bounds rest on
   are not assumed: they are read off each child's `Rleaf` (its `collect_32_bit_targets`
-  range checks), obtained from the accepted proof through `leaf_proof_sound`.
+  range checks). The children's `Rleaf` itself is the hypothesis `hleaf`; on the exported
+  wiring it is discharged from the accepted leaf proofs by `LeafCircuit.accepted_sound`
+  through the one trusted axiom `Plonky2Bridge.proof_sound` (`Wrapper{2,4}.end_to_end_wired`).
 
   Two things sit *outside* the Lean hypotheses, by design:
   * **Fidelity to the Rust** — that `spongeRO`/the wrapper gadgets *are* the deployed circuit —
     is carried by the constraint exporter + differential tests, not re-proved here.
   * The public-input **decode** (`hd`/`hdnull`/`hreal`/`hnull`/`hexits`/`hmeta`/`href`/the
     fee accumulator decodes) is the wiring/copy-constraint model (PLAN §9 gap (a)).
-  The only trusted *axiom* this theorem depends on is `leaf_proof_sound` (used for clause (iv)
-  and for the children's range facts feeding clause (i)); `private_batch_val`, which takes
-  those ranges as an explicit premise, is standard-axioms-only. -/
+  This theorem is standard-axioms-only. -/
 theorem Rleaf_ranges {ro : RandomOracle} {q : LeafPublic} {w : LeafWitness}
     (h : Rleaf ro q w) :
     WormholeSpec.inRange 32 q.inputAmount ∧ WormholeSpec.inRange 32 q.outputAmount1 ∧
@@ -527,14 +527,12 @@ theorem private_batch_end_to_end (perm : St p → St p) (hpg : WormholeSpec.gold
     (hmeta : metadataConsistent (rows.map (fun t => t.2.1)) out)
     (href : referenceFromFirstReal (rows.map (fun t => t.2.1)) out)
     (hnum : out.numExitSlots = 2 * rows.length)
-    (hacc : ∀ pub ∈ rows.map (fun t => t.2.1), LeafProofAccepted (spongeRO perm) pub) :
+    (hleaf : ∀ pub ∈ rows.map (fun t => t.2.1), ∃ w : LeafWitness, Rleaf (spongeRO perm) pub w) :
     RPrivateBatch (spongeRO perm) (rows.map (fun t => t.2.1)) (rows.map (fun t => t.2.2)) out
       ∧ outputExitTotal out = maskedOutputTotal (rows.map (fun t => t.2.1))
       ∧ (outputExitTotal out = rawOutputTotal (realLeaves (rows.map (fun t => t.2.1)))
           ∧ (realNullifiers (rows.map (fun t => t.2.1))).Nodup)
       ∧ ∀ pub ∈ rows.map (fun t => t.2.1), ∃ w : LeafWitness, Rleaf (spongeRO perm) pub w := by
-  have hleaf : ∀ pub ∈ rows.map (fun t => t.2.1), ∃ w : LeafWitness, Rleaf (spongeRO perm) pub w :=
-    fun pub hp => leaf_proof_sound (spongeRO perm) pub (hacc pub hp)
   have h32 : ∀ q ∈ rows.map (fun t => t.2.1), WormholeSpec.inRange 32 q.inputAmount ∧
       WormholeSpec.inRange 32 q.outputAmount1 ∧ WormholeSpec.inRange 32 q.outputAmount2 ∧
       WormholeSpec.inRange 32 q.volumeFeeBps := by

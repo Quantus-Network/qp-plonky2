@@ -112,4 +112,9 @@ def nullifierSelect2.real : Fin 8 → Target :=
 def nullifierSelect2.out : Fin 8 → Target :=
   ![.wire 0 11, .wire 0 19, .wire 0 27, .wire 0 35, .wire 0 47, .wire 0 55, .wire 0 63, .wire 0 71]
 
+/-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
+    name and the targets carrying its public inputs (`Recursive.children`). -/
+def nullifierSelect2.verifiers : List (String × List Target) :=
+  []
+
 end Plonky2Spec.Generated

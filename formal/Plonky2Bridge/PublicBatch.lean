@@ -12,8 +12,8 @@
     * the constant `n_inner · slots_per_inner` as the slot-count header.
 
   This module lifts each of those through `ZMod.val` into the conjuncts of
-  `WormholeSpec.RPublicBatch` (`public_batch_val`) and composes with the trusted
-  `private_batch_proof_sound` (`public_batch_end_to_end`). As in the private-batch bridge,
+  `WormholeSpec.RPublicBatch` (`public_batch_val`) and re-attests each inner's `RPrivateBatch`
+  (`public_batch_end_to_end`). As in the private-batch bridge,
   the *decode* hypotheses (which public-input wire carries which spec value) are the explicit
   boundary; the dummy flag's meaning, the header selection, the consistency checks and the
   forwarding masks are all derived from the gadget lemmas rather than assumed.
@@ -27,8 +27,7 @@ open Plonky2Spec (IsBool bselect band bnot bor bnot_isBool bnot_eq_one Digest4 s
   bytesDigestEq_spec)
 open WormholeSpec (Digest RandomOracle PrivateBatchOutput PublicBatchOutput RPublicBatch
   isDummyInner isRealInnerB forwardedSlots forwardedNullifiers innerReferenceFromFirstReal
-  ExitSlot PrivateBatchProofAccepted private_batch_proof_sound RPrivateBatch
-  RPublicBatch_totalExitSlots)
+  ExitSlot RPrivateBatch RPublicBatch_totalExitSlots)
 
 variable {p : ℕ} [Fact p.Prime]
 
@@ -333,11 +332,13 @@ theorem public_batch_val (ro : RandomOracle) (rows : List (InnerPair p)) {addr :
   · rw [hnulls]; exact forwardedNullsF_val rows hb hd hdecNulls
   · rw [htot, hexits, List.length_map]; exact (forwardedSlotsF_length rows hshape).symm
 
-/-- **End-to-end public-batch soundness.** A satisfied public-batch wrapper whose recursion
-    gadget accepted every inner private-batch proof (i) satisfies `RPublicBatch`, (ii) has the
-    slot-count header equal to the sum of the inners' slot counts, and (iii) attests every
-    inner's `RPrivateBatch` for some children — the latter through the trusted
-    `private_batch_proof_sound`, the only axiom this theorem adds. -/
+/-- **End-to-end public-batch soundness.** A satisfied public-batch wrapper each of whose
+    inners satisfies `RPrivateBatch` (i) satisfies `RPublicBatch`, (ii) has the slot-count
+    header equal to the sum of the inners' slot counts, and (iii) re-attests every inner's
+    `RPrivateBatch`. On the exported wiring the inners' `RPrivateBatch` is discharged from
+    the accepted proofs by `Wrapper{2,4}.accepted_sound` through the one trusted axiom
+    `Plonky2Bridge.proof_sound` (`PublicWrapper{2,4}.end_to_end_wired`); this theorem is
+    standard-axioms-only. -/
 theorem public_batch_end_to_end (ro : RandomOracle) (rows : List (InnerPair p)) {addr : Digest}
     {out : PublicBatchOutput} {k : ℕ}
     (haddr : out.aggregatorAddress = addr)
@@ -359,13 +360,12 @@ theorem public_batch_end_to_end (ro : RandomOracle) (rows : List (InnerPair p)) 
     (hnulls : out.nullifiers = (forwardedNullsF rows).map valDigest)
     (hshape : ∀ t ∈ rows, t.1.slots.length = k)
     (htot : out.totalExitSlots = rows.length * k)
-    (hacc : ∀ o ∈ rows.map Prod.snd, PrivateBatchProofAccepted ro o) :
+    (hinner : ∀ o ∈ rows.map Prod.snd, ∃ leaves us, RPrivateBatch ro leaves us o) :
     RPublicBatch ro (rows.map Prod.snd) addr out
       ∧ out.totalExitSlots = ((rows.map Prod.snd).map fun o => o.exitSlots.length).sum
       ∧ ∀ o ∈ rows.map Prod.snd, ∃ leaves us, RPrivateBatch ro leaves us o := by
   have hR := public_batch_val ro rows haddr hdummy hdecBlock hdecNum hdecAsset hdecFee hdecSlots
     hdecNulls hblock hnum hasset hfee hcAsset hcFee hcBlock hexits hnulls hshape htot
-  exact ⟨hR, RPublicBatch_totalExitSlots hR,
-    fun o ho => private_batch_proof_sound ro o (hacc o ho)⟩
+  exact ⟨hR, RPublicBatch_totalExitSlots hR, hinner⟩
 
 end Plonky2Bridge

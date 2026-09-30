@@ -11566,6 +11566,16 @@ def privateBatchWrapper4.dummy_pre_image_3 : Fin 4 → Target :=
 def privateBatchWrapper4.switches : Fin 6 → Target :=
   ![.virt 38817, .virt 38818, .virt 38819, .virt 38820, .virt 38821, .virt 38822]
 
+/-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
+    name and the targets carrying its public inputs (`Recursive.children`). -/
+def privateBatchWrapper4.verifiers : List (String × List Target) :=
+  [
+    ("leaf_circuit", [.virt 9463, .virt 9464, .virt 9465, .virt 9466, .virt 9467, .virt 9468, .virt 9469, .virt 9470, .virt 9471, .virt 9472, .virt 9473, .virt 9474, .virt 9475, .virt 9476, .virt 9477, .virt 9478, .virt 9479, .virt 9480, .virt 9481, .virt 9482, .virt 9483, .virt 9484]),
+    ("leaf_circuit", [.virt 18948, .virt 18949, .virt 18950, .virt 18951, .virt 18952, .virt 18953, .virt 18954, .virt 18955, .virt 18956, .virt 18957, .virt 18958, .virt 18959, .virt 18960, .virt 18961, .virt 18962, .virt 18963, .virt 18964, .virt 18965, .virt 18966, .virt 18967, .virt 18968, .virt 18969]),
+    ("leaf_circuit", [.virt 28433, .virt 28434, .virt 28435, .virt 28436, .virt 28437, .virt 28438, .virt 28439, .virt 28440, .virt 28441, .virt 28442, .virt 28443, .virt 28444, .virt 28445, .virt 28446, .virt 28447, .virt 28448, .virt 28449, .virt 28450, .virt 28451, .virt 28452, .virt 28453, .virt 28454]),
+    ("leaf_circuit", [.virt 37918, .virt 37919, .virt 37920, .virt 37921, .virt 37922, .virt 37923, .virt 37924, .virt 37925, .virt 37926, .virt 37927, .virt 37928, .virt 37929, .virt 37930, .virt 37931, .virt 37932, .virt 37933, .virt 37934, .virt 37935, .virt 37936, .virt 37937, .virt 37938, .virt 37939])
+  ]
+
 theorem privateBatchWrapper4_copies0 (a : Assignment p) (h : Satisfies (privateBatchWrapper4 p) a) :
     a (.virt 37956) = a (.wire 0 0) ∧ a (.virt 37956) = a (.wire 0 1) ∧ a (.virt 37959) = a (.wire 0 2) ∧ a (.virt 37959) = a (.wire 1 0) ∧ a (.virt 9479) = a (.wire 1 1) ∧ a (.virt 37959) = a (.wire 1 2) ∧ a (.virt 9479) = a (.wire 1 4) ∧ a (.virt 37960) = a (.wire 1 5) ∧ a (.virt 9479) = a (.wire 1 6) ∧ a (.wire 1 7) = a (.wire 0 4) ∧ a (.virt 37956) = a (.wire 0 5) ∧ a (.wire 0 3) = a (.wire 0 6) ∧ a (.wire 1 3) = a (.virt 37957) ∧ a (.wire 0 7) = a (.virt 37957) ∧ a (.virt 37956) = a (.wire 0 8) ∧ a (.virt 37956) = a (.wire 0 9) ∧ a (.virt 37961) = a (.wire 0 10) ∧ a (.virt 37961) = a (.wire 1 8) ∧ a (.virt 9480) = a (.wire 1 9) ∧ a (.virt 37961) = a (.wire 1 10) ∧ a (.virt 9480) = a (.wire 1 12) ∧ a (.virt 37962) = a (.wire 1 13) ∧ a (.virt 9480) = a (.wire 1 14) ∧ a (.wire 1 15) = a (.wire 0 12) ∧ a (.virt 37956) = a (.wire 0 13) ∧ a (.wire 0 11) = a (.wire 0 14) ∧ a (.wire 1 11) = a (.virt 37957) ∧ a (.wire 0 15) = a (.virt 37957) ∧ a (.virt 37956) = a (.wire 0 16) ∧ a (.virt 37956) = a (.wire 0 17) ∧ a (.virt 37963) = a (.wire 0 18) ∧ a (.virt 37963) = a (.wire 1 16) := by
   have hc : ∀ q ∈ privateBatchWrapper4.copies0, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ hq))))))))

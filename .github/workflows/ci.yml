@@ -202,12 +202,15 @@ jobs:
               exit 1
             fi
           }
-          check Plonky2Bridge.private_batch_end_to_end WormholeSpec.leaf_proof_sound
-          check Plonky2Bridge.public_batch_end_to_end WormholeSpec.private_batch_proof_sound
-          check Plonky2Bridge.private_batch_end_to_end_wired WormholeSpec.leaf_proof_sound
-          check Plonky2Bridge.private_batch_end_to_end_wired_n4 WormholeSpec.leaf_proof_sound
-          check Plonky2Bridge.public_batch_end_to_end_wired WormholeSpec.private_batch_proof_sound
-          check Plonky2Bridge.public_batch_end_to_end_wired_n4 WormholeSpec.private_batch_proof_sound
+          check Plonky2Bridge.private_batch_end_to_end
+          check Plonky2Bridge.public_batch_end_to_end
+          check Plonky2Bridge.private_batch_end_to_end_wired Plonky2Bridge.proof_sound
+          check Plonky2Bridge.private_batch_end_to_end_wired_n4 Plonky2Bridge.proof_sound
+          check Plonky2Bridge.public_batch_end_to_end_wired Plonky2Bridge.proof_sound
+          check Plonky2Bridge.public_batch_end_to_end_wired_n4 Plonky2Bridge.proof_sound
+          check Plonky2Bridge.LeafCircuit.accepted_sound Plonky2Bridge.proof_sound
+          check Plonky2Bridge.Wrapper2.accepted_sound Plonky2Bridge.proof_sound
+          check Plonky2Bridge.Wrapper4.accepted_sound Plonky2Bridge.proof_sound
           check Plonky2Bridge.Wrapper2.sound
           check Plonky2Bridge.Wrapper4.sound
           check Plonky2Bridge.PublicWrapper2.sound

@@ -19,7 +19,7 @@ use plonky2::iop::target::Target;
 
 use crate::circuit::lean_target;
 use crate::gadget::{Call, Fact, FACT_GROUP};
-use crate::trace::{load, traces_dir, LoadedTrace};
+use crate::trace::{check_verifiers, load, traces_dir, LoadedTrace};
 
 /// The private-batch `aggregated_output` public-input layout each inner proof exposes
 /// (`wormhole/aggregator/src/private_batch/circuit/constants.rs`).
@@ -127,6 +127,7 @@ impl Shape {
             return Err(format!("inner PI length {pi_len} is not 22·leaves + 8"));
         }
         let leaves = (pi_len - layout::HEADER_LEN) / layout::LEAF_PI_LEN;
+        check_verifiers(t, &format!("private_batch_wrapper_n{leaves}"), &pis)?;
         let slots_per_inner = 2 * leaves;
         let nulls_per_inner = leaves;
         let aggregator_address: [Target; 4] = named("aggregator_address")?
@@ -570,6 +571,7 @@ fn a(t: Target) -> String {
 /// Render the bridge module for a recorded public-batch wrapper.
 pub fn render(shape: &Shape) -> String {
     let n = shape.n;
+    let leaves = shape.leaves;
     let s = shape.slots_per_inner;
     let u = shape.nulls_per_inner;
     let pi_len = shape.pi_len;
@@ -597,10 +599,12 @@ pub fn render(shape: &Shape) -> String {
     );
     w!("  reads the inner outputs and the aggregated output off the named targets and public inputs");
     w!("  and discharges every hypothesis of `public_batch_val` (`Plonky2Bridge/PublicBatch.lean`),");
-    w!("  so `public_batch_end_to_end` is restated on the wiring with `private_batch_proof_sound`");
-    w!("  as its only axiom (`end_to_end_wired`).");
+    w!("  so `public_batch_end_to_end` is restated on the wiring (`end_to_end_wired`), with each");
+    w!("  inner's `RPrivateBatch` recovered from its accepted proof through the one trusted axiom");
+    w!("  `proof_sound` and the private-batch wrapper bridge (Step 10).");
     w!("-/");
     w!("import Plonky2Bridge.PublicBatch");
+    w!("import Plonky2Bridge.Generated.Wrapper{leaves}");
     w!("import Plonky2Spec.Generated.PublicBatchWrapper{n}");
     w!("");
     w!("namespace Plonky2Bridge.PublicWrapper{n}");
@@ -608,8 +612,9 @@ pub fn render(shape: &Shape) -> String {
     w!("open Plonky2Spec (bselect band bnot bor scanStep)");
     w!("open Plonky2Spec.Wiring");
     w!("open Plonky2Spec.Generated ({circuit} {decode})");
+    w!("open Plonky2Spec.Poseidon2 (St)");
     w!("open WormholeSpec (Digest Felt PrivateBatchOutput PublicBatchOutput ExitSlot RandomOracle RPublicBatch");
-    w!("  RPrivateBatch PrivateBatchProofAccepted private_batch_proof_sound RPublicBatch_totalExitSlots)");
+    w!("  RPrivateBatch RPublicBatch_totalExitSlots)");
     w!("");
     w!("variable {{p : ℕ}} [Fact p.Prime]");
     w!("");
@@ -1063,20 +1068,51 @@ pub fn render(shape: &Shape) -> String {
     w!("    have hc : ({total_value} : ℕ) < p := lt_of_lt_of_le (by decide) hpg");
     w!("    rw [← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]");
     w!("");
+    w!("/-! ### The wrapper as a recursion tree (PLAN.md Step 10) -/");
+    w!("");
+    w!("/-- The wrapper with its recursion gadgets: `verify_proof` under the `{leaves}`-leaf private-batch");
+    w!("    verifier key on each `inner_pis_i`. -/");
+    w!("def tree : Recursive p :=");
+    w!("  .node \"public_batch_wrapper_n{n}\" ({circuit} p)");
+    let children: Vec<String> = (0..n)
+        .map(|i| format!("(Wrapper{leaves}.tree, List.ofFn (innerPis {i}))"))
+        .collect();
+    w!("    [{}]", children.join(",\n     "));
+    w!("");
+    w!("omit [Fact p.Prime] in");
+    w!("set_option maxRecDepth 8192 in");
+    w!("/-- The tree's gadgets are the recorded ones. -/");
+    w!("theorem tree_verifiers : (tree (p := p)).verifiers = {circuit}.verifiers := rfl");
+    w!("");
+    w!("omit [Fact p.Prime] in");
+    w!("set_option maxRecDepth 8192 in");
+    w!("/-- Inner `i`'s public inputs, as the wrapper reads them, are the private-batch wrapper's");
+    w!("    `outOf`. -/");
+    w!("theorem inner_eq (a : Assignment p) (i : Fin {n}) :");
+    w!("    inner a i = Wrapper{leaves}.outOf (a ∘ innerPis i) := by");
+    w!("  fin_cases i <;> rfl");
+    w!("");
     w!("/-- **The public-batch capstone on the recorded wiring.** `public_batch_end_to_end` with its");
     w!("    decode hypotheses discharged by `sound`: a satisfying assignment of the `n_inner = {n}`");
     w!("    public-batch wrapper whose recursion gadgets accepted every inner private-batch proof");
     w!("    (i) satisfies `RPublicBatch`, (ii) has the slot-count header equal to the sum of the");
     w!("    inners' slot counts and (iii) attests every inner's `RPrivateBatch` — through");
-    w!("    `private_batch_proof_sound`, the only axiom. -/");
-    w!("theorem end_to_end_wired (ro : RandomOracle) (hpg : WormholeSpec.goldilocks ≤ p)");
+    w!("    `proof_sound`, the only axiom, and the wired wrapper bridges below it. -/");
+    w!("theorem end_to_end_wired (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)");
     w!("    (a : Assignment p) (h : Satisfies ({circuit} p) a)");
-    w!("    (hacc : ∀ o ∈ inners a, PrivateBatchProofAccepted ro o) :");
-    w!("    RPublicBatch ro (inners a) (addr a) (out a)");
+    w!("    (hacc : ∀ i : Fin {n}, ProofAccepted perm Wrapper{leaves}.tree ((List.ofFn (innerPis i)).map a)) :");
+    w!("    RPublicBatch (spongeRO perm) (inners a) (addr a) (out a)");
     w!("      ∧ (out a).totalExitSlots = ((inners a).map fun o => o.exitSlots.length).sum");
-    w!("      ∧ ∀ o ∈ inners a, ∃ leaves us, RPrivateBatch ro leaves us o := by");
-    w!("  have hR := sound ro hpg a h");
-    w!("  exact ⟨hR, RPublicBatch_totalExitSlots hR, fun o ho => private_batch_proof_sound ro o (hacc o ho)⟩");
+    w!("      ∧ ∀ o ∈ inners a, ∃ leaves us, RPrivateBatch (spongeRO perm) leaves us o := by");
+    w!("  have hR := sound (spongeRO perm) hpg a h");
+    w!("  refine ⟨hR, RPublicBatch_totalExitSlots hR, ?_⟩");
+    w!("  intro o ho");
+    w!("  simp only [inners, List.mem_cons, List.mem_nil_iff, or_false] at ho");
+    let alts: Vec<&str> = (0..n).map(|_| "rfl").collect();
+    w!("  rcases ho with {}", alts.join(" | "));
+    for i in 0..n {
+        w!("  · rw [inner_eq]; exact Wrapper{leaves}.accepted_sound perm hpg (hacc {i})");
+    }
     w!("");
     w!("end Plonky2Bridge.PublicWrapper{n}");
     o

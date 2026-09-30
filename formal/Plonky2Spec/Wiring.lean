@@ -122,4 +122,31 @@ def Poseidon2Rows (perm : (Fin 12 → ZMod p) → Fin 12 → ZMod p) (c : Circui
   ∀ row r, c.rows[row]? = some r → r.kind = .poseidon2 →
     poseidon2Out a row = perm (poseidon2In a row)
 
+/-- An exported circuit together with the `verify_proof` gadgets its export omits: `tag` is
+    the circuit's trace name, and each child is the tree of the circuit whose verifier key
+    the gadget bakes in, paired with the parent targets that carry the child's public inputs
+    (`<name>.verifiers` in the generated circuit lists exactly these, by tag). The aggregation
+    circuits are such trees; `Plonky2Bridge.proof_sound` is stated on them. -/
+inductive Recursive (p : ℕ)
+  | node (tag : String) (circuit : Circuit p) (children : List (Recursive p × List Target))
+
+namespace Recursive
+
+variable {p : ℕ}
+
+def tag : Recursive p → String
+  | .node t _ _ => t
+
+def circuit : Recursive p → Circuit p
+  | .node _ c _ => c
+
+def children : Recursive p → List (Recursive p × List Target)
+  | .node _ _ cs => cs
+
+/-- The tags and targets of the gadgets, in the shape of the generated `<name>.verifiers`. -/
+def verifiers (r : Recursive p) : List (String × List Target) :=
+  r.children.map fun v => (v.1.tag, v.2)
+
+end Recursive
+
 end Plonky2Spec.Wiring

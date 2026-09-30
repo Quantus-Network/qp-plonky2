@@ -303,4 +303,23 @@ fn leaf_bridge_lean_is_current() {
         })
         .collect();
     assert_eq!(used.len(), 1566 - 16 * 3);
+    // The recursion base: a leaf tree with no children, and an accepted proof of it attests
+    // `Rleaf` through `proof_sound`.
+    assert!(
+        generated.contains("def tree : Recursive p := .node \"leaf_circuit\" (leafCircuit p) []")
+    );
+    assert!(generated.contains("theorem accepted_sound"));
+    assert!(generated.contains("∃ w : LeafWitness, Rleaf (spongeRO perm) (pubOf (a ∘ ts)) w := by"));
+    assert!(generated.contains("proof_sound perm _ _ _ _ h"));
+}
+
+#[test]
+fn leaf_rejects_recursion_gadgets() {
+    let mut t = leaf();
+    t.ex.verifiers.push(("leaf_circuit".into(), Vec::new()));
+    let err = Shape::read(&t).unwrap_err();
+    assert!(
+        err.contains("expected 0 verify_proof gadgets, trace has 1"),
+        "{err}"
+    );
 }
