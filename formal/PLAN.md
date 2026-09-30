@@ -919,13 +919,13 @@ sponges, bit decompositions, a bit-serial comparator and a 16-level gated Merkle
   felt, then the `1` terminator word), pinned to the Rust encoder by `salts_match_formal_spec`
   there. `WA_of_hashes` / `Null_of_hashes` are stated on those literals, and `Shape::read`
   rejects a trace whose salt constants differ, so `sound` takes no salt hypotheses.
-- **Pinning.** `wormholeSpec` is pinned at qp-zk-circuits `c424630` (the #192 merge), whose
+- **Pinning.** `wormholeSpec` is pinned at qp-zk-circuits `fa5f57d` (the #194 merge), whose
   `formal/traces/leaf_circuit.json` the strict vendored-trace CI step checks byte-for-byte
   against `constraint-exporter/traces/leaf_circuit.json`, alongside the wrapper traces.
   `leaf_wired` establishes `Rleaf` for a *satisfying assignment*; tying a verified proof to
   one is Step 10's `LeafCircuit.accepted_sound`.
 
-### Step 10 — One trusted axiom: proof-system soundness on the exported recursion tree  ✅ DONE (10a–10c; 10d pending)
+### Step 10 — One trusted axiom: proof-system soundness on the exported recursion tree  ✅ DONE
 Attacks §7 directly. The trusted base before this step was two *circuit-specific* axioms in
 `WormholeSpec/Trusted.lean`: `leaf_proof_sound` (`LeafProofAccepted ro p → ∃ w, Rleaf ro p w`)
 and `private_batch_proof_sound`. Each bundles proof-system soundness with "this circuit enforces
@@ -999,8 +999,9 @@ relation and no particular circuit.
   bridge states (count, child tag, targets), and the leaf trace must have none. Footprints: the
   eight `*_wired` / `accepted_sound` capstones are `[…, Plonky2Bridge.proof_sound]`, everything
   else bare — nothing in qp-plonky2 mentions `leaf_proof_sound` / `private_batch_proof_sound`
-  any more. 10d (retiring them from `WormholeSpec/Trusted.lean`) is the remaining
-  qp-zk-circuits change.
+  any more. 10d landed as qp-zk-circuits #194: `WormholeSpec/Trusted.lean` is gone,
+  `AggregationBridge.private_batch_sound` / `public_batch_sound` take the child relations, and
+  `WormholeSpec` is axiom-free. `Plonky2Bridge.proof_sound` is the only axiom in either package.
 
 ## 9. Definition of done
 
