@@ -14,6 +14,8 @@ use constraint_exporter::leaf::{generate_leaf_bridge_lean, Shape};
 use constraint_exporter::trace::{
     assert_vendored_trace_matches_pinned, generate_leaf_circuit_lean, load, traces_dir,
 };
+use plonky2::field::goldilocks_field::GoldilocksField as F;
+use plonky2::field::types::Field;
 use plonky2::iop::target::Target;
 
 const TRACE: &str = "leaf_circuit.json";
@@ -166,6 +168,30 @@ fn shape_rejects_perturbed_traces() {
     long.calls.push(last);
     let err = Shape::read(&long).unwrap_err();
     assert!(err.contains("1 trailing calls"), "{err}");
+    // A salt constant that is not the spec's `string_to_felts("wormhole")` encoding.
+    let mut salted = leaf();
+    let wa_inputs = salted
+        .calls
+        .iter()
+        .find_map(|c| match &c.fact {
+            Fact::Poseidon2 { inputs, .. } if inputs.len() == 7 => Some(inputs.clone()),
+            _ => None,
+        })
+        .unwrap();
+    for (t, v) in &mut salted.ex.constants {
+        if *t == wa_inputs[1] {
+            *v = F::from_canonical_u64(u64::from(u32::from_le_bytes(*b"hola")));
+        }
+    }
+    let err = Shape::read(&salted).unwrap_err();
+    assert!(
+        err.contains(&format!(
+            "wormhole-address salt is [1836216183, {}, 1], but WormholeSpec defines it as \
+             [1836216183, 1701605224, 1]",
+            u32::from_le_bytes(*b"hola")
+        )),
+        "{err}"
+    );
     // A comparator op reading the wrong bit: `is_const_less_than` is checked bit by bit.
     let mut bit = leaf();
     let k = bit
@@ -234,18 +260,14 @@ fn leaf_bridge_lean_is_current() {
     let generated = generate_leaf_bridge_lean().unwrap();
     assert_eq!(on_disk, generated, "run export-constraints ({path})");
     assert!(generated.contains("namespace Plonky2Bridge.LeafCircuit\n"));
-    assert!(generated.contains("theorem sound (perm : St p → St p) (hpg : goldilocks ≤ p)\n"));
-    assert!(generated.contains("    Rleaf (spongeRO perm) (pub a) (wit a) := by\n"));
-    // The salts the circuit bakes in: `string_to_felts("wormhole")` / `("~nullif~")`, four
-    // little-endian bytes per felt then a `1`.
-    let felt = |s: &[u8; 4]| u32::from_le_bytes(*s);
-    assert!(generated.contains(&format!(
-        "(hws : wormholeSalt = [{}, {}, 1]) (hns : nullifierSalt = [{}, {}, 1])",
-        felt(b"worm"),
-        felt(b"hole"),
-        felt(b"~nul"),
-        felt(b"lif~")
-    )));
+    // No salt hypotheses: the spec's `wormholeSalt` / `nullifierSalt` are concrete and the
+    // exporter checks the trace's constants against them.
+    assert!(generated.contains(
+        "theorem sound (perm : St p → St p) (hpg : goldilocks ≤ p)\n\
+         \x20   (a : Assignment p) (h : Satisfies (leafCircuit p) a)\n\
+         \x20   (hp : Poseidon2Rows perm (leafCircuit p) a) :\n\
+         \x20   Rleaf (spongeRO perm) (pub a) (wit a) := by\n"
+    ));
     // The depth bound and the sixteen `is_active` comparators, levels and walk steps.
     assert!(generated.contains("have hdloop : (ltLoop [(cb false, "));
     assert_eq!(generated.matches("have hloop").count(), 16);
@@ -265,8 +287,8 @@ fn leaf_bridge_lean_is_current() {
     );
     assert_eq!(generated.matches("· exact pos_lt_four hpg f").count(), 16);
     assert!(generated.contains("have hnd := notDummy_spec "));
-    assert!(generated.contains("have hWA := WA_of_hashes perm hpg hws f1 f2\n"));
-    assert!(generated.contains("have hnull := Null_of_hashes perm hpg hns f1527 f1528\n"));
+    assert!(generated.contains("have hWA := WA_of_hashes perm hpg f1 f2\n"));
+    assert!(generated.contains("have hnull := Null_of_hashes perm hpg f1527 f1528\n"));
     assert!(generated.contains("have hhdr := H_of_hash perm f1541\n"));
     // Every recorded fact but the re-emitted `or(e0, e1)`s is consumed.
     let used: std::collections::BTreeSet<usize> = generated

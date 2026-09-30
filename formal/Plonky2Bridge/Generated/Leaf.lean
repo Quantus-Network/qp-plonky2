@@ -10,8 +10,8 @@
   lemmas of `Plonky2Bridge/Leaf.lean`: the wormhole address and nullifier double hashes,
   the leaf hash, the depth bound, the sixteen gated Merkle levels (`gatedWalk` =
   `computeRoot` over the first `depth` levels), the dummy flag and the `is_not_dummy`-gated
-  bindings. The salts the circuit bakes in are taken as hypotheses on the spec's opaque
-  `wormholeSalt` / `nullifierSalt`.
+  bindings. The salts the circuit bakes in are checked by the exporter against the
+  spec's `wormholeSalt` / `nullifierSalt` encodings, which the hash lemmas are stated on.
 -/
 import Plonky2Bridge.Leaf
 import Plonky2Spec.Generated.LeafCircuit
@@ -24,8 +24,8 @@ open Plonky2Spec.Generated
 open Plonky2Spec.Poseidon2 (St)
 open Plonky2Spec.Sponge (spongeHash)
 open Plonky2Bridge.Leaf
-open WormholeSpec (Digest LeafPublic LeafWitness MerkleLevel Rleaf goldilocks wormholeSalt
-  nullifierSalt stepUp computeRoot headerPreimage)
+open WormholeSpec (Digest LeafPublic LeafWitness MerkleLevel Rleaf goldilocks stepUp
+  computeRoot headerPreimage)
 
 variable {p : ℕ} [Fact p.Prime]
 
@@ -83,9 +83,8 @@ def wit (a : Assignment p) : LeafWitness :=
 set_option maxHeartbeats 4000000 in
 /-- **The recorded leaf circuit satisfies `Rleaf`.** Every satisfying assignment whose
     Poseidon2 rows compute `perm` decodes to an `Rleaf` instance on its public inputs and
-    witness, for the realized oracle `spongeRO perm`, given the salts the circuit bakes in. -/
+    witness, for the realized oracle `spongeRO perm`. -/
 theorem sound (perm : St p → St p) (hpg : goldilocks ≤ p)
-    (hws : wormholeSalt = [1836216183, 1701605224, 1]) (hns : nullifierSalt = [1819635326, 2120640876, 1])
     (a : Assignment p) (h : Satisfies (leafCircuit p) a)
     (hp : Poseidon2Rows perm (leafCircuit p) a) :
     Rleaf (spongeRO perm) (pub a) (wit a) := by
@@ -105,7 +104,7 @@ theorem sound (perm : St p → St p) (hpg : goldilocks ≤ p)
   have f1511 := leafCircuit_f1511 a h
   have f1512 := leafCircuit_f1512 a h
   have f1513 := leafCircuit_f1513 a h
-  have hWA := WA_of_hashes perm hpg hws f1 f2
+  have hWA := WA_of_hashes perm hpg f1 f2
   rw [f3, f1510, f4, f1511, f5, f1512, f6, f1513, ← f1504, ← f1505, ← f1506, ← f1507] at hWA
   have f7 := leafCircuit_f7 a h
   have f8 := leafCircuit_f8 a h
@@ -2383,7 +2382,7 @@ theorem sound (perm : St p → St p) (hpg : goldilocks ≤ p)
   have f1527 := leafCircuit_f1527 perm a h hp
   rw [k7, k8, k3] at f1527
   have f1528 := leafCircuit_f1528 perm a h hp
-  have hnull := Null_of_hashes perm hpg hns f1527 f1528
+  have hnull := Null_of_hashes perm hpg f1527 f1528
   have f1529 := leafCircuit_f1529 a h
   have f1530 := leafCircuit_f1530 a h
   have f1531 := leafCircuit_f1531 a h

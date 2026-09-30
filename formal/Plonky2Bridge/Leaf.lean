@@ -18,9 +18,9 @@
   The exporter-generated `Plonky2Bridge/Generated/Leaf.lean` instantiates these on the
   recorded wiring and assembles `Rleaf`.
 
-  The salts are `opaque` in `WormholeSpec`; the bridge takes their concrete values
-  (`string_to_felts("wormhole")`, `string_to_felts("~nullif~")`, as the circuit bakes them
-  in) as hypotheses.
+  The hash lemmas are stated on the spec's concrete `wormholeSalt` / `nullifierSalt`
+  (`string_to_felts("wormhole")`, `string_to_felts("~nullif~")`); the exporter checks the
+  circuit bakes in the same constants.
 -/
 import Mathlib.Tactic.IntervalCases
 import Mathlib.Tactic.Ring
@@ -252,7 +252,6 @@ theorem bind_of_gate {x y diff prod flag : ZMod p} (hd : diff = x - y) (hm : pro
 /-! ### The hash derivations -/
 
 theorem WA_of_hashes (perm : St p → St p) (hpg : goldilocks ≤ p)
-    (hws : wormholeSalt = [1836216183, 1701605224, 1])
     {s0 s1 s2 s3 m0 m1 m2 m3 o0 o1 o2 o3 : ZMod p}
     (hm : m0 = spongeHash perm [1836216183, 1701605224, 1, s0, s1, s2, s3] 0 ∧
       m1 = spongeHash perm [1836216183, 1701605224, 1, s0, s1, s2, s3] 1 ∧
@@ -264,13 +263,12 @@ theorem WA_of_hashes (perm : St p → St p) (hpg : goldilocks ≤ p)
   have hm' := spongeH_of_hash perm hm
   simp only [List.map_cons, List.map_nil, val_lit hpg 1836216183 (by norm_num),
     val_lit hpg 1701605224 (by norm_num), val_one' hpg] at hm'
-  rw [RandomOracle.WA, RandomOracle.hh, spongeRO_H, spongeRO_H, hws, D4_toList,
+  rw [RandomOracle.WA, RandomOracle.hh, spongeRO_H, spongeRO_H, wormholeSalt, D4_toList,
     spongeH_of_hash perm ho, List.cons_append, List.cons_append, List.cons_append,
     List.nil_append, ← hm', D4_toList]
   simp only [List.map_cons, List.map_nil]
 
 theorem Null_of_hashes (perm : St p → St p) (hpg : goldilocks ≤ p)
-    (hns : nullifierSalt = [1819635326, 2120640876, 1])
     {s0 s1 s2 s3 t0 t1 m0 m1 m2 m3 o0 o1 o2 o3 : ZMod p}
     (hm : m0 = spongeHash perm [1819635326, 2120640876, 1, s0, s1, s2, s3, t0, t1] 0 ∧
       m1 = spongeHash perm [1819635326, 2120640876, 1, s0, s1, s2, s3, t0, t1] 1 ∧
@@ -282,7 +280,7 @@ theorem Null_of_hashes (perm : St p → St p) (hpg : goldilocks ≤ p)
   have hm' := spongeH_of_hash perm hm
   simp only [List.map_cons, List.map_nil, val_lit hpg 1819635326 (by norm_num),
     val_lit hpg 2120640876 (by norm_num), val_one' hpg] at hm'
-  rw [RandomOracle.Null, RandomOracle.hh, spongeRO_H, spongeRO_H, hns, D4_toList,
+  rw [RandomOracle.Null, RandomOracle.hh, spongeRO_H, spongeRO_H, nullifierSalt, D4_toList,
     spongeH_of_hash perm ho]
   simp only [List.cons_append, List.nil_append]
   rw [← hm', D4_toList]
