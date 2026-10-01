@@ -16,7 +16,6 @@ pub use qp_plonky2_core::poseidon::{
 
 use crate::field::extension::Extendable;
 use crate::field::types::Field;
-use crate::gates::gate::Gate;
 use crate::gates::poseidon::PoseidonGate;
 use crate::gates::poseidon_mds::PoseidonMdsGate;
 use crate::hash::hash_types::RichField;
@@ -60,9 +59,8 @@ pub trait PoseidonCircuit: Poseidon {
     where
         Self: RichField + Extendable<D>,
     {
-        // If we have enough routed wires, we will use PoseidonMdsGate.
         let mds_gate = PoseidonMdsGate::<Self, D>::new();
-        if builder.config.num_routed_wires >= mds_gate.num_wires() {
+        if builder.use_mds_gate() {
             let index = builder.add_gate(mds_gate, vec![]);
             for i in 0..SPONGE_WIDTH {
                 let input_wire = PoseidonMdsGate::<Self, D>::wires_input(i);
