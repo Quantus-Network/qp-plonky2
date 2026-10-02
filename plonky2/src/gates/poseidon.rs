@@ -12,7 +12,6 @@ use anyhow::Result;
 use crate::field::extension::Extendable;
 use crate::field::types::Field;
 use crate::gates::gate::Gate;
-use crate::gates::poseidon_mds::PoseidonMdsGate;
 use crate::gates::util::StridedConstraintConsumer;
 use crate::hash::hash_types::RichField;
 use crate::hash::poseidon;
@@ -287,9 +286,7 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for PoseidonGate<F
         builder: &mut CircuitBuilder<F, D>,
         vars: EvaluationTargets<D>,
     ) -> Vec<ExtensionTarget<D>> {
-        // The naive method is more efficient if we have enough routed wires for PoseidonMdsGate.
-        let use_mds_gate =
-            builder.config.num_routed_wires >= PoseidonMdsGate::<F, D>::new().num_wires();
+        let use_mds_gate = builder.use_mds_gate();
 
         let mut constraints = Vec::with_capacity(self.num_constraints());
 

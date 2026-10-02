@@ -20,6 +20,8 @@ pub use plonky2_verifier::{
 };
 
 pub mod batch_fri;
+#[cfg(feature = "constraint-export")]
+pub mod constraint_export;
 pub mod fri;
 pub mod gadgets;
 pub mod gates;

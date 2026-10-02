@@ -78,6 +78,10 @@ jobs:
       # Lean half is the `Bridges/*Bridge.lean` `ring` lemmas and `Sponge.lean`.
       - name: Test constraint exporter (extraction == real gate)
         run: cargo test --release -p qp-plonky2-constraint-exporter
+      - name: Test arithmetic constraint export
+        run: cargo test --release -p qp-plonky2 --features constraint-export
+      - name: Check arithmetic constraint export without std
+        run: cargo check -p qp-plonky2 --no-default-features --features constraint-export
       # Guard against a stale committed generated Lean: regenerate from the live
       # gate code and fail if it differs from what is checked in. Run once (Linux).
       - name: Check generated Lean is up to date

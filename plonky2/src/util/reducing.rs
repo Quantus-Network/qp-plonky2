@@ -40,6 +40,15 @@ impl<const D: usize> ReducingFactorTarget<D> {
     {
         let l = terms.len();
 
+        #[cfg(feature = "constraint-export")]
+        if builder.constraint_expression.is_some() {
+            let terms_ext = terms
+                .iter()
+                .map(|&t| builder.convert_to_ext(t))
+                .collect::<Vec<_>>();
+            return self.reduce_arithmetic(&terms_ext, builder);
+        }
+
         // For small reductions, use an arithmetic gate.
         if l <= ArithmeticExtensionGate::<D>::new_from_config(&builder.config).num_ops + 1 {
             let terms_ext = terms
@@ -94,6 +103,11 @@ impl<const D: usize> ReducingFactorTarget<D> {
         F: RichField + Extendable<D>,
     {
         let l = terms.len();
+
+        #[cfg(feature = "constraint-export")]
+        if builder.constraint_expression.is_some() {
+            return self.reduce_arithmetic(terms, builder);
+        }
 
         // For small reductions, use an arithmetic gate.
         if l <= ArithmeticExtensionGate::<D>::new_from_config(&builder.config).num_ops + 1 {

@@ -31,6 +31,22 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         multiplicand_1: ExtensionTarget<D>,
         addend: ExtensionTarget<D>,
     ) -> ExtensionTarget<D> {
+        #[cfg(feature = "constraint-export")]
+        if self.constraint_expression.is_some() {
+            let zero = self.zero();
+            let result = self.add_virtual_target();
+            self.constraint_expression.as_mut().unwrap().arithmetic(
+                result,
+                const_0,
+                const_1,
+                &multiplicand_0.0,
+                &multiplicand_1.0,
+                &addend.0,
+            );
+            let mut out = [zero; D];
+            out[0] = result;
+            return ExtensionTarget(out);
+        }
         // See if we can determine the result without adding an `ArithmeticGate`.
         if let Some(result) = self.arithmetic_extension_special_cases(
             const_0,

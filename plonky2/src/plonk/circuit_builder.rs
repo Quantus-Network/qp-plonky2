@@ -30,6 +30,7 @@ use crate::gates::gate::{CurrentSlot, Gate, GateInstance, GateRef};
 use crate::gates::lookup::{Lookup, LookupGate};
 use crate::gates::lookup_table::LookupTable;
 use crate::gates::noop::NoopGate;
+use crate::gates::poseidon_mds::PoseidonMdsGate;
 use crate::gates::public_input::PublicInputGate;
 use crate::gates::selectors::{selector_ends_lookups, selector_polynomials, selectors_lookup};
 use crate::hash::hash_types::{HashOut, HashOutTarget, MerkleCapTarget, RichField};
@@ -174,6 +175,9 @@ pub struct CircuitBuilder<F: RichField + Extendable<D>, const D: usize> {
     /// The concrete placement of each gate.
     pub(crate) gate_instances: Vec<GateInstance<F, D>>,
 
+    #[cfg(feature = "constraint-export")]
+    pub(crate) constraint_expression: Option<crate::constraint_export::Expression<F>>,
+
     /// Targets to be made public.
     public_inputs: Vec<Target>,
 
@@ -234,6 +238,8 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             domain_separator: None,
             gates: HashSet::new(),
             gate_instances: Vec::new(),
+            #[cfg(feature = "constraint-export")]
+            constraint_expression: None,
             public_inputs: Vec::new(),
             virtual_target_index: 0,
             copy_constraints: Vec::new(),
@@ -286,6 +292,15 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     pub fn set_domain_separator(&mut self, separator: Vec<F>) {
         assert!(self.domain_separator.is_none());
         self.domain_separator = Some(separator);
+    }
+
+    /// Choose the MDS gate only when its wires fit and arithmetic capture is inactive.
+    pub(crate) fn use_mds_gate(&self) -> bool {
+        #[cfg(feature = "constraint-export")]
+        if self.constraint_expression.is_some() {
+            return false;
+        }
+        self.config.num_routed_wires >= PoseidonMdsGate::<F, D>::new().num_wires()
     }
 
     /// Outputs the number of gates in this circuit.
@@ -562,6 +577,11 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     ///
     /// For an example of usage, see [`CircuitBuilder::assert_one()`].
     pub fn connect(&mut self, x: Target, y: Target) {
+        #[cfg(feature = "constraint-export")]
+        if let Some(expression) = &mut self.constraint_expression {
+            expression.reject("untraced copy constraint");
+            return;
+        }
         assert!(
             x.is_routable(&self.config),
             "Tried to route a wire that isn't routable"
@@ -683,6 +703,10 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         let target = self.add_virtual_target();
         self.constants_to_targets.insert(c, target);
         self.targets_to_constants.insert(target, c);
+        #[cfg(feature = "constraint-export")]
+        if let Some(expression) = &mut self.constraint_expression {
+            expression.constant(target, c);
+        }
 
         target
     }
