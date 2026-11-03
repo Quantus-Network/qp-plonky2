@@ -13,7 +13,7 @@ use crate::iop::witness::{PartialWitness, PartitionWitness, WitnessWrite};
 use crate::plonk::circuit_data::CircuitData;
 use crate::plonk::config::GenericConfig;
 
-/// A reusable serial execution order for the circuit's built-in generators.
+/// A reusable execution order and dependency graph for built-in generators.
 /// Output discovery assumes input-independent output targets and emission order;
 /// debug builds check subsequent successful runs against those declarations.
 /// Built-ins are recognized by ID; custom implementations reusing those IDs
@@ -29,6 +29,11 @@ pub struct PreparedWitnessGenerator<
     order: Vec<usize>,
     /// Read classes with no generator writer, checked once before execution.
     input_slots: Vec<usize>,
+    /// Number of distinct selected producers whose outputs this generator reads.
+    pending: Vec<usize>,
+    /// Generator `g` unlocks `successors[successor_offsets[g]..successor_offsets[g + 1]]`.
+    successor_offsets: Vec<usize>,
+    successors: Vec<usize>,
     #[cfg(debug_assertions)]
     outputs: Vec<Vec<Target>>,
 }
@@ -108,14 +113,62 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
             .map(|(&slot, _)| slot)
             .collect();
         input_slots.sort_unstable();
-        let order = execution_order(generators, &writes, classes)?;
+        let order = execution_order(generators, &writes, &mut classes)?;
+        let mut edges = Vec::new();
+        for class in classes.values() {
+            if let Some(producer) = class.producer {
+                edges.extend(
+                    class
+                        .readers
+                        .iter()
+                        .filter_map(|&reader| (reader != producer).then_some((producer, reader))),
+                );
+            }
+        }
+        // A producer can supply several read classes to the same consumer.
+        edges.sort_unstable();
+        edges.dedup();
+        let mut position = vec![0; generators.len()];
+        for (i, &generator) in order.iter().enumerate() {
+            position[generator] = i;
+        }
+        let mut pending = vec![0; generators.len()];
+        let mut successor_offsets = vec![0; generators.len() + 1];
+        let mut successors = Vec::with_capacity(edges.len());
+        for (producer, consumer) in edges {
+            ensure!(
+                position[producer] < position[consumer],
+                "generator {consumer} depends on later generator {producer}"
+            );
+            pending[consumer] += 1;
+            successor_offsets[producer + 1] += 1;
+            successors.push(consumer);
+        }
+        for g in 0..generators.len() {
+            successor_offsets[g + 1] += successor_offsets[g];
+        }
         Ok(Self {
             circuit,
             order,
             input_slots,
+            pending,
+            successor_offsets,
+            successors,
             #[cfg(debug_assertions)]
             outputs,
         })
+    }
+
+    /// Initial dependency counts, indexed by the circuit's generator indices.
+    /// Each distinct predecessor is counted once, regardless of shared classes.
+    pub fn dependency_counts(&self) -> &[usize] {
+        &self.pending
+    }
+
+    /// Distinct generators that wait for `generator` to finish.
+    /// Entries are distinct and sorted by the circuit's generator indices.
+    pub fn successors(&self, generator: usize) -> &[usize] {
+        &self.successors[self.successor_offsets[generator]..self.successor_offsets[generator + 1]]
     }
 
     /// Generates a dense witness, preserving caller-prefill and duplicate checks.
@@ -182,7 +235,7 @@ struct ReadClass {
 fn execution_order<F: RichField + Extendable<D>, const D: usize>(
     generators: &[WitnessGeneratorRef<F, D>],
     writes: &[Vec<usize>],
-    mut classes: HashMap<usize, ReadClass>,
+    classes: &mut HashMap<usize, ReadClass>,
 ) -> Result<Vec<usize>> {
     // Count distinct read classes with a writer, not producer generators.
     let mut remaining = vec![0usize; generators.len()];
