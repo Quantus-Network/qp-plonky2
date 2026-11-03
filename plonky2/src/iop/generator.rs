@@ -149,6 +149,12 @@ pub trait WitnessGenerator<F: RichField + Extendable<D>, const D: usize>:
     /// the generator will be queued to run.
     fn watch_list(&self) -> Vec<Target>;
 
+    /// Every target this generator may read, including presence queries.
+    /// `None` means unknown; `Some(vec![])` means no reads.
+    fn reads(&self) -> Option<Vec<Target>> {
+        None
+    }
+
     /// Run this generator, returning a flag indicating whether the generator is finished. If the
     /// flag is true, the generator will never be run again, otherwise it will be queued for another
     /// run next time a target in its watch list is populated.
@@ -244,6 +250,8 @@ pub trait SimpleGenerator<F: RichField + Extendable<D>, const D: usize>:
 {
     fn id(&self) -> String;
 
+    /// Every target read by `run_once`, including presence queries such as
+    /// `contains` and `try_get_target`. All dependencies must be available to run.
     fn dependencies(&self) -> Vec<Target>;
 
     fn run_once(
@@ -288,6 +296,10 @@ impl<F: RichField + Extendable<D>, SG: SimpleGenerator<F, D>, const D: usize> Wi
 
     fn watch_list(&self) -> Vec<Target> {
         self.inner.dependencies()
+    }
+
+    fn reads(&self) -> Option<Vec<Target>> {
+        Some(self.inner.dependencies())
     }
 
     fn run(&self, witness: &PartitionWitness<F>, out_buffer: &mut GeneratedValues<F>) -> bool {
