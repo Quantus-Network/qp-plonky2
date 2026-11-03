@@ -46,6 +46,11 @@ impl<F: Field> DenseStorage<F> {
         self.is_set(slot).then(|| self.values[slot])
     }
 
+    /// Marks a slot unassigned without clearing its stored value.
+    pub(crate) fn clear(&mut self, slot: usize) {
+        self.assigned[slot] = 0;
+    }
+
     pub(crate) fn is_set(&self, slot: usize) -> bool {
         self.assigned[slot] != 0
     }

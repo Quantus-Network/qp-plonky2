@@ -4,6 +4,7 @@ pub mod challenger;
 pub(crate) mod dense_storage;
 pub mod ext_target;
 pub mod generator;
+pub(crate) mod generator_outputs;
 pub mod target;
 pub mod wire;
 pub mod witness;
