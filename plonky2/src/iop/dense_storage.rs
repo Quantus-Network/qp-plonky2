@@ -22,7 +22,6 @@ impl<F: Field> DenseStorage<F> {
 
     /// Assigns an unset slot or checks that an existing assignment agrees.
     /// A conflicting assignment returns an error without changing storage.
-    #[inline]
     pub(crate) fn assign(&mut self, slot: usize, value: F) -> Result<()> {
         if self.is_set(slot) {
             let old = self.values[slot];

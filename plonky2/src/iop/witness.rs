@@ -377,7 +377,6 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
 
     /// Set a `Target`. On success, returns the representative index of the newly-set target. If the
     /// target was already set, returns `None`.
-    #[inline]
     pub fn set_target_returning_rep(&mut self, target: Target, value: F) -> Result<Option<usize>> {
         let rep_index = self.representative_map[self.target_index(target)];
         if let Some(dense) = &mut self.dense {
@@ -423,7 +422,6 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
 }
 
 impl<F: Field> WitnessWrite<F> for PartitionWitness<'_, F> {
-    #[inline]
     fn set_target(&mut self, target: Target, value: F) -> Result<()> {
         self.set_target_returning_rep(target, value).map(|_| ())
     }
