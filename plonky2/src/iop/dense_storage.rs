@@ -38,7 +38,7 @@ impl<F: Field> DenseStorage<F> {
 
     /// Reads a slot that the caller guarantees is assigned.
     pub(crate) fn get(&self, slot: usize) -> F {
-        debug_assert!(self.is_set(slot), "read of unassigned witness slot {slot}");
+        assert!(self.is_set(slot), "read of unassigned witness slot {slot}");
         self.values[slot]
     }
 

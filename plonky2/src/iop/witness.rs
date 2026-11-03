@@ -428,7 +428,7 @@ impl<F: Field> WitnessWrite<F> for PartitionWitness<'_, F> {
 }
 
 impl<F: Field> Witness<F> for PartitionWitness<'_, F> {
-    /// Dense reads require an assigned target; debug builds check this invariant.
+    /// Dense reads require an assigned target; unset reads panic in every build.
     fn get_target(&self, target: Target) -> F {
         let rep_index = self.representative_map[self.target_index(target)];
         match &self.dense {
