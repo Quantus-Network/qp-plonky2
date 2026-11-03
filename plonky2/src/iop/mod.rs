@@ -5,6 +5,7 @@ pub(crate) mod dense_storage;
 pub mod ext_target;
 pub mod generator;
 pub(crate) mod generator_outputs;
+pub mod prepared_witness;
 pub mod target;
 pub mod wire;
 pub mod witness;
