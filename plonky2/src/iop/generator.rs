@@ -8,7 +8,7 @@ use alloc::{
 use core::fmt::Debug;
 use core::marker::PhantomData;
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, ensure, Result};
 
 use crate::field::extension::Extendable;
 use crate::field::types::Field;
@@ -160,6 +160,17 @@ pub trait WitnessGenerator<F: RichField + Extendable<D>, const D: usize>:
     /// run next time a target in its watch list is populated.
     fn run(&self, witness: &PartitionWitness<F>, out_buffer: &mut GeneratedValues<F>) -> bool;
 
+    /// Runs once when the caller guarantees every declared read is assigned.
+    /// Implementations may bypass dependency checks and return computation errors directly.
+    fn run_ready(
+        &self,
+        witness: &PartitionWitness<F>,
+        out_buffer: &mut GeneratedValues<F>,
+    ) -> Result<()> {
+        ensure!(self.run(witness, out_buffer), "generator did not finish");
+        Ok(())
+    }
+
     fn serialize(&self, dst: &mut Vec<u8>, common_data: &CommonCircuitData<F, D>) -> IoResult<()>;
 
     fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self>
@@ -308,6 +319,14 @@ impl<F: RichField + Extendable<D>, SG: SimpleGenerator<F, D>, const D: usize> Wi
         } else {
             false
         }
+    }
+
+    fn run_ready(
+        &self,
+        witness: &PartitionWitness<F>,
+        out_buffer: &mut GeneratedValues<F>,
+    ) -> Result<()> {
+        self.inner.run_once(witness, out_buffer)
     }
 
     fn serialize(&self, dst: &mut Vec<u8>, common_data: &CommonCircuitData<F, D>) -> IoResult<()> {

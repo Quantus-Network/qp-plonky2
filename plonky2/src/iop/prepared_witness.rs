@@ -27,6 +27,8 @@ pub struct PreparedWitnessGenerator<
 > {
     circuit: &'a CircuitData<F, C, D>,
     order: Vec<usize>,
+    /// Read classes with no generator writer, checked once before execution.
+    input_slots: Vec<usize>,
     #[cfg(debug_assertions)]
     outputs: Vec<Vec<Target>>,
 }
@@ -100,10 +102,17 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
             #[cfg(debug_assertions)]
             outputs.push(discovered);
         }
+        let mut input_slots: Vec<_> = classes
+            .iter()
+            .filter(|(_, class)| !class.has_writer)
+            .map(|(&slot, _)| slot)
+            .collect();
+        input_slots.sort_unstable();
         let order = execution_order(generators, &writes, classes)?;
         Ok(Self {
             circuit,
             order,
+            input_slots,
             #[cfg(debug_assertions)]
             outputs,
         })
@@ -122,14 +131,16 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         for (target, value) in inputs.target_values {
             witness.set_target(target, value)?;
         }
+        let dense = witness.dense_mut();
+        for &slot in &self.input_slots {
+            ensure!(dense.is_set(slot), "required input slot {slot} is missing");
+        }
         let mut buffer = GeneratedValues::empty();
         for &index in &self.order {
             let generator = &prover.generators[index].0;
-            ensure!(
-                generator.run(&witness, &mut buffer),
-                "scheduled generator {index} ({}) did not finish",
-                generator.id()
-            );
+            generator
+                .run_ready(&witness, &mut buffer)
+                .map_err(|error| anyhow!("generator {index} ({}): {error}", generator.id()))?;
             #[cfg(debug_assertions)]
             {
                 let expected = &self.outputs[index];
