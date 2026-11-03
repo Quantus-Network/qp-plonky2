@@ -4,6 +4,16 @@ use alloc::{vec, vec::Vec};
 use anyhow::{anyhow, ensure, Result};
 use hashbrown::HashMap;
 
+#[cfg(feature = "std")]
+use std::panic::{catch_unwind, resume_unwind, AssertUnwindSafe};
+#[cfg(feature = "std")]
+use std::sync::atomic::Ordering;
+#[cfg(feature = "std")]
+use std::sync::Mutex;
+
+#[cfg(feature = "std")]
+use crate::iop::generation_scratch::GenerationScratch;
+
 use crate::field::extension::Extendable;
 use crate::hash::hash_types::RichField;
 use crate::iop::generator::{GeneratedValues, WitnessGeneratorRef};
@@ -174,6 +184,111 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     /// Generates a dense witness, preserving caller-prefill and duplicate checks.
     /// Access the returned witness through its methods; its stock `values` is empty.
     pub fn generate(&self, inputs: PartialWitness<F>) -> Result<PartitionWitness<'a, F>> {
+        let mut witness = self.input_witness(inputs)?;
+        let mut buffer = GeneratedValues::empty();
+        for &index in &self.order {
+            self.run_generator(index, &mut witness, &mut buffer)?;
+        }
+        Ok(witness)
+    }
+
+    /// Runs one generator per work item using scoped threads and reusable scratch.
+    /// A single witness mutex protects each complete run and output drain. This
+    /// initial implementation serializes computation while exercising scheduling.
+    /// Worker errors return after all workers finish; worker panics propagate.
+    #[cfg(feature = "std")]
+    pub fn generate_parallel(
+        &self,
+        inputs: PartialWitness<F>,
+        scratch: &mut GenerationScratch<F>,
+        num_threads: usize,
+    ) -> Result<PartitionWitness<'a, F>> {
+        ensure!(
+            num_threads > 0,
+            "witness generation requires at least one worker"
+        );
+        let witness = Mutex::new(self.input_witness(inputs)?);
+        scratch.reset(&self.pending, &self.order, num_threads);
+        let pending = &scratch.pending;
+        let queue = &scratch.queue;
+        let wake = &scratch.wake;
+        std::thread::scope(|scope| {
+            for worker in scratch.workers.iter_mut().take(num_threads) {
+                let witness = &witness;
+                scope.spawn(move || {
+                    let result = catch_unwind(AssertUnwindSafe(|| loop {
+                        let index = {
+                            let mut state = queue.lock().unwrap_or_else(|e| e.into_inner());
+                            loop {
+                                if state.failure.is_some() || state.panicked || state.remaining == 0
+                                {
+                                    return;
+                                }
+                                if let Some(index) = state.ready.pop_front() {
+                                    break index;
+                                }
+                                state = wake.wait(state).unwrap_or_else(|e| e.into_inner());
+                            }
+                        };
+                        let result = {
+                            // The queue lock is never held while acquiring or
+                            // using the witness. All reads and writes are guarded.
+                            let mut witness = match witness.lock() {
+                                Ok(witness) => witness,
+                                // Another worker panicked; its handler wakes
+                                // sleepers and propagates the panic through scope.
+                                Err(_) => return,
+                            };
+                            self.run_generator(index, &mut witness, &mut worker.outputs)
+                        };
+                        if let Err(error) = result {
+                            let mut state = queue.lock().unwrap_or_else(|e| e.into_inner());
+                            if state.failure.is_none() {
+                                state.failure = Some(error);
+                            }
+                            wake.notify_all();
+                            return;
+                        }
+                        worker.ready_successors.clear();
+                        // Counter updates are independent of the queue mutex.
+                        for &consumer in self.successors(index) {
+                            let previous = pending[consumer].fetch_sub(1, Ordering::AcqRel);
+                            assert!(
+                                previous > 0,
+                                "generator {consumer} dependency released twice"
+                            );
+                            if previous == 1 {
+                                worker.ready_successors.push(consumer);
+                            }
+                        }
+                        let mut state = queue.lock().unwrap_or_else(|e| e.into_inner());
+                        state.ready.extend(worker.ready_successors.drain(..));
+                        state.remaining -= 1;
+                        wake.notify_all();
+                    }));
+                    if let Err(panic) = result {
+                        // Stop parked workers before resuming the panic, or
+                        // scope could wait forever for workers with no work.
+                        let mut state = queue.lock().unwrap_or_else(|e| e.into_inner());
+                        state.panicked = true;
+                        wake.notify_all();
+                        drop(state);
+                        resume_unwind(panic);
+                    }
+                });
+            }
+        });
+        let mut state = queue.lock().unwrap_or_else(|e| e.into_inner());
+        if let Some(error) = state.failure.take() {
+            return Err(error);
+        }
+        ensure!(state.remaining == 0, "witness generation did not complete");
+        Ok(witness
+            .into_inner()
+            .expect("witness lock poisoned without a worker panic"))
+    }
+
+    fn input_witness(&self, inputs: PartialWitness<F>) -> Result<PartitionWitness<'a, F>> {
         let common = &self.circuit.common;
         let prover = &self.circuit.prover_only;
         let mut witness = PartitionWitness::new_dense(
@@ -188,39 +303,45 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         for &slot in &self.input_slots {
             ensure!(dense.is_set(slot), "required input slot {slot} is missing");
         }
-        let mut buffer = GeneratedValues::empty();
-        for &index in &self.order {
-            let generator = &prover.generators[index].0;
-            generator
-                .run_ready(&witness, &mut buffer)
-                .map_err(|error| anyhow!("generator {index} ({}): {error}", generator.id()))?;
-            #[cfg(debug_assertions)]
+        Ok(witness)
+    }
+
+    fn run_generator(
+        &self,
+        index: usize,
+        witness: &mut PartitionWitness<'_, F>,
+        buffer: &mut GeneratedValues<F>,
+    ) -> Result<()> {
+        let generator = &self.circuit.prover_only.generators[index].0;
+        generator
+            .run_ready(witness, buffer)
+            .map_err(|error| anyhow!("generator {index} ({}): {error}", generator.id()))?;
+        #[cfg(debug_assertions)]
+        {
+            let expected = &self.outputs[index];
+            debug_assert_eq!(
+                buffer.target_values.len(),
+                expected.len(),
+                "generator {index} ({}) changed its output count",
+                generator.id()
+            );
+            for (position, ((target, _), declared)) in
+                buffer.target_values.iter().zip(expected).enumerate()
             {
-                let expected = &self.outputs[index];
                 debug_assert_eq!(
-                    buffer.target_values.len(),
-                    expected.len(),
-                    "generator {index} ({}) changed its output count",
+                    target,
+                    declared,
+                    "generator {index} ({}) changed output {position}",
                     generator.id()
                 );
-                for (position, ((target, _), declared)) in
-                    buffer.target_values.iter().zip(expected).enumerate()
-                {
-                    debug_assert_eq!(
-                        target,
-                        declared,
-                        "generator {index} ({}) changed output {position}",
-                        generator.id()
-                    );
-                }
-            }
-            for (target, value) in buffer.target_values.drain(..) {
-                witness
-                    .set_target(target, value)
-                    .map_err(|error| anyhow!("generator {index} ({}): {error}", generator.id()))?;
             }
         }
-        Ok(witness)
+        for (target, value) in buffer.target_values.drain(..) {
+            witness
+                .set_target(target, value)
+                .map_err(|error| anyhow!("generator {index} ({}): {error}", generator.id()))?;
+        }
+        Ok(())
     }
 }
 
