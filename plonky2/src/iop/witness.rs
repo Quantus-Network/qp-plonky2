@@ -12,6 +12,7 @@ use crate::fri::structure::{FriOpenings, FriOpeningsTarget};
 use crate::fri::witness_util::set_fri_proof_target;
 use crate::hash::hash_types::{HashOut, HashOutTarget, MerkleCapTarget, RichField};
 use crate::hash::merkle_tree::MerkleCap;
+use crate::iop::dense_storage::DenseStorage;
 use crate::iop::ext_target::ExtensionTarget;
 use crate::iop::target::{BoolTarget, Target};
 use crate::iop::wire::Wire;
@@ -335,10 +336,12 @@ impl<F: Field> Witness<F> for PartialWitness<F> {
 /// The value of a target is defined to be the value of its root in the forest.
 #[derive(Clone, Debug)]
 pub struct PartitionWitness<'a, F: Field> {
+    /// Stock witness storage; empty for witnesses constructed with dense storage.
     pub values: Vec<Option<F>>,
     pub representative_map: &'a [usize],
     pub num_wires: usize,
     pub degree: usize,
+    dense: Option<DenseStorage<F>>,
 }
 
 impl<'a, F: Field> PartitionWitness<'a, F> {
@@ -348,13 +351,39 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
             representative_map,
             num_wires,
             degree,
+            dense: None,
         }
+    }
+
+    /// Constructs a witness backed by dense values and assignment bytes.
+    pub(crate) fn new_dense(
+        num_wires: usize,
+        degree: usize,
+        representative_map: &'a [usize],
+    ) -> Self {
+        Self {
+            values: Vec::new(),
+            representative_map,
+            num_wires,
+            degree,
+            dense: Some(DenseStorage::new(representative_map.len())),
+        }
+    }
+
+    /// Direct storage access for an executor that requires a dense witness.
+    pub(crate) fn dense_mut(&mut self) -> &mut DenseStorage<F> {
+        self.dense.as_mut().expect("witness is not dense")
     }
 
     /// Set a `Target`. On success, returns the representative index of the newly-set target. If the
     /// target was already set, returns `None`.
     pub fn set_target_returning_rep(&mut self, target: Target, value: F) -> Result<Option<usize>> {
         let rep_index = self.representative_map[self.target_index(target)];
+        if let Some(dense) = &mut self.dense {
+            let was_set = dense.is_set(rep_index);
+            dense.assign(rep_index, value)?;
+            return Ok((!was_set).then_some(rep_index));
+        }
         let rep_value = &mut self.values[rep_index];
         if let Some(old_value) = *rep_value {
             if value != old_value {
@@ -399,9 +428,29 @@ impl<F: Field> WitnessWrite<F> for PartitionWitness<'_, F> {
 }
 
 impl<F: Field> Witness<F> for PartitionWitness<'_, F> {
+    /// Dense reads require an assigned target; debug builds check this invariant.
+    fn get_target(&self, target: Target) -> F {
+        let rep_index = self.representative_map[self.target_index(target)];
+        match &self.dense {
+            Some(dense) => dense.get(rep_index),
+            None => self.values[rep_index].unwrap(),
+        }
+    }
+
     fn try_get_target(&self, target: Target) -> Option<F> {
         let rep_index = self.representative_map[self.target_index(target)];
-        self.values[rep_index]
+        match &self.dense {
+            Some(dense) => dense.try_get(rep_index),
+            None => self.values[rep_index],
+        }
+    }
+
+    fn contains(&self, target: Target) -> bool {
+        let rep_index = self.representative_map[self.target_index(target)];
+        match &self.dense {
+            Some(dense) => dense.is_set(rep_index),
+            None => self.values[rep_index].is_some(),
+        }
     }
 }
 

@@ -6,7 +6,7 @@ use anyhow::{ensure, Result};
 use crate::field::types::Field;
 
 /// Field values and their assignment status, indexed by witness slot.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub(crate) struct DenseStorage<F: Field> {
     values: Vec<F>,
     assigned: Vec<u8>,
