@@ -8,14 +8,11 @@ use hashbrown::HashMap;
 use std::panic::{catch_unwind, resume_unwind, AssertUnwindSafe};
 #[cfg(feature = "std")]
 use std::sync::atomic::Ordering;
-#[cfg(feature = "std")]
-use std::sync::Mutex;
-
-#[cfg(feature = "std")]
-use crate::iop::generation_scratch::GenerationScratch;
 
 use crate::field::extension::Extendable;
 use crate::hash::hash_types::RichField;
+#[cfg(feature = "std")]
+use crate::iop::generation_scratch::GenerationScratch;
 use crate::iop::generator::{GeneratedValues, WitnessGeneratorRef};
 use crate::iop::generator_outputs::discover_outputs;
 use crate::iop::target::Target;
@@ -39,7 +36,7 @@ pub struct PreparedWitnessGenerator<
     order: Vec<usize>,
     /// Read classes with no generator writer, checked once before execution.
     input_slots: Vec<usize>,
-    /// Number of distinct selected producers whose outputs this generator reads.
+    /// Number of distinct predecessors required for reads and duplicate-write checks.
     pending: Vec<usize>,
     /// Generator `g` unlocks `successors[successor_offsets[g]..successor_offsets[g + 1]]`.
     successor_offsets: Vec<usize>,
@@ -89,8 +86,8 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
             }
         }
 
-        // All read classes must be known before filtering outputs: later
-        // generators may read a class written by an earlier one.
+        // Keep all output slots, including classes with no readers, so writer
+        // ordering also covers classes that never unlock a generator.
         let mut scratch = PartitionWitness::new_dense(
             common.config.num_wires,
             common.degree(),
@@ -105,11 +102,10 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
             let mut slots = Vec::new();
             for &target in &discovered {
                 let slot = resolve(target)?;
-                // Outputs without readers cannot unlock any generators.
                 if let Some(class) = classes.get_mut(&slot) {
                     class.has_writer = true;
-                    slots.push(slot);
                 }
+                slots.push(slot);
             }
             slots.sort_unstable();
             slots.dedup();
@@ -135,7 +131,22 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
                 );
             }
         }
-        // A producer can supply several read classes to the same consumer.
+        // The first writer in the serial order owns assignment. Other writers
+        // wait for it even if the class has no readers. A dense temporary avoids
+        // a hash-map entry and a separate writer Vec for every output class.
+        let mut selected_writers = vec![usize::MAX; prover.representative_map.len()];
+        for &writer in &order {
+            for &slot in &writes[writer] {
+                let producer = &mut selected_writers[slot];
+                if *producer == usize::MAX {
+                    *producer = writer;
+                } else if *producer != writer {
+                    edges.push((*producer, writer));
+                }
+            }
+        }
+        drop(selected_writers);
+        // Deduplicate predecessors shared by read and write classes.
         edges.sort_unstable();
         edges.dedup();
         let mut position = vec![0; generators.len()];
@@ -170,12 +181,12 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     }
 
     /// Initial dependency counts, indexed by the circuit's generator indices.
-    /// Each distinct predecessor is counted once, regardless of shared classes.
+    /// Each distinct predecessor is counted once, for reads and writer ordering.
     pub fn dependency_counts(&self) -> &[usize] {
         &self.pending
     }
 
-    /// Distinct generators that wait for `generator` to finish.
+    /// Distinct readers and other writers that wait for `generator` to finish.
     /// Entries are distinct and sorted by the circuit's generator indices.
     pub fn successors(&self, generator: usize) -> &[usize] {
         &self.successors[self.successor_offsets[generator]..self.successor_offsets[generator + 1]]
@@ -193,11 +204,19 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     }
 
     /// Runs one generator per work item using scoped threads and reusable scratch.
-    /// A single witness mutex protects each complete run and output drain. This
-    /// initial implementation serializes computation while exercising scheduling.
+    /// Workers share one dense witness. Selected writers publish values before
+    /// readers and other writers run; other writers only compare assigned slots.
     /// Worker errors return after all workers finish; worker panics propagate.
+    ///
+    /// # Safety
+    /// Every generator must declare every read (including presence queries), and
+    /// must emit exactly the targets observed during preparation, independently
+    /// of input values. Generators may only access witness data through its
+    /// target-based read methods and helpers; they must not inspect or modify
+    /// backing storage or retain access beyond the call. Built-in IDs and debug
+    /// output checks do not establish this contract for arbitrary implementations.
     #[cfg(feature = "std")]
-    pub fn generate_parallel(
+    pub unsafe fn generate_parallel(
         &self,
         inputs: PartialWitness<F>,
         scratch: &mut GenerationScratch<F>,
@@ -207,11 +226,12 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
             num_threads > 0,
             "witness generation requires at least one worker"
         );
-        let witness = Mutex::new(self.input_witness(inputs)?);
+        let mut witness = self.input_witness(inputs)?;
         scratch.reset(&self.pending, &self.order, num_threads);
         let pending = &scratch.pending;
         let queue = &scratch.queue;
         let wake = &scratch.wake;
+        witness.dense_mut().set_parallel(true);
         std::thread::scope(|scope| {
             for worker in scratch.workers.iter_mut().take(num_threads) {
                 let witness = &witness;
@@ -230,16 +250,12 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
                                 state = wake.wait(state).unwrap_or_else(|e| e.into_inner());
                             }
                         };
-                        let result = {
-                            // The queue lock is never held while acquiring or
-                            // using the witness. All reads and writes are guarded.
-                            let mut witness = match witness.lock() {
-                                Ok(witness) => witness,
-                                // Another worker panicked; its handler wakes
-                                // sleepers and propagates the panic through scope.
-                                Err(_) => return,
-                            };
-                            self.run_generator(index, &mut witness, &mut worker.outputs)
+                        // SAFETY: The caller guarantees complete, stable access
+                        // sets. Prepared edges order every read and other writer
+                        // after the selected writer; publication uses AcqRel
+                        // counters followed by the queue mutex handoff.
+                        let result = unsafe {
+                            self.run_generator_parallel(index, witness, &mut worker.outputs)
                         };
                         if let Err(error) = result {
                             let mut state = queue.lock().unwrap_or_else(|e| e.into_inner());
@@ -278,14 +294,13 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
                 });
             }
         });
+        witness.dense_mut().set_parallel(false);
         let mut state = queue.lock().unwrap_or_else(|e| e.into_inner());
         if let Some(error) = state.failure.take() {
             return Err(error);
         }
         ensure!(state.remaining == 0, "witness generation did not complete");
-        Ok(witness
-            .into_inner()
-            .expect("witness lock poisoned without a worker panic"))
+        Ok(witness)
     }
 
     fn input_witness(&self, inputs: PartialWitness<F>) -> Result<PartitionWitness<'a, F>> {
@@ -312,6 +327,43 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         witness: &mut PartitionWitness<'_, F>,
         buffer: &mut GeneratedValues<F>,
     ) -> Result<()> {
+        self.run_generator_outputs(index, witness, buffer)?;
+        let generator = &self.circuit.prover_only.generators[index].0;
+        for (target, value) in buffer.target_values.drain(..) {
+            witness
+                .set_target(target, value)
+                .map_err(|error| anyhow!("generator {index} ({}): {error}", generator.id()))?;
+        }
+        Ok(())
+    }
+
+    #[cfg(feature = "std")]
+    unsafe fn run_generator_parallel(
+        &self,
+        index: usize,
+        witness: &PartitionWitness<'_, F>,
+        buffer: &mut GeneratedValues<F>,
+    ) -> Result<()> {
+        self.run_generator_outputs(index, witness, buffer)?;
+        for (target, value) in buffer.target_values.drain(..) {
+            // SAFETY: generate_parallel's access contract and the prepared graph
+            // grant exclusive assignment, then concurrent read-only comparisons.
+            unsafe { witness.set_target_shared(target, value) }.map_err(|error| {
+                anyhow!(
+                    "generator {index} ({}): {error}",
+                    self.circuit.prover_only.generators[index].0.id()
+                )
+            })?;
+        }
+        Ok(())
+    }
+
+    fn run_generator_outputs(
+        &self,
+        index: usize,
+        witness: &PartitionWitness<'_, F>,
+        buffer: &mut GeneratedValues<F>,
+    ) -> Result<()> {
         let generator = &self.circuit.prover_only.generators[index].0;
         generator
             .run_ready(witness, buffer)
@@ -335,11 +387,6 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
                     generator.id()
                 );
             }
-        }
-        for (target, value) in buffer.target_values.drain(..) {
-            witness
-                .set_target(target, value)
-                .map_err(|error| anyhow!("generator {index} ({}): {error}", generator.id()))?;
         }
         Ok(())
     }
@@ -376,7 +423,9 @@ fn execution_order<F: RichField + Extendable<D>, const D: usize>(
         head += 1;
         unlocked.clear();
         for slot in &writes[generator] {
-            let class = classes.get_mut(slot).expect("write class has readers");
+            let Some(class) = classes.get_mut(slot) else {
+                continue;
+            };
             if class.producer.is_some() {
                 continue;
             }

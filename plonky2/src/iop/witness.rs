@@ -375,6 +375,19 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
         self.dense.as_mut().expect("witness is not dense")
     }
 
+    /// Sets a target through shared access during scheduled dense generation.
+    ///
+    /// # Safety
+    /// The resolved slot must satisfy `DenseStorage::assign_shared`'s exclusive
+    /// assignment and publication requirements. Stock storage is unsupported.
+    #[cfg(feature = "std")]
+    pub(crate) unsafe fn set_target_shared(&self, target: Target, value: F) -> Result<()> {
+        let slot = self.representative_map[self.target_index(target)];
+        let dense = self.dense.as_ref().expect("witness is not dense");
+        // SAFETY: The executor supplies the required slot ordering.
+        unsafe { dense.assign_shared(slot, value) }
+    }
+
     /// Set a `Target`. On success, returns the representative index of the newly-set target. If the
     /// target was already set, returns `None`.
     pub fn set_target_returning_rep(&mut self, target: Target, value: F) -> Result<Option<usize>> {
