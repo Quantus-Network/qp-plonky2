@@ -21,8 +21,7 @@ use crate::plonk::circuit_data::{CommonCircuitData, ProverOnlyCircuitData};
 use crate::plonk::config::GenericConfig;
 use crate::util::serialization::{Buffer, IoResult, Read, Write};
 
-/// Given a `PartitionWitness` that has only inputs set, populates the rest of the witness using the
-/// given set of generators.
+/// Creates a stock partition witness from the inputs and runs the given generators.
 pub fn generate_partial_witness<
     'a,
     F: RichField + Extendable<D>,
@@ -34,9 +33,6 @@ pub fn generate_partial_witness<
     common_data: &'a CommonCircuitData<F, D>,
 ) -> Result<PartitionWitness<'a, F>> {
     let config = &common_data.config;
-    let generators = &prover_data.generators;
-    let generator_indices_by_watches = &prover_data.generator_indices_by_watches;
-
     let mut witness = PartitionWitness::new(
         config.num_wires,
         common_data.degree(),
@@ -47,11 +43,51 @@ pub fn generate_partial_witness<
         witness.set_target(t, v)?;
     }
 
+    generate_partition_witness(witness, prover_data)
+}
+
+/// Creates a dense partition witness from the inputs and runs the given generators.
+/// Access the returned witness through its methods; its stock `values` vector is empty.
+pub fn generate_dense_witness<
+    'a,
+    F: RichField + Extendable<D>,
+    C: GenericConfig<D, F = F>,
+    const D: usize,
+>(
+    inputs: PartialWitness<F>,
+    prover_data: &'a ProverOnlyCircuitData<F, C, D>,
+    common_data: &'a CommonCircuitData<F, D>,
+) -> Result<PartitionWitness<'a, F>> {
+    let mut witness = PartitionWitness::new_dense(
+        common_data.config.num_wires,
+        common_data.degree(),
+        &prover_data.representative_map,
+    );
+    for (target, value) in inputs.target_values {
+        witness.set_target(target, value)?;
+    }
+    generate_partition_witness(witness, prover_data)
+}
+
+/// Runs generators on a witness whose inputs have already been assigned.
+/// The witness layout and representative map must match the prover data's circuit.
+pub(crate) fn generate_partition_witness<
+    'a,
+    F: RichField + Extendable<D>,
+    C: GenericConfig<D, F = F>,
+    const D: usize,
+>(
+    mut witness: PartitionWitness<'a, F>,
+    prover_data: &ProverOnlyCircuitData<F, C, D>,
+) -> Result<PartitionWitness<'a, F>> {
+    let generators = &prover_data.generators;
+    let generator_indices_by_watches = &prover_data.generator_indices_by_watches;
+
     // Build a list of "pending" generators which are queued to be run. Initially, all generators
     // are queued.
     let mut pending_generator_indices: Vec<_> = (0..generators.len()).collect();
 
-    // We also track a list of "expired" generators which have already returned false.
+    // We also track which generators have finished and must not run again.
     let mut generator_is_expired = vec![false; generators.len()];
     let mut remaining_generators = generators.len();
 
