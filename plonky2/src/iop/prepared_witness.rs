@@ -21,7 +21,7 @@ use crate::iop::generation_scratch::GenerationScratch;
 use crate::iop::generator::GeneratedValues;
 use crate::iop::generator_outputs::discover_outputs;
 use crate::iop::target::Target;
-use crate::iop::witness::{PartialWitness, PartitionWitness, WitnessWrite};
+use crate::iop::witness::{PartialWitness, PartitionWitness, Witness, WitnessWrite};
 use crate::plonk::circuit_data::CircuitData;
 use crate::plonk::config::GenericConfig;
 
@@ -213,7 +213,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         buffer: &mut GeneratedValues<F>,
     ) -> Result<()> {
         for &generator in &schedule.order {
-            self.run_generator(generator, witness, buffer)?;
+            self.run_generator::<true>(generator, witness, buffer)?;
         }
         Ok(())
     }
@@ -259,7 +259,11 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
                             // sets. Counter AcqRel publication and deque handoff
                             // order every read/comparison after the selected writer.
                             let result = unsafe {
-                                self.run_generator_parallel(generator, witness, &mut worker.outputs)
+                                self.run_generator_parallel::<true>(
+                                    generator,
+                                    witness,
+                                    &mut worker.outputs,
+                                )
                             };
                             if let Err(error) = result {
                                 pool.fail(error);
@@ -344,33 +348,57 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         Ok(())
     }
 
-    fn run_generator(
+    fn run_generator<const READY: bool>(
         &self,
         index: usize,
         witness: &mut PartitionWitness<'_, F>,
         buffer: &mut GeneratedValues<F>,
-    ) -> Result<()> {
-        self.run_generator_outputs(index, witness, buffer)?;
+    ) -> Result<bool> {
+        if READY {
+            self.run_generator_outputs_ready(index, witness, buffer)?;
+        } else if !self.run_generator_outputs(index, witness, buffer)? {
+            return Ok(false);
+        }
         let generator = &self.circuit.prover_only.generators[index].0;
         for (target, value) in buffer.target_values.drain(..) {
             witness
                 .set_target(target, value)
                 .map_err(|error| anyhow!("generator {index} ({}): {error}", generator.id()))?;
         }
-        Ok(())
+        Ok(true)
     }
 
     #[cfg(feature = "std")]
-    unsafe fn run_generator_parallel(
+    unsafe fn run_generator_parallel<const READY: bool>(
+        &self,
+        index: usize,
+        witness: &PartitionWitness<'_, F>,
+        buffer: &mut GeneratedValues<F>,
+    ) -> Result<bool> {
+        if READY {
+            self.run_generator_outputs_ready(index, witness, buffer)?;
+        } else if !self.run_generator_outputs(index, witness, buffer)? {
+            return Ok(false);
+        }
+        // SAFETY: The prepared graph and generate_parallel's access contract
+        // guarantee the required ordering of reads and writes.
+        unsafe { self.write_generator_outputs(index, witness, buffer)? };
+        Ok(true)
+    }
+
+    #[cfg(feature = "std")]
+    /// # Safety
+    /// Output slots must have exclusive assignment followed by concurrent
+    /// read-only comparisons, with readers ordered after assignment.
+    unsafe fn write_generator_outputs(
         &self,
         index: usize,
         witness: &PartitionWitness<'_, F>,
         buffer: &mut GeneratedValues<F>,
     ) -> Result<()> {
-        self.run_generator_outputs(index, witness, buffer)?;
         for (target, value) in buffer.target_values.drain(..) {
-            // SAFETY: generate_parallel's access contract and the prepared graph
-            // grant exclusive assignment, then concurrent read-only comparisons.
+            // SAFETY: The caller guarantees exclusive assignment followed by
+            // concurrent read-only comparisons, with readers after assignment.
             unsafe { witness.set_target_shared(target, value) }.map_err(|error| {
                 anyhow!(
                     "generator {index} ({}): {error}",
@@ -381,7 +409,22 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         Ok(())
     }
 
+    /// Returns false without running when a dependency is missing.
     fn run_generator_outputs(
+        &self,
+        index: usize,
+        witness: &PartitionWitness<'_, F>,
+        buffer: &mut GeneratedValues<F>,
+    ) -> Result<bool> {
+        let generator = &self.circuit.prover_only.generators[index].0;
+        if !witness.contains_all(&generator.watch_list()) {
+            return Ok(false);
+        }
+        self.run_generator_outputs_ready(index, witness, buffer)?;
+        Ok(true)
+    }
+
+    fn run_generator_outputs_ready(
         &self,
         index: usize,
         witness: &PartitionWitness<'_, F>,
