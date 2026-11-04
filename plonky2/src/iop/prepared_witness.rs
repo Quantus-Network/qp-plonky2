@@ -244,7 +244,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         Self::write_inputs(witness, inputs, |slot| {
             if let Some(input) = self.generation.input_index(slot) {
                 self.generation
-                    .release_input(input, &scratch.pending, |consumer| {
+                    .release_input(input, &mut scratch.pending, |consumer| {
                         scratch.ready.push(consumer);
                     });
             }

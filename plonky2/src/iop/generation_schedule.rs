@@ -72,35 +72,52 @@ impl GenerationSchedule {
         pending: &[AtomicUsize],
         enqueue: impl FnMut(usize),
     ) -> bool {
-        self.release(self.successors(local), pending, enqueue)
+        self.release(
+            self.successors(local),
+            |consumer| {
+                pending[consumer]
+                    .fetch_sub(1, Ordering::AcqRel)
+                    .checked_sub(1)
+            },
+            enqueue,
+        )
     }
 
     #[cfg(feature = "std")]
     pub(super) fn release_input(
         &self,
         input: usize,
-        pending: &[AtomicUsize],
+        pending: &mut [AtomicUsize],
         enqueue: impl FnMut(usize),
     ) -> bool {
-        self.release(self.input_successors(input), pending, enqueue)
+        self.release(
+            self.input_successors(input),
+            |consumer| {
+                let count = pending[consumer].get_mut();
+                let remaining = count.checked_sub(1)?;
+                *count = remaining;
+                Some(remaining)
+            },
+            enqueue,
+        )
     }
 
     #[cfg(feature = "std")]
     fn release(
         &self,
         successors: &[usize],
-        pending: &[AtomicUsize],
+        mut decrement: impl FnMut(usize) -> Option<usize>,
         mut enqueue: impl FnMut(usize),
     ) -> bool {
         let mut pushed = false;
         for &consumer in successors {
-            let previous = pending[consumer].fetch_sub(1, Ordering::AcqRel);
-            assert!(
-                previous > 0,
-                "generator {} dependency released twice",
-                self.order[consumer]
-            );
-            if previous == 1 {
+            let remaining = decrement(consumer).unwrap_or_else(|| {
+                panic!(
+                    "generator {} dependency released twice",
+                    self.order[consumer]
+                )
+            });
+            if remaining == 0 {
                 enqueue(consumer);
                 pushed = true;
             }
