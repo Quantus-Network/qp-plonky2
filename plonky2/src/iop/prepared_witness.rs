@@ -12,6 +12,8 @@ use std::sync::atomic::Ordering;
 use crate::field::extension::Extendable;
 use crate::hash::hash_types::RichField;
 #[cfg(feature = "std")]
+use crate::iop::generation_pool::GenerationPool;
+#[cfg(feature = "std")]
 use crate::iop::generation_scratch::GenerationScratch;
 use crate::iop::generator::{GeneratedValues, WitnessGeneratorRef};
 use crate::iop::generator_outputs::discover_outputs;
@@ -229,77 +231,88 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         let mut witness = self.input_witness(inputs)?;
         scratch.reset(&self.pending, &self.order, num_threads);
         let pending = &scratch.pending;
-        let queue = &scratch.queue;
-        let wake = &scratch.wake;
+        let mut workers = core::mem::take(&mut scratch.workers);
+        let inactive = workers.split_off(num_threads);
+        let pool = GenerationPool::new(
+            workers
+                .iter()
+                .map(|worker| worker.ready.stealer())
+                .collect(),
+            self.pending.len(),
+        );
         witness.dense_mut().set_parallel(true);
-        std::thread::scope(|scope| {
-            for worker in scratch.workers.iter_mut().take(num_threads) {
+        scratch.workers = std::thread::scope(|scope| {
+            let mut handles = Vec::with_capacity(num_threads);
+            for (index, mut worker) in workers.into_iter().enumerate() {
                 let witness = &witness;
-                scope.spawn(move || {
-                    let result = catch_unwind(AssertUnwindSafe(|| loop {
-                        let index = {
-                            let mut state = queue.lock().unwrap_or_else(|e| e.into_inner());
-                            loop {
-                                if state.failure.is_some() || state.panicked || state.remaining == 0
-                                {
-                                    return;
+                let pool = &pool;
+                // Each deque moves with its owning worker; only its Stealer is shared.
+                let handle = std::thread::Builder::new().spawn_scoped(scope, move || {
+                    let result = catch_unwind(AssertUnwindSafe(|| {
+                        let mut victim = (index + 1) % num_threads;
+                        while let Some(generator) = pool.next(&worker.ready, index, &mut victim) {
+                            // SAFETY: The caller guarantees stable, complete access
+                            // sets. Counter AcqRel publication and deque handoff
+                            // order every read/comparison after the selected writer.
+                            let result = unsafe {
+                                self.run_generator_parallel(generator, witness, &mut worker.outputs)
+                            };
+                            if let Err(error) = result {
+                                pool.fail(error);
+                                return;
+                            }
+                            let mut pushed = false;
+                            for &consumer in self.successors(generator) {
+                                let previous = pending[consumer].fetch_sub(1, Ordering::AcqRel);
+                                assert!(
+                                    previous > 0,
+                                    "generator {consumer} dependency released twice"
+                                );
+                                if previous == 1 {
+                                    worker.ready.push(consumer);
+                                    pushed = true;
                                 }
-                                if let Some(index) = state.ready.pop_front() {
-                                    break index;
-                                }
-                                state = wake.wait(state).unwrap_or_else(|e| e.into_inner());
                             }
-                        };
-                        // SAFETY: The caller guarantees complete, stable access
-                        // sets. Prepared edges order every read and other writer
-                        // after the selected writer; publication uses AcqRel
-                        // counters followed by the queue mutex handoff.
-                        let result = unsafe {
-                            self.run_generator_parallel(index, witness, &mut worker.outputs)
-                        };
-                        if let Err(error) = result {
-                            let mut state = queue.lock().unwrap_or_else(|e| e.into_inner());
-                            if state.failure.is_none() {
-                                state.failure = Some(error);
+                            if pushed {
+                                pool.notify_work();
                             }
-                            wake.notify_all();
-                            return;
+                            pool.complete();
                         }
-                        worker.ready_successors.clear();
-                        // Counter updates are independent of the queue mutex.
-                        for &consumer in self.successors(index) {
-                            let previous = pending[consumer].fetch_sub(1, Ordering::AcqRel);
-                            assert!(
-                                previous > 0,
-                                "generator {consumer} dependency released twice"
-                            );
-                            if previous == 1 {
-                                worker.ready_successors.push(consumer);
-                            }
-                        }
-                        let mut state = queue.lock().unwrap_or_else(|e| e.into_inner());
-                        state.ready.extend(worker.ready_successors.drain(..));
-                        state.remaining -= 1;
-                        wake.notify_all();
                     }));
                     if let Err(panic) = result {
-                        // Stop parked workers before resuming the panic, or
-                        // scope could wait forever for workers with no work.
-                        let mut state = queue.lock().unwrap_or_else(|e| e.into_inner());
-                        state.panicked = true;
-                        wake.notify_all();
-                        drop(state);
+                        pool.abort();
                         resume_unwind(panic);
                     }
+                    worker
                 });
+                match handle {
+                    Ok(handle) => handles.push(handle),
+                    Err(error) => {
+                        pool.fail(anyhow!("could not spawn witness worker {index}: {error}"));
+                        break;
+                    }
+                }
             }
+            let mut completed = Vec::with_capacity(num_threads);
+            let mut panic = None;
+            for handle in handles {
+                match handle.join() {
+                    Ok(worker) => completed.push(worker),
+                    Err(payload) => {
+                        if panic.is_none() {
+                            panic = Some(payload);
+                        }
+                    }
+                }
+            }
+            if let Some(panic) = panic {
+                resume_unwind(panic);
+            }
+            completed
         });
+        scratch.workers.extend(inactive);
         witness.dense_mut().set_parallel(false);
-        let mut state = queue.lock().unwrap_or_else(|e| e.into_inner());
-        if let Some(error) = state.failure.take() {
-            return Err(error);
-        }
-        ensure!(state.remaining == 0, "witness generation did not complete");
+        pool.finish()?;
         Ok(witness)
     }
 

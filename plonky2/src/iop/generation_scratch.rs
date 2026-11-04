@@ -1,8 +1,7 @@
 //! Reusable temporary state for prepared witness execution.
 
-use std::collections::VecDeque;
+use crossbeam_deque::Worker;
 use std::sync::atomic::AtomicUsize;
-use std::sync::{Condvar, Mutex};
 
 use crate::field::types::Field;
 use crate::iop::generator::GeneratedValues;
@@ -14,8 +13,6 @@ use crate::iop::generator::GeneratedValues;
 pub struct GenerationScratch<F: Field> {
     pub(super) pending: Vec<AtomicUsize>,
     pub(super) workers: Vec<WorkerScratch<F>>,
-    pub(super) queue: Mutex<QueueState>,
-    pub(super) wake: Condvar,
 }
 
 impl<F: Field> Default for GenerationScratch<F> {
@@ -29,8 +26,6 @@ impl<F: Field> GenerationScratch<F> {
         Self {
             pending: Vec::new(),
             workers: Vec::new(),
-            queue: Mutex::new(QueueState::default()),
-            wake: Condvar::new(),
         }
     }
 
@@ -45,40 +40,26 @@ impl<F: Field> GenerationScratch<F> {
         }
         for worker in &mut self.workers {
             worker.outputs.target_values.clear();
-            worker.ready_successors.clear();
+            while worker.ready.pop().is_some() {}
         }
-        // A worker panic may poison this mutex; reset is exclusive and restores
-        // all state before the scratch can be used by another call.
-        let queue = self.queue.get_mut().unwrap_or_else(|e| e.into_inner());
-        queue.ready.clear();
-        queue
-            .ready
-            .extend(order.iter().copied().filter(|&g| counts[g] == 0));
-        queue.remaining = counts.len();
-        queue.failure = None;
-        queue.panicked = false;
+        // Seed in prepared order, round-robin. Each owner pops its last push.
+        for (index, &generator) in order.iter().filter(|&&g| counts[g] == 0).enumerate() {
+            self.workers[index % workers].ready.push(generator);
+        }
     }
 }
 
 #[derive(Debug)]
 pub(super) struct WorkerScratch<F: Field> {
     pub(super) outputs: GeneratedValues<F>,
-    pub(super) ready_successors: Vec<usize>,
+    pub(super) ready: Worker<usize>,
 }
 
 impl<F: Field> WorkerScratch<F> {
     fn new() -> Self {
         Self {
             outputs: GeneratedValues::empty(),
-            ready_successors: Vec::new(),
+            ready: Worker::new_lifo(),
         }
     }
-}
-
-#[derive(Debug, Default)]
-pub(super) struct QueueState {
-    pub(super) ready: VecDeque<usize>,
-    pub(super) remaining: usize,
-    pub(super) failure: Option<anyhow::Error>,
-    pub(super) panicked: bool,
 }

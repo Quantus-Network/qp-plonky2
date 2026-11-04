@@ -4,6 +4,8 @@ pub mod challenger;
 pub(crate) mod dense_storage;
 pub mod ext_target;
 #[cfg(feature = "std")]
+pub(crate) mod generation_pool;
+#[cfg(feature = "std")]
 pub mod generation_scratch;
 pub mod generator;
 pub(crate) mod generator_outputs;
