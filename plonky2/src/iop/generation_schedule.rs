@@ -27,7 +27,7 @@ impl GenerationSchedule {
         &self.pending
     }
 
-    /// Distinct successors of a schedule-local generator, in local-index order.
+    /// Distinct successors of a schedule-local generator, in circuit-builder order.
     pub fn successors(&self, generator: usize) -> &[usize] {
         &self.successors[self.successor_offsets[generator]..self.successor_offsets[generator + 1]]
     }
@@ -82,8 +82,9 @@ pub(super) fn prepopulation_members(
     Ok(members)
 }
 
-/// Orders the given members and builds their local dependency graph. Read classes
-/// without a member writer, and explicitly supplied classes, are external inputs.
+/// Orders members with a depth-first readiness walk and builds their local graph.
+/// Read classes without a member writer, and explicitly supplied classes, are
+/// external inputs.
 /// Supplied classes retain no local producer even when members emit to them.
 pub(super) fn prepare_schedule(
     members: &[usize],
@@ -137,14 +138,15 @@ pub(super) fn prepare_schedule(
             }
         }
     }
-    // The order doubles as a FIFO queue until it is remapped to circuit indices.
-    let mut order: Vec<_> = (0..members.len()).filter(|&g| remaining[g] == 0).collect();
-    let mut head = 0;
+    // Reverse the root pushes so the first ready circuit generator is visited
+    // first. Newly unlocked generators take priority over roots still waiting.
+    let mut ready: Vec<_> = (0..members.len()).filter(|&g| remaining[g] == 0).collect();
+    ready.sort_unstable_by_key(|&g| core::cmp::Reverse(members[g]));
+    let mut order = Vec::with_capacity(members.len());
     let mut unlocked = Vec::new();
     let mut edges = Vec::new();
-    while head < order.len() {
-        let generator = order[head];
-        head += 1;
+    while let Some(generator) = ready.pop() {
+        order.push(generator);
         unlocked.clear();
         for slot in &writes[members[generator]] {
             let producer = &mut producers[*slot];
@@ -180,9 +182,9 @@ pub(super) fn prepare_schedule(
                 }
             }
         }
-        // Members need not be supplied in builder order.
+        // Match runtime successor pushes: builder order, then LIFO selection.
         unlocked.sort_unstable_by_key(|&g| members[g]);
-        order.extend_from_slice(&unlocked);
+        ready.extend_from_slice(&unlocked);
     }
     if order.len() != members.len() {
         let generator = remaining
@@ -214,7 +216,9 @@ pub(super) fn prepare_schedule(
         *producer = position[*producer];
         *consumer = position[*consumer];
     }
-    edges.sort_unstable();
+    // Local indices follow the readiness walk; release order follows the
+    // circuit builder so reindexing does not change successor-push priority.
+    edges.sort_unstable_by_key(|&(producer, consumer)| (producer, members[order[consumer]]));
     edges.dedup();
     let mut pending = vec![0; members.len()];
     let mut successor_offsets = vec![0; members.len() + 1];
@@ -233,7 +237,8 @@ pub(super) fn prepare_schedule(
     for generator in 0..members.len() {
         successor_offsets[generator + 1] += successor_offsets[generator];
     }
-    let initial_ready = (0..members.len()).filter(|&g| pending[g] == 0).collect();
+    let mut initial_ready: Vec<_> = (0..members.len()).filter(|&g| pending[g] == 0).collect();
+    initial_ready.sort_unstable_by_key(|&g| members[order[g]]);
     Ok(GenerationSchedule {
         order: order.into_iter().map(|g| members[g]).collect(),
         pending,

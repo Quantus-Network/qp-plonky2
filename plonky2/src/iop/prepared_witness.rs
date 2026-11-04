@@ -49,7 +49,7 @@ pub struct PreparedWitnessGenerator<
 impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
     PreparedWitnessGenerator<'a, F, C, D>
 {
-    /// Discovers outputs and builds two deterministic FIFO readiness schedules.
+    /// Discovers outputs and builds two deterministic depth-first readiness schedules.
     /// Prepopulation includes every generator runnable without caller inputs.
     /// The remaining schedule treats its outputs and caller inputs as available.
     /// Caller prefills do not change schedule membership or writer selection.
