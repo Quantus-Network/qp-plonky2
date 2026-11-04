@@ -14,6 +14,9 @@ use crate::iop::generator::GeneratedValues;
 pub struct GenerationScratch<F: Field> {
     pub(super) pending: Vec<AtomicUsize>,
     pub(super) ready: Vec<usize>,
+    pub(super) waiting_for_inputs: Vec<usize>,
+    /// None before the first batch; true selects generator-driven input checks.
+    pub(super) inputs_by_generator: Option<bool>,
     pub(super) workers: Vec<WorkerScratch<F>>,
     pub(super) num_workers: usize,
     pub(super) remaining: usize,
@@ -32,6 +35,8 @@ impl<F: Field> GenerationScratch<F> {
         Self {
             pending: Vec::new(),
             ready: Vec::new(),
+            waiting_for_inputs: Vec::new(),
+            inputs_by_generator: None,
             workers: Vec::new(),
             num_workers: 0,
             remaining: 0,
@@ -54,6 +59,8 @@ impl<F: Field> GenerationScratch<F> {
         self.remaining = counts.len();
         self.initialized = true;
         self.failed = false;
+        self.waiting_for_inputs.clear();
+        self.inputs_by_generator = None;
         self.pending
             .resize_with(counts.len(), || AtomicUsize::new(0));
         for (pending, &count) in self.pending.iter_mut().zip(counts) {

@@ -191,7 +191,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     }
 
     /// Creates a dense witness, runs prepopulation, and initializes execution
-    /// scratch for inputs that will be supplied through `apply_inputs`.
+    /// scratch for subsequent batches through either input-application method.
     /// A new call starts a new witness and resets the supplied scratch.
     ///
     /// # Safety
@@ -231,7 +231,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     /// Applies a batch of caller values and records ready generators whose last
     /// dependency was supplied. Aliases and repeated assignments release an
     /// input class only once. Call only between executions for this witness.
-    /// All caller assignments during this generation must pass through here.
+    /// Do not mix this method with `apply_inputs_by_generator` for one witness.
     #[cfg(feature = "std")]
     pub fn apply_inputs(
         &self,
@@ -240,6 +240,11 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         inputs: PartialWitness<F>,
     ) -> Result<()> {
         self.check_execution(witness, scratch)?;
+        ensure!(
+            scratch.inputs_by_generator != Some(true),
+            "cannot mix input application methods for one witness"
+        );
+        scratch.inputs_by_generator = Some(false);
         scratch.failed = true;
         Self::write_inputs(witness, inputs, |slot| {
             if let Some(input) = self.generation.input_index(slot) {
@@ -251,6 +256,63 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         })?;
         scratch.failed = false;
         Ok(())
+    }
+
+    /// Applies a batch of caller values, then checks generators still waiting
+    /// for caller inputs. Each generator releases its full input dependency
+    /// count once, when every required input class has been assigned.
+    /// Do not mix this method with `apply_inputs` for one witness.
+    #[cfg(feature = "std")]
+    pub fn apply_inputs_by_generator(
+        &self,
+        witness: &mut PartitionWitness<'_, F>,
+        scratch: &mut GenerationScratch<F>,
+        inputs: PartialWitness<F>,
+    ) -> Result<()> {
+        self.check_execution(witness, scratch)?;
+        ensure!(
+            scratch.inputs_by_generator != Some(false),
+            "cannot mix input application methods for one witness"
+        );
+        scratch.failed = true;
+        if scratch.inputs_by_generator.is_none() {
+            scratch
+                .waiting_for_inputs
+                .extend_from_slice(self.generation.input_generators());
+            scratch.inputs_by_generator = Some(true);
+        }
+        Self::write_inputs(witness, inputs, |_| {})?;
+        self.release_input_dependencies(witness, scratch);
+        scratch.failed = false;
+        Ok(())
+    }
+
+    #[cfg(feature = "std")]
+    fn release_input_dependencies(
+        &self,
+        witness: &mut PartitionWitness<'_, F>,
+        scratch: &mut GenerationScratch<F>,
+    ) {
+        let dense = witness.dense_mut();
+        let pending = &mut scratch.pending;
+        let ready = &mut scratch.ready;
+        scratch.waiting_for_inputs.retain(|&generator| {
+            let inputs = self.generation.generator_inputs(generator);
+            if !inputs.iter().all(|&slot| dense.is_set(slot)) {
+                return true;
+            }
+            let count = pending[generator].get_mut();
+            *count = count.checked_sub(inputs.len()).unwrap_or_else(|| {
+                panic!(
+                    "generator {} input dependencies released twice",
+                    self.generation.order[generator]
+                )
+            });
+            if *count == 0 {
+                ready.push(generator);
+            }
+            false
+        });
     }
 
     /// Runs currently available generators serially, preserving pending counts
@@ -288,7 +350,8 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     /// # Safety
     /// Requires `generate_parallel`'s generator access contract. The witness and
     /// scratch must be the unchanged pair from this generator's `start_generation`,
-    /// except for values supplied through `apply_inputs` and preceding executions.
+    /// except for values supplied through the selected input-application method
+    /// and preceding executions.
     #[cfg(feature = "std")]
     pub unsafe fn run_available_parallel(
         &self,

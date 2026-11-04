@@ -19,6 +19,9 @@ pub struct GenerationSchedule {
     input_runs: Vec<InputRun>,
     input_successor_offsets: Vec<usize>,
     input_successors: Vec<usize>,
+    input_generators: Vec<usize>,
+    generator_input_offsets: Vec<usize>,
+    generator_inputs: Vec<usize>,
 }
 
 /// A contiguous representative range mapped to consecutive input-class indices.
@@ -63,6 +66,17 @@ impl GenerationSchedule {
     pub fn input_successors(&self, input: usize) -> &[usize] {
         &self.input_successors
             [self.input_successor_offsets[input]..self.input_successor_offsets[input + 1]]
+    }
+
+    /// Schedule-local generators that read at least one required caller input.
+    pub fn input_generators(&self) -> &[usize] {
+        &self.input_generators
+    }
+
+    /// Required caller-input representative slots read by a local generator.
+    pub fn generator_inputs(&self, generator: usize) -> &[usize] {
+        &self.generator_inputs
+            [self.generator_input_offsets[generator]..self.generator_input_offsets[generator + 1]]
     }
 
     #[cfg(feature = "std")]
@@ -369,6 +383,27 @@ pub(super) fn prepare_schedule(
         }
         input_successor_offsets.push(input_successors.len());
     }
+    // Retain the reverse input mapping for generator-driven readiness checks.
+    let mut generator_input_offsets = vec![0; members.len() + 1];
+    for &consumer in &input_successors {
+        generator_input_offsets[consumer + 1] += 1;
+    }
+    for generator in 0..members.len() {
+        generator_input_offsets[generator + 1] += generator_input_offsets[generator];
+    }
+    let input_generators = (0..members.len())
+        .filter(|&g| generator_input_offsets[g] != generator_input_offsets[g + 1])
+        .collect();
+    let mut next_input = generator_input_offsets[..members.len()].to_vec();
+    let mut generator_inputs = vec![0; input_successors.len()];
+    for (input, &slot) in input_slots.iter().enumerate() {
+        for &consumer in
+            &input_successors[input_successor_offsets[input]..input_successor_offsets[input + 1]]
+        {
+            generator_inputs[next_input[consumer]] = slot;
+            next_input[consumer] += 1;
+        }
+    }
     let mut initial_ready: Vec<_> = (0..members.len()).filter(|&g| pending[g] == 0).collect();
     initial_ready.sort_unstable_by_key(|&g| members[order[g]]);
     Ok(GenerationSchedule {
@@ -381,5 +416,8 @@ pub(super) fn prepare_schedule(
         input_runs,
         input_successor_offsets,
         input_successors,
+        input_generators,
+        generator_input_offsets,
+        generator_inputs,
     })
 }
