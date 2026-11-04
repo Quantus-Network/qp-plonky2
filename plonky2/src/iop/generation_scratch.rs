@@ -42,9 +42,17 @@ impl<F: Field> GenerationScratch<F> {
             worker.outputs.target_values.clear();
             while worker.ready.pop().is_some() {}
         }
-        // Seed local indices in prepared order, round-robin. Owners pop last push.
-        for (index, &generator) in initial_ready.iter().enumerate() {
-            self.workers[index % workers].ready.push(generator);
+        // Reverse pushes so owners start at the slice's beginning and thieves
+        // take from its end.
+        let per_worker = initial_ready.len() / workers;
+        let extra = initial_ready.len() % workers;
+        let mut start = 0;
+        for (index, worker) in self.workers.iter().take(workers).enumerate() {
+            let end = start + per_worker + usize::from(index < extra);
+            for &generator in initial_ready[start..end].iter().rev() {
+                worker.ready.push(generator);
+            }
+            start = end;
         }
     }
 }
