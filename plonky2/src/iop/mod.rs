@@ -5,6 +5,7 @@ pub(crate) mod dense_storage;
 pub mod ext_target;
 #[cfg(feature = "std")]
 pub(crate) mod generation_pool;
+pub mod generation_schedule;
 #[cfg(feature = "std")]
 pub mod generation_scratch;
 pub mod generator;

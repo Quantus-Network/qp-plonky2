@@ -29,7 +29,7 @@ impl<F: Field> GenerationScratch<F> {
         }
     }
 
-    pub(super) fn reset(&mut self, counts: &[usize], order: &[usize], workers: usize) {
+    pub(super) fn reset(&mut self, counts: &[usize], initial_ready: &[usize], workers: usize) {
         self.pending
             .resize_with(counts.len(), || AtomicUsize::new(0));
         for (pending, &count) in self.pending.iter_mut().zip(counts) {
@@ -42,8 +42,8 @@ impl<F: Field> GenerationScratch<F> {
             worker.outputs.target_values.clear();
             while worker.ready.pop().is_some() {}
         }
-        // Seed in prepared order, round-robin. Each owner pops its last push.
-        for (index, &generator) in order.iter().filter(|&&g| counts[g] == 0).enumerate() {
+        // Seed local indices in prepared order, round-robin. Owners pop last push.
+        for (index, &generator) in initial_ready.iter().enumerate() {
             self.workers[index % workers].ready.push(generator);
         }
     }
