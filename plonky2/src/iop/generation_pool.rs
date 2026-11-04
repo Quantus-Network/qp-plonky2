@@ -9,7 +9,7 @@ use crossbeam_deque::{Steal, Stealer, Worker};
 /// Queues have one owner each. This pool holds only their stealing handles.
 pub(super) struct GenerationPool {
     stealers: Vec<Stealer<usize>>,
-    remaining: AtomicUsize,
+    outstanding: AtomicUsize,
     stopped: AtomicBool,
     parking: Mutex<Parking>,
     wake: Condvar,
@@ -22,14 +22,14 @@ struct Parking {
 }
 
 impl GenerationPool {
-    pub(super) fn new(stealers: Vec<Stealer<usize>>, num_tasks: usize) -> Self {
+    pub(super) fn new(stealers: Vec<Stealer<usize>>, num_ready: usize) -> Self {
         assert!(
             !stealers.is_empty(),
             "worker pool requires at least one queue"
         );
         Self {
             stealers,
-            remaining: AtomicUsize::new(num_tasks),
+            outstanding: AtomicUsize::new(num_ready),
             stopped: AtomicBool::new(false),
             parking: Mutex::new(Parking::default()),
             wake: Condvar::new(),
@@ -37,7 +37,7 @@ impl GenerationPool {
     }
 
     fn finished(&self) -> bool {
-        self.stopped.load(Ordering::Acquire) || self.remaining.load(Ordering::Acquire) == 0
+        self.stopped.load(Ordering::Acquire) || self.outstanding.load(Ordering::Acquire) == 0
     }
 
     fn find(&self, local: &Worker<usize>, me: usize, victim: &mut usize) -> Option<usize> {
@@ -104,8 +104,13 @@ impl GenerationPool {
         }
     }
 
+    /// Register before publishing a newly ready item to a worker queue.
+    pub(super) fn add_ready(&self) {
+        self.outstanding.fetch_add(1, Ordering::AcqRel);
+    }
+
     pub(super) fn complete(&self) {
-        let previous = self.remaining.fetch_sub(1, Ordering::AcqRel);
+        let previous = self.outstanding.fetch_sub(1, Ordering::AcqRel);
         assert!(previous > 0, "witness work item completed twice");
         if previous == 1 {
             let _parking = self.parking.lock().unwrap_or_else(|e| e.into_inner());
@@ -134,8 +139,8 @@ impl GenerationPool {
             return Err(error);
         }
         ensure!(
-            self.remaining.into_inner() == 0,
-            "witness generation did not complete"
+            self.outstanding.into_inner() == 0,
+            "runnable witness work did not complete"
         );
         Ok(())
     }

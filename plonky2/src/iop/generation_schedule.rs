@@ -3,6 +3,8 @@ use alloc::{vec, vec::Vec};
 
 use anyhow::{anyhow, ensure, Result};
 use hashbrown::{HashMap, HashSet};
+#[cfg(feature = "std")]
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 /// An execution order and dependency graph for a subset of circuit generators.
 /// Graph indices are local to this schedule; `order` maps them to the circuit.
@@ -13,6 +15,9 @@ pub struct GenerationSchedule {
     successor_offsets: Vec<usize>,
     successors: Vec<usize>,
     pub(super) initial_ready: Vec<usize>,
+    pub(super) input_slots: Vec<usize>,
+    input_successor_offsets: Vec<usize>,
+    input_successors: Vec<usize>,
 }
 
 impl GenerationSchedule {
@@ -22,7 +27,7 @@ impl GenerationSchedule {
         &self.order
     }
 
-    /// Initial distinct-predecessor counts, indexed by schedule-local index.
+    /// Initial generator-predecessor and required-input counts, indexed locally.
     pub fn dependency_counts(&self) -> &[usize] {
         &self.pending
     }
@@ -30,6 +35,60 @@ impl GenerationSchedule {
     /// Distinct successors of a schedule-local generator, in circuit-builder order.
     pub fn successors(&self, generator: usize) -> &[usize] {
         &self.successors[self.successor_offsets[generator]..self.successor_offsets[generator + 1]]
+    }
+
+    /// Required caller-supplied classes, ordered by representative slot.
+    pub fn input_slots(&self) -> &[usize] {
+        &self.input_slots
+    }
+
+    /// Consumers of the input class at `input`, using schedule-local indices.
+    pub fn input_successors(&self, input: usize) -> &[usize] {
+        &self.input_successors
+            [self.input_successor_offsets[input]..self.input_successor_offsets[input + 1]]
+    }
+
+    #[cfg(feature = "std")]
+    pub(super) fn release_successors(
+        &self,
+        local: usize,
+        pending: &[AtomicUsize],
+        enqueue: impl FnMut(usize),
+    ) -> bool {
+        self.release(self.successors(local), pending, enqueue)
+    }
+
+    #[cfg(feature = "std")]
+    pub(super) fn release_input(
+        &self,
+        input: usize,
+        pending: &[AtomicUsize],
+        enqueue: impl FnMut(usize),
+    ) -> bool {
+        self.release(self.input_successors(input), pending, enqueue)
+    }
+
+    #[cfg(feature = "std")]
+    fn release(
+        &self,
+        successors: &[usize],
+        pending: &[AtomicUsize],
+        mut enqueue: impl FnMut(usize),
+    ) -> bool {
+        let mut pushed = false;
+        for &consumer in successors {
+            let previous = pending[consumer].fetch_sub(1, Ordering::AcqRel);
+            assert!(
+                previous > 0,
+                "generator {} dependency released twice",
+                self.order[consumer]
+            );
+            if previous == 1 {
+                enqueue(consumer);
+                pushed = true;
+            }
+        }
+        pushed
     }
 }
 
@@ -237,6 +296,33 @@ pub(super) fn prepare_schedule(
     for generator in 0..members.len() {
         successor_offsets[generator + 1] += successor_offsets[generator];
     }
+    // Caller-only classes affect runtime readiness, but not the readiness walk
+    // that selects generator writers and assigns schedule-local indices.
+    let mut input_slots: Vec<_> = classes
+        .iter()
+        .filter(|(_, class)| {
+            !class.has_writer
+                && class
+                    .readers
+                    .iter()
+                    .any(|&reader| local[reader] != EXTERNAL)
+        })
+        .map(|(&slot, _)| slot)
+        .collect();
+    input_slots.sort_unstable();
+    let mut input_successor_offsets = Vec::with_capacity(input_slots.len() + 1);
+    let mut input_successors = Vec::new();
+    input_successor_offsets.push(0);
+    for slot in &input_slots {
+        for &reader in &classes[slot].readers {
+            if local[reader] != EXTERNAL {
+                let consumer = position[local[reader]];
+                pending[consumer] += 1;
+                input_successors.push(consumer);
+            }
+        }
+        input_successor_offsets.push(input_successors.len());
+    }
     let mut initial_ready: Vec<_> = (0..members.len()).filter(|&g| pending[g] == 0).collect();
     initial_ready.sort_unstable_by_key(|&g| members[order[g]]);
     Ok(GenerationSchedule {
@@ -245,5 +331,8 @@ pub(super) fn prepare_schedule(
         successor_offsets,
         successors,
         initial_ready,
+        input_slots,
+        input_successor_offsets,
+        input_successors,
     })
 }

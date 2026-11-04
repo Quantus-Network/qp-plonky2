@@ -6,8 +6,6 @@ use hashbrown::HashMap;
 
 #[cfg(feature = "std")]
 use std::panic::{catch_unwind, resume_unwind, AssertUnwindSafe};
-#[cfg(feature = "std")]
-use std::sync::atomic::Ordering;
 
 use crate::field::extension::Extendable;
 use crate::hash::hash_types::RichField;
@@ -40,8 +38,6 @@ pub struct PreparedWitnessGenerator<
     circuit: &'a CircuitData<F, C, D>,
     prepopulation: GenerationSchedule,
     generation: GenerationSchedule,
-    /// Read classes with no generator writer, checked before the main schedule.
-    input_slots: Vec<usize>,
     #[cfg(debug_assertions)]
     outputs: Vec<Vec<Target>>,
 }
@@ -51,7 +47,8 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
 {
     /// Discovers outputs and builds two deterministic depth-first readiness schedules.
     /// Prepopulation includes every generator runnable without caller inputs.
-    /// The remaining schedule treats its outputs and caller inputs as available.
+    /// The remaining order assumes caller inputs are available; its runtime
+    /// dependency counts also wait for their actual assignment.
     /// Caller prefills do not change schedule membership or writer selection.
     pub fn prepare(circuit: &'a CircuitData<F, C, D>) -> Result<Self> {
         let common = &circuit.common;
@@ -115,12 +112,6 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
             #[cfg(debug_assertions)]
             outputs.push(discovered);
         }
-        let mut input_slots: Vec<_> = classes
-            .iter()
-            .filter(|(_, class)| !class.has_writer)
-            .map(|(&slot, _)| slot)
-            .collect();
-        input_slots.sort_unstable();
         let prepopulation_members = prepopulation_members(&classes, &writes)?;
         let prepopulation = prepare_schedule(&prepopulation_members, &classes, &writes, &[])?;
         let mut is_prepopulation = vec![false; generators.len()];
@@ -140,7 +131,6 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
             circuit,
             prepopulation,
             generation,
-            input_slots,
             #[cfg(debug_assertions)]
             outputs,
         })
@@ -163,7 +153,8 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         let mut witness = self.new_witness();
         let mut buffer = GeneratedValues::empty();
         self.run_schedule(&self.prepopulation, &mut witness, &mut buffer)?;
-        self.apply_inputs(&mut witness, inputs)?;
+        Self::write_inputs(&mut witness, inputs, |_| {})?;
+        self.check_required_inputs(&mut witness)?;
         self.run_schedule(&self.generation, &mut witness, &mut buffer)?;
         Ok(witness)
     }
@@ -188,22 +179,152 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         scratch: &mut GenerationScratch<F>,
         num_threads: usize,
     ) -> Result<PartitionWitness<'a, F>> {
+        // SAFETY: The caller supplies the access declarations required by both
+        // initialization and the subsequent parallel execution.
+        let mut witness = unsafe { self.start_generation(scratch, num_threads)? };
+        self.apply_inputs(&mut witness, scratch, inputs)?;
+        self.check_required_inputs(&mut witness)?;
+        // SAFETY: This witness and scratch were initialized together above.
+        unsafe { self.run_available_parallel(&mut witness, scratch)? };
+        ensure!(scratch.is_complete(), "witness generation did not complete");
+        Ok(witness)
+    }
+
+    /// Creates a dense witness, runs prepopulation, and initializes execution
+    /// scratch for inputs that will be supplied through `apply_inputs`.
+    /// A new call starts a new witness and resets the supplied scratch.
+    ///
+    /// # Safety
+    /// Requires the complete, stable generator access declarations documented
+    /// by `generate_parallel`.
+    #[cfg(feature = "std")]
+    pub unsafe fn start_generation(
+        &self,
+        scratch: &mut GenerationScratch<F>,
+        num_threads: usize,
+    ) -> Result<PartitionWitness<'a, F>> {
         ensure!(
             num_threads > 0,
             "witness generation requires at least one worker"
         );
         let mut witness = self.new_witness();
-        // SAFETY: The caller's access contract covers every generator in both
-        // schedules. Joining prepopulation publishes its values to the next one.
-        unsafe {
-            self.run_schedule_parallel(&self.prepopulation, &mut witness, scratch, num_threads)?;
-        }
-        self.apply_inputs(&mut witness, inputs)?;
-        // SAFETY: As above; caller inputs are applied before workers are spawned.
-        unsafe {
-            self.run_schedule_parallel(&self.generation, &mut witness, scratch, num_threads)?;
-        }
+        scratch.reset(
+            &self.prepopulation.pending,
+            &self.prepopulation.initial_ready,
+            num_threads,
+        );
+        // SAFETY: The caller supplies the access contract; prepopulation has
+        // no caller-input dependencies.
+        unsafe { self.run_schedule_parallel(&self.prepopulation, &mut witness, scratch)? };
+        ensure!(
+            scratch.is_complete(),
+            "witness prepopulation did not complete"
+        );
+        scratch.reset(
+            &self.generation.pending,
+            &self.generation.initial_ready,
+            num_threads,
+        );
         Ok(witness)
+    }
+
+    /// Applies a batch of caller values and records ready generators whose last
+    /// dependency was supplied. Aliases and repeated assignments release an
+    /// input class only once. Call only between executions for this witness.
+    /// All caller assignments during this generation must pass through here.
+    #[cfg(feature = "std")]
+    pub fn apply_inputs(
+        &self,
+        witness: &mut PartitionWitness<'_, F>,
+        scratch: &mut GenerationScratch<F>,
+        inputs: PartialWitness<F>,
+    ) -> Result<()> {
+        self.check_execution(witness, scratch)?;
+        scratch.failed = true;
+        Self::write_inputs(witness, inputs, |slot| {
+            if let Ok(input) = self.generation.input_slots.binary_search(&slot) {
+                self.generation
+                    .release_input(input, &scratch.pending, |consumer| {
+                        scratch.ready.push(consumer);
+                    });
+            }
+        })?;
+        scratch.failed = false;
+        Ok(())
+    }
+
+    /// Runs currently available generators serially, preserving pending counts
+    /// for subsequent input batches. An incomplete witness is not an error.
+    #[cfg(feature = "std")]
+    pub fn run_available(
+        &self,
+        witness: &mut PartitionWitness<'_, F>,
+        scratch: &mut GenerationScratch<F>,
+    ) -> Result<()> {
+        self.check_execution(witness, scratch)?;
+        scratch.failed = true;
+        scratch.distribute_ready(&self.generation.order);
+        while let Some(local) = scratch.workers[..scratch.num_workers]
+            .iter()
+            .find_map(|worker| worker.ready.pop())
+        {
+            let worker = &mut scratch.workers[0];
+            self.run_generator::<true>(self.generation.order[local], witness, &mut worker.outputs)?;
+            self.generation
+                .release_successors(local, &scratch.pending, |consumer| {
+                    worker.ready.push(consumer);
+                });
+            scratch.remaining -= 1;
+        }
+        scratch.failed = false;
+        Ok(())
+    }
+
+    /// Runs currently available generators using the initialized worker count.
+    /// Returns when no queued or running work remains, even if inputs are still
+    /// missing. `scratch.is_complete()` reports whether every generator finished.
+    /// Errors or panics invalidate scratch until `start_generation` is called again.
+    ///
+    /// # Safety
+    /// Requires `generate_parallel`'s generator access contract. The witness and
+    /// scratch must be the unchanged pair from this generator's `start_generation`,
+    /// except for values supplied through `apply_inputs` and preceding executions.
+    #[cfg(feature = "std")]
+    pub unsafe fn run_available_parallel(
+        &self,
+        witness: &mut PartitionWitness<'_, F>,
+        scratch: &mut GenerationScratch<F>,
+    ) -> Result<()> {
+        self.check_execution(witness, scratch)?;
+        // SAFETY: The caller supplies the access contract. Input assignments
+        // precede thread creation and runtime counts gate every generator.
+        unsafe { self.run_schedule_parallel(&self.generation, witness, scratch) }
+    }
+
+    #[cfg(feature = "std")]
+    fn check_execution(
+        &self,
+        witness: &PartitionWitness<'_, F>,
+        scratch: &GenerationScratch<F>,
+    ) -> Result<()> {
+        ensure!(scratch.initialized, "witness execution is not initialized");
+        ensure!(
+            !scratch.failed,
+            "witness execution failed; start a new generation"
+        );
+        ensure!(
+            scratch.pending.len() == self.generation.order.len(),
+            "execution scratch does not match the generation schedule"
+        );
+        ensure!(
+            core::ptr::eq(
+                witness.representative_map,
+                self.circuit.prover_only.representative_map.as_slice()
+            ) && witness.num_wires == self.circuit.common.config.num_wires
+                && witness.degree == self.circuit.common.degree(),
+            "witness does not match the prepared circuit"
+        );
+        Ok(())
     }
 
     fn run_schedule(
@@ -220,19 +341,25 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
 
     /// # Safety
     /// Requires generate_parallel's complete, stable access declarations. Inputs
-    /// external to this schedule must be assigned before its workers start.
+    /// not represented by pending input counts must already be assigned.
+    /// Scratch must be initialized for this schedule and witness.
     #[cfg(feature = "std")]
     unsafe fn run_schedule_parallel(
         &self,
         schedule: &GenerationSchedule,
         witness: &mut PartitionWitness<'_, F>,
         scratch: &mut GenerationScratch<F>,
-        num_threads: usize,
     ) -> Result<()> {
-        if schedule.order.is_empty() {
+        let num_threads = scratch.num_workers;
+        scratch.distribute_ready(&schedule.order);
+        let num_ready = scratch.workers[..num_threads]
+            .iter()
+            .map(|worker| worker.ready.len())
+            .sum();
+        if num_ready == 0 {
             return Ok(());
         }
-        scratch.reset(&schedule.pending, &schedule.initial_ready, num_threads);
+        scratch.failed = true;
         let pending = &scratch.pending;
         let mut workers = core::mem::take(&mut scratch.workers);
         let inactive = workers.split_off(num_threads);
@@ -241,87 +368,98 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
                 .iter()
                 .map(|worker| worker.ready.stealer())
                 .collect(),
-            schedule.order.len(),
+            num_ready,
         );
         witness.dense_mut().set_parallel(true);
-        scratch.workers = std::thread::scope(|scope| {
-            let mut handles = Vec::with_capacity(num_threads);
-            for (index, mut worker) in workers.into_iter().enumerate() {
-                let witness = &*witness;
-                let pool = &pool;
-                // Each deque moves with its owning worker; only its Stealer is shared.
-                let handle = std::thread::Builder::new().spawn_scoped(scope, move || {
-                    let result = catch_unwind(AssertUnwindSafe(|| {
-                        let mut victim = (index + 1) % num_threads;
-                        while let Some(local) = pool.next(&worker.ready, index, &mut victim) {
-                            let generator = schedule.order[local];
-                            // SAFETY: The caller guarantees stable, complete access
-                            // sets. Counter AcqRel publication and deque handoff
-                            // order every read/comparison after the selected writer.
-                            let result = unsafe {
-                                self.run_generator_parallel::<true>(
-                                    generator,
-                                    witness,
-                                    &mut worker.outputs,
-                                )
-                            };
-                            if let Err(error) = result {
-                                pool.fail(error);
-                                return;
-                            }
-                            let mut pushed = false;
-                            for &consumer in schedule.successors(local) {
-                                let previous = pending[consumer].fetch_sub(1, Ordering::AcqRel);
-                                assert!(
-                                    previous > 0,
-                                    "generator {} dependency released twice",
-                                    schedule.order[consumer]
-                                );
-                                if previous == 1 {
-                                    worker.ready.push(consumer);
-                                    pushed = true;
+        let result = catch_unwind(AssertUnwindSafe(|| {
+            std::thread::scope(|scope| {
+                let mut handles = Vec::with_capacity(num_threads);
+                for (index, mut worker) in workers.into_iter().enumerate() {
+                    let witness = &*witness;
+                    let pool = &pool;
+                    // Each deque moves with its owning worker; only its Stealer is shared.
+                    let handle = std::thread::Builder::new().spawn_scoped(scope, move || {
+                        let mut completed = 0;
+                        let result = catch_unwind(AssertUnwindSafe(|| {
+                            let mut victim = (index + 1) % num_threads;
+                            while let Some(local) = pool.next(&worker.ready, index, &mut victim) {
+                                let generator = schedule.order[local];
+                                // SAFETY: The caller guarantees stable, complete access
+                                // sets. Counter AcqRel publication and deque handoff
+                                // order every read/comparison after the selected writer.
+                                let result = unsafe {
+                                    self.run_generator_parallel::<true>(
+                                        generator,
+                                        witness,
+                                        &mut worker.outputs,
+                                    )
+                                };
+                                if let Err(error) = result {
+                                    pool.fail(error);
+                                    return;
                                 }
+                                let pushed =
+                                    schedule.release_successors(local, pending, |consumer| {
+                                        pool.add_ready();
+                                        worker.ready.push(consumer);
+                                    });
+                                if pushed {
+                                    pool.notify_work();
+                                }
+                                completed += 1;
+                                pool.complete();
                             }
-                            if pushed {
-                                pool.notify_work();
-                            }
-                            pool.complete();
+                        }));
+                        if let Err(panic) = result {
+                            pool.abort();
+                            resume_unwind(panic);
                         }
-                    }));
-                    if let Err(panic) = result {
-                        pool.abort();
-                        resume_unwind(panic);
-                    }
-                    worker
-                });
-                match handle {
-                    Ok(handle) => handles.push(handle),
-                    Err(error) => {
-                        pool.fail(anyhow!("could not spawn witness worker {index}: {error}"));
-                        break;
-                    }
-                }
-            }
-            let mut completed = Vec::with_capacity(num_threads);
-            let mut panic = None;
-            for handle in handles {
-                match handle.join() {
-                    Ok(worker) => completed.push(worker),
-                    Err(payload) => {
-                        if panic.is_none() {
-                            panic = Some(payload);
+                        (worker, completed)
+                    });
+                    match handle {
+                        Ok(handle) => handles.push(handle),
+                        Err(error) => {
+                            pool.fail(anyhow!("could not spawn witness worker {index}: {error}"));
+                            break;
                         }
                     }
                 }
-            }
-            if let Some(panic) = panic {
-                resume_unwind(panic);
-            }
-            completed
-        });
-        scratch.workers.extend(inactive);
+                let mut workers = Vec::with_capacity(num_threads);
+                let mut completed = 0;
+                let mut panic = None;
+                for handle in handles {
+                    match handle.join() {
+                        Ok((worker, count)) => {
+                            workers.push(worker);
+                            completed += count;
+                        }
+                        Err(payload) => {
+                            if panic.is_none() {
+                                panic = Some(payload);
+                            }
+                        }
+                    }
+                }
+                if let Some(panic) = panic {
+                    resume_unwind(panic);
+                }
+                (workers, completed)
+            })
+        }));
         witness.dense_mut().set_parallel(false);
-        pool.finish()
+        let (workers, completed) = match result {
+            Ok(result) => result,
+            Err(panic) => resume_unwind(panic),
+        };
+        scratch.workers = workers;
+        scratch.workers.extend(inactive);
+        pool.finish()?;
+        scratch.remaining = scratch
+            .remaining
+            .checked_sub(completed)
+            .expect("witness generators completed twice");
+        scratch.failed = false;
+        Ok(())
     }
 
     fn new_witness(&self) -> PartitionWitness<'a, F> {
@@ -333,16 +471,23 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         )
     }
 
-    fn apply_inputs(
-        &self,
+    /// Assigns caller values and reports each newly assigned representative once.
+    fn write_inputs(
         witness: &mut PartitionWitness<'_, F>,
         inputs: PartialWitness<F>,
+        mut on_assignment: impl FnMut(usize),
     ) -> Result<()> {
         for (target, value) in inputs.target_values {
-            witness.set_target(target, value)?;
+            if let Some(slot) = witness.set_target_returning_rep(target, value)? {
+                on_assignment(slot);
+            }
         }
+        Ok(())
+    }
+
+    fn check_required_inputs(&self, witness: &mut PartitionWitness<'_, F>) -> Result<()> {
         let dense = witness.dense_mut();
-        for &slot in &self.input_slots {
+        for &slot in &self.generation.input_slots {
             ensure!(dense.is_set(slot), "required input slot {slot} is missing");
         }
         Ok(())
