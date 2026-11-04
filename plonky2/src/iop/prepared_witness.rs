@@ -352,11 +352,10 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     ) -> Result<()> {
         let num_threads = scratch.num_workers;
         scratch.distribute_ready(&schedule.order);
-        let num_ready = scratch.workers[..num_threads]
+        if scratch.workers[..num_threads]
             .iter()
-            .map(|worker| worker.ready.len())
-            .sum();
-        if num_ready == 0 {
+            .all(|worker| worker.ready.is_empty())
+        {
             return Ok(());
         }
         scratch.failed = true;
@@ -368,7 +367,6 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
                 .iter()
                 .map(|worker| worker.ready.stealer())
                 .collect(),
-            num_ready,
         );
         witness.dense_mut().set_parallel(true);
         let result = catch_unwind(AssertUnwindSafe(|| {
@@ -400,14 +398,12 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
                                 }
                                 let pushed =
                                     schedule.release_successors(local, pending, |consumer| {
-                                        pool.add_ready();
                                         worker.ready.push(consumer);
                                     });
                                 if pushed {
                                     pool.notify_work();
                                 }
                                 completed += 1;
-                                pool.complete();
                             }
                         }));
                         if let Err(panic) = result {
