@@ -16,8 +16,17 @@ pub struct GenerationSchedule {
     successors: Vec<usize>,
     pub(super) initial_ready: Vec<usize>,
     pub(super) input_slots: Vec<usize>,
+    input_runs: Vec<InputRun>,
     input_successor_offsets: Vec<usize>,
     input_successors: Vec<usize>,
+}
+
+/// A contiguous representative range mapped to consecutive input-class indices.
+#[derive(Debug)]
+struct InputRun {
+    start: usize,
+    end: usize,
+    first_input: usize,
 }
 
 impl GenerationSchedule {
@@ -40,6 +49,14 @@ impl GenerationSchedule {
     /// Required caller-supplied classes, ordered by representative slot.
     pub fn input_slots(&self) -> &[usize] {
         &self.input_slots
+    }
+
+    /// Finds an input-class index from its representative slot, returning None
+    /// for slots outside the required input classes, including gaps between runs.
+    pub fn input_index(&self, slot: usize) -> Option<usize> {
+        let index = self.input_runs.partition_point(|run| run.start <= slot);
+        let run = self.input_runs.get(index.checked_sub(1)?)?;
+        (slot < run.end).then(|| run.first_input + (slot - run.start))
     }
 
     /// Consumers of the input class at `input`, using schedule-local indices.
@@ -310,6 +327,18 @@ pub(super) fn prepare_schedule(
         .map(|(&slot, _)| slot)
         .collect();
     input_slots.sort_unstable();
+    let mut input_runs: Vec<InputRun> = Vec::new();
+    for (input, &slot) in input_slots.iter().enumerate() {
+        if let Some(run) = input_runs.last_mut().filter(|run| run.end == slot) {
+            run.end = slot + 1;
+        } else {
+            input_runs.push(InputRun {
+                start: slot,
+                end: slot + 1,
+                first_input: input,
+            });
+        }
+    }
     let mut input_successor_offsets = Vec::with_capacity(input_slots.len() + 1);
     let mut input_successors = Vec::new();
     input_successor_offsets.push(0);
@@ -332,6 +361,7 @@ pub(super) fn prepare_schedule(
         successors,
         initial_ready,
         input_slots,
+        input_runs,
         input_successor_offsets,
         input_successors,
     })

@@ -242,7 +242,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         self.check_execution(witness, scratch)?;
         scratch.failed = true;
         Self::write_inputs(witness, inputs, |slot| {
-            if let Ok(input) = self.generation.input_slots.binary_search(&slot) {
+            if let Some(input) = self.generation.input_index(slot) {
                 self.generation
                     .release_input(input, &scratch.pending, |consumer| {
                         scratch.ready.push(consumer);
