@@ -1,4 +1,4 @@
-//! Reusable temporary state for prepared witness execution.
+//! Reusable temporary allocations for executing a generation schedule.
 
 use crossbeam_deque::Worker;
 use std::sync::atomic::AtomicUsize;
@@ -6,21 +6,17 @@ use std::sync::atomic::AtomicUsize;
 use crate::field::types::Field;
 use crate::iop::generator::GeneratedValues;
 
-/// Caller-owned scratch for one prepared generation at a time.
-/// Initialization resets progress while retaining allocations. Input application
-/// and execution preserve progress until the witness is complete. Concurrent
-/// witnesses require separate scratch objects; witness values are stored separately.
+/// Caller-owned execution scratch, reset for each schedule while retaining
+/// allocations. Concurrent executions require separate scratch objects;
+/// witness values and scheduling state are held separately.
 #[derive(Debug)]
 pub struct GenerationScratch<F: Field> {
-    pub(super) pending: Vec<AtomicUsize>,
-    pub(super) ready: Vec<usize>,
-    pub(super) waiting_for_inputs: Vec<usize>,
-    /// None before the first batch; true selects generator-driven input checks.
-    pub(super) inputs_by_generator: Option<bool>,
+    pub(super) pending_dependencies: Vec<AtomicUsize>,
+    ready: Vec<usize>,
     pub(super) workers: Vec<WorkerScratch<F>>,
-    pub(super) num_workers: usize,
+    num_workers: usize,
     pub(super) remaining: usize,
-    pub(super) initialized: bool,
+    initialized: bool,
     pub(super) failed: bool,
 }
 
@@ -33,10 +29,8 @@ impl<F: Field> Default for GenerationScratch<F> {
 impl<F: Field> GenerationScratch<F> {
     pub fn new() -> Self {
         Self {
-            pending: Vec::new(),
+            pending_dependencies: Vec::new(),
             ready: Vec::new(),
-            waiting_for_inputs: Vec::new(),
-            inputs_by_generator: None,
             workers: Vec::new(),
             num_workers: 0,
             remaining: 0,
@@ -59,12 +53,10 @@ impl<F: Field> GenerationScratch<F> {
         self.remaining = counts.len();
         self.initialized = true;
         self.failed = false;
-        self.waiting_for_inputs.clear();
-        self.inputs_by_generator = None;
-        self.pending
+        self.pending_dependencies
             .resize_with(counts.len(), || AtomicUsize::new(0));
-        for (pending, &count) in self.pending.iter_mut().zip(counts) {
-            *pending.get_mut() = count;
+        for (pending_dependencies, &count) in self.pending_dependencies.iter_mut().zip(counts) {
+            *pending_dependencies.get_mut() = count;
         }
         if self.workers.len() < workers {
             self.workers.resize_with(workers, WorkerScratch::new);
@@ -77,7 +69,7 @@ impl<F: Field> GenerationScratch<F> {
         self.ready.extend_from_slice(initial_ready);
     }
 
-    /// Distributes pending ready entries in circuit-builder order without
+    /// Distributes queued ready entries in circuit-builder order without
     /// changing dependency counts or execution progress.
     pub(super) fn distribute_ready(&mut self, order: &[usize]) {
         debug_assert!(self.workers[..self.num_workers]
