@@ -445,28 +445,11 @@ impl<F: Field> WitnessWrite<F> for PartitionWitness<'_, F> {
 }
 
 impl<F: Field> Witness<F> for PartitionWitness<'_, F> {
-    /// Dense reads require an assigned target; unset reads panic in every build.
-    fn get_target(&self, target: Target) -> F {
-        let rep_index = self.representative_map[self.target_index(target)];
-        match &self.dense {
-            Some(dense) => dense.get(rep_index),
-            None => self.values[rep_index].unwrap(),
-        }
-    }
-
     fn try_get_target(&self, target: Target) -> Option<F> {
         let rep_index = self.representative_map[self.target_index(target)];
         match &self.dense {
             Some(dense) => dense.try_get(rep_index),
             None => self.values[rep_index],
-        }
-    }
-
-    fn contains(&self, target: Target) -> bool {
-        let rep_index = self.representative_map[self.target_index(target)];
-        match &self.dense {
-            Some(dense) => dense.is_set(rep_index),
-            None => self.values[rep_index].is_some(),
         }
     }
 }

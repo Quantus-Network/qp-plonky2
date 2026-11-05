@@ -46,29 +46,6 @@ pub fn generate_partial_witness<
     generate_partition_witness(witness, prover_data)
 }
 
-/// Creates a dense partition witness from the inputs and runs the given generators.
-/// Access the returned witness through its methods; its stock `values` vector is empty.
-pub fn generate_dense_witness<
-    'a,
-    F: RichField + Extendable<D>,
-    C: GenericConfig<D, F = F>,
-    const D: usize,
->(
-    inputs: PartialWitness<F>,
-    prover_data: &'a ProverOnlyCircuitData<F, C, D>,
-    common_data: &'a CommonCircuitData<F, D>,
-) -> Result<PartitionWitness<'a, F>> {
-    let mut witness = PartitionWitness::new_dense(
-        common_data.config.num_wires,
-        common_data.degree(),
-        &prover_data.representative_map,
-    );
-    for (target, value) in inputs.target_values {
-        witness.set_target(target, value)?;
-    }
-    generate_partition_witness(witness, prover_data)
-}
-
 /// Runs generators on a witness whose inputs have already been assigned.
 /// The witness layout and representative map must match the prover data's circuit.
 pub(crate) fn generate_partition_witness<
