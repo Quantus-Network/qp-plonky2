@@ -68,16 +68,16 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
 
     fn run_generator(
         &self,
-        index: usize,
+        generator_index: usize,
         witness: &mut PartitionWitness<'_, F>,
         buffer: &mut GeneratedValues<F>,
     ) -> Result<()> {
-        self.run_generator_outputs(index, witness, buffer)?;
-        let generator = &self.circuit.prover_only.generators[index].0;
+        self.run_generator_outputs(generator_index, witness, buffer)?;
+        let generator = &self.circuit.prover_only.generators[generator_index].0;
         for (target, value) in buffer.target_values.drain(..) {
-            witness
-                .set_target(target, value)
-                .map_err(|error| anyhow!("generator {index} ({}): {error}", generator.id()))?;
+            witness.set_target(target, value).map_err(|error| {
+                anyhow!("generator {generator_index} ({}): {error}", generator.id())
+            })?;
         }
         Ok(())
     }
@@ -85,14 +85,14 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     #[cfg(feature = "std")]
     unsafe fn run_generator_parallel(
         &self,
-        index: usize,
+        generator_index: usize,
         witness: &PartitionWitness<'_, F>,
         buffer: &mut GeneratedValues<F>,
     ) -> Result<()> {
-        self.run_generator_outputs(index, witness, buffer)?;
+        self.run_generator_outputs(generator_index, witness, buffer)?;
         // SAFETY: The prepared graph and run_schedule_parallel's access contract
         // guarantee the required ordering of reads and writes.
-        unsafe { self.write_generator_outputs(index, witness, buffer)? };
+        unsafe { self.write_generator_outputs(generator_index, witness, buffer)? };
         Ok(())
     }
 
@@ -102,7 +102,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     /// read-only comparisons, with readers ordered after assignment.
     unsafe fn write_generator_outputs(
         &self,
-        index: usize,
+        generator_index: usize,
         witness: &PartitionWitness<'_, F>,
         buffer: &mut GeneratedValues<F>,
     ) -> Result<()> {
@@ -111,8 +111,8 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
             // concurrent read-only comparisons, with readers after assignment.
             unsafe { witness.set_target_shared(target, value) }.map_err(|error| {
                 anyhow!(
-                    "generator {index} ({}): {error}",
-                    self.circuit.prover_only.generators[index].0.id()
+                    "generator {generator_index} ({}): {error}",
+                    self.circuit.prover_only.generators[generator_index].0.id()
                 )
             })?;
         }
@@ -121,21 +121,21 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
 
     fn run_generator_outputs(
         &self,
-        index: usize,
+        generator_index: usize,
         witness: &PartitionWitness<'_, F>,
         buffer: &mut GeneratedValues<F>,
     ) -> Result<()> {
-        let generator = &self.circuit.prover_only.generators[index].0;
-        generator
-            .run_ready(witness, buffer)
-            .map_err(|error| anyhow!("generator {index} ({}): {error}", generator.id()))?;
+        let generator = &self.circuit.prover_only.generators[generator_index].0;
+        generator.run_ready(witness, buffer).map_err(|error| {
+            anyhow!("generator {generator_index} ({}): {error}", generator.id())
+        })?;
         #[cfg(debug_assertions)]
         {
-            let expected = &self.outputs[index];
+            let expected = &self.outputs[generator_index];
             debug_assert_eq!(
                 buffer.target_values.len(),
                 expected.len(),
-                "generator {index} ({}) changed its output count",
+                "generator {generator_index} ({}) changed its output count",
                 generator.id()
             );
             for (position, ((target, _), declared)) in
@@ -144,7 +144,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
                 debug_assert_eq!(
                     target,
                     declared,
-                    "generator {index} ({}) changed output {position}",
+                    "generator {generator_index} ({}) changed output {position}",
                     generator.id()
                 );
             }
@@ -265,9 +265,9 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         self.check_schedule(schedule)?;
         self.failed = true;
         self.outputs.target_values.clear();
-        for &generator in schedule.order() {
+        for &generator_index in schedule.generator_indices() {
             self.execution
-                .run_generator(generator, self.witness, &mut self.outputs)?;
+                .run_generator(generator_index, self.witness, &mut self.outputs)?;
         }
         self.finish_schedule(schedule);
         Ok(())
@@ -314,7 +314,7 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         scratch.seed_ready(schedule.initial_ready(), num_threads);
         if schedule.initial_ready().is_empty() {
             ensure!(
-                schedule.order().is_empty(),
+                schedule.generator_indices().is_empty(),
                 "scheduled witness generators did not complete"
             );
             return Ok(());
@@ -332,24 +332,26 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         let result = catch_unwind(AssertUnwindSafe(|| {
             std::thread::scope(|scope| {
                 let mut handles = Vec::with_capacity(num_threads);
-                for (index, mut worker) in workers.into_iter().enumerate() {
+                for (worker_index, mut worker) in workers.into_iter().enumerate() {
                     let witness = &*witness;
                     let coordinator = &coordinator;
                     // Each deque moves with its owning worker; only its Stealer is shared.
                     let handle = std::thread::Builder::new().spawn_scoped(scope, move || {
                         let mut completed = 0;
                         let result = catch_unwind(AssertUnwindSafe(|| {
-                            let mut victim = (index + 1) % num_threads;
-                            while let Some(local) =
-                                coordinator.next(&worker.ready, index, &mut victim)
-                            {
-                                let generator = schedule.order()[local];
+                            let mut next_victim_index = (worker_index + 1) % num_threads;
+                            while let Some(local_index) = coordinator.next(
+                                &worker.ready,
+                                worker_index,
+                                &mut next_victim_index,
+                            ) {
+                                let generator_index = schedule.generator_indices()[local_index];
                                 // SAFETY: The caller guarantees stable, complete access
                                 // sets. Counter AcqRel publication and deque handoff
                                 // order every read/comparison after the selected writer.
                                 let result = unsafe {
                                     execution.run_generator_parallel(
-                                        generator,
+                                        generator_index,
                                         witness,
                                         &mut worker.outputs,
                                     )
@@ -359,10 +361,10 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
                                     return;
                                 }
                                 let pushed = schedule.release_successors(
-                                    local,
+                                    local_index,
                                     pending_dependencies,
-                                    |consumer| {
-                                        worker.ready.push(consumer);
+                                    |successor_local_index| {
+                                        worker.ready.push(successor_local_index);
                                     },
                                 );
                                 if pushed {
@@ -380,8 +382,9 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
                     match handle {
                         Ok(handle) => handles.push(handle),
                         Err(error) => {
-                            coordinator
-                                .fail(anyhow!("could not spawn witness worker {index}: {error}"));
+                            coordinator.fail(anyhow!(
+                                "could not spawn witness worker {worker_index}: {error}"
+                            ));
                             break;
                         }
                     }
@@ -417,9 +420,9 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         scratch.workers.extend(inactive);
         coordinator.finish()?;
         ensure!(
-            completed == schedule.order().len(),
+            completed == schedule.generator_indices().len(),
             "completed {completed} of {} scheduled witness generators",
-            schedule.order().len()
+            schedule.generator_indices().len()
         );
         Ok(())
     }
@@ -483,10 +486,10 @@ impl<F: Field> GenerationScratch<F> {
         let per_worker = initial_ready.len() / workers;
         let extra = initial_ready.len() % workers;
         let mut start = 0;
-        for (index, worker) in self.workers.iter().take(workers).enumerate() {
-            let end = start + per_worker + usize::from(index < extra);
-            for &generator in initial_ready[start..end].iter().rev() {
-                worker.ready.push(generator);
+        for (worker_index, worker) in self.workers.iter().take(workers).enumerate() {
+            let end = start + per_worker + usize::from(worker_index < extra);
+            for &local_index in initial_ready[start..end].iter().rev() {
+                worker.ready.push(local_index);
             }
             start = end;
         }

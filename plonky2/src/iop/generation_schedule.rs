@@ -11,10 +11,10 @@ use std::sync::{
 use crate::iop::scheduling_state::{ScheduleChainId, SchedulingState};
 
 /// Execution order and dependencies for a runnable subset of circuit generators.
-/// Graph indices are local; `order` maps them to circuit generator indices.
+/// Graph indices are local; `generator_indices` maps them to circuit generator indices.
 #[derive(Debug)]
 pub struct GenerationSchedule {
-    order: Vec<usize>,
+    generator_indices: Vec<usize>,
     dependency_counts: Vec<usize>,
     successor_offsets: Vec<usize>,
     successors: Vec<usize>,
@@ -27,7 +27,7 @@ pub struct GenerationSchedule {
 impl GenerationSchedule {
     fn new(
         state: &mut SchedulingState,
-        order: Vec<usize>,
+        generator_indices: Vec<usize>,
         dependency_counts: Vec<usize>,
         successor_offsets: Vec<usize>,
         successors: Vec<usize>,
@@ -35,7 +35,7 @@ impl GenerationSchedule {
     ) -> Self {
         let (chain_id, index, newly_supplied) = state.finish_schedule();
         Self {
-            order,
+            generator_indices,
             dependency_counts,
             successor_offsets,
             successors,
@@ -59,8 +59,8 @@ impl GenerationSchedule {
         &self.newly_supplied
     }
 
-    pub fn order(&self) -> &[usize] {
-        &self.order
+    pub fn generator_indices(&self) -> &[usize] {
+        &self.generator_indices
     }
 
     /// Distinct generator-predecessor counts, indexed locally.
@@ -69,8 +69,9 @@ impl GenerationSchedule {
     }
 
     /// Successors of a schedule-local generator, in circuit-builder order.
-    pub fn successors(&self, generator: usize) -> &[usize] {
-        &self.successors[self.successor_offsets[generator]..self.successor_offsets[generator + 1]]
+    pub fn successors(&self, local_index: usize) -> &[usize] {
+        &self.successors
+            [self.successor_offsets[local_index]..self.successor_offsets[local_index + 1]]
     }
 
     /// Schedule-local roots, in circuit-builder order.
@@ -81,20 +82,21 @@ impl GenerationSchedule {
     #[cfg(feature = "std")]
     pub(super) fn release_successors(
         &self,
-        local: usize,
+        local_index: usize,
         pending_dependencies: &[AtomicUsize],
         mut enqueue: impl FnMut(usize),
     ) -> bool {
         let mut pushed = false;
-        for &consumer in self.successors(local) {
-            let previous = pending_dependencies[consumer].fetch_sub(1, Ordering::AcqRel);
+        for &successor_local_index in self.successors(local_index) {
+            let previous =
+                pending_dependencies[successor_local_index].fetch_sub(1, Ordering::AcqRel);
             assert!(
                 previous > 0,
                 "generator {} dependency released twice",
-                self.order[consumer]
+                self.generator_indices[successor_local_index]
             );
             if previous == 1 {
-                enqueue(consumer);
+                enqueue(successor_local_index);
                 pushed = true;
             }
         }
@@ -113,16 +115,16 @@ pub(super) fn make_schedule(
     const NONE: usize = usize::MAX;
     let mut remaining = vec![0usize; reads.len()];
     let mut ready = Vec::new();
-    for (generator, inputs) in reads.iter().enumerate() {
-        if state.generators_scheduled()[generator] != 0 {
+    for (generator_index, inputs) in reads.iter().enumerate() {
+        if state.generators_scheduled()[generator_index] != 0 {
             continue;
         }
-        remaining[generator] = inputs
+        remaining[generator_index] = inputs
             .iter()
             .filter(|&&rep_index| state.classes_set()[rep_index] == 0)
             .count();
-        if remaining[generator] == 0 {
-            ready.push(generator);
+        if remaining[generator_index] == 0 {
+            ready.push(generator_index);
         }
     }
     if ready.is_empty() {
@@ -136,37 +138,37 @@ pub(super) fn make_schedule(
         );
     }
     ready.reverse();
-    let mut producers = vec![NONE; state.classes_set().len()];
-    let mut position = vec![NONE; reads.len()];
-    let mut order = Vec::new();
+    let mut producer_local_indices = vec![NONE; state.classes_set().len()];
+    let mut local_indices = vec![NONE; reads.len()];
+    let mut generator_indices = Vec::new();
     let mut edges = Vec::new();
     let mut unlocked = Vec::new();
-    while let Some(generator) = ready.pop() {
-        let local = order.len();
-        position[generator] = local;
-        order.push(generator);
-        state.mark_scheduled(generator);
+    while let Some(generator_index) = ready.pop() {
+        let local_index = generator_indices.len();
+        local_indices[generator_index] = local_index;
+        generator_indices.push(generator_index);
+        state.mark_scheduled(generator_index);
         unlocked.clear();
-        for &rep_index in &writes[generator] {
-            let producer = producers[rep_index];
-            if producer != NONE {
+        for &rep_index in &writes[generator_index] {
+            let producer_local_index = producer_local_indices[rep_index];
+            if producer_local_index != NONE {
                 // Other writers compare only after the first assignment.
-                edges.push((producer, generator));
+                edges.push((producer_local_index, generator_index));
             }
             if state.classes_set()[rep_index] != 0 {
                 continue;
             }
             state.mark_produced(rep_index);
-            producers[rep_index] = local;
+            producer_local_indices[rep_index] = local_index;
             if let Some(readers) = consumers.get(&rep_index) {
-                for &consumer in readers {
-                    if state.generators_scheduled()[consumer] != 0 {
+                for &consumer_generator_index in readers {
+                    if state.generators_scheduled()[consumer_generator_index] != 0 {
                         continue;
                     }
-                    remaining[consumer] -= 1;
-                    edges.push((local, consumer));
-                    if remaining[consumer] == 0 {
-                        unlocked.push(consumer);
+                    remaining[consumer_generator_index] -= 1;
+                    edges.push((local_index, consumer_generator_index));
+                    if remaining[consumer_generator_index] == 0 {
+                        unlocked.push(consumer_generator_index);
                     }
                 }
             }
@@ -176,29 +178,29 @@ pub(super) fn make_schedule(
     }
 
     // Readers still blocked on another class are not members of this schedule.
-    edges.retain(|&(_, consumer)| position[consumer] != NONE);
+    edges.retain(|&(_, consumer_generator_index)| local_indices[consumer_generator_index] != NONE);
     edges.sort_unstable();
     edges.dedup();
-    let mut dependency_counts = vec![0; order.len()];
-    let mut successor_offsets = vec![0; order.len() + 1];
+    let mut dependency_counts = vec![0; generator_indices.len()];
+    let mut successor_offsets = vec![0; generator_indices.len() + 1];
     let mut successors = Vec::with_capacity(edges.len());
-    for (producer, consumer) in edges {
-        let consumer = position[consumer];
-        debug_assert!(producer < consumer);
-        dependency_counts[consumer] += 1;
-        successor_offsets[producer + 1] += 1;
-        successors.push(consumer);
+    for (producer_local_index, consumer_generator_index) in edges {
+        let successor_local_index = local_indices[consumer_generator_index];
+        debug_assert!(producer_local_index < successor_local_index);
+        dependency_counts[successor_local_index] += 1;
+        successor_offsets[producer_local_index + 1] += 1;
+        successors.push(successor_local_index);
     }
-    for local in 0..order.len() {
-        successor_offsets[local + 1] += successor_offsets[local];
+    for local_index in 0..generator_indices.len() {
+        successor_offsets[local_index + 1] += successor_offsets[local_index];
     }
-    let mut initial_ready: Vec<_> = (0..order.len())
-        .filter(|&local| dependency_counts[local] == 0)
+    let mut initial_ready: Vec<_> = (0..generator_indices.len())
+        .filter(|&local_index| dependency_counts[local_index] == 0)
         .collect();
-    initial_ready.sort_unstable_by_key(|&local| order[local]);
+    initial_ready.sort_unstable_by_key(|&local_index| generator_indices[local_index]);
     GenerationSchedule::new(
         state,
-        order,
+        generator_indices,
         dependency_counts,
         successor_offsets,
         successors,

@@ -50,30 +50,30 @@ impl<F: Field> fmt::Debug for DenseStorage<F> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // Do not inspect cells: Debug may be called by a running generator.
         f.debug_struct("DenseStorage")
-            .field("num_slots", &self.values.len())
+            .field("num_targets", &self.values.len())
             .field("parallel", &self.parallel)
             .finish()
     }
 }
 
 impl<F: Field> DenseStorage<F> {
-    pub(super) fn new(num_slots: usize) -> Self {
+    pub(super) fn new(num_targets: usize) -> Self {
         Self {
-            values: (0..num_slots).map(|_| UnsafeCell::new(F::ZERO)).collect(),
-            assigned: (0..num_slots).map(|_| UnsafeCell::new(0)).collect(),
+            values: (0..num_targets).map(|_| UnsafeCell::new(F::ZERO)).collect(),
+            assigned: (0..num_targets).map(|_| UnsafeCell::new(0)).collect(),
             parallel: false,
         }
     }
 
     /// Assigns an unset slot or checks that an existing assignment agrees.
     /// A conflicting assignment returns an error without changing storage.
-    pub(super) fn assign(&mut self, slot: usize, value: F) -> Result<()> {
-        let assigned = self.assigned[slot].get_mut();
-        let stored = self.values[slot].get_mut();
+    pub(super) fn set(&mut self, rep_index: usize, value: F) -> Result<()> {
+        let assigned = self.assigned[rep_index].get_mut();
+        let stored = self.values[rep_index].get_mut();
         if *assigned != 0 {
             ensure!(
                 *stored == value,
-                "Witness slot {slot} was set twice with different values: {stored} != {value}"
+                "Witness slot {rep_index} was set twice with different values: {stored} != {value}"
             );
         } else {
             *stored = value;
@@ -82,24 +82,24 @@ impl<F: Field> DenseStorage<F> {
         Ok(())
     }
 
-    pub(super) fn try_get(&self, slot: usize) -> Option<F> {
-        self.is_set(slot).then(|| {
+    pub(super) fn try_get(&self, rep_index: usize) -> Option<F> {
+        self.is_set(rep_index).then(|| {
             // SAFETY: Safe APIs cannot mutate through shared access. The parallel
             // executor orders reads after publication; the assignment byte
             // was checked above.
-            unsafe { *self.values[slot].get() }
+            unsafe { *self.values[rep_index].get() }
         })
     }
 
     /// Marks a slot unassigned without clearing its stored value.
-    pub(super) fn clear(&mut self, slot: usize) {
-        *self.assigned[slot].get_mut() = 0;
+    pub(super) fn clear(&mut self, rep_index: usize) {
+        *self.assigned[rep_index].get_mut() = 0;
     }
 
-    pub(super) fn is_set(&self, slot: usize) -> bool {
+    pub(super) fn is_set(&self, rep_index: usize) -> bool {
         // SAFETY: Safe APIs cannot mutate through shared access. The parallel
         // executor orders presence reads after the slot writer completes.
-        unsafe { *self.assigned[slot].get() != 0 }
+        unsafe { *self.assigned[rep_index].get() != 0 }
     }
 
     #[cfg(feature = "std")]
@@ -107,7 +107,7 @@ impl<F: Field> DenseStorage<F> {
         self.parallel = active;
     }
 
-    /// Shared equivalent of `assign`, for the scheduled executor only.
+    /// Shared equivalent of `set`, for the scheduled executor only.
     ///
     /// # Safety
     /// No access to an unset slot may overlap this call. After assignment, all
@@ -115,18 +115,18 @@ impl<F: Field> DenseStorage<F> {
     /// caller must keep storage alive and must not obtain exclusive access while
     /// workers run. `parallel` must be true for the entire shared-write phase.
     #[cfg(feature = "std")]
-    pub(super) unsafe fn assign_shared(&self, slot: usize, value: F) -> Result<()> {
+    pub(super) unsafe fn set_shared(&self, rep_index: usize, value: F) -> Result<()> {
         debug_assert!(self.parallel);
-        if let Some(old) = self.try_get(slot) {
+        if let Some(old) = self.try_get(rep_index) {
             ensure!(
                 old == value,
-                "Witness slot {slot} was set twice with different values: {old} != {value}"
+                "Witness slot {rep_index} was set twice with different values: {old} != {value}"
             );
         } else {
             // SAFETY: The caller grants exclusive slot access until publication.
             unsafe {
-                *self.values[slot].get() = value;
-                *self.assigned[slot].get() = 1;
+                *self.values[rep_index].get() = value;
+                *self.assigned[rep_index].get() = 1;
             }
         }
         Ok(())

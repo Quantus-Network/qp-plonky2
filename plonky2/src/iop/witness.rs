@@ -382,14 +382,14 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
     /// Sets a target through shared access during scheduled dense generation.
     ///
     /// # Safety
-    /// The resolved slot must satisfy `DenseStorage::assign_shared`'s exclusive
+    /// The resolved slot must satisfy `DenseStorage::set_shared`'s exclusive
     /// assignment and publication requirements. Stock storage is unsupported.
     #[cfg(feature = "std")]
     pub(super) unsafe fn set_target_shared(&self, target: Target, value: F) -> Result<()> {
-        let slot = self.representative_map[self.target_index(target)];
+        let rep_index = self.representative_map[self.target_index(target)];
         let dense = self.dense.as_ref().expect("witness is not dense");
         // SAFETY: The executor supplies the required slot ordering.
-        unsafe { dense.assign_shared(slot, value) }
+        unsafe { dense.set_shared(rep_index, value) }
     }
 
     /// Set a `Target`. On success, returns the representative index of the newly-set target. If the
@@ -398,7 +398,7 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
         let rep_index = self.representative_map[self.target_index(target)];
         if let Some(dense) = &mut self.dense {
             let was_set = dense.is_set(rep_index);
-            dense.assign(rep_index, value)?;
+            dense.set(rep_index, value)?;
             return Ok((!was_set).then_some(rep_index));
         }
         let rep_value = &mut self.values[rep_index];

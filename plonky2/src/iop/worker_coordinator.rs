@@ -39,24 +39,29 @@ impl WorkerCoordinator {
         self.stopped.load(Ordering::Acquire)
     }
 
-    fn find(&self, local: &Worker<usize>, me: usize, victim: &mut usize) -> Option<usize> {
+    fn find(
+        &self,
+        local_queue: &Worker<usize>,
+        worker_index: usize,
+        next_victim_index: &mut usize,
+    ) -> Option<usize> {
         loop {
             if self.finished() {
                 return None;
             }
-            if let Some(task) = local.pop() {
-                return Some(task);
+            if let Some(local_index) = local_queue.pop() {
+                return Some(local_index);
             }
-            let start = *victim;
-            *victim = (start + 1) % self.stealers.len();
+            let start = *next_victim_index;
+            *next_victim_index = (start + 1) % self.stealers.len();
             let mut retry = false;
             for offset in 0..self.stealers.len() {
-                let index = (start + offset) % self.stealers.len();
-                if index == me {
+                let victim_index = (start + offset) % self.stealers.len();
+                if victim_index == worker_index {
                     continue;
                 }
-                match self.stealers[index].steal_batch_and_pop(local) {
-                    Steal::Success(task) => return Some(task),
+                match self.stealers[victim_index].steal_batch_and_pop(local_queue) {
+                    Steal::Success(local_index) => return Some(local_index),
                     Steal::Retry => retry = true,
                     Steal::Empty => {}
                 }
@@ -70,23 +75,23 @@ impl WorkerCoordinator {
 
     pub(super) fn next(
         &self,
-        local: &Worker<usize>,
-        me: usize,
-        victim: &mut usize,
+        local_queue: &Worker<usize>,
+        worker_index: usize,
+        next_victim_index: &mut usize,
     ) -> Option<usize> {
-        if let Some(task) = self.find(local, me, victim) {
-            return Some(task);
+        if let Some(local_index) = self.find(local_queue, worker_index, next_victim_index) {
+            return Some(local_index);
         }
         // Publishers use this same mutex after pushing. Register, then recheck
         // work under the mutex so a notification cannot be lost before wait.
         let mut state = self.state.lock().unwrap_or_else(|e| e.into_inner());
         state.sleepers += 1;
-        let task = loop {
+        let local_index = loop {
             if self.finished() {
                 break None;
             }
-            if let Some(task) = self.find(local, me, victim) {
-                break Some(task);
+            if let Some(local_index) = self.find(local_queue, worker_index, next_victim_index) {
+                break Some(local_index);
             }
             // A worker remains active until it registers under this mutex.
             // If every worker is idle after a full scan, nobody can publish
@@ -100,7 +105,7 @@ impl WorkerCoordinator {
             state = self.wake.wait(state).unwrap_or_else(|e| e.into_inner());
         };
         state.sleepers -= 1;
-        task
+        local_index
     }
 
     pub(super) fn notify_work(&self) {

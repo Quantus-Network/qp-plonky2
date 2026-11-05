@@ -29,13 +29,9 @@ pub struct SchedulingState {
 }
 
 impl SchedulingState {
-    pub(super) fn new(
-        scheduler: Arc<()>,
-        num_representatives: usize,
-        num_generators: usize,
-    ) -> Self {
+    pub(super) fn new(scheduler: Arc<()>, num_targets: usize, num_generators: usize) -> Self {
         Self {
-            classes_set: vec![0; num_representatives],
+            classes_set: vec![0; num_targets],
             generators_scheduled: vec![0; num_generators],
             chain_id: Arc::new(ScheduleChainId { scheduler }),
             next_schedule: 0,
@@ -56,7 +52,7 @@ impl SchedulingState {
             newly_supplied: classes_set
                 .iter()
                 .enumerate()
-                .filter_map(|(index, &flag)| (flag != 0).then_some(index))
+                .filter_map(|(rep_index, &flag)| (flag != 0).then_some(rep_index))
                 .collect(),
         }
     }
@@ -92,8 +88,8 @@ impl SchedulingState {
         self.classes_set[rep_index] = 1;
     }
 
-    pub(super) fn mark_scheduled(&mut self, generator: usize) {
-        self.generators_scheduled[generator] = 1;
+    pub(super) fn mark_scheduled(&mut self, generator_index: usize) {
+        self.generators_scheduled[generator_index] = 1;
     }
 
     /// Flags indexed by representative index; nonzero means assumed assigned.
