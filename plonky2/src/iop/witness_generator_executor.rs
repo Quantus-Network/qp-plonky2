@@ -72,7 +72,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         witness: &mut PartitionWitness<'_, F>,
         buffer: &mut GeneratedValues<F>,
     ) -> Result<()> {
-        self.run_generator_outputs_ready(index, witness, buffer)?;
+        self.run_generator_outputs(index, witness, buffer)?;
         let generator = &self.circuit.prover_only.generators[index].0;
         for (target, value) in buffer.target_values.drain(..) {
             witness
@@ -89,7 +89,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         witness: &PartitionWitness<'_, F>,
         buffer: &mut GeneratedValues<F>,
     ) -> Result<()> {
-        self.run_generator_outputs_ready(index, witness, buffer)?;
+        self.run_generator_outputs(index, witness, buffer)?;
         // SAFETY: The prepared graph and run_schedule_parallel's access contract
         // guarantee the required ordering of reads and writes.
         unsafe { self.write_generator_outputs(index, witness, buffer)? };
@@ -119,7 +119,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         Ok(())
     }
 
-    fn run_generator_outputs_ready(
+    fn run_generator_outputs(
         &self,
         index: usize,
         witness: &PartitionWitness<'_, F>,
