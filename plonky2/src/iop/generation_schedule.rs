@@ -113,17 +113,17 @@ pub(super) fn make_schedule(
     state: &mut SchedulingState,
 ) -> GenerationSchedule {
     const NONE: usize = usize::MAX;
-    let mut remaining = vec![0usize; reads.len()];
+    let mut unavailable_read_counts = vec![0usize; reads.len()];
     let mut ready = Vec::new();
-    for (generator_index, inputs) in reads.iter().enumerate() {
+    for (generator_index, read_rep_indices) in reads.iter().enumerate() {
         if state.generators_scheduled()[generator_index] != 0 {
             continue;
         }
-        remaining[generator_index] = inputs
+        unavailable_read_counts[generator_index] = read_rep_indices
             .iter()
             .filter(|&&rep_index| state.assumed_assigned()[rep_index] == 0)
             .count();
-        if remaining[generator_index] == 0 {
+        if unavailable_read_counts[generator_index] == 0 {
             ready.push(generator_index);
         }
     }
@@ -165,9 +165,9 @@ pub(super) fn make_schedule(
                     if state.generators_scheduled()[consumer_generator_index] != 0 {
                         continue;
                     }
-                    remaining[consumer_generator_index] -= 1;
+                    unavailable_read_counts[consumer_generator_index] -= 1;
                     edges.push((local_index, consumer_generator_index));
-                    if remaining[consumer_generator_index] == 0 {
+                    if unavailable_read_counts[consumer_generator_index] == 0 {
                         unlocked.push(consumer_generator_index);
                     }
                 }

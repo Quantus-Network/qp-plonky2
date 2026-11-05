@@ -207,7 +207,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
 /// Discovers ordered output targets by executing a built-in with dummy inputs.
 /// Duplicate emissions are preserved; generated values are never applied to scratch.
 ///
-/// `scratch` must be a dedicated dense witness for the same circuit, initially
+/// `probe_witness` must be a dedicated dense witness for the same circuit, initially
 /// unassigned. Only its declared read slots are populated and then cleared, on
 /// success or a returned error. Stored values need not be zeroed between probes.
 ///
@@ -217,31 +217,31 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
 fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
     generator: &dyn WitnessGenerator<F, D>,
     common: &CommonCircuitData<F, D>,
-    scratch: &mut PartitionWitness<'_, F>,
+    probe_witness: &mut PartitionWitness<'_, F>,
 ) -> Result<Vec<Target>> {
     let id = generator.id();
     let input_rule = dummy_input_rule(&id)?;
-    let reads = generator
+    let read_targets = generator
         .reads()
         .ok_or_else(|| anyhow!("generator {id} does not declare its reads"))?;
     let override_value = match input_rule {
         DummyInputRule::Zero => None,
         DummyInputRule::Quotient => {
             ensure!(
-                D > 0 && D.checked_mul(2) == Some(reads.len()),
+                D > 0 && D.checked_mul(2) == Some(read_targets.len()),
                 "unexpected quotient read declaration for {id}"
             );
-            Some((reads[D], F::ONE))
+            Some((read_targets[D], F::ONE))
         }
         DummyInputRule::Interpolation => Some((
-            *reads
+            *read_targets
                 .first()
                 .ok_or_else(|| anyhow!("{id} has no shift input"))?,
             F::ONE,
         )),
         DummyInputRule::Lookup => {
             ensure!(
-                reads.len() == 1,
+                read_targets.len() == 1,
                 "unexpected lookup read declaration for {id}"
             );
             let mut parameters = Vec::new();
@@ -260,17 +260,17 @@ fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
                 .get(table)
                 .and_then(|lut| lut.first())
                 .ok_or_else(|| anyhow!("{id} references missing or empty lookup table {table}"))?;
-            Some((reads[0], F::from_canonical_u16(key)))
+            Some((read_targets[0], F::from_canonical_u16(key)))
         }
     };
     let rep_index_of = |target: Target| -> Result<usize> {
-        let target_index = target.index(scratch.num_wires, scratch.degree);
-        let rep_index = *scratch
+        let target_index = target.index(probe_witness.num_wires, probe_witness.degree);
+        let rep_index = *probe_witness
             .representative_map
             .get(target_index)
             .ok_or_else(|| anyhow!("{id} reads target {target:?} outside scratch"))?;
         ensure!(
-            rep_index < scratch.representative_map.len(),
+            rep_index < probe_witness.representative_map.len(),
             "{id} has an invalid representative slot {rep_index}"
         );
         Ok(rep_index)
@@ -278,7 +278,7 @@ fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
     let override_value = override_value
         .map(|(target, value)| rep_index_of(target).map(|rep_index| (rep_index, value)))
         .transpose()?;
-    let mut rep_indices = reads
+    let mut rep_indices = read_targets
         .into_iter()
         .map(rep_index_of)
         .collect::<Result<Vec<_>>>()?;
@@ -287,7 +287,7 @@ fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
 
     let mut buffer = GeneratedValues::empty();
     let result = (|| -> Result<()> {
-        let dense = scratch.dense_mut();
+        let dense = probe_witness.dense_mut();
         for &rep_index in &rep_indices {
             dense.clear(rep_index);
         }
@@ -299,12 +299,12 @@ fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
             dense.set(rep_index, value)?;
         }
         ensure!(
-            generator.run(scratch, &mut buffer),
+            generator.run(probe_witness, &mut buffer),
             "built-in output probe failed for {id}; check the dummy-input rule and instance parameters"
         );
         Ok(())
     })();
-    let dense = scratch.dense_mut();
+    let dense = probe_witness.dense_mut();
     for rep_index in rep_indices {
         dense.clear(rep_index);
     }
