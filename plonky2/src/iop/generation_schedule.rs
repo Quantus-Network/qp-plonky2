@@ -21,7 +21,7 @@ pub struct GenerationSchedule {
     initial_ready: Vec<usize>,
     chain_id: Arc<ScheduleChainId>,
     index: usize,
-    newly_supplied: Vec<usize>,
+    newly_promised: Vec<usize>,
 }
 
 impl GenerationSchedule {
@@ -33,7 +33,7 @@ impl GenerationSchedule {
         successors: Vec<usize>,
         initial_ready: Vec<usize>,
     ) -> Self {
-        let (chain_id, index, newly_supplied) = state.finish_schedule();
+        let (chain_id, index, newly_promised) = state.finish_schedule();
         Self {
             generator_indices,
             dependency_counts,
@@ -42,7 +42,7 @@ impl GenerationSchedule {
             initial_ready,
             chain_id,
             index,
-            newly_supplied,
+            newly_promised,
         }
     }
 
@@ -55,8 +55,8 @@ impl GenerationSchedule {
         &self.chain_id
     }
 
-    pub(super) fn newly_supplied(&self) -> &[usize] {
-        &self.newly_supplied
+    pub(super) fn newly_promised(&self) -> &[usize] {
+        &self.newly_promised
     }
 
     pub fn generator_indices(&self) -> &[usize] {
@@ -121,7 +121,7 @@ pub(super) fn make_schedule(
         }
         remaining[generator_index] = inputs
             .iter()
-            .filter(|&&rep_index| state.classes_set()[rep_index] == 0)
+            .filter(|&&rep_index| state.assumed_assigned()[rep_index] == 0)
             .count();
         if remaining[generator_index] == 0 {
             ready.push(generator_index);
@@ -138,7 +138,7 @@ pub(super) fn make_schedule(
         );
     }
     ready.reverse();
-    let mut producer_local_indices = vec![NONE; state.classes_set().len()];
+    let mut producer_local_indices = vec![NONE; state.assumed_assigned().len()];
     let mut local_indices = vec![NONE; reads.len()];
     let mut generator_indices = Vec::new();
     let mut edges = Vec::new();
@@ -155,7 +155,7 @@ pub(super) fn make_schedule(
                 // Other writers compare only after the first assignment.
                 edges.push((producer_local_index, generator_index));
             }
-            if state.classes_set()[rep_index] != 0 {
+            if state.assumed_assigned()[rep_index] != 0 {
                 continue;
             }
             state.mark_produced(rep_index);

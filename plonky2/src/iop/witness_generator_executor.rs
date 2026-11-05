@@ -238,7 +238,7 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
             schedule.index()
         );
         let dense = self.witness.dense_mut();
-        for &rep_index in schedule.newly_supplied() {
+        for &rep_index in schedule.newly_promised() {
             ensure!(
                 dense.is_set(rep_index),
                 "promised representative {rep_index} is not assigned"

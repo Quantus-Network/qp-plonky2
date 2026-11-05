@@ -21,35 +21,35 @@ impl ScheduleChainId {
 /// These flags describe planned work, independently of witness execution.
 #[derive(Debug)]
 pub struct SchedulingState {
-    classes_set: Vec<u8>,
+    assumed_assigned: Vec<u8>,
     generators_scheduled: Vec<u8>,
     chain_id: Arc<ScheduleChainId>,
     next_schedule: usize,
-    newly_supplied: Vec<usize>,
+    newly_promised: Vec<usize>,
 }
 
 impl SchedulingState {
     pub(super) fn new(scheduler: Arc<()>, num_targets: usize, num_generators: usize) -> Self {
         Self {
-            classes_set: vec![0; num_targets],
+            assumed_assigned: vec![0; num_targets],
             generators_scheduled: vec![0; num_generators],
             chain_id: Arc::new(ScheduleChainId { scheduler }),
             next_schedule: 0,
-            newly_supplied: Vec::new(),
+            newly_promised: Vec::new(),
         }
     }
 
-    pub(super) fn with_supplied(
+    pub(super) fn with_assumed_assignments(
         scheduler: Arc<()>,
-        classes_set: &[u8],
+        assumed_assigned: &[u8],
         num_generators: usize,
     ) -> Self {
         Self {
-            classes_set: classes_set.to_vec(),
+            assumed_assigned: assumed_assigned.to_vec(),
             generators_scheduled: vec![0; num_generators],
             chain_id: Arc::new(ScheduleChainId { scheduler }),
             next_schedule: 0,
-            newly_supplied: classes_set
+            newly_promised: assumed_assigned
                 .iter()
                 .enumerate()
                 .filter_map(|(rep_index, &flag)| (flag != 0).then_some(rep_index))
@@ -60,12 +60,12 @@ impl SchedulingState {
     /// Promises that this representative will be assigned before the next schedule.
     /// Repeated promises, including values produced by preceding schedules, do nothing.
     pub fn assume_set(&mut self, rep_index: usize) -> Result<()> {
-        let flag = self.classes_set.get_mut(rep_index).ok_or_else(|| {
+        let flag = self.assumed_assigned.get_mut(rep_index).ok_or_else(|| {
             anyhow!("representative index {rep_index} is outside the scheduling state")
         })?;
         if *flag == 0 {
             *flag = 1;
-            self.newly_supplied.push(rep_index);
+            self.newly_promised.push(rep_index);
         }
         Ok(())
     }
@@ -80,12 +80,12 @@ impl SchedulingState {
         (
             Arc::clone(&self.chain_id),
             index,
-            core::mem::take(&mut self.newly_supplied),
+            core::mem::take(&mut self.newly_promised),
         )
     }
 
     pub(super) fn mark_produced(&mut self, rep_index: usize) {
-        self.classes_set[rep_index] = 1;
+        self.assumed_assigned[rep_index] = 1;
     }
 
     pub(super) fn mark_scheduled(&mut self, generator_index: usize) {
@@ -93,8 +93,8 @@ impl SchedulingState {
     }
 
     /// Flags indexed by representative index; nonzero means assumed assigned.
-    pub fn classes_set(&self) -> &[u8] {
-        &self.classes_set
+    pub fn assumed_assigned(&self) -> &[u8] {
+        &self.assumed_assigned
     }
 
     /// Flags indexed by circuit generator index; nonzero means assumed scheduled.
@@ -114,17 +114,20 @@ impl SchedulingState {
     }
 
     pub fn num_classes_set(&self) -> usize {
-        self.classes_set.iter().filter(|&&flag| flag != 0).count()
+        self.assumed_assigned
+            .iter()
+            .filter(|&&flag| flag != 0)
+            .count()
     }
 
     /// Clears planning flags and starts a new chain, retaining buffer allocations.
     pub fn reset(&mut self) {
-        self.classes_set.fill(0);
+        self.assumed_assigned.fill(0);
         self.generators_scheduled.fill(0);
         self.chain_id = Arc::new(ScheduleChainId {
             scheduler: Arc::clone(&self.chain_id.scheduler),
         });
         self.next_schedule = 0;
-        self.newly_supplied.clear();
+        self.newly_promised.clear();
     }
 }

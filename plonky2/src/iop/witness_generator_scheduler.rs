@@ -162,9 +162,9 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     /// Builds a one-shot schedule assuming the flagged representatives supplied.
     /// Returns an error if any generator remains blocked. Planning state is
     /// local and discarded; caller buffers are never modified.
-    pub fn make_complete_schedule(&self, classes_set: &[u8]) -> Result<GenerationSchedule> {
+    pub fn make_complete_schedule(&self, assumed_assigned: &[u8]) -> Result<GenerationSchedule> {
         ensure!(
-            classes_set.len()
+            assumed_assigned.len()
                 == self
                     .execution
                     .circuit()
@@ -173,9 +173,9 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
                     .len(),
             "supplied representative count does not match circuit"
         );
-        let mut state = SchedulingState::with_supplied(
+        let mut state = SchedulingState::with_assumed_assignments(
             Arc::clone(self.execution.identity()),
-            classes_set,
+            assumed_assigned,
             self.reads.len(),
         );
         let schedule = self.make_schedule(&mut state)?;
