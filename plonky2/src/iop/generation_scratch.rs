@@ -6,18 +6,12 @@ use std::sync::atomic::AtomicUsize;
 use crate::field::types::Field;
 use crate::iop::generator::GeneratedValues;
 
-/// Caller-owned execution scratch, reset for each schedule while retaining
-/// allocations. Concurrent executions require separate scratch objects;
-/// witness values and scheduling state are held separately.
+/// Executor-owned allocations reset for each schedule. The witness borrow,
+/// failure state and schedule-chain progress are held separately by the executor.
 #[derive(Debug)]
-pub struct GenerationScratch<F: Field> {
+pub(super) struct GenerationScratch<F: Field> {
     pub(super) pending_dependencies: Vec<AtomicUsize>,
-    ready: Vec<usize>,
     pub(super) workers: Vec<WorkerScratch<F>>,
-    num_workers: usize,
-    pub(super) remaining: usize,
-    initialized: bool,
-    pub(super) failed: bool,
 }
 
 impl<F: Field> Default for GenerationScratch<F> {
@@ -27,32 +21,18 @@ impl<F: Field> Default for GenerationScratch<F> {
 }
 
 impl<F: Field> GenerationScratch<F> {
-    pub fn new() -> Self {
+    pub(super) fn new() -> Self {
         Self {
             pending_dependencies: Vec::new(),
-            ready: Vec::new(),
             workers: Vec::new(),
-            num_workers: 0,
-            remaining: 0,
-            initialized: false,
-            failed: false,
         }
     }
 
-    /// Whether every generator in the initialized schedule has completed.
-    pub fn is_complete(&self) -> bool {
-        self.initialized && !self.failed && self.remaining == 0
-    }
-
-    pub(super) fn reset(&mut self, counts: &[usize], initial_ready: &[usize], workers: usize) {
+    pub(super) fn reset(&mut self, counts: &[usize], workers: usize) {
         assert!(
             workers > 0,
             "witness generation requires at least one worker"
         );
-        self.num_workers = workers;
-        self.remaining = counts.len();
-        self.initialized = true;
-        self.failed = false;
         self.pending_dependencies
             .resize_with(counts.len(), || AtomicUsize::new(0));
         for (pending_dependencies, &count) in self.pending_dependencies.iter_mut().zip(counts) {
@@ -65,30 +45,24 @@ impl<F: Field> GenerationScratch<F> {
             worker.outputs.target_values.clear();
             while worker.ready.pop().is_some() {}
         }
-        self.ready.clear();
-        self.ready.extend_from_slice(initial_ready);
     }
 
-    /// Distributes queued ready entries in circuit-builder order without
-    /// changing dependency counts or execution progress.
-    pub(super) fn distribute_ready(&mut self, order: &[usize]) {
-        debug_assert!(self.workers[..self.num_workers]
+    /// Seeds balanced worker slices from roots already in circuit-builder order.
+    pub(super) fn seed_ready(&mut self, initial_ready: &[usize], workers: usize) {
+        debug_assert!(self.workers[..workers]
             .iter()
             .all(|worker| worker.ready.is_empty()));
-        self.ready.sort_unstable_by_key(|&local| order[local]);
-        // Reverse pushes so owners start at the slice's beginning and thieves
-        // take from its end.
-        let per_worker = self.ready.len() / self.num_workers;
-        let extra = self.ready.len() % self.num_workers;
+        // Owners start at the slice's beginning; thieves take from its end.
+        let per_worker = initial_ready.len() / workers;
+        let extra = initial_ready.len() % workers;
         let mut start = 0;
-        for (index, worker) in self.workers.iter().take(self.num_workers).enumerate() {
+        for (index, worker) in self.workers.iter().take(workers).enumerate() {
             let end = start + per_worker + usize::from(index < extra);
-            for &generator in self.ready[start..end].iter().rev() {
+            for &generator in initial_ready[start..end].iter().rev() {
                 worker.ready.push(generator);
             }
             start = end;
         }
-        self.ready.clear();
     }
 }
 

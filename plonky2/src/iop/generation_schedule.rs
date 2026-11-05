@@ -1,12 +1,14 @@
 #[cfg(not(feature = "std"))]
-use alloc::{vec, vec::Vec};
+use alloc::{sync::Arc, vec, vec::Vec};
 
-use anyhow::{ensure, Result};
 use hashbrown::HashMap;
 #[cfg(feature = "std")]
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::{
+    atomic::{AtomicUsize, Ordering},
+    Arc,
+};
 
-use crate::iop::scheduling_state::SchedulingState;
+use crate::iop::scheduling_state::{ScheduleChain, SchedulingState};
 
 /// Execution order and dependencies for a runnable subset of circuit generators.
 /// Graph indices are local; `order` maps them to circuit generator indices.
@@ -17,9 +19,46 @@ pub struct GenerationSchedule {
     successor_offsets: Vec<usize>,
     successors: Vec<usize>,
     initial_ready: Vec<usize>,
+    chain: Arc<ScheduleChain>,
+    index: usize,
+    newly_supplied: Vec<usize>,
 }
 
 impl GenerationSchedule {
+    fn new(
+        state: &mut SchedulingState,
+        order: Vec<usize>,
+        dependency_counts: Vec<usize>,
+        successor_offsets: Vec<usize>,
+        successors: Vec<usize>,
+        initial_ready: Vec<usize>,
+    ) -> Self {
+        let (chain, index, newly_supplied) = state.finish_schedule();
+        Self {
+            order,
+            dependency_counts,
+            successor_offsets,
+            successors,
+            initial_ready,
+            chain,
+            index,
+            newly_supplied,
+        }
+    }
+
+    /// Position in the planning chain, starting at zero.
+    pub fn index(&self) -> usize {
+        self.index
+    }
+
+    pub(super) fn chain(&self) -> &Arc<ScheduleChain> {
+        &self.chain
+    }
+
+    pub(super) fn newly_supplied(&self) -> &[usize] {
+        &self.newly_supplied
+    }
+
     pub fn order(&self) -> &[usize] {
         &self.order
     }
@@ -70,12 +109,8 @@ pub(super) fn make_schedule(
     writes: &[Vec<usize>],
     consumers: &HashMap<usize, Vec<usize>>,
     state: &mut SchedulingState,
-) -> Result<GenerationSchedule> {
+) -> GenerationSchedule {
     const NONE: usize = usize::MAX;
-    ensure!(
-        state.generators_scheduled().len() == reads.len(),
-        "scheduling state generator count does not match circuit"
-    );
     let mut remaining = vec![0usize; reads.len()];
     let mut ready = Vec::new();
     for (generator, inputs) in reads.iter().enumerate() {
@@ -91,13 +126,14 @@ pub(super) fn make_schedule(
         }
     }
     if ready.is_empty() {
-        return Ok(GenerationSchedule {
-            order: Vec::new(),
-            dependency_counts: Vec::new(),
-            successor_offsets: vec![0],
-            successors: Vec::new(),
-            initial_ready: Vec::new(),
-        });
+        return GenerationSchedule::new(
+            state,
+            Vec::new(),
+            Vec::new(),
+            vec![0],
+            Vec::new(),
+            Vec::new(),
+        );
     }
     ready.reverse();
     let mut producers = vec![NONE; state.classes_set().len()];
@@ -109,7 +145,7 @@ pub(super) fn make_schedule(
         let local = order.len();
         position[generator] = local;
         order.push(generator);
-        state.generators_scheduled_mut()[generator] = 1;
+        state.mark_scheduled(generator);
         unlocked.clear();
         for &rep_index in &writes[generator] {
             let producer = producers[rep_index];
@@ -120,7 +156,7 @@ pub(super) fn make_schedule(
             if state.classes_set()[rep_index] != 0 {
                 continue;
             }
-            state.classes_set_mut()[rep_index] = 1;
+            state.mark_produced(rep_index);
             producers[rep_index] = local;
             if let Some(readers) = consumers.get(&rep_index) {
                 for &consumer in readers {
@@ -160,11 +196,12 @@ pub(super) fn make_schedule(
         .filter(|&local| dependency_counts[local] == 0)
         .collect();
     initial_ready.sort_unstable_by_key(|&local| order[local]);
-    Ok(GenerationSchedule {
+    GenerationSchedule::new(
+        state,
         order,
         dependency_counts,
         successor_offsets,
         successors,
         initial_ready,
-    })
+    )
 }

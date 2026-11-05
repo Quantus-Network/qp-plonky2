@@ -370,6 +370,10 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
         }
     }
 
+    pub(crate) fn is_dense(&self) -> bool {
+        self.dense.is_some()
+    }
+
     /// Direct storage access for an executor that requires a dense witness.
     pub(crate) fn dense_mut(&mut self) -> &mut DenseStorage<F> {
         self.dense.as_mut().expect("witness is not dense")

@@ -1,5 +1,21 @@
 #[cfg(not(feature = "std"))]
-use alloc::{vec, vec::Vec};
+use alloc::{sync::Arc, vec, vec::Vec};
+#[cfg(feature = "std")]
+use std::sync::Arc;
+
+use anyhow::{anyhow, Result};
+
+/// Identifies schedules planned together by one scheduler.
+#[derive(Debug)]
+pub(super) struct ScheduleChain {
+    scheduler: Arc<()>,
+}
+
+impl ScheduleChain {
+    pub(super) fn matches_scheduler(&self, scheduler: &Arc<()>) -> bool {
+        Arc::ptr_eq(&self.scheduler, scheduler)
+    }
+}
 
 /// Assumed availability used to construct a sequence of schedules.
 /// These flags describe planned work, independently of witness execution.
@@ -7,14 +23,77 @@ use alloc::{vec, vec::Vec};
 pub struct SchedulingState {
     classes_set: Vec<u8>,
     generators_scheduled: Vec<u8>,
+    chain: Arc<ScheduleChain>,
+    next_schedule: usize,
+    newly_supplied: Vec<usize>,
 }
 
 impl SchedulingState {
-    pub(super) fn new(num_representatives: usize, num_generators: usize) -> Self {
+    pub(super) fn new(
+        scheduler: Arc<()>,
+        num_representatives: usize,
+        num_generators: usize,
+    ) -> Self {
         Self {
             classes_set: vec![0; num_representatives],
             generators_scheduled: vec![0; num_generators],
+            chain: Arc::new(ScheduleChain { scheduler }),
+            next_schedule: 0,
+            newly_supplied: Vec::new(),
         }
+    }
+
+    pub(super) fn with_supplied(
+        scheduler: Arc<()>,
+        classes_set: &[u8],
+        num_generators: usize,
+    ) -> Self {
+        Self {
+            classes_set: classes_set.to_vec(),
+            generators_scheduled: vec![0; num_generators],
+            chain: Arc::new(ScheduleChain { scheduler }),
+            next_schedule: 0,
+            newly_supplied: classes_set
+                .iter()
+                .enumerate()
+                .filter_map(|(index, &flag)| (flag != 0).then_some(index))
+                .collect(),
+        }
+    }
+
+    /// Promises that this representative will be assigned before the next schedule.
+    /// Repeated promises, including values produced by preceding schedules, do nothing.
+    pub fn assume_set(&mut self, rep_index: usize) -> Result<()> {
+        let flag = self.classes_set.get_mut(rep_index).ok_or_else(|| {
+            anyhow!("representative index {rep_index} is outside the scheduling state")
+        })?;
+        if *flag == 0 {
+            *flag = 1;
+            self.newly_supplied.push(rep_index);
+        }
+        Ok(())
+    }
+
+    pub(super) fn chain(&self) -> &Arc<ScheduleChain> {
+        &self.chain
+    }
+
+    pub(super) fn finish_schedule(&mut self) -> (Arc<ScheduleChain>, usize, Vec<usize>) {
+        let index = self.next_schedule;
+        self.next_schedule = index.checked_add(1).expect("schedule index overflow");
+        (
+            Arc::clone(&self.chain),
+            index,
+            core::mem::take(&mut self.newly_supplied),
+        )
+    }
+
+    pub(super) fn mark_produced(&mut self, rep_index: usize) {
+        self.classes_set[rep_index] = 1;
+    }
+
+    pub(super) fn mark_scheduled(&mut self, generator: usize) {
+        self.generators_scheduled[generator] = 1;
     }
 
     /// Flags indexed by representative index; nonzero means assumed assigned.
@@ -22,17 +101,9 @@ impl SchedulingState {
         &self.classes_set
     }
 
-    pub fn classes_set_mut(&mut self) -> &mut [u8] {
-        &mut self.classes_set
-    }
-
     /// Flags indexed by circuit generator index; nonzero means assumed scheduled.
     pub fn generators_scheduled(&self) -> &[u8] {
         &self.generators_scheduled
-    }
-
-    pub fn generators_scheduled_mut(&mut self) -> &mut [u8] {
-        &mut self.generators_scheduled
     }
 
     pub fn remaining_generators(&self) -> usize {
@@ -46,14 +117,18 @@ impl SchedulingState {
         self.generators_scheduled.iter().all(|&flag| flag != 0)
     }
 
-    /// Counts flagged positions; callers mark only representative indices.
     pub fn num_classes_set(&self) -> usize {
         self.classes_set.iter().filter(|&&flag| flag != 0).count()
     }
 
-    /// Clears planned availability while retaining allocations.
+    /// Clears planning flags and starts a new chain, retaining buffer allocations.
     pub fn reset(&mut self) {
         self.classes_set.fill(0);
         self.generators_scheduled.fill(0);
+        self.chain = Arc::new(ScheduleChain {
+            scheduler: Arc::clone(&self.chain.scheduler),
+        });
+        self.next_schedule = 0;
+        self.newly_supplied.clear();
     }
 }

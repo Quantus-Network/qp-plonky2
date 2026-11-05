@@ -7,11 +7,12 @@ pub mod ext_target;
 pub(crate) mod generation_pool;
 pub mod generation_schedule;
 #[cfg(feature = "std")]
-pub mod generation_scratch;
+mod generation_scratch;
 pub mod generator;
 pub(crate) mod generator_outputs;
 pub mod scheduling_state;
 pub mod target;
 pub mod wire;
 pub mod witness;
+pub mod witness_generator_executor;
 pub mod witness_generator_scheduler;
