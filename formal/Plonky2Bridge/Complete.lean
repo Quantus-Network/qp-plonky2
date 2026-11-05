@@ -9,22 +9,19 @@
 
   The assumptions record is the point of the exercise. It is the complete list of things
   an honest prover must arrange that the spec relation itself does not force:
-  the modulus, the 64-leaf cap, one preimage per slot, the children's 32-bit ranges, and
-  canonical (`< p`) nullifier lanes. The routing witness for the permutation network is
-  *not* an assumption: `network_routable` (the odd-even transposition sorting-network
-  theorem, `Plonky2Spec/OddEvenSort.lean`) constructs it from `RPrivateBatch`'s `Perm`
-  conjunct.
+  the modulus, the 64-leaf and 64-slot caps, one preimage per slot, the children's 32-bit
+  input ranges, and canonical (`< p`) nullifier lanes.
 -/
 import Plonky2Bridge
 
 namespace Plonky2Bridge
 
-open Plonky2Spec (IsBool bselect band bnot bselect_true bselect_false Digest4 network
-  network_routable FeeCheck feeCheck_complete)
+open Plonky2Spec (IsBool bselect band bnot bselect_true bselect_false Digest4 FeeCheck
+  feeCheck_complete)
 open Plonky2Spec.Poseidon2 (St)
 open WormholeSpec (Digest RandomOracle LeafPublic PrivateBatchOutput isDummyPrivateBatch
   buildNullifiers nullifiersReplaced RPrivateBatch realNullifiersDistinct maskedInputTotal
-  maskedOutputTotal privateBatchFeeOk feeDenominator inRange groupExits maskedChildPairs
+  outputExitTotal slotsTotal privateBatchFeeOk feeDenominator inRange
   metadataConsistent referenceFromFirstReal goldilocks Felt)
 
 variable {p : ℕ} [Fact p.Prime]
@@ -86,7 +83,7 @@ theorem nullifiersReplaced_eq_build (ro : RandomOracle) :
   | _ :: _, [], _, h => nomatch h
   | _ :: _, _ :: _, [], h => nomatch h
 
-/-- Every pre-permutation nullifier is a dummy replacement or a child's nullifier. -/
+/-- Every output nullifier is a dummy replacement or a child's nullifier. -/
 theorem mem_of_nullifiersReplaced (ro : RandomOracle) :
     ∀ (ls : List LeafPublic) (us : List (List Felt)) (raw : List Digest),
       nullifiersReplaced ro ls us raw → ∀ d ∈ raw,
@@ -113,9 +110,8 @@ theorem RPrivateBatch_nullifiers_canonical (perm : St p → St p) {leaves : List
     (hcanon : ∀ q ∈ leaves, DigestCanonical p q.nullifier)
     (h : RPrivateBatch (spongeRO perm) leaves us out) :
     ∀ d ∈ out.nullifiers, DigestCanonical p d := by
-  obtain ⟨raw, hrep, hperm⟩ := h.2.2.1
   intro d hd
-  rcases mem_of_nullifiersReplaced _ leaves us raw hrep d (hperm.mem_iff.mp hd) with
+  rcases mem_of_nullifiersReplaced _ leaves us out.nullifiers h.2.2.1 d hd with
     ⟨u, _, rfl⟩ | ⟨q, hq, rfl⟩
   · exact spongeRO_dummyNull_canonical perm u
   · exact hcanon q hq
@@ -123,41 +119,40 @@ theorem RPrivateBatch_nullifiers_canonical (perm : St p → St p) {leaves : List
 /-! ### The shared constraint predicate -/
 
 /-- The private-batch wrapper's constraints on a field witness, exactly as `private_batch_val`
-    consumes them: boolean switches and dummy flags, the slot decodes, the network output as
-    the public nullifier region, the pairwise uniqueness constraints, the fee comparator with
-    its accumulator decodes, and the remaining decoded wrapper outputs. -/
-structure PrivateBatchConstraints (perm : St p → St p) (rounds : List (List (ZMod p)))
+    consumes them: boolean dummy flags, the slot decodes, the per-slot selections as the public
+    nullifier region, the pairwise uniqueness constraints, the fee comparator with its
+    accumulator decodes, the exit slots' ranges, and the remaining decoded wrapper outputs. -/
+structure PrivateBatchConstraints (perm : St p → St p)
     (rows : List (SlotRow p)) (fee totalIn totalOut : ZMod p) (out : PrivateBatchOutput) :
     Prop where
-  hsw : ∀ ss ∈ rounds, ∀ s ∈ ss, IsBool s
   hb : ∀ t ∈ rows, IsBool t.1.isDummy
   hd : ∀ t ∈ rows, t.1.isDummy = 1 ↔ isDummyPrivateBatch t.2.1
   hdnull : ∀ t ∈ rows, valDigest t.1.dnull = (spongeRO perm).dummyNull t.2.2
   hreal : ∀ t ∈ rows, valDigest t.1.real = t.2.1.nullifier
-  hnull : out.nullifiers = (network rounds (rows.map (fun t => t.1.sel))).map valDigest
+  hnull : out.nullifiers = (rows.map (fun t => t.1.sel)).map valDigest
   hcol : ∀ (i j : ℕ) (hi : i < rows.length) (hj : j < rows.length), i < j →
     ∃ eq : ZMod p, (eq = 1 ↔ rows[i].1.real = rows[j].1.real) ∧
       band (band (bnot rows[i].1.isDummy) (bnot rows[j].1.isDummy)) eq = 0
   hlen : rows.length ≤ 64
-  h32 : ∀ q ∈ rows.map (fun t => t.2.1), inRange 32 q.inputAmount ∧
-    inRange 32 q.outputAmount1 ∧ inRange 32 q.outputAmount2 ∧ inRange 32 q.volumeFeeBps
+  h32 : ∀ q ∈ rows.map (fun t => t.2.1), inRange 32 q.inputAmount
+  hslots : ∀ s ∈ out.exitSlots, inRange 32 s.amount
+  hslotsLen : out.exitSlots.length ≤ 64
   hfee : fee.val = out.volumeFeeBps
   hin : totalIn.val = maskedInputTotal (rows.map (fun t => t.2.1))
-  hout : totalOut.val = maskedOutputTotal (rows.map (fun t => t.2.1))
+  hout : totalOut.val = outputExitTotal out
   hfc : FeeCheck fee totalIn totalOut
-  hexits : out.exitSlots = groupExits (maskedChildPairs (rows.map (fun t => t.2.1)))
   hmeta : metadataConsistent (rows.map (fun t => t.2.1)) out
   href : referenceFromFirstReal (rows.map (fun t => t.2.1)) out
-  hnum : out.numExitSlots = 2 * rows.length
+  hnum : out.numExitSlots = out.exitSlots.length
 
 /-- Soundness, restated over the shared predicate (this is `private_batch_val`). -/
 theorem PrivateBatchConstraints.sound {perm : St p → St p} (hpg : goldilocks ≤ p)
-    {rounds : List (List (ZMod p))} {rows : List (SlotRow p)} {fee totalIn totalOut : ZMod p}
+    {rows : List (SlotRow p)} {fee totalIn totalOut : ZMod p}
     {out : PrivateBatchOutput}
-    (h : PrivateBatchConstraints perm rounds rows fee totalIn totalOut out) :
+    (h : PrivateBatchConstraints perm rows fee totalIn totalOut out) :
     RPrivateBatch (spongeRO perm) (rows.map (fun t => t.2.1)) (rows.map (fun t => t.2.2)) out :=
-  private_batch_val perm hpg rounds rows h.hsw h.hb h.hd h.hdnull h.hreal h.hnull h.hcol h.hlen
-    h.h32 h.hfee h.hin h.hout h.hfc h.hexits h.hmeta h.href h.hnum
+  private_batch_val perm hpg rows h.hb h.hd h.hdnull h.hreal h.hnull h.hcol h.hlen
+    h.h32 h.hslots h.hslotsLen h.hfee h.hin h.hout h.hfc h.hmeta h.href h.hnum
 
 /-! ### Witness construction -/
 
@@ -267,65 +262,53 @@ theorem hcol_of_distinct (rows : List (SlotRow p))
     * `modulus` — the field is (at least) Goldilocks; the fee no-wrap bounds are stated
       against `goldilocks`;
     * `leafCap` — at most `MAX_PROOF_COUNT = 64` children;
+    * `slotCap` — at most 64 exit slots (the `num_exit_slots` shape parameter's cap);
     * `uslen` — one dummy-nullifier preimage per slot;
-    * `ranges32` — each child's amounts and fee are 32-bit (guaranteed for children with
+    * `ranges32` — each child's input amount is 32-bit (guaranteed for children with
       accepted leaf proofs by `Rleaf_ranges`);
     * `nullCanon` — each child's nullifier lanes are canonical (`< p`), as hash outputs are.
 
-    The routing witness for the odd-even switch network is derived, not assumed: the
-    `Perm` conjunct of `RPrivateBatch` plus `network_routable` (the `n`-round odd-even
-    transposition network realizes every permutation) yield the switches the
-    `permutation_switches` witness in `common/src/gadgets.rs` computes. -/
+    The exit slots and the fee rate need nothing beyond `RPrivateBatch`: it already carries
+    their 32-bit and `≤ 10000` bounds, which are the wrapper's own range checks. -/
 structure CompletenessAssumptions (perm : St p → St p) (leaves : List LeafPublic)
     (us : List (List Felt)) (out : PrivateBatchOutput) : Prop where
   modulus : goldilocks ≤ p
   leafCap : leaves.length ≤ 64
+  slotCap : out.exitSlots.length ≤ 64
   uslen : us.length = leaves.length
-  ranges32 : ∀ q ∈ leaves, inRange 32 q.inputAmount ∧ inRange 32 q.outputAmount1 ∧
-    inRange 32 q.outputAmount2 ∧ inRange 32 q.volumeFeeBps
+  ranges32 : ∀ q ∈ leaves, inRange 32 q.inputAmount
   nullCanon : ∀ q ∈ leaves, DigestCanonical p q.nullifier
 
 omit [Fact p.Prime] in
-/-- The three fee-comparator wires, cast in from the spec totals. -/
+/-- The three fee-comparator wires, cast in from the spec values. -/
 theorem fee_wires_canonical (hpg : goldilocks ≤ p) {leaves : List LeafPublic}
-    {out : PrivateBatchOutput} (hlen : leaves.length ≤ 64)
-    (h32 : ∀ q ∈ leaves, inRange 32 q.inputAmount ∧ inRange 32 q.outputAmount1 ∧
-      inRange 32 q.outputAmount2 ∧ inRange 32 q.volumeFeeBps)
-    (href : referenceFromFirstReal leaves out) :
-    out.volumeFeeBps < p ∧ maskedInputTotal leaves < p ∧ maskedOutputTotal leaves < p := by
-  have hfee : out.volumeFeeBps < 2 ^ 32 :=
-    WormholeSpec.referenceFromFirstReal_volumeFeeBps_lt (by decide) href
-      (fun q hq => (h32 q hq).2.2.2)
+    {out : PrivateBatchOutput} (hlen : leaves.length ≤ 64) (hslen : out.exitSlots.length ≤ 64)
+    (h32 : ∀ q ∈ leaves, inRange 32 q.inputAmount)
+    (hslots : ∀ s ∈ out.exitSlots, inRange 32 s.amount)
+    (hfee : out.volumeFeeBps ≤ feeDenominator) :
+    out.volumeFeeBps < p ∧ maskedInputTotal leaves < p ∧ outputExitTotal out < p := by
   have hin : maskedInputTotal leaves ≤ 64 * 2 ^ 32 :=
     Nat.le_trans (WormholeSpec.maskedInputTotal_le_rawInputTotal leaves)
-      (Nat.le_trans (WormholeSpec.rawInputTotal_le_linear (fun q hq => Nat.le_of_lt (h32 q hq).1))
+      (Nat.le_trans (WormholeSpec.rawInputTotal_le_linear (fun q hq => Nat.le_of_lt (h32 q hq)))
         (Nat.mul_le_mul_right _ hlen))
-  have hout : maskedOutputTotal leaves ≤ 64 * (2 * 2 ^ 32) :=
-    Nat.le_trans (WormholeSpec.maskedOutputTotal_le_rawOutputTotal leaves)
-      (Nat.le_trans (WormholeSpec.rawOutputTotal_le_linear
-          (fun q hq => ⟨Nat.le_of_lt (h32 q hq).2.1, Nat.le_of_lt (h32 q hq).2.2.1⟩))
-        (Nat.mul_le_mul_right _ hlen))
+  have hout : outputExitTotal out ≤ 64 * 2 ^ 32 :=
+    Nat.le_trans (WormholeSpec.slotsTotal_le_linear (fun s hs => Nat.le_of_lt (hslots s hs)))
+      (Nat.mul_le_mul_right _ hslen)
   refine ⟨?_, ?_, ?_⟩
-  · exact Nat.lt_of_lt_of_le hfee (le_trans (by decide) hpg)
+  · exact Nat.lt_of_le_of_lt hfee (Nat.lt_of_lt_of_le (by decide) hpg)
   · exact Nat.lt_of_le_of_lt hin (Nat.lt_of_lt_of_le (by decide) hpg)
   · exact Nat.lt_of_le_of_lt hout (Nat.lt_of_lt_of_le (by decide) hpg)
 
 /-- **Completeness.** Every `RPrivateBatch` instance over the sponge oracle, under the
     `CompletenessAssumptions`, is realized by a field witness satisfying the wrapper
-    constraints — the honest rows, the routing switches, and the cast-in fee wires. -/
+    constraints — the honest rows and the cast-in fee wires. -/
 theorem private_batch_complete (perm : St p → St p) {leaves : List LeafPublic}
     {us : List (List Felt)} {out : PrivateBatchOutput}
     (ha : CompletenessAssumptions perm leaves us out)
     (h : RPrivateBatch (spongeRO perm) leaves us out) :
-    ∃ (rounds : List (List (ZMod p))) (rows : List (SlotRow p)) (fee totalIn totalOut : ZMod p),
+    ∃ (rows : List (SlotRow p)) (fee totalIn totalOut : ZMod p),
       rows.map (fun t => t.2.1) = leaves ∧ rows.map (fun t => t.2.2) = us ∧
-      PrivateBatchConstraints perm rounds rows fee totalIn totalOut out := by
-  obtain ⟨rounds, -, hsw, hroute⟩ :=
-    network_routable ((buildNullifiers (spongeRO perm) leaves us).map castDigest)
-      (out.nullifiers.map castDigest) (by
-        obtain ⟨raw, hrep, hperm⟩ := h.2.2.1
-        rw [← nullifiersReplaced_eq_build _ _ _ _ hrep]
-        exact hperm.map (castDigest (p := p)))
+      PrivateBatchConstraints perm rows fee totalIn totalOut out := by
   have hL := honestRows_leaves (p := p) perm ha.uslen
   have hU := honestRows_us (p := p) perm ha.uslen
   have hmem : ∀ t ∈ honestRows (p := p) perm leaves us,
@@ -333,8 +316,10 @@ theorem private_batch_complete (perm : St p → St p) {leaves : List LeafPublic}
     intro t ht
     obtain ⟨⟨q, u⟩, hqu, rfl⟩ := List.mem_map.1 ht
     exact ⟨rfl, (List.of_mem_zip hqu).1⟩
+  have hslots := h.2.2.2.2.1
+  have hfeeOk := h.2.2.2.2.2.1
   obtain ⟨hfeeLt, hinLt, houtLt⟩ :=
-    fee_wires_canonical ha.modulus ha.leafCap ha.ranges32 h.2.1
+    fee_wires_canonical ha.modulus ha.leafCap ha.slotCap ha.ranges32 hslots hfeeOk.1
   have hp53 : 2 ^ 53 ≤ p := le_trans (by decide) ha.modulus
   have hb : ∀ t ∈ honestRows (p := p) perm leaves us, IsBool t.1.isDummy := by
     intro t ht; rw [(hmem t ht).1]; exact honestSlot_isBool perm _ _
@@ -343,18 +328,16 @@ theorem private_batch_complete (perm : St p → St p) {leaves : List LeafPublic}
     intro t ht; rw [(hmem t ht).1]; exact honestSlot_flag perm _ _
   have hreal : ∀ t ∈ honestRows (p := p) perm leaves us, valDigest t.1.real = t.2.1.nullifier := by
     intro t ht; rw [(hmem t ht).1]; exact valDigest_castDigest (ha.nullCanon _ (hmem t ht).2)
-  have hfeeOk := h.2.2.2.2.1
   have hfeeVal : ((out.volumeFeeBps : ℕ) : ZMod p).val = out.volumeFeeBps :=
     ZMod.val_natCast_of_lt hfeeLt
   have hinVal : ((maskedInputTotal leaves : ℕ) : ZMod p).val = maskedInputTotal leaves :=
     ZMod.val_natCast_of_lt hinLt
-  have houtVal : ((maskedOutputTotal leaves : ℕ) : ZMod p).val = maskedOutputTotal leaves :=
+  have houtVal : ((outputExitTotal out : ℕ) : ZMod p).val = outputExitTotal out :=
     ZMod.val_natCast_of_lt houtLt
-  refine ⟨rounds, honestRows perm leaves us, (out.volumeFeeBps : ZMod p),
-    (maskedInputTotal leaves : ZMod p), (maskedOutputTotal leaves : ZMod p), hL, hU, ?_⟩
+  refine ⟨honestRows perm leaves us, (out.volumeFeeBps : ZMod p),
+    (maskedInputTotal leaves : ZMod p), (outputExitTotal out : ZMod p), hL, hU, ?_⟩
   refine
-    { hsw := hsw
-      hb := hb
+    { hb := hb
       hd := hd
       hdnull := ?_
       hreal := hreal
@@ -362,35 +345,31 @@ theorem private_batch_complete (perm : St p → St p) {leaves : List LeafPublic}
       hcol := hcol_of_distinct _ hb hd hreal (by rw [hL]; exact h.2.2.2.2.2.2.1)
       hlen := by rw [honestRows_length perm ha.uslen]; exact ha.leafCap
       h32 := by rw [hL]; exact ha.ranges32
+      hslots := hslots
+      hslotsLen := ha.slotCap
       hfee := hfeeVal
       hin := by rw [hL]; exact hinVal
-      hout := by rw [hL]; exact houtVal
+      hout := houtVal
       hfc := ?_
-      hexits := by rw [hL]; exact h.2.2.2.2.2.1
       hmeta := by rw [hL]; exact h.1
       href := by rw [hL]; exact h.2.1
-      hnum := by rw [honestRows_length perm ha.uslen]; exact h.2.2.2.2.2.2.2 }
+      hnum := h.2.2.2.2.2.2.2 }
   · intro t ht
     rw [(hmem t ht).1]
     exact valDigest_castDigest (spongeRO_dummyNull_canonical perm _)
-  · rw [honestRows_sel, hroute,
+  · rw [honestRows_sel, ← nullifiersReplaced_eq_build _ _ _ _ h.2.2.1,
       map_valDigest_castDigest (RPrivateBatch_nullifiers_canonical perm ha.nullCanon h)]
   · have hass : FeeCheck.Assumptions ((out.volumeFeeBps : ℕ) : ZMod p)
-        ((maskedInputTotal leaves : ℕ) : ZMod p) ((maskedOutputTotal leaves : ℕ) : ZMod p) :=
-      { fee32 := by
-          rw [hfeeVal]
-          exact WormholeSpec.referenceFromFirstReal_volumeFeeBps_lt (by decide) h.2.1
-            (fun q hq => (ha.ranges32 q hq).2.2.2)
-        rhsBound := by
+        ((maskedInputTotal leaves : ℕ) : ZMod p) ((outputExitTotal out : ℕ) : ZMod p) :=
+      { rhsBound := by
           rw [hinVal, hfeeVal]
           have := WormholeSpec.privateBatchFeeRhs_lt_two_pow_52 (out := out) ha.leafCap
-            (fun q hq => (ha.ranges32 q hq).1)
+            ha.ranges32
           unfold WormholeSpec.feeDenominator at this
           exact this
         lhsBound := by
           rw [houtVal]
-          have := WormholeSpec.privateBatchFeeLhs_add_two_pow_52_lt_modulus ha.leafCap
-            (fun q hq => ⟨(ha.ranges32 q hq).2.1, (ha.ranges32 q hq).2.2.1⟩)
+          have := WormholeSpec.privateBatchFeeLhs_add_two_pow_52_lt_modulus ha.slotCap hslots
           unfold WormholeSpec.feeDenominator at this
           exact Nat.lt_of_lt_of_le this ha.modulus }
     apply feeCheck_complete hp53 hass
@@ -406,12 +385,12 @@ theorem private_batch_iff (perm : St p → St p) {leaves : List LeafPublic}
     {us : List (List Felt)} {out : PrivateBatchOutput}
     (ha : CompletenessAssumptions perm leaves us out) :
     RPrivateBatch (spongeRO perm) leaves us out ↔
-      ∃ (rounds : List (List (ZMod p))) (rows : List (SlotRow p)) (fee totalIn totalOut : ZMod p),
+      ∃ (rows : List (SlotRow p)) (fee totalIn totalOut : ZMod p),
         rows.map (fun t => t.2.1) = leaves ∧ rows.map (fun t => t.2.2) = us ∧
-        PrivateBatchConstraints perm rounds rows fee totalIn totalOut out := by
+        PrivateBatchConstraints perm rows fee totalIn totalOut out := by
   constructor
   · exact private_batch_complete perm ha
-  · rintro ⟨rounds, rows, fee, totalIn, totalOut, hL, hU, hc⟩
+  · rintro ⟨rows, fee, totalIn, totalOut, hL, hU, hc⟩
     have := hc.sound ha.modulus
     rwa [hL, hU] at this
 

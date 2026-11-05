@@ -1,9 +1,9 @@
 /-
   The private-batch aggregate fee comparator (qp-zk-circuits
-  `private_batch/circuit/circuit_logic.rs`, "Enforce the fee once over the private
-  settlement segment"):
+  `private_batch/circuit/circuit_logic.rs`, "Volume fee over the whole batch"):
 
-      fee_complement = 10000 − volume_fee_bps_ref
+      range_check(volume_fee_bps, 14)
+      fee_complement = 10000 − volume_fee_bps
       range_check(fee_complement, 14)
       lhs  = total_output · 10000
       rhs  = total_input  · fee_complement
@@ -14,19 +14,20 @@
 
       fee ≤ 10000  ∧  out · 10000 ≤ in · (10000 − fee)          (over ℕ)
 
-  Two field-vs-ℕ subtleties make the gadget sound, and both are `Assumptions` the
-  surrounding circuit must supply (the Zellic-style split):
+  Two field-vs-ℕ subtleties make the gadget sound:
 
   * `range_check(10000 − fee, 14)` forces `fee ≤ 10000` only because `fee` is itself
     small: a `fee > 10000` wraps the complement to `p + 10000 − fee`, which the 14-bit
-    check rejects *provided* `fee < 2^32` (true: the leaf circuit range-checks
-    `volume_fee_bps` to 32 bits, and the reference is a leaf's value or the scan's 0).
+    check rejects *provided* `fee` is bounded. `volume_fee_bps` is a prover-chosen batch
+    witness, so the gadget bounds it itself with `range_check(fee, 14)`; nothing upstream
+    is assumed about it.
   * `range_check(rhs − lhs, 52)` forces `lhs ≤ rhs` by a two-sided argument: an honest
     difference is `≤ rhs < 2^52`, and a dishonest one wraps to `p − (lhs − rhs) ≥ p − lhs`,
     which must land *above* `2^52`, i.e. `lhs + 2^52 < p`. Note `lhs` itself may exceed
     `2^52`; the spec supplies exactly these two bounds
     (`WormholeSpec.privateBatchFeeRhs_lt_two_pow_52`,
-    `WormholeSpec.privateBatchFeeLhs_add_two_pow_52_lt_modulus`).
+    `WormholeSpec.privateBatchFeeLhs_add_two_pow_52_lt_modulus`), and they are the
+    `Assumptions` the surrounding circuit must supply (the Zellic-style split).
 
   Both directions are proved: soundness (constraints ⟹ the ℕ inequalities on `.val`)
   and completeness (the ℕ inequalities ⟹ the range checks are satisfiable).
@@ -64,19 +65,18 @@ theorem val_mul_of_lt {a b : ZMod p} (h : a.val * b.val < p) :
 /-- The basis-point denominator, as the circuit constant `from_canonical_u32(10_000)`. -/
 def feeDen : ZMod p := ((10000 : ℕ) : ZMod p)
 
-/-- The two range checks the fee comparator emits. -/
+/-- The three range checks the fee comparator emits. -/
 structure FeeCheck (fee totalIn totalOut : ZMod p) : Prop where
+  /-- `range_check(fee, 14)`: the fee is a free witness, so the gadget bounds it. -/
+  feeRange : rangeCheck fee 14
   /-- `range_check(10000 − fee, 14)`. -/
   comp : rangeCheck (feeDen - fee) 14
   /-- `range_check(rhs − lhs, 52)` with `rhs = in · (10000 − fee)`, `lhs = out · 10000`. -/
   diff : rangeCheck (totalIn * (feeDen - fee) - totalOut * feeDen) 52
 
-/-- What the *surrounding* circuit guarantees about the comparator's inputs. Each is
-    discharged elsewhere: `fee32` by the leaf's `range_check(volume_fee_bps, 32)` through
-    the first-real scan; `rhsBound`/`lhsBound` by the spec's ≤64-leaf, 32-bit-amount
-    bounds. -/
+/-- What the *surrounding* circuit guarantees about the comparator's totals: the spec's
+    ≤64-leaf / ≤64-slot, 32-bit-amount bounds. -/
 structure FeeCheck.Assumptions (fee totalIn totalOut : ZMod p) : Prop where
-  fee32 : fee.val < 2 ^ 32
   rhsBound : totalIn.val * (10000 - fee.val) < 2 ^ 52
   lhsBound : totalOut.val * 10000 + 2 ^ 52 < p
 
@@ -138,7 +138,9 @@ theorem feeCheck_sound (hp : 2 ^ 53 ≤ p) {fee totalIn totalOut : ZMod p}
     (ha : FeeCheck.Assumptions fee totalIn totalOut) (h : FeeCheck fee totalIn totalOut) :
     fee.val ≤ 10000 ∧ totalOut.val * 10000 ≤ totalIn.val * (10000 - fee.val) := by
   have hp33 : 2 ^ 33 ≤ p := le_trans (by decide) hp
-  have hfee := feeComplement_sound hp33 ha.fee32 h.comp
+  have hfee32 : fee.val < 2 ^ 32 :=
+    lt_trans (rangeCheck_sound (le_trans (by decide) hp) h.feeRange) (by decide)
+  have hfee := feeComplement_sound hp33 hfee32 h.comp
   refine ⟨hfee, ?_⟩
   have hdiff := feeCheck_diff_repr hp ha hfee
   have hd := h.diff
@@ -164,7 +166,7 @@ theorem feeCheck_complete (hp : 2 ^ 53 ≤ p) {fee totalIn totalOut : ZMod p}
   have hdval : (totalIn * (feeDen - fee) - totalOut * feeDen).val
       = totalIn.val * (10000 - fee.val) - totalOut.val * 10000 := by
     rw [feeCheck_diff_repr hp ha hfee, val_natCast_sub_of_le (Nat.lt_of_lt_of_le hR hp52) hle]
-  exact ⟨rangeCheck_complete (lt_of_eq_of_lt hcomp (by omega)),
+  exact ⟨rangeCheck_complete (by omega), rangeCheck_complete (lt_of_eq_of_lt hcomp (by omega)),
     rangeCheck_complete (lt_of_eq_of_lt hdval (Nat.lt_of_le_of_lt (Nat.sub_le _ _) hR))⟩
 
 end Plonky2Spec

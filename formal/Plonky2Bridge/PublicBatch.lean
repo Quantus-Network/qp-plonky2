@@ -314,10 +314,12 @@ theorem public_batch_val (ro : RandomOracle) (rows : List (InnerPair p)) {addr :
     (hcAsset : ∀ t ∈ rows, ConsistencyCheck t.1.isDummy t.1.assetId (scanRef rows fun t => t.1.assetId))
     (hcFee : ∀ t ∈ rows, ConsistencyCheck t.1.isDummy t.1.fee (scanRef rows fun t => t.1.fee))
     (hcBlock : ∀ t ∈ rows, DigestConsistencyCheck t.1.isDummy t.1.blockHash (blockRef rows))
-    -- forwarded regions and the slot-count constant
+    -- forwarded regions and the slot-count constants
     (hexits : out.exitSlots = (forwardedSlotsF rows).map valSlot)
     (hnulls : out.nullifiers = (forwardedNullsF rows).map valDigest)
     (hshape : ∀ t ∈ rows, t.1.slots.length = k)
+    -- each inner's slot-count header is `connect`ed to the configured `slots_per_inner`
+    (hcount : ∀ t ∈ rows, t.2.numExitSlots = k)
     (htot : out.totalExitSlots = rows.length * k) :
     RPublicBatch ro (rows.map Prod.snd) addr out := by
   have hb : ∀ t ∈ rows, IsBool t.1.isDummy := fun t ht => (dummyCheck_spec (hdummy t ht)).1
@@ -327,9 +329,12 @@ theorem public_batch_val (ro : RandomOracle) (rows : List (InnerPair p)) {addr :
     innerReference_val_bridge rows hb hd hdecBlock hdecNum hdecAsset hdecFee hblock hnum hasset hfee,
     innerMetadata_val_bridge rows hb hd hdecBlock hdecAsset hdecFee hblock hasset hfee
       hcAsset hcFee hcBlock,
-    ?_, ?_, ?_⟩
+    ?_, ?_, ?_, ?_⟩
   · rw [hexits]; exact forwardedSlotsF_val rows hb hd hdecSlots
   · rw [hnulls]; exact forwardedNullsF_val rows hb hd hdecNulls
+  · intro o ho
+    obtain ⟨t, ht, rfl⟩ := List.mem_map.1 ho
+    rw [hcount t ht, ← hdecSlots t ht, List.length_map, hshape t ht]
   · rw [htot, hexits, List.length_map]; exact (forwardedSlotsF_length rows hshape).symm
 
 /-- **End-to-end public-batch soundness.** A satisfied public-batch wrapper each of whose
@@ -359,13 +364,15 @@ theorem public_batch_end_to_end (ro : RandomOracle) (rows : List (InnerPair p)) 
     (hexits : out.exitSlots = (forwardedSlotsF rows).map valSlot)
     (hnulls : out.nullifiers = (forwardedNullsF rows).map valDigest)
     (hshape : ∀ t ∈ rows, t.1.slots.length = k)
+    -- each inner's slot-count header is `connect`ed to the configured `slots_per_inner`
+    (hcount : ∀ t ∈ rows, t.2.numExitSlots = k)
     (htot : out.totalExitSlots = rows.length * k)
     (hinner : ∀ o ∈ rows.map Prod.snd, ∃ leaves us, RPrivateBatch ro leaves us o) :
     RPublicBatch ro (rows.map Prod.snd) addr out
       ∧ out.totalExitSlots = ((rows.map Prod.snd).map fun o => o.exitSlots.length).sum
       ∧ ∀ o ∈ rows.map Prod.snd, ∃ leaves us, RPrivateBatch ro leaves us o := by
   have hR := public_batch_val ro rows haddr hdummy hdecBlock hdecNum hdecAsset hdecFee hdecSlots
-    hdecNulls hblock hnum hasset hfee hcAsset hcFee hcBlock hexits hnulls hshape htot
+    hdecNulls hblock hnum hasset hfee hcAsset hcFee hcBlock hexits hnulls hshape hcount htot
   exact ⟨hR, RPublicBatch_totalExitSlots hR, hinner⟩
 
 end Plonky2Bridge
