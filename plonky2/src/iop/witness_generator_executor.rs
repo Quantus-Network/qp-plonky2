@@ -444,13 +444,6 @@ struct GenerationScratch<F: Field> {
 }
 
 #[cfg(feature = "std")]
-impl<F: Field> Default for GenerationScratch<F> {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-#[cfg(feature = "std")]
 impl<F: Field> GenerationScratch<F> {
     fn new() -> Self {
         Self {

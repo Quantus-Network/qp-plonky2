@@ -307,7 +307,6 @@ fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
         .collect())
 }
 
-#[derive(Clone, Copy)]
 enum DummyRule {
     Zero,
     Quotient,

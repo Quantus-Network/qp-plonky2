@@ -82,18 +82,11 @@ impl<F: Field> DenseStorage<F> {
         Ok(())
     }
 
-    /// Reads an assigned slot; concurrent access must obey `assign_shared`'s contract.
-    pub(super) fn get(&self, slot: usize) -> F {
-        assert!(self.is_set(slot), "read of unassigned witness slot {slot}");
-        // SAFETY: Safe APIs cannot mutate through shared access. The parallel
-        // executor's unsafe contract orders all reads after slot publication.
-        unsafe { *self.values[slot].get() }
-    }
-
     pub(super) fn try_get(&self, slot: usize) -> Option<F> {
         self.is_set(slot).then(|| {
-            // SAFETY: As for get(), callers of shared writes must order readers
-            // after publication; the assignment byte was checked above.
+            // SAFETY: Safe APIs cannot mutate through shared access. The parallel
+            // executor orders reads after publication; the assignment byte
+            // was checked above.
             unsafe { *self.values[slot].get() }
         })
     }
@@ -104,7 +97,8 @@ impl<F: Field> DenseStorage<F> {
     }
 
     pub(super) fn is_set(&self, slot: usize) -> bool {
-        // SAFETY: As for get(), presence reads must not overlap a slot's writer.
+        // SAFETY: Safe APIs cannot mutate through shared access. The parallel
+        // executor orders presence reads after the slot writer completes.
         unsafe { *self.assigned[slot].get() != 0 }
     }
 
@@ -123,8 +117,7 @@ impl<F: Field> DenseStorage<F> {
     #[cfg(feature = "std")]
     pub(super) unsafe fn assign_shared(&self, slot: usize, value: F) -> Result<()> {
         debug_assert!(self.parallel);
-        if self.is_set(slot) {
-            let old = self.get(slot);
+        if let Some(old) = self.try_get(slot) {
             ensure!(
                 old == value,
                 "Witness slot {slot} was set twice with different values: {old} != {value}"
