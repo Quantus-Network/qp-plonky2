@@ -213,10 +213,6 @@ fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
 ) -> Result<Vec<Target>> {
     let id = generator.id();
     let input_rule = dummy_input_rule(&id)?;
-    ensure!(
-        scratch.num_wires == common.config.num_wires && scratch.degree == common.degree(),
-        "output probe scratch layout does not match the circuit"
-    );
     let reads = generator
         .reads()
         .ok_or_else(|| anyhow!("generator {id} does not declare its reads"))?;
