@@ -7,17 +7,20 @@ use alloc::vec::Vec;
 #[cfg(feature = "std")]
 use std::panic::{catch_unwind, resume_unwind, AssertUnwindSafe};
 #[cfg(feature = "std")]
-use std::sync::Arc;
+use std::sync::{atomic::AtomicUsize, Arc};
+
+#[cfg(feature = "std")]
+use crossbeam_deque::Worker;
 
 use anyhow::{anyhow, ensure, Result};
 
 use crate::field::extension::Extendable;
+#[cfg(feature = "std")]
+use crate::field::types::Field;
 use crate::hash::hash_types::RichField;
 #[cfg(feature = "std")]
 use crate::iop::generation_pool::GenerationPool;
 use crate::iop::generation_schedule::GenerationSchedule;
-#[cfg(feature = "std")]
-use crate::iop::generation_scratch::GenerationScratch;
 use crate::iop::generator::GeneratedValues;
 use crate::iop::scheduling_state::ScheduleChain;
 use crate::iop::target::Target;
@@ -428,5 +431,85 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
             "witness executor cannot continue after failed execution"
         );
         self.witness.set_target(target, value)
+    }
+}
+
+#[cfg(feature = "std")]
+/// Executor-owned allocations reset for each schedule. The witness borrow,
+/// failure state and schedule-chain progress are held separately by the executor.
+#[derive(Debug)]
+struct GenerationScratch<F: Field> {
+    pending_dependencies: Vec<AtomicUsize>,
+    workers: Vec<WorkerScratch<F>>,
+}
+
+#[cfg(feature = "std")]
+impl<F: Field> Default for GenerationScratch<F> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(feature = "std")]
+impl<F: Field> GenerationScratch<F> {
+    fn new() -> Self {
+        Self {
+            pending_dependencies: Vec::new(),
+            workers: Vec::new(),
+        }
+    }
+
+    fn reset(&mut self, counts: &[usize], workers: usize) {
+        assert!(
+            workers > 0,
+            "witness generation requires at least one worker"
+        );
+        self.pending_dependencies
+            .resize_with(counts.len(), || AtomicUsize::new(0));
+        for (pending_dependencies, &count) in self.pending_dependencies.iter_mut().zip(counts) {
+            *pending_dependencies.get_mut() = count;
+        }
+        if self.workers.len() < workers {
+            self.workers.resize_with(workers, WorkerScratch::new);
+        }
+        for worker in &mut self.workers {
+            worker.outputs.target_values.clear();
+            while worker.ready.pop().is_some() {}
+        }
+    }
+
+    /// Seeds balanced worker slices from roots already in circuit-builder order.
+    fn seed_ready(&mut self, initial_ready: &[usize], workers: usize) {
+        debug_assert!(self.workers[..workers]
+            .iter()
+            .all(|worker| worker.ready.is_empty()));
+        // Owners start at the slice's beginning; thieves take from its end.
+        let per_worker = initial_ready.len() / workers;
+        let extra = initial_ready.len() % workers;
+        let mut start = 0;
+        for (index, worker) in self.workers.iter().take(workers).enumerate() {
+            let end = start + per_worker + usize::from(index < extra);
+            for &generator in initial_ready[start..end].iter().rev() {
+                worker.ready.push(generator);
+            }
+            start = end;
+        }
+    }
+}
+
+#[cfg(feature = "std")]
+#[derive(Debug)]
+struct WorkerScratch<F: Field> {
+    outputs: GeneratedValues<F>,
+    ready: Worker<usize>,
+}
+
+#[cfg(feature = "std")]
+impl<F: Field> WorkerScratch<F> {
+    fn new() -> Self {
+        Self {
+            outputs: GeneratedValues::empty(),
+            ready: Worker::new_lifo(),
+        }
     }
 }

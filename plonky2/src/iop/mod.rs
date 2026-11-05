@@ -6,10 +6,7 @@ pub mod ext_target;
 #[cfg(feature = "std")]
 mod generation_pool;
 pub mod generation_schedule;
-#[cfg(feature = "std")]
-mod generation_scratch;
 pub mod generator;
-mod generator_outputs;
 pub mod scheduling_state;
 pub mod target;
 pub mod wire;
