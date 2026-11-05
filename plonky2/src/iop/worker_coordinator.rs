@@ -6,31 +6,31 @@ use std::sync::{Condvar, Mutex};
 use anyhow::{ensure, Error, Result};
 use crossbeam_deque::{Steal, Stealer, Worker};
 
-/// Queues have one owner each. This pool holds only their stealing handles.
-pub(super) struct GenerationPool {
+/// Queues have one owner each. The coordinator holds only their stealing handles.
+pub(super) struct WorkerCoordinator {
     stealers: Vec<Stealer<usize>>,
     stopped: AtomicBool,
-    parking: Mutex<Parking>,
+    state: Mutex<CoordinationState>,
     wake: Condvar,
 }
 
 #[derive(Default)]
-struct Parking {
+struct CoordinationState {
     sleepers: usize,
     exhausted: bool,
     failure: Option<Error>,
 }
 
-impl GenerationPool {
+impl WorkerCoordinator {
     pub(super) fn new(stealers: Vec<Stealer<usize>>) -> Self {
         assert!(
             !stealers.is_empty(),
-            "worker pool requires at least one queue"
+            "worker coordinator requires at least one queue"
         );
         Self {
             stealers,
             stopped: AtomicBool::new(false),
-            parking: Mutex::new(Parking::default()),
+            state: Mutex::new(CoordinationState::default()),
             wake: Condvar::new(),
         }
     }
@@ -79,8 +79,8 @@ impl GenerationPool {
         }
         // Publishers use this same mutex after pushing. Register, then recheck
         // work under the mutex so a notification cannot be lost before wait.
-        let mut parking = self.parking.lock().unwrap_or_else(|e| e.into_inner());
-        parking.sleepers += 1;
+        let mut state = self.state.lock().unwrap_or_else(|e| e.into_inner());
+        state.sleepers += 1;
         let task = loop {
             if self.finished() {
                 break None;
@@ -91,21 +91,21 @@ impl GenerationPool {
             // A worker remains active until it registers under this mutex.
             // If every worker is idle after a full scan, nobody can publish
             // more work. A worker finding work unregisters before unlocking.
-            if parking.sleepers == self.stealers.len() {
-                parking.exhausted = true;
+            if state.sleepers == self.stealers.len() {
+                state.exhausted = true;
                 self.stopped.store(true, Ordering::Release);
                 self.wake.notify_all();
                 break None;
             }
-            parking = self.wake.wait(parking).unwrap_or_else(|e| e.into_inner());
+            state = self.wake.wait(state).unwrap_or_else(|e| e.into_inner());
         };
-        parking.sleepers -= 1;
+        state.sleepers -= 1;
         task
     }
 
     pub(super) fn notify_work(&self) {
-        let parking = self.parking.lock().unwrap_or_else(|e| e.into_inner());
-        if parking.sleepers != 0 {
+        let state = self.state.lock().unwrap_or_else(|e| e.into_inner());
+        if state.sleepers != 0 {
             // A release can expose a wide fan-out on one deque. Wake every
             // sleeper so available work is not left waiting for thieves.
             self.wake.notify_all();
@@ -113,26 +113,26 @@ impl GenerationPool {
     }
 
     pub(super) fn fail(&self, error: Error) {
-        let mut parking = self.parking.lock().unwrap_or_else(|e| e.into_inner());
-        if parking.failure.is_none() {
-            parking.failure = Some(error);
+        let mut state = self.state.lock().unwrap_or_else(|e| e.into_inner());
+        if state.failure.is_none() {
+            state.failure = Some(error);
         }
         self.stopped.store(true, Ordering::Release);
         self.wake.notify_all();
     }
 
     pub(super) fn abort(&self) {
-        let _parking = self.parking.lock().unwrap_or_else(|e| e.into_inner());
+        let _state = self.state.lock().unwrap_or_else(|e| e.into_inner());
         self.stopped.store(true, Ordering::Release);
         self.wake.notify_all();
     }
 
     pub(super) fn finish(self) -> Result<()> {
-        let parking = self.parking.into_inner().unwrap_or_else(|e| e.into_inner());
-        if let Some(error) = parking.failure {
+        let state = self.state.into_inner().unwrap_or_else(|e| e.into_inner());
+        if let Some(error) = state.failure {
             return Err(error);
         }
-        ensure!(parking.exhausted, "runnable witness work did not complete");
+        ensure!(state.exhausted, "runnable witness work did not complete");
         Ok(())
     }
 }

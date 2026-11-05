@@ -7,11 +7,11 @@ use anyhow::{anyhow, Result};
 
 /// Identifies schedules planned together by one scheduler.
 #[derive(Debug)]
-pub(super) struct ScheduleChain {
+pub(super) struct ScheduleChainId {
     scheduler: Arc<()>,
 }
 
-impl ScheduleChain {
+impl ScheduleChainId {
     pub(super) fn matches_scheduler(&self, scheduler: &Arc<()>) -> bool {
         Arc::ptr_eq(&self.scheduler, scheduler)
     }
@@ -23,7 +23,7 @@ impl ScheduleChain {
 pub struct SchedulingState {
     classes_set: Vec<u8>,
     generators_scheduled: Vec<u8>,
-    chain: Arc<ScheduleChain>,
+    chain_id: Arc<ScheduleChainId>,
     next_schedule: usize,
     newly_supplied: Vec<usize>,
 }
@@ -37,7 +37,7 @@ impl SchedulingState {
         Self {
             classes_set: vec![0; num_representatives],
             generators_scheduled: vec![0; num_generators],
-            chain: Arc::new(ScheduleChain { scheduler }),
+            chain_id: Arc::new(ScheduleChainId { scheduler }),
             next_schedule: 0,
             newly_supplied: Vec::new(),
         }
@@ -51,7 +51,7 @@ impl SchedulingState {
         Self {
             classes_set: classes_set.to_vec(),
             generators_scheduled: vec![0; num_generators],
-            chain: Arc::new(ScheduleChain { scheduler }),
+            chain_id: Arc::new(ScheduleChainId { scheduler }),
             next_schedule: 0,
             newly_supplied: classes_set
                 .iter()
@@ -74,15 +74,15 @@ impl SchedulingState {
         Ok(())
     }
 
-    pub(super) fn chain(&self) -> &Arc<ScheduleChain> {
-        &self.chain
+    pub(super) fn chain_id(&self) -> &Arc<ScheduleChainId> {
+        &self.chain_id
     }
 
-    pub(super) fn finish_schedule(&mut self) -> (Arc<ScheduleChain>, usize, Vec<usize>) {
+    pub(super) fn finish_schedule(&mut self) -> (Arc<ScheduleChainId>, usize, Vec<usize>) {
         let index = self.next_schedule;
         self.next_schedule = index.checked_add(1).expect("schedule index overflow");
         (
-            Arc::clone(&self.chain),
+            Arc::clone(&self.chain_id),
             index,
             core::mem::take(&mut self.newly_supplied),
         )
@@ -125,8 +125,8 @@ impl SchedulingState {
     pub fn reset(&mut self) {
         self.classes_set.fill(0);
         self.generators_scheduled.fill(0);
-        self.chain = Arc::new(ScheduleChain {
-            scheduler: Arc::clone(&self.chain.scheduler),
+        self.chain_id = Arc::new(ScheduleChainId {
+            scheduler: Arc::clone(&self.chain_id.scheduler),
         });
         self.next_schedule = 0;
         self.newly_supplied.clear();

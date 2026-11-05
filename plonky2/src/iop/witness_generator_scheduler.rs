@@ -138,7 +138,9 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     /// schedule is valid. All nonzero state bytes mean assumed available.
     pub fn make_schedule(&self, state: &mut SchedulingState) -> Result<GenerationSchedule> {
         ensure!(
-            state.chain().matches_scheduler(self.execution.identity()),
+            state
+                .chain_id()
+                .matches_scheduler(self.execution.identity()),
             "scheduling state belongs to another scheduler"
         );
         Ok(make_schedule(
@@ -210,7 +212,7 @@ fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
     scratch: &mut PartitionWitness<'_, F>,
 ) -> Result<Vec<Target>> {
     let id = generator.id();
-    let rule = dummy_rule(&id)?;
+    let input_rule = dummy_input_rule(&id)?;
     ensure!(
         scratch.num_wires == common.config.num_wires && scratch.degree == common.degree(),
         "output probe scratch layout does not match the circuit"
@@ -218,22 +220,22 @@ fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
     let reads = generator
         .reads()
         .ok_or_else(|| anyhow!("generator {id} does not declare its reads"))?;
-    let override_value = match rule {
-        DummyRule::Zero => None,
-        DummyRule::Quotient => {
+    let override_value = match input_rule {
+        DummyInputRule::Zero => None,
+        DummyInputRule::Quotient => {
             ensure!(
                 D > 0 && D.checked_mul(2) == Some(reads.len()),
                 "unexpected quotient read declaration for {id}"
             );
             Some((reads[D], F::ONE))
         }
-        DummyRule::Interpolation => Some((
+        DummyInputRule::Interpolation => Some((
             *reads
                 .first()
                 .ok_or_else(|| anyhow!("{id} has no shift input"))?,
             F::ONE,
         )),
-        DummyRule::Lookup => {
+        DummyInputRule::Lookup => {
             ensure!(
                 reads.len() == 1,
                 "unexpected lookup read declaration for {id}"
@@ -307,18 +309,18 @@ fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
         .collect())
 }
 
-enum DummyRule {
+enum DummyInputRule {
     Zero,
     Quotient,
     Interpolation,
     Lookup,
 }
 
-fn dummy_rule(id: &str) -> Result<DummyRule> {
+fn dummy_input_rule(id: &str) -> Result<DummyInputRule> {
     match id {
-        "QuotientGeneratorExtension" => Ok(DummyRule::Quotient),
-        "InterpolationGenerator" => Ok(DummyRule::Interpolation),
-        "LookupGenerator" => Ok(DummyRule::Lookup),
+        "QuotientGeneratorExtension" => Ok(DummyInputRule::Quotient),
+        "InterpolationGenerator" => Ok(DummyInputRule::Interpolation),
+        "LookupGenerator" => Ok(DummyInputRule::Lookup),
         "ArithmeticBaseGenerator"
         | "ArithmeticExtensionGenerator"
         | "MulExtensionGenerator"
@@ -340,16 +342,16 @@ fn dummy_rule(id: &str) -> Result<DummyRule> {
         | "CopyGenerator"
         | "RandomValueGenerator"
         | "NonzeroTestGenerator"
-        | "ConstantGenerator" => Ok(DummyRule::Zero),
+        | "ConstantGenerator" => Ok(DummyInputRule::Zero),
         _ => {
             if let Some(base) = id.strip_prefix("BaseSplitGenerator + Base: ") {
                 let base = parse_base(id, base)?;
                 ensure!(base != 0, "invalid zero base for {id}");
-                return Ok(DummyRule::Zero);
+                return Ok(DummyInputRule::Zero);
             }
             if let Some(base) = id.strip_prefix("BaseSumGenerator + Base: ") {
                 parse_base(id, base)?;
-                return Ok(DummyRule::Zero);
+                return Ok(DummyInputRule::Zero);
             }
             Err(anyhow!(
                 "unsupported generator ID for output discovery: {id}"

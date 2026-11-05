@@ -8,7 +8,7 @@ use std::sync::{
     Arc,
 };
 
-use crate::iop::scheduling_state::{ScheduleChain, SchedulingState};
+use crate::iop::scheduling_state::{ScheduleChainId, SchedulingState};
 
 /// Execution order and dependencies for a runnable subset of circuit generators.
 /// Graph indices are local; `order` maps them to circuit generator indices.
@@ -19,7 +19,7 @@ pub struct GenerationSchedule {
     successor_offsets: Vec<usize>,
     successors: Vec<usize>,
     initial_ready: Vec<usize>,
-    chain: Arc<ScheduleChain>,
+    chain_id: Arc<ScheduleChainId>,
     index: usize,
     newly_supplied: Vec<usize>,
 }
@@ -33,14 +33,14 @@ impl GenerationSchedule {
         successors: Vec<usize>,
         initial_ready: Vec<usize>,
     ) -> Self {
-        let (chain, index, newly_supplied) = state.finish_schedule();
+        let (chain_id, index, newly_supplied) = state.finish_schedule();
         Self {
             order,
             dependency_counts,
             successor_offsets,
             successors,
             initial_ready,
-            chain,
+            chain_id,
             index,
             newly_supplied,
         }
@@ -51,8 +51,8 @@ impl GenerationSchedule {
         self.index
     }
 
-    pub(super) fn chain(&self) -> &Arc<ScheduleChain> {
-        &self.chain
+    pub(super) fn chain_id(&self) -> &Arc<ScheduleChainId> {
+        &self.chain_id
     }
 
     pub(super) fn newly_supplied(&self) -> &[usize] {

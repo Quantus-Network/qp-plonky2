@@ -18,14 +18,14 @@ use crate::field::extension::Extendable;
 #[cfg(feature = "std")]
 use crate::field::types::Field;
 use crate::hash::hash_types::RichField;
-#[cfg(feature = "std")]
-use crate::iop::generation_pool::GenerationPool;
 use crate::iop::generation_schedule::GenerationSchedule;
 use crate::iop::generator::GeneratedValues;
-use crate::iop::scheduling_state::ScheduleChain;
+use crate::iop::scheduling_state::ScheduleChainId;
 use crate::iop::target::Target;
 use crate::iop::witness::{PartitionWitness, WitnessWrite};
 use crate::iop::witness_generator_scheduler::WitnessGeneratorScheduler;
+#[cfg(feature = "std")]
+use crate::iop::worker_coordinator::WorkerCoordinator;
 use crate::plonk::circuit_data::CircuitData;
 use crate::plonk::config::GenericConfig;
 
@@ -169,7 +169,7 @@ pub struct WitnessGeneratorExecutor<
     outputs: GeneratedValues<F>,
     #[cfg(feature = "std")]
     scratch: GenerationScratch<F>,
-    chain: Option<Arc<ScheduleChain>>,
+    chain_id: Option<Arc<ScheduleChainId>>,
     next_schedule: usize,
     failed: bool,
 }
@@ -203,7 +203,7 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
             outputs: GeneratedValues::empty(),
             #[cfg(feature = "std")]
             scratch: GenerationScratch::new(),
-            chain: None,
+            chain_id: None,
             next_schedule: 0,
             failed: false,
         })
@@ -221,13 +221,13 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         );
         ensure!(
             schedule
-                .chain()
+                .chain_id()
                 .matches_scheduler(self.execution.identity()),
             "schedule belongs to another scheduler"
         );
-        if let Some(chain) = &self.chain {
+        if let Some(chain_id) = &self.chain_id {
             ensure!(
-                Arc::ptr_eq(chain, schedule.chain()),
+                Arc::ptr_eq(chain_id, schedule.chain_id()),
                 "schedule belongs to another chain"
             );
         }
@@ -248,8 +248,8 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
     }
 
     fn finish_schedule(&mut self, schedule: &GenerationSchedule) {
-        if self.chain.is_none() {
-            self.chain = Some(Arc::clone(schedule.chain()));
+        if self.chain_id.is_none() {
+            self.chain_id = Some(Arc::clone(schedule.chain_id()));
         }
         self.next_schedule = schedule
             .index()
@@ -322,7 +322,7 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         let pending_dependencies = &scratch.pending_dependencies;
         let mut workers = core::mem::take(&mut scratch.workers);
         let inactive = workers.split_off(num_threads);
-        let pool = GenerationPool::new(
+        let coordinator = WorkerCoordinator::new(
             workers
                 .iter()
                 .map(|worker| worker.ready.stealer())
@@ -334,13 +334,15 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
                 let mut handles = Vec::with_capacity(num_threads);
                 for (index, mut worker) in workers.into_iter().enumerate() {
                     let witness = &*witness;
-                    let pool = &pool;
+                    let coordinator = &coordinator;
                     // Each deque moves with its owning worker; only its Stealer is shared.
                     let handle = std::thread::Builder::new().spawn_scoped(scope, move || {
                         let mut completed = 0;
                         let result = catch_unwind(AssertUnwindSafe(|| {
                             let mut victim = (index + 1) % num_threads;
-                            while let Some(local) = pool.next(&worker.ready, index, &mut victim) {
+                            while let Some(local) =
+                                coordinator.next(&worker.ready, index, &mut victim)
+                            {
                                 let generator = schedule.order()[local];
                                 // SAFETY: The caller guarantees stable, complete access
                                 // sets. Counter AcqRel publication and deque handoff
@@ -353,7 +355,7 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
                                     )
                                 };
                                 if let Err(error) = result {
-                                    pool.fail(error);
+                                    coordinator.fail(error);
                                     return;
                                 }
                                 let pushed = schedule.release_successors(
@@ -364,13 +366,13 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
                                     },
                                 );
                                 if pushed {
-                                    pool.notify_work();
+                                    coordinator.notify_work();
                                 }
                                 completed += 1;
                             }
                         }));
                         if let Err(panic) = result {
-                            pool.abort();
+                            coordinator.abort();
                             resume_unwind(panic);
                         }
                         (worker, completed)
@@ -378,7 +380,8 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
                     match handle {
                         Ok(handle) => handles.push(handle),
                         Err(error) => {
-                            pool.fail(anyhow!("could not spawn witness worker {index}: {error}"));
+                            coordinator
+                                .fail(anyhow!("could not spawn witness worker {index}: {error}"));
                             break;
                         }
                     }
@@ -412,7 +415,7 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         };
         scratch.workers = workers;
         scratch.workers.extend(inactive);
-        pool.finish()?;
+        coordinator.finish()?;
         ensure!(
             completed == schedule.order().len(),
             "completed {completed} of {} scheduled witness generators",
