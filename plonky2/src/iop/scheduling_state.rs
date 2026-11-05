@@ -113,7 +113,7 @@ impl SchedulingState {
         self.generators_scheduled.iter().all(|&flag| flag != 0)
     }
 
-    pub fn num_classes_set(&self) -> usize {
+    pub fn num_assumed_assigned(&self) -> usize {
         self.assumed_assigned
             .iter()
             .filter(|&&flag| flag != 0)

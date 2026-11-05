@@ -92,7 +92,7 @@ impl<F: Field> DenseStorage<F> {
     }
 
     /// Marks a slot unassigned without clearing its stored value.
-    pub(super) fn clear(&mut self, rep_index: usize) {
+    pub(super) fn clear_assignment(&mut self, rep_index: usize) {
         *self.assigned[rep_index].get_mut() = 0;
     }
 
