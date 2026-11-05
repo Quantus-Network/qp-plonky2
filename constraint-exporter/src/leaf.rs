@@ -23,11 +23,12 @@ use crate::trace::{check_verifiers, load, traces_dir, LoadedTrace};
 
 /// The leaf public-input layout (`qp-wormhole-inputs`).
 mod layout {
-    pub const LEAF_PI_LEN: usize = 22;
-    pub const NULLIFIER: usize = 4;
-    pub const BLOCK_HASH: usize = 16;
-    pub const BLOCK_NUMBER: usize = 20;
-    pub const INPUT_AMOUNT: usize = 21;
+    pub const LEAF_PI_LEN: usize = 11;
+    pub const ASSET_ID: usize = 0;
+    pub const NULLIFIER: usize = 1;
+    pub const BLOCK_HASH: usize = 5;
+    pub const BLOCK_NUMBER: usize = 9;
+    pub const INPUT_AMOUNT: usize = 10;
 }
 
 const MAX_DEPTH: usize = 16;
@@ -95,8 +96,8 @@ pub struct Shape {
     assert_bool: usize,
     wa_hash: (usize, usize),
     wa_connect: [usize; 4],
-    /// `range_check 32` on `tc0, tc1, asset_id, input_amount, out1, out2, fee`.
-    range32: [usize; 7],
+    /// `range_check 32` on `tc0, tc1, asset_id, input_amount`.
+    range32: [usize; 4],
     leaf_hash: usize,
     leaf_out: [Target; 4],
     depth_split: usize,
@@ -109,10 +110,13 @@ pub struct Shape {
     secret_connect: [usize; 4],
     tc_connect: [usize; 2],
     account_connect: [usize; 4],
-    dummy_eq: [usize; 6],
-    /// `and(e0, e1)`, `and(e2, e3)`, `and(·, ·)`, `and(e4, e5)`, `and(·, ·)`.
-    dummy_and: [usize; 5],
+    dummy_eq: [usize; 4],
+    /// `and(e0, e1)`, `and(e2, e3)`, `and(·, ·)`.
+    dummy_and: [usize; 3],
     dummy_sub: usize,
+    /// `mul(is_dummy, input_amount)` and its `connect` to zero.
+    dummy_input_mul: usize,
+    dummy_input_zero: usize,
     dummy_connect: usize,
     null_hash: (usize, usize),
     null_bind: [Gate; 4],
@@ -349,7 +353,7 @@ impl Shape {
         let named4 = |name: &str| -> Result<[Target; 4], String> { arr4(named(name)?) };
         let pis = t.ex.public_inputs.clone();
         if pis.len() != layout::LEAF_PI_LEN {
-            return Err(format!("expected 22 public inputs, found {}", pis.len()));
+            return Err(format!("expected 11 public inputs, found {}", pis.len()));
         }
         let secret = named4("secret")?;
         let transfer_count = <[Target; 2]>::try_from(named("transfer_count")?.as_slice())
@@ -472,15 +476,12 @@ impl Shape {
                 Fact::RangeCheck { x, bits: 32 } => Some(x),
                 _ => None,
             })?;
-            let r2 = c.range_check(pis[0], 32, "asset_id")?;
+            let r2 = c.range_check(pis[layout::ASSET_ID], 32, "asset_id")?;
             let r3 = c.range_check(pis[layout::INPUT_AMOUNT], 32, "input_amount")?;
-            let r4 = c.range_check(pis[1], 32, "output_amount_1")?;
-            let r5 = c.range_check(pis[2], 32, "output_amount_2")?;
-            let r6 = c.range_check(pis[3], 32, "volume_fee_bps")?;
             let mut inputs = to_account.to_vec();
-            inputs.extend([tc0, tc1, pis[0], pis[layout::INPUT_AMOUNT]]);
+            inputs.extend([tc0, tc1, pis[layout::ASSET_ID], pis[layout::INPUT_AMOUNT]]);
             let (kh, out) = c.poseidon2(&inputs, "the leaf hash")?;
-            ([tc0, tc1], [r0, r1, r2, r3, r4, r5, r6], kh, out)
+            ([tc0, tc1], [r0, r1, r2, r3], kh, out)
         };
 
         // enforce_target_less_than_const(depth, MAX_DEPTH + 1, 5).
@@ -610,8 +611,8 @@ impl Shape {
         for j in 0..4 {
             account_connect[j] = c.connect(account_id[j], to_account[j], "to_account")?;
         }
-        let mut dummy_eq = [0; 6];
-        let mut de = [k.zero; 6];
+        let mut dummy_eq = [0; 4];
+        let mut de = [k.zero; 4];
         for j in 0..4 {
             let (kk, flag) = c.is_equal(pis[layout::BLOCK_HASH + j], k.zero, "block_hash == 0")?;
             dummy_eq[j] = kk;
@@ -619,15 +620,14 @@ impl Shape {
         }
         let (ka, fa) = c.and(de[0], de[1], "dummy and(e0, e1)")?;
         let (kb, fb) = c.and(de[2], de[3], "dummy and(e2, e3)")?;
-        let (kc, fc) = c.and(fa, fb, "dummy and-root of block_hash")?;
-        for j in 0..2 {
-            let (kk, flag) = c.is_equal(pis[1 + j], k.zero, "output_amount == 0")?;
-            dummy_eq[4 + j] = kk;
-            de[4 + j] = flag;
-        }
-        let (kd, fd) = c.and(de[4], de[5], "dummy and(e4, e5)")?;
-        let (ke, is_dummy) = c.and(fc, fd, "is_dummy")?;
+        let (kc, is_dummy) = c.and(fa, fb, "is_dummy")?;
         let (dummy_sub, not_dummy) = c.sub(k.one, is_dummy, "is_not_dummy = 1 - is_dummy")?;
+        let (dummy_input_mul, dummy_input) = c.mul(
+            is_dummy,
+            pis[layout::INPUT_AMOUNT],
+            "is_dummy * input_amount",
+        )?;
+        let dummy_input_zero = c.connect(dummy_input, k.zero, "is_dummy * input_amount == 0")?;
         let dummy_connect = c.connect(is_not_dummy, not_dummy, "is_not_dummy")?;
 
         let (n1, (null_salt, null_mid)) = c.expect("the nullifier salt hash", |f| match f {
@@ -736,8 +736,10 @@ impl Shape {
             tc_connect,
             account_connect,
             dummy_eq,
-            dummy_and: [ka, kb, kc, kd, ke],
+            dummy_and: [ka, kb, kc],
             dummy_sub,
+            dummy_input_mul,
+            dummy_input_zero,
             dummy_connect,
             null_hash: (n1, n2),
             null_bind,
@@ -860,12 +862,12 @@ pub fn render(shape: &Shape, t: &LoadedTrace) -> String {
         "  `CircuitBuilder` emitted plus `Poseidon2Rows perm`, the meaning of each of the {} gadget",
         shape.calls.len()
     );
-    w!("  calls `build_leaf_constraints` made. This module reads `LeafPublic` off the 22 public");
+    w!("  calls `build_leaf_constraints` made. This module reads `LeafPublic` off the 11 public");
     w!("  inputs and `LeafWitness` off the named witness targets, and assembles `Rleaf` from the");
     w!("  lemmas of `Plonky2Bridge/Leaf.lean`: the wormhole address and nullifier double hashes,");
     w!("  the leaf hash, the depth bound, the sixteen gated Merkle levels (`gatedWalk` =");
-    w!("  `computeRoot` over the first `depth` levels), the dummy flag and the `is_not_dummy`-gated");
-    w!("  bindings. The salts the circuit bakes in are checked by the exporter against the");
+    w!("  `computeRoot` over the first `depth` levels), the dummy flag, the dummy burn constraint");
+    w!("  `is_dummy * input_amount = 0` and the `is_not_dummy`-gated bindings. The salts the circuit bakes in are checked by the exporter against the");
     w!("  spec's `wormholeSalt` / `nullifierSalt` encodings, which the hash lemmas are stated on.");
     w!("-/");
     w!("import Plonky2Bridge.Leaf");
@@ -891,21 +893,19 @@ pub fn render(shape: &Shape, t: &LoadedTrace) -> String {
     w!("");
     w!("/-- The leaf public inputs, decoded through `.val`. -/");
     w!("def pub (a : Assignment p) : LeafPublic :=");
+    w!("  {{ assetId := {},", val(pis[layout::ASSET_ID]));
     w!(
-        "  {{ assetId := {}, outputAmount1 := {}, outputAmount2 := {},",
-        val(pis[0]),
-        val(pis[1]),
-        val(pis[2])
+        "    nullifier := {},",
+        d4(&pis[layout::NULLIFIER..layout::NULLIFIER + 4])
     );
-    w!("    volumeFeeBps := {},", val(pis[3]));
-    w!("    nullifier := {},", d4(&pis[4..8]));
-    w!("    exitAccount1 := {},", d4(&pis[8..12]));
-    w!("    exitAccount2 := {},", d4(&pis[12..16]));
-    w!("    blockHash := {},", d4(&pis[16..20]));
+    w!(
+        "    blockHash := {},",
+        d4(&pis[layout::BLOCK_HASH..layout::BLOCK_HASH + 4])
+    );
     w!(
         "    blockNumber := {}, inputAmount := {} }}",
-        val(pis[20]),
-        val(pis[21])
+        val(pis[layout::BLOCK_NUMBER]),
+        val(pis[layout::INPUT_AMOUNT])
     );
     w!("");
     w!("/-- The sixteen recorded Merkle levels: position hint and the three sibling digests");
@@ -1138,23 +1138,33 @@ pub fn render(shape: &Shape, t: &LoadedTrace) -> String {
         shape.have_fact(&mut o, k);
     }
     shape.have_fact(&mut o, shape.dummy_sub);
+    shape.have_fact(&mut o, shape.dummy_input_mul);
+    shape.have_fact(&mut o, shape.dummy_input_zero);
     shape.have_fact(&mut o, shape.dummy_connect);
     let de = shape.dummy_eq;
     let da = shape.dummy_and;
     w!(
-        "  have hnd := notDummy_spec f{} f{} f{} f{} f{} f{} f{} f{} f{} f{} f{} f{}",
+        "  have hnd := notDummy_spec f{} f{} f{} f{} f{} f{} f{} f{}",
         de[0],
         de[1],
         de[2],
         de[3],
-        de[4],
-        de[5],
         da[0],
         da[1],
         da[2],
-        da[3],
-        da[4],
         shape.dummy_sub
+    );
+    w!(
+        "  have hburn := dummyBurn_spec f{} f{} f{} f{} f{} f{} f{} f{} f{}",
+        de[0],
+        de[1],
+        de[2],
+        de[3],
+        da[0],
+        da[1],
+        da[2],
+        shape.dummy_input_mul,
+        shape.dummy_input_zero
     );
     let (n1, n2) = shape.null_hash;
     shape.have_fact(&mut o, n1);
@@ -1177,18 +1187,12 @@ pub fn render(shape: &Shape, t: &LoadedTrace) -> String {
     // Assemble Rleaf.
     w!("  simp only [Rleaf, pub, wit, LeafPublic.isDummy, WormholeSpec.maxDepth]");
     w!(
-        "  refine ⟨inRange32 hpg f{}, inRange32 hpg f{}, inRange32 hpg f{}, inRange32 hpg f{},",
-        shape.range32[4],
-        shape.range32[5],
+        "  refine ⟨inRange32 hpg f{}, inRange32 hpg f{}, inRange32 hpg f{}, rfl, ?_, hWA,",
         shape.range32[3],
-        shape.range32[2]
-    );
-    w!(
-        "    inRange32 hpg f{}, inRange32 hpg f{}, rfl, ?_, hWA, levels_length rfl hdepth, hdepth,",
-        shape.range32[6],
+        shape.range32[2],
         shape.bn_range
     );
-    w!("    levels_pos ?_ _, ?_⟩");
+    w!("    levels_length rfl hdepth, hdepth, levels_pos ?_ _, hburn, ?_⟩");
     w!("  · intro t ht");
     w!("    simp only [List.mem_cons, List.not_mem_nil, or_false] at ht");
     w!("    rcases ht with rfl | rfl");
@@ -1243,7 +1247,7 @@ pub fn render(shape: &Shape, t: &LoadedTrace) -> String {
     w!("");
     w!("/-! ### The leaf as a recursion-tree node (PLAN.md Step 10) -/");
     w!("");
-    w!("/-- The 22 public inputs in registration order. -/");
+    w!("/-- The 11 public inputs in registration order. -/");
     w!("def pi : Fin {} → Target :=", layout::LEAF_PI_LEN);
     let pi_items: Vec<String> = pis.iter().map(|&t| lean_target(t)).collect();
     w!("  ![{}]", pi_items.join(", "));
@@ -1259,17 +1263,9 @@ pub fn render(shape: &Shape, t: &LoadedTrace) -> String {
     let v = |k: usize| format!("(v {k}).val");
     let vd4 = |k: usize| format!("D4 (v {k}) (v {}) (v {}) (v {})", k + 1, k + 2, k + 3);
     w!(
-        "  {{ assetId := {}, outputAmount1 := {}, outputAmount2 := {}, volumeFeeBps := {},",
-        v(0),
-        v(1),
-        v(2),
-        v(3)
-    );
-    w!(
-        "    nullifier := {}, exitAccount1 := {}, exitAccount2 := {},",
-        vd4(layout::NULLIFIER),
-        vd4(8),
-        vd4(12)
+        "  {{ assetId := {}, nullifier := {},",
+        v(layout::ASSET_ID),
+        vd4(layout::NULLIFIER)
     );
     w!(
         "    blockHash := {}, blockNumber := {}, inputAmount := {} }}",

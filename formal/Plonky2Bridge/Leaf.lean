@@ -211,37 +211,50 @@ theorem isEqual_indicator {x y e i : ZMod p} (h : IsEqual x y e i) :
     · exact h0
     · exact absurd ((isEqual_iff h).mp h1) hxy
 
-/-- `is_dummy = and(and(and(e0, e1), and(e2, e3)), and(e4, e5))` over the `is_equal(·, 0)`
-    flags of the block-hash limbs and the two output amounts, and
-    `is_not_dummy = 1 - is_dummy`. -/
-theorem notDummy_spec {h0 h1 h2 h3 o1 o2 e0 e1 e2 e3 e4 e5 i0 i1 i2 i3 i4 i5 a01 a23 a45 a03
-    d nd : ZMod p}
+/-- `is_dummy = and(and(e0, e1), and(e2, e3))` over the `is_equal(·, 0)` flags of the
+    block-hash limbs. The flag is boolean and is `1` exactly on the dummy sentinel. -/
+theorem dummy_spec {h0 h1 h2 h3 e0 e1 e2 e3 i0 i1 i2 i3 a01 a23 d : ZMod p}
     (q0 : IsEqual h0 0 e0 i0) (q1 : IsEqual h1 0 e1 i1) (q2 : IsEqual h2 0 e2 i2)
-    (q3 : IsEqual h3 0 e3 i3) (q4 : IsEqual o1 0 e4 i4) (q5 : IsEqual o2 0 e5 i5)
-    (ha01 : a01 = band e0 e1) (ha23 : a23 = band e2 e3) (ha03 : a03 = band a01 a23)
-    (ha45 : a45 = band e4 e5) (hd : d = band a03 a45) (hnd : nd = 1 - d) :
-    IsBool nd ∧ (nd = 1 ↔ ¬ (D4 h0 h1 h2 h3 = Digest.zero ∧ o1.val = 0 ∧ o2.val = 0)) := by
+    (q3 : IsEqual h3 0 e3 i3)
+    (ha01 : a01 = band e0 e1) (ha23 : a23 = band e2 e3) (hd : d = band a01 a23) :
+    IsBool d ∧ (d = 1 ↔ D4 h0 h1 h2 h3 = Digest.zero) := by
   have b0 := isEqual_isBool q0
   have b1 := isEqual_isBool q1
   have b2 := isEqual_isBool q2
   have b3 := isEqual_isBool q3
-  have b4 := isEqual_isBool q4
-  have b5 := isEqual_isBool q5
   have b01 : IsBool a01 := ha01 ▸ Plonky2Spec.band_isBool b0 b1
   have b23 : IsBool a23 := ha23 ▸ Plonky2Spec.band_isBool b2 b3
-  have b03 : IsBool a03 := ha03 ▸ Plonky2Spec.band_isBool b01 b23
-  have b45 : IsBool a45 := ha45 ▸ Plonky2Spec.band_isBool b4 b5
-  have hdb : IsBool d := hd ▸ Plonky2Spec.band_isBool b03 b45
-  have hd1 : d = 1 ↔ D4 h0 h1 h2 h3 = Digest.zero ∧ o1.val = 0 ∧ o2.val = 0 := by
-    rw [hd, band_eq_one b03 b45, ha03, band_eq_one b01 b23, ha01, ha23, ha45,
-      band_eq_one b0 b1, band_eq_one b2 b3, band_eq_one b4 b5,
-      isEqual_iff q0, isEqual_iff q1, isEqual_iff q2, isEqual_iff q3, isEqual_iff q4,
-      isEqual_iff q5, D4_eq_zero_iff, ZMod.val_eq_zero, ZMod.val_eq_zero]
-    tauto
+  refine ⟨hd ▸ Plonky2Spec.band_isBool b01 b23, ?_⟩
+  rw [hd, band_eq_one b01 b23, ha01, ha23, band_eq_one b0 b1, band_eq_one b2 b3,
+    isEqual_iff q0, isEqual_iff q1, isEqual_iff q2, isEqual_iff q3, D4_eq_zero_iff]
+  tauto
+
+/-- `is_not_dummy = 1 - is_dummy` is boolean and is `1` exactly off the dummy sentinel. -/
+theorem notDummy_spec {h0 h1 h2 h3 e0 e1 e2 e3 i0 i1 i2 i3 a01 a23 d nd : ZMod p}
+    (q0 : IsEqual h0 0 e0 i0) (q1 : IsEqual h1 0 e1 i1) (q2 : IsEqual h2 0 e2 i2)
+    (q3 : IsEqual h3 0 e3 i3)
+    (ha01 : a01 = band e0 e1) (ha23 : a23 = band e2 e3) (hd : d = band a01 a23)
+    (hnd : nd = 1 - d) :
+    IsBool nd ∧ (nd = 1 ↔ ¬ D4 h0 h1 h2 h3 = Digest.zero) := by
+  obtain ⟨hdb, hd1⟩ := dummy_spec q0 q1 q2 q3 ha01 ha23 hd
   refine ⟨?_, ?_⟩
   · rw [hnd]; exact Plonky2Spec.bnot_isBool hdb
   · rw [hnd, ← hd1]
     rcases hdb with h | h <;> rw [h] <;> norm_num
+
+/-- The dummy burn constraint `is_dummy * input_amount = 0`: a dummy leaf's `input_amount`
+    decodes to `0`. -/
+theorem dummyBurn_spec {h0 h1 h2 h3 e0 e1 e2 e3 i0 i1 i2 i3 a01 a23 d x prod : ZMod p}
+    (q0 : IsEqual h0 0 e0 i0) (q1 : IsEqual h1 0 e1 i1) (q2 : IsEqual h2 0 e2 i2)
+    (q3 : IsEqual h3 0 e3 i3)
+    (ha01 : a01 = band e0 e1) (ha23 : a23 = band e2 e3) (hd : d = band a01 a23)
+    (hm : prod = d * x) (hz : prod = 0) :
+    D4 h0 h1 h2 h3 = Digest.zero → x.val = 0 := by
+  intro hsent
+  obtain ⟨-, hd1⟩ := dummy_spec q0 q1 q2 q3 ha01 ha23 hd
+  rw [hd1.mpr hsent, one_mul] at hm
+  rw [ZMod.val_eq_zero]
+  exact hm.symm.trans hz
 
 /-- `(x - y) * flag` connected to zero, with the flag `1`: `x = y`. -/
 theorem bind_of_gate {x y diff prod flag : ZMod p} (hd : diff = x - y) (hm : prod = diff * flag)

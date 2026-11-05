@@ -25,28 +25,17 @@ fn wrapper(n: usize) -> constraint_exporter::trace::LoadedTrace {
     load(&traces_dir().join(trace_name(n))).expect("vendored wrapper trace")
 }
 
-/// `permute_digests4` over `n` positions: round `r` switches the pairs starting at `r mod 2`.
-fn switch_count(n: usize) -> usize {
-    (0..n).map(|r| (n - r % 2) / 2).sum()
+/// The exit-slot count `M` the vendored `n`-leaf traces were recorded with (`M = N`).
+fn slots(n: usize) -> usize {
+    n
 }
 
-/// The gadget calls `build_private_batch_constraints` makes for `n` leaves: dummy checks
-/// (7 per leaf), the header scan (10), consistency (13), candidate masks (10), input total
-/// (2), output total (2 per leaf), the fee comparator (6), the grouping loop
-/// (`52n² + 4n`), uniqueness (`n + 11·n(n−1)/2`), dummy nullifiers (6 per leaf) and the
-/// switch network (9 per switch).
-fn expected_calls(n: usize) -> usize {
-    7 * n
-        + 10 * n
-        + 13 * n
-        + 10 * n
-        + 2 * n
-        + 2 * n
-        + 6
-        + (52 * n * n + 4 * n)
-        + (n + 11 * n * (n - 1) / 2)
-        + 6 * n
-        + 9 * switch_count(n)
+/// The gadget calls `build_private_batch_constraints` makes for `n` leaves and `m` exit
+/// slots: dummy checks (7 per leaf), the header scan (9), consistency (10), input total
+/// (2), exit-amount range checks with the output total (2 per slot), the fee comparator
+/// (7), uniqueness (`n + 11·n(n−1)/2`) and dummy nullifiers (6 per leaf).
+fn expected_calls(n: usize, m: usize) -> usize {
+    7 * n + 9 * n + 10 * n + 2 * n + 2 * m + 7 + (n + 11 * n * (n - 1) / 2) + 6 * n
 }
 
 /// The vendored copies must be the files at the pinned `wormholeSpec` revision. The lake
@@ -63,24 +52,30 @@ fn vendored_trace_matches_pinned_package() {
 #[test]
 fn wrapper_trace_shape() {
     for n in SIZES {
+        let m = slots(n);
         let t = wrapper(n);
         assert_eq!(t.circuit, format!("private_batch_wrapper_n{n}"));
         let kinds = |k: &GateKind| t.ex.rows.iter().filter(|r| r.0 == *k).count();
         assert_eq!(kinds(&GateKind::Poseidon2), 2 * n);
-        assert_eq!(kinds(&GateKind::BaseSum2 { num_limbs: 59 }), 2 + 2 * n);
+        // Fee, complement and difference, plus one per exit amount.
+        assert_eq!(kinds(&GateKind::BaseSum2 { num_limbs: 59 }), 3 + m);
         assert!(t.ex.rows.iter().all(|r| !matches!(r.0, GateKind::Other(_))));
         assert!(t.ex.copies.len() > 2 * 64, "copies are chunked");
-        // 8 header felts + 2n slots · 5 limbs + n nullifiers · 4 limbs, zero-padded.
-        assert!(t.ex.public_inputs.len() >= 8 + 10 * n + 4 * n);
+        // 8 header felts + m slots · 5 limbs + n nullifiers · 4 limbs.
+        assert_eq!(t.ex.public_inputs.len(), 8 + 5 * m + 4 * n);
         let named: Vec<(&str, usize)> =
             t.ex.named
                 .iter()
                 .map(|(n, v)| (n.as_str(), v.len()))
                 .collect();
         let mut expected: Vec<(String, usize)> =
-            (0..n).map(|i| (format!("leaf_pis_{i}"), 22)).collect();
+            (0..n).map(|i| (format!("leaf_pis_{i}"), 11)).collect();
+        expected.push(("volume_fee_bps".into(), 1));
+        for k in 0..m {
+            expected.push((format!("exit_amount_{k}"), 1));
+            expected.push((format!("exit_account_{k}"), 4));
+        }
         expected.extend((0..n).map(|i| (format!("dummy_pre_image_{i}"), 4)));
-        expected.push(("switches".into(), switch_count(n)));
         assert_eq!(
             named,
             expected
@@ -116,22 +111,20 @@ fn wrapper_trace_shape() {
             assert_eq!(*r1, r0 + 1);
         }
         let count = |f: fn(&Fact) -> bool| t.calls.iter().filter(|c| f(&c.fact)).count();
-        // Fee complement and difference, plus one per exit slot.
-        assert_eq!(count(|f| matches!(f, Fact::RangeCheck { .. })), 2 + 2 * n);
-        // Per leaf: block, asset and fee pins; per pair: the collision pin.
+        // The witnessed fee, its complement and the fee difference, plus one per exit amount.
+        assert_eq!(count(|f| matches!(f, Fact::RangeCheck { .. })), 3 + m);
+        // Per leaf: the block and asset pins; per pair: the collision pin.
         assert_eq!(
             count(|f| matches!(f, Fact::Connect { .. })),
-            3 * n + n * (n - 1) / 2
+            2 * n + n * (n - 1) / 2
         );
-        assert_eq!(
-            count(|f| matches!(f, Fact::AssertBool { .. })),
-            switch_count(n)
-        );
-        assert_eq!(t.calls.len(), expected_calls(n));
+        assert_eq!(count(|f| matches!(f, Fact::AssertBool { .. })), 0);
+        assert_eq!(t.calls.len(), expected_calls(n, m));
         assert!(t.calls.len() > FACT_GROUP, "decode theorem is grouped");
 
         let shape = Shape::read(&t).expect("the trace has the wrapper's call structure");
         assert_eq!(shape.n, n);
+        assert_eq!(shape.m, m);
     }
 }
 
@@ -149,12 +142,42 @@ fn shape_rejects_perturbed_traces() {
         err.contains("call 0: expected is_equal for dummy check of leaf 0 limb 0"),
         "{err}"
     );
-    // Drop the last call: the switch network is incomplete.
+    // Drop the last call: the nullifier selects are incomplete.
     let mut short = wrapper(2);
     short.calls.pop();
     let err = Shape::read(&short).unwrap_err();
     assert!(
-        err.contains("call 343: expected switch 0 routed 1 limb 3, but the trace ends"),
+        err.contains("call 91: expected nullifier select limb 3 of leaf 1, but the trace ends"),
+        "{err}"
+    );
+    // An exit amount that lost its range check: the free witness is unbounded.
+    let mut unchecked = wrapper(2);
+    let k = t
+        .calls
+        .iter()
+        .position(|c| matches!(c.fact, Fact::RangeCheck { bits: 32, .. }))
+        .unwrap();
+    unchecked.calls.remove(k);
+    let err = Shape::read(&unchecked).unwrap_err();
+    assert!(
+        err.contains(&format!(
+            "call {k}: expected range_check 32 for exit amount 0"
+        )),
+        "{err}"
+    );
+    // The fee that lost its own range check (the bug the leaf's checks used to mask).
+    let mut fee = wrapper(2);
+    let k = t
+        .calls
+        .iter()
+        .position(|c| matches!(c.fact, Fact::RangeCheck { bits: 14, .. }))
+        .unwrap();
+    fee.calls.remove(k);
+    let err = Shape::read(&fee).unwrap_err();
+    assert!(
+        err.contains(&format!(
+            "call {k}: expected range_check 14 for volume_fee_bps"
+        )),
         "{err}"
     );
     // Reorder the public inputs: the output layout check fires.
@@ -253,8 +276,17 @@ fn wrapper_lean_is_current() {
         assert!(generated.contains(&format!(
             "(hacc : ∀ i : Fin {n}, ProofAccepted perm LeafCircuit.tree ((List.ofFn (leafPis i)).map a))"
         )));
-        assert!(generated.contains("refine private_batch_val_rows perm hpg (rows a) (rounds a)"));
-        assert_eq!(generated.matches("· -- slot ").count(), 8 * 2 * n);
+        assert!(
+            generated.contains("refine private_batch_val_rows perm hpg (rows a) (out := out a)")
+        );
+        assert!(generated.contains("(h32 : ∀ q ∈ leaves a, inRange 32 q.inputAmount) :"));
+        assert!(
+            generated.contains("refine ⟨ffr, ?_, ?_⟩"),
+            "the fee's own range check feeds `FeeCheck`"
+        );
+        assert_eq!(generated.matches("    · exact rc").count(), slots(n));
+        assert!(!generated.contains("rounds"));
+        assert!(!generated.contains("network"));
         assert!(generated.contains(&format!(
             ".node \"private_batch_wrapper_n{n}\" (privateBatchWrapper{n} p)"
         )));
@@ -265,7 +297,10 @@ fn wrapper_lean_is_current() {
             2 * n,
             "one child per leaf in `tree`, one membership per leaf in `accepted_sound`"
         );
-        assert!(generated.contains(&format!("def pi : Fin {} → Target :=", 22 * n + 8)));
+        assert!(generated.contains(&format!(
+            "def pi : Fin {} → Target :=",
+            8 + 5 * slots(n) + 4 * n
+        )));
         assert!(generated.contains("theorem accepted_sound"));
         assert!(
             generated.contains("RPrivateBatch (spongeRO perm) leaves us (outOf (a ∘ ts)) := by")
