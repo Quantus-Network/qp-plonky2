@@ -305,13 +305,13 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
     unsafe fn run_parallel(
         &mut self,
         schedule: &GenerationSchedule,
-        num_threads: usize,
+        num_workers: usize,
     ) -> Result<()> {
         let execution = &self.execution;
         let witness = &mut *self.witness;
         let scratch = &mut self.scratch;
-        scratch.reset(schedule.dependency_counts(), num_threads);
-        scratch.seed_ready(schedule.initial_ready(), num_threads);
+        scratch.reset(schedule.dependency_counts(), num_workers);
+        scratch.seed_ready(schedule.initial_ready(), num_workers);
         if schedule.initial_ready().is_empty() {
             ensure!(
                 schedule.generator_indices().is_empty(),
@@ -321,17 +321,17 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         }
         let pending_dependencies = &scratch.pending_dependencies;
         let mut workers = core::mem::take(&mut scratch.workers);
-        let inactive = workers.split_off(num_threads);
+        let inactive = workers.split_off(num_workers);
         let coordinator = WorkerCoordinator::new(
             workers
                 .iter()
                 .map(|worker| worker.ready.stealer())
                 .collect(),
         );
-        witness.dense_mut().set_parallel(true);
+        witness.dense_mut().set_shared_writes_active(true);
         let result = catch_unwind(AssertUnwindSafe(|| {
             std::thread::scope(|scope| {
-                let mut handles = Vec::with_capacity(num_threads);
+                let mut handles = Vec::with_capacity(num_workers);
                 for (worker_index, mut worker) in workers.into_iter().enumerate() {
                     let witness = &*witness;
                     let coordinator = &coordinator;
@@ -339,7 +339,7 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
                     let handle = std::thread::Builder::new().spawn_scoped(scope, move || {
                         let mut completed = 0;
                         let result = catch_unwind(AssertUnwindSafe(|| {
-                            let mut next_victim_index = (worker_index + 1) % num_threads;
+                            let mut next_victim_index = (worker_index + 1) % num_workers;
                             while let Some(local_index) = coordinator.next(
                                 &worker.ready,
                                 worker_index,
@@ -389,7 +389,7 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
                         }
                     }
                 }
-                let mut workers = Vec::with_capacity(num_threads);
+                let mut workers = Vec::with_capacity(num_workers);
                 let mut completed = 0;
                 let mut panic = None;
                 for handle in handles {
@@ -411,7 +411,7 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
                 (workers, completed)
             })
         }));
-        witness.dense_mut().set_parallel(false);
+        witness.dense_mut().set_shared_writes_active(false);
         let (workers, completed) = match result {
             Ok(result) => result,
             Err(panic) => resume_unwind(panic),
@@ -458,18 +458,20 @@ impl<F: Field> GenerationScratch<F> {
         }
     }
 
-    fn reset(&mut self, counts: &[usize], workers: usize) {
+    fn reset(&mut self, dependency_counts: &[usize], num_workers: usize) {
         assert!(
-            workers > 0,
+            num_workers > 0,
             "witness generation requires at least one worker"
         );
         self.pending_dependencies
-            .resize_with(counts.len(), || AtomicUsize::new(0));
-        for (pending_dependencies, &count) in self.pending_dependencies.iter_mut().zip(counts) {
+            .resize_with(dependency_counts.len(), || AtomicUsize::new(0));
+        for (pending_dependencies, &count) in
+            self.pending_dependencies.iter_mut().zip(dependency_counts)
+        {
             *pending_dependencies.get_mut() = count;
         }
-        if self.workers.len() < workers {
-            self.workers.resize_with(workers, WorkerScratch::new);
+        if self.workers.len() < num_workers {
+            self.workers.resize_with(num_workers, WorkerScratch::new);
         }
         for worker in &mut self.workers {
             worker.outputs.target_values.clear();
@@ -478,15 +480,15 @@ impl<F: Field> GenerationScratch<F> {
     }
 
     /// Seeds balanced worker slices from roots already in circuit-builder order.
-    fn seed_ready(&mut self, initial_ready: &[usize], workers: usize) {
-        debug_assert!(self.workers[..workers]
+    fn seed_ready(&mut self, initial_ready: &[usize], num_workers: usize) {
+        debug_assert!(self.workers[..num_workers]
             .iter()
             .all(|worker| worker.ready.is_empty()));
         // Owners start at the slice's beginning; thieves take from its end.
-        let per_worker = initial_ready.len() / workers;
-        let extra = initial_ready.len() % workers;
+        let per_worker = initial_ready.len() / num_workers;
+        let extra = initial_ready.len() % num_workers;
         let mut start = 0;
-        for (worker_index, worker) in self.workers.iter().take(workers).enumerate() {
+        for (worker_index, worker) in self.workers.iter().take(num_workers).enumerate() {
             let end = start + per_worker + usize::from(worker_index < extra);
             for &local_index in initial_ready[start..end].iter().rev() {
                 worker.ready.push(local_index);

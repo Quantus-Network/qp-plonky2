@@ -16,7 +16,7 @@ pub(super) struct WorkerCoordinator {
 
 #[derive(Default)]
 struct CoordinationState {
-    sleepers: usize,
+    idle_workers: usize,
     exhausted: bool,
     failure: Option<Error>,
 }
@@ -35,7 +35,7 @@ impl WorkerCoordinator {
         }
     }
 
-    fn finished(&self) -> bool {
+    fn is_stopped(&self) -> bool {
         self.stopped.load(Ordering::Acquire)
     }
 
@@ -46,7 +46,7 @@ impl WorkerCoordinator {
         next_victim_index: &mut usize,
     ) -> Option<usize> {
         loop {
-            if self.finished() {
+            if self.is_stopped() {
                 return None;
             }
             if let Some(local_index) = local_queue.pop() {
@@ -85,9 +85,9 @@ impl WorkerCoordinator {
         // Publishers use this same mutex after pushing. Register, then recheck
         // work under the mutex so a notification cannot be lost before wait.
         let mut state = self.state.lock().unwrap_or_else(|e| e.into_inner());
-        state.sleepers += 1;
+        state.idle_workers += 1;
         let local_index = loop {
-            if self.finished() {
+            if self.is_stopped() {
                 break None;
             }
             if let Some(local_index) = self.find(local_queue, worker_index, next_victim_index) {
@@ -96,7 +96,7 @@ impl WorkerCoordinator {
             // A worker remains active until it registers under this mutex.
             // If every worker is idle after a full scan, nobody can publish
             // more work. A worker finding work unregisters before unlocking.
-            if state.sleepers == self.stealers.len() {
+            if state.idle_workers == self.stealers.len() {
                 state.exhausted = true;
                 self.stopped.store(true, Ordering::Release);
                 self.wake.notify_all();
@@ -104,13 +104,13 @@ impl WorkerCoordinator {
             }
             state = self.wake.wait(state).unwrap_or_else(|e| e.into_inner());
         };
-        state.sleepers -= 1;
+        state.idle_workers -= 1;
         local_index
     }
 
     pub(super) fn notify_work(&self) {
         let state = self.state.lock().unwrap_or_else(|e| e.into_inner());
-        if state.sleepers != 0 {
+        if state.idle_workers != 0 {
             // A release can expose a wide fan-out on one deque. Wake every
             // sleeper so available work is not left waiting for thieves.
             self.wake.notify_all();

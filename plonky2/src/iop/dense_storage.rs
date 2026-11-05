@@ -13,7 +13,7 @@ use crate::field::types::Field;
 pub(super) struct DenseStorage<F: Field> {
     values: Vec<UnsafeCell<F>>,
     assigned: Vec<UnsafeCell<u8>>,
-    parallel: bool,
+    shared_writes_active: bool,
 }
 
 // SAFETY: Safe mutation requires exclusive access. Shared mutation is unsafe and
@@ -25,7 +25,7 @@ unsafe impl<F: Field> Sync for DenseStorage<F> {}
 impl<F: Field> Clone for DenseStorage<F> {
     fn clone(&self) -> Self {
         assert!(
-            !self.parallel,
+            !self.shared_writes_active,
             "cannot clone dense storage during parallel generation"
         );
         Self {
@@ -41,7 +41,7 @@ impl<F: Field> Clone for DenseStorage<F> {
                 .iter()
                 .map(|v| UnsafeCell::new(unsafe { *v.get() }))
                 .collect(),
-            parallel: false,
+            shared_writes_active: false,
         }
     }
 }
@@ -51,7 +51,7 @@ impl<F: Field> fmt::Debug for DenseStorage<F> {
         // Do not inspect cells: Debug may be called by a running generator.
         f.debug_struct("DenseStorage")
             .field("num_targets", &self.values.len())
-            .field("parallel", &self.parallel)
+            .field("shared_writes_active", &self.shared_writes_active)
             .finish()
     }
 }
@@ -61,7 +61,7 @@ impl<F: Field> DenseStorage<F> {
         Self {
             values: (0..num_targets).map(|_| UnsafeCell::new(F::ZERO)).collect(),
             assigned: (0..num_targets).map(|_| UnsafeCell::new(0)).collect(),
-            parallel: false,
+            shared_writes_active: false,
         }
     }
 
@@ -103,8 +103,8 @@ impl<F: Field> DenseStorage<F> {
     }
 
     #[cfg(feature = "std")]
-    pub(super) fn set_parallel(&mut self, active: bool) {
-        self.parallel = active;
+    pub(super) fn set_shared_writes_active(&mut self, active: bool) {
+        self.shared_writes_active = active;
     }
 
     /// Shared equivalent of `set`, for the scheduled executor only.
@@ -113,10 +113,10 @@ impl<F: Field> DenseStorage<F> {
     /// No access to an unset slot may overlap this call. After assignment, all
     /// accesses must be read-only and acquire publication of both stores. The
     /// caller must keep storage alive and must not obtain exclusive access while
-    /// workers run. `parallel` must be true for the entire shared-write phase.
+    /// workers run. `shared_writes_active` must be true for the entire shared-write phase.
     #[cfg(feature = "std")]
     pub(super) unsafe fn set_shared(&self, rep_index: usize, value: F) -> Result<()> {
-        debug_assert!(self.parallel);
+        debug_assert!(self.shared_writes_active);
         if let Some(old) = self.try_get(rep_index) {
             ensure!(
                 old == value,
