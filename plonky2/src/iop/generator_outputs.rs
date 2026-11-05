@@ -21,7 +21,7 @@ use crate::util::serialization::{Buffer, Read};
 /// Recognition uses built-in IDs, not concrete type identification. Callers must
 /// supply genuine built-ins; custom implementations reusing those IDs are unsupported.
 /// This relies on built-in output targets and their order being input-independent.
-pub(crate) fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
+pub(super) fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
     generator: &dyn WitnessGenerator<F, D>,
     common: &CommonCircuitData<F, D>,
     scratch: &mut PartitionWitness<'_, F>,

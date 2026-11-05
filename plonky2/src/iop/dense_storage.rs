@@ -10,7 +10,7 @@ use crate::field::types::Field;
 
 /// Field values and assignment bytes, indexed by witness slot.
 /// Shared mutation is restricted to the scheduled executor's unsafe entry point.
-pub(crate) struct DenseStorage<F: Field> {
+pub(super) struct DenseStorage<F: Field> {
     values: Vec<UnsafeCell<F>>,
     assigned: Vec<UnsafeCell<u8>>,
     parallel: bool,
@@ -57,7 +57,7 @@ impl<F: Field> fmt::Debug for DenseStorage<F> {
 }
 
 impl<F: Field> DenseStorage<F> {
-    pub(crate) fn new(num_slots: usize) -> Self {
+    pub(super) fn new(num_slots: usize) -> Self {
         Self {
             values: (0..num_slots).map(|_| UnsafeCell::new(F::ZERO)).collect(),
             assigned: (0..num_slots).map(|_| UnsafeCell::new(0)).collect(),
@@ -67,7 +67,7 @@ impl<F: Field> DenseStorage<F> {
 
     /// Assigns an unset slot or checks that an existing assignment agrees.
     /// A conflicting assignment returns an error without changing storage.
-    pub(crate) fn assign(&mut self, slot: usize, value: F) -> Result<()> {
+    pub(super) fn assign(&mut self, slot: usize, value: F) -> Result<()> {
         let assigned = self.assigned[slot].get_mut();
         let stored = self.values[slot].get_mut();
         if *assigned != 0 {
@@ -83,14 +83,14 @@ impl<F: Field> DenseStorage<F> {
     }
 
     /// Reads an assigned slot; concurrent access must obey `assign_shared`'s contract.
-    pub(crate) fn get(&self, slot: usize) -> F {
+    pub(super) fn get(&self, slot: usize) -> F {
         assert!(self.is_set(slot), "read of unassigned witness slot {slot}");
         // SAFETY: Safe APIs cannot mutate through shared access. The parallel
         // executor's unsafe contract orders all reads after slot publication.
         unsafe { *self.values[slot].get() }
     }
 
-    pub(crate) fn try_get(&self, slot: usize) -> Option<F> {
+    pub(super) fn try_get(&self, slot: usize) -> Option<F> {
         self.is_set(slot).then(|| {
             // SAFETY: As for get(), callers of shared writes must order readers
             // after publication; the assignment byte was checked above.
@@ -99,17 +99,17 @@ impl<F: Field> DenseStorage<F> {
     }
 
     /// Marks a slot unassigned without clearing its stored value.
-    pub(crate) fn clear(&mut self, slot: usize) {
+    pub(super) fn clear(&mut self, slot: usize) {
         *self.assigned[slot].get_mut() = 0;
     }
 
-    pub(crate) fn is_set(&self, slot: usize) -> bool {
+    pub(super) fn is_set(&self, slot: usize) -> bool {
         // SAFETY: As for get(), presence reads must not overlap a slot's writer.
         unsafe { *self.assigned[slot].get() != 0 }
     }
 
     #[cfg(feature = "std")]
-    pub(crate) fn set_parallel(&mut self, active: bool) {
+    pub(super) fn set_parallel(&mut self, active: bool) {
         self.parallel = active;
     }
 
@@ -121,7 +121,7 @@ impl<F: Field> DenseStorage<F> {
     /// caller must keep storage alive and must not obtain exclusive access while
     /// workers run. `parallel` must be true for the entire shared-write phase.
     #[cfg(feature = "std")]
-    pub(crate) unsafe fn assign_shared(&self, slot: usize, value: F) -> Result<()> {
+    pub(super) unsafe fn assign_shared(&self, slot: usize, value: F) -> Result<()> {
         debug_assert!(self.parallel);
         if self.is_set(slot) {
             let old = self.get(slot);

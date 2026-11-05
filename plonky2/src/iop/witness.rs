@@ -356,7 +356,7 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
     }
 
     /// Constructs a witness backed by dense values and assignment bytes.
-    pub(crate) fn new_dense(
+    pub(super) fn new_dense(
         num_wires: usize,
         degree: usize,
         representative_map: &'a [usize],
@@ -370,12 +370,12 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
         }
     }
 
-    pub(crate) fn is_dense(&self) -> bool {
+    pub(super) fn is_dense(&self) -> bool {
         self.dense.is_some()
     }
 
     /// Direct storage access for an executor that requires a dense witness.
-    pub(crate) fn dense_mut(&mut self) -> &mut DenseStorage<F> {
+    pub(super) fn dense_mut(&mut self) -> &mut DenseStorage<F> {
         self.dense.as_mut().expect("witness is not dense")
     }
 
@@ -385,7 +385,7 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
     /// The resolved slot must satisfy `DenseStorage::assign_shared`'s exclusive
     /// assignment and publication requirements. Stock storage is unsupported.
     #[cfg(feature = "std")]
-    pub(crate) unsafe fn set_target_shared(&self, target: Target, value: F) -> Result<()> {
+    pub(super) unsafe fn set_target_shared(&self, target: Target, value: F) -> Result<()> {
         let slot = self.representative_map[self.target_index(target)];
         let dense = self.dense.as_ref().expect("witness is not dense");
         // SAFETY: The executor supplies the required slot ordering.
