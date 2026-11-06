@@ -387,6 +387,15 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
         }
     }
 
+    /// Clears all assignments while preserving storage allocations and layout.
+    /// Dense storage retains its values but marks them all unassigned.
+    pub fn clear(&mut self) {
+        match &mut self.dense {
+            Some(dense) => dense.clear(),
+            None => self.values.fill(None),
+        }
+    }
+
     /// Borrows dense values and assignment flags in storage-index order.
     /// Both slices use the same indices as `representative_map`; a nonzero flag
     /// means assigned. Values with a zero flag must be ignored.

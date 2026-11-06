@@ -79,6 +79,13 @@ impl<F: Field> DenseStorage<F> {
         })
     }
 
+    /// Clears assignment flags while retaining stored values and allocations.
+    pub(super) fn clear(&mut self) {
+        for assigned in &mut self.assigned {
+            *assigned.get_mut() = 0;
+        }
+    }
+
     /// Marks a slot unassigned without clearing its stored value.
     pub(super) fn clear_assignment(&mut self, rep_index: usize) {
         *self.assigned[rep_index].get_mut() = 0;
