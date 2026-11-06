@@ -118,16 +118,6 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         })
     }
 
-    /// Distinct representative indices read by a circuit generator.
-    pub fn reads(&self, generator_index: usize) -> &[usize] {
-        &self.reads[generator_index]
-    }
-
-    /// Distinct representative indices written by a circuit generator.
-    pub fn writes(&self, generator_index: usize) -> &[usize] {
-        &self.writes[generator_index]
-    }
-
     /// Creates empty planning state; it does not allocate or populate a witness.
     pub fn new_state(&self) -> SchedulingState {
         SchedulingState::new(

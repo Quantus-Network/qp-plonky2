@@ -68,24 +68,35 @@ fn generate<'a>(
 
 fn assert_witnesses_match(
     data: &CircuitData<F, C, D>,
-    scheduler: &Scheduler<'_>,
     expected: &PartitionWitness<'_, F>,
     actual: &PartitionWitness<'_, F>,
 ) {
-    let random_rep_indices: HashSet<_> = data
-        .prover_only
-        .generators
-        .iter()
-        .enumerate()
-        .filter(|(_, generator)| generator.0.id() == "RandomValueGenerator")
-        .flat_map(|(generator_index, _)| scheduler.writes(generator_index).iter().copied())
-        .collect();
-    for generator_index in 0..data.prover_only.generators.len() {
+    let rep_index = |target: Target| {
+        data.prover_only.representative_map
+            [target.index(data.common.config.num_wires, data.common.degree())]
+    };
+    let mut random_rep_indices = HashSet::new();
+    let mut buffer = GeneratedValues::empty();
+    for generator in &data.prover_only.generators {
+        if generator.0.id() == "RandomValueGenerator" {
+            buffer.target_values.clear();
+            generator.0.run_ready(expected, &mut buffer).unwrap();
+            random_rep_indices.extend(
+                buffer
+                    .target_values
+                    .iter()
+                    .map(|&(target, _)| rep_index(target)),
+            );
+        }
+    }
+    for generator in &data.prover_only.generators {
         assert!(
-            scheduler
-                .reads(generator_index)
-                .iter()
-                .all(|rep_index| !random_rep_indices.contains(rep_index)),
+            generator
+                .0
+                .reads()
+                .unwrap()
+                .into_iter()
+                .all(|target| !random_rep_indices.contains(&rep_index(target))),
             "fixture randomness must not affect generator computations"
         );
     }
@@ -166,7 +177,7 @@ fn mixed_circuit_matches_original_generation_and_proves() -> Result<()> {
         let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common)?;
         for num_workers in [None, Some(1), Some(4)] {
             let actual = generate(&scheduler, &schedule, &inputs, num_workers)?;
-            assert_witnesses_match(&data, &scheduler, &expected, &actual);
+            assert_witnesses_match(&data, &expected, &actual);
             assert_eq!(actual.get_target(a), actual.get_target(alias));
             assert!(!actual.contains(unused));
             if case_index == 1 && num_workers == Some(4) {
@@ -202,31 +213,48 @@ fn duplicate_writers_are_compared_without_readers() -> Result<()> {
     let scheduler = Scheduler::new(&data)?;
     let rep_index = data.prover_only.representative_map
         [first.index(data.common.config.num_wires, data.common.degree())];
-    for generator_index in 0..data.prover_only.generators.len() {
-        assert!(!scheduler.reads(generator_index).contains(&rep_index));
+    let representative = |target: Target| {
+        data.prover_only.representative_map
+            [target.index(data.common.config.num_wires, data.common.degree())]
+    };
+    for generator in &data.prover_only.generators {
+        assert!(generator
+            .0
+            .reads()
+            .unwrap()
+            .into_iter()
+            .all(|target| representative(target) != rep_index));
     }
     for b_value in [3, 4] {
         let mut inputs = PartialWitness::new();
         inputs.set_target(a, F::from_canonical_u64(3))?;
         inputs.set_target(b, F::from_canonical_u64(b_value))?;
         let schedule = make_schedule(&data, &scheduler, &inputs)?;
-        let writer_local_indices: Vec<_> = schedule
-            .generator_indices()
-            .iter()
-            .enumerate()
-            .filter(|(_, &generator_index)| scheduler.writes(generator_index).contains(&rep_index))
-            .map(|(local_index, _)| local_index)
-            .collect();
-        assert_eq!(writer_local_indices.len(), 2);
-        assert!(schedule
-            .successors(writer_local_indices[0])
-            .contains(&writer_local_indices[1]));
         let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common);
         if b_value == 3 {
             let expected = expected?;
+            let mut buffer = GeneratedValues::empty();
+            let mut writer_local_indices = Vec::new();
+            for (local_index, &generator_index) in schedule.generator_indices().iter().enumerate() {
+                buffer.target_values.clear();
+                data.prover_only.generators[generator_index]
+                    .0
+                    .run_ready(&expected, &mut buffer)?;
+                if buffer
+                    .target_values
+                    .iter()
+                    .any(|&(target, _)| representative(target) == rep_index)
+                {
+                    writer_local_indices.push(local_index);
+                }
+            }
+            assert_eq!(writer_local_indices.len(), 2);
+            assert!(schedule
+                .successors(writer_local_indices[0])
+                .contains(&writer_local_indices[1]));
             for num_workers in [None, Some(1), Some(4)] {
                 let actual = generate(&scheduler, &schedule, &inputs, num_workers)?;
-                assert_witnesses_match(&data, &scheduler, &expected, &actual);
+                assert_witnesses_match(&data, &expected, &actual);
                 assert_eq!(actual.get_target(first), F::from_canonical_u64(3));
                 assert_eq!(actual.get_target(first), actual.get_target(second));
             }
@@ -279,7 +307,7 @@ fn repeated_emissions_to_one_representative_must_agree() -> Result<()> {
             assert!(repeated);
             for num_workers in [None, Some(1), Some(4)] {
                 let actual = generate(&scheduler, &schedule, &inputs, num_workers)?;
-                assert_witnesses_match(&data, &scheduler, &expected, &actual);
+                assert_witnesses_match(&data, &expected, &actual);
             }
         } else {
             assert!(expected.is_err());
@@ -314,7 +342,7 @@ fn caller_prefills_must_agree_with_aliases_and_generated_values() -> Result<()> 
             let expected = expected?;
             for num_workers in [None, Some(1), Some(4)] {
                 let actual = generate(&scheduler, &schedule, &inputs, num_workers)?;
-                assert_witnesses_match(&data, &scheduler, &expected, &actual);
+                assert_witnesses_match(&data, &expected, &actual);
             }
         } else {
             assert!(expected.is_err());
