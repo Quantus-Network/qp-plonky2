@@ -13,7 +13,6 @@ use crate::field::types::Field;
 pub(super) struct DenseStorage<F: Field> {
     values: Vec<UnsafeCell<F>>,
     assigned: Vec<UnsafeCell<u8>>,
-    shared_writes_active: bool,
 }
 
 // SAFETY: Safe mutation requires exclusive access. Shared mutation is unsafe and
@@ -27,7 +26,6 @@ impl<F: Field> fmt::Debug for DenseStorage<F> {
         // Do not inspect cells: Debug may be called by a running generator.
         f.debug_struct("DenseStorage")
             .field("num_targets", &self.values.len())
-            .field("shared_writes_active", &self.shared_writes_active)
             .finish()
     }
 }
@@ -37,7 +35,6 @@ impl<F: Field> DenseStorage<F> {
         Self {
             values: (0..num_targets).map(|_| UnsafeCell::new(F::ZERO)).collect(),
             assigned: (0..num_targets).map(|_| UnsafeCell::new(0)).collect(),
-            shared_writes_active: false,
         }
     }
 
@@ -78,21 +75,15 @@ impl<F: Field> DenseStorage<F> {
         unsafe { *self.assigned[rep_index].get() != 0 }
     }
 
-    #[cfg(feature = "std")]
-    pub(super) fn set_shared_writes_active(&mut self, active: bool) {
-        self.shared_writes_active = active;
-    }
-
     /// Shared equivalent of `set`, for the scheduled executor only.
     ///
     /// # Safety
     /// No access to an unset slot may overlap this call. After assignment, all
     /// accesses must be read-only and acquire publication of both stores. The
     /// caller must keep storage alive and must not obtain exclusive access while
-    /// workers run. `shared_writes_active` must be true for the entire shared-write phase.
+    /// workers run.
     #[cfg(feature = "std")]
     pub(super) unsafe fn set_shared(&self, rep_index: usize, value: F) -> Result<()> {
-        debug_assert!(self.shared_writes_active);
         if let Some(old) = self.try_get(rep_index) {
             ensure!(
                 old == value,

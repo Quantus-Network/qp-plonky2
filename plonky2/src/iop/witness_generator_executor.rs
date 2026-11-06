@@ -308,7 +308,7 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         num_workers: usize,
     ) -> Result<()> {
         let execution = &self.execution;
-        let witness = &mut *self.witness;
+        let witness = &*self.witness;
         let scratch = &mut self.scratch;
         scratch.reset(schedule.dependency_counts(), num_workers);
         scratch.seed_ready(schedule.initial_ready(), num_workers);
@@ -328,94 +328,84 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
                 .map(|worker| worker.ready.stealer())
                 .collect(),
         );
-        witness.dense_mut().set_shared_writes_active(true);
-        let result = catch_unwind(AssertUnwindSafe(|| {
-            std::thread::scope(|scope| {
-                let mut handles = Vec::with_capacity(num_workers);
-                for (worker_index, mut worker) in workers.into_iter().enumerate() {
-                    let witness = &*witness;
-                    let coordinator = &coordinator;
-                    // Each deque moves with its owning worker; only its Stealer is shared.
-                    let handle = std::thread::Builder::new().spawn_scoped(scope, move || {
-                        let mut completed = 0;
-                        let result = catch_unwind(AssertUnwindSafe(|| {
-                            let mut next_victim_index = (worker_index + 1) % num_workers;
-                            while let Some(local_index) = coordinator.next(
-                                &worker.ready,
-                                worker_index,
-                                &mut next_victim_index,
-                            ) {
-                                let generator_index = schedule.generator_indices()[local_index];
-                                // SAFETY: The caller guarantees stable, complete access
-                                // sets. Counter AcqRel publication and deque handoff
-                                // order every read/comparison after the selected writer.
-                                let result = unsafe {
-                                    execution.run_generator_parallel(
-                                        generator_index,
-                                        witness,
-                                        &mut worker.outputs,
-                                    )
-                                };
-                                if let Err(error) = result {
-                                    coordinator.fail(error);
-                                    return;
-                                }
-                                let pushed = schedule.release_successors(
-                                    local_index,
-                                    pending_dependencies,
-                                    |successor_local_index| {
-                                        worker.ready.push(successor_local_index);
-                                    },
-                                );
-                                if pushed {
-                                    coordinator.notify_work();
-                                }
-                                completed += 1;
+        let (workers, completed) = std::thread::scope(|scope| {
+            let mut handles = Vec::with_capacity(num_workers);
+            for (worker_index, mut worker) in workers.into_iter().enumerate() {
+                let witness = &*witness;
+                let coordinator = &coordinator;
+                // Each deque moves with its owning worker; only its Stealer is shared.
+                let handle = std::thread::Builder::new().spawn_scoped(scope, move || {
+                    let mut completed = 0;
+                    let result = catch_unwind(AssertUnwindSafe(|| {
+                        let mut next_victim_index = (worker_index + 1) % num_workers;
+                        while let Some(local_index) =
+                            coordinator.next(&worker.ready, worker_index, &mut next_victim_index)
+                        {
+                            let generator_index = schedule.generator_indices()[local_index];
+                            // SAFETY: The caller guarantees stable, complete access
+                            // sets. Counter AcqRel publication and deque handoff
+                            // order every read/comparison after the selected writer.
+                            let result = unsafe {
+                                execution.run_generator_parallel(
+                                    generator_index,
+                                    witness,
+                                    &mut worker.outputs,
+                                )
+                            };
+                            if let Err(error) = result {
+                                coordinator.fail(error);
+                                return;
                             }
-                        }));
-                        if let Err(panic) = result {
-                            coordinator.abort();
-                            resume_unwind(panic);
+                            let pushed = schedule.release_successors(
+                                local_index,
+                                pending_dependencies,
+                                |successor_local_index| {
+                                    worker.ready.push(successor_local_index);
+                                },
+                            );
+                            if pushed {
+                                coordinator.notify_work();
+                            }
+                            completed += 1;
                         }
-                        (worker, completed)
-                    });
-                    match handle {
-                        Ok(handle) => handles.push(handle),
-                        Err(error) => {
-                            coordinator.fail(anyhow!(
-                                "could not spawn witness worker {worker_index}: {error}"
-                            ));
-                            break;
+                    }));
+                    if let Err(panic) = result {
+                        coordinator.abort();
+                        resume_unwind(panic);
+                    }
+                    (worker, completed)
+                });
+                match handle {
+                    Ok(handle) => handles.push(handle),
+                    Err(error) => {
+                        coordinator.fail(anyhow!(
+                            "could not spawn witness worker {worker_index}: {error}"
+                        ));
+                        break;
+                    }
+                }
+            }
+            let mut workers = Vec::with_capacity(num_workers);
+            let mut completed = 0;
+            let mut panic = None;
+            for handle in handles {
+                match handle.join() {
+                    Ok((worker, count)) => {
+                        workers.push(worker);
+                        completed += count;
+                    }
+                    Err(payload) => {
+                        if panic.is_none() {
+                            panic = Some(payload);
                         }
                     }
                 }
-                let mut workers = Vec::with_capacity(num_workers);
-                let mut completed = 0;
-                let mut panic = None;
-                for handle in handles {
-                    match handle.join() {
-                        Ok((worker, count)) => {
-                            workers.push(worker);
-                            completed += count;
-                        }
-                        Err(payload) => {
-                            if panic.is_none() {
-                                panic = Some(payload);
-                            }
-                        }
-                    }
-                }
-                if let Some(panic) = panic {
-                    resume_unwind(panic);
-                }
-                (workers, completed)
-            })
-        }));
-        witness.dense_mut().set_shared_writes_active(false);
-        let (workers, completed) = match result {
-            Ok(result) => result,
-            Err(panic) => resume_unwind(panic),
-        };
+            }
+            if let Some(panic) = panic {
+                resume_unwind(panic);
+            }
+            (workers, completed)
+        });
         scratch.workers = workers;
         scratch.workers.extend(inactive);
         coordinator.finish()?;
