@@ -38,6 +38,21 @@ impl<F: Field> DenseStorage<F> {
         }
     }
 
+    pub(super) fn values_and_assignment_flags(&mut self) -> (&[F], &[u8]) {
+        // SAFETY: UnsafeCell<T> has the layout of T. Both vectors contain
+        // initialized elements, and the exclusive borrow prevents mutation for
+        // the lifetime of the returned slices.
+        unsafe {
+            (
+                core::slice::from_raw_parts(self.values.as_ptr().cast::<F>(), self.values.len()),
+                core::slice::from_raw_parts(
+                    self.assigned.as_ptr().cast::<u8>(),
+                    self.assigned.len(),
+                ),
+            )
+        }
+    }
+
     /// Assigns an unset slot or checks that an existing assignment agrees.
     /// A conflicting assignment returns an error without changing storage.
     pub(super) fn set(&mut self, rep_index: usize, value: F) -> Result<()> {

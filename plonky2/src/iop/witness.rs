@@ -387,6 +387,19 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
         }
     }
 
+    /// Borrows dense values and assignment flags in storage-index order.
+    /// Both slices use the same indices as `representative_map`; a nonzero flag
+    /// means assigned. Values with a zero flag must be ignored.
+    /// Returns an error if the witness does not use dense storage.
+    /// Exclusive access prevents concurrent generation while the slices are borrowed.
+    pub fn dense_values_and_assignment_flags(&mut self) -> Result<(&[F], &[u8])> {
+        let dense = self
+            .dense
+            .as_mut()
+            .ok_or_else(|| anyhow!("witness is not dense"))?;
+        Ok(dense.values_and_assignment_flags())
+    }
+
     pub(super) fn is_dense(&self) -> bool {
         self.dense.is_some()
     }
