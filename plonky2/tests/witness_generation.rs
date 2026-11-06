@@ -26,14 +26,12 @@ mod subprocess;
 type Scheduler<'a> = WitnessGeneratorScheduler<'a, F, C, D>;
 
 fn make_schedule(
-    data: &CircuitData<F, C, D>,
     scheduler: &Scheduler<'_>,
     inputs: &PartialWitness<F>,
 ) -> Result<GenerationSchedule> {
     let mut state = scheduler.new_state();
     for &target in inputs.target_values.keys() {
-        let target_index = target.index(data.common.config.num_wires, data.common.degree());
-        state.assume_set(data.prover_only.representative_map[target_index])?;
+        scheduler.assume_set(&mut state, target)?;
     }
     scheduler.make_complete_schedule(&mut state)
 }
@@ -173,7 +171,7 @@ fn mixed_circuit_matches_original_generation_and_proves() -> Result<()> {
         for (target, value) in extension.0.into_iter().zip(extension_values) {
             inputs.set_target(target, F::from_canonical_u64(value))?;
         }
-        let schedule = make_schedule(&data, &scheduler, &inputs)?;
+        let schedule = make_schedule(&scheduler, &inputs)?;
         let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common)?;
         for num_workers in [None, Some(1), Some(4)] {
             let actual = generate(&data, &scheduler, &schedule, &inputs, num_workers)?;
@@ -229,7 +227,7 @@ fn duplicate_writers_are_compared_without_readers() -> Result<()> {
         let mut inputs = PartialWitness::new();
         inputs.set_target(a, F::from_canonical_u64(3))?;
         inputs.set_target(b, F::from_canonical_u64(b_value))?;
-        let schedule = make_schedule(&data, &scheduler, &inputs)?;
+        let schedule = make_schedule(&scheduler, &inputs)?;
         let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common);
         if b_value == 3 {
             let expected = expected?;
@@ -262,7 +260,7 @@ fn repeated_emissions_to_one_representative_must_agree() -> Result<()> {
     for value in [3, 1] {
         let mut inputs = PartialWitness::new();
         inputs.set_target(input, F::from_canonical_u64(value))?;
-        let schedule = make_schedule(&data, &scheduler, &inputs)?;
+        let schedule = make_schedule(&scheduler, &inputs)?;
         let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common);
         if value == 3 {
             let expected = expected?;
@@ -319,7 +317,7 @@ fn caller_prefills_must_agree_with_aliases_and_generated_values() -> Result<()> 
         inputs.set_target(alias, F::from_canonical_u64(alias_value))?;
         inputs.set_target(b, F::from_canonical_u64(5))?;
         inputs.set_target(sum, F::from_canonical_u64(sum_value))?;
-        let schedule = make_schedule(&data, &scheduler, &inputs)?;
+        let schedule = make_schedule(&scheduler, &inputs)?;
         let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common);
         if alias_value == 3 && sum_value == 8 {
             let expected = expected?;
@@ -355,25 +353,21 @@ fn schedule_chains_validate_order_identity_and_promises_before_execution() -> Re
             let sum = builder.add(x, y);
             let data = builder.build::<C>();
             let scheduler = Scheduler::new(&data)?;
-            let rep = |target: Target| {
-                data.prover_only.representative_map
-                    [target.index(data.common.config.num_wires, data.common.degree())]
-            };
             let mut state = scheduler.new_state();
             let first = scheduler.make_schedule(&mut state)?;
-            state.assume_set(rep(a))?;
+            scheduler.assume_set(&mut state, a)?;
             let middle = scheduler.make_schedule(&mut state)?;
             let remaining = state.remaining_generators();
             let empty = scheduler.make_schedule(&mut state)?;
             assert_eq!(state.remaining_generators(), remaining);
             assert!(!state.is_fully_scheduled());
-            state.assume_set(rep(b))?;
+            scheduler.assume_set(&mut state, b)?;
             let last = scheduler.make_schedule(&mut state)?;
             assert!(state.is_fully_scheduled());
 
             let mut other_state = scheduler.new_state();
             scheduler.make_schedule(&mut other_state)?;
-            other_state.assume_set(rep(a))?;
+            scheduler.assume_set(&mut other_state, a)?;
             let other_chain = scheduler.make_schedule(&mut other_state)?;
             let other_scheduler = Scheduler::new(&data)?;
             let foreign = other_scheduler.make_schedule(&mut other_scheduler.new_state())?;
@@ -443,7 +437,7 @@ fn generator_errors_invalidate_executor_and_leave_witness_accessible() -> Result
             let scheduler = Scheduler::new(&data)?;
             let mut inputs = PartialWitness::new();
             inputs.set_target(denominator, F::ZERO)?;
-            let schedule = make_schedule(&data, &scheduler, &inputs)?;
+            let schedule = make_schedule(&scheduler, &inputs)?;
             for num_workers in [None, Some(1), Some(4)] {
                 let mut witness = WitnessGeneratorExecutor::new_witness(&data);
                 let mut executor = WitnessGeneratorExecutor::new(&scheduler);
@@ -503,7 +497,7 @@ fn generator_panics_propagate_after_workers_join_and_invalidate_executor() -> Re
             for &target in &reads {
                 inputs.set_target(target, F::ZERO)?;
             }
-            let schedule = make_schedule(&data, &scheduler, &inputs)?;
+            let schedule = make_schedule(&scheduler, &inputs)?;
             // Poseidon declares the swap input after its permutation inputs.
             let swap = *reads.last().unwrap();
             for num_workers in [None, Some(1), Some(4)] {

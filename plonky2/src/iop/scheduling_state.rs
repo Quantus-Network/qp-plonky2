@@ -41,7 +41,7 @@ impl SchedulingState {
 
     /// Promises that this representative will be assigned before the next schedule.
     /// Repeated promises, including values produced by preceding schedules, do nothing.
-    pub fn assume_set(&mut self, rep_index: usize) -> Result<()> {
+    pub(super) fn assume_set(&mut self, rep_index: usize) -> Result<()> {
         let flag = self.assumed_assigned.get_mut(rep_index).ok_or_else(|| {
             anyhow!("representative index {rep_index} is outside the scheduling state")
         })?;

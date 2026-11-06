@@ -131,6 +131,25 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         )
     }
 
+    /// Promises that a target will be assigned before the next schedule executes.
+    /// Resolves aliases to their representative; does not assign a witness value.
+    pub fn assume_set(&self, state: &mut SchedulingState, target: Target) -> Result<()> {
+        ensure!(
+            state
+                .chain_id()
+                .matches_scheduler(self.execution.identity()),
+            "scheduling state belongs to another scheduler"
+        );
+        let circuit = self.execution.circuit();
+        let target_index = target.index(circuit.common.config.num_wires, circuit.common.degree());
+        let rep_index = *circuit
+            .prover_only
+            .representative_map
+            .get(target_index)
+            .ok_or_else(|| anyhow!("target {target:?} is outside the witness"))?;
+        state.assume_set(rep_index)
+    }
+
     /// Appends a runnable depth-first closure to the supplied planned state.
     /// Nothing is executed. Blocked generators remain unscheduled; an empty
     /// schedule is valid. All nonzero state bytes mean assumed available.
