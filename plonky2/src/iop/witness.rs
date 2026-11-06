@@ -334,7 +334,7 @@ impl<F: Field> Witness<F> for PartialWitness<F> {
 
 /// `PartitionWitness` holds a disjoint-set forest of the targets respecting a circuit's copy constraints.
 /// The value of a target is defined to be the value of its root in the forest.
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct PartitionWitness<'a, F: Field> {
     /// Stock witness storage; empty for witnesses constructed with dense storage.
     pub values: Vec<Option<F>>,
@@ -342,6 +342,23 @@ pub struct PartitionWitness<'a, F: Field> {
     pub num_wires: usize,
     pub degree: usize,
     dense: Option<DenseStorage<F>>,
+}
+
+impl<F: Field> Clone for PartitionWitness<'_, F> {
+    /// Clones a non-dense witness, retaining its borrowed representative map.
+    ///
+    /// # Panics
+    /// Panics if the witness uses dense storage.
+    fn clone(&self) -> Self {
+        assert!(self.dense.is_none(), "cannot clone a dense witness");
+        Self {
+            values: self.values.clone(),
+            representative_map: self.representative_map,
+            num_wires: self.num_wires,
+            degree: self.degree,
+            dense: None,
+        }
+    }
 }
 
 impl<'a, F: Field> PartitionWitness<'a, F> {
@@ -518,5 +535,32 @@ mod tests {
         let result = partition_witness.get_bool_target(bool_target);
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("non-boolean"));
+    }
+
+    #[test]
+    fn non_dense_clone_preserves_aliases_and_has_independent_values() {
+        let representatives = [0, 0, 2];
+        let mut witness = PartitionWitness::<F>::new(3, 1, &representatives);
+        witness.set_target(Target::wire(0, 0), F::ONE).unwrap();
+        let mut cloned = witness.clone();
+        assert!(core::ptr::eq(
+            cloned.representative_map,
+            witness.representative_map
+        ));
+        assert_eq!(cloned.num_wires, witness.num_wires);
+        assert_eq!(cloned.degree, witness.degree);
+        assert_eq!(cloned.values, witness.values);
+        assert_eq!(cloned.get_target(Target::wire(0, 1)), F::ONE);
+        cloned.set_target(Target::wire(0, 2), F::TWO).unwrap();
+        assert!(!witness.contains(Target::wire(0, 2)));
+    }
+
+    #[test]
+    #[should_panic(expected = "cannot clone a dense witness")]
+    fn dense_witness_clone_is_rejected() {
+        let representatives = [0];
+        let mut witness = PartitionWitness::<F>::new_dense(1, 1, &representatives);
+        witness.set_target(Target::wire(0, 0), F::ONE).unwrap();
+        let _ = witness.clone();
     }
 }

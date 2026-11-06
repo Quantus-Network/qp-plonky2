@@ -22,30 +22,6 @@ pub(super) struct DenseStorage<F: Field> {
 // orders readers and other writers after the selected writer's completion.
 unsafe impl<F: Field> Sync for DenseStorage<F> {}
 
-impl<F: Field> Clone for DenseStorage<F> {
-    fn clone(&self) -> Self {
-        assert!(
-            !self.shared_writes_active,
-            "cannot clone dense storage during parallel generation"
-        );
-        Self {
-            // SAFETY: Shared writes are only permitted during parallel execution,
-            // when cloning is rejected above.
-            values: self
-                .values
-                .iter()
-                .map(|v| UnsafeCell::new(unsafe { *v.get() }))
-                .collect(),
-            assigned: self
-                .assigned
-                .iter()
-                .map(|v| UnsafeCell::new(unsafe { *v.get() }))
-                .collect(),
-            shared_writes_active: false,
-        }
-    }
-}
-
 impl<F: Field> fmt::Debug for DenseStorage<F> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // Do not inspect cells: Debug may be called by a running generator.

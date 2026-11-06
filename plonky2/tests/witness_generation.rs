@@ -441,8 +441,7 @@ fn generator_errors_invalidate_executor_and_leave_witness_accessible() -> Result
                     .contains("after failed execution"));
                 assert_eq!(executor.witness().get_target(denominator), F::ZERO);
                 drop(executor);
-                // Cloning is forbidden while shared writes are active: success checks cleanup.
-                assert_eq!(witness.clone().get_target(denominator), F::ZERO);
+                assert_eq!(witness.get_target(denominator), F::ZERO);
                 let mut valid_inputs = PartialWitness::new();
                 valid_inputs.set_target(denominator, F::TWO)?;
                 let recovered = generate(&scheduler, &schedule, &valid_inputs, num_workers)?;
@@ -511,7 +510,7 @@ fn generator_panics_propagate_after_workers_join_and_invalidate_executor() -> Re
                     .to_string()
                     .contains("after failed execution"));
                 drop(executor);
-                assert_eq!(witness.clone().get_target(swap), F::TWO);
+                assert_eq!(witness.get_target(swap), F::TWO);
                 generate(&scheduler, &schedule, &inputs, num_workers)?;
             }
             Ok(())
