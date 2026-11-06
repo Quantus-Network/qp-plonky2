@@ -371,3 +371,308 @@ fn parse_base(id: &str, base: &str) -> Result<usize> {
     base.parse()
         .map_err(|_| anyhow!("invalid base in built-in generator ID: {id}"))
 }
+
+#[cfg(all(test, feature = "std"))]
+mod tests {
+    use super::*;
+    use std::collections::BTreeSet;
+
+    use crate::field::types::Field;
+    use crate::gadgets::split_join::SplitGenerator;
+    use crate::gates::arithmetic_base::ArithmeticGate;
+    use crate::gates::arithmetic_extension::ArithmeticExtensionGate;
+    use crate::gates::coset_interpolation::CosetInterpolationGate;
+    use crate::gates::exponentiation::ExponentiationGate;
+    use crate::gates::multiplication_extension::MulExtensionGate;
+    use crate::gates::poseidon::PoseidonGate;
+    use crate::gates::poseidon2::Poseidon2Gate;
+    use crate::gates::poseidon2_int_mix::Poseidon2IntMixGate;
+    use crate::gates::poseidon2_mds::Poseidon2MdsGate;
+    use crate::gates::poseidon_mds::PoseidonMdsGate;
+    use crate::gates::random_access::RandomAccessGate;
+    use crate::gates::reducing::ReducingGate;
+    use crate::gates::reducing_extension::ReducingExtensionGate;
+    use crate::iop::generator::{NonzeroTestGenerator, SimpleGenerator, WitnessGeneratorRef};
+    use crate::iop::witness::{PartialWitness, Witness, WitnessWrite};
+    use crate::plonk::circuit_builder::CircuitBuilder;
+    use crate::plonk::circuit_data::CircuitConfig;
+    use crate::recursion::dummy_circuit::DummyProofGenerator;
+    use crate::util::serialization::{IoError, IoResult, Write};
+    use crate::{C, D, F};
+
+    fn family_fixture() -> Result<CircuitData<F, C, D>> {
+        let config = CircuitConfig::standard_recursion_config();
+        let inner = CircuitBuilder::<F, D>::new(config.clone()).build::<C>();
+        let proof = inner.prove(PartialWitness::new())?;
+        let mut builder = CircuitBuilder::<F, D>::new(config.clone());
+        builder.add_gate(
+            ArithmeticGate::new_from_config(&config),
+            vec![F::ONE, F::TWO],
+        );
+        builder.add_gate(
+            ArithmeticExtensionGate::<D>::new_from_config(&config),
+            vec![F::ONE, F::TWO],
+        );
+        builder.add_gate(
+            MulExtensionGate::<D>::new_from_config(&config),
+            vec![F::TWO],
+        );
+        for num_coeffs in [1, 3] {
+            builder.add_gate(ReducingGate::<D>::new(num_coeffs), vec![]);
+            builder.add_gate(ReducingExtensionGate::<D>::new(num_coeffs), vec![]);
+        }
+        for bits in [1, 3] {
+            builder.add_gate(
+                RandomAccessGate::<F, D>::new_from_config(&config, bits),
+                vec![],
+            );
+            builder.add_gate(ExponentiationGate::<F, D>::new(bits), vec![]);
+        }
+        builder.add_gate(PoseidonGate::<F, D>::new(), vec![]);
+        builder.add_gate(PoseidonMdsGate::<F, D>::new(), vec![]);
+        builder.add_gate(Poseidon2Gate::<F, D>::new(), vec![]);
+        builder.add_gate(Poseidon2MdsGate::<F, D>::new(), vec![]);
+        builder.add_gate(Poseidon2IntMixGate::<F, D>::new(), vec![]);
+        builder.add_gate(CosetInterpolationGate::<F, D>::new(2), vec![]);
+        builder.add_gate(
+            CosetInterpolationGate::<F, D>::with_max_degree(3, 3),
+            vec![],
+        );
+
+        let a = builder.add_virtual_target();
+        let b = builder.add_virtual_target();
+        let copied = builder.add_virtual_target();
+        builder.generate_copy(a, copied);
+        builder.is_equal(a, b);
+        builder.split_low_high(a, 4, 8);
+        builder.split_le(a, 8);
+        builder.split_le_base::<3>(a, 4)?;
+        let bits: Vec<_> = (0..30)
+            .map(|_| builder.add_virtual_bool_target_unsafe())
+            .collect();
+        builder.le_sum(bits.iter());
+        let extension = builder.add_virtual_extension_target();
+        builder.inverse_extension(extension);
+        builder.add_simple_generator(NonzeroTestGenerator {
+            to_test: a,
+            dummy: b,
+        });
+        builder.constant(F::from_canonical_u64(7));
+        #[cfg(feature = "rand")]
+        builder
+            .add_simple_generator(crate::iop::generator::RandomValueGenerator { target: copied });
+
+        // SplitGenerator has no builder entrypoint; construct a nonempty instance
+        // through its existing serialization API rather than expose private fields.
+        let mut parameters = Vec::new();
+        parameters.write_target(a).unwrap();
+        parameters
+            .write_target_vec(&builder.add_virtual_targets(8))
+            .unwrap();
+        let split = <SplitGenerator as SimpleGenerator<F, D>>::deserialize(
+            &mut Buffer::new(&parameters),
+            &inner.common,
+        )
+        .unwrap();
+        builder.add_simple_generator(split);
+
+        let table = builder.add_lookup_table_from_pairs(Arc::new(vec![(3, 11), (7, 19)]));
+        builder.add_lookup_from_index(a, table);
+        let proof_with_pis_target = builder.add_virtual_proof_with_pis(&inner.common);
+        let verifier_data_target = builder.add_virtual_verifier_data(config.fri_config.cap_height);
+        builder.add_simple_generator(DummyProofGenerator {
+            proof_with_pis_target,
+            proof_with_pis: proof,
+            verifier_data_target,
+            verifier_data: inner.verifier_data(),
+        });
+        Ok(builder.build::<C>())
+    }
+
+    fn check_output_order(
+        generator: &dyn WitnessGenerator<F, D>,
+        data: &CircuitData<F, C, D>,
+        probe: &mut PartitionWitness<'_, F>,
+    ) -> Result<()> {
+        let discovered = discover_outputs(generator, &data.common, probe)?;
+        let reads = generator.reads().unwrap();
+        assert!(
+            !discovered.is_empty(),
+            "{} fixture has no outputs",
+            generator.id()
+        );
+        let rep = |target: Target| {
+            data.prover_only.representative_map
+                [target.index(data.common.config.num_wires, data.common.degree())]
+        };
+        for &target in &reads {
+            assert!(
+                !probe.contains(target),
+                "{} left a probe input assigned",
+                generator.id()
+            );
+        }
+        for &target in &discovered {
+            assert!(
+                !probe.contains(target),
+                "{} applied a probe output",
+                generator.id()
+            );
+        }
+        // These are valid inputs for each individual generator, independent of
+        // the dummy probe. This does not claim to be a complete circuit witness.
+        for value in [F::ZERO, F::ONE] {
+            let mut witness = PartitionWitness::new(
+                data.common.config.num_wires,
+                data.common.degree(),
+                &data.prover_only.representative_map,
+            );
+            let special = match generator.id().as_str() {
+                "QuotientGeneratorExtension" => Some((reads[D], F::TWO)),
+                "InterpolationGenerator" => Some((reads[0], F::from_canonical_u64(3))),
+                "LookupGenerator" => Some((
+                    reads[0],
+                    if value == F::ZERO {
+                        F::from_canonical_u64(3)
+                    } else {
+                        F::from_canonical_u64(7)
+                    },
+                )),
+                "EqualityGenerator" if value == F::ZERO => Some((reads[1], F::ONE)),
+                _ => None,
+            };
+            for &target in &reads {
+                let assigned = special
+                    .filter(|&(special_target, _)| rep(special_target) == rep(target))
+                    .map_or(value, |(_, special_value)| special_value);
+                witness.set_target(target, assigned)?;
+            }
+            let mut outputs = GeneratedValues::empty();
+            generator.run_ready(&witness, &mut outputs)?;
+            let actual: Vec<_> = outputs
+                .target_values
+                .iter()
+                .map(|&(target, _)| target)
+                .collect();
+            assert_eq!(
+                actual,
+                discovered,
+                "{} output order changed",
+                generator.id()
+            );
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn built_in_families_discover_the_same_output_order_as_execution() -> Result<()> {
+        let data = family_fixture()?;
+        // Exercise public admission as well as the private ordered-output probe.
+        let scheduler = WitnessGeneratorScheduler::new(&data)?;
+        let mut probe = scheduler.new_witness();
+        let mut families = BTreeSet::new();
+        for generator in &data.prover_only.generators {
+            check_output_order(generator.0.as_ref(), &data, &mut probe)?;
+            families.insert(generator.0.id().split(" + ").next().unwrap().to_owned());
+        }
+        let mut expected: BTreeSet<_> = [
+            "ArithmeticBaseGenerator",
+            "ArithmeticExtensionGenerator",
+            "MulExtensionGenerator",
+            "ReducingGenerator",
+            "ReducingExtensionGenerator",
+            "RandomAccessGenerator",
+            "ExponentiationGenerator",
+            "PoseidonGenerator",
+            "PoseidonMdsGenerator",
+            "Poseidon2FullGen",
+            "Poseidon2MdsGenerator",
+            "Poseidon2IntMixGenerator",
+            "LookupGenerator",
+            "LookupTableGenerator",
+            "DummyProofGenerator",
+            "SplitGenerator",
+            "WireSplitGenerator",
+            "EqualityGenerator",
+            "LowHighGenerator",
+            "CopyGenerator",
+            "NonzeroTestGenerator",
+            "ConstantGenerator",
+            "BaseSplitGenerator",
+            "BaseSumGenerator",
+            "QuotientGeneratorExtension",
+            "InterpolationGenerator",
+        ]
+        .into_iter()
+        .map(str::to_owned)
+        .collect();
+        #[cfg(feature = "rand")]
+        expected.insert("RandomValueGenerator".to_owned());
+        assert_eq!(families, expected);
+        Ok(())
+    }
+
+    #[derive(Debug)]
+    struct UnsupportedGenerator {
+        declares_reads: bool,
+    }
+
+    impl WitnessGenerator<F, D> for UnsupportedGenerator {
+        fn id(&self) -> String {
+            "UnsupportedTestGenerator".to_owned()
+        }
+        fn watch_list(&self) -> Vec<Target> {
+            vec![]
+        }
+        fn reads(&self) -> Option<Vec<Target>> {
+            self.declares_reads.then(Vec::new)
+        }
+        fn run(&self, _: &PartitionWitness<F>, _: &mut GeneratedValues<F>) -> bool {
+            panic!("unsupported generator must be rejected before execution")
+        }
+        fn serialize(&self, _: &mut Vec<u8>, _: &CommonCircuitData<F, D>) -> IoResult<()> {
+            Err(IoError)
+        }
+        fn deserialize(_: &mut Buffer, _: &CommonCircuitData<F, D>) -> IoResult<Self> {
+            Err(IoError)
+        }
+    }
+
+    #[test]
+    fn preparation_rejects_unknown_generators_and_missing_read_declarations() {
+        for declares_reads in [false, true] {
+            let mut builder =
+                CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+            builder.add_generators(vec![WitnessGeneratorRef::new(UnsupportedGenerator {
+                declares_reads,
+            })]);
+            let data = builder.build::<C>();
+            let error = WitnessGeneratorScheduler::new(&data)
+                .unwrap_err()
+                .to_string();
+            assert!(error.contains("UnsupportedTestGenerator"), "{error}");
+            assert!(
+                error.contains(if declares_reads {
+                    "unsupported generator ID"
+                } else {
+                    "does not declare its reads"
+                }),
+                "{error}"
+            );
+        }
+    }
+
+    #[test]
+    fn malformed_base_generator_ids_are_rejected() {
+        for id in [
+            "BaseSplitGenerator + Base: 0",
+            "BaseSplitGenerator + Base: invalid",
+            "BaseSumGenerator + Base: invalid",
+        ] {
+            let error = dummy_input_rule(id)
+                .err()
+                .expect("invalid base should be rejected");
+            assert!(error.to_string().contains("base"), "{error}");
+        }
+    }
+}
