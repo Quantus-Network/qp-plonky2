@@ -39,24 +39,6 @@ impl SchedulingState {
         }
     }
 
-    pub(super) fn with_assumed_assignments(
-        scheduler: Arc<()>,
-        assumed_assigned: &[u8],
-        num_generators: usize,
-    ) -> Self {
-        Self {
-            assumed_assigned: assumed_assigned.to_vec(),
-            generators_scheduled: vec![0; num_generators],
-            chain_id: Arc::new(ScheduleChainId { scheduler }),
-            next_schedule: 0,
-            newly_promised: assumed_assigned
-                .iter()
-                .enumerate()
-                .filter_map(|(rep_index, &flag)| (flag != 0).then_some(rep_index))
-                .collect(),
-        }
-    }
-
     /// Promises that this representative will be assigned before the next schedule.
     /// Repeated promises, including values produced by preceding schedules, do nothing.
     pub fn assume_set(&mut self, rep_index: usize) -> Result<()> {

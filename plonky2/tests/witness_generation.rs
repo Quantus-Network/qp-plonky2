@@ -28,12 +28,12 @@ fn make_schedule(
     scheduler: &Scheduler<'_>,
     inputs: &PartialWitness<F>,
 ) -> Result<GenerationSchedule> {
-    let mut assumed_assigned = vec![0; data.prover_only.representative_map.len()];
+    let mut state = scheduler.new_state();
     for &target in inputs.target_values.keys() {
         let target_index = target.index(data.common.config.num_wires, data.common.degree());
-        assumed_assigned[data.prover_only.representative_map[target_index]] = 1;
+        state.assume_set(data.prover_only.representative_map[target_index])?;
     }
-    scheduler.make_complete_schedule(&assumed_assigned)
+    scheduler.make_complete_schedule(&mut state)
 }
 
 fn run_schedule(
