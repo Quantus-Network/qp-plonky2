@@ -24,10 +24,10 @@ type Scheduler<'a> = WitnessGeneratorScheduler<'a, F, C, D>;
 
 fn make_schedule(
     scheduler: &Scheduler<'_>,
-    inputs: &PartialWitness<F>,
+    targets: impl IntoIterator<Item = Target>,
 ) -> Result<GenerationSchedule> {
     let mut state = scheduler.new_state();
-    for &target in inputs.target_values.keys() {
+    for target in targets {
         scheduler.assume_set(&mut state, target)?;
     }
     scheduler.make_complete_schedule(&mut state)
@@ -59,9 +59,13 @@ fn generate<'a>(
     for (&target, &value) in &inputs.target_values {
         witness.set_target(target, value)?;
     }
-    let mut bound = executor.bind(&mut witness)?;
-    run_schedule(&mut bound, schedule, num_workers)?;
-    bound.unbind();
+    if let Some(num_workers) = num_workers {
+        // SAFETY: These fixtures use built-in generators with complete read
+        // declarations and fixed outputs, through target-based witness access.
+        unsafe { executor.run_schedule_parallel(&mut witness, schedule, num_workers)? };
+    } else {
+        executor.run_schedule(&mut witness, schedule)?;
+    }
     Ok(witness)
 }
 
@@ -151,6 +155,10 @@ fn mixed_circuit_matches_original_generation_and_proves() -> Result<()> {
     let unused = builder.add_virtual_target();
     let data = builder.build::<C>();
     let scheduler = Scheduler::new(&data)?;
+    let schedule = make_schedule(
+        &scheduler,
+        [a, alias, b, selector].into_iter().chain(extension.0),
+    )?;
     for (case_index, (a_value, b_value, extension_values, selector_value)) in [
         (0, 0, [0, 0], 0),
         (1, 2, [3, 4], 1),
@@ -168,7 +176,6 @@ fn mixed_circuit_matches_original_generation_and_proves() -> Result<()> {
         for (target, value) in extension.0.into_iter().zip(extension_values) {
             inputs.set_target(target, F::from_canonical_u64(value))?;
         }
-        let schedule = make_schedule(&scheduler, &inputs)?;
         let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common)?;
         for num_workers in [None, Some(1), Some(4)] {
             let actual = generate(&data, &scheduler, &schedule, &inputs, num_workers)?;
@@ -220,11 +227,11 @@ fn duplicate_writers_are_compared_without_readers() -> Result<()> {
             .into_iter()
             .all(|target| representative(target) != rep_index));
     }
+    let schedule = make_schedule(&scheduler, [a, b])?;
     for b_value in [3, 4] {
         let mut inputs = PartialWitness::new();
         inputs.set_target(a, F::from_canonical_u64(3))?;
         inputs.set_target(b, F::from_canonical_u64(b_value))?;
-        let schedule = make_schedule(&scheduler, &inputs)?;
         let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common);
         if b_value == 3 {
             let expected = expected?;
@@ -254,10 +261,10 @@ fn repeated_emissions_to_one_representative_must_agree() -> Result<()> {
     builder.connect(bits[0].target, bits[1].target);
     let data = builder.build::<C>();
     let scheduler = Scheduler::new(&data)?;
+    let schedule = make_schedule(&scheduler, [input])?;
     for value in [3, 1] {
         let mut inputs = PartialWitness::new();
         inputs.set_target(input, F::from_canonical_u64(value))?;
-        let schedule = make_schedule(&scheduler, &inputs)?;
         let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common);
         if value == 3 {
             let expected = expected?;
@@ -308,13 +315,13 @@ fn caller_prefills_must_agree_with_aliases_and_generated_values() -> Result<()> 
     let sum = builder.add(a, b);
     let data = builder.build::<C>();
     let scheduler = Scheduler::new(&data)?;
+    let schedule = make_schedule(&scheduler, [a, alias, b, sum])?;
     for (alias_value, sum_value) in [(3, 8), (3, 9), (4, 8)] {
         let mut inputs = PartialWitness::new();
         inputs.set_target(a, F::from_canonical_u64(3))?;
         inputs.set_target(alias, F::from_canonical_u64(alias_value))?;
         inputs.set_target(b, F::from_canonical_u64(5))?;
         inputs.set_target(sum, F::from_canonical_u64(sum_value))?;
-        let schedule = make_schedule(&scheduler, &inputs)?;
         let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common);
         if alias_value == 3 && sum_value == 8 {
             let expected = expected?;
@@ -416,15 +423,13 @@ fn schedule_chains_validate_order_identity_and_promises_before_execution() -> Re
 }
 
 #[test]
-fn generator_errors_invalidate_executor_and_leave_witness_accessible() -> Result<()> {
+fn generator_errors_invalidate_binding_and_allow_executor_reuse() -> Result<()> {
     let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
     let denominator = builder.add_virtual_target();
     let inverse = builder.inverse(denominator);
     let data = builder.build::<C>();
     let scheduler = Scheduler::new(&data)?;
-    let mut inputs = PartialWitness::new();
-    inputs.set_target(denominator, F::ZERO)?;
-    let schedule = make_schedule(&scheduler, &inputs)?;
+    let schedule = make_schedule(&scheduler, [denominator])?;
     for num_workers in [None, Some(1), Some(4)] {
         let mut witness = WitnessGeneratorExecutor::new_witness(&data);
         let mut executor = WitnessGeneratorExecutor::new(&scheduler);
@@ -449,9 +454,11 @@ fn generator_errors_invalidate_executor_and_leave_witness_accessible() -> Result
         assert_eq!(bound.witness().get_target(denominator), F::ZERO);
         bound.unbind();
         assert_eq!(witness.get_target(denominator), F::ZERO);
-        let mut valid_inputs = PartialWitness::new();
-        valid_inputs.set_target(denominator, F::TWO)?;
-        let recovered = generate(&data, &scheduler, &schedule, &valid_inputs, num_workers)?;
+        let mut recovered = WitnessGeneratorExecutor::new_witness(&data);
+        recovered.set_target(denominator, F::TWO)?;
+        let mut bound = executor.bind(&mut recovered)?;
+        run_schedule(&mut bound, &schedule, num_workers)?;
+        bound.unbind();
         assert_eq!(recovered.get_target(inverse), F::TWO.inverse());
     }
     Ok(())
@@ -459,12 +466,13 @@ fn generator_errors_invalidate_executor_and_leave_witness_accessible() -> Result
 
 #[cfg(debug_assertions)]
 #[test]
-fn generator_panics_propagate_after_workers_join_and_invalidate_executor() -> Result<()> {
+fn generator_panics_propagate_after_workers_join_and_allow_executor_reuse() -> Result<()> {
     use plonky2::gates::poseidon::PoseidonGate;
+    use plonky2::hash::poseidon::SPONGE_WIDTH;
     use std::panic::{catch_unwind, AssertUnwindSafe};
 
     let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
-    builder.add_gate(PoseidonGate::<F, D>::new(), vec![]);
+    let row = builder.add_gate(PoseidonGate::<F, D>::new(), vec![]);
     let data = builder.build::<C>();
     let scheduler = Scheduler::new(&data)?;
     let generator = data
@@ -478,9 +486,10 @@ fn generator_panics_propagate_after_workers_join_and_invalidate_executor() -> Re
     for &target in &reads {
         inputs.set_target(target, F::ZERO)?;
     }
-    let schedule = make_schedule(&scheduler, &inputs)?;
-    // Poseidon declares the swap input after its permutation inputs.
-    let swap = *reads.last().unwrap();
+    let schedule = make_schedule(&scheduler, reads.iter().copied())?;
+    let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common)?;
+    // Poseidon places the swap wire after its input and output state wires.
+    let swap = Target::wire(row, 2 * SPONGE_WIDTH);
     for num_workers in [None, Some(1), Some(4)] {
         let mut witness = WitnessGeneratorExecutor::new_witness(&data);
         let mut executor = WitnessGeneratorExecutor::new(&scheduler);
@@ -513,7 +522,14 @@ fn generator_panics_propagate_after_workers_join_and_invalidate_executor() -> Re
             .contains("after failed execution"));
         bound.unbind();
         assert_eq!(witness.get_target(swap), F::TWO);
-        generate(&data, &scheduler, &schedule, &inputs, num_workers)?;
+        let mut recovered = WitnessGeneratorExecutor::new_witness(&data);
+        for (&target, &value) in &inputs.target_values {
+            recovered.set_target(target, value)?;
+        }
+        let mut bound = executor.bind(&mut recovered)?;
+        run_schedule(&mut bound, &schedule, num_workers)?;
+        bound.unbind();
+        assert_witnesses_match(&data, &expected, &recovered);
     }
     Ok(())
 }
