@@ -75,12 +75,12 @@ impl SchedulingState {
     }
 
     /// Flags indexed by representative index; nonzero means assumed assigned.
-    pub fn assumed_assigned(&self) -> &[u8] {
+    pub(super) fn assumed_assigned(&self) -> &[u8] {
         &self.assumed_assigned
     }
 
     /// Flags indexed by circuit generator index; nonzero means assumed scheduled.
-    pub fn generators_scheduled(&self) -> &[u8] {
+    pub(super) fn generators_scheduled(&self) -> &[u8] {
         &self.generators_scheduled
     }
 
@@ -93,13 +93,6 @@ impl SchedulingState {
 
     pub fn is_fully_scheduled(&self) -> bool {
         self.generators_scheduled.iter().all(|&flag| flag != 0)
-    }
-
-    pub fn num_assumed_assigned(&self) -> usize {
-        self.assumed_assigned
-            .iter()
-            .filter(|&&flag| flag != 0)
-            .count()
     }
 
     /// Clears planning flags and starts a new chain, retaining buffer allocations.
