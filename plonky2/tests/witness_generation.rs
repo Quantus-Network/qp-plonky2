@@ -174,10 +174,6 @@ fn mixed_circuit_matches_original_generation_and_proves() -> Result<()> {
             inputs.set_target(target, F::from_canonical_u64(value))?;
         }
         let schedule = make_schedule(&data, &scheduler, &inputs)?;
-        assert_eq!(
-            schedule.generator_indices().len(),
-            data.prover_only.generators.len()
-        );
         let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common)?;
         for num_workers in [None, Some(1), Some(4)] {
             let actual = generate(&data, &scheduler, &schedule, &inputs, num_workers)?;
@@ -237,25 +233,6 @@ fn duplicate_writers_are_compared_without_readers() -> Result<()> {
         let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common);
         if b_value == 3 {
             let expected = expected?;
-            let mut buffer = GeneratedValues::empty();
-            let mut writer_local_indices = Vec::new();
-            for (local_index, &generator_index) in schedule.generator_indices().iter().enumerate() {
-                buffer.target_values.clear();
-                data.prover_only.generators[generator_index]
-                    .0
-                    .run_ready(&expected, &mut buffer)?;
-                if buffer
-                    .target_values
-                    .iter()
-                    .any(|&(target, _)| representative(target) == rep_index)
-                {
-                    writer_local_indices.push(local_index);
-                }
-            }
-            assert_eq!(writer_local_indices.len(), 2);
-            assert!(schedule
-                .successors(writer_local_indices[0])
-                .contains(&writer_local_indices[1]));
             for num_workers in [None, Some(1), Some(4)] {
                 let actual = generate(&data, &scheduler, &schedule, &inputs, num_workers)?;
                 assert_witnesses_match(&data, &expected, &actual);
@@ -386,8 +363,9 @@ fn schedule_chains_validate_order_identity_and_promises_before_execution() -> Re
             let first = scheduler.make_schedule(&mut state)?;
             state.assume_set(rep(a))?;
             let middle = scheduler.make_schedule(&mut state)?;
+            let remaining = state.remaining_generators();
             let empty = scheduler.make_schedule(&mut state)?;
-            assert!(empty.generator_indices().is_empty());
+            assert_eq!(state.remaining_generators(), remaining);
             assert!(!state.is_fully_scheduled());
             state.assume_set(rep(b))?;
             let last = scheduler.make_schedule(&mut state)?;

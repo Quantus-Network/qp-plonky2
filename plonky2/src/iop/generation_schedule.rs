@@ -59,23 +59,23 @@ impl GenerationSchedule {
         &self.newly_promised
     }
 
-    pub fn generator_indices(&self) -> &[usize] {
+    pub(super) fn generator_indices(&self) -> &[usize] {
         &self.generator_indices
     }
 
     /// Distinct generator-predecessor counts, indexed locally.
-    pub fn dependency_counts(&self) -> &[usize] {
+    pub(super) fn dependency_counts(&self) -> &[usize] {
         &self.dependency_counts
     }
 
     /// Successors of a schedule-local generator, in circuit-builder order.
-    pub fn successors(&self, local_index: usize) -> &[usize] {
+    pub(super) fn successors(&self, local_index: usize) -> &[usize] {
         &self.successors
             [self.successor_offsets[local_index]..self.successor_offsets[local_index + 1]]
     }
 
     /// Schedule-local roots, in circuit-builder order.
-    pub fn initial_ready(&self) -> &[usize] {
+    pub(super) fn initial_ready(&self) -> &[usize] {
         &self.initial_ready
     }
 
@@ -206,4 +206,26 @@ pub(super) fn make_schedule(
         successors,
         initial_ready,
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn duplicate_writers_are_ordered_without_readers() {
+        let mut state = SchedulingState::new(Arc::new(()), 3, 2);
+        state.assume_set(0).unwrap();
+        state.assume_set(1).unwrap();
+        let reads = vec![vec![0], vec![1]];
+        let writes = vec![vec![2], vec![2]];
+        let consumers = HashMap::from_iter([(0, vec![0]), (1, vec![1])]);
+        let schedule = make_schedule(&reads, &writes, &consumers, &mut state);
+
+        assert_eq!(schedule.generator_indices(), &[0, 1]);
+        assert_eq!(schedule.dependency_counts(), &[0, 1]);
+        assert_eq!(schedule.initial_ready(), &[0]);
+        assert_eq!(schedule.successors(0), &[1]);
+        assert!(state.is_fully_scheduled());
+    }
 }
