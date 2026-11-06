@@ -164,18 +164,6 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         Ok(schedule)
     }
 
-    /// Creates an empty dense witness for explicit caller filling and execution.
-    /// Access values through witness methods; its public `values` vector is empty.
-    pub fn new_witness(&self) -> PartitionWitness<'a, F> {
-        let circuit = self.execution.circuit();
-        let common = &circuit.common;
-        PartitionWitness::new_dense(
-            common.config.num_wires,
-            common.degree(),
-            &circuit.prover_only.representative_map,
-        )
-    }
-
     pub(super) fn execution_data(&self) -> Arc<ExecutionData<'a, F, C, D>> {
         Arc::clone(&self.execution)
     }
@@ -371,6 +359,7 @@ mod tests {
     use crate::gates::reducing_extension::ReducingExtensionGate;
     use crate::iop::generator::{NonzeroTestGenerator, SimpleGenerator, WitnessGeneratorRef};
     use crate::iop::witness::{PartialWitness, Witness, WitnessWrite};
+    use crate::iop::witness_generator_executor::WitnessGeneratorExecutor;
     use crate::plonk::circuit_builder::CircuitBuilder;
     use crate::plonk::circuit_data::CircuitConfig;
     use crate::recursion::dummy_circuit::DummyProofGenerator;
@@ -545,8 +534,8 @@ mod tests {
     fn built_in_families_discover_the_same_output_order_as_execution() -> Result<()> {
         let data = family_fixture()?;
         // Exercise public admission as well as the private ordered-output probe.
-        let scheduler = WitnessGeneratorScheduler::new(&data)?;
-        let mut probe = scheduler.new_witness();
+        WitnessGeneratorScheduler::new(&data)?;
+        let mut probe = WitnessGeneratorExecutor::new_witness(&data);
         let mut families = BTreeSet::new();
         for generator in &data.prover_only.generators {
             check_output_order(generator.0.as_ref(), &data, &mut probe)?;

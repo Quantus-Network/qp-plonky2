@@ -10,7 +10,9 @@ use plonky2::iop::generation_schedule::GenerationSchedule;
 use plonky2::iop::generator::{generate_partial_witness, GeneratedValues};
 use plonky2::iop::target::Target;
 use plonky2::iop::witness::{PartialWitness, PartitionWitness, Witness, WitnessWrite};
-use plonky2::iop::witness_generator_executor::WitnessGeneratorExecutor;
+use plonky2::iop::witness_generator_executor::{
+    BoundWitnessGeneratorExecutor, WitnessGeneratorExecutor,
+};
 use plonky2::iop::witness_generator_scheduler::WitnessGeneratorScheduler;
 use plonky2::plonk::circuit_builder::CircuitBuilder;
 use plonky2::plonk::circuit_data::{CircuitConfig, CircuitData};
@@ -37,32 +39,34 @@ fn make_schedule(
 }
 
 fn run_schedule(
-    executor: &mut WitnessGeneratorExecutor<'_, '_, F, C, D>,
+    bound: &mut BoundWitnessGeneratorExecutor<'_, '_, F, C, D>,
     schedule: &GenerationSchedule,
     num_workers: Option<usize>,
 ) -> Result<()> {
     if let Some(num_workers) = num_workers {
         // SAFETY: These fixtures use built-in generators with complete read
         // declarations and fixed outputs, through target-based witness access.
-        unsafe { executor.run_schedule_parallel(schedule, num_workers) }
+        unsafe { bound.run_schedule_parallel(schedule, num_workers) }
     } else {
-        executor.run_schedule(schedule)
+        bound.run_schedule(schedule)
     }
 }
 
 fn generate<'a>(
+    data: &'a CircuitData<F, C, D>,
     scheduler: &Scheduler<'a>,
     schedule: &GenerationSchedule,
     inputs: &PartialWitness<F>,
     num_workers: Option<usize>,
 ) -> Result<PartitionWitness<'a, F>> {
-    let mut witness = scheduler.new_witness();
-    let mut executor = WitnessGeneratorExecutor::new(scheduler, &mut witness)?;
+    let mut witness = WitnessGeneratorExecutor::new_witness(data);
+    let mut executor = WitnessGeneratorExecutor::new(scheduler);
     for (&target, &value) in &inputs.target_values {
-        executor.set_target(target, value)?;
+        witness.set_target(target, value)?;
     }
-    run_schedule(&mut executor, schedule, num_workers)?;
-    drop(executor);
+    let mut bound = executor.bind(&mut witness)?;
+    run_schedule(&mut bound, schedule, num_workers)?;
+    bound.unbind();
     Ok(witness)
 }
 
@@ -176,7 +180,7 @@ fn mixed_circuit_matches_original_generation_and_proves() -> Result<()> {
         );
         let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common)?;
         for num_workers in [None, Some(1), Some(4)] {
-            let actual = generate(&scheduler, &schedule, &inputs, num_workers)?;
+            let actual = generate(&data, &scheduler, &schedule, &inputs, num_workers)?;
             assert_witnesses_match(&data, &expected, &actual);
             assert_eq!(actual.get_target(a), actual.get_target(alias));
             assert!(!actual.contains(unused));
@@ -253,7 +257,7 @@ fn duplicate_writers_are_compared_without_readers() -> Result<()> {
                 .successors(writer_local_indices[0])
                 .contains(&writer_local_indices[1]));
             for num_workers in [None, Some(1), Some(4)] {
-                let actual = generate(&scheduler, &schedule, &inputs, num_workers)?;
+                let actual = generate(&data, &scheduler, &schedule, &inputs, num_workers)?;
                 assert_witnesses_match(&data, &expected, &actual);
                 assert_eq!(actual.get_target(first), F::from_canonical_u64(3));
                 assert_eq!(actual.get_target(first), actual.get_target(second));
@@ -261,7 +265,8 @@ fn duplicate_writers_are_compared_without_readers() -> Result<()> {
         } else {
             assert!(expected.is_err());
             for num_workers in [None, Some(1), Some(4)] {
-                let error = generate(&scheduler, &schedule, &inputs, num_workers).unwrap_err();
+                let error =
+                    generate(&data, &scheduler, &schedule, &inputs, num_workers).unwrap_err();
                 assert!(error.to_string().contains("different values"), "{error}");
             }
         }
@@ -306,13 +311,14 @@ fn repeated_emissions_to_one_representative_must_agree() -> Result<()> {
             }
             assert!(repeated);
             for num_workers in [None, Some(1), Some(4)] {
-                let actual = generate(&scheduler, &schedule, &inputs, num_workers)?;
+                let actual = generate(&data, &scheduler, &schedule, &inputs, num_workers)?;
                 assert_witnesses_match(&data, &expected, &actual);
             }
         } else {
             assert!(expected.is_err());
             for num_workers in [None, Some(1), Some(4)] {
-                let error = generate(&scheduler, &schedule, &inputs, num_workers).unwrap_err();
+                let error =
+                    generate(&data, &scheduler, &schedule, &inputs, num_workers).unwrap_err();
                 assert!(error.to_string().contains("different values"), "{error}");
             }
         }
@@ -341,13 +347,14 @@ fn caller_prefills_must_agree_with_aliases_and_generated_values() -> Result<()> 
         if alias_value == 3 && sum_value == 8 {
             let expected = expected?;
             for num_workers in [None, Some(1), Some(4)] {
-                let actual = generate(&scheduler, &schedule, &inputs, num_workers)?;
+                let actual = generate(&data, &scheduler, &schedule, &inputs, num_workers)?;
                 assert_witnesses_match(&data, &expected, &actual);
             }
         } else {
             assert!(expected.is_err());
             for num_workers in [None, Some(1), Some(4)] {
-                let error = generate(&scheduler, &schedule, &inputs, num_workers).unwrap_err();
+                let error =
+                    generate(&data, &scheduler, &schedule, &inputs, num_workers).unwrap_err();
                 assert!(error.to_string().contains("different values"), "{error}");
             }
         }
@@ -394,39 +401,51 @@ fn schedule_chains_validate_order_identity_and_promises_before_execution() -> Re
             let foreign = other_scheduler.make_schedule(&mut other_scheduler.new_state())?;
 
             for num_workers in [None, Some(1), Some(4)] {
-                let mut witness = scheduler.new_witness();
-                let mut executor = WitnessGeneratorExecutor::new(&scheduler, &mut witness)?;
-                assert!(run_schedule(&mut executor, &middle, num_workers)
+                let mut witness = WitnessGeneratorExecutor::new_witness(&data);
+                let mut executor = WitnessGeneratorExecutor::new(&scheduler);
+                let mut bound = executor.bind(&mut witness)?;
+                assert!(run_schedule(&mut bound, &middle, num_workers)
                     .unwrap_err()
                     .to_string()
                     .contains("expected schedule"));
-                run_schedule(&mut executor, &first, num_workers)?;
-                assert!(run_schedule(&mut executor, &foreign, num_workers)
+                run_schedule(&mut bound, &first, num_workers)?;
+                assert!(run_schedule(&mut bound, &foreign, num_workers)
                     .unwrap_err()
                     .to_string()
                     .contains("another scheduler"));
-                assert!(run_schedule(&mut executor, &other_chain, num_workers)
+                assert!(run_schedule(&mut bound, &other_chain, num_workers)
                     .unwrap_err()
                     .to_string()
                     .contains("another chain"));
-                assert!(run_schedule(&mut executor, &middle, num_workers)
+                assert!(run_schedule(&mut bound, &middle, num_workers)
                     .unwrap_err()
                     .to_string()
                     .contains("not assigned"));
-                assert!(!executor.witness().contains(x));
-                executor.set_target(a, F::from_canonical_u64(3))?;
+                assert!(!bound.witness().contains(x));
+                bound.set_target(a, F::from_canonical_u64(3))?;
                 // Extra inputs may be supplied early, but do not execute later schedules.
-                executor.set_target(b, F::from_canonical_u64(5))?;
-                run_schedule(&mut executor, &middle, num_workers)?;
-                assert_eq!(executor.witness().get_target(x), F::from_canonical_u64(3));
-                assert!(!executor.witness().contains(y));
-                assert!(run_schedule(&mut executor, &middle, num_workers)
+                bound.set_target(b, F::from_canonical_u64(5))?;
+                run_schedule(&mut bound, &middle, num_workers)?;
+                assert_eq!(bound.witness().get_target(x), F::from_canonical_u64(3));
+                assert!(!bound.witness().contains(y));
+                assert!(run_schedule(&mut bound, &middle, num_workers)
                     .unwrap_err()
                     .to_string()
                     .contains("expected schedule"));
-                run_schedule(&mut executor, &empty, num_workers)?;
-                run_schedule(&mut executor, &last, num_workers)?;
-                assert_eq!(executor.witness().get_target(sum), F::from_canonical_u64(8));
+                run_schedule(&mut bound, &empty, num_workers)?;
+                run_schedule(&mut bound, &last, num_workers)?;
+                assert_eq!(bound.witness().get_target(sum), F::from_canonical_u64(8));
+                bound.unbind();
+                assert_eq!(witness.get_target(sum), F::from_canonical_u64(8));
+                let mut next_witness = WitnessGeneratorExecutor::new_witness(&data);
+                next_witness.set_target(a, F::from_canonical_u64(7))?;
+                next_witness.set_target(b, F::from_canonical_u64(11))?;
+                let mut bound = executor.bind(&mut next_witness)?;
+                for schedule in [&first, &middle, &empty, &last] {
+                    run_schedule(&mut bound, schedule, num_workers)?;
+                }
+                bound.unbind();
+                assert_eq!(next_witness.get_target(sum), F::from_canonical_u64(18));
             }
             Ok(())
         },
@@ -448,31 +467,32 @@ fn generator_errors_invalidate_executor_and_leave_witness_accessible() -> Result
             inputs.set_target(denominator, F::ZERO)?;
             let schedule = make_schedule(&data, &scheduler, &inputs)?;
             for num_workers in [None, Some(1), Some(4)] {
-                let mut witness = scheduler.new_witness();
-                let mut executor = WitnessGeneratorExecutor::new(&scheduler, &mut witness)?;
-                executor.set_target(denominator, F::ZERO)?;
-                let error = run_schedule(&mut executor, &schedule, num_workers).unwrap_err();
+                let mut witness = WitnessGeneratorExecutor::new_witness(&data);
+                let mut executor = WitnessGeneratorExecutor::new(&scheduler);
+                let mut bound = executor.bind(&mut witness)?;
+                bound.set_target(denominator, F::ZERO)?;
+                let error = run_schedule(&mut bound, &schedule, num_workers).unwrap_err();
                 assert!(
                     error
                         .to_string()
                         .contains("extension denominator must be nonzero"),
                     "{error}"
                 );
-                assert!(run_schedule(&mut executor, &schedule, num_workers)
+                assert!(run_schedule(&mut bound, &schedule, num_workers)
                     .unwrap_err()
                     .to_string()
                     .contains("after failed execution"));
-                assert!(executor
+                assert!(bound
                     .set_target(denominator, F::TWO)
                     .unwrap_err()
                     .to_string()
                     .contains("after failed execution"));
-                assert_eq!(executor.witness().get_target(denominator), F::ZERO);
-                drop(executor);
+                assert_eq!(bound.witness().get_target(denominator), F::ZERO);
+                bound.unbind();
                 assert_eq!(witness.get_target(denominator), F::ZERO);
                 let mut valid_inputs = PartialWitness::new();
                 valid_inputs.set_target(denominator, F::TWO)?;
-                let recovered = generate(&scheduler, &schedule, &valid_inputs, num_workers)?;
+                let recovered = generate(&data, &scheduler, &schedule, &valid_inputs, num_workers)?;
                 assert_eq!(recovered.get_target(inverse), F::TWO.inverse());
             }
             Ok(())
@@ -509,14 +529,15 @@ fn generator_panics_propagate_after_workers_join_and_invalidate_executor() -> Re
             // Poseidon declares the swap input after its permutation inputs.
             let swap = *reads.last().unwrap();
             for num_workers in [None, Some(1), Some(4)] {
-                let mut witness = scheduler.new_witness();
-                let mut executor = WitnessGeneratorExecutor::new(&scheduler, &mut witness)?;
+                let mut witness = WitnessGeneratorExecutor::new_witness(&data);
+                let mut executor = WitnessGeneratorExecutor::new(&scheduler);
+                let mut bound = executor.bind(&mut witness)?;
                 for &target in &reads {
-                    executor.set_target(target, if target == swap { F::TWO } else { F::ZERO })?;
+                    bound.set_target(target, if target == swap { F::TWO } else { F::ZERO })?;
                 }
                 // The built-in generator asserts that its swap input is boolean in debug.
                 let panic = catch_unwind(AssertUnwindSafe(|| {
-                    run_schedule(&mut executor, &schedule, num_workers)
+                    run_schedule(&mut bound, &schedule, num_workers)
                 }))
                 .expect_err("invalid swap should panic");
                 let message = panic
@@ -528,18 +549,18 @@ fn generator_panics_propagate_after_workers_join_and_invalidate_executor() -> Re
                     message.contains("swap_value"),
                     "unexpected panic: {message}"
                 );
-                assert!(run_schedule(&mut executor, &schedule, num_workers)
+                assert!(run_schedule(&mut bound, &schedule, num_workers)
                     .unwrap_err()
                     .to_string()
                     .contains("after failed execution"));
-                assert!(executor
+                assert!(bound
                     .set_target(swap, F::TWO)
                     .unwrap_err()
                     .to_string()
                     .contains("after failed execution"));
-                drop(executor);
+                bound.unbind();
                 assert_eq!(witness.get_target(swap), F::TWO);
-                generate(&scheduler, &schedule, &inputs, num_workers)?;
+                generate(&data, &scheduler, &schedule, &inputs, num_workers)?;
             }
             Ok(())
         },

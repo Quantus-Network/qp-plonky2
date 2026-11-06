@@ -1,4 +1,4 @@
-//! Execution of planned generator chains on a caller-owned dense witness.
+//! Execution of planned generator chains on a caller-owned witness.
 
 #[cfg(not(feature = "std"))]
 use alloc::sync::Arc;
@@ -22,7 +22,7 @@ use crate::iop::generation_schedule::GenerationSchedule;
 use crate::iop::generator::GeneratedValues;
 use crate::iop::scheduling_state::ScheduleChainId;
 use crate::iop::target::Target;
-use crate::iop::witness::{PartitionWitness, WitnessWrite};
+use crate::iop::witness::{PartitionWitness, Witness, WitnessWrite};
 use crate::iop::witness_generator_scheduler::WitnessGeneratorScheduler;
 #[cfg(feature = "std")]
 use crate::iop::worker_coordinator::WorkerCoordinator;
@@ -153,38 +153,48 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     }
 }
 
-/// Runs a schedule chain while borrowing its witness and retaining worker buffers.
-/// Input filling delegates through WitnessWrite; the witness cannot be replaced
-/// or reset through this object while schedule progress is retained.
+/// Reusable execution data and worker allocations for a circuit.
 #[derive(Debug)]
 pub struct WitnessGeneratorExecutor<
-    'w,
     'a,
     F: RichField + Extendable<D>,
     C: GenericConfig<D, F = F>,
     const D: usize,
 > {
     execution: Arc<ExecutionData<'a, F, C, D>>,
-    witness: &'w mut PartitionWitness<'a, F>,
-    outputs: GeneratedValues<F>,
     #[cfg(feature = "std")]
     scratch: GenerationScratch<F>,
-    chain_id: Option<Arc<ScheduleChainId>>,
-    next_schedule: usize,
-    failed: bool,
 }
 
-impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
-    WitnessGeneratorExecutor<'w, 'a, F, C, D>
+impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
+    WitnessGeneratorExecutor<'a, F, C, D>
 {
-    /// Borrows a matching dense witness. The scheduler can be dropped after
-    /// construction; execution keeps only its immutable execution data.
-    pub fn new(
-        scheduler: &WitnessGeneratorScheduler<'a, F, C, D>,
-        witness: &'w mut PartitionWitness<'a, F>,
-    ) -> Result<Self> {
-        let execution = scheduler.execution_data();
-        let circuit = execution.circuit();
+    /// Creates a reusable executor. The scheduler can be dropped afterward;
+    /// execution retains only its immutable execution data.
+    pub fn new(scheduler: &WitnessGeneratorScheduler<'a, F, C, D>) -> Self {
+        Self {
+            execution: scheduler.execution_data(),
+            #[cfg(feature = "std")]
+            scratch: GenerationScratch::new(),
+        }
+    }
+
+    /// Creates an empty dense witness for explicit caller filling and execution.
+    /// Access values through witness methods; its public `values` vector is empty.
+    pub fn new_witness(circuit: &'a CircuitData<F, C, D>) -> PartitionWitness<'a, F> {
+        PartitionWitness::new_dense(
+            circuit.common.config.num_wires,
+            circuit.common.degree(),
+            &circuit.prover_only.representative_map,
+        )
+    }
+
+    /// Borrows a matching witness and starts new schedule-chain progress.
+    pub fn bind<'b>(
+        &'b mut self,
+        witness: &'b mut PartitionWitness<'a, F>,
+    ) -> Result<BoundWitnessGeneratorExecutor<'b, 'a, F, C, D>> {
+        let circuit = self.execution.circuit();
         ensure!(
             core::ptr::eq(
                 witness.representative_map,
@@ -193,122 +203,52 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
                 && witness.degree == circuit.common.degree(),
             "witness does not match scheduler circuit"
         );
-        ensure!(
-            witness.is_dense(),
-            "witness executor requires dense storage"
-        );
-        Ok(Self {
-            execution,
+        Ok(BoundWitnessGeneratorExecutor {
+            executor: self,
             witness,
-            outputs: GeneratedValues::empty(),
-            #[cfg(feature = "std")]
-            scratch: GenerationScratch::new(),
             chain_id: None,
             next_schedule: 0,
             failed: false,
         })
     }
 
-    /// Read-only access to the borrowed witness.
-    pub fn witness(&self) -> &PartitionWitness<'a, F> {
-        self.witness
+    /// Binds a witness and executes a single schedule at index zero.
+    pub fn run_schedule(
+        &mut self,
+        witness: &mut PartitionWitness<'a, F>,
+        schedule: &GenerationSchedule,
+    ) -> Result<()> {
+        self.bind(witness)?.run_schedule(schedule)
     }
 
-    fn check_schedule(&mut self, schedule: &GenerationSchedule) -> Result<()> {
-        ensure!(
-            !self.failed,
-            "witness executor cannot continue after failed execution"
-        );
-        ensure!(
-            schedule
-                .chain_id()
-                .matches_scheduler(self.execution.identity()),
-            "schedule belongs to another scheduler"
-        );
-        if let Some(chain_id) = &self.chain_id {
-            ensure!(
-                Arc::ptr_eq(chain_id, schedule.chain_id()),
-                "schedule belongs to another chain"
-            );
-        }
-        ensure!(
-            schedule.index() == self.next_schedule,
-            "expected schedule {}, got {}",
-            self.next_schedule,
-            schedule.index()
-        );
-        let dense = self.witness.dense_mut();
-        for &rep_index in schedule.newly_promised() {
-            ensure!(
-                dense.is_set(rep_index),
-                "promised representative {rep_index} is not assigned"
-            );
-        }
-        Ok(())
-    }
-
-    fn finish_schedule(&mut self, schedule: &GenerationSchedule) {
-        if self.chain_id.is_none() {
-            self.chain_id = Some(Arc::clone(schedule.chain_id()));
-        }
-        self.next_schedule = schedule
-            .index()
-            .checked_add(1)
-            .expect("schedule index overflow");
-        self.failed = false;
-    }
-
-    /// Checks new promises and executes the next schedule serially.
-    /// Validation errors permit retry; execution errors or panics invalidate
-    /// this executor, whose partially populated witness remains caller-owned.
-    pub fn run_schedule(&mut self, schedule: &GenerationSchedule) -> Result<()> {
-        self.check_schedule(schedule)?;
-        self.failed = true;
-        self.outputs.target_values.clear();
-        for &generator_index in schedule.generator_indices() {
-            self.execution
-                .run_generator(generator_index, self.witness, &mut self.outputs)?;
-        }
-        self.finish_schedule(schedule);
-        Ok(())
-    }
-
-    /// Checks new promises and executes the next schedule with one OS thread
-    /// per worker. Worker allocations are retained for subsequent schedules.
+    /// Binds a witness and executes a single schedule at index zero in parallel.
     ///
     /// # Safety
-    /// Generators must declare every read, including presence queries, emit
-    /// their discovered output targets/order independently of input values,
-    /// and access storage only through target-based witness methods. They must
-    /// not retain witness access after execution. Built-in IDs and debug output
-    /// checks do not establish these guarantees for arbitrary implementations.
+    /// The generator access requirements of
+    /// [`BoundWitnessGeneratorExecutor::run_schedule_parallel`] must hold.
     #[cfg(feature = "std")]
     pub unsafe fn run_schedule_parallel(
         &mut self,
+        witness: &mut PartitionWitness<'a, F>,
         schedule: &GenerationSchedule,
         num_workers: usize,
     ) -> Result<()> {
-        ensure!(
-            num_workers > 0,
-            "witness generation requires at least one worker"
-        );
-        self.check_schedule(schedule)?;
-        self.failed = true;
-        // SAFETY: The caller supplies generator access guarantees. Chain and
-        // promise checks establish prior publication and initial availability.
-        unsafe { self.run_parallel(schedule, num_workers) }?;
-        self.finish_schedule(schedule);
-        Ok(())
+        // SAFETY: The caller guarantees the bound method's access requirements.
+        unsafe {
+            self.bind(witness)?
+                .run_schedule_parallel(schedule, num_workers)
+        }
     }
 
     #[cfg(feature = "std")]
     unsafe fn run_parallel(
         &mut self,
         schedule: &GenerationSchedule,
+        witness: &mut PartitionWitness<'_, F>,
         num_workers: usize,
     ) -> Result<()> {
         let execution = &self.execution;
-        let witness = &*self.witness;
+        let witness = &*witness;
         let scratch = &mut self.scratch;
         scratch.reset(schedule.dependency_counts(), num_workers);
         scratch.seed_ready(schedule.initial_ready(), num_workers);
@@ -418,8 +358,139 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
     }
 }
 
-impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
-    WitnessWrite<F> for WitnessGeneratorExecutor<'w, 'a, F, C, D>
+/// Borrows an executor and witness for one schedule chain.
+/// Dropping or unbinding releases both borrows without clearing witness values.
+#[derive(Debug)]
+pub struct BoundWitnessGeneratorExecutor<
+    'b,
+    'a,
+    F: RichField + Extendable<D>,
+    C: GenericConfig<D, F = F>,
+    const D: usize,
+> {
+    executor: &'b mut WitnessGeneratorExecutor<'a, F, C, D>,
+    witness: &'b mut PartitionWitness<'a, F>,
+    chain_id: Option<Arc<ScheduleChainId>>,
+    next_schedule: usize,
+    failed: bool,
+}
+
+impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
+    BoundWitnessGeneratorExecutor<'b, 'a, F, C, D>
+{
+    /// Read-only access to the bound witness.
+    pub fn witness(&self) -> &PartitionWitness<'a, F> {
+        self.witness
+    }
+
+    /// Releases the witness and executor borrows, discarding chain progress.
+    pub fn unbind(self) {}
+
+    fn begin_schedule(&mut self, schedule: &GenerationSchedule) -> Result<()> {
+        ensure!(
+            !self.failed,
+            "witness executor cannot continue after failed execution"
+        );
+        ensure!(
+            schedule
+                .chain_id()
+                .matches_scheduler(self.executor.execution.identity()),
+            "schedule belongs to another scheduler"
+        );
+        if let Some(chain_id) = &self.chain_id {
+            ensure!(
+                Arc::ptr_eq(chain_id, schedule.chain_id()),
+                "schedule belongs to another chain"
+            );
+        }
+        ensure!(
+            schedule.index() == self.next_schedule,
+            "expected schedule {}, got {}",
+            self.next_schedule,
+            schedule.index()
+        );
+        let num_wires = self.witness.num_wires;
+        let num_wire_targets = self.witness.degree * num_wires;
+        for &rep_index in schedule.newly_promised() {
+            let target = if rep_index < num_wire_targets {
+                Target::wire(rep_index / num_wires, rep_index % num_wires)
+            } else {
+                Target::VirtualTarget {
+                    index: rep_index - num_wire_targets,
+                }
+            };
+            ensure!(
+                self.witness.try_get_target(target).is_some(),
+                "promised representative {rep_index} is not assigned"
+            );
+        }
+        if self.chain_id.is_none() {
+            self.chain_id = Some(Arc::clone(schedule.chain_id()));
+        }
+        self.failed = true;
+        Ok(())
+    }
+
+    fn finish_schedule(&mut self, schedule: &GenerationSchedule) {
+        self.next_schedule = schedule
+            .index()
+            .checked_add(1)
+            .expect("schedule index overflow");
+        self.failed = false;
+    }
+
+    /// Checks new promises and executes the next schedule serially.
+    /// Validation errors permit retry; execution errors or panics invalidate
+    /// this binding, whose partially populated witness remains caller-owned.
+    pub fn run_schedule(&mut self, schedule: &GenerationSchedule) -> Result<()> {
+        self.begin_schedule(schedule)?;
+        let mut outputs = GeneratedValues::empty();
+        for &generator_index in schedule.generator_indices() {
+            self.executor
+                .execution
+                .run_generator(generator_index, self.witness, &mut outputs)?;
+        }
+        self.finish_schedule(schedule);
+        Ok(())
+    }
+
+    /// Checks new promises and executes the next schedule with one OS thread
+    /// per worker. Worker allocations are retained for subsequent schedules.
+    ///
+    /// # Safety
+    /// Generators must declare every read, including presence queries, emit
+    /// their discovered output targets/order independently of input values,
+    /// and access storage only through target-based witness methods. They must
+    /// not retain witness access after execution. Built-in IDs and debug output
+    /// checks do not establish these guarantees for arbitrary implementations.
+    #[cfg(feature = "std")]
+    pub unsafe fn run_schedule_parallel(
+        &mut self,
+        schedule: &GenerationSchedule,
+        num_workers: usize,
+    ) -> Result<()> {
+        ensure!(
+            num_workers > 0,
+            "witness generation requires at least one worker"
+        );
+        ensure!(
+            self.witness.is_dense(),
+            "parallel witness execution requires dense storage"
+        );
+        self.begin_schedule(schedule)?;
+        // SAFETY: The caller supplies generator access guarantees. Chain and
+        // promise checks establish prior publication and initial availability.
+        unsafe {
+            self.executor
+                .run_parallel(schedule, self.witness, num_workers)
+        }?;
+        self.finish_schedule(schedule);
+        Ok(())
+    }
+}
+
+impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
+    WitnessWrite<F> for BoundWitnessGeneratorExecutor<'b, 'a, F, C, D>
 {
     fn set_target(&mut self, target: Target, value: F) -> Result<()> {
         ensure!(
@@ -431,8 +502,8 @@ impl<'w, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
 }
 
 #[cfg(feature = "std")]
-/// Executor-owned allocations reset for each schedule. The witness borrow,
-/// failure state and schedule-chain progress are held separately by the executor.
+/// Executor-owned allocations reset for each schedule. Witness access, failure
+/// state and schedule-chain progress are held separately by the binding.
 #[derive(Debug)]
 struct GenerationScratch<F: Field> {
     pending_dependencies: Vec<AtomicUsize>,
