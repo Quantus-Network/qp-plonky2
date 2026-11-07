@@ -342,6 +342,72 @@ fn caller_prefills_must_agree_with_aliases_and_generated_values() -> Result<()> 
 }
 
 #[test]
+fn cleared_witness_and_executor_can_be_reused() -> Result<()> {
+    let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+    let a = builder.add_virtual_target();
+    let alias = builder.add_virtual_target();
+    builder.connect(a, alias);
+    let b = builder.add_virtual_target();
+    let sum = builder.add(a, b);
+    let data = builder.build::<C>();
+    let scheduler = Scheduler::new(&data)?;
+    let schedule = make_schedule(&scheduler, [a, b])?;
+
+    for (dense, num_workers) in [(false, None), (true, None), (true, Some(4))] {
+        let mut witness = if dense {
+            WitnessGeneratorExecutor::new_witness(&data)
+        } else {
+            PartitionWitness::new(
+                data.common.config.num_wires,
+                data.common.degree(),
+                &data.prover_only.representative_map,
+            )
+        };
+        let mut executor = WitnessGeneratorExecutor::new(&scheduler);
+        for (a_value, b_value) in [(3, 5), (7, 11)] {
+            let mut inputs = PartialWitness::new();
+            inputs.set_target(a, F::from_canonical_u64(a_value))?;
+            inputs.set_target(b, F::from_canonical_u64(b_value))?;
+            for (&target, &value) in &inputs.target_values {
+                witness.set_target(target, value)?;
+            }
+            let expected = generate_partial_witness(inputs, &data.prover_only, &data.common)?;
+            let mut bound = executor.bind(&mut witness)?;
+            if !dense {
+                let before = bound.witness().values.clone();
+                // SAFETY: The fixture uses built-in generators with fixed access sets.
+                let error = unsafe { bound.run_schedule_parallel(&schedule, 4) }.unwrap_err();
+                assert!(
+                    error.to_string().contains("requires dense storage"),
+                    "{error}"
+                );
+                assert_eq!(bound.witness().values, before);
+            }
+            run_schedule(&mut bound, &schedule, num_workers)?;
+            bound.unbind();
+            assert_witnesses_match(&data, &expected, &witness);
+            assert_eq!(witness.get_target(alias), F::from_canonical_u64(a_value));
+            assert_eq!(
+                witness.get_target(sum),
+                F::from_canonical_u64(a_value + b_value)
+            );
+
+            witness.clear();
+            if dense {
+                let (_, assigned) = witness.dense_values_and_assignment_flags()?;
+                assert!(assigned.iter().all(|&flag| flag == 0));
+            } else {
+                assert!(witness.values.iter().all(Option::is_none));
+            }
+            for target in [a, alias, b, sum] {
+                assert!(!witness.contains(target));
+            }
+        }
+    }
+    Ok(())
+}
+
+#[test]
 fn schedule_chains_validate_order_identity_and_promises_before_execution() -> Result<()> {
     let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
     let a = builder.add_virtual_target();
