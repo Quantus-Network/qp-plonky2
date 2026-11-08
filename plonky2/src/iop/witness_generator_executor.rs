@@ -181,7 +181,8 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
 
     /// Creates an empty dense witness for explicit caller filling and execution.
     /// Access values through witness methods; its public `values` vector is empty.
-    pub fn new_witness(circuit: &'a CircuitData<F, C, D>) -> PartitionWitness<'a, F> {
+    pub fn new_witness(&self) -> PartitionWitness<'a, F> {
+        let circuit = self.execution.circuit();
         PartitionWitness::new_dense(
             circuit.common.config.num_wires,
             circuit.common.degree(),

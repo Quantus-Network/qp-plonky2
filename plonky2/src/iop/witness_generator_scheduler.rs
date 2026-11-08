@@ -553,8 +553,9 @@ mod tests {
     fn built_in_families_discover_the_same_output_order_as_execution() -> Result<()> {
         let data = family_fixture()?;
         // Exercise public admission as well as the private ordered-output probe.
-        WitnessGeneratorScheduler::new(&data)?;
-        let mut probe = WitnessGeneratorExecutor::new_witness(&data);
+        let scheduler = WitnessGeneratorScheduler::new(&data)?;
+        let executor = WitnessGeneratorExecutor::new(&scheduler);
+        let mut probe = executor.new_witness();
         let mut families = BTreeSet::new();
         for generator in &data.prover_only.generators {
             check_output_order(generator.0.as_ref(), &data, &mut probe)?;
