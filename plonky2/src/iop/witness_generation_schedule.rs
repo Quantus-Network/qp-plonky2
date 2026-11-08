@@ -1,117 +1,55 @@
+//! Immutable generator schedules and dependency-graph construction.
+
 #[cfg(not(feature = "std"))]
-use alloc::{sync::Arc, vec, vec::Vec};
+use alloc::{vec, vec::Vec};
 
 use hashbrown::HashMap;
-#[cfg(feature = "std")]
-use std::sync::{
-    atomic::{AtomicUsize, Ordering},
-    Arc,
-};
 
-use crate::iop::scheduling_state::{ScheduleChainId, SchedulingState};
+use crate::iop::witness_generation_plan::WitnessGenerationState;
 
 /// Execution order and dependencies for a runnable subset of circuit generators.
 /// Graph indices are local; `generator_indices` maps them to circuit generator indices.
 #[derive(Debug)]
-pub struct GenerationSchedule {
+pub struct WitnessGenerationSchedule {
     generator_indices: Vec<usize>,
     dependency_counts: Vec<usize>,
-    successor_offsets: Vec<usize>,
     successors: Vec<usize>,
+    successor_offsets: Vec<usize>,
     initial_ready: Vec<usize>,
-    chain_id: Arc<ScheduleChainId>,
-    index: usize,
-    newly_promised: Vec<usize>,
 }
 
-impl GenerationSchedule {
-    fn new(
-        state: &mut SchedulingState,
-        generator_indices: Vec<usize>,
-        dependency_counts: Vec<usize>,
-        successor_offsets: Vec<usize>,
-        successors: Vec<usize>,
-        initial_ready: Vec<usize>,
-    ) -> Self {
-        let (chain_id, index, newly_promised) = state.finish_schedule();
-        Self {
-            generator_indices,
-            dependency_counts,
-            successor_offsets,
-            successors,
-            initial_ready,
-            chain_id,
-            index,
-            newly_promised,
-        }
-    }
-
-    /// Position in the planning chain, starting at zero.
-    pub fn index(&self) -> usize {
-        self.index
-    }
-
-    pub(super) fn chain_id(&self) -> &Arc<ScheduleChainId> {
-        &self.chain_id
-    }
-
-    pub(super) fn newly_promised(&self) -> &[usize] {
-        &self.newly_promised
-    }
-
-    pub(super) fn generator_indices(&self) -> &[usize] {
+impl WitnessGenerationSchedule {
+    /// Circuit generator indices in scheduled order; all graph indices are local.
+    pub fn generator_indices(&self) -> &[usize] {
         &self.generator_indices
     }
 
     /// Distinct generator-predecessor counts, indexed locally.
-    pub(super) fn dependency_counts(&self) -> &[usize] {
+    pub fn dependency_counts(&self) -> &[usize] {
         &self.dependency_counts
     }
 
     /// Successors of a schedule-local generator, in circuit-builder order.
-    pub(super) fn successors(&self, local_index: usize) -> &[usize] {
+    pub fn successors(&self, local_index: usize) -> &[usize] {
         &self.successors
             [self.successor_offsets[local_index]..self.successor_offsets[local_index + 1]]
     }
 
     /// Schedule-local roots, in circuit-builder order.
-    pub(super) fn initial_ready(&self) -> &[usize] {
+    pub fn initial_ready(&self) -> &[usize] {
         &self.initial_ready
-    }
-
-    #[cfg(feature = "std")]
-    pub(super) fn release_successors(
-        &self,
-        local_index: usize,
-        pending_dependencies: &[AtomicUsize],
-        mut enqueue: impl FnMut(usize),
-    ) -> bool {
-        let mut pushed = false;
-        for &successor_local_index in self.successors(local_index) {
-            let previous =
-                pending_dependencies[successor_local_index].fetch_sub(1, Ordering::AcqRel);
-            assert!(
-                previous > 0,
-                "generator {} dependency released twice",
-                self.generator_indices[successor_local_index]
-            );
-            if previous == 1 {
-                enqueue(successor_local_index);
-                pushed = true;
-            }
-        }
-        pushed
     }
 }
 
-/// Extends planned availability with a depth-first runnable closure.
+/// Builds a depth-first schedule and updates assumed generation state.
+/// Returns the schedule and the representatives it first makes available.
 /// Both roots and newly runnable consumers are visited in builder-index order.
 pub(super) fn make_schedule(
     reads: &[Vec<usize>],
     writes: &[Vec<usize>],
     consumers: &HashMap<usize, Vec<usize>>,
-    state: &mut SchedulingState,
-) -> GenerationSchedule {
+    state: &mut WitnessGenerationState,
+) -> (WitnessGenerationSchedule, Vec<usize>) {
     const NONE: usize = usize::MAX;
     let mut unavailable_read_counts = vec![0usize; reads.len()];
     let mut ready = Vec::new();
@@ -128,12 +66,14 @@ pub(super) fn make_schedule(
         }
     }
     if ready.is_empty() {
-        return GenerationSchedule::new(
-            state,
-            Vec::new(),
-            Vec::new(),
-            vec![0],
-            Vec::new(),
+        return (
+            WitnessGenerationSchedule {
+                generator_indices: Vec::new(),
+                dependency_counts: Vec::new(),
+                successors: Vec::new(),
+                successor_offsets: vec![0],
+                initial_ready: Vec::new(),
+            },
             Vec::new(),
         );
     }
@@ -143,6 +83,7 @@ pub(super) fn make_schedule(
     let mut generator_indices = Vec::new();
     let mut edges = Vec::new();
     let mut unlocked = Vec::new();
+    let mut newly_assigned = Vec::new();
     while let Some(generator_index) = ready.pop() {
         let local_index = generator_indices.len();
         local_indices[generator_index] = local_index;
@@ -158,7 +99,8 @@ pub(super) fn make_schedule(
             if state.assumed_assigned()[rep_index] != 0 {
                 continue;
             }
-            state.mark_produced(rep_index);
+            state.mark_assigned(rep_index);
+            newly_assigned.push(rep_index);
             producer_local_indices[rep_index] = local_index;
             if let Some(readers) = consumers.get(&rep_index) {
                 for &consumer_generator_index in readers {
@@ -182,8 +124,8 @@ pub(super) fn make_schedule(
     edges.sort_unstable();
     edges.dedup();
     let mut dependency_counts = vec![0; generator_indices.len()];
-    let mut successor_offsets = vec![0; generator_indices.len() + 1];
     let mut successors = Vec::with_capacity(edges.len());
+    let mut successor_offsets = vec![0; generator_indices.len() + 1];
     for (producer_local_index, consumer_generator_index) in edges {
         let successor_local_index = local_indices[consumer_generator_index];
         debug_assert!(producer_local_index < successor_local_index);
@@ -198,34 +140,14 @@ pub(super) fn make_schedule(
         .filter(|&local_index| dependency_counts[local_index] == 0)
         .collect();
     initial_ready.sort_unstable_by_key(|&local_index| generator_indices[local_index]);
-    GenerationSchedule::new(
-        state,
-        generator_indices,
-        dependency_counts,
-        successor_offsets,
-        successors,
-        initial_ready,
+    (
+        WitnessGenerationSchedule {
+            generator_indices,
+            dependency_counts,
+            successors,
+            successor_offsets,
+            initial_ready,
+        },
+        newly_assigned,
     )
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn duplicate_writers_are_ordered_without_readers() {
-        let mut state = SchedulingState::new(Arc::new(()), 3, 2);
-        state.assume_set(0).unwrap();
-        state.assume_set(1).unwrap();
-        let reads = vec![vec![0], vec![1]];
-        let writes = vec![vec![2], vec![2]];
-        let consumers = HashMap::from_iter([(0, vec![0]), (1, vec![1])]);
-        let schedule = make_schedule(&reads, &writes, &consumers, &mut state);
-
-        assert_eq!(schedule.generator_indices(), &[0, 1]);
-        assert_eq!(schedule.dependency_counts(), &[0, 1]);
-        assert_eq!(schedule.initial_ready(), &[0]);
-        assert_eq!(schedule.successors(0), &[1]);
-        assert!(state.is_fully_scheduled());
-    }
 }

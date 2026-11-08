@@ -1,5 +1,9 @@
+//! Circuit access discovery for witness-generation planning.
+
 #[cfg(not(feature = "std"))]
-use alloc::{sync::Arc, vec::Vec};
+use alloc::sync::Arc;
+#[cfg(not(feature = "std"))]
+use alloc::vec::Vec;
 #[cfg(feature = "std")]
 use std::sync::Arc;
 
@@ -8,35 +12,35 @@ use hashbrown::HashMap;
 
 use crate::field::extension::Extendable;
 use crate::hash::hash_types::RichField;
-use crate::iop::generation_schedule::{make_schedule, GenerationSchedule};
 use crate::iop::generator::{GeneratedValues, WitnessGenerator};
-use crate::iop::scheduling_state::SchedulingState;
 use crate::iop::target::Target;
 use crate::iop::witness::PartitionWitness;
-use crate::iop::witness_generator_executor::ExecutionData;
+use crate::iop::witness_generation_plan::{WitnessGenerationPlan, WitnessGenerationPlanning};
 use crate::plonk::circuit_data::{CircuitData, CommonCircuitData};
 use crate::plonk::config::GenericConfig;
 use crate::util::serialization::{Buffer, Read};
 
-/// Discovers built-in generator access and constructs caller-directed schedules.
+/// Discovers built-in generator access independently of stage construction.
 /// Output targets and emission order must be independent of input values.
 /// Built-ins are recognized by ID; custom implementations reusing those IDs
-/// are unsupported. Debug builds check emitted targets against discovery.
+/// are unsupported. Debug execution checks emitted targets against discovery.
 #[derive(Debug)]
-pub struct WitnessGeneratorScheduler<
+pub struct WitnessGenerationPlanner<
     'a,
     F: RichField + Extendable<D>,
     C: GenericConfig<D, F = F>,
     const D: usize,
 > {
-    execution: Arc<ExecutionData<'a, F, C, D>>,
+    circuit: &'a CircuitData<F, C, D>,
     reads: Vec<Vec<usize>>,
     writes: Vec<Vec<usize>>,
     consumers: HashMap<usize, Vec<usize>>,
+    #[cfg(debug_assertions)]
+    outputs: Arc<Vec<Vec<Target>>>,
 }
 
 impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
-    WitnessGeneratorScheduler<'a, F, C, D>
+    WitnessGenerationPlanner<'a, F, C, D>
 {
     /// Discovers representative read/write indices, without selecting producers
     /// or assuming availability of any input, constant or random value.
@@ -107,84 +111,56 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
             outputs.push(discovered);
         }
         Ok(Self {
-            execution: Arc::new(ExecutionData::new(
-                circuit,
-                #[cfg(debug_assertions)]
-                outputs,
-            )),
+            circuit,
+            #[cfg(debug_assertions)]
+            outputs: Arc::new(outputs),
             reads,
             writes,
             consumers,
         })
     }
 
-    /// Creates empty planning state; it does not allocate or populate a witness.
-    pub fn new_state(&self) -> SchedulingState {
-        SchedulingState::new(
-            Arc::clone(self.execution.identity()),
-            self.execution
-                .circuit()
-                .prover_only
-                .representative_map
-                .len(),
-            self.reads.len(),
-        )
+    /// Starts an empty plan bound to this planner. No witness is populated.
+    pub fn new_plan(&self) -> WitnessGenerationPlanning<'_, 'a, F, C, D> {
+        WitnessGenerationPlanning::new(self)
     }
 
-    /// Promises that a target will be assigned before the next schedule executes.
-    /// Resolves aliases to their representative; does not assign a witness value.
-    pub fn assume_set(&self, state: &mut SchedulingState, target: Target) -> Result<()> {
-        ensure!(
-            state
-                .chain_id()
-                .matches_scheduler(self.execution.identity()),
-            "scheduling state belongs to another scheduler"
-        );
-        let circuit = self.execution.circuit();
-        let target_index = target.index(circuit.common.config.num_wires, circuit.common.degree());
-        let rep_index = *circuit
-            .prover_only
-            .representative_map
-            .get(target_index)
-            .ok_or_else(|| anyhow!("target {target:?} is outside the witness"))?;
-        state.assume_set(rep_index)
-    }
-
-    /// Appends a runnable depth-first closure to the supplied planned state.
-    /// Nothing is executed. Blocked generators remain unscheduled; an empty
-    /// schedule is valid. All nonzero state bytes mean assumed available.
-    pub fn make_schedule(&self, state: &mut SchedulingState) -> Result<GenerationSchedule> {
-        ensure!(
-            state
-                .chain_id()
-                .matches_scheduler(self.execution.identity()),
-            "scheduling state belongs to another scheduler"
-        );
-        Ok(make_schedule(
-            &self.reads,
-            &self.writes,
-            &self.consumers,
-            state,
-        ))
-    }
-
-    /// Builds a schedule and errors if any generators remain unscheduled.
-    /// Planning state is updated even if the completeness check fails.
-    pub fn make_complete_schedule(
+    /// Builds a complete single-stage plan from explicit caller input targets.
+    pub(super) fn input_plan(
         &self,
-        state: &mut SchedulingState,
-    ) -> Result<GenerationSchedule> {
-        let schedule = self.make_schedule(state)?;
-        ensure!(
-            state.is_fully_scheduled(),
-            "{} generators could not be scheduled with the supplied values",
-            state.remaining_generators()
-        );
-        Ok(schedule)
+        input_targets: impl IntoIterator<Item = Target>,
+    ) -> Result<Arc<WitnessGenerationPlan<'a, F, C, D>>> {
+        let mut planning = self.new_plan();
+        for target in input_targets {
+            planning.set_assumed_assigned(target)?;
+        }
+        planning.add_stage();
+        planning.finish().map_err(|_| {
+            anyhow!(
+                "cannot create a complete witness generation plan from the supplied input targets"
+            )
+        })
     }
 
-    pub(super) fn execution_data(&self) -> Arc<ExecutionData<'a, F, C, D>> {
-        Arc::clone(&self.execution)
+    pub(super) fn circuit(&self) -> &'a CircuitData<F, C, D> {
+        self.circuit
+    }
+
+    pub(super) fn reads(&self) -> &[Vec<usize>] {
+        &self.reads
+    }
+
+    pub(super) fn writes(&self) -> &[Vec<usize>] {
+        &self.writes
+    }
+
+    pub(super) fn consumers(&self) -> &HashMap<usize, Vec<usize>> {
+        &self.consumers
+    }
+
+    #[cfg(debug_assertions)]
+    pub(super) fn outputs(&self) -> &Arc<Vec<Vec<Target>>> {
+        &self.outputs
     }
 }
 
@@ -378,7 +354,6 @@ mod tests {
     use crate::gates::reducing_extension::ReducingExtensionGate;
     use crate::iop::generator::{NonzeroTestGenerator, SimpleGenerator, WitnessGeneratorRef};
     use crate::iop::witness::{PartialWitness, Witness, WitnessWrite};
-    use crate::iop::witness_generator_executor::WitnessGeneratorExecutor;
     use crate::plonk::circuit_builder::CircuitBuilder;
     use crate::plonk::circuit_data::CircuitConfig;
     use crate::recursion::dummy_circuit::DummyProofGenerator;
@@ -553,9 +528,12 @@ mod tests {
     fn built_in_families_discover_the_same_output_order_as_execution() -> Result<()> {
         let data = family_fixture()?;
         // Exercise public admission as well as the private ordered-output probe.
-        let scheduler = WitnessGeneratorScheduler::new(&data)?;
-        let executor = WitnessGeneratorExecutor::new(&scheduler);
-        let mut probe = executor.new_witness();
+        WitnessGenerationPlanner::new(&data)?;
+        let mut probe = PartitionWitness::new_dense(
+            data.common.config.num_wires,
+            data.common.degree(),
+            &data.prover_only.representative_map,
+        );
         let mut families = BTreeSet::new();
         for generator in &data.prover_only.generators {
             check_output_order(generator.0.as_ref(), &data, &mut probe)?;
@@ -633,7 +611,7 @@ mod tests {
                 declares_reads,
             })]);
             let data = builder.build::<C>();
-            let error = WitnessGeneratorScheduler::new(&data)
+            let error = WitnessGenerationPlanner::new(&data)
                 .unwrap_err()
                 .to_string();
             assert!(error.contains("UnsupportedTestGenerator"), "{error}");

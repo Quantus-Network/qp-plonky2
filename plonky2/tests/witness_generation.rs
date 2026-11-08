@@ -1,69 +1,68 @@
 #![cfg(feature = "std")]
 
 use std::collections::HashSet;
+use std::sync::Arc;
 
 use anyhow::Result;
 use plonky2::field::types::Field;
 use plonky2::gates::noop::NoopGate;
 use plonky2::hash::poseidon::PoseidonHash;
-use plonky2::iop::generation_schedule::GenerationSchedule;
 use plonky2::iop::generator::{generate_partial_witness, GeneratedValues};
 use plonky2::iop::target::Target;
 use plonky2::iop::witness::{PartialWitness, PartitionWitness, Witness, WitnessWrite};
-use plonky2::iop::witness_generator_executor::{
-    BoundWitnessGeneratorExecutor, WitnessGeneratorExecutor,
+use plonky2::iop::witness_generation_executor::{
+    WitnessGenerationExecution as Execution, WitnessGenerationExecutor as Executor,
 };
-use plonky2::iop::witness_generator_scheduler::WitnessGeneratorScheduler;
+use plonky2::iop::witness_generation_plan::WitnessGenerationPlan as Plan;
+use plonky2::iop::witness_generation_planner::WitnessGenerationPlanner as Planner;
 use plonky2::plonk::circuit_builder::CircuitBuilder;
 use plonky2::plonk::circuit_data::{CircuitConfig, CircuitData};
 use plonky2::plonk::prover::prove_with_partition_witness;
 use plonky2::util::timing::TimingTree;
 use plonky2::{C, D, F};
 
-type Scheduler<'a> = WitnessGeneratorScheduler<'a, F, C, D>;
-
-fn make_schedule(
-    scheduler: &Scheduler<'_>,
-    targets: impl IntoIterator<Item = Target>,
-) -> Result<GenerationSchedule> {
-    let mut state = scheduler.new_state();
-    for target in targets {
-        scheduler.assume_set(&mut state, target)?;
+fn make_plan<'a>(
+    data: &'a CircuitData<F, C, D>,
+    inputs: impl IntoIterator<Item = Target>,
+) -> Result<Arc<Plan<'a, F, C, D>>> {
+    let planner = Planner::new(data)?;
+    let mut planning = planner.new_plan();
+    for target in inputs {
+        planning.set_assumed_assigned(target)?;
     }
-    scheduler.make_complete_schedule(&mut state)
+    planning.add_stage();
+    Ok(planning
+        .finish()
+        .expect("fixture inputs must enable all generators"))
 }
 
-fn run_schedule(
-    bound: &mut BoundWitnessGeneratorExecutor<'_, '_, F, C, D>,
-    schedule: &GenerationSchedule,
+fn execute_stage(
+    execution: &mut Execution<'_, '_, F, C, D>,
     num_workers: Option<usize>,
 ) -> Result<()> {
     if let Some(num_workers) = num_workers {
-        // SAFETY: These fixtures use built-in generators with complete read
-        // declarations and fixed outputs, through target-based witness access.
-        unsafe { bound.run_schedule_parallel(schedule, num_workers) }
+        // SAFETY: The fixtures use genuine built-ins with fixed, complete access sets.
+        unsafe { execution.execute_parallel(num_workers) }
     } else {
-        bound.run_schedule(schedule)
+        execution.execute()
     }
 }
 
 fn generate<'a>(
-    scheduler: &Scheduler<'a>,
-    schedule: &GenerationSchedule,
+    plan: &Arc<Plan<'a, F, C, D>>,
     inputs: &PartialWitness<F>,
     num_workers: Option<usize>,
 ) -> Result<PartitionWitness<'a, F>> {
-    let mut executor = WitnessGeneratorExecutor::new(scheduler);
+    let mut executor = Executor::new(Arc::clone(plan));
     let mut witness = executor.new_witness();
     for (&target, &value) in &inputs.target_values {
         witness.set_target(target, value)?;
     }
     if let Some(num_workers) = num_workers {
-        // SAFETY: These fixtures use built-in generators with complete read
-        // declarations and fixed outputs, through target-based witness access.
-        unsafe { executor.run_schedule_parallel(&mut witness, schedule, num_workers)? };
+        // SAFETY: The fixtures use genuine built-ins with fixed, complete access sets.
+        unsafe { executor.execute_parallel(&mut witness, num_workers)? };
     } else {
-        executor.run_schedule(&mut witness, schedule)?;
+        executor.execute(&mut witness)?;
     }
     Ok(witness)
 }
@@ -153,9 +152,8 @@ fn mixed_circuit_matches_original_generation_and_proves() -> Result<()> {
     builder.register_public_input(sum);
     let unused = builder.add_virtual_target();
     let data = builder.build::<C>();
-    let scheduler = Scheduler::new(&data)?;
-    let schedule = make_schedule(
-        &scheduler,
+    let plan = make_plan(
+        &data,
         [a, alias, b, selector].into_iter().chain(extension.0),
     )?;
     for (case_index, (a_value, b_value, extension_values, selector_value)) in [
@@ -177,7 +175,7 @@ fn mixed_circuit_matches_original_generation_and_proves() -> Result<()> {
         }
         let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common)?;
         for num_workers in [None, Some(1), Some(4)] {
-            let actual = generate(&scheduler, &schedule, &inputs, num_workers)?;
+            let actual = generate(&plan, &inputs, num_workers)?;
             assert_witnesses_match(&data, &expected, &actual);
             assert_eq!(actual.get_target(a), actual.get_target(alias));
             assert!(!actual.contains(unused));
@@ -211,7 +209,7 @@ fn duplicate_writers_are_compared_without_readers() -> Result<()> {
     builder.generate_copy(b, second);
     builder.connect(first, second);
     let data = builder.build::<C>();
-    let scheduler = Scheduler::new(&data)?;
+    let plan = Arc::clone(Executor::new_with_inputs(&data, [a, b])?.plan());
     let rep_index = data.prover_only.representative_map
         [first.index(data.common.config.num_wires, data.common.degree())];
     let representative = |target: Target| {
@@ -226,7 +224,6 @@ fn duplicate_writers_are_compared_without_readers() -> Result<()> {
             .into_iter()
             .all(|target| representative(target) != rep_index));
     }
-    let schedule = make_schedule(&scheduler, [a, b])?;
     for b_value in [3, 4] {
         let mut inputs = PartialWitness::new();
         inputs.set_target(a, F::from_canonical_u64(3))?;
@@ -235,7 +232,7 @@ fn duplicate_writers_are_compared_without_readers() -> Result<()> {
         if b_value == 3 {
             let expected = expected?;
             for num_workers in [None, Some(1), Some(4)] {
-                let actual = generate(&scheduler, &schedule, &inputs, num_workers)?;
+                let actual = generate(&plan, &inputs, num_workers)?;
                 assert_witnesses_match(&data, &expected, &actual);
                 assert_eq!(actual.get_target(first), F::from_canonical_u64(3));
                 assert_eq!(actual.get_target(first), actual.get_target(second));
@@ -243,7 +240,7 @@ fn duplicate_writers_are_compared_without_readers() -> Result<()> {
         } else {
             assert!(expected.is_err());
             for num_workers in [None, Some(1), Some(4)] {
-                let error = generate(&scheduler, &schedule, &inputs, num_workers).unwrap_err();
+                let error = generate(&plan, &inputs, num_workers).unwrap_err();
                 assert!(error.to_string().contains("different values"), "{error}");
             }
         }
@@ -258,8 +255,11 @@ fn repeated_emissions_to_one_representative_must_agree() -> Result<()> {
     let bits = builder.split_le(input, 4);
     builder.connect(bits[0].target, bits[1].target);
     let data = builder.build::<C>();
-    let scheduler = Scheduler::new(&data)?;
-    let schedule = make_schedule(&scheduler, [input])?;
+    let error = Executor::new_with_inputs(&data, []).unwrap_err();
+    assert!(error
+        .to_string()
+        .contains("complete witness generation plan"));
+    let plan = Arc::clone(Executor::new_with_inputs(&data, [input])?.plan());
     for value in [3, 1] {
         let mut inputs = PartialWitness::new();
         inputs.set_target(input, F::from_canonical_u64(value))?;
@@ -288,13 +288,13 @@ fn repeated_emissions_to_one_representative_must_agree() -> Result<()> {
             }
             assert!(repeated);
             for num_workers in [None, Some(1), Some(4)] {
-                let actual = generate(&scheduler, &schedule, &inputs, num_workers)?;
+                let actual = generate(&plan, &inputs, num_workers)?;
                 assert_witnesses_match(&data, &expected, &actual);
             }
         } else {
             assert!(expected.is_err());
             for num_workers in [None, Some(1), Some(4)] {
-                let error = generate(&scheduler, &schedule, &inputs, num_workers).unwrap_err();
+                let error = generate(&plan, &inputs, num_workers).unwrap_err();
                 assert!(error.to_string().contains("different values"), "{error}");
             }
         }
@@ -311,8 +311,7 @@ fn caller_prefills_must_agree_with_aliases_and_generated_values() -> Result<()> 
     let b = builder.add_virtual_target();
     let sum = builder.add(a, b);
     let data = builder.build::<C>();
-    let scheduler = Scheduler::new(&data)?;
-    let schedule = make_schedule(&scheduler, [a, alias, b, sum])?;
+    let plan = Arc::clone(Executor::new_with_inputs(&data, [a, alias, b, sum])?.plan());
     for (alias_value, sum_value) in [(3, 8), (3, 9), (4, 8)] {
         let mut inputs = PartialWitness::new();
         inputs.set_target(a, F::from_canonical_u64(3))?;
@@ -323,13 +322,13 @@ fn caller_prefills_must_agree_with_aliases_and_generated_values() -> Result<()> 
         if alias_value == 3 && sum_value == 8 {
             let expected = expected?;
             for num_workers in [None, Some(1), Some(4)] {
-                let actual = generate(&scheduler, &schedule, &inputs, num_workers)?;
+                let actual = generate(&plan, &inputs, num_workers)?;
                 assert_witnesses_match(&data, &expected, &actual);
             }
         } else {
             assert!(expected.is_err());
             for num_workers in [None, Some(1), Some(4)] {
-                let error = generate(&scheduler, &schedule, &inputs, num_workers).unwrap_err();
+                let error = generate(&plan, &inputs, num_workers).unwrap_err();
                 assert!(error.to_string().contains("different values"), "{error}");
             }
         }
@@ -338,19 +337,45 @@ fn caller_prefills_must_agree_with_aliases_and_generated_values() -> Result<()> 
 }
 
 #[test]
-fn cleared_witness_and_executor_can_be_reused() -> Result<()> {
+fn staged_plans_validate_inputs_and_support_reset_and_reuse() -> Result<()> {
     let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
     let a = builder.add_virtual_target();
     let alias = builder.add_virtual_target();
     builder.connect(a, alias);
     let b = builder.add_virtual_target();
-    let sum = builder.add(a, b);
+    let x = builder.add_virtual_target();
+    let y = builder.add_virtual_target();
+    builder.generate_copy(a, x);
+    builder.generate_copy(b, y);
+    let sum = builder.add(x, y);
     let data = builder.build::<C>();
-    let scheduler = Scheduler::new(&data)?;
-    let schedule = make_schedule(&scheduler, [a, b])?;
+    let plan = {
+        let planner = Planner::new(&data)?;
+        let mut planning = planner.new_plan();
+        planning.add_stage();
+        let mut planning = planning.finish().expect_err("inputs are still unavailable");
+        planning.set_assumed_assigned(a)?;
+        planning.set_assumed_assigned(alias)?;
+        planning.add_stage();
+        planning.add_stage();
+        planning.set_assumed_assigned(b)?;
+        assert!(!planning.is_done());
+        planning.add_stage();
+        assert!(planning.is_done());
+        planning.finish().unwrap()
+    };
+    // The plan and its debug declarations outlive the planner.
+    assert!(core::ptr::eq(plan.circuit(), &data));
+    assert_eq!(plan.num_stages(), 4);
+    assert!(plan.stages()[2].schedule().generator_indices().is_empty());
 
-    for (dense, num_workers) in [(false, None), (true, None), (true, Some(4))] {
-        let mut executor = WitnessGeneratorExecutor::new(&scheduler);
+    for (dense, num_workers) in [
+        (false, None),
+        (true, None),
+        (true, Some(1)),
+        (true, Some(4)),
+    ] {
+        let mut executor = Executor::new(Arc::clone(&plan));
         let mut witness = if dense {
             executor.new_witness()
         } else {
@@ -360,238 +385,95 @@ fn cleared_witness_and_executor_can_be_reused() -> Result<()> {
                 &data.prover_only.representative_map,
             )
         };
+        let values_pointer = if dense {
+            witness.dense_values_and_assignment_flags()?.0.as_ptr() as usize
+        } else {
+            witness.values.as_ptr() as usize
+        };
+        let execution = executor.bind(&mut witness)?;
+        let mut execution = execution.finish().expect_err("no stages have run");
+        if !dense {
+            let before = execution.witness().values.clone();
+            // SAFETY: The fixture uses genuine built-ins with complete access sets.
+            let error = unsafe { execution.execute_parallel(4) }.unwrap_err();
+            assert!(
+                error.to_string().contains("requires dense storage"),
+                "{error}"
+            );
+            assert_eq!(execution.witness().values, before);
+        }
         for (a_value, b_value) in [(3, 5), (7, 11)] {
+            execute_stage(&mut execution, num_workers)?;
+            let error = execute_stage(&mut execution, num_workers).unwrap_err();
+            assert!(error.to_string().contains("not assigned"), "{error}");
+            assert!(!execution.witness().contains(x));
+            execution.set_target(alias, F::from_canonical_u64(a_value))?;
+            if a_value == 3 {
+                execution.set_target(b, F::from_canonical_u64(b_value))?;
+            }
+            execute_stage(&mut execution, num_workers)?;
+            assert_eq!(
+                execution.witness().get_target(x),
+                F::from_canonical_u64(a_value)
+            );
+            assert!(!execution.witness().contains(y));
+            execute_stage(&mut execution, num_workers)?;
+            assert!(!execution.witness().contains(y));
+            if a_value != 3 {
+                execution.set_target(b, F::from_canonical_u64(b_value))?;
+            }
+            execute_stage(&mut execution, num_workers)?;
+            assert!(execution.is_done());
+            assert!(execute_stage(&mut execution, num_workers).is_err());
+            assert!(execution.is_done());
             let mut inputs = PartialWitness::new();
             inputs.set_target(a, F::from_canonical_u64(a_value))?;
             inputs.set_target(b, F::from_canonical_u64(b_value))?;
-            for (&target, &value) in &inputs.target_values {
-                witness.set_target(target, value)?;
-            }
             let expected = generate_partial_witness(inputs, &data.prover_only, &data.common)?;
-            let mut bound = executor.bind(&mut witness)?;
-            if !dense {
-                let before = bound.witness().values.clone();
-                // SAFETY: The fixture uses built-in generators with fixed access sets.
-                let error = unsafe { bound.run_schedule_parallel(&schedule, 4) }.unwrap_err();
-                assert!(
-                    error.to_string().contains("requires dense storage"),
-                    "{error}"
-                );
-                assert_eq!(bound.witness().values, before);
-            }
-            run_schedule(&mut bound, &schedule, num_workers)?;
-            bound.unbind();
-            assert_witnesses_match(&data, &expected, &witness);
-            assert_eq!(witness.get_target(alias), F::from_canonical_u64(a_value));
+            assert_witnesses_match(&data, &expected, execution.witness());
             assert_eq!(
-                witness.get_target(sum),
+                execution.witness().get_target(sum),
                 F::from_canonical_u64(a_value + b_value)
             );
-
-            witness.clear();
-            if dense {
-                let (_, assigned) = witness.dense_values_and_assignment_flags()?;
-                assert!(assigned.iter().all(|&flag| flag == 0));
-            } else {
-                assert!(witness.values.iter().all(Option::is_none));
-            }
-            for target in [a, alias, b, sum] {
-                assert!(!witness.contains(target));
+            if a_value == 3 {
+                execution.reset();
+                assert!(!execution.is_done());
+                for target in [a, alias, b, x, y, sum] {
+                    assert!(!execution.witness().contains(target));
+                }
             }
         }
+        execution.finish().unwrap();
+        let current_pointer = if dense {
+            witness.dense_values_and_assignment_flags()?.0.as_ptr() as usize
+        } else {
+            witness.values.as_ptr() as usize
+        };
+        assert_eq!(current_pointer, values_pointer);
     }
     Ok(())
 }
 
 #[test]
-fn schedule_chains_validate_order_identity_and_promises_before_execution() -> Result<()> {
-    let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
-    let a = builder.add_virtual_target();
-    let b = builder.add_virtual_target();
-    let x = builder.add_virtual_target();
-    let y = builder.add_virtual_target();
-    builder.generate_copy(a, x);
-    builder.generate_copy(b, y);
-    let sum = builder.add(x, y);
+fn incompatible_witness_is_rejected_without_changes() -> Result<()> {
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config.clone());
+    let input = builder.add_virtual_target();
+    builder.add(input, input);
     let data = builder.build::<C>();
-    let scheduler = Scheduler::new(&data)?;
-    let mut state = scheduler.new_state();
-    let first = scheduler.make_schedule(&mut state)?;
-    scheduler.assume_set(&mut state, a)?;
-    let middle = scheduler.make_schedule(&mut state)?;
-    let remaining = state.remaining_generators();
-    let empty = scheduler.make_schedule(&mut state)?;
-    assert_eq!(state.remaining_generators(), remaining);
-    assert!(!state.is_fully_scheduled());
-    scheduler.assume_set(&mut state, b)?;
-    let last = scheduler.make_schedule(&mut state)?;
-    assert!(state.is_fully_scheduled());
-
-    let mut other_state = scheduler.new_state();
-    scheduler.make_schedule(&mut other_state)?;
-    scheduler.assume_set(&mut other_state, a)?;
-    let other_chain = scheduler.make_schedule(&mut other_state)?;
-    let other_scheduler = Scheduler::new(&data)?;
-    let foreign = other_scheduler.make_schedule(&mut other_scheduler.new_state())?;
-
-    for num_workers in [None, Some(1), Some(4)] {
-        let mut executor = WitnessGeneratorExecutor::new(&scheduler);
-        let mut witness = executor.new_witness();
-        let mut bound = executor.bind(&mut witness)?;
-        assert!(run_schedule(&mut bound, &middle, num_workers)
-            .unwrap_err()
-            .to_string()
-            .contains("expected schedule"));
-        run_schedule(&mut bound, &first, num_workers)?;
-        assert!(run_schedule(&mut bound, &foreign, num_workers)
-            .unwrap_err()
-            .to_string()
-            .contains("another scheduler"));
-        assert!(run_schedule(&mut bound, &other_chain, num_workers)
-            .unwrap_err()
-            .to_string()
-            .contains("another chain"));
-        assert!(run_schedule(&mut bound, &middle, num_workers)
-            .unwrap_err()
-            .to_string()
-            .contains("not assigned"));
-        assert!(!bound.witness().contains(x));
-        bound.set_target(a, F::from_canonical_u64(3))?;
-        // Extra inputs may be supplied early, but do not execute later schedules.
-        bound.set_target(b, F::from_canonical_u64(5))?;
-        run_schedule(&mut bound, &middle, num_workers)?;
-        assert_eq!(bound.witness().get_target(x), F::from_canonical_u64(3));
-        assert!(!bound.witness().contains(y));
-        assert!(run_schedule(&mut bound, &middle, num_workers)
-            .unwrap_err()
-            .to_string()
-            .contains("expected schedule"));
-        run_schedule(&mut bound, &empty, num_workers)?;
-        run_schedule(&mut bound, &last, num_workers)?;
-        assert_eq!(bound.witness().get_target(sum), F::from_canonical_u64(8));
-        bound.unbind();
-        assert_eq!(witness.get_target(sum), F::from_canonical_u64(8));
-        let mut next_witness = executor.new_witness();
-        next_witness.set_target(a, F::from_canonical_u64(7))?;
-        next_witness.set_target(b, F::from_canonical_u64(11))?;
-        let mut bound = executor.bind(&mut next_witness)?;
-        for schedule in [&first, &middle, &empty, &last] {
-            run_schedule(&mut bound, schedule, num_workers)?;
-        }
-        bound.unbind();
-        assert_eq!(next_witness.get_target(sum), F::from_canonical_u64(18));
-    }
-    Ok(())
-}
-
-#[test]
-fn generator_errors_invalidate_binding_and_allow_executor_reuse() -> Result<()> {
-    let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
-    let denominator = builder.add_virtual_target();
-    let inverse = builder.inverse(denominator);
-    let data = builder.build::<C>();
-    let scheduler = Scheduler::new(&data)?;
-    let schedule = make_schedule(&scheduler, [denominator])?;
-    for num_workers in [None, Some(1), Some(4)] {
-        let mut executor = WitnessGeneratorExecutor::new(&scheduler);
-        let mut witness = executor.new_witness();
-        let mut bound = executor.bind(&mut witness)?;
-        bound.set_target(denominator, F::ZERO)?;
-        let error = run_schedule(&mut bound, &schedule, num_workers).unwrap_err();
-        assert!(
-            error
-                .to_string()
-                .contains("extension denominator must be nonzero"),
-            "{error}"
-        );
-        assert!(run_schedule(&mut bound, &schedule, num_workers)
-            .unwrap_err()
-            .to_string()
-            .contains("after failed execution"));
-        assert!(bound
-            .set_target(denominator, F::TWO)
-            .unwrap_err()
-            .to_string()
-            .contains("after failed execution"));
-        assert_eq!(bound.witness().get_target(denominator), F::ZERO);
-        bound.unbind();
-        assert_eq!(witness.get_target(denominator), F::ZERO);
-        let mut recovered = executor.new_witness();
-        recovered.set_target(denominator, F::TWO)?;
-        let mut bound = executor.bind(&mut recovered)?;
-        run_schedule(&mut bound, &schedule, num_workers)?;
-        bound.unbind();
-        assert_eq!(recovered.get_target(inverse), F::TWO.inverse());
-    }
-    Ok(())
-}
-
-#[cfg(debug_assertions)]
-#[test]
-fn generator_panics_propagate_after_workers_join_and_allow_executor_reuse() -> Result<()> {
-    use plonky2::gates::poseidon::PoseidonGate;
-    use plonky2::hash::poseidon::SPONGE_WIDTH;
-    use std::panic::{catch_unwind, AssertUnwindSafe};
-
-    let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
-    let row = builder.add_gate(PoseidonGate::<F, D>::new(), vec![]);
-    let data = builder.build::<C>();
-    let scheduler = Scheduler::new(&data)?;
-    let generator = data
-        .prover_only
-        .generators
-        .iter()
-        .find(|generator| generator.0.id() == "PoseidonGenerator")
-        .unwrap();
-    let reads = generator.0.reads().unwrap();
-    let mut inputs = PartialWitness::new();
-    for &target in &reads {
-        inputs.set_target(target, F::ZERO)?;
-    }
-    let schedule = make_schedule(&scheduler, reads.iter().copied())?;
-    let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common)?;
-    // Poseidon places the swap wire after its input and output state wires.
-    let swap = Target::wire(row, 2 * SPONGE_WIDTH);
-    for num_workers in [None, Some(1), Some(4)] {
-        let mut executor = WitnessGeneratorExecutor::new(&scheduler);
-        let mut witness = executor.new_witness();
-        let mut bound = executor.bind(&mut witness)?;
-        for &target in &reads {
-            bound.set_target(target, if target == swap { F::TWO } else { F::ZERO })?;
-        }
-        // The built-in generator asserts that its swap input is boolean in debug.
-        let panic = catch_unwind(AssertUnwindSafe(|| {
-            run_schedule(&mut bound, &schedule, num_workers)
-        }))
-        .expect_err("invalid swap should panic");
-        let message = panic
-            .downcast_ref::<String>()
-            .map(String::as_str)
-            .or_else(|| panic.downcast_ref::<&str>().copied())
-            .unwrap_or("");
-        assert!(
-            message.contains("swap_value"),
-            "unexpected panic: {message}"
-        );
-        assert!(run_schedule(&mut bound, &schedule, num_workers)
-            .unwrap_err()
-            .to_string()
-            .contains("after failed execution"));
-        assert!(bound
-            .set_target(swap, F::TWO)
-            .unwrap_err()
-            .to_string()
-            .contains("after failed execution"));
-        bound.unbind();
-        assert_eq!(witness.get_target(swap), F::TWO);
-        let mut recovered = executor.new_witness();
-        for (&target, &value) in &inputs.target_values {
-            recovered.set_target(target, value)?;
-        }
-        let mut bound = executor.bind(&mut recovered)?;
-        run_schedule(&mut bound, &schedule, num_workers)?;
-        bound.unbind();
-        assert_witnesses_match(&data, &expected, &recovered);
-    }
+    let mut executor = Executor::new_with_inputs(&data, [input])?;
+    let mut other_builder = CircuitBuilder::<F, D>::new(config);
+    let other_input = other_builder.add_virtual_target();
+    other_builder.add(other_input, other_input);
+    let other_data = other_builder.build::<C>();
+    let other = Executor::new_with_inputs(&other_data, [other_input])?;
+    let mut witness = other.new_witness();
+    witness.set_target(other_input, F::TWO)?;
+    let error = executor.bind(&mut witness).unwrap_err();
+    assert!(
+        error.to_string().contains("does not match plan circuit"),
+        "{error}"
+    );
+    assert_eq!(witness.get_target(other_input), F::TWO);
     Ok(())
 }
