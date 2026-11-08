@@ -21,6 +21,11 @@ use plonky2::plonk::prover::prove_with_partition_witness;
 use plonky2::util::timing::TimingTree;
 use plonky2::{C, D, F};
 
+#[cfg(feature = "parallel")]
+const EXECUTION_MODES: &[Option<usize>] = &[None, Some(1), Some(4)];
+#[cfg(not(feature = "parallel"))]
+const EXECUTION_MODES: &[Option<usize>] = &[None];
+
 fn make_plan<'a>(
     data: &'a CircuitData<F, C, D>,
     inputs: impl IntoIterator<Item = Target>,
@@ -40,11 +45,15 @@ fn execute_stage(
     execution: &mut Execution<'_, '_, F, C, D>,
     num_workers: Option<usize>,
 ) -> Result<()> {
-    if let Some(num_workers) = num_workers {
-        // SAFETY: The fixtures use genuine built-ins with fixed, complete access sets.
-        unsafe { execution.execute_parallel(num_workers) }
-    } else {
-        execution.execute()
+    match num_workers {
+        None => execution.execute(),
+        #[cfg(feature = "parallel")]
+        Some(num_workers) => {
+            // SAFETY: The fixtures use genuine built-ins with fixed, complete access sets.
+            unsafe { execution.execute_parallel(num_workers) }
+        }
+        #[cfg(not(feature = "parallel"))]
+        Some(_) => unreachable!("parallel execution requires the parallel feature"),
     }
 }
 
@@ -58,11 +67,15 @@ fn generate<'a>(
     for (&target, &value) in &inputs.target_values {
         witness.set_target(target, value)?;
     }
-    if let Some(num_workers) = num_workers {
-        // SAFETY: The fixtures use genuine built-ins with fixed, complete access sets.
-        unsafe { executor.execute_parallel(&mut witness, num_workers)? };
-    } else {
-        executor.execute(&mut witness)?;
+    match num_workers {
+        None => executor.execute(&mut witness)?,
+        #[cfg(feature = "parallel")]
+        Some(num_workers) => {
+            // SAFETY: The fixtures use genuine built-ins with fixed, complete access sets.
+            unsafe { executor.execute_parallel(&mut witness, num_workers)? };
+        }
+        #[cfg(not(feature = "parallel"))]
+        Some(_) => unreachable!("parallel execution requires the parallel feature"),
     }
     Ok(witness)
 }
@@ -156,6 +169,11 @@ fn mixed_circuit_matches_original_generation_and_proves() -> Result<()> {
         &data,
         [a, alias, b, selector].into_iter().chain(extension.0),
     )?;
+    let proof_mode = if cfg!(feature = "parallel") {
+        Some(4)
+    } else {
+        None
+    };
     for (case_index, (a_value, b_value, extension_values, selector_value)) in [
         (0, 0, [0, 0], 0),
         (1, 2, [3, 4], 1),
@@ -174,12 +192,12 @@ fn mixed_circuit_matches_original_generation_and_proves() -> Result<()> {
             inputs.set_target(target, F::from_canonical_u64(value))?;
         }
         let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common)?;
-        for num_workers in [None, Some(1), Some(4)] {
+        for &num_workers in EXECUTION_MODES {
             let actual = generate(&plan, &inputs, num_workers)?;
             assert_witnesses_match(&data, &expected, &actual);
             assert_eq!(actual.get_target(a), actual.get_target(alias));
             assert!(!actual.contains(unused));
-            if case_index == 1 && num_workers == Some(4) {
+            if case_index == 1 && num_workers == proof_mode {
                 let proof = prove_with_partition_witness(
                     &data.prover_only,
                     &data.common,
@@ -231,7 +249,7 @@ fn duplicate_writers_are_compared_without_readers() -> Result<()> {
         let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common);
         if b_value == 3 {
             let expected = expected?;
-            for num_workers in [None, Some(1), Some(4)] {
+            for &num_workers in EXECUTION_MODES {
                 let actual = generate(&plan, &inputs, num_workers)?;
                 assert_witnesses_match(&data, &expected, &actual);
                 assert_eq!(actual.get_target(first), F::from_canonical_u64(3));
@@ -239,7 +257,7 @@ fn duplicate_writers_are_compared_without_readers() -> Result<()> {
             }
         } else {
             assert!(expected.is_err());
-            for num_workers in [None, Some(1), Some(4)] {
+            for &num_workers in EXECUTION_MODES {
                 let error = generate(&plan, &inputs, num_workers).unwrap_err();
                 assert!(error.to_string().contains("different values"), "{error}");
             }
@@ -287,13 +305,13 @@ fn repeated_emissions_to_one_representative_must_agree() -> Result<()> {
                 repeated |= count > 1;
             }
             assert!(repeated);
-            for num_workers in [None, Some(1), Some(4)] {
+            for &num_workers in EXECUTION_MODES {
                 let actual = generate(&plan, &inputs, num_workers)?;
                 assert_witnesses_match(&data, &expected, &actual);
             }
         } else {
             assert!(expected.is_err());
-            for num_workers in [None, Some(1), Some(4)] {
+            for &num_workers in EXECUTION_MODES {
                 let error = generate(&plan, &inputs, num_workers).unwrap_err();
                 assert!(error.to_string().contains("different values"), "{error}");
             }
@@ -321,13 +339,13 @@ fn caller_prefills_must_agree_with_aliases_and_generated_values() -> Result<()> 
         let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common);
         if alias_value == 3 && sum_value == 8 {
             let expected = expected?;
-            for num_workers in [None, Some(1), Some(4)] {
+            for &num_workers in EXECUTION_MODES {
                 let actual = generate(&plan, &inputs, num_workers)?;
                 assert_witnesses_match(&data, &expected, &actual);
             }
         } else {
             assert!(expected.is_err());
-            for num_workers in [None, Some(1), Some(4)] {
+            for &num_workers in EXECUTION_MODES {
                 let error = generate(&plan, &inputs, num_workers).unwrap_err();
                 assert!(error.to_string().contains("different values"), "{error}");
             }
@@ -369,12 +387,9 @@ fn staged_plans_validate_inputs_and_support_reset_and_reuse() -> Result<()> {
     assert_eq!(plan.num_stages(), 4);
     assert!(plan.stages()[2].schedule().generator_indices().is_empty());
 
-    for (dense, num_workers) in [
-        (false, None),
-        (true, None),
-        (true, Some(1)),
-        (true, Some(4)),
-    ] {
+    for (dense, num_workers) in
+        core::iter::once((false, None)).chain(EXECUTION_MODES.iter().map(|&mode| (true, mode)))
+    {
         let mut executor = Executor::new(Arc::clone(&plan));
         let mut witness = if dense {
             executor.new_witness()
@@ -392,6 +407,7 @@ fn staged_plans_validate_inputs_and_support_reset_and_reuse() -> Result<()> {
         };
         let execution = executor.bind(&mut witness)?;
         let mut execution = execution.finish().expect_err("no stages have run");
+        #[cfg(feature = "parallel")]
         if !dense {
             let before = execution.witness().values.clone();
             // SAFETY: The fixture uses genuine built-ins with complete access sets.
@@ -489,7 +505,7 @@ fn invalid_random_access_index_errors_and_allows_recovery() -> Result<()> {
         &data,
         core::iter::once(selector).chain(values.iter().copied()),
     )?;
-    for num_workers in [None, Some(1), Some(4)] {
+    for &num_workers in EXECUTION_MODES {
         let mut executor = Executor::new(Arc::clone(&plan));
         let mut witness = executor.new_witness();
         let mut execution = executor.bind(&mut witness)?;

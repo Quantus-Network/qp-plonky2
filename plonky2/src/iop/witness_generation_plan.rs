@@ -217,6 +217,11 @@ mod tests {
     use crate::util::serialization::{Buffer, IoError, IoResult};
     use crate::{C, D, F};
 
+    #[cfg(feature = "parallel")]
+    const EXECUTION_MODES: &[Option<usize>] = &[None, Some(1), Some(4)];
+    #[cfg(not(feature = "parallel"))]
+    const EXECUTION_MODES: &[Option<usize>] = &[None];
+
     #[test]
     fn schedules_preserve_dependencies_and_leave_blocked_work_available_for_later() {
         // Fan-out, join, two reader-free writers, and a separate two-generator cycle.
@@ -346,17 +351,21 @@ mod tests {
             expected_output_targets: Arc::new(vec![vec![output]]),
         });
         for bad_value in [F::ZERO, F::ONE] {
-            for num_workers in [None, Some(1), Some(4)] {
+            for &num_workers in EXECUTION_MODES {
                 let mut executor = WitnessGenerationExecutor::new(Arc::clone(&plan));
                 let mut witness = executor.new_witness();
                 let mut execution = executor.bind(&mut witness)?;
                 execution.set_target(input, bad_value)?;
                 let result = catch_unwind(AssertUnwindSafe(|| {
-                    if let Some(workers) = num_workers {
-                        // SAFETY: The test generator declares its exact fixed access sets.
-                        unsafe { execution.execute_parallel(workers) }
-                    } else {
-                        execution.execute()
+                    match num_workers {
+                        None => execution.execute(),
+                        #[cfg(feature = "parallel")]
+                        Some(workers) => {
+                            // SAFETY: The test generator declares its exact fixed access sets.
+                            unsafe { execution.execute_parallel(workers) }
+                        }
+                        #[cfg(not(feature = "parallel"))]
+                        Some(_) => unreachable!("parallel execution requires the parallel feature"),
                     }
                 }));
                 if bad_value == F::ZERO {
@@ -382,11 +391,15 @@ mod tests {
                 assert!(!execution.witness().contains(input));
                 assert!(!execution.witness().contains(output));
                 execution.set_target(input, F::TWO)?;
-                if let Some(workers) = num_workers {
-                    // SAFETY: The same fixed access contract holds after reset.
-                    unsafe { execution.execute_parallel(workers)? };
-                } else {
-                    execution.execute()?;
+                match num_workers {
+                    None => execution.execute()?,
+                    #[cfg(feature = "parallel")]
+                    Some(workers) => {
+                        // SAFETY: The same fixed access contract holds after reset.
+                        unsafe { execution.execute_parallel(workers)? };
+                    }
+                    #[cfg(not(feature = "parallel"))]
+                    Some(_) => unreachable!("parallel execution requires the parallel feature"),
                 }
                 assert_eq!(execution.witness().get_target(output), F::TWO);
                 execution.finish().unwrap();

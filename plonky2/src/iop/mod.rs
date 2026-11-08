@@ -11,5 +11,5 @@ pub mod witness_generation_executor;
 pub mod witness_generation_plan;
 pub mod witness_generation_planner;
 pub mod witness_generation_schedule;
-#[cfg(feature = "std")]
+#[cfg(all(feature = "std", feature = "parallel"))]
 mod worker_coordinator;

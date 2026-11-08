@@ -3,32 +3,35 @@
 #[cfg(not(feature = "std"))]
 use alloc::sync::Arc;
 #[cfg(feature = "std")]
-use crossbeam_deque::Worker;
-#[cfg(feature = "std")]
-use std::panic::{catch_unwind, resume_unwind, AssertUnwindSafe};
-#[cfg(feature = "std")]
-use std::sync::{
-    atomic::{AtomicUsize, Ordering},
-    Arc,
+use std::sync::Arc;
+#[cfg(all(feature = "std", feature = "parallel"))]
+use std::{
+    panic::{catch_unwind, resume_unwind, AssertUnwindSafe},
+    sync::atomic::{AtomicUsize, Ordering},
 };
+
+#[cfg(all(feature = "std", feature = "parallel"))]
+use crossbeam_deque::Worker;
 
 use anyhow::{anyhow, ensure, Result};
 
 use crate::field::extension::Extendable;
-#[cfg(feature = "std")]
-use crate::field::types::Field;
 use crate::hash::hash_types::RichField;
 use crate::iop::generator::GeneratedValues;
 use crate::iop::target::Target;
 use crate::iop::witness::{PartitionWitness, Witness, WitnessWrite};
 use crate::iop::witness_generation_plan::WitnessGenerationPlan;
 use crate::iop::witness_generation_planner::WitnessGenerationPlanner;
-#[cfg(feature = "std")]
-use crate::iop::witness_generation_schedule::WitnessGenerationSchedule;
-#[cfg(feature = "std")]
-use crate::iop::worker_coordinator::WorkerCoordinator;
 use crate::plonk::circuit_data::CircuitData;
 use crate::plonk::config::GenericConfig;
+#[cfg(all(feature = "std", feature = "parallel"))]
+use crate::{
+    field::types::Field,
+    iop::{
+        witness_generation_schedule::WitnessGenerationSchedule,
+        worker_coordinator::WorkerCoordinator,
+    },
+};
 
 /// Executes a witness generation plan with reusable worker allocations.
 #[derive(Debug)]
@@ -39,7 +42,7 @@ pub struct WitnessGenerationExecutor<
     const D: usize,
 > {
     plan: Arc<WitnessGenerationPlan<'a, F, C, D>>,
-    #[cfg(feature = "std")]
+    #[cfg(all(feature = "std", feature = "parallel"))]
     scratch: GenerationScratch<F>,
 }
 
@@ -49,7 +52,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     pub fn new(plan: Arc<WitnessGenerationPlan<'a, F, C, D>>) -> Self {
         Self {
             plan,
-            #[cfg(feature = "std")]
+            #[cfg(all(feature = "std", feature = "parallel"))]
             scratch: GenerationScratch::new(),
         }
     }
@@ -110,12 +113,70 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         Ok(())
     }
 
+    fn run_generator(
+        plan: &WitnessGenerationPlan<'a, F, C, D>,
+        generator_index: usize,
+        witness: &mut PartitionWitness<'_, F>,
+        output_buffer: &mut GeneratedValues<F>,
+    ) -> Result<()> {
+        Self::run_generator_outputs(plan, generator_index, witness, output_buffer)?;
+        let generator = &plan.circuit().prover_only.generators[generator_index].0;
+        for (target, value) in output_buffer.target_values.drain(..) {
+            witness.set_target(target, value).map_err(|error| {
+                anyhow!("generator {generator_index} ({}): {error}", generator.id())
+            })?;
+        }
+        Ok(())
+    }
+
+    fn run_generator_outputs(
+        plan: &WitnessGenerationPlan<'a, F, C, D>,
+        generator_index: usize,
+        witness: &PartitionWitness<'_, F>,
+        output_buffer: &mut GeneratedValues<F>,
+    ) -> Result<()> {
+        let generator = &plan.circuit().prover_only.generators[generator_index].0;
+        generator
+            .run_ready(witness, output_buffer)
+            .map_err(|error| {
+                anyhow!("generator {generator_index} ({}): {error}", generator.id())
+            })?;
+        #[cfg(debug_assertions)]
+        {
+            let expected_output_targets = plan.expected_output_targets(generator_index);
+            debug_assert_eq!(
+                output_buffer.target_values.len(),
+                expected_output_targets.len(),
+                "generator {generator_index} ({}) emitted an unexpected number of outputs",
+                generator.id()
+            );
+            for (position, ((target, _), declared)) in output_buffer
+                .target_values
+                .iter()
+                .zip(expected_output_targets)
+                .enumerate()
+            {
+                debug_assert_eq!(
+                    target,
+                    declared,
+                    "generator {generator_index} ({}) emitted an unexpected output target at position {position}",
+                    generator.id()
+                );
+            }
+        }
+        Ok(())
+    }
+}
+
+#[cfg(all(feature = "std", feature = "parallel"))]
+impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
+    WitnessGenerationExecutor<'a, F, C, D>
+{
     /// Executes the entire plan with one OS thread per worker in each stage.
     ///
     /// # Safety
     /// The generator access requirements of
     /// [`WitnessGenerationExecution::execute_parallel`] must hold.
-    #[cfg(feature = "std")]
     pub unsafe fn execute_parallel(
         &mut self,
         witness: &mut PartitionWitness<'a, F>,
@@ -137,7 +198,6 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         Ok(())
     }
 
-    #[cfg(feature = "std")]
     unsafe fn run_parallel(
         &mut self,
         schedule: &WitnessGenerationSchedule,
@@ -254,7 +314,6 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         Ok(())
     }
 
-    #[cfg(feature = "std")]
     fn release_successors(
         schedule: &WitnessGenerationSchedule,
         local_index: usize,
@@ -278,23 +337,6 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         pushed
     }
 
-    fn run_generator(
-        plan: &WitnessGenerationPlan<'a, F, C, D>,
-        generator_index: usize,
-        witness: &mut PartitionWitness<'_, F>,
-        output_buffer: &mut GeneratedValues<F>,
-    ) -> Result<()> {
-        Self::run_generator_outputs(plan, generator_index, witness, output_buffer)?;
-        let generator = &plan.circuit().prover_only.generators[generator_index].0;
-        for (target, value) in output_buffer.target_values.drain(..) {
-            witness.set_target(target, value).map_err(|error| {
-                anyhow!("generator {generator_index} ({}): {error}", generator.id())
-            })?;
-        }
-        Ok(())
-    }
-
-    #[cfg(feature = "std")]
     unsafe fn run_generator_parallel(
         plan: &WitnessGenerationPlan<'a, F, C, D>,
         generator_index: usize,
@@ -308,7 +350,6 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         Ok(())
     }
 
-    #[cfg(feature = "std")]
     /// # Safety
     /// Each output must satisfy the assignment and publication requirements
     /// of [`PartitionWitness::set_target_shared`].
@@ -329,44 +370,6 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
                         .id()
                 )
             })?;
-        }
-        Ok(())
-    }
-
-    fn run_generator_outputs(
-        plan: &WitnessGenerationPlan<'a, F, C, D>,
-        generator_index: usize,
-        witness: &PartitionWitness<'_, F>,
-        output_buffer: &mut GeneratedValues<F>,
-    ) -> Result<()> {
-        let generator = &plan.circuit().prover_only.generators[generator_index].0;
-        generator
-            .run_ready(witness, output_buffer)
-            .map_err(|error| {
-                anyhow!("generator {generator_index} ({}): {error}", generator.id())
-            })?;
-        #[cfg(debug_assertions)]
-        {
-            let expected_output_targets = plan.expected_output_targets(generator_index);
-            debug_assert_eq!(
-                output_buffer.target_values.len(),
-                expected_output_targets.len(),
-                "generator {generator_index} ({}) emitted an unexpected number of outputs",
-                generator.id()
-            );
-            for (position, ((target, _), declared)) in output_buffer
-                .target_values
-                .iter()
-                .zip(expected_output_targets)
-                .enumerate()
-            {
-                debug_assert_eq!(
-                    target,
-                    declared,
-                    "generator {generator_index} ({}) emitted an unexpected output target at position {position}",
-                    generator.id()
-                );
-            }
         }
         Ok(())
     }
@@ -473,7 +476,12 @@ impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         self.finish_stage();
         Ok(())
     }
+}
 
+#[cfg(all(feature = "std", feature = "parallel"))]
+impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
+    WitnessGenerationExecution<'b, 'a, F, C, D>
+{
     /// Executes the next stage in parallel, retaining worker allocations.
     ///
     /// # Safety
@@ -483,7 +491,6 @@ impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
     ///   successful call, independently of input values;
     /// - accesses the witness through target-based methods;
     /// - completes all witness access before execution returns.
-    #[cfg(feature = "std")]
     pub unsafe fn execute_parallel(&mut self, num_workers: usize) -> Result<()> {
         ensure!(
             num_workers > 0,
@@ -519,7 +526,7 @@ impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
     }
 }
 
-#[cfg(feature = "std")]
+#[cfg(all(feature = "std", feature = "parallel"))]
 /// Reusable dependency counters, work queues and generator output buffers.
 #[derive(Debug)]
 struct GenerationScratch<F: Field> {
@@ -527,7 +534,7 @@ struct GenerationScratch<F: Field> {
     workers: Vec<WorkerScratch<F>>,
 }
 
-#[cfg(feature = "std")]
+#[cfg(all(feature = "std", feature = "parallel"))]
 impl<F: Field> GenerationScratch<F> {
     fn new() -> Self {
         Self {
@@ -576,14 +583,14 @@ impl<F: Field> GenerationScratch<F> {
     }
 }
 
-#[cfg(feature = "std")]
+#[cfg(all(feature = "std", feature = "parallel"))]
 #[derive(Debug)]
 struct WorkerScratch<F: Field> {
     output_buffer: GeneratedValues<F>,
     ready: Worker<usize>,
 }
 
-#[cfg(feature = "std")]
+#[cfg(all(feature = "std", feature = "parallel"))]
 impl<F: Field> WorkerScratch<F> {
     fn new() -> Self {
         Self {

@@ -95,7 +95,10 @@ impl<F: Field> DenseStorage<F> {
         // execution, the executor orders this read after initial assignment.
         unsafe { *self.assigned_flags[rep_index].get() != 0 }
     }
+}
 
+#[cfg(all(feature = "std", feature = "parallel"))]
+impl<F: Field> DenseStorage<F> {
     /// Sets or compares a representative value through shared access.
     ///
     /// # Safety
@@ -103,7 +106,6 @@ impl<F: Field> DenseStorage<F> {
     /// Subsequent reads and comparisons must acquire publication of both the
     /// value and its assignment flag. Assigned values and flags must remain
     /// immutable while workers run.
-    #[cfg(feature = "std")]
     pub(super) unsafe fn set_shared(&self, rep_index: usize, value: F) -> Result<()> {
         if let Some(old) = self.try_get(rep_index) {
             ensure!(

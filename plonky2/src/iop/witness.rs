@@ -408,26 +408,9 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
         Ok(dense.values_and_assignment_flags())
     }
 
-    pub(super) fn is_dense(&self) -> bool {
-        self.dense.is_some()
-    }
-
     /// Borrows mutable dense storage.
     pub(super) fn dense_mut(&mut self) -> &mut DenseStorage<F> {
         self.dense.as_mut().expect("witness is not dense")
-    }
-
-    /// Sets a target through shared access during scheduled dense generation.
-    ///
-    /// # Safety
-    /// The resolved representative must satisfy the assignment and publication
-    /// requirements of [`DenseStorage::set_shared`].
-    #[cfg(feature = "std")]
-    pub(super) unsafe fn set_target_shared(&self, target: Target, value: F) -> Result<()> {
-        let rep_index = self.representative_map[self.target_index(target)];
-        let dense = self.dense.as_ref().expect("witness is not dense");
-        // SAFETY: The executor supplies the required slot ordering.
-        unsafe { dense.set_shared(rep_index, value) }
     }
 
     /// Set a `Target`. On success, returns the representative index of the newly-set target. If the
@@ -473,6 +456,25 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
         }
 
         MatrixWitness { wire_values }
+    }
+}
+
+#[cfg(all(feature = "std", feature = "parallel"))]
+impl<F: Field> PartitionWitness<'_, F> {
+    pub(super) fn is_dense(&self) -> bool {
+        self.dense.is_some()
+    }
+
+    /// Sets a target through shared access during scheduled dense generation.
+    ///
+    /// # Safety
+    /// The resolved representative must satisfy the assignment and publication
+    /// requirements of [`DenseStorage::set_shared`].
+    pub(super) unsafe fn set_target_shared(&self, target: Target, value: F) -> Result<()> {
+        let rep_index = self.representative_map[self.target_index(target)];
+        let dense = self.dense.as_ref().expect("witness is not dense");
+        // SAFETY: The executor supplies the required slot ordering.
+        unsafe { dense.set_shared(rep_index, value) }
     }
 }
 
