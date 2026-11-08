@@ -20,10 +20,10 @@ use crate::plonk::circuit_data::{CircuitData, CommonCircuitData};
 use crate::plonk::config::GenericConfig;
 use crate::util::serialization::{Buffer, Read};
 
-/// Discovers built-in generator access independently of stage construction.
-/// Output targets and emission order must be independent of input values.
-/// Built-ins are recognized by ID; custom implementations reusing those IDs
-/// are unsupported. Debug execution checks emitted targets against discovery.
+/// Collects declared reads and discovers output targets of built-in generators.
+/// Discovery recognizes generator IDs. Each generator must be the corresponding
+/// built-in implementation, with input-independent output targets and emission order.
+/// Debug execution checks emitted targets against discovery.
 #[derive(Debug)]
 pub struct WitnessGenerationPlanner<
     'a,
@@ -42,8 +42,7 @@ pub struct WitnessGenerationPlanner<
 impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
     WitnessGenerationPlanner<'a, F, C, D>
 {
-    /// Discovers representative read/write indices, without selecting producers
-    /// or assuming availability of any input, constant or random value.
+    /// Collects generator read and output targets for the circuit.
     pub fn new(circuit: &'a CircuitData<F, C, D>) -> Result<Self> {
         let common = &circuit.common;
         let prover = &circuit.prover_only;
@@ -124,7 +123,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         })
     }
 
-    /// Starts an empty plan bound to this planner. No witness is populated.
+    /// Starts building a witness generation plan.
     pub fn new_plan(&self) -> WitnessGenerationPlanning<'_, 'a, F, C, D> {
         WitnessGenerationPlanning::new(self)
     }
@@ -168,16 +167,13 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     }
 }
 
-/// Discovers ordered output targets by executing a built-in with dummy inputs.
-/// Duplicate emissions are preserved; generated values are never applied to scratch.
+/// Collects output targets in emission order by running a built-in with sample inputs.
+/// Duplicate emissions are preserved.
 ///
-/// `probe_witness` must be a dedicated dense witness for the same circuit, initially
-/// unassigned. Only its declared read slots are populated and then cleared, on
-/// success or a returned error. Stored values need not be zeroed between probes.
-///
-/// Recognition uses built-in IDs, not concrete type identification. Callers must
-/// supply genuine built-ins; custom implementations reusing those IDs are unsupported.
-/// This relies on built-in output targets and their order being input-independent.
+/// The supplied witness must be dense, initially unassigned, and use matching
+/// circuit data. Declared read targets are assigned for the call and cleared
+/// on success or a returned error. The generator must be the built-in implementation
+/// corresponding to its ID, with an input-independent output target sequence.
 fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
     generator: &dyn WitnessGenerator<F, D>,
     common: &CommonCircuitData<F, D>,
@@ -193,7 +189,7 @@ fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
         DummyInputRule::Quotient => {
             ensure!(
                 D > 0 && D.checked_mul(2) == Some(read_targets.len()),
-                "unexpected quotient read declaration for {id}"
+                "invalid read declaration for generator {id}"
             );
             Some((read_targets[D], F::ONE))
         }
@@ -206,12 +202,12 @@ fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
         DummyInputRule::Lookup => {
             ensure!(
                 read_targets.len() == 1,
-                "unexpected lookup read declaration for {id}"
+                "invalid read declaration for generator {id}"
             );
             let mut parameters = Vec::new();
             generator
                 .serialize(&mut parameters, common)
-                .map_err(|_| anyhow!("could not serialize {id} for output discovery"))?;
+                .map_err(|_| anyhow!("failed to serialize generator {id}"))?;
             let mut reader = Buffer::new(&parameters);
             let table = (|| {
                 reader.read_usize()?; // row
@@ -232,10 +228,12 @@ fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
         let rep_index = *probe_witness
             .representative_map
             .get(target_index)
-            .ok_or_else(|| anyhow!("{id} reads target {target:?} outside scratch"))?;
+            .ok_or_else(|| {
+                anyhow!("target {target:?} is outside the witness for generator {id}")
+            })?;
         ensure!(
             rep_index < probe_witness.representative_map.len(),
-            "{id} has an invalid representative slot {rep_index}"
+            "invalid representative index {rep_index} for generator {id}"
         );
         Ok(rep_index)
     };
@@ -264,7 +262,7 @@ fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
         }
         ensure!(
             generator.run(probe_witness, &mut output_buffer),
-            "built-in output probe failed for {id}; check the dummy-input rule and instance parameters"
+            "failed to determine output targets for generator {id}"
         );
         Ok(())
     })();
@@ -324,9 +322,7 @@ fn dummy_input_rule(id: &str) -> Result<DummyInputRule> {
                 parse_base(id, base)?;
                 return Ok(DummyInputRule::Zero);
             }
-            Err(anyhow!(
-                "unsupported generator ID for output discovery: {id}"
-            ))
+            Err(anyhow!("unsupported generator ID: {id}"))
         }
     }
 }
@@ -426,8 +422,7 @@ mod tests {
         builder
             .add_simple_generator(crate::iop::generator::RandomValueGenerator { target: copied });
 
-        // SplitGenerator has no builder entrypoint; construct a nonempty instance
-        // through its existing serialization API rather than expose private fields.
+        // Deserialize a SplitGenerator with eight output targets.
         let mut parameters = Vec::new();
         parameters.write_target(a).unwrap();
         parameters
@@ -472,19 +467,18 @@ mod tests {
         for &target in &reads {
             assert!(
                 !probe.contains(target),
-                "{} left a probe input assigned",
+                "{} left a sample input assigned",
                 generator.id()
             );
         }
         for &target in &discovered {
             assert!(
                 !probe.contains(target),
-                "{} applied a probe output",
+                "{} assigned an output during discovery",
                 generator.id()
             );
         }
-        // These are valid inputs for each individual generator, independent of
-        // the dummy probe. This does not claim to be a complete circuit witness.
+        // Exercise each generator with valid inputs for its computation.
         for value in [F::ZERO, F::ONE] {
             let mut witness = PartitionWitness::new(
                 data.common.config.num_wires,
@@ -531,7 +525,7 @@ mod tests {
     #[test]
     fn built_in_families_discover_the_same_output_order_as_execution() -> Result<()> {
         let data = family_fixture()?;
-        // Exercise public admission as well as the private ordered-output probe.
+        // Check planner construction and output-target discovery for each supported family.
         WitnessGenerationPlanner::new(&data)?;
         let mut probe = PartitionWitness::new_dense(
             data.common.config.num_wires,

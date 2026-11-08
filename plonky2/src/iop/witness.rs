@@ -336,7 +336,7 @@ impl<F: Field> Witness<F> for PartialWitness<F> {
 /// The value of a target is defined to be the value of its root in the forest.
 #[derive(Debug)]
 pub struct PartitionWitness<'a, F: Field> {
-    /// Stock witness storage; empty for witnesses constructed with dense storage.
+    /// Optional target values. Dense witnesses keep this vector empty.
     pub values: Vec<Option<F>>,
     pub representative_map: &'a [usize],
     pub num_wires: usize,
@@ -396,11 +396,10 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
         }
     }
 
-    /// Borrows dense values and assignment flags in storage-index order.
-    /// Both slices use the same indices as `representative_map`; a nonzero flag
-    /// means assigned. Values with a zero flag must be ignored.
-    /// Returns an error if the witness does not use dense storage.
-    /// Exclusive access prevents concurrent generation while the slices are borrowed.
+    /// Borrows dense values and assignment flags.
+    /// Use representative indices from `representative_map` to access both slices.
+    /// Read values whose assignment flags are nonzero; zero flags mark unassigned entries.
+    /// Returns an error for witnesses using optional-value storage.
     pub fn dense_values_and_assignment_flags(&mut self) -> Result<(&[F], &[u8])> {
         let dense = self
             .dense
@@ -413,7 +412,7 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
         self.dense.is_some()
     }
 
-    /// Direct storage access for an executor that requires a dense witness.
+    /// Borrows mutable dense storage.
     pub(super) fn dense_mut(&mut self) -> &mut DenseStorage<F> {
         self.dense.as_mut().expect("witness is not dense")
     }
@@ -421,8 +420,8 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
     /// Sets a target through shared access during scheduled dense generation.
     ///
     /// # Safety
-    /// The resolved slot must satisfy `DenseStorage::set_shared`'s exclusive
-    /// assignment and publication requirements. Stock storage is unsupported.
+    /// The resolved representative must satisfy the assignment and publication
+    /// requirements of [`DenseStorage::set_shared`].
     #[cfg(feature = "std")]
     pub(super) unsafe fn set_target_shared(&self, target: Target, value: F) -> Result<()> {
         let rep_index = self.representative_map[self.target_index(target)];

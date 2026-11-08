@@ -35,15 +35,15 @@ impl WitnessGenerationSchedule {
             [self.successor_offsets[local_index]..self.successor_offsets[local_index + 1]]
     }
 
-    /// Schedule-local roots, in circuit-builder order.
+    /// Schedule-local indices of generators with zero dependencies, in circuit-builder order.
     pub fn initial_ready(&self) -> &[usize] {
         &self.initial_ready
     }
 }
 
-/// Builds a depth-first schedule and updates assumed generation state.
-/// Returns the schedule and the representatives it first makes available.
-/// Both roots and newly runnable consumers are visited in builder-index order.
+/// Builds a depth-first schedule and records expected assignments and completion.
+/// Returns the schedule and representative indices first assigned by its generators.
+/// Initial and newly enabled generators are visited in circuit-builder order.
 pub(super) fn make_schedule(
     reads: &[Vec<usize>],
     writes: &[Vec<usize>],
@@ -93,7 +93,7 @@ pub(super) fn make_schedule(
         for &rep_index in &writes[generator_index] {
             let producer_local_index = producer_local_indices[rep_index];
             if producer_local_index != NONE {
-                // Other writers compare only after the first assignment.
+                // Order additional writers after the generator assigning the value.
                 edges.push((producer_local_index, generator_index));
             }
             if state.assumed_assigned_flags()[rep_index] != 0 {
@@ -119,7 +119,7 @@ pub(super) fn make_schedule(
         ready.extend(unlocked.iter().rev().copied());
     }
 
-    // Readers still blocked on another class are not members of this schedule.
+    // Retain dependencies between generators included in this schedule.
     edges.retain(|&(_, consumer_generator_index)| local_indices[consumer_generator_index] != NONE);
     edges.sort_unstable();
     edges.dedup();

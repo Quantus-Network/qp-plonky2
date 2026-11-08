@@ -30,7 +30,7 @@ use crate::iop::worker_coordinator::WorkerCoordinator;
 use crate::plonk::circuit_data::CircuitData;
 use crate::plonk::config::GenericConfig;
 
-/// A shared immutable plan and reusable worker allocations.
+/// Executes a witness generation plan with reusable worker allocations.
 #[derive(Debug)]
 pub struct WitnessGenerationExecutor<
     'a,
@@ -79,7 +79,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         )
     }
 
-    /// Starts at the first stage while borrowing the witness and worker scratch.
+    /// Borrows the executor and witness for execution starting at the first stage.
     pub fn bind<'b>(
         &'b mut self,
         witness: &'b mut PartitionWitness<'a, F>,
@@ -152,7 +152,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         if schedule.initial_ready().is_empty() {
             ensure!(
                 schedule.generator_indices().is_empty(),
-                "scheduled witness generators did not complete"
+                "witness generation schedule has no ready generators"
             );
             return Ok(());
         }
@@ -267,7 +267,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
                 pending_dependencies[successor_local_index].fetch_sub(1, Ordering::AcqRel);
             assert!(
                 previous > 0,
-                "generator {} dependency released twice",
+                "generator {} dependency count underflow",
                 schedule.generator_indices()[successor_local_index]
             );
             if previous == 1 {
@@ -302,16 +302,16 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         output_buffer: &mut GeneratedValues<F>,
     ) -> Result<()> {
         Self::run_generator_outputs(plan, generator_index, witness, output_buffer)?;
-        // SAFETY: The prepared graph and execute_parallel's access contract
-        // guarantee the required ordering of reads and writes.
+        // SAFETY: The caller guarantees complete read/write declarations.
+        // Dependencies order reads and comparisons after initial assignment.
         unsafe { Self::write_generator_outputs(plan, generator_index, witness, output_buffer)? };
         Ok(())
     }
 
     #[cfg(feature = "std")]
     /// # Safety
-    /// Output slots must have exclusive assignment followed by concurrent
-    /// read-only comparisons, with readers ordered after assignment.
+    /// Each output must satisfy the assignment and publication requirements
+    /// of [`PartitionWitness::set_target_shared`].
     unsafe fn write_generator_outputs(
         plan: &WitnessGenerationPlan<'a, F, C, D>,
         generator_index: usize,
@@ -351,7 +351,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
             debug_assert_eq!(
                 output_buffer.target_values.len(),
                 expected_output_targets.len(),
-                "generator {generator_index} ({}) changed its output count",
+                "generator {generator_index} ({}) emitted an unexpected number of outputs",
                 generator.id()
             );
             for (position, ((target, _), declared)) in output_buffer
@@ -363,7 +363,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
                 debug_assert_eq!(
                     target,
                     declared,
-                    "generator {generator_index} ({}) changed output {position}",
+                    "generator {generator_index} ({}) emitted an unexpected output target at position {position}",
                     generator.id()
                 );
             }
@@ -373,7 +373,6 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
 }
 
 /// Executes successive stages while borrowing an executor and one witness.
-/// Unbinding releases both borrows without clearing witness assignments.
 #[derive(Debug)]
 pub struct WitnessGenerationExecution<
     'b,
@@ -395,11 +394,11 @@ impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         self.witness
     }
 
-    /// Releases the borrows without requiring completion or clearing values.
+    /// Releases the executor and witness borrows, preserving witness assignments.
     pub fn unbind(self) {}
 
-    /// Releases the borrows after successful completion, or returns this
-    /// execution unchanged so an incomplete execution can continue.
+    /// Releases the executor and witness borrows after successful completion.
+    /// Returns the execution when further work or recovery is required.
     pub fn finish(self) -> core::result::Result<(), Self> {
         if self.is_done() {
             Ok(())
@@ -423,7 +422,7 @@ impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
     fn begin_stage(&mut self) -> Result<()> {
         ensure!(
             !self.failed,
-            "witness execution cannot continue after failed execution"
+            "witness execution failed; reset before continuing"
         );
         let stage = self
             .executor
@@ -443,7 +442,8 @@ impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
             };
             ensure!(
                 self.witness.try_get_target(target).is_some(),
-                "promised representative {rep_index} is not assigned"
+                "target {target:?} is not assigned before stage {}",
+                self.next_stage
             );
         }
         self.failed = true;
@@ -477,11 +477,12 @@ impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
     /// Executes the next stage in parallel, retaining worker allocations.
     ///
     /// # Safety
-    /// Generators must declare every read, including presence queries, emit
-    /// their discovered output targets/order independently of input values,
-    /// and access storage only through target-based witness methods. They must
-    /// not retain witness access after execution. Built-in IDs and debug output
-    /// checks do not establish these guarantees for arbitrary implementations.
+    /// The caller must ensure that every generator:
+    /// - declares every target it may read, including checks whether a target is assigned;
+    /// - emits the output target sequence discovered during planning on every
+    ///   successful call, independently of input values;
+    /// - accesses the witness through target-based methods;
+    /// - completes all witness access before execution returns.
     #[cfg(feature = "std")]
     pub unsafe fn execute_parallel(&mut self, num_workers: usize) -> Result<()> {
         ensure!(
@@ -512,15 +513,14 @@ impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
     fn set_target(&mut self, target: Target, value: F) -> Result<()> {
         ensure!(
             !self.failed,
-            "witness execution cannot continue after failed execution"
+            "witness execution failed; reset before continuing"
         );
         self.witness.set_target(target, value)
     }
 }
 
 #[cfg(feature = "std")]
-/// Executor-owned allocations reset for each schedule. Witness access, failure
-/// state and stage progress are held separately by the binding.
+/// Reusable dependency counters, work queues and generator output buffers.
 #[derive(Debug)]
 struct GenerationScratch<F: Field> {
     pending_dependencies: Vec<AtomicUsize>,

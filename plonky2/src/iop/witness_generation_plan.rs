@@ -15,7 +15,7 @@ use crate::iop::witness_generation_schedule::{make_schedule, WitnessGenerationSc
 use crate::plonk::circuit_data::CircuitData;
 use crate::plonk::config::GenericConfig;
 
-/// Assumed assignments and completed generators, independently of execution.
+/// Tracks assignments and generator completion assumed during planning.
 #[derive(Debug)]
 pub(super) struct WitnessGenerationState {
     assumed_assigned_flags: Vec<u8>,
@@ -51,7 +51,7 @@ impl WitnessGenerationState {
     }
 }
 
-/// Immutable stages and circuit data shared by independent executors.
+/// An immutable sequence of witness generation stages for a circuit.
 #[derive(Debug)]
 pub struct WitnessGenerationPlan<
     'a,
@@ -88,7 +88,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     }
 }
 
-/// New caller-assignment requirements and the work enabled for one stage.
+/// Required assignments and the generator schedule for one stage.
 #[derive(Debug)]
 pub struct WitnessGenerationStage {
     promised_rep_indices: Vec<usize>,
@@ -106,8 +106,7 @@ impl WitnessGenerationStage {
     }
 }
 
-/// Builds successive stages while borrowing circuit dependencies from a planner.
-/// Assumptions describe future availability; no generators are executed.
+/// Builds stages from assignment assumptions and generator dependencies.
 #[derive(Debug)]
 pub struct WitnessGenerationPlanning<
     'p,
@@ -145,9 +144,8 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         }
     }
 
-    /// Promises a target assignment before the next stage executes.
-    /// Aliases are resolved internally; already available representatives need
-    /// no new promise. Assignments become assumed state when a stage is added.
+    /// Records a target assignment required before the next stage executes.
+    /// Targets connected by copy constraints share one assignment requirement.
     pub fn assume_assigned(&mut self, target: Target) -> Result<()> {
         let circuit = self.planner.circuit();
         let target_index = target.index(circuit.common.config.num_wires, circuit.common.degree());
@@ -166,8 +164,7 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         }
     }
 
-    /// Records pending promises, schedules runnable work, and appends a stage.
-    /// Generators still blocked on unavailable values remain unscheduled.
+    /// Schedules generators enabled by the recorded assignments and appends a stage.
     pub fn add_stage(&mut self) {
         let mut promised_rep_indices = core::mem::take(&mut self.promised_rep_indices);
         promised_rep_indices.sort_unstable();
@@ -188,13 +185,14 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         });
     }
 
-    /// All generators are accounted for and no promises await a stage.
+    /// Returns whether all generators are scheduled and all assignment requirements belong to stages.
     pub fn is_done(&self) -> bool {
         self.state.is_done() && self.promised_rep_indices.is_empty()
     }
 
-    /// Returns a shared immutable plan only when all generators are accounted for.
-    /// Otherwise returns this planning object so more stages can be added.
+    /// Returns the immutable plan when all generators are scheduled and all
+    /// assignment requirements belong to stages. Returns the planning object
+    /// when more stages are required.
     pub fn finish(self) -> core::result::Result<Arc<WitnessGenerationPlan<'a, F, C, D>>, Self> {
         if self.is_done() {
             Ok(Arc::new(self.plan))
@@ -319,8 +317,7 @@ mod tests {
         let input = builder.add_virtual_target();
         let output = builder.add_virtual_target();
         let mut data = builder.build::<C>();
-        // Isolate execution from admission: this test-only generator has exact
-        // fixed access sets and deliberately returns errors or panics in any build.
+        // Exercise errors, panics and recovery with fixed read and output targets.
         data.prover_only.generators = vec![WitnessGeneratorRef::new(FallibleGenerator {
             input,
             output,
@@ -376,7 +373,7 @@ mod tests {
                     .execute()
                     .unwrap_err()
                     .to_string()
-                    .contains("after failed execution"));
+                    .contains("reset before continuing"));
                 assert!(execution.set_target(input, F::TWO).is_err());
                 let mut execution = execution
                     .finish()

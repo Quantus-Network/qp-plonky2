@@ -113,8 +113,9 @@ pub trait WitnessGenerator<F: RichField + Extendable<D>, const D: usize>:
     /// the generator will be queued to run.
     fn watch_list(&self) -> Vec<Target>;
 
-    /// Every target this generator may read, including presence queries.
-    /// `None` means unknown; `Some(vec![])` means no reads.
+    /// Returns every target the generator may read, including checks whether a
+    /// target is assigned. `None` represents an unknown read list; an empty vector
+    /// declares zero reads.
     fn reads(&self) -> Option<Vec<Target>> {
         None
     }
@@ -124,8 +125,7 @@ pub trait WitnessGenerator<F: RichField + Extendable<D>, const D: usize>:
     /// run next time a target in its watch list is populated.
     fn run(&self, witness: &PartitionWitness<F>, out_buffer: &mut GeneratedValues<F>) -> bool;
 
-    /// Runs once when the caller guarantees every declared read is assigned.
-    /// Implementations may bypass dependency checks and return computation errors directly.
+    /// Runs the generator with all declared read targets assigned.
     fn run_ready(
         &self,
         witness: &PartitionWitness<F>,

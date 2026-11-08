@@ -8,22 +8,21 @@ use anyhow::{ensure, Result};
 
 use crate::field::types::Field;
 
-/// Field values and assignment bytes, indexed by witness slot.
-/// Shared mutation is restricted to the scheduled executor's unsafe entry point.
+/// Field values and assignment flags indexed by representative index.
 pub(super) struct DenseStorage<F: Field> {
     values: Vec<UnsafeCell<F>>,
     assigned_flags: Vec<UnsafeCell<u8>>,
 }
 
-// SAFETY: Safe mutation requires exclusive access. Shared mutation is unsafe and
-// requires exclusive access to each unset slot until its value and byte have
-// been published. Assigned slots are immutable while workers run. The executor
-// orders readers and other writers after the selected writer's completion.
+// SAFETY: Safe setters require &mut self. Shared assignment requires exclusive
+// access to each unassigned representative until both stores are published.
+// Assigned values and flags are immutable while workers run. The executor orders
+// readers and other writers after the selected writer's completion.
 unsafe impl<F: Field> Sync for DenseStorage<F> {}
 
 impl<F: Field> fmt::Debug for DenseStorage<F> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // Do not inspect cells: Debug may be called by a running generator.
+        // Read immutable metadata while generators may be assigning values.
         f.debug_struct("DenseStorage")
             .field("num_targets", &self.values.len())
             .finish()
@@ -53,15 +52,15 @@ impl<F: Field> DenseStorage<F> {
         }
     }
 
-    /// Assigns an unset slot or checks that an existing assignment agrees.
-    /// A conflicting assignment returns an error without changing storage.
+    /// Sets a representative value or compares it with its existing assignment.
+    /// Returns an error for conflicting values.
     pub(super) fn set(&mut self, rep_index: usize, value: F) -> Result<()> {
         let assigned_flag = self.assigned_flags[rep_index].get_mut();
         let stored = self.values[rep_index].get_mut();
         if *assigned_flag != 0 {
             ensure!(
                 *stored == value,
-                "Witness slot {rep_index} was set twice with different values: {stored} != {value}"
+                "representative index {rep_index} was assigned different values: {stored} != {value}"
             );
         } else {
             *stored = value;
@@ -72,9 +71,9 @@ impl<F: Field> DenseStorage<F> {
 
     pub(super) fn try_get(&self, rep_index: usize) -> Option<F> {
         self.is_assigned(rep_index).then(|| {
-            // SAFETY: Safe APIs cannot mutate through shared access. The parallel
-            // executor orders reads after publication; the assignment byte
-            // was checked above.
+            // SAFETY: Exclusive mutation requires &mut self. During parallel
+            // execution, the executor publishes assignments before these reads
+            // and keeps assigned values immutable.
             unsafe { *self.values[rep_index].get() }
         })
     }
@@ -86,33 +85,33 @@ impl<F: Field> DenseStorage<F> {
         }
     }
 
-    /// Marks a slot unassigned without clearing its stored value.
+    /// Clears the assignment flag for one representative, retaining its value.
     pub(super) fn clear_assignment(&mut self, rep_index: usize) {
         *self.assigned_flags[rep_index].get_mut() = 0;
     }
 
     pub(super) fn is_assigned(&self, rep_index: usize) -> bool {
-        // SAFETY: Safe APIs cannot mutate through shared access. The parallel
-        // executor orders presence reads after the slot writer completes.
+        // SAFETY: Exclusive mutation requires &mut self. During parallel
+        // execution, the executor orders this read after initial assignment.
         unsafe { *self.assigned_flags[rep_index].get() != 0 }
     }
 
-    /// Shared equivalent of `set`, for the scheduled executor only.
+    /// Sets or compares a representative value through shared access.
     ///
     /// # Safety
-    /// No access to an unset slot may overlap this call. After assignment, all
-    /// accesses must be read-only and acquire publication of both stores. The
-    /// caller must keep storage alive and must not obtain exclusive access while
-    /// workers run.
+    /// First assignment requires exclusive access to the representative.
+    /// Subsequent reads and comparisons must acquire publication of both the
+    /// value and its assignment flag. Assigned values and flags must remain
+    /// immutable while workers run.
     #[cfg(feature = "std")]
     pub(super) unsafe fn set_shared(&self, rep_index: usize, value: F) -> Result<()> {
         if let Some(old) = self.try_get(rep_index) {
             ensure!(
                 old == value,
-                "Witness slot {rep_index} was set twice with different values: {old} != {value}"
+                "representative index {rep_index} was assigned different values: {old} != {value}"
             );
         } else {
-            // SAFETY: The caller grants exclusive slot access until publication.
+            // SAFETY: The caller grants exclusive representative access until publication.
             unsafe {
                 *self.values[rep_index].get() = value;
                 *self.assigned_flags[rep_index].get() = 1;

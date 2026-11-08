@@ -1,4 +1,4 @@
-//! Work stealing and sleeping-worker coordination for witness generation.
+//! Work stealing and sleeping-worker coordination.
 
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Condvar, Mutex};
@@ -23,10 +23,7 @@ struct CoordinationState {
 
 impl WorkerCoordinator {
     pub(super) fn new(stealers: Vec<Stealer<usize>>) -> Self {
-        assert!(
-            !stealers.is_empty(),
-            "worker coordinator requires at least one queue"
-        );
+        assert!(!stealers.is_empty(), "at least one work queue is required");
         Self {
             stealers,
             stopped: AtomicBool::new(false),
@@ -137,7 +134,7 @@ impl WorkerCoordinator {
         if let Some(error) = state.failure {
             return Err(error);
         }
-        ensure!(state.exhausted, "runnable witness work did not complete");
+        ensure!(state.exhausted, "work did not complete");
         Ok(())
     }
 }
