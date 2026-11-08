@@ -12,7 +12,7 @@ use crate::field::types::Field;
 /// Shared mutation is restricted to the scheduled executor's unsafe entry point.
 pub(super) struct DenseStorage<F: Field> {
     values: Vec<UnsafeCell<F>>,
-    assigned: Vec<UnsafeCell<u8>>,
+    assigned_flags: Vec<UnsafeCell<u8>>,
 }
 
 // SAFETY: Safe mutation requires exclusive access. Shared mutation is unsafe and
@@ -34,7 +34,7 @@ impl<F: Field> DenseStorage<F> {
     pub(super) fn new(num_targets: usize) -> Self {
         Self {
             values: (0..num_targets).map(|_| UnsafeCell::new(F::ZERO)).collect(),
-            assigned: (0..num_targets).map(|_| UnsafeCell::new(0)).collect(),
+            assigned_flags: (0..num_targets).map(|_| UnsafeCell::new(0)).collect(),
         }
     }
 
@@ -46,8 +46,8 @@ impl<F: Field> DenseStorage<F> {
             (
                 core::slice::from_raw_parts(self.values.as_ptr().cast::<F>(), self.values.len()),
                 core::slice::from_raw_parts(
-                    self.assigned.as_ptr().cast::<u8>(),
-                    self.assigned.len(),
+                    self.assigned_flags.as_ptr().cast::<u8>(),
+                    self.assigned_flags.len(),
                 ),
             )
         }
@@ -56,22 +56,22 @@ impl<F: Field> DenseStorage<F> {
     /// Assigns an unset slot or checks that an existing assignment agrees.
     /// A conflicting assignment returns an error without changing storage.
     pub(super) fn set(&mut self, rep_index: usize, value: F) -> Result<()> {
-        let assigned = self.assigned[rep_index].get_mut();
+        let assigned_flag = self.assigned_flags[rep_index].get_mut();
         let stored = self.values[rep_index].get_mut();
-        if *assigned != 0 {
+        if *assigned_flag != 0 {
             ensure!(
                 *stored == value,
                 "Witness slot {rep_index} was set twice with different values: {stored} != {value}"
             );
         } else {
             *stored = value;
-            *assigned = 1;
+            *assigned_flag = 1;
         }
         Ok(())
     }
 
     pub(super) fn try_get(&self, rep_index: usize) -> Option<F> {
-        self.is_set(rep_index).then(|| {
+        self.is_assigned(rep_index).then(|| {
             // SAFETY: Safe APIs cannot mutate through shared access. The parallel
             // executor orders reads after publication; the assignment byte
             // was checked above.
@@ -81,20 +81,20 @@ impl<F: Field> DenseStorage<F> {
 
     /// Clears assignment flags while retaining stored values and allocations.
     pub(super) fn clear(&mut self) {
-        for assigned in &mut self.assigned {
-            *assigned.get_mut() = 0;
+        for assigned_flag in &mut self.assigned_flags {
+            *assigned_flag.get_mut() = 0;
         }
     }
 
     /// Marks a slot unassigned without clearing its stored value.
     pub(super) fn clear_assignment(&mut self, rep_index: usize) {
-        *self.assigned[rep_index].get_mut() = 0;
+        *self.assigned_flags[rep_index].get_mut() = 0;
     }
 
-    pub(super) fn is_set(&self, rep_index: usize) -> bool {
+    pub(super) fn is_assigned(&self, rep_index: usize) -> bool {
         // SAFETY: Safe APIs cannot mutate through shared access. The parallel
         // executor orders presence reads after the slot writer completes.
-        unsafe { *self.assigned[rep_index].get() != 0 }
+        unsafe { *self.assigned_flags[rep_index].get() != 0 }
     }
 
     /// Shared equivalent of `set`, for the scheduled executor only.
@@ -115,7 +115,7 @@ impl<F: Field> DenseStorage<F> {
             // SAFETY: The caller grants exclusive slot access until publication.
             unsafe {
                 *self.values[rep_index].get() = value;
-                *self.assigned[rep_index].get() = 1;
+                *self.assigned_flags[rep_index].get() = 1;
             }
         }
         Ok(())

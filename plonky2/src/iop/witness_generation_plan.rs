@@ -18,36 +18,36 @@ use crate::plonk::config::GenericConfig;
 /// Assumed assignments and completed generators, independently of execution.
 #[derive(Debug)]
 pub(super) struct WitnessGenerationState {
-    assumed_assigned: Vec<u8>,
-    generators_scheduled: Vec<u8>,
+    assumed_assigned_flags: Vec<u8>,
+    scheduled_generator_flags: Vec<u8>,
 }
 
 impl WitnessGenerationState {
     fn new(num_targets: usize, num_generators: usize) -> Self {
         Self {
-            assumed_assigned: vec![0; num_targets],
-            generators_scheduled: vec![0; num_generators],
+            assumed_assigned_flags: vec![0; num_targets],
+            scheduled_generator_flags: vec![0; num_generators],
         }
     }
 
-    pub(super) fn assumed_assigned(&self) -> &[u8] {
-        &self.assumed_assigned
+    pub(super) fn assumed_assigned_flags(&self) -> &[u8] {
+        &self.assumed_assigned_flags
     }
 
-    pub(super) fn generators_scheduled(&self) -> &[u8] {
-        &self.generators_scheduled
+    pub(super) fn scheduled_generator_flags(&self) -> &[u8] {
+        &self.scheduled_generator_flags
     }
 
     pub(super) fn mark_assigned(&mut self, rep_index: usize) {
-        self.assumed_assigned[rep_index] = 1;
+        self.assumed_assigned_flags[rep_index] = 1;
     }
 
     pub(super) fn mark_scheduled(&mut self, generator_index: usize) {
-        self.generators_scheduled[generator_index] = 1;
+        self.scheduled_generator_flags[generator_index] = 1;
     }
 
     fn is_done(&self) -> bool {
-        self.generators_scheduled.iter().all(|&flag| flag != 0)
+        self.scheduled_generator_flags.iter().all(|&flag| flag != 0)
     }
 }
 
@@ -62,7 +62,7 @@ pub struct WitnessGenerationPlan<
     circuit: &'a CircuitData<F, C, D>,
     stages: Vec<WitnessGenerationStage>,
     #[cfg(debug_assertions)]
-    outputs: Arc<Vec<Vec<Target>>>,
+    expected_output_targets: Arc<Vec<Vec<Target>>>,
 }
 
 impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
@@ -83,21 +83,21 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     }
 
     #[cfg(debug_assertions)]
-    pub(super) fn outputs(&self, generator_index: usize) -> &[Target] {
-        &self.outputs[generator_index]
+    pub(super) fn expected_output_targets(&self, generator_index: usize) -> &[Target] {
+        &self.expected_output_targets[generator_index]
     }
 }
 
 /// New caller-assignment requirements and the work enabled for one stage.
 #[derive(Debug)]
 pub struct WitnessGenerationStage {
-    newly_assumed_assigned: Vec<usize>,
+    promised_rep_indices: Vec<usize>,
     schedule: WitnessGenerationSchedule,
 }
 
 impl WitnessGenerationStage {
-    pub(super) fn newly_assumed_assigned(&self) -> &[usize] {
-        &self.newly_assumed_assigned
+    pub(super) fn promised_rep_indices(&self) -> &[usize] {
+        &self.promised_rep_indices
     }
 
     /// Read-only generator graph for this stage.
@@ -117,7 +117,7 @@ pub struct WitnessGenerationPlanning<
     const D: usize,
 > {
     planner: &'p WitnessGenerationPlanner<'a, F, C, D>,
-    newly_assumed_assigned: Vec<usize>,
+    promised_rep_indices: Vec<usize>,
     newly_produced: Vec<usize>,
     state: WitnessGenerationState,
     plan: WitnessGenerationPlan<'a, F, C, D>,
@@ -130,7 +130,7 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         let circuit = planner.circuit();
         Self {
             planner,
-            newly_assumed_assigned: Vec::new(),
+            promised_rep_indices: Vec::new(),
             newly_produced: Vec::new(),
             state: WitnessGenerationState::new(
                 circuit.prover_only.representative_map.len(),
@@ -140,7 +140,7 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
                 circuit,
                 stages: Vec::new(),
                 #[cfg(debug_assertions)]
-                outputs: Arc::clone(planner.outputs()),
+                expected_output_targets: Arc::clone(planner.expected_output_targets()),
             },
         }
     }
@@ -148,7 +148,7 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
     /// Promises a target assignment before the next stage executes.
     /// Aliases are resolved internally; already available representatives need
     /// no new promise. Assignments become assumed state when a stage is added.
-    pub fn set_assumed_assigned(&mut self, target: Target) -> Result<()> {
+    pub fn assume_assigned(&mut self, target: Target) -> Result<()> {
         let circuit = self.planner.circuit();
         let target_index = target.index(circuit.common.config.num_wires, circuit.common.degree());
         let rep_index = *circuit
@@ -161,18 +161,18 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
     }
 
     fn assume_representative(&mut self, rep_index: usize) {
-        if self.state.assumed_assigned()[rep_index] == 0 {
-            self.newly_assumed_assigned.push(rep_index);
+        if self.state.assumed_assigned_flags()[rep_index] == 0 {
+            self.promised_rep_indices.push(rep_index);
         }
     }
 
     /// Records pending promises, schedules runnable work, and appends a stage.
     /// Generators still blocked on unavailable values remain unscheduled.
     pub fn add_stage(&mut self) {
-        let mut promised = core::mem::take(&mut self.newly_assumed_assigned);
-        promised.sort_unstable();
-        promised.dedup();
-        for &rep_index in &promised {
+        let mut promised_rep_indices = core::mem::take(&mut self.promised_rep_indices);
+        promised_rep_indices.sort_unstable();
+        promised_rep_indices.dedup();
+        for &rep_index in &promised_rep_indices {
             self.state.mark_assigned(rep_index);
         }
         let (schedule, newly_produced) = make_schedule(
@@ -183,14 +183,14 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         );
         self.newly_produced = newly_produced;
         self.plan.stages.push(WitnessGenerationStage {
-            newly_assumed_assigned: promised,
+            promised_rep_indices,
             schedule,
         });
     }
 
     /// All generators are accounted for and no promises await a stage.
     pub fn is_done(&self) -> bool {
-        self.state.is_done() && self.newly_assumed_assigned.is_empty()
+        self.state.is_done() && self.promised_rep_indices.is_empty()
     }
 
     /// Returns a shared immutable plan only when all generators are accounted for.
@@ -288,18 +288,22 @@ mod tests {
         fn reads(&self) -> Option<Vec<Target>> {
             Some(vec![self.input])
         }
-        fn run(&self, witness: &PartitionWitness<F>, outputs: &mut GeneratedValues<F>) -> bool {
-            self.run_ready(witness, outputs).is_ok()
+        fn run(
+            &self,
+            witness: &PartitionWitness<F>,
+            output_buffer: &mut GeneratedValues<F>,
+        ) -> bool {
+            self.run_ready(witness, output_buffer).is_ok()
         }
         fn run_ready(
             &self,
             witness: &PartitionWitness<F>,
-            outputs: &mut GeneratedValues<F>,
+            output_buffer: &mut GeneratedValues<F>,
         ) -> Result<()> {
             let value = witness.get_target(self.input);
             anyhow::ensure!(value != F::ZERO, "injected generator error");
             assert!(value != F::ONE, "injected generator panic");
-            outputs.set_target(self.output, value)
+            output_buffer.set_target(self.output, value)
         }
         fn serialize(&self, _: &mut Vec<u8>, _: &CommonCircuitData<F, D>) -> IoResult<()> {
             Err(IoError)
@@ -338,11 +342,11 @@ mod tests {
         let plan = Arc::new(WitnessGenerationPlan {
             circuit: &data,
             stages: vec![WitnessGenerationStage {
-                newly_assumed_assigned: vec![input_rep],
+                promised_rep_indices: vec![input_rep],
                 schedule,
             }],
             #[cfg(debug_assertions)]
-            outputs: Arc::new(vec![vec![output]]),
+            expected_output_targets: Arc::new(vec![vec![output]]),
         });
         for bad_value in [F::ZERO, F::ONE] {
             for num_workers in [None, Some(1), Some(4)] {

@@ -28,7 +28,7 @@ fn make_plan<'a>(
     let planner = Planner::new(data)?;
     let mut planning = planner.new_plan();
     for target in inputs {
-        planning.set_assumed_assigned(target)?;
+        planning.assume_assigned(target)?;
     }
     planning.add_stage();
     Ok(planning
@@ -77,13 +77,13 @@ fn assert_witnesses_match(
             [target.index(data.common.config.num_wires, data.common.degree())]
     };
     let mut random_rep_indices = HashSet::new();
-    let mut buffer = GeneratedValues::empty();
+    let mut output_buffer = GeneratedValues::empty();
     for generator in &data.prover_only.generators {
         if generator.0.id() == "RandomValueGenerator" {
-            buffer.target_values.clear();
-            generator.0.run_ready(expected, &mut buffer).unwrap();
+            output_buffer.target_values.clear();
+            generator.0.run_ready(expected, &mut output_buffer).unwrap();
             random_rep_indices.extend(
-                buffer
+                output_buffer
                     .target_values
                     .iter()
                     .map(|&(target, _)| rep_index(target)),
@@ -270,12 +270,12 @@ fn repeated_emissions_to_one_representative_must_agree() -> Result<()> {
             let rep_index = data.prover_only.representative_map[bits[0]
                 .target
                 .index(data.common.config.num_wires, data.common.degree())];
-            let mut buffer = GeneratedValues::empty();
+            let mut output_buffer = GeneratedValues::empty();
             let mut repeated = false;
             for generator in &data.prover_only.generators {
-                buffer.target_values.clear();
-                generator.0.run_ready(&expected, &mut buffer)?;
-                let count = buffer
+                output_buffer.target_values.clear();
+                generator.0.run_ready(&expected, &mut output_buffer)?;
+                let count = output_buffer
                     .target_values
                     .iter()
                     .filter(|(target, _)| {
@@ -354,11 +354,11 @@ fn staged_plans_validate_inputs_and_support_reset_and_reuse() -> Result<()> {
         let mut planning = planner.new_plan();
         planning.add_stage();
         let mut planning = planning.finish().expect_err("inputs are still unavailable");
-        planning.set_assumed_assigned(a)?;
-        planning.set_assumed_assigned(alias)?;
+        planning.assume_assigned(a)?;
+        planning.assume_assigned(alias)?;
         planning.add_stage();
         planning.add_stage();
-        planning.set_assumed_assigned(b)?;
+        planning.assume_assigned(b)?;
         assert!(!planning.is_done());
         planning.add_stage();
         assert!(planning.is_done());

@@ -54,12 +54,12 @@ pub(super) fn make_schedule(
     let mut unavailable_read_counts = vec![0usize; reads.len()];
     let mut ready = Vec::new();
     for (generator_index, read_rep_indices) in reads.iter().enumerate() {
-        if state.generators_scheduled()[generator_index] != 0 {
+        if state.scheduled_generator_flags()[generator_index] != 0 {
             continue;
         }
         unavailable_read_counts[generator_index] = read_rep_indices
             .iter()
-            .filter(|&&rep_index| state.assumed_assigned()[rep_index] == 0)
+            .filter(|&&rep_index| state.assumed_assigned_flags()[rep_index] == 0)
             .count();
         if unavailable_read_counts[generator_index] == 0 {
             ready.push(generator_index);
@@ -78,7 +78,7 @@ pub(super) fn make_schedule(
         );
     }
     ready.reverse();
-    let mut producer_local_indices = vec![NONE; state.assumed_assigned().len()];
+    let mut producer_local_indices = vec![NONE; state.assumed_assigned_flags().len()];
     let mut local_indices = vec![NONE; reads.len()];
     let mut generator_indices = Vec::new();
     let mut edges = Vec::new();
@@ -96,7 +96,7 @@ pub(super) fn make_schedule(
                 // Other writers compare only after the first assignment.
                 edges.push((producer_local_index, generator_index));
             }
-            if state.assumed_assigned()[rep_index] != 0 {
+            if state.assumed_assigned_flags()[rep_index] != 0 {
                 continue;
             }
             state.mark_assigned(rep_index);
@@ -104,7 +104,7 @@ pub(super) fn make_schedule(
             producer_local_indices[rep_index] = local_index;
             if let Some(readers) = consumers.get(&rep_index) {
                 for &consumer_generator_index in readers {
-                    if state.generators_scheduled()[consumer_generator_index] != 0 {
+                    if state.scheduled_generator_flags()[consumer_generator_index] != 0 {
                         continue;
                     }
                     unavailable_read_counts[consumer_generator_index] -= 1;

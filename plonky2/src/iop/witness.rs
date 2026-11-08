@@ -436,9 +436,9 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
     pub fn set_target_returning_rep(&mut self, target: Target, value: F) -> Result<Option<usize>> {
         let rep_index = self.representative_map[self.target_index(target)];
         if let Some(dense) = &mut self.dense {
-            let was_set = dense.is_set(rep_index);
+            let was_assigned = dense.is_assigned(rep_index);
             dense.set(rep_index, value)?;
-            return Ok((!was_set).then_some(rep_index));
+            return Ok((!was_assigned).then_some(rep_index));
         }
         let rep_value = &mut self.values[rep_index];
         if let Some(old_value) = *rep_value {

@@ -187,7 +187,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
                                     plan,
                                     generator_index,
                                     witness,
-                                    &mut worker.outputs,
+                                    &mut worker.output_buffer,
                                 )
                             };
                             if let Err(error) = result {
@@ -282,11 +282,11 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         plan: &WitnessGenerationPlan<'a, F, C, D>,
         generator_index: usize,
         witness: &mut PartitionWitness<'_, F>,
-        buffer: &mut GeneratedValues<F>,
+        output_buffer: &mut GeneratedValues<F>,
     ) -> Result<()> {
-        Self::run_generator_outputs(plan, generator_index, witness, buffer)?;
+        Self::run_generator_outputs(plan, generator_index, witness, output_buffer)?;
         let generator = &plan.circuit().prover_only.generators[generator_index].0;
-        for (target, value) in buffer.target_values.drain(..) {
+        for (target, value) in output_buffer.target_values.drain(..) {
             witness.set_target(target, value).map_err(|error| {
                 anyhow!("generator {generator_index} ({}): {error}", generator.id())
             })?;
@@ -299,12 +299,12 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         plan: &WitnessGenerationPlan<'a, F, C, D>,
         generator_index: usize,
         witness: &PartitionWitness<'_, F>,
-        buffer: &mut GeneratedValues<F>,
+        output_buffer: &mut GeneratedValues<F>,
     ) -> Result<()> {
-        Self::run_generator_outputs(plan, generator_index, witness, buffer)?;
+        Self::run_generator_outputs(plan, generator_index, witness, output_buffer)?;
         // SAFETY: The prepared graph and execute_parallel's access contract
         // guarantee the required ordering of reads and writes.
-        unsafe { Self::write_generator_outputs(plan, generator_index, witness, buffer)? };
+        unsafe { Self::write_generator_outputs(plan, generator_index, witness, output_buffer)? };
         Ok(())
     }
 
@@ -316,9 +316,9 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         plan: &WitnessGenerationPlan<'a, F, C, D>,
         generator_index: usize,
         witness: &PartitionWitness<'_, F>,
-        buffer: &mut GeneratedValues<F>,
+        output_buffer: &mut GeneratedValues<F>,
     ) -> Result<()> {
-        for (target, value) in buffer.target_values.drain(..) {
+        for (target, value) in output_buffer.target_values.drain(..) {
             // SAFETY: The caller guarantees exclusive assignment followed by
             // concurrent read-only comparisons, with readers after assignment.
             unsafe { witness.set_target_shared(target, value) }.map_err(|error| {
@@ -337,23 +337,28 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         plan: &WitnessGenerationPlan<'a, F, C, D>,
         generator_index: usize,
         witness: &PartitionWitness<'_, F>,
-        buffer: &mut GeneratedValues<F>,
+        output_buffer: &mut GeneratedValues<F>,
     ) -> Result<()> {
         let generator = &plan.circuit().prover_only.generators[generator_index].0;
-        generator.run_ready(witness, buffer).map_err(|error| {
-            anyhow!("generator {generator_index} ({}): {error}", generator.id())
-        })?;
+        generator
+            .run_ready(witness, output_buffer)
+            .map_err(|error| {
+                anyhow!("generator {generator_index} ({}): {error}", generator.id())
+            })?;
         #[cfg(debug_assertions)]
         {
-            let expected = plan.outputs(generator_index);
+            let expected_output_targets = plan.expected_output_targets(generator_index);
             debug_assert_eq!(
-                buffer.target_values.len(),
-                expected.len(),
+                output_buffer.target_values.len(),
+                expected_output_targets.len(),
                 "generator {generator_index} ({}) changed its output count",
                 generator.id()
             );
-            for (position, ((target, _), declared)) in
-                buffer.target_values.iter().zip(expected).enumerate()
+            for (position, ((target, _), declared)) in output_buffer
+                .target_values
+                .iter()
+                .zip(expected_output_targets)
+                .enumerate()
             {
                 debug_assert_eq!(
                     target,
@@ -428,7 +433,7 @@ impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
             .ok_or_else(|| anyhow!("all witness generation stages have completed"))?;
         let num_wires = self.witness.num_wires;
         let num_wire_targets = self.witness.degree * num_wires;
-        for &rep_index in stage.newly_assumed_assigned() {
+        for &rep_index in stage.promised_rep_indices() {
             let target = if rep_index < num_wire_targets {
                 Target::wire(rep_index / num_wires, rep_index % num_wires)
             } else {
@@ -456,13 +461,13 @@ impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         self.begin_stage()?;
         let plan = &self.executor.plan;
         let schedule = plan.stages()[self.next_stage].schedule();
-        let mut outputs = GeneratedValues::empty();
+        let mut output_buffer = GeneratedValues::empty();
         for &generator_index in schedule.generator_indices() {
             WitnessGenerationExecutor::run_generator(
                 plan,
                 generator_index,
                 self.witness,
-                &mut outputs,
+                &mut output_buffer,
             )?;
         }
         self.finish_stage();
@@ -547,7 +552,7 @@ impl<F: Field> GenerationScratch<F> {
             self.workers.resize_with(num_workers, WorkerScratch::new);
         }
         for worker in &mut self.workers {
-            worker.outputs.target_values.clear();
+            worker.output_buffer.target_values.clear();
             while worker.ready.pop().is_some() {}
         }
     }
@@ -574,7 +579,7 @@ impl<F: Field> GenerationScratch<F> {
 #[cfg(feature = "std")]
 #[derive(Debug)]
 struct WorkerScratch<F: Field> {
-    outputs: GeneratedValues<F>,
+    output_buffer: GeneratedValues<F>,
     ready: Worker<usize>,
 }
 
@@ -582,7 +587,7 @@ struct WorkerScratch<F: Field> {
 impl<F: Field> WorkerScratch<F> {
     fn new() -> Self {
         Self {
-            outputs: GeneratedValues::empty(),
+            output_buffer: GeneratedValues::empty(),
             ready: Worker::new_lifo(),
         }
     }

@@ -36,7 +36,7 @@ pub struct WitnessGenerationPlanner<
     writes: Vec<Vec<usize>>,
     consumers: HashMap<usize, Vec<usize>>,
     #[cfg(debug_assertions)]
-    outputs: Arc<Vec<Vec<Target>>>,
+    expected_output_targets: Arc<Vec<Vec<Target>>>,
 }
 
 impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
@@ -94,7 +94,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         );
         let mut writes = Vec::with_capacity(generators.len());
         #[cfg(debug_assertions)]
-        let mut outputs = Vec::with_capacity(generators.len());
+        let mut expected_output_targets = Vec::with_capacity(generators.len());
         for (generator_index, generator) in generators.iter().enumerate() {
             let discovered =
                 discover_outputs(generator.0.as_ref(), common, &mut probe).map_err(|error| {
@@ -112,12 +112,12 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
             rep_indices.dedup();
             writes.push(rep_indices);
             #[cfg(debug_assertions)]
-            outputs.push(discovered);
+            expected_output_targets.push(discovered);
         }
         Ok(Self {
             circuit,
             #[cfg(debug_assertions)]
-            outputs: Arc::new(outputs),
+            expected_output_targets: Arc::new(expected_output_targets),
             reads,
             writes,
             consumers,
@@ -136,7 +136,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     ) -> Result<Arc<WitnessGenerationPlan<'a, F, C, D>>> {
         let mut planning = self.new_plan();
         for target in input_targets {
-            planning.set_assumed_assigned(target)?;
+            planning.assume_assigned(target)?;
         }
         planning.add_stage();
         planning.finish().map_err(|_| {
@@ -163,8 +163,8 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     }
 
     #[cfg(debug_assertions)]
-    pub(super) fn outputs(&self) -> &Arc<Vec<Vec<Target>>> {
-        &self.outputs
+    pub(super) fn expected_output_targets(&self) -> &Arc<Vec<Vec<Target>>> {
+        &self.expected_output_targets
     }
 }
 
@@ -249,7 +249,7 @@ fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
     rep_indices.sort_unstable();
     rep_indices.dedup();
 
-    let mut buffer = GeneratedValues::empty();
+    let mut output_buffer = GeneratedValues::empty();
     let result = (|| -> Result<()> {
         let dense = probe_witness.dense_mut();
         for &rep_index in &rep_indices {
@@ -263,7 +263,7 @@ fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
             dense.set(rep_index, value)?;
         }
         ensure!(
-            generator.run(probe_witness, &mut buffer),
+            generator.run(probe_witness, &mut output_buffer),
             "built-in output probe failed for {id}; check the dummy-input rule and instance parameters"
         );
         Ok(())
@@ -273,7 +273,7 @@ fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
         dense.clear_assignment(rep_index);
     }
     result?;
-    Ok(buffer
+    Ok(output_buffer
         .target_values
         .into_iter()
         .map(|(target, _)| target)
@@ -511,9 +511,9 @@ mod tests {
                     .map_or(value, |(_, special_value)| special_value);
                 witness.set_target(target, assigned)?;
             }
-            let mut outputs = GeneratedValues::empty();
-            generator.run_ready(&witness, &mut outputs)?;
-            let actual: Vec<_> = outputs
+            let mut output_buffer = GeneratedValues::empty();
+            generator.run_ready(&witness, &mut output_buffer)?;
+            let actual: Vec<_> = output_buffer
                 .target_values
                 .iter()
                 .map(|&(target, _)| target)
