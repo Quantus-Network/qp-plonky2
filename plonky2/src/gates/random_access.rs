@@ -7,7 +7,7 @@ use alloc::{
 };
 use core::marker::PhantomData;
 
-use anyhow::Result;
+use anyhow::{ensure, Result};
 use itertools::Itertools;
 
 use crate::field::extension::Extendable;
@@ -384,17 +384,15 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D>
         let vec_size = self.gate.vec_size();
 
         let access_index_f = get_local_wire(self.gate.wire_access_index(copy));
-        let access_index = access_index_f.to_canonical_u64() as usize;
-        debug_assert!(
-            access_index < vec_size,
-            "Access index {} is larger than the vector size {}",
-            access_index,
-            vec_size
+        let access_index = access_index_f.to_canonical_u64();
+        ensure!(
+            access_index < vec_size as u64,
+            "random access index out of bounds"
         );
 
         set_local_wire(
             self.gate.wire_claimed_element(copy),
-            get_local_wire(self.gate.wire_list_item(access_index, copy)),
+            get_local_wire(self.gate.wire_list_item(access_index as usize, copy)),
         )?;
 
         for i in 0..self.gate.bits {

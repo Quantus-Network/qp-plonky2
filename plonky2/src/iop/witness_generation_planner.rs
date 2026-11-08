@@ -58,6 +58,10 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
                 rep_index < prover.representative_map.len(),
                 "invalid representative index {rep_index}"
             );
+            ensure!(
+                prover.representative_map[rep_index] == rep_index,
+                "representative index {rep_index} is not a root"
+            );
             Ok(rep_index)
         };
         let mut reads = Vec::with_capacity(generators.len());
@@ -624,6 +628,24 @@ mod tests {
                 "{error}"
             );
         }
+    }
+
+    #[test]
+    fn preparation_rejects_representatives_that_are_not_roots() {
+        let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+        let a = builder.add_virtual_target();
+        let b = builder.add_virtual_target();
+        let c = builder.add_virtual_target();
+        builder.generate_copy(a, b);
+        let mut data = builder.build::<C>();
+        let index =
+            |target: Target| target.index(data.common.config.num_wires, data.common.degree());
+        let [a, b, c] = [a, b, c].map(index);
+        data.prover_only.representative_map[a] = b;
+        data.prover_only.representative_map[b] = c;
+        data.prover_only.representative_map[c] = c;
+        let error = WitnessGenerationPlanner::new(&data).unwrap_err();
+        assert!(error.to_string().contains("is not a root"), "{error}");
     }
 
     #[test]
