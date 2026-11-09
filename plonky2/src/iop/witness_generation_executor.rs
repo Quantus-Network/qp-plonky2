@@ -19,7 +19,7 @@ use crate::field::extension::Extendable;
 use crate::hash::hash_types::RichField;
 use crate::iop::generator::GeneratedValues;
 use crate::iop::target::Target;
-use crate::iop::witness::{PartitionWitness, Witness, WitnessWrite};
+use crate::iop::witness::{PartitionWitness, WitnessWrite};
 use crate::iop::witness_generation_plan::WitnessGenerationPlan;
 use crate::iop::witness_generation_planner::WitnessGenerationPlanner;
 use crate::plonk::circuit_data::CircuitData;
@@ -430,19 +430,10 @@ impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
             .stages()
             .get(self.next_stage)
             .ok_or_else(|| anyhow!("all witness generation stages have completed"))?;
-        let num_wires = self.witness.num_wires;
-        let num_wire_targets = self.witness.degree * num_wires;
         for &rep_index in stage.promised_rep_indices() {
-            let target = if rep_index < num_wire_targets {
-                Target::wire(rep_index / num_wires, rep_index % num_wires)
-            } else {
-                Target::VirtualTarget {
-                    index: rep_index - num_wire_targets,
-                }
-            };
             ensure!(
-                self.witness.try_get_target(target).is_some(),
-                "target {target:?} is not assigned before stage {}",
+                self.witness.contains_rep(rep_index),
+                "representative index {rep_index} is not assigned before stage {}",
                 self.next_stage
             );
         }

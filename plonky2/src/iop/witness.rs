@@ -408,6 +408,13 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
         Ok(dense.values_and_assignment_flags())
     }
 
+    pub(super) fn contains_rep(&self, rep_index: usize) -> bool {
+        match &self.dense {
+            Some(dense) => dense.is_assigned(rep_index),
+            None => self.values[rep_index].is_some(),
+        }
+    }
+
     /// Borrows mutable dense storage.
     pub(super) fn dense_mut(&mut self) -> &mut DenseStorage<F> {
         self.dense.as_mut().expect("witness is not dense")

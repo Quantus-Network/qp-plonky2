@@ -45,22 +45,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         let common = &circuit.common;
         let prover = &circuit.prover_only;
         let generators = &prover.generators;
-        let resolve = |target: Target| -> Result<usize> {
-            let target_index = target.index(common.config.num_wires, common.degree());
-            let rep_index = *prover
-                .representative_map
-                .get(target_index)
-                .ok_or_else(|| anyhow!("target {target:?} is outside the witness"))?;
-            ensure!(
-                rep_index < prover.representative_map.len(),
-                "invalid representative index {rep_index}"
-            );
-            ensure!(
-                prover.representative_map[rep_index] == rep_index,
-                "representative index {rep_index} is not a root"
-            );
-            Ok(rep_index)
-        };
+        let resolve = |target| resolve_target(circuit, target);
         let mut probe = PartitionWitness::new_dense(
             common.config.num_wires,
             common.degree(),
@@ -136,6 +121,10 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         self.circuit
     }
 
+    pub(super) fn representative_index(&self, target: Target) -> Result<usize> {
+        resolve_target(self.circuit, target)
+    }
+
     pub(super) fn dependencies(&self) -> &GeneratorDependencies {
         &self.dependencies
     }
@@ -144,6 +133,30 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     pub(super) fn expected_output_targets(&self) -> &Arc<Vec<Vec<Target>>> {
         &self.expected_output_targets
     }
+}
+
+fn resolve_target<F, C, const D: usize>(
+    circuit: &CircuitData<F, C, D>,
+    target: Target,
+) -> Result<usize>
+where
+    F: RichField + Extendable<D>,
+    C: GenericConfig<D, F = F>,
+{
+    let target_index = target.index(circuit.common.config.num_wires, circuit.common.degree());
+    let representative_map = &circuit.prover_only.representative_map;
+    let rep_index = *representative_map
+        .get(target_index)
+        .ok_or_else(|| anyhow!("target {target:?} is outside the witness"))?;
+    ensure!(
+        rep_index < representative_map.len(),
+        "invalid representative index {rep_index}"
+    );
+    ensure!(
+        representative_map[rep_index] == rep_index,
+        "representative index {rep_index} is not a root"
+    );
+    Ok(rep_index)
 }
 
 /// Collects output targets in emission order by running a built-in with sample inputs.
