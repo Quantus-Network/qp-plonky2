@@ -5,7 +5,7 @@ use alloc::{sync::Arc, vec, vec::Vec};
 #[cfg(feature = "std")]
 use std::sync::Arc;
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, ensure, Result};
 
 use crate::field::extension::Extendable;
 use crate::hash::hash_types::RichField;
@@ -154,6 +154,14 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
             .representative_map
             .get(target_index)
             .ok_or_else(|| anyhow!("target {target:?} is outside the witness"))?;
+        ensure!(
+            rep_index < circuit.prover_only.representative_map.len(),
+            "invalid representative index {rep_index}"
+        );
+        ensure!(
+            circuit.prover_only.representative_map[rep_index] == rep_index,
+            "representative index {rep_index} is not a root"
+        );
         self.assume_representative(rep_index);
         Ok(())
     }
