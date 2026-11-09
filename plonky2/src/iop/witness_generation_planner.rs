@@ -234,6 +234,10 @@ fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
             let value = override_value
                 .filter(|&(special_rep_index, _)| special_rep_index == rep_index)
                 .map_or(F::ZERO, |(_, value)| value);
+            debug_assert!(
+                !dense.is_assigned(rep_index),
+                "probe representative index {rep_index} is already assigned"
+            );
             dense.set(rep_index, value)?;
         }
         ensure!(
