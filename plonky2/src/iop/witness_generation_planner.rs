@@ -8,7 +8,6 @@ use alloc::vec::Vec;
 use std::sync::Arc;
 
 use anyhow::{anyhow, ensure, Result};
-use hashbrown::HashMap;
 
 use crate::field::extension::Extendable;
 use crate::hash::hash_types::RichField;
@@ -16,6 +15,7 @@ use crate::iop::generator::{GeneratedValues, WitnessGenerator};
 use crate::iop::target::Target;
 use crate::iop::witness::PartitionWitness;
 use crate::iop::witness_generation_plan::{WitnessGenerationPlan, WitnessGenerationPlanning};
+use crate::iop::witness_generation_schedule::GeneratorDependencies;
 use crate::plonk::circuit_data::{CircuitData, CommonCircuitData};
 use crate::plonk::config::GenericConfig;
 use crate::util::serialization::{Buffer, Read};
@@ -32,9 +32,7 @@ pub struct WitnessGenerationPlanner<
     const D: usize,
 > {
     circuit: &'a CircuitData<F, C, D>,
-    reads: Vec<Vec<usize>>,
-    writes: Vec<Vec<usize>>,
-    consumers: HashMap<usize, Vec<usize>>,
+    dependencies: GeneratorDependencies,
     #[cfg(debug_assertions)]
     expected_output_targets: Arc<Vec<Vec<Target>>>,
 }
@@ -63,8 +61,15 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
             );
             Ok(rep_index)
         };
+        let mut probe = PartitionWitness::new_dense(
+            common.config.num_wires,
+            common.degree(),
+            &prover.representative_map,
+        );
         let mut reads = Vec::with_capacity(generators.len());
-        let mut consumers: HashMap<usize, Vec<usize>> = HashMap::new();
+        let mut writes = Vec::with_capacity(generators.len());
+        #[cfg(debug_assertions)]
+        let mut expected_output_targets = Vec::with_capacity(generators.len());
         for (generator_index, generator) in generators.iter().enumerate() {
             let targets = generator.0.reads().ok_or_else(|| {
                 anyhow!(
@@ -72,29 +77,12 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
                     generator.0.id()
                 )
             })?;
-            let mut rep_indices = targets
-                .into_iter()
-                .map(&resolve)
-                .collect::<Result<Vec<_>>>()?;
-            rep_indices.sort_unstable();
-            rep_indices.dedup();
-            for &rep_index in &rep_indices {
-                consumers
-                    .entry(rep_index)
-                    .or_default()
-                    .push(generator_index);
-            }
-            reads.push(rep_indices);
-        }
-        let mut probe = PartitionWitness::new_dense(
-            common.config.num_wires,
-            common.degree(),
-            &prover.representative_map,
-        );
-        let mut writes = Vec::with_capacity(generators.len());
-        #[cfg(debug_assertions)]
-        let mut expected_output_targets = Vec::with_capacity(generators.len());
-        for (generator_index, generator) in generators.iter().enumerate() {
+            reads.push(
+                targets
+                    .into_iter()
+                    .map(&resolve)
+                    .collect::<Result<Vec<_>>>()?,
+            );
             let discovered =
                 discover_outputs(generator.0.as_ref(), common, &mut probe).map_err(|error| {
                     anyhow!(
@@ -102,24 +90,23 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
                         generator.0.id()
                     )
                 })?;
-            let mut rep_indices = discovered
-                .iter()
-                .copied()
-                .map(&resolve)
-                .collect::<Result<Vec<_>>>()?;
-            rep_indices.sort_unstable();
-            rep_indices.dedup();
-            writes.push(rep_indices);
+            writes.push(
+                discovered
+                    .iter()
+                    .copied()
+                    .map(&resolve)
+                    .collect::<Result<Vec<_>>>()?,
+            );
             #[cfg(debug_assertions)]
             expected_output_targets.push(discovered);
         }
+        let dependencies =
+            GeneratorDependencies::new(reads, writes, prover.representative_map.len())?;
         Ok(Self {
             circuit,
             #[cfg(debug_assertions)]
             expected_output_targets: Arc::new(expected_output_targets),
-            reads,
-            writes,
-            consumers,
+            dependencies,
         })
     }
 
@@ -149,16 +136,8 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         self.circuit
     }
 
-    pub(super) fn reads(&self) -> &[Vec<usize>] {
-        &self.reads
-    }
-
-    pub(super) fn writes(&self) -> &[Vec<usize>] {
-        &self.writes
-    }
-
-    pub(super) fn consumers(&self) -> &HashMap<usize, Vec<usize>> {
-        &self.consumers
+    pub(super) fn dependencies(&self) -> &GeneratorDependencies {
+        &self.dependencies
     }
 
     #[cfg(debug_assertions)]

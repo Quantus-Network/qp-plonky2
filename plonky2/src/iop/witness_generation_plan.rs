@@ -133,7 +133,7 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
             newly_produced: Vec::new(),
             state: WitnessGenerationState::new(
                 circuit.prover_only.representative_map.len(),
-                planner.reads().len(),
+                planner.dependencies().reads().len(),
             ),
             plan: WitnessGenerationPlan {
                 circuit,
@@ -180,12 +180,8 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         for &rep_index in &promised_rep_indices {
             self.state.mark_assigned(rep_index);
         }
-        let (schedule, newly_produced) = make_schedule(
-            self.planner.reads(),
-            self.planner.writes(),
-            self.planner.consumers(),
-            &mut self.state,
-        );
+        let (schedule, newly_produced) =
+            make_schedule(self.planner.dependencies(), &mut self.state);
         self.newly_produced = newly_produced;
         self.plan.stages.push(WitnessGenerationStage {
             promised_rep_indices,
@@ -213,11 +209,11 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
 #[cfg(all(test, feature = "std"))]
 mod tests {
     use super::*;
-    use hashbrown::HashMap;
     use std::panic::{catch_unwind, AssertUnwindSafe};
 
     use crate::field::types::Field;
     use crate::iop::generator::{GeneratedValues, WitnessGenerator, WitnessGeneratorRef};
+    use crate::iop::witness_generation_schedule::GeneratorDependencies;
     use crate::iop::witness::{PartitionWitness, Witness, WitnessWrite};
     use crate::iop::witness_generation_executor::WitnessGenerationExecutor;
     use crate::plonk::circuit_builder::CircuitBuilder;
@@ -251,20 +247,13 @@ mod tests {
             vec![6],
             vec![5],
         ];
-        let consumers = HashMap::from_iter([
-            (0, vec![0, 4]),
-            (1, vec![1, 2]),
-            (2, vec![3]),
-            (3, vec![3]),
-            (5, vec![5]),
-            (6, vec![6]),
-        ]);
+        let dependencies = GeneratorDependencies::new(reads, writes, 7).unwrap();
         let mut state = WitnessGenerationState::new(7, 7);
-        let (empty, produced) = make_schedule(&reads, &writes, &consumers, &mut state);
+        let (empty, produced) = make_schedule(&dependencies, &mut state);
         assert!(empty.generator_indices().is_empty());
         assert!(produced.is_empty());
         state.mark_assigned(0);
-        let (first, produced) = make_schedule(&reads, &writes, &consumers, &mut state);
+        let (first, produced) = make_schedule(&dependencies, &mut state);
         assert_eq!(first.generator_indices(), &[0, 1, 2, 3, 4]);
         assert_eq!(first.dependency_counts(), &[0, 1, 1, 2, 1]);
         assert_eq!(first.initial_ready(), &[0]);
@@ -275,7 +264,7 @@ mod tests {
         assert_eq!(produced, vec![1, 2, 3, 4]);
         assert!(!state.is_done());
         state.mark_assigned(5);
-        let (second, produced) = make_schedule(&reads, &writes, &consumers, &mut state);
+        let (second, produced) = make_schedule(&dependencies, &mut state);
         assert_eq!(second.generator_indices(), &[5, 6]);
         assert_eq!(second.dependency_counts(), &[0, 1]);
         assert_eq!(second.successors(0), &[1]);
@@ -343,12 +332,12 @@ mod tests {
         let output_rep = rep(output);
         let mut state = WitnessGenerationState::new(data.prover_only.representative_map.len(), 1);
         state.mark_assigned(input_rep);
-        let (schedule, _) = make_schedule(
-            &[vec![input_rep]],
-            &[vec![output_rep]],
-            &HashMap::new(),
-            &mut state,
-        );
+        let dependencies = GeneratorDependencies::new(
+            vec![vec![input_rep]],
+            vec![vec![output_rep]],
+            data.prover_only.representative_map.len(),
+        )?;
+        let (schedule, _) = make_schedule(&dependencies, &mut state);
         let plan = Arc::new(WitnessGenerationPlan {
             circuit: &data,
             stages: vec![WitnessGenerationStage {

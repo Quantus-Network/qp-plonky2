@@ -3,6 +3,7 @@
 #[cfg(not(feature = "std"))]
 use alloc::{vec, vec::Vec};
 
+use anyhow::{ensure, Result};
 use hashbrown::HashMap;
 
 use crate::iop::witness_generation_plan::WitnessGenerationState;
@@ -41,16 +42,89 @@ impl WitnessGenerationSchedule {
     }
 }
 
+/// Validated representative reads, writes, and consumers for circuit generators.
+#[derive(Debug)]
+pub(super) struct GeneratorDependencies {
+    reads: Vec<Vec<usize>>,
+    writes: Vec<Vec<usize>>,
+    consumers: HashMap<usize, Vec<usize>>,
+    num_targets: usize,
+}
+
+impl GeneratorDependencies {
+    pub(super) fn new(
+        mut reads: Vec<Vec<usize>>,
+        mut writes: Vec<Vec<usize>>,
+        num_targets: usize,
+    ) -> Result<Self> {
+        ensure!(
+            reads.len() == writes.len(),
+            "generator read and write counts do not match"
+        );
+        for rep_indices in reads.iter_mut().chain(&mut writes) {
+            for &rep_index in rep_indices.iter() {
+                ensure!(
+                    rep_index < num_targets,
+                    "invalid representative index {rep_index}"
+                );
+            }
+            rep_indices.sort_unstable();
+            rep_indices.dedup();
+        }
+        let mut consumers: HashMap<usize, Vec<usize>> = HashMap::new();
+        for (generator_index, rep_indices) in reads.iter().enumerate() {
+            for &rep_index in rep_indices {
+                consumers
+                    .entry(rep_index)
+                    .or_default()
+                    .push(generator_index);
+            }
+        }
+        Ok(Self {
+            reads,
+            writes,
+            consumers,
+            num_targets,
+        })
+    }
+
+    pub(super) fn reads(&self) -> &[Vec<usize>] {
+        &self.reads
+    }
+
+    fn writes(&self) -> &[Vec<usize>] {
+        &self.writes
+    }
+
+    fn consumers(&self, rep_index: usize) -> &[usize] {
+        self.consumers.get(&rep_index).map_or(&[], Vec::as_slice)
+    }
+
+    fn num_targets(&self) -> usize {
+        self.num_targets
+    }
+}
+
 /// Builds a depth-first schedule and records expected assignments and completion.
 /// Returns the schedule and representative indices first assigned by its generators.
 /// Initial and newly enabled generators are visited in circuit-builder order.
 pub(super) fn make_schedule(
-    reads: &[Vec<usize>],
-    writes: &[Vec<usize>],
-    consumers: &HashMap<usize, Vec<usize>>,
+    dependencies: &GeneratorDependencies,
     state: &mut WitnessGenerationState,
 ) -> (WitnessGenerationSchedule, Vec<usize>) {
     const NONE: usize = usize::MAX;
+    let reads = dependencies.reads();
+    let writes = dependencies.writes();
+    assert_eq!(
+        state.scheduled_generator_flags().len(),
+        reads.len(),
+        "scheduling state generator count does not match dependencies"
+    );
+    assert_eq!(
+        state.assumed_assigned_flags().len(),
+        dependencies.num_targets(),
+        "scheduling state target count does not match dependencies"
+    );
     let mut unavailable_read_counts = vec![0usize; reads.len()];
     let mut ready = Vec::new();
     for (generator_index, read_rep_indices) in reads.iter().enumerate() {
@@ -102,16 +176,14 @@ pub(super) fn make_schedule(
             state.mark_assigned(rep_index);
             newly_assigned.push(rep_index);
             producer_local_indices[rep_index] = local_index;
-            if let Some(readers) = consumers.get(&rep_index) {
-                for &consumer_generator_index in readers {
-                    if state.scheduled_generator_flags()[consumer_generator_index] != 0 {
-                        continue;
-                    }
-                    unavailable_read_counts[consumer_generator_index] -= 1;
-                    edges.push((local_index, consumer_generator_index));
-                    if unavailable_read_counts[consumer_generator_index] == 0 {
-                        unlocked.push(consumer_generator_index);
-                    }
+            for &consumer_generator_index in dependencies.consumers(rep_index) {
+                if state.scheduled_generator_flags()[consumer_generator_index] != 0 {
+                    continue;
+                }
+                unavailable_read_counts[consumer_generator_index] -= 1;
+                edges.push((local_index, consumer_generator_index));
+                if unavailable_read_counts[consumer_generator_index] == 0 {
+                    unlocked.push(consumer_generator_index);
                 }
             }
         }
