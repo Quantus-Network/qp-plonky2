@@ -457,7 +457,8 @@ mod tests {
         data: &CircuitData<F, C, D>,
         probe: &mut PartitionWitness<'_, F>,
     ) -> Result<()> {
-        let discovered = discover_outputs(generator, &data.common, probe)?;
+        let discovered = discover_outputs(generator, &data.common, probe)
+            .map_err(|error| anyhow!("generator {}: {error}", generator.id()))?;
         let reads = generator.reads().unwrap();
         assert!(
             !discovered.is_empty(),
