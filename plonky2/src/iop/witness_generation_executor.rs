@@ -566,14 +566,16 @@ impl<F: Field> GenerationScratch<F> {
 
     /// Seeds balanced worker slices from roots already in circuit-builder order.
     fn seed_ready(&mut self, initial_ready: &[usize], num_workers: usize) {
-        debug_assert!(self.workers[..num_workers]
-            .iter()
-            .all(|worker| worker.ready.is_empty()));
+        let workers = &self.workers[..num_workers];
+        assert!(
+            workers.iter().all(|worker| worker.ready.is_empty()),
+            "worker queues must be empty before seeding"
+        );
         // Owners start at the slice's beginning; thieves take from its end.
         let per_worker = initial_ready.len() / num_workers;
         let extra = initial_ready.len() % num_workers;
         let mut start = 0;
-        for (worker_index, worker) in self.workers.iter().take(num_workers).enumerate() {
+        for (worker_index, worker) in workers.iter().enumerate() {
             let end = start + per_worker + usize::from(worker_index < extra);
             for &local_index in initial_ready[start..end].iter().rev() {
                 worker.ready.push(local_index);
