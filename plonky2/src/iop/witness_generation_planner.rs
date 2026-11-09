@@ -230,9 +230,6 @@ fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
     let result = (|| -> Result<()> {
         let dense = probe_witness.dense_mut();
         for &rep_index in &rep_indices {
-            dense.clear_assignment(rep_index);
-        }
-        for &rep_index in &rep_indices {
             // Apply overrides by representative so aliased read targets agree.
             let value = override_value
                 .filter(|&(special_rep_index, _)| special_rep_index == rep_index)
