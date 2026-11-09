@@ -6,7 +6,41 @@ use alloc::{vec, vec::Vec};
 use anyhow::{ensure, Result};
 use hashbrown::HashMap;
 
-use crate::iop::witness_generation_plan::WitnessGenerationState;
+/// Tracks assignments and generator completion assumed during planning.
+#[derive(Debug)]
+pub(super) struct WitnessGenerationState {
+    assumed_assigned_flags: Vec<u8>,
+    scheduled_generator_flags: Vec<u8>,
+}
+
+impl WitnessGenerationState {
+    pub(super) fn new(num_targets: usize, num_generators: usize) -> Self {
+        Self {
+            assumed_assigned_flags: vec![0; num_targets],
+            scheduled_generator_flags: vec![0; num_generators],
+        }
+    }
+
+    pub(super) fn assumed_assigned_flags(&self) -> &[u8] {
+        &self.assumed_assigned_flags
+    }
+
+    pub(super) fn scheduled_generator_flags(&self) -> &[u8] {
+        &self.scheduled_generator_flags
+    }
+
+    pub(super) fn mark_assigned(&mut self, rep_index: usize) {
+        self.assumed_assigned_flags[rep_index] = 1;
+    }
+
+    pub(super) fn mark_scheduled(&mut self, generator_index: usize) {
+        self.scheduled_generator_flags[generator_index] = 1;
+    }
+
+    pub(super) fn is_done(&self) -> bool {
+        self.scheduled_generator_flags.iter().all(|&flag| flag != 0)
+    }
+}
 
 /// Execution order and dependencies for a runnable subset of circuit generators.
 /// Graph indices are local; `generator_indices` maps them to circuit generator indices.
