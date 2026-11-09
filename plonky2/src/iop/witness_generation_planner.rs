@@ -24,7 +24,6 @@ use crate::util::serialization::{Buffer, Read};
 /// Discovery recognizes generator IDs. Each generator must be the corresponding
 /// built-in implementation, with input-independent output targets and emission order.
 /// Debug execution checks emitted targets against discovery.
-#[derive(Debug)]
 pub struct WitnessGenerationPlanner<
     'a,
     F: RichField + Extendable<D>,
@@ -132,6 +131,16 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     #[cfg(debug_assertions)]
     pub(super) fn expected_output_targets(&self) -> &Arc<Vec<Vec<Target>>> {
         &self.expected_output_targets
+    }
+}
+
+impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize> core::fmt::Debug
+    for WitnessGenerationPlanner<'a, F, C, D>
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("WitnessGenerationPlanner")
+            .field("dependencies", &self.dependencies)
+            .finish_non_exhaustive()
     }
 }
 

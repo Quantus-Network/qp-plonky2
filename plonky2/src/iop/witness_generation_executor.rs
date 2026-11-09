@@ -34,7 +34,6 @@ use crate::{
 };
 
 /// Executes a witness generation plan with reusable worker allocations.
-#[derive(Debug)]
 pub struct WitnessGenerationExecutor<
     'a,
     F: RichField + Extendable<D>,
@@ -372,8 +371,19 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     }
 }
 
+impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize> core::fmt::Debug
+    for WitnessGenerationExecutor<'a, F, C, D>
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        let mut debug = f.debug_struct("WitnessGenerationExecutor");
+        debug.field("plan", &self.plan);
+        #[cfg(all(feature = "std", feature = "parallel"))]
+        debug.field("scratch", &self.scratch);
+        debug.finish_non_exhaustive()
+    }
+}
+
 /// Executes successive stages while borrowing an executor and one witness.
-#[derive(Debug)]
 pub struct WitnessGenerationExecution<
     'b,
     'a,
@@ -511,9 +521,20 @@ impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
     }
 }
 
+impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
+    core::fmt::Debug for WitnessGenerationExecution<'b, 'a, F, C, D>
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("WitnessGenerationExecution")
+            .field("next_stage", &self.next_stage)
+            .field("num_stages", &self.executor.plan.num_stages())
+            .field("failed", &self.failed)
+            .finish_non_exhaustive()
+    }
+}
+
 #[cfg(all(feature = "std", feature = "parallel"))]
 /// Reusable dependency counters, work queues and generator output buffers.
-#[derive(Debug)]
 struct GenerationScratch<F: Field> {
     pending_dependencies: Vec<AtomicUsize>,
     workers: Vec<WorkerScratch<F>>,
@@ -571,7 +592,16 @@ impl<F: Field> GenerationScratch<F> {
 }
 
 #[cfg(all(feature = "std", feature = "parallel"))]
-#[derive(Debug)]
+impl<F: Field> core::fmt::Debug for GenerationScratch<F> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("GenerationScratch")
+            .field("num_dependency_counters", &self.pending_dependencies.len())
+            .field("num_workers", &self.workers.len())
+            .finish_non_exhaustive()
+    }
+}
+
+#[cfg(all(feature = "std", feature = "parallel"))]
 struct WorkerScratch<F: Field> {
     output_buffer: GeneratedValues<F>,
     ready: Worker<usize>,
@@ -584,5 +614,15 @@ impl<F: Field> WorkerScratch<F> {
             output_buffer: GeneratedValues::empty(),
             ready: Worker::new_lifo(),
         }
+    }
+}
+
+#[cfg(all(feature = "std", feature = "parallel"))]
+impl<F: Field> core::fmt::Debug for WorkerScratch<F> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("WorkerScratch")
+            .field("num_outputs", &self.output_buffer.target_values.len())
+            .field("num_ready", &self.ready.len())
+            .finish_non_exhaustive()
     }
 }

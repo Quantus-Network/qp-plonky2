@@ -18,7 +18,6 @@ use crate::plonk::circuit_data::CircuitData;
 use crate::plonk::config::GenericConfig;
 
 /// An immutable sequence of witness generation stages for a circuit.
-#[derive(Debug)]
 pub struct WitnessGenerationPlan<
     'a,
     F: RichField + Extendable<D>,
@@ -54,8 +53,18 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     }
 }
 
+impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize> core::fmt::Debug
+    for WitnessGenerationPlan<'a, F, C, D>
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("WitnessGenerationPlan")
+            .field("num_stages", &self.stages.len())
+            .field("num_generators", &self.circuit.prover_only.generators.len())
+            .finish_non_exhaustive()
+    }
+}
+
 /// Required assignments and the generator schedule for one stage.
-#[derive(Debug)]
 pub struct WitnessGenerationStage {
     promised_rep_indices: Vec<usize>,
     schedule: WitnessGenerationSchedule,
@@ -72,8 +81,16 @@ impl WitnessGenerationStage {
     }
 }
 
+impl core::fmt::Debug for WitnessGenerationStage {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("WitnessGenerationStage")
+            .field("num_promised_assignments", &self.promised_rep_indices.len())
+            .field("schedule", &self.schedule)
+            .finish_non_exhaustive()
+    }
+}
+
 /// Builds stages from assignment assumptions and generator dependencies.
-#[derive(Debug)]
 pub struct WitnessGenerationPlanning<
     'p,
     'a,
@@ -160,6 +177,19 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         if self.state.assumed_assigned_flags()[rep_index] == 0 {
             self.promised_rep_indices.push(rep_index);
         }
+    }
+}
+
+impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
+    core::fmt::Debug for WitnessGenerationPlanning<'p, 'a, F, C, D>
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("WitnessGenerationPlanning")
+            .field("num_stages", &self.plan.num_stages())
+            .field("num_pending_assignments", &self.promised_rep_indices.len())
+            .field("num_newly_produced", &self.newly_produced.len())
+            .field("state", &self.state)
+            .finish_non_exhaustive()
     }
 }
 

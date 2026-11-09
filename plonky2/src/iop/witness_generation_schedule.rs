@@ -7,7 +7,6 @@ use anyhow::{ensure, Result};
 use hashbrown::HashMap;
 
 /// Tracks assignments and generator completion assumed during planning.
-#[derive(Debug)]
 pub(super) struct WitnessGenerationState {
     assumed_assigned_flags: Vec<u8>,
     scheduled_generator_flags: Vec<u8>,
@@ -42,9 +41,17 @@ impl WitnessGenerationState {
     }
 }
 
+impl core::fmt::Debug for WitnessGenerationState {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("WitnessGenerationState")
+            .field("num_targets", &self.assumed_assigned_flags.len())
+            .field("num_generators", &self.scheduled_generator_flags.len())
+            .finish_non_exhaustive()
+    }
+}
+
 /// Execution order and dependencies for a runnable subset of circuit generators.
 /// Graph indices are local; `generator_indices` maps them to circuit generator indices.
-#[derive(Debug)]
 pub struct WitnessGenerationSchedule {
     generator_indices: Vec<usize>,
     dependency_counts: Vec<usize>,
@@ -76,8 +83,17 @@ impl WitnessGenerationSchedule {
     }
 }
 
+impl core::fmt::Debug for WitnessGenerationSchedule {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("WitnessGenerationSchedule")
+            .field("num_generators", &self.generator_indices.len())
+            .field("num_dependencies", &self.successors.len())
+            .field("num_initial_ready", &self.initial_ready.len())
+            .finish_non_exhaustive()
+    }
+}
+
 /// Validated representative reads, writes, and consumers for circuit generators.
-#[derive(Debug)]
 pub(super) struct GeneratorDependencies {
     reads: Vec<Vec<usize>>,
     writes: Vec<Vec<usize>>,
@@ -136,6 +152,16 @@ impl GeneratorDependencies {
 
     fn num_targets(&self) -> usize {
         self.num_targets
+    }
+}
+
+impl core::fmt::Debug for GeneratorDependencies {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("GeneratorDependencies")
+            .field("num_targets", &self.num_targets)
+            .field("num_generators", &self.reads.len())
+            .field("num_read_representatives", &self.consumers.len())
+            .finish_non_exhaustive()
     }
 }
 
