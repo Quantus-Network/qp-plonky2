@@ -364,6 +364,32 @@ mod tests {
     use crate::util::serialization::{IoError, IoResult, Write};
     use crate::{C, D, F};
 
+    #[derive(Debug)]
+    struct UnsupportedGenerator {
+        declares_reads: bool,
+    }
+
+    impl WitnessGenerator<F, D> for UnsupportedGenerator {
+        fn id(&self) -> String {
+            "UnsupportedTestGenerator".to_owned()
+        }
+        fn watch_list(&self) -> Vec<Target> {
+            vec![]
+        }
+        fn reads(&self) -> Option<Vec<Target>> {
+            self.declares_reads.then(Vec::new)
+        }
+        fn run(&self, _: &PartitionWitness<F>, _: &mut GeneratedValues<F>) -> bool {
+            panic!("unsupported generator must be rejected before execution")
+        }
+        fn serialize(&self, _: &mut Vec<u8>, _: &CommonCircuitData<F, D>) -> IoResult<()> {
+            Err(IoError)
+        }
+        fn deserialize(_: &mut Buffer, _: &CommonCircuitData<F, D>) -> IoResult<Self> {
+            Err(IoError)
+        }
+    }
+
     fn family_fixture() -> Result<CircuitData<F, C, D>> {
         let config = CircuitConfig::standard_recursion_config();
         let inner = CircuitBuilder::<F, D>::new(config.clone()).build::<C>();
@@ -528,7 +554,7 @@ mod tests {
     }
 
     #[test]
-    fn built_in_families_discover_the_same_output_order_as_execution() -> Result<()> {
+    fn discovered_output_order_matches_built_ins() -> Result<()> {
         let data = family_fixture()?;
         // Check planner construction and output-target discovery for each supported family.
         WitnessGenerationPlanner::new(&data)?;
@@ -579,32 +605,6 @@ mod tests {
         Ok(())
     }
 
-    #[derive(Debug)]
-    struct UnsupportedGenerator {
-        declares_reads: bool,
-    }
-
-    impl WitnessGenerator<F, D> for UnsupportedGenerator {
-        fn id(&self) -> String {
-            "UnsupportedTestGenerator".to_owned()
-        }
-        fn watch_list(&self) -> Vec<Target> {
-            vec![]
-        }
-        fn reads(&self) -> Option<Vec<Target>> {
-            self.declares_reads.then(Vec::new)
-        }
-        fn run(&self, _: &PartitionWitness<F>, _: &mut GeneratedValues<F>) -> bool {
-            panic!("unsupported generator must be rejected before execution")
-        }
-        fn serialize(&self, _: &mut Vec<u8>, _: &CommonCircuitData<F, D>) -> IoResult<()> {
-            Err(IoError)
-        }
-        fn deserialize(_: &mut Buffer, _: &CommonCircuitData<F, D>) -> IoResult<Self> {
-            Err(IoError)
-        }
-    }
-
     #[test]
     fn preparation_rejects_unknown_generators_and_missing_read_declarations() {
         for declares_reads in [false, true] {
@@ -630,7 +630,7 @@ mod tests {
     }
 
     #[test]
-    fn preparation_rejects_representatives_that_are_not_roots() {
+    fn planner_rejects_non_root_representatives() {
         let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
         let a = builder.add_virtual_target();
         let b = builder.add_virtual_target();

@@ -255,7 +255,7 @@ mod tests {
     }
 
     #[test]
-    fn errors_and_panics_invalidate_execution_and_allow_reset_and_executor_reuse() -> Result<()> {
+    fn execution_recovers_from_errors_and_panics() -> Result<()> {
         let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
         let input = builder.add_virtual_target();
         let output = builder.add_virtual_target();

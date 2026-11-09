@@ -291,7 +291,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn schedules_preserve_dependencies_and_leave_blocked_work_available_for_later() {
+    fn schedule_preserves_dependencies_and_blocked_work() {
         // Fan-out, join, two reader-free writers, and a separate two-generator cycle.
         let reads = vec![
             vec![0],

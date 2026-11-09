@@ -216,145 +216,6 @@ fn mixed_circuit_matches_original_generation_and_proves() -> Result<()> {
 }
 
 #[test]
-fn duplicate_writers_are_compared_without_readers() -> Result<()> {
-    let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
-    let a = builder.add_virtual_target();
-    let b = builder.add_virtual_target();
-    let row = builder.add_gate(NoopGate, vec![]);
-    let first = Target::wire(row, 0);
-    let second = Target::wire(row, 1);
-    builder.generate_copy(a, first);
-    builder.generate_copy(b, second);
-    builder.connect(first, second);
-    let data = builder.build::<C>();
-    let plan = Arc::clone(Executor::new_with_inputs(&data, [a, b])?.plan());
-    let rep_index = data.prover_only.representative_map
-        [first.index(data.common.config.num_wires, data.common.degree())];
-    let representative = |target: Target| {
-        data.prover_only.representative_map
-            [target.index(data.common.config.num_wires, data.common.degree())]
-    };
-    for generator in &data.prover_only.generators {
-        assert!(generator
-            .0
-            .reads()
-            .unwrap()
-            .into_iter()
-            .all(|target| representative(target) != rep_index));
-    }
-    for b_value in [3, 4] {
-        let mut inputs = PartialWitness::new();
-        inputs.set_target(a, F::from_canonical_u64(3))?;
-        inputs.set_target(b, F::from_canonical_u64(b_value))?;
-        let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common);
-        if b_value == 3 {
-            let expected = expected?;
-            for &num_workers in EXECUTION_MODES {
-                let actual = generate(&plan, &inputs, num_workers)?;
-                assert_witnesses_match(&data, &expected, &actual);
-                assert_eq!(actual.get_target(first), F::from_canonical_u64(3));
-                assert_eq!(actual.get_target(first), actual.get_target(second));
-            }
-        } else {
-            assert!(expected.is_err());
-            for &num_workers in EXECUTION_MODES {
-                let error = generate(&plan, &inputs, num_workers).unwrap_err();
-                assert!(error.to_string().contains("different values"), "{error}");
-            }
-        }
-    }
-    Ok(())
-}
-
-#[test]
-fn repeated_emissions_to_one_representative_must_agree() -> Result<()> {
-    let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
-    let input = builder.add_virtual_target();
-    let bits = builder.split_le(input, 4);
-    builder.connect(bits[0].target, bits[1].target);
-    let data = builder.build::<C>();
-    let error = Executor::new_with_inputs(&data, []).unwrap_err();
-    assert!(error
-        .to_string()
-        .contains("complete witness generation plan"));
-    let plan = Arc::clone(Executor::new_with_inputs(&data, [input])?.plan());
-    for value in [3, 1] {
-        let mut inputs = PartialWitness::new();
-        inputs.set_target(input, F::from_canonical_u64(value))?;
-        let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common);
-        if value == 3 {
-            let expected = expected?;
-            // Confirm that the fixture exercises repeated emissions by one generator.
-            let rep_index = data.prover_only.representative_map[bits[0]
-                .target
-                .index(data.common.config.num_wires, data.common.degree())];
-            let mut output_buffer = GeneratedValues::empty();
-            let mut repeated = false;
-            for generator in &data.prover_only.generators {
-                output_buffer.target_values.clear();
-                generator.0.run_ready(&expected, &mut output_buffer)?;
-                let count = output_buffer
-                    .target_values
-                    .iter()
-                    .filter(|(target, _)| {
-                        data.prover_only.representative_map
-                            [target.index(data.common.config.num_wires, data.common.degree())]
-                            == rep_index
-                    })
-                    .count();
-                repeated |= count > 1;
-            }
-            assert!(repeated);
-            for &num_workers in EXECUTION_MODES {
-                let actual = generate(&plan, &inputs, num_workers)?;
-                assert_witnesses_match(&data, &expected, &actual);
-            }
-        } else {
-            assert!(expected.is_err());
-            for &num_workers in EXECUTION_MODES {
-                let error = generate(&plan, &inputs, num_workers).unwrap_err();
-                assert!(error.to_string().contains("different values"), "{error}");
-            }
-        }
-    }
-    Ok(())
-}
-
-#[test]
-fn caller_prefills_must_agree_with_aliases_and_generated_values() -> Result<()> {
-    let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
-    let a = builder.add_virtual_target();
-    let alias = builder.add_virtual_target();
-    builder.connect(a, alias);
-    let b = builder.add_virtual_target();
-    let sum = builder.add(a, b);
-    let data = builder.build::<C>();
-    let plan = Arc::clone(Executor::new_with_inputs(&data, [a, alias, b, sum])?.plan());
-    for (alias_value, sum_value) in [(3, 8), (3, 9), (4, 8)] {
-        let mut inputs = PartialWitness::new();
-        inputs.set_target(a, F::from_canonical_u64(3))?;
-        inputs.set_target(alias, F::from_canonical_u64(alias_value))?;
-        inputs.set_target(b, F::from_canonical_u64(5))?;
-        inputs.set_target(sum, F::from_canonical_u64(sum_value))?;
-        let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common);
-        if alias_value == 3 && sum_value == 8 {
-            let expected = expected?;
-            for &num_workers in EXECUTION_MODES {
-                let actual = generate(&plan, &inputs, num_workers)?;
-                assert_witnesses_match(&data, &expected, &actual);
-            }
-        } else {
-            assert!(expected.is_err());
-            for &num_workers in EXECUTION_MODES {
-                let error = generate(&plan, &inputs, num_workers).unwrap_err();
-                assert!(error.to_string().contains("different values"), "{error}");
-            }
-        }
-    }
-    Ok(())
-}
-
-#[test]
 fn staged_plans_validate_inputs_and_support_reset_and_reuse() -> Result<()> {
     let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
     let a = builder.add_virtual_target();
@@ -367,6 +228,10 @@ fn staged_plans_validate_inputs_and_support_reset_and_reuse() -> Result<()> {
     builder.generate_copy(b, y);
     let sum = builder.add(x, y);
     let data = builder.build::<C>();
+    let error = Executor::new_with_inputs(&data, []).unwrap_err();
+    assert!(error
+        .to_string()
+        .contains("complete witness generation plan"));
     let plan = {
         let planner = Planner::new(&data)?;
         let mut planning = planner.new_plan();
@@ -413,7 +278,9 @@ fn staged_plans_validate_inputs_and_support_reset_and_reuse() -> Result<()> {
             // SAFETY: The fixture uses genuine built-ins with complete access sets.
             let error = unsafe { execution.execute_parallel(4) }.unwrap_err();
             assert!(
-                error.to_string().contains("dense witness storage is required"),
+                error
+                    .to_string()
+                    .contains("dense witness storage is required"),
                 "{error}"
             );
             assert_eq!(execution.witness().values, before);
@@ -466,6 +333,156 @@ fn staged_plans_validate_inputs_and_support_reset_and_reuse() -> Result<()> {
             witness.values.as_ptr() as usize
         };
         assert_eq!(current_pointer, values_pointer);
+    }
+    Ok(())
+}
+
+#[test]
+fn duplicate_writers_are_compared_without_readers() -> Result<()> {
+    let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+    let a = builder.add_virtual_target();
+    let b = builder.add_virtual_target();
+    let row = builder.add_gate(NoopGate, vec![]);
+    let first = Target::wire(row, 0);
+    let second = Target::wire(row, 1);
+    builder.generate_copy(a, first);
+    builder.generate_copy(b, second);
+    builder.connect(first, second);
+    let data = builder.build::<C>();
+    let plan = Arc::clone(Executor::new_with_inputs(&data, [a, b])?.plan());
+    let rep_index = data.prover_only.representative_map
+        [first.index(data.common.config.num_wires, data.common.degree())];
+    let representative = |target: Target| {
+        data.prover_only.representative_map
+            [target.index(data.common.config.num_wires, data.common.degree())]
+    };
+    for generator in &data.prover_only.generators {
+        assert!(generator
+            .0
+            .reads()
+            .unwrap()
+            .into_iter()
+            .all(|target| representative(target) != rep_index));
+    }
+    for b_value in [3, 4] {
+        let mut inputs = PartialWitness::new();
+        inputs.set_target(a, F::from_canonical_u64(3))?;
+        inputs.set_target(b, F::from_canonical_u64(b_value))?;
+        let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common);
+        if b_value == 3 {
+            let expected = expected?;
+            for &num_workers in EXECUTION_MODES {
+                let actual = generate(&plan, &inputs, num_workers)?;
+                assert_witnesses_match(&data, &expected, &actual);
+                assert_eq!(actual.get_target(first), F::from_canonical_u64(3));
+                assert_eq!(actual.get_target(first), actual.get_target(second));
+            }
+        } else {
+            assert!(
+                expected.is_err(),
+                "b_value={b_value} unexpectedly succeeded"
+            );
+            for &num_workers in EXECUTION_MODES {
+                let error = generate(&plan, &inputs, num_workers).unwrap_err();
+                assert!(
+                    error.to_string().contains("different values"),
+                    "b_value={b_value}, num_workers={num_workers:?}: {error}"
+                );
+            }
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn repeated_emissions_to_one_representative_must_agree() -> Result<()> {
+    let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+    let input = builder.add_virtual_target();
+    let bits = builder.split_le(input, 4);
+    builder.connect(bits[0].target, bits[1].target);
+    let data = builder.build::<C>();
+    let plan = Arc::clone(Executor::new_with_inputs(&data, [input])?.plan());
+    for value in [3, 1] {
+        let mut inputs = PartialWitness::new();
+        inputs.set_target(input, F::from_canonical_u64(value))?;
+        let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common);
+        if value == 3 {
+            let expected = expected?;
+            // Confirm that the fixture exercises repeated emissions by one generator.
+            let rep_index = data.prover_only.representative_map[bits[0]
+                .target
+                .index(data.common.config.num_wires, data.common.degree())];
+            let mut output_buffer = GeneratedValues::empty();
+            let mut repeated = false;
+            for generator in &data.prover_only.generators {
+                output_buffer.target_values.clear();
+                generator.0.run_ready(&expected, &mut output_buffer)?;
+                let count = output_buffer
+                    .target_values
+                    .iter()
+                    .filter(|(target, _)| {
+                        data.prover_only.representative_map
+                            [target.index(data.common.config.num_wires, data.common.degree())]
+                            == rep_index
+                    })
+                    .count();
+                repeated |= count > 1;
+            }
+            assert!(repeated);
+            for &num_workers in EXECUTION_MODES {
+                let actual = generate(&plan, &inputs, num_workers)?;
+                assert_witnesses_match(&data, &expected, &actual);
+            }
+        } else {
+            assert!(expected.is_err(), "value={value} unexpectedly succeeded");
+            for &num_workers in EXECUTION_MODES {
+                let error = generate(&plan, &inputs, num_workers).unwrap_err();
+                assert!(
+                    error.to_string().contains("different values"),
+                    "value={value}, num_workers={num_workers:?}: {error}"
+                );
+            }
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn caller_assignments_must_agree_with_generated_values_and_aliases() -> Result<()> {
+    let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+    let a = builder.add_virtual_target();
+    let alias = builder.add_virtual_target();
+    builder.connect(a, alias);
+    let b = builder.add_virtual_target();
+    let sum = builder.add(a, b);
+    let data = builder.build::<C>();
+    let plan = Arc::clone(Executor::new_with_inputs(&data, [a, alias, b, sum])?.plan());
+    for (alias_value, sum_value) in [(3, 8), (3, 9), (4, 8)] {
+        let mut inputs = PartialWitness::new();
+        inputs.set_target(a, F::from_canonical_u64(3))?;
+        inputs.set_target(alias, F::from_canonical_u64(alias_value))?;
+        inputs.set_target(b, F::from_canonical_u64(5))?;
+        inputs.set_target(sum, F::from_canonical_u64(sum_value))?;
+        let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common);
+        if alias_value == 3 && sum_value == 8 {
+            let expected = expected?;
+            for &num_workers in EXECUTION_MODES {
+                let actual = generate(&plan, &inputs, num_workers)?;
+                assert_witnesses_match(&data, &expected, &actual);
+            }
+        } else {
+            assert!(
+                expected.is_err(),
+                "alias_value={alias_value}, sum_value={sum_value} unexpectedly succeeded"
+            );
+            for &num_workers in EXECUTION_MODES {
+                let error = generate(&plan, &inputs, num_workers).unwrap_err();
+                assert!(
+                    error.to_string().contains("different values"),
+                    "alias_value={alias_value}, sum_value={sum_value}, num_workers={num_workers:?}: {error}"
+                );
+            }
+        }
     }
     Ok(())
 }
