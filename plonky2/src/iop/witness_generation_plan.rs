@@ -199,9 +199,11 @@ mod tests {
     use std::panic::{catch_unwind, AssertUnwindSafe};
 
     use crate::field::types::Field;
-    use crate::iop::generator::{GeneratedValues, WitnessGenerator, WitnessGeneratorRef};
+    use crate::iop::generator::{GeneratedValues, SimpleGenerator, WitnessGeneratorRef};
     use crate::iop::witness::{PartitionWitness, Witness, WitnessWrite};
-    use crate::iop::witness_generation_executor::WitnessGenerationExecutor;
+    use crate::iop::witness_generation_executor::{
+        WitnessGenerationExecution, WitnessGenerationExecutor,
+    };
     use crate::iop::witness_generation_schedule::GeneratorDependencies;
     use crate::plonk::circuit_builder::CircuitBuilder;
     use crate::plonk::circuit_data::{CircuitConfig, CommonCircuitData};
@@ -219,24 +221,14 @@ mod tests {
         output: Target,
     }
 
-    impl WitnessGenerator<F, D> for FallibleGenerator {
+    impl SimpleGenerator<F, D> for FallibleGenerator {
         fn id(&self) -> String {
             "FallibleTestGenerator".to_owned()
         }
-        fn watch_list(&self) -> Vec<Target> {
+        fn dependencies(&self) -> Vec<Target> {
             vec![self.input]
         }
-        fn reads(&self) -> Option<Vec<Target>> {
-            Some(vec![self.input])
-        }
-        fn run(
-            &self,
-            witness: &PartitionWitness<F>,
-            output_buffer: &mut GeneratedValues<F>,
-        ) -> bool {
-            self.run_ready(witness, output_buffer).is_ok()
-        }
-        fn run_ready(
+        fn run_once(
             &self,
             witness: &PartitionWitness<F>,
             output_buffer: &mut GeneratedValues<F>,
@@ -254,6 +246,22 @@ mod tests {
         }
     }
 
+    fn execute_stage(
+        execution: &mut WitnessGenerationExecution<'_, '_, F, C, D>,
+        num_workers: Option<usize>,
+    ) -> Result<()> {
+        match num_workers {
+            None => execution.execute(),
+            #[cfg(feature = "parallel")]
+            Some(workers) => {
+                // SAFETY: The test generator declares its exact fixed access sets.
+                unsafe { execution.execute_parallel(workers) }
+            }
+            #[cfg(not(feature = "parallel"))]
+            Some(_) => unreachable!("parallel execution requires the parallel feature"),
+        }
+    }
+
     #[test]
     fn execution_recovers_from_errors_and_panics() -> Result<()> {
         let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
@@ -261,10 +269,9 @@ mod tests {
         let output = builder.add_virtual_target();
         let mut data = builder.build::<C>();
         // Exercise errors, panics and recovery with fixed read and output targets.
-        data.prover_only.generators = vec![WitnessGeneratorRef::new(FallibleGenerator {
-            input,
-            output,
-        })];
+        data.prover_only.generators = vec![WitnessGeneratorRef::new(
+            FallibleGenerator { input, output }.adapter(),
+        )];
         let rep = |target: Target| {
             data.prover_only.representative_map
                 [target.index(data.common.config.num_wires, data.common.degree())]
@@ -295,16 +302,7 @@ mod tests {
                 let mut execution = executor.bind(&mut witness)?;
                 execution.set_target(input, bad_value)?;
                 let result = catch_unwind(AssertUnwindSafe(|| {
-                    match num_workers {
-                        None => execution.execute(),
-                        #[cfg(feature = "parallel")]
-                        Some(workers) => {
-                            // SAFETY: The test generator declares its exact fixed access sets.
-                            unsafe { execution.execute_parallel(workers) }
-                        }
-                        #[cfg(not(feature = "parallel"))]
-                        Some(_) => unreachable!("parallel execution requires the parallel feature"),
-                    }
+                    execute_stage(&mut execution, num_workers)
                 }));
                 if bad_value == F::ZERO {
                     assert!(result
@@ -329,16 +327,7 @@ mod tests {
                 assert!(!execution.witness().contains(input));
                 assert!(!execution.witness().contains(output));
                 execution.set_target(input, F::TWO)?;
-                match num_workers {
-                    None => execution.execute()?,
-                    #[cfg(feature = "parallel")]
-                    Some(workers) => {
-                        // SAFETY: The same fixed access contract holds after reset.
-                        unsafe { execution.execute_parallel(workers)? };
-                    }
-                    #[cfg(not(feature = "parallel"))]
-                    Some(_) => unreachable!("parallel execution requires the parallel feature"),
-                }
+                execute_stage(&mut execution, num_workers)?;
                 assert_eq!(execution.witness().get_target(output), F::TWO);
                 execution.finish().unwrap();
                 let mut next = executor.new_witness();

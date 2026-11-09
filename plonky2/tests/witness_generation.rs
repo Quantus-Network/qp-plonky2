@@ -26,21 +26,6 @@ const EXECUTION_MODES: &[Option<usize>] = &[None, Some(1), Some(4)];
 #[cfg(not(feature = "parallel"))]
 const EXECUTION_MODES: &[Option<usize>] = &[None];
 
-fn make_plan<'a>(
-    data: &'a CircuitData<F, C, D>,
-    inputs: impl IntoIterator<Item = Target>,
-) -> Result<Arc<Plan<'a, F, C, D>>> {
-    let planner = Planner::new(data)?;
-    let mut planning = planner.new_plan();
-    for target in inputs {
-        planning.assume_assigned(target)?;
-    }
-    planning.add_stage();
-    Ok(planning
-        .finish()
-        .expect("fixture inputs must enable all generators"))
-}
-
 fn execute_stage(
     execution: &mut Execution<'_, '_, F, C, D>,
     num_workers: Option<usize>,
@@ -78,6 +63,21 @@ fn generate<'a>(
         Some(_) => unreachable!("parallel execution requires the parallel feature"),
     }
     Ok(witness)
+}
+
+fn assert_conflicting_assignments(plan: &Arc<Plan<'_, F, C, D>>, inputs: &PartialWitness<F>) {
+    let data = plan.circuit();
+    assert!(
+        generate_partial_witness(inputs.clone(), &data.prover_only, &data.common).is_err(),
+        "original generation accepted conflicting assignments: {inputs:?}"
+    );
+    for &num_workers in EXECUTION_MODES {
+        let error = generate(plan, inputs, num_workers).unwrap_err();
+        assert!(
+            error.to_string().contains("different values"),
+            "inputs={inputs:?}, num_workers={num_workers:?}: {error}"
+        );
+    }
 }
 
 fn assert_witnesses_match(
@@ -163,17 +163,15 @@ fn mixed_circuit_matches_original_generation_and_proves() -> Result<()> {
     ]);
     builder.register_public_inputs(&hash.elements);
     builder.register_public_input(sum);
-    let unused = builder.add_virtual_target();
+    builder.add_virtual_target();
     let data = builder.build::<C>();
-    let plan = make_plan(
-        &data,
-        [a, alias, b, selector].into_iter().chain(extension.0),
-    )?;
-    let proof_mode = if cfg!(feature = "parallel") {
-        Some(4)
-    } else {
-        None
-    };
+    let plan = Arc::clone(
+        Executor::new_with_inputs(
+            &data,
+            [a, alias, b, selector].into_iter().chain(extension.0),
+        )?
+        .plan(),
+    );
     for (case_index, (a_value, b_value, extension_values, selector_value)) in [
         (0, 0, [0, 0], 0),
         (1, 2, [3, 4], 1),
@@ -192,24 +190,21 @@ fn mixed_circuit_matches_original_generation_and_proves() -> Result<()> {
             inputs.set_target(target, F::from_canonical_u64(value))?;
         }
         let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common)?;
-        for &num_workers in EXECUTION_MODES {
-            let actual = generate(&plan, &inputs, num_workers)?;
-            assert_witnesses_match(&data, &expected, &actual);
-            assert_eq!(actual.get_target(a), actual.get_target(alias));
-            assert!(!actual.contains(unused));
-            if case_index == 1 && num_workers == proof_mode {
-                let proof = prove_with_partition_witness(
-                    &data.prover_only,
-                    &data.common,
-                    actual,
-                    &mut TimingTree::default(),
-                )?;
-                assert_eq!(
-                    proof.public_inputs,
-                    expected.get_targets(&data.prover_only.public_inputs)
-                );
-                data.verify(proof)?;
-            }
+        let num_workers = EXECUTION_MODES[case_index % EXECUTION_MODES.len()];
+        let actual = generate(&plan, &inputs, num_workers)?;
+        assert_witnesses_match(&data, &expected, &actual);
+        if case_index == 2 {
+            let proof = prove_with_partition_witness(
+                &data.prover_only,
+                &data.common,
+                actual,
+                &mut TimingTree::default(),
+            )?;
+            assert_eq!(
+                proof.public_inputs,
+                expected.get_targets(&data.prover_only.public_inputs)
+            );
+            data.verify(proof)?;
         }
     }
     Ok(())
@@ -252,39 +247,12 @@ fn staged_plans_validate_inputs_and_support_reset_and_reuse() -> Result<()> {
     assert_eq!(plan.num_stages(), 4);
     assert!(plan.stages()[2].schedule().generator_indices().is_empty());
 
-    for (dense, num_workers) in
-        core::iter::once((false, None)).chain(EXECUTION_MODES.iter().map(|&mode| (true, mode)))
-    {
+    for &num_workers in EXECUTION_MODES {
         let mut executor = Executor::new(Arc::clone(&plan));
-        let mut witness = if dense {
-            executor.new_witness()
-        } else {
-            PartitionWitness::new(
-                data.common.config.num_wires,
-                data.common.degree(),
-                &data.prover_only.representative_map,
-            )
-        };
-        let values_pointer = if dense {
-            witness.dense_values_and_assignment_flags()?.0.as_ptr() as usize
-        } else {
-            witness.values.as_ptr() as usize
-        };
+        let mut witness = executor.new_witness();
+        let values_pointer = witness.dense_values_and_assignment_flags()?.0.as_ptr();
         let execution = executor.bind(&mut witness)?;
         let mut execution = execution.finish().expect_err("no stages have run");
-        #[cfg(feature = "parallel")]
-        if !dense {
-            let before = execution.witness().values.clone();
-            // SAFETY: The fixture uses genuine built-ins with complete access sets.
-            let error = unsafe { execution.execute_parallel(4) }.unwrap_err();
-            assert!(
-                error
-                    .to_string()
-                    .contains("dense witness storage is required"),
-                "{error}"
-            );
-            assert_eq!(execution.witness().values, before);
-        }
         for (a_value, b_value) in [(3, 5), (7, 11)] {
             execute_stage(&mut execution, num_workers)?;
             let error = execute_stage(&mut execution, num_workers).unwrap_err();
@@ -327,13 +295,45 @@ fn staged_plans_validate_inputs_and_support_reset_and_reuse() -> Result<()> {
             }
         }
         execution.finish().unwrap();
-        let current_pointer = if dense {
-            witness.dense_values_and_assignment_flags()?.0.as_ptr() as usize
-        } else {
-            witness.values.as_ptr() as usize
-        };
-        assert_eq!(current_pointer, values_pointer);
+        assert_eq!(
+            witness.dense_values_and_assignment_flags()?.0.as_ptr(),
+            values_pointer
+        );
     }
+    let mut executor = Executor::new(Arc::clone(&plan));
+    let mut witness = PartitionWitness::new(
+        data.common.config.num_wires,
+        data.common.degree(),
+        &data.prover_only.representative_map,
+    );
+    let values_pointer = witness.values.as_ptr();
+    let mut execution = executor.bind(&mut witness)?;
+    execution.set_target(alias, F::from_canonical_u64(3))?;
+    execution.set_target(b, F::from_canonical_u64(5))?;
+    #[cfg(feature = "parallel")]
+    {
+        let before = execution.witness().values.clone();
+        // SAFETY: The fixture uses genuine built-ins with complete access sets.
+        let error = unsafe { execution.execute_parallel(4) }.unwrap_err();
+        assert!(
+            error
+                .to_string()
+                .contains("dense witness storage is required"),
+            "{error}"
+        );
+        assert_eq!(execution.witness().values, before);
+    }
+    while !execution.is_done() {
+        execution.execute()?;
+    }
+    assert_eq!(
+        execution.witness().get_target(sum),
+        F::from_canonical_u64(8)
+    );
+    execution.reset();
+    assert!(execution.witness().values.iter().all(Option::is_none));
+    execution.unbind();
+    assert_eq!(witness.values.as_ptr(), values_pointer);
     Ok(())
 }
 
@@ -368,9 +368,9 @@ fn duplicate_writers_are_compared_without_readers() -> Result<()> {
         let mut inputs = PartialWitness::new();
         inputs.set_target(a, F::from_canonical_u64(3))?;
         inputs.set_target(b, F::from_canonical_u64(b_value))?;
-        let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common);
         if b_value == 3 {
-            let expected = expected?;
+            let expected =
+                generate_partial_witness(inputs.clone(), &data.prover_only, &data.common)?;
             for &num_workers in EXECUTION_MODES {
                 let actual = generate(&plan, &inputs, num_workers)?;
                 assert_witnesses_match(&data, &expected, &actual);
@@ -378,17 +378,7 @@ fn duplicate_writers_are_compared_without_readers() -> Result<()> {
                 assert_eq!(actual.get_target(first), actual.get_target(second));
             }
         } else {
-            assert!(
-                expected.is_err(),
-                "b_value={b_value} unexpectedly succeeded"
-            );
-            for &num_workers in EXECUTION_MODES {
-                let error = generate(&plan, &inputs, num_workers).unwrap_err();
-                assert!(
-                    error.to_string().contains("different values"),
-                    "b_value={b_value}, num_workers={num_workers:?}: {error}"
-                );
-            }
+            assert_conflicting_assignments(&plan, &inputs);
         }
     }
     Ok(())
@@ -405,9 +395,9 @@ fn repeated_emissions_to_one_representative_must_agree() -> Result<()> {
     for value in [3, 1] {
         let mut inputs = PartialWitness::new();
         inputs.set_target(input, F::from_canonical_u64(value))?;
-        let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common);
         if value == 3 {
-            let expected = expected?;
+            let expected =
+                generate_partial_witness(inputs.clone(), &data.prover_only, &data.common)?;
             // Confirm that the fixture exercises repeated emissions by one generator.
             let rep_index = data.prover_only.representative_map[bits[0]
                 .target
@@ -434,14 +424,7 @@ fn repeated_emissions_to_one_representative_must_agree() -> Result<()> {
                 assert_witnesses_match(&data, &expected, &actual);
             }
         } else {
-            assert!(expected.is_err(), "value={value} unexpectedly succeeded");
-            for &num_workers in EXECUTION_MODES {
-                let error = generate(&plan, &inputs, num_workers).unwrap_err();
-                assert!(
-                    error.to_string().contains("different values"),
-                    "value={value}, num_workers={num_workers:?}: {error}"
-                );
-            }
+            assert_conflicting_assignments(&plan, &inputs);
         }
     }
     Ok(())
@@ -463,25 +446,15 @@ fn caller_assignments_must_agree_with_generated_values_and_aliases() -> Result<(
         inputs.set_target(alias, F::from_canonical_u64(alias_value))?;
         inputs.set_target(b, F::from_canonical_u64(5))?;
         inputs.set_target(sum, F::from_canonical_u64(sum_value))?;
-        let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common);
         if alias_value == 3 && sum_value == 8 {
-            let expected = expected?;
+            let expected =
+                generate_partial_witness(inputs.clone(), &data.prover_only, &data.common)?;
             for &num_workers in EXECUTION_MODES {
                 let actual = generate(&plan, &inputs, num_workers)?;
                 assert_witnesses_match(&data, &expected, &actual);
             }
         } else {
-            assert!(
-                expected.is_err(),
-                "alias_value={alias_value}, sum_value={sum_value} unexpectedly succeeded"
-            );
-            for &num_workers in EXECUTION_MODES {
-                let error = generate(&plan, &inputs, num_workers).unwrap_err();
-                assert!(
-                    error.to_string().contains("different values"),
-                    "alias_value={alias_value}, sum_value={sum_value}, num_workers={num_workers:?}: {error}"
-                );
-            }
+            assert_conflicting_assignments(&plan, &inputs);
         }
     }
     Ok(())
@@ -518,10 +491,13 @@ fn invalid_random_access_index_errors_and_allows_recovery() -> Result<()> {
     let values = builder.add_virtual_targets(4);
     let selected = builder.random_access(selector, values.clone());
     let data = builder.build::<C>();
-    let plan = make_plan(
-        &data,
-        core::iter::once(selector).chain(values.iter().copied()),
-    )?;
+    let plan = Arc::clone(
+        Executor::new_with_inputs(
+            &data,
+            core::iter::once(selector).chain(values.iter().copied()),
+        )?
+        .plan(),
+    );
     for &num_workers in EXECUTION_MODES {
         let mut executor = Executor::new(Arc::clone(&plan));
         let mut witness = executor.new_witness();

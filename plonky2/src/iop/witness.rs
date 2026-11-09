@@ -595,8 +595,7 @@ mod tests {
     #[should_panic(expected = "cannot clone a dense witness")]
     fn dense_witness_clone_is_rejected() {
         let representatives = [0];
-        let mut witness = PartitionWitness::<F>::new_dense(1, 1, &representatives);
-        witness.set_target(Target::wire(0, 0), F::ONE).unwrap();
+        let witness = PartitionWitness::<F>::new_dense(1, 1, &representatives);
         let _ = witness.clone();
     }
 }
