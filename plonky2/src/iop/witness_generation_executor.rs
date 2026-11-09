@@ -186,10 +186,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
             num_workers > 0,
             "witness generation requires at least one worker"
         );
-        ensure!(
-            witness.is_dense(),
-            "parallel witness execution requires dense storage"
-        );
+        witness.require_dense()?;
         let mut execution = self.bind(witness)?;
         while !execution.is_done() {
             // SAFETY: The caller supplies the bound execution's access guarantees.
@@ -496,10 +493,7 @@ impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
             num_workers > 0,
             "witness generation requires at least one worker"
         );
-        ensure!(
-            self.witness.is_dense(),
-            "parallel witness execution requires dense storage"
-        );
+        self.witness.require_dense()?;
         self.begin_stage()?;
         let plan = Arc::clone(&self.executor.plan);
         let schedule = plan.stages()[self.next_stage].schedule();

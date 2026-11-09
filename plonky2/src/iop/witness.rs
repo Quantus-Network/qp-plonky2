@@ -461,8 +461,9 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
 
 #[cfg(all(feature = "std", feature = "parallel"))]
 impl<F: Field> PartitionWitness<'_, F> {
-    pub(super) fn is_dense(&self) -> bool {
-        self.dense.is_some()
+    pub(super) fn require_dense(&self) -> Result<()> {
+        anyhow::ensure!(self.dense.is_some(), "dense witness storage is required");
+        Ok(())
     }
 
     /// Sets a target through shared access during scheduled dense generation.

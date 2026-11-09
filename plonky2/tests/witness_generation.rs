@@ -413,7 +413,7 @@ fn staged_plans_validate_inputs_and_support_reset_and_reuse() -> Result<()> {
             // SAFETY: The fixture uses genuine built-ins with complete access sets.
             let error = unsafe { execution.execute_parallel(4) }.unwrap_err();
             assert!(
-                error.to_string().contains("requires dense storage"),
+                error.to_string().contains("dense witness storage is required"),
                 "{error}"
             );
             assert_eq!(execution.witness().values, before);
