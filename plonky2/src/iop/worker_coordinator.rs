@@ -14,13 +14,6 @@ pub(super) struct WorkerCoordinator {
     wake: Condvar,
 }
 
-#[derive(Default)]
-struct CoordinationState {
-    idle_workers: usize,
-    exhausted: bool,
-    failure: Option<Error>,
-}
-
 impl WorkerCoordinator {
     pub(super) fn new(stealers: Vec<Stealer<usize>>) -> Self {
         assert!(!stealers.is_empty(), "at least one work queue is required");
@@ -29,44 +22,6 @@ impl WorkerCoordinator {
             stopped: AtomicBool::new(false),
             state: Mutex::new(CoordinationState::default()),
             wake: Condvar::new(),
-        }
-    }
-
-    fn is_stopped(&self) -> bool {
-        self.stopped.load(Ordering::Acquire)
-    }
-
-    fn find(
-        &self,
-        local_queue: &Worker<usize>,
-        worker_index: usize,
-        next_victim_index: &mut usize,
-    ) -> Option<usize> {
-        loop {
-            if self.is_stopped() {
-                return None;
-            }
-            if let Some(local_index) = local_queue.pop() {
-                return Some(local_index);
-            }
-            let start = *next_victim_index;
-            *next_victim_index = (start + 1) % self.stealers.len();
-            let mut retry = false;
-            for offset in 0..self.stealers.len() {
-                let victim_index = (start + offset) % self.stealers.len();
-                if victim_index == worker_index {
-                    continue;
-                }
-                match self.stealers[victim_index].steal_batch_and_pop(local_queue) {
-                    Steal::Success(local_index) => return Some(local_index),
-                    Steal::Retry => retry = true,
-                    Steal::Empty => {}
-                }
-            }
-            if !retry {
-                return None;
-            }
-            core::hint::spin_loop();
         }
     }
 
@@ -137,6 +92,51 @@ impl WorkerCoordinator {
         ensure!(state.exhausted, "work did not complete");
         Ok(())
     }
+
+    fn is_stopped(&self) -> bool {
+        self.stopped.load(Ordering::Acquire)
+    }
+
+    fn find(
+        &self,
+        local_queue: &Worker<usize>,
+        worker_index: usize,
+        next_victim_index: &mut usize,
+    ) -> Option<usize> {
+        loop {
+            if self.is_stopped() {
+                return None;
+            }
+            if let Some(local_index) = local_queue.pop() {
+                return Some(local_index);
+            }
+            let start = *next_victim_index;
+            *next_victim_index = (start + 1) % self.stealers.len();
+            let mut retry = false;
+            for offset in 0..self.stealers.len() {
+                let victim_index = (start + offset) % self.stealers.len();
+                if victim_index == worker_index {
+                    continue;
+                }
+                match self.stealers[victim_index].steal_batch_and_pop(local_queue) {
+                    Steal::Success(local_index) => return Some(local_index),
+                    Steal::Retry => retry = true,
+                    Steal::Empty => {}
+                }
+            }
+            if !retry {
+                return None;
+            }
+            core::hint::spin_loop();
+        }
+    }
+}
+
+#[derive(Default)]
+struct CoordinationState {
+    idle_workers: usize,
+    exhausted: bool,
+    failure: Option<Error>,
 }
 
 #[cfg(test)]

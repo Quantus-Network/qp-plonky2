@@ -67,10 +67,6 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         Ok(Self::new(plan))
     }
 
-    pub fn plan(&self) -> &Arc<WitnessGenerationPlan<'a, F, C, D>> {
-        &self.plan
-    }
-
     /// Creates a matching empty dense witness. Its public `values` vector is
     /// empty; access assignments through witness methods.
     pub fn new_witness(&self) -> PartitionWitness<'a, F> {
@@ -111,6 +107,10 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
             execution.execute()?;
         }
         Ok(())
+    }
+
+    pub fn plan(&self) -> &Arc<WitnessGenerationPlan<'a, F, C, D>> {
+        &self.plan
     }
 
     fn run_generator(
@@ -390,10 +390,6 @@ pub struct WitnessGenerationExecution<
 impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
     WitnessGenerationExecution<'b, 'a, F, C, D>
 {
-    pub fn witness(&self) -> &PartitionWitness<'a, F> {
-        self.witness
-    }
-
     /// Releases the executor and witness borrows, preserving witness assignments.
     pub fn unbind(self) {}
 
@@ -407,16 +403,39 @@ impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         }
     }
 
-    pub fn is_done(&self) -> bool {
-        !self.failed && self.next_stage == self.executor.plan.num_stages()
-    }
-
     /// Clears witness assignments and restarts at the first stage, retaining
     /// the executor's worker allocations. Also permits recovery after failure.
     pub fn reset(&mut self) {
         self.witness.clear();
         self.next_stage = 0;
         self.failed = false;
+    }
+
+    /// Executes the next stage serially. Validation errors permit retry;
+    /// execution errors or panics require reset or unbinding.
+    pub fn execute(&mut self) -> Result<()> {
+        self.begin_stage()?;
+        let plan = &self.executor.plan;
+        let schedule = plan.stages()[self.next_stage].schedule();
+        let mut output_buffer = GeneratedValues::empty();
+        for &generator_index in schedule.generator_indices() {
+            WitnessGenerationExecutor::run_generator(
+                plan,
+                generator_index,
+                self.witness,
+                &mut output_buffer,
+            )?;
+        }
+        self.finish_stage();
+        Ok(())
+    }
+
+    pub fn witness(&self) -> &PartitionWitness<'a, F> {
+        self.witness
+    }
+
+    pub fn is_done(&self) -> bool {
+        !self.failed && self.next_stage == self.executor.plan.num_stages()
     }
 
     fn begin_stage(&mut self) -> Result<()> {
@@ -444,25 +463,6 @@ impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
     fn finish_stage(&mut self) {
         self.next_stage += 1;
         self.failed = false;
-    }
-
-    /// Executes the next stage serially. Validation errors permit retry;
-    /// execution errors or panics require reset or unbinding.
-    pub fn execute(&mut self) -> Result<()> {
-        self.begin_stage()?;
-        let plan = &self.executor.plan;
-        let schedule = plan.stages()[self.next_stage].schedule();
-        let mut output_buffer = GeneratedValues::empty();
-        for &generator_index in schedule.generator_indices() {
-            WitnessGenerationExecutor::run_generator(
-                plan,
-                generator_index,
-                self.witness,
-                &mut output_buffer,
-            )?;
-        }
-        self.finish_stage();
-        Ok(())
     }
 }
 

@@ -62,13 +62,13 @@ pub struct WitnessGenerationStage {
 }
 
 impl WitnessGenerationStage {
-    pub(super) fn promised_rep_indices(&self) -> &[usize] {
-        &self.promised_rep_indices
-    }
-
     /// Read-only generator graph for this stage.
     pub fn schedule(&self) -> &WitnessGenerationSchedule {
         &self.schedule
+    }
+
+    pub(super) fn promised_rep_indices(&self) -> &[usize] {
+        &self.promised_rep_indices
     }
 }
 
@@ -118,12 +118,6 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         Ok(())
     }
 
-    fn assume_representative(&mut self, rep_index: usize) {
-        if self.state.assumed_assigned_flags()[rep_index] == 0 {
-            self.promised_rep_indices.push(rep_index);
-        }
-    }
-
     /// Schedules generators enabled by the recorded assignments and appends a stage.
     pub fn add_stage(&mut self) {
         let mut promised_rep_indices = core::mem::take(&mut self.promised_rep_indices);
@@ -132,8 +126,7 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         for &rep_index in &promised_rep_indices {
             self.state.mark_assigned(rep_index);
         }
-        let (schedule, newly_produced) =
-            make_schedule(self.planner.dependencies(), &self.state);
+        let (schedule, newly_produced) = make_schedule(self.planner.dependencies(), &self.state);
         for &generator_index in schedule.generator_indices() {
             self.state.mark_scheduled(generator_index);
         }
@@ -147,11 +140,6 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         });
     }
 
-    /// Returns whether all generators are scheduled and all assignment requirements belong to stages.
-    pub fn is_done(&self) -> bool {
-        self.state.is_done() && self.promised_rep_indices.is_empty()
-    }
-
     /// Returns the immutable plan when all generators are scheduled and all
     /// assignment requirements belong to stages. Returns the planning object
     /// when more stages are required.
@@ -160,6 +148,17 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
             Ok(Arc::new(self.plan))
         } else {
             Err(self)
+        }
+    }
+
+    /// Returns whether all generators are scheduled and all assignment requirements belong to stages.
+    pub fn is_done(&self) -> bool {
+        self.state.is_done() && self.promised_rep_indices.is_empty()
+    }
+
+    fn assume_representative(&mut self, rep_index: usize) {
+        if self.state.assumed_assigned_flags()[rep_index] == 0 {
+            self.promised_rep_indices.push(rep_index);
         }
     }
 }
@@ -171,9 +170,9 @@ mod tests {
 
     use crate::field::types::Field;
     use crate::iop::generator::{GeneratedValues, WitnessGenerator, WitnessGeneratorRef};
-    use crate::iop::witness_generation_schedule::GeneratorDependencies;
     use crate::iop::witness::{PartitionWitness, Witness, WitnessWrite};
     use crate::iop::witness_generation_executor::WitnessGenerationExecutor;
+    use crate::iop::witness_generation_schedule::GeneratorDependencies;
     use crate::plonk::circuit_builder::CircuitBuilder;
     use crate::plonk::circuit_data::{CircuitConfig, CommonCircuitData};
     use crate::util::serialization::{Buffer, IoError, IoResult};
@@ -220,7 +219,10 @@ mod tests {
         assert_eq!(first.successors(2), &[3]);
         assert_eq!(first.successors(3), &[4]);
         assert_eq!(produced, vec![1, 2, 3, 4]);
-        assert!(state.scheduled_generator_flags().iter().all(|&flag| flag == 0));
+        assert!(state
+            .scheduled_generator_flags()
+            .iter()
+            .all(|&flag| flag == 0));
         assert_eq!(state.assumed_assigned_flags(), &[1, 0, 0, 0, 0, 0, 0]);
         for &generator_index in first.generator_indices() {
             state.mark_scheduled(generator_index);

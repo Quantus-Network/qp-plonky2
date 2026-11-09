@@ -21,20 +21,20 @@ impl WitnessGenerationState {
         }
     }
 
-    pub(super) fn assumed_assigned_flags(&self) -> &[u8] {
-        &self.assumed_assigned_flags
-    }
-
-    pub(super) fn scheduled_generator_flags(&self) -> &[u8] {
-        &self.scheduled_generator_flags
-    }
-
     pub(super) fn mark_assigned(&mut self, rep_index: usize) {
         self.assumed_assigned_flags[rep_index] = 1;
     }
 
     pub(super) fn mark_scheduled(&mut self, generator_index: usize) {
         self.scheduled_generator_flags[generator_index] = 1;
+    }
+
+    pub(super) fn assumed_assigned_flags(&self) -> &[u8] {
+        &self.assumed_assigned_flags
+    }
+
+    pub(super) fn scheduled_generator_flags(&self) -> &[u8] {
+        &self.scheduled_generator_flags
     }
 
     pub(super) fn is_done(&self) -> bool {

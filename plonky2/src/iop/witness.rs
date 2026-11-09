@@ -344,23 +344,6 @@ pub struct PartitionWitness<'a, F: Field> {
     dense: Option<DenseStorage<F>>,
 }
 
-impl<F: Field> Clone for PartitionWitness<'_, F> {
-    /// Clones a non-dense witness, retaining its borrowed representative map.
-    ///
-    /// # Panics
-    /// Panics if the witness uses dense storage.
-    fn clone(&self) -> Self {
-        assert!(self.dense.is_none(), "cannot clone a dense witness");
-        Self {
-            values: self.values.clone(),
-            representative_map: self.representative_map,
-            num_wires: self.num_wires,
-            degree: self.degree,
-            dense: None,
-        }
-    }
-}
-
 impl<'a, F: Field> PartitionWitness<'a, F> {
     pub fn new(num_wires: usize, degree: usize, representative_map: &'a [usize]) -> Self {
         Self {
@@ -408,18 +391,6 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
         Ok(dense.values_and_assignment_flags())
     }
 
-    pub(super) fn contains_rep(&self, rep_index: usize) -> bool {
-        match &self.dense {
-            Some(dense) => dense.is_assigned(rep_index),
-            None => self.values[rep_index].is_some(),
-        }
-    }
-
-    /// Borrows mutable dense storage.
-    pub(super) fn dense_mut(&mut self) -> &mut DenseStorage<F> {
-        self.dense.as_mut().expect("witness is not dense")
-    }
-
     /// Set a `Target`. On success, returns the representative index of the newly-set target. If the
     /// target was already set, returns `None`.
     pub fn set_target_returning_rep(&mut self, target: Target, value: F) -> Result<Option<usize>> {
@@ -464,6 +435,18 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
 
         MatrixWitness { wire_values }
     }
+
+    pub(super) fn contains_rep(&self, rep_index: usize) -> bool {
+        match &self.dense {
+            Some(dense) => dense.is_assigned(rep_index),
+            None => self.values[rep_index].is_some(),
+        }
+    }
+
+    /// Borrows mutable dense storage.
+    pub(super) fn dense_mut(&mut self) -> &mut DenseStorage<F> {
+        self.dense.as_mut().expect("witness is not dense")
+    }
 }
 
 #[cfg(all(feature = "std", feature = "parallel"))]
@@ -483,6 +466,23 @@ impl<F: Field> PartitionWitness<'_, F> {
         let dense = self.dense.as_ref().expect("witness is not dense");
         // SAFETY: The executor supplies the required slot ordering.
         unsafe { dense.set_shared(rep_index, value) }
+    }
+}
+
+impl<F: Field> Clone for PartitionWitness<'_, F> {
+    /// Clones a non-dense witness, retaining its borrowed representative map.
+    ///
+    /// # Panics
+    /// Panics if the witness uses dense storage.
+    fn clone(&self) -> Self {
+        assert!(self.dense.is_none(), "cannot clone a dense witness");
+        Self {
+            values: self.values.clone(),
+            representative_map: self.representative_map,
+            num_wires: self.num_wires,
+            degree: self.degree,
+            dense: None,
+        }
     }
 }
 

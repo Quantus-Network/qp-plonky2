@@ -14,41 +14,11 @@ pub(super) struct DenseStorage<F: Field> {
     assigned_flags: Vec<UnsafeCell<u8>>,
 }
 
-// SAFETY: Safe setters require &mut self. Shared assignment requires exclusive
-// access to each unassigned representative until both stores are published.
-// Assigned values and flags are immutable while workers run. The executor orders
-// readers and other writers after the selected writer's completion.
-unsafe impl<F: Field> Sync for DenseStorage<F> {}
-
-impl<F: Field> fmt::Debug for DenseStorage<F> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // Read immutable metadata while generators may be assigning values.
-        f.debug_struct("DenseStorage")
-            .field("num_targets", &self.values.len())
-            .finish()
-    }
-}
-
 impl<F: Field> DenseStorage<F> {
     pub(super) fn new(num_targets: usize) -> Self {
         Self {
             values: (0..num_targets).map(|_| UnsafeCell::new(F::ZERO)).collect(),
             assigned_flags: (0..num_targets).map(|_| UnsafeCell::new(0)).collect(),
-        }
-    }
-
-    pub(super) fn values_and_assignment_flags(&mut self) -> (&[F], &[u8]) {
-        // SAFETY: UnsafeCell<T> has the layout of T. Both vectors contain
-        // initialized elements, and the exclusive borrow prevents mutation for
-        // the lifetime of the returned slices.
-        unsafe {
-            (
-                core::slice::from_raw_parts(self.values.as_ptr().cast::<F>(), self.values.len()),
-                core::slice::from_raw_parts(
-                    self.assigned_flags.as_ptr().cast::<u8>(),
-                    self.assigned_flags.len(),
-                ),
-            )
         }
     }
 
@@ -69,15 +39,6 @@ impl<F: Field> DenseStorage<F> {
         Ok(())
     }
 
-    pub(super) fn try_get(&self, rep_index: usize) -> Option<F> {
-        self.is_assigned(rep_index).then(|| {
-            // SAFETY: Exclusive mutation requires &mut self. During parallel
-            // execution, the executor publishes assignments before these reads
-            // and keeps assigned values immutable.
-            unsafe { *self.values[rep_index].get() }
-        })
-    }
-
     /// Clears assignment flags while retaining stored values and allocations.
     pub(super) fn clear(&mut self) {
         for assigned_flag in &mut self.assigned_flags {
@@ -88,6 +49,30 @@ impl<F: Field> DenseStorage<F> {
     /// Clears the assignment flag for one representative, retaining its value.
     pub(super) fn clear_assignment(&mut self, rep_index: usize) {
         *self.assigned_flags[rep_index].get_mut() = 0;
+    }
+
+    pub(super) fn values_and_assignment_flags(&mut self) -> (&[F], &[u8]) {
+        // SAFETY: UnsafeCell<T> has the layout of T. Both vectors contain
+        // initialized elements, and the exclusive borrow prevents mutation for
+        // the lifetime of the returned slices.
+        unsafe {
+            (
+                core::slice::from_raw_parts(self.values.as_ptr().cast::<F>(), self.values.len()),
+                core::slice::from_raw_parts(
+                    self.assigned_flags.as_ptr().cast::<u8>(),
+                    self.assigned_flags.len(),
+                ),
+            )
+        }
+    }
+
+    pub(super) fn try_get(&self, rep_index: usize) -> Option<F> {
+        self.is_assigned(rep_index).then(|| {
+            // SAFETY: Exclusive mutation requires &mut self. During parallel
+            // execution, the executor publishes assignments before these reads
+            // and keeps assigned values immutable.
+            unsafe { *self.values[rep_index].get() }
+        })
     }
 
     pub(super) fn is_assigned(&self, rep_index: usize) -> bool {
@@ -120,5 +105,20 @@ impl<F: Field> DenseStorage<F> {
             }
         }
         Ok(())
+    }
+}
+
+// SAFETY: Safe setters require &mut self. Shared assignment requires exclusive
+// access to each unassigned representative until both stores are published.
+// Assigned values and flags are immutable while workers run. The executor orders
+// readers and other writers after the selected writer's completion.
+unsafe impl<F: Field> Sync for DenseStorage<F> {}
+
+impl<F: Field> fmt::Debug for DenseStorage<F> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // Read immutable metadata while generators may be assigning values.
+        f.debug_struct("DenseStorage")
+            .field("num_targets", &self.values.len())
+            .finish()
     }
 }
