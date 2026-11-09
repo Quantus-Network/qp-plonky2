@@ -105,12 +105,12 @@ impl GeneratorDependencies {
     }
 }
 
-/// Builds a depth-first schedule and records expected assignments and completion.
+/// Builds a depth-first schedule from assumed generation state.
 /// Returns the schedule and representative indices first assigned by its generators.
 /// Initial and newly enabled generators are visited in circuit-builder order.
 pub(super) fn make_schedule(
     dependencies: &GeneratorDependencies,
-    state: &mut WitnessGenerationState,
+    state: &WitnessGenerationState,
 ) -> (WitnessGenerationSchedule, Vec<usize>) {
     const NONE: usize = usize::MAX;
     let reads = dependencies.reads();
@@ -162,7 +162,6 @@ pub(super) fn make_schedule(
         let local_index = generator_indices.len();
         local_indices[generator_index] = local_index;
         generator_indices.push(generator_index);
-        state.mark_scheduled(generator_index);
         unlocked.clear();
         for &rep_index in &writes[generator_index] {
             let producer_local_index = producer_local_indices[rep_index];
@@ -170,14 +169,15 @@ pub(super) fn make_schedule(
                 // Order additional writers after the generator assigning the value.
                 edges.push((producer_local_index, generator_index));
             }
-            if state.assumed_assigned_flags()[rep_index] != 0 {
+            if state.assumed_assigned_flags()[rep_index] != 0 || producer_local_index != NONE {
                 continue;
             }
-            state.mark_assigned(rep_index);
             newly_assigned.push(rep_index);
             producer_local_indices[rep_index] = local_index;
             for &consumer_generator_index in dependencies.consumers(rep_index) {
-                if state.scheduled_generator_flags()[consumer_generator_index] != 0 {
+                if state.scheduled_generator_flags()[consumer_generator_index] != 0
+                    || local_indices[consumer_generator_index] != NONE
+                {
                     continue;
                 }
                 unavailable_read_counts[consumer_generator_index] -= 1;

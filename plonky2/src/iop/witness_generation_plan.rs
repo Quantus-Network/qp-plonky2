@@ -38,11 +38,11 @@ impl WitnessGenerationState {
         &self.scheduled_generator_flags
     }
 
-    pub(super) fn mark_assigned(&mut self, rep_index: usize) {
+    fn mark_assigned(&mut self, rep_index: usize) {
         self.assumed_assigned_flags[rep_index] = 1;
     }
 
-    pub(super) fn mark_scheduled(&mut self, generator_index: usize) {
+    fn mark_scheduled(&mut self, generator_index: usize) {
         self.scheduled_generator_flags[generator_index] = 1;
     }
 
@@ -181,7 +181,13 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
             self.state.mark_assigned(rep_index);
         }
         let (schedule, newly_produced) =
-            make_schedule(self.planner.dependencies(), &mut self.state);
+            make_schedule(self.planner.dependencies(), &self.state);
+        for &generator_index in schedule.generator_indices() {
+            self.state.mark_scheduled(generator_index);
+        }
+        for &rep_index in &newly_produced {
+            self.state.mark_assigned(rep_index);
+        }
         self.newly_produced = newly_produced;
         self.plan.stages.push(WitnessGenerationStage {
             promised_rep_indices,
@@ -249,11 +255,11 @@ mod tests {
         ];
         let dependencies = GeneratorDependencies::new(reads, writes, 7).unwrap();
         let mut state = WitnessGenerationState::new(7, 7);
-        let (empty, produced) = make_schedule(&dependencies, &mut state);
+        let (empty, produced) = make_schedule(&dependencies, &state);
         assert!(empty.generator_indices().is_empty());
         assert!(produced.is_empty());
         state.mark_assigned(0);
-        let (first, produced) = make_schedule(&dependencies, &mut state);
+        let (first, produced) = make_schedule(&dependencies, &state);
         assert_eq!(first.generator_indices(), &[0, 1, 2, 3, 4]);
         assert_eq!(first.dependency_counts(), &[0, 1, 1, 2, 1]);
         assert_eq!(first.initial_ready(), &[0]);
@@ -262,13 +268,28 @@ mod tests {
         assert_eq!(first.successors(2), &[3]);
         assert_eq!(first.successors(3), &[4]);
         assert_eq!(produced, vec![1, 2, 3, 4]);
+        assert!(state.scheduled_generator_flags().iter().all(|&flag| flag == 0));
+        assert_eq!(state.assumed_assigned_flags(), &[1, 0, 0, 0, 0, 0, 0]);
+        for &generator_index in first.generator_indices() {
+            state.mark_scheduled(generator_index);
+        }
+        for &rep_index in &produced {
+            state.mark_assigned(rep_index);
+        }
         assert!(!state.is_done());
         state.mark_assigned(5);
-        let (second, produced) = make_schedule(&dependencies, &mut state);
+        let (second, produced) = make_schedule(&dependencies, &state);
         assert_eq!(second.generator_indices(), &[5, 6]);
         assert_eq!(second.dependency_counts(), &[0, 1]);
         assert_eq!(second.successors(0), &[1]);
         assert_eq!(produced, vec![6]);
+        assert!(!state.is_done());
+        for &generator_index in second.generator_indices() {
+            state.mark_scheduled(generator_index);
+        }
+        for &rep_index in &produced {
+            state.mark_assigned(rep_index);
+        }
         assert!(state.is_done());
     }
 
@@ -337,7 +358,7 @@ mod tests {
             vec![vec![output_rep]],
             data.prover_only.representative_map.len(),
         )?;
-        let (schedule, _) = make_schedule(&dependencies, &mut state);
+        let (schedule, _) = make_schedule(&dependencies, &state);
         let plan = Arc::new(WitnessGenerationPlan {
             circuit: &data,
             stages: vec![WitnessGenerationStage {
