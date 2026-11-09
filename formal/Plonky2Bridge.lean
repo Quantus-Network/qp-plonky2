@@ -38,20 +38,19 @@
   ------------------------------------------------
   The capstone (`private_batch_end_to_end`) composes *this* package's sponge/wrapper `.val`
   bridge with definitions and lemmas from the pinned `wormholeSpec` dependency
-  (`RPrivateBatch`, `private_batch_bridge`, `RPrivateBatch_value_conservation`,
+  (`RPrivateBatch`, `private_batch_bridge`, `RPrivateBatch_settlement_le_input`,
   `RPrivateBatch_settles_distinct_spends`, …). Those objects are stated and proved in
   qp-zk-circuits/formal at the commit pinned in `formal/lakefile.toml` — this package does
   not restate or re-verify them. The one trusted axiom of the whole stack, proof-system
   soundness on the exported recursion tree, lives in `Plonky2Bridge/Trusted.lean`. What
-  *is* here: `spongeRO`, the `.val` seam, and the gadget-level bridges (nullifier selection
-  + permutation network, uniqueness loop, fee comparator, public-batch forwarding masks)
-  into `RPrivateBatch (spongeRO perm) …`.
+  *is* here: `spongeRO`, the `.val` seam, and the gadget-level bridges (nullifier selection,
+  uniqueness loop, fee comparator, public-batch forwarding masks) into
+  `RPrivateBatch (spongeRO perm) …`.
 -/
 import Mathlib.Data.ZMod.Basic
 import WormholeSpec
 import Plonky2Spec.Sponge
 import Plonky2Spec.Wrapper
-import Plonky2Spec.Permutation
 import Plonky2Spec.FeeCheck
 
 namespace Plonky2Bridge
@@ -170,30 +169,29 @@ theorem field_collision_gives_spongeH_collision (perm : St p → St p) {x y : Li
 
 /-! ## The wrapper-logic `.val` seam (`Plonky2Spec` gadgets ⟶ `WormholeSpec.RPrivateBatch`)
 
-  `Plonky2Spec.Wrapper` / `Permutation` / `FeeCheck` prove each private-batch wrapper
+  `Plonky2Spec.Wrapper` / `FeeCheck` prove each private-batch wrapper
   *gadget* (`select` / `and` / `or` / `is_equal` / the first-real prefix scan / the
-  odd-even switch network / the two fee range checks) computes the right thing over
+  three fee range checks) computes the right thing over
   `ZMod p`, while `WormholeSpec.AggregationBridge` proves `PrivateBatchCircuit ⟹
   RPrivateBatch` over `Felt = ℕ`. This section ties the two across the `ZMod.val ↔ Felt`
   boundary: a field gadget output, read back through `valDigest` / `ZMod.val`, equals the
   spec building block, with the dummy-nullifier digest realized by the verified sponge
-  `spongeRO`. Composed, the nullifier path (selection + Poseidon + permutation), the
-  uniqueness loop, and the fee comparator are discharged end to end, yielding a genuine
+  `spongeRO`. Composed, the nullifier path (selection + Poseidon), the uniqueness loop,
+  and the fee comparator are discharged end to end, yielding a genuine
   `RPrivateBatch (spongeRO perm) …`.
 
   What stays abstract is only the public-input *decode* — which field wire carries which
-  spec value (`hd`/`hdnull`/`hreal`/`hnull`/`hexits`/… below). That is the wiring/copy-
+  spec value (`hd`/`hdnull`/`hreal`/`hnull`/`hslots`/… below). That is the wiring/copy-
   constraint model (PLAN §9 gap (a)); here it is the explicit hypothesis boundary. -/
 
 open Plonky2Spec (IsBool bselect band bnot nullifier_replacement match_contribution scanStep
-  firstRealVal scanFirst_correct Digest4 network network_perm FeeCheck feeCheck_sound
-  uniqueness_pair_dummy)
+  firstRealVal scanFirst_correct Digest4 FeeCheck feeCheck_sound uniqueness_pair_dummy)
 open WormholeSpec (LeafPublic PrivateBatchOutput isDummyPrivateBatch buildNullifiers
-  RPrivateBatch PrivateBatchCircuit private_batch_bridge groupExits maskedChildPairs
+  RPrivateBatch PrivateBatchCircuit private_batch_bridge
   metadataConsistent referenceFromFirstReal realNullifiersDistinct privateBatchFeeOk
-  maskedInputTotal maskedOutputTotal realLeaves realNullifiers rawOutputTotal
-  outputExitTotal RPrivateBatch_value_conservation RPrivateBatch_settles_distinct_spends
-  LeafWitness Rleaf ExitSlot isDummyInner
+  maskedInputTotal realLeaves realNullifiers rawInputTotal
+  outputExitTotal RPrivateBatch_settlement_le_input RPrivateBatch_settles_distinct_spends
+  LeafWitness Rleaf ExitSlot isDummyInner inRange
   forwardedSlots forwardedNullifiers)
 
 variable [Fact p.Prime]
@@ -245,7 +243,7 @@ theorem val_mask {is_dummy x : ZMod p} (hb : IsBool is_dummy) :
   rw [Plonky2Spec.ingress_mask hb]
   by_cases h1 : is_dummy = 1 <;> simp [h1]
 
-/-! ### Nullifier slots: selection, Poseidon, and the private permutation -/
+/-! ### Nullifier slots: selection and Poseidon -/
 
 /-- **The per-slot nullifier bridge.** A field nullifier slot — `select(is_dummy, dnull, real)`
     lanewise — read through `.val` equals the spec's per-slot body of `buildNullifiers`, with
@@ -275,7 +273,7 @@ structure NullSlot (p : ℕ) where
   real : Digest4 p
 
 /-- The selected nullifier of one slot (`select(is_dummy, dnull, real)` lanewise) — the
-    field digest fed into the permutation network. -/
+    field digest registered in the slot's position of the output nullifier region. -/
 def NullSlot.sel (s : NullSlot p) : Digest4 p :=
   fun i => bselect s.isDummy (s.dnull i) (s.real i)
 
@@ -301,9 +299,10 @@ theorem buildNullifiers_map (ro : RandomOracle) (rows : List (SlotRow p)) :
       rw [ih]
 
 /-- **List-level nullifier bridge.** Read through `.val`, the field selections of an aligned
-    witness list are exactly `buildNullifiers (spongeRO perm) leaves us` (the
-    pre-permutation list `raw` of `RPrivateBatch`), justified slotwise by
-    `nullifier_slot_bridge`. -/
+    witness list are exactly `buildNullifiers (spongeRO perm) leaves us` (the output
+    nullifier region `RPrivateBatch` relates slot by slot through `nullifiersReplaced`),
+    justified slotwise by `nullifier_slot_bridge`. This discharges
+    `PrivateBatchCircuit.nulls`. -/
 theorem nullifiers_val_bridge (perm : St p → St p) (rows : List (SlotRow p))
     (hb : ∀ t ∈ rows, IsBool t.1.isDummy)
     (hd : ∀ t ∈ rows, t.1.isDummy = 1 ↔ isDummyPrivateBatch t.2.1)
@@ -316,22 +315,6 @@ theorem nullifiers_val_bridge (perm : St p → St p) (rows : List (SlotRow p))
   apply List.map_congr_left
   intro t ht
   exact nullifier_slot_bridge perm (hb t ht) (hd t ht) (hdnull t ht) (hreal t ht)
-
-/-- **Permutation bridge.** The public nullifier region — the switch network's output read
-    through `.val` — is a permutation of `buildNullifiers`, for every boolean switch witness.
-    This discharges `PrivateBatchCircuit.nullsPerm` from the gadget (`network_perm`) rather
-    than assuming it. -/
-theorem nullifiers_perm_bridge (perm : St p → St p) (rounds : List (List (ZMod p)))
-    (rows : List (SlotRow p))
-    (hsw : ∀ ss ∈ rounds, ∀ s ∈ ss, IsBool s)
-    (hb : ∀ t ∈ rows, IsBool t.1.isDummy)
-    (hd : ∀ t ∈ rows, t.1.isDummy = 1 ↔ isDummyPrivateBatch t.2.1)
-    (hdnull : ∀ t ∈ rows, valDigest t.1.dnull = (spongeRO perm).dummyNull t.2.2)
-    (hreal : ∀ t ∈ rows, valDigest t.1.real = t.2.1.nullifier) :
-    ((network rounds (rows.map (fun t => t.1.sel))).map valDigest).Perm
-      (buildNullifiers (spongeRO perm) (rows.map (fun t => t.2.1)) (rows.map (fun t => t.2.2))) := by
-  rw [← nullifiers_val_bridge perm rows hb hd hdnull hreal]
-  exact (network_perm rounds _ hsw).map valDigest
 
 /-! ### Real-nullifier uniqueness across `.val` -/
 
@@ -366,38 +349,32 @@ theorem uniqueness_val_bridge (rows : List (SlotRow p))
 
 /-! ### The fee comparator across `.val` -/
 
-/-- **Fee bridge.** The two fee range checks (`FeeCheck`), with the accumulator wires decoding
-    to the dummy-masked totals and the reference fee, enforce `privateBatchFeeOk`. The
-    `FeeCheck.Assumptions` are discharged from the spec's own bounds: the leaf 32-bit range
-    checks (through the first-real scan for the fee), the `≤ 64`-leaf cap, and the two-sided
+/-- **Fee bridge.** The three fee range checks (`FeeCheck`), with the accumulator wires
+    decoding to the dummy-masked input total and the exit-slot total and the fee wire to
+    the output's fee, enforce `privateBatchFeeOk`. The `FeeCheck.Assumptions` are
+    discharged from the spec's own bounds: the children's 32-bit input range checks, the
+    slots' 32-bit amount range checks, the `≤ 64` leaf and slot caps, and the two-sided
     `2^52` bounds — which is where the Goldilocks modulus (`goldilocks ≤ p`) enters. -/
 theorem fee_val_bridge (hpg : WormholeSpec.goldilocks ≤ p)
     {leaves : List LeafPublic} {out : PrivateBatchOutput} {fee totalIn totalOut : ZMod p}
     (hlen : leaves.length ≤ 64)
-    (h32 : ∀ q ∈ leaves, WormholeSpec.inRange 32 q.inputAmount ∧
-      WormholeSpec.inRange 32 q.outputAmount1 ∧ WormholeSpec.inRange 32 q.outputAmount2 ∧
-      WormholeSpec.inRange 32 q.volumeFeeBps)
-    (href : referenceFromFirstReal leaves out)
+    (h32 : ∀ q ∈ leaves, inRange 32 q.inputAmount)
+    (hslots : ∀ s ∈ out.exitSlots, inRange 32 s.amount)
+    (hslotsLen : out.exitSlots.length ≤ 64)
     (hfee : fee.val = out.volumeFeeBps)
     (hin : totalIn.val = maskedInputTotal leaves)
-    (hout : totalOut.val = maskedOutputTotal leaves)
+    (hout : totalOut.val = outputExitTotal out)
     (h : FeeCheck fee totalIn totalOut) : privateBatchFeeOk leaves out := by
   have hp : 2 ^ 53 ≤ p := le_trans (by decide) hpg
   have ha : FeeCheck.Assumptions fee totalIn totalOut :=
-    { fee32 := by
-        rw [hfee]
-        exact WormholeSpec.referenceFromFirstReal_volumeFeeBps_lt (by decide) href
-          (fun q hq => (h32 q hq).2.2.2)
-      rhsBound := by
+    { rhsBound := by
         rw [hin, hfee]
-        have := WormholeSpec.privateBatchFeeRhs_lt_two_pow_52 (out := out) hlen
-          (fun q hq => (h32 q hq).1)
+        have := WormholeSpec.privateBatchFeeRhs_lt_two_pow_52 (out := out) hlen h32
         unfold WormholeSpec.feeDenominator at this
         exact this
       lhsBound := by
         rw [hout]
-        have := WormholeSpec.privateBatchFeeLhs_add_two_pow_52_lt_modulus hlen
-          (fun q hq => ⟨(h32 q hq).2.1, (h32 q hq).2.2.1⟩)
+        have := WormholeSpec.privateBatchFeeLhs_add_two_pow_52_lt_modulus hslotsLen hslots
         unfold WormholeSpec.feeDenominator at this
         exact Nat.lt_of_lt_of_le this hpg }
   obtain ⟨h1, h2⟩ := feeCheck_sound hp ha h
@@ -405,20 +382,11 @@ theorem fee_val_bridge (hpg : WormholeSpec.goldilocks ≤ p)
   rw [← hfee, ← hin, ← hout]
   exact ⟨h1, h2⟩
 
-/-! ### Supporting `.val` lifts for the exit-grouping and reference primitives -/
-
-/-- The exit-match contribution read through `.val`: `Wrapper.match_contribution` over the
-    seam. With the equality flag correct, the field `select(eq, amount, 0)` decodes to the
-    per-element body of `matchSum`, `if k = key then amount.val else 0`. -/
-theorem match_contribution_val {eq amount : ZMod p} {P : Prop} [Decidable P]
-    (hb : IsBool eq) (hP : eq = 1 ↔ P) :
-    (bselect eq amount 0).val = if P then amount.val else 0 := by
-  rw [match_contribution hb hP]
-  by_cases h : P <;> simp [h]
+/-! ### Supporting `.val` lift for the reference scan -/
 
 /-- The first-real prefix scan read through `.val`: `Wrapper.scanFirst_correct` over the seam.
     The scanned reference value equals the first real slot's value (the basis of
-    `referenceFromFirstReal`, applied per block-hash limb, the block number and the fee). -/
+    `referenceFromFirstReal`, applied per block-hash limb and to the block number). -/
 theorem scan_val (xs : List (ZMod p × ZMod p)) (init : ZMod p)
     (hb : ∀ rv ∈ xs, IsBool rv.1) :
     ((List.foldl scanStep (0, init) xs).2).val = (firstRealVal init xs).val :=
@@ -427,53 +395,50 @@ theorem scan_val (xs : List (ZMod p × ZMod p)) (init : ZMod p)
 /-! ## Wrapper-logic `.val` composition and end-to-end soundness (private batch) -/
 
 /-- **Wrapper-logic `.val` composition (private batch).** Given the field witnesses for the
-    nullifier slots and the switch network (the nullifier + Poseidon + permutation path closed
-    end to end), the pairwise uniqueness constraints, the fee comparator with its accumulator
-    decodes, plus the remaining wrapper outputs as their `.val`-decoded spec values, the
+    nullifier slots (the nullifier + Poseidon path closed end to end), the pairwise uniqueness
+    constraints, the fee comparator with its accumulator decodes and the exit slots' range
+    checks, plus the remaining wrapper outputs as their `.val`-decoded spec values, the
     private-batch circuit satisfies `RPrivateBatch` for the verified-sponge oracle. The
-    exit-grouping / metadata / first-real-reference / slot-count equalities are the explicit
-    decode hypotheses; their *gadget logic* is `Wrapper.{match_contribution, dedup_select,
-    scanFirst_correct, real_block_matches, ingress_mask}` (lifted by `match_contribution_val`
-    / `scan_val` / `valDigest_mask`), and wiring them out of the field witness is the decode
-    model (PLAN §9 gap (a)). -/
+    metadata / first-real-reference / slot-count equalities are the explicit decode
+    hypotheses; their *gadget logic* is `Wrapper.{scanFirst_correct, real_block_matches,
+    ingress_mask}` (lifted by `scan_val` / `valDigest_mask`), and wiring them out of the field
+    witness is the decode model (PLAN §9 gap (a)). -/
 theorem private_batch_val (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
-    (rounds : List (List (ZMod p))) (rows : List (SlotRow p)) {out : PrivateBatchOutput}
+    (rows : List (SlotRow p)) {out : PrivateBatchOutput}
     {fee totalIn totalOut : ZMod p}
-    -- nullifier slots + switches
-    (hsw : ∀ ss ∈ rounds, ∀ s ∈ ss, IsBool s)
+    -- nullifier slots
     (hb : ∀ t ∈ rows, IsBool t.1.isDummy)
     (hd : ∀ t ∈ rows, t.1.isDummy = 1 ↔ isDummyPrivateBatch t.2.1)
     (hdnull : ∀ t ∈ rows, valDigest t.1.dnull = (spongeRO perm).dummyNull t.2.2)
     (hreal : ∀ t ∈ rows, valDigest t.1.real = t.2.1.nullifier)
-    (hnull : out.nullifiers = (network rounds (rows.map (fun t => t.1.sel))).map valDigest)
+    (hnull : out.nullifiers = (rows.map (fun t => t.1.sel)).map valDigest)
     -- uniqueness loop
     (hcol : ∀ (i j : ℕ) (hi : i < rows.length) (hj : j < rows.length), i < j →
       ∃ eq : ZMod p, (eq = 1 ↔ rows[i].1.real = rows[j].1.real) ∧
         band (band (bnot rows[i].1.isDummy) (bnot rows[j].1.isDummy)) eq = 0)
-    -- fee comparator
+    -- fee comparator and exit slots
     (hlen : rows.length ≤ 64)
-    (h32 : ∀ q ∈ rows.map (fun t => t.2.1), WormholeSpec.inRange 32 q.inputAmount ∧
-      WormholeSpec.inRange 32 q.outputAmount1 ∧ WormholeSpec.inRange 32 q.outputAmount2 ∧
-      WormholeSpec.inRange 32 q.volumeFeeBps)
+    (h32 : ∀ q ∈ rows.map (fun t => t.2.1), inRange 32 q.inputAmount)
+    (hslots : ∀ s ∈ out.exitSlots, inRange 32 s.amount)
+    (hslotsLen : out.exitSlots.length ≤ 64)
     (hfee : fee.val = out.volumeFeeBps)
     (hin : totalIn.val = maskedInputTotal (rows.map (fun t => t.2.1)))
-    (hout : totalOut.val = maskedOutputTotal (rows.map (fun t => t.2.1)))
+    (hout : totalOut.val = outputExitTotal out)
     (hfc : FeeCheck fee totalIn totalOut)
     -- remaining decoded wrapper outputs
-    (hexits : out.exitSlots = groupExits (maskedChildPairs (rows.map (fun t => t.2.1))))
     (hmeta : metadataConsistent (rows.map (fun t => t.2.1)) out)
     (href : referenceFromFirstReal (rows.map (fun t => t.2.1)) out)
-    (hnum : out.numExitSlots = 2 * rows.length) :
+    (hnum : out.numExitSlots = out.exitSlots.length) :
     RPrivateBatch (spongeRO perm) (rows.map (fun t => t.2.1)) (rows.map (fun t => t.2.2)) out :=
   private_batch_bridge
     { uslen := by simp [List.length_map]
-      nullsPerm := by rw [hnull]; exact nullifiers_perm_bridge perm rounds rows hsw hb hd hdnull hreal
-      feeOk := fee_val_bridge hpg (by simpa using hlen) h32 href hfee hin hout hfc
-      exits := hexits
+      nulls := by rw [hnull]; exact nullifiers_val_bridge perm rows hb hd hdnull hreal
+      slotsInRange := hslots
+      feeOk := fee_val_bridge hpg (by simpa using hlen) h32 hslots hslotsLen hfee hin hout hfc
       metaOk := hmeta
       ref := href
       nullsDistinct := uniqueness_val_bridge rows hb hd hreal hcol
-      numSlots := by rw [hnum, List.length_map] }
+      numSlots := hnum }
 
 /-! ## End-to-end private-batch soundness over the verified sponge (the trust stack, assembled)
 
@@ -483,65 +448,64 @@ theorem private_batch_val (perm : St p → St p) (hpg : WormholeSpec.goldilocks 
 
     (i)   satisfies the private-batch relation `RPrivateBatch` — rung (2)→(3), via
           `private_batch_val`, built on the exporter-verified gadget semantics;
-    (ii)  conserves value (`outputExitTotal = maskedOutputTotal`) — rung (4);
+    (ii)  settles no more than its real children burned
+          (`RPrivateBatch_settlement_le_input`) — rung (4);
     (iii) settles only pairwise-distinct spends (`RPrivateBatch_settles_distinct_spends`) —
           the anti-replay property the uniqueness loop exists for;
     (iv)  re-attests every child's leaf relation `Rleaf`.
 
-  The children's 32-bit amount/fee ranges that the fee comparator's no-wrap bounds rest on
-  are not assumed: they are read off each child's `Rleaf` (its `collect_32_bit_targets`
-  range checks). The children's `Rleaf` itself is the hypothesis `hleaf`; on the exported
-  wiring it is discharged from the accepted leaf proofs by `LeafCircuit.accepted_sound`
-  through the one trusted axiom `Plonky2Bridge.proof_sound` (`Wrapper{2,4}.end_to_end_wired`).
+  The children's 32-bit input ranges that the fee comparator's no-wrap bounds rest on are
+  not assumed: they are read off each child's `Rleaf` (its `collect_32_bit_targets` range
+  checks). The exit amounts and the fee rate are batch witnesses; their bounds are the
+  wrapper's own range checks (`hslots`, `FeeCheck.feeRange`), not anything upstream. The
+  children's `Rleaf` itself is the hypothesis `hleaf`; on the exported wiring it is
+  discharged from the accepted leaf proofs by `LeafCircuit.accepted_sound` through the one
+  trusted axiom `Plonky2Bridge.proof_sound` (`Wrapper{2,4}.end_to_end_wired`).
 
   Two things sit *outside* the Lean hypotheses, by design:
   * **Fidelity to the Rust** — that `spongeRO`/the wrapper gadgets *are* the deployed circuit —
     is carried by the constraint exporter + differential tests, not re-proved here.
-  * The public-input **decode** (`hd`/`hdnull`/`hreal`/`hnull`/`hexits`/`hmeta`/`href`/the
+  * The public-input **decode** (`hd`/`hdnull`/`hreal`/`hnull`/`hmeta`/`href`/the
     fee accumulator decodes) is the wiring/copy-constraint model (PLAN §9 gap (a)).
   This theorem is standard-axioms-only. -/
 theorem Rleaf_ranges {ro : RandomOracle} {q : LeafPublic} {w : LeafWitness}
-    (h : Rleaf ro q w) :
-    WormholeSpec.inRange 32 q.inputAmount ∧ WormholeSpec.inRange 32 q.outputAmount1 ∧
-      WormholeSpec.inRange 32 q.outputAmount2 ∧ WormholeSpec.inRange 32 q.volumeFeeBps :=
-  ⟨h.2.2.1, h.1, h.2.1, h.2.2.2.2.1⟩
+    (h : Rleaf ro q w) : inRange 32 q.inputAmount :=
+  h.1
 
 theorem private_batch_end_to_end (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
-    (rounds : List (List (ZMod p))) (rows : List (SlotRow p)) {out : PrivateBatchOutput}
+    (rows : List (SlotRow p)) {out : PrivateBatchOutput}
     {fee totalIn totalOut : ZMod p}
-    (hsw : ∀ ss ∈ rounds, ∀ s ∈ ss, IsBool s)
     (hb : ∀ t ∈ rows, IsBool t.1.isDummy)
     (hd : ∀ t ∈ rows, t.1.isDummy = 1 ↔ isDummyPrivateBatch t.2.1)
     (hdnull : ∀ t ∈ rows, valDigest t.1.dnull = (spongeRO perm).dummyNull t.2.2)
     (hreal : ∀ t ∈ rows, valDigest t.1.real = t.2.1.nullifier)
-    (hnull : out.nullifiers = (network rounds (rows.map (fun t => t.1.sel))).map valDigest)
+    (hnull : out.nullifiers = (rows.map (fun t => t.1.sel)).map valDigest)
     (hcol : ∀ (i j : ℕ) (hi : i < rows.length) (hj : j < rows.length), i < j →
       ∃ eq : ZMod p, (eq = 1 ↔ rows[i].1.real = rows[j].1.real) ∧
         band (band (bnot rows[i].1.isDummy) (bnot rows[j].1.isDummy)) eq = 0)
     (hlen : rows.length ≤ 64)
+    (hslots : ∀ s ∈ out.exitSlots, inRange 32 s.amount)
+    (hslotsLen : out.exitSlots.length ≤ 64)
     (hfee : fee.val = out.volumeFeeBps)
     (hin : totalIn.val = maskedInputTotal (rows.map (fun t => t.2.1)))
-    (hout : totalOut.val = maskedOutputTotal (rows.map (fun t => t.2.1)))
+    (hout : totalOut.val = outputExitTotal out)
     (hfc : FeeCheck fee totalIn totalOut)
-    (hexits : out.exitSlots = groupExits (maskedChildPairs (rows.map (fun t => t.2.1))))
     (hmeta : metadataConsistent (rows.map (fun t => t.2.1)) out)
     (href : referenceFromFirstReal (rows.map (fun t => t.2.1)) out)
-    (hnum : out.numExitSlots = 2 * rows.length)
+    (hnum : out.numExitSlots = out.exitSlots.length)
     (hleaf : ∀ pub ∈ rows.map (fun t => t.2.1), ∃ w : LeafWitness, Rleaf (spongeRO perm) pub w) :
     RPrivateBatch (spongeRO perm) (rows.map (fun t => t.2.1)) (rows.map (fun t => t.2.2)) out
-      ∧ outputExitTotal out = maskedOutputTotal (rows.map (fun t => t.2.1))
-      ∧ (outputExitTotal out = rawOutputTotal (realLeaves (rows.map (fun t => t.2.1)))
+      ∧ outputExitTotal out ≤ maskedInputTotal (rows.map (fun t => t.2.1))
+      ∧ (outputExitTotal out ≤ rawInputTotal (realLeaves (rows.map (fun t => t.2.1)))
           ∧ (realNullifiers (rows.map (fun t => t.2.1))).Nodup)
       ∧ ∀ pub ∈ rows.map (fun t => t.2.1), ∃ w : LeafWitness, Rleaf (spongeRO perm) pub w := by
-  have h32 : ∀ q ∈ rows.map (fun t => t.2.1), WormholeSpec.inRange 32 q.inputAmount ∧
-      WormholeSpec.inRange 32 q.outputAmount1 ∧ WormholeSpec.inRange 32 q.outputAmount2 ∧
-      WormholeSpec.inRange 32 q.volumeFeeBps := by
+  have h32 : ∀ q ∈ rows.map (fun t => t.2.1), inRange 32 q.inputAmount := by
     intro q hq
     obtain ⟨w, hw⟩ := hleaf q hq
     exact Rleaf_ranges hw
-  have hR := private_batch_val perm hpg rounds rows hsw hb hd hdnull hreal hnull hcol hlen h32
-    hfee hin hout hfc hexits hmeta href hnum
-  exact ⟨hR, RPrivateBatch_value_conservation hR, RPrivateBatch_settles_distinct_spends hR, hleaf⟩
+  have hR := private_batch_val perm hpg rows hb hd hdnull hreal hnull hcol hlen h32 hslots
+    hslotsLen hfee hin hout hfc hmeta href hnum
+  exact ⟨hR, RPrivateBatch_settlement_le_input hR, RPrivateBatch_settles_distinct_spends hR, hleaf⟩
 
 /-! ## Public-batch forwarding across `.val`
 

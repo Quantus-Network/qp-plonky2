@@ -2,17 +2,19 @@
 //! `n = N` private-batch wrapper trace into `RPrivateBatch` (PLAN.md Step 8e).
 //!
 //! `build_private_batch_constraints` makes its gadget calls in a fixed order determined by
-//! `n`: the per-leaf dummy checks, the first-real header scan, the per-leaf consistency
-//! checks, the masked exit/amount candidates, the input and output totals, the fee
-//! comparator, the exit-slot grouping loop, the pairwise nullifier-uniqueness constraints,
-//! the dummy-nullifier hashes with the nullifier selects, and the odd-even switch network.
-//! [`Shape::read`] walks the recorded calls with a cursor and checks each one against the
-//! role it must play (which named targets it reads, which constants, how the outputs chain),
-//! so a change in the wrapper's structure is a generator error rather than a proof that
-//! quietly talks about different wires. [`render`] then emits the decode definitions (`row`,
-//! `out`, `cands`, `slots`, `rounds`, …), the concrete-`N` unfolding of `scanRefL`, and a
-//! `sound` proof that discharges every hypothesis of `Plonky2Bridge.private_batch_val_rows`
-//! by rewriting with the exporter-generated per-call decode lemmas `privateBatchWrapper{N}_f{k}`.
+//! the shape `(n leaves, m exit slots)`: the per-leaf dummy checks, the first-real block
+//! scan, the per-leaf consistency checks, the masked input total, the exit-amount range
+//! checks with the output total, the fee comparator on the witnessed `volume_fee_bps`, the
+//! pairwise nullifier-uniqueness constraints, and the dummy-nullifier hashes with the
+//! nullifier selects. [`Shape::read`] walks the recorded calls with a cursor and checks each
+//! one against the role it must play (which named targets it reads, which constants, how
+//! the outputs chain), so a change in the wrapper's structure is a generator error rather
+//! than a proof that quietly talks about different wires — a free witness that lost its
+//! range check, say, leaves `FeeCheck` or `hslots32` undischargeable. [`render`] then emits
+//! the decode definitions (`row`, `out`, `slots`, …), the concrete-`N` unfolding of
+//! `scanRefL`, and a `sound` proof that discharges every hypothesis of
+//! `Plonky2Bridge.private_batch_val_rows` by rewriting with the exporter-generated per-call
+//! decode lemmas `privateBatchWrapper{N}_f{k}`.
 
 use core::fmt::Write as _;
 
@@ -26,19 +28,16 @@ use crate::trace::{check_verifiers, load, traces_dir, LoadedTrace};
 /// The leaf public-input layout (`wormhole/aggregator/src/private_batch/circuit/constants.rs`).
 mod layout {
     pub const ASSET_ID: usize = 0;
-    pub const OUTPUT_AMOUNT_1: usize = 1;
-    pub const OUTPUT_AMOUNT_2: usize = 2;
-    pub const VOLUME_FEE_BPS: usize = 3;
-    pub const NULLIFIER: usize = 4;
-    pub const EXIT_ACCOUNT_1: usize = 8;
-    pub const EXIT_ACCOUNT_2: usize = 12;
-    pub const BLOCK_HASH: usize = 16;
-    pub const BLOCK_NUMBER: usize = 20;
-    pub const INPUT_AMOUNT: usize = 21;
-    pub const LEAF_PI_LEN: usize = 22;
+    pub const NULLIFIER: usize = 1;
+    pub const BLOCK_HASH: usize = 5;
+    pub const BLOCK_NUMBER: usize = 9;
+    pub const INPUT_AMOUNT: usize = 10;
+    pub const LEAF_PI_LEN: usize = 11;
     pub const PRE_IMAGE_LEN: usize = 4;
+    pub const HEADER_LEN: usize = 8;
+    pub const EXIT_SLOT_LEN: usize = 5;
     pub const FEE_DENOMINATOR: u64 = 10_000;
-    pub const FEE_COMPLEMENT_BITS: usize = 14;
+    pub const FEE_BITS: usize = 14;
     pub const FEE_DIFF_BITS: usize = 52;
     pub const AMOUNT_BITS: usize = 32;
 }
@@ -63,23 +62,15 @@ struct Leaf {
     take: Option<usize>,
     /// `or(found_real, is_real)`, when a later leaf reads it.
     found: Option<usize>,
-    /// The six reference `select`s: block hash limbs, block number, fee.
+    /// The five reference `select`s: block hash limbs, block number.
     sel_block: [usize; 4],
     sel_number: usize,
-    sel_fee: usize,
     /// Consistency: `bytes_digest_eq`, `or`, `connect` for the block hash; `connect` for the
-    /// asset id (absent for leaf 0, the reference itself); `is_equal`, `or`, `connect` for
-    /// the fee.
+    /// asset id (absent for leaf 0, the reference itself).
     block: DigestEq,
     block_or: usize,
     block_pin: usize,
     asset_pin: Option<usize>,
-    fee_eq: usize,
-    fee_or: usize,
-    fee_pin: usize,
-    /// Masked candidates: exit limbs and amount of each of the two slots.
-    mask_exit: [[usize; 4]; 2],
-    mask_amount: [usize; 2],
     /// Masked input amount and its accumulation (absent for leaf 0, folded).
     mask_input: usize,
     add_input: Option<usize>,
@@ -102,48 +93,36 @@ struct Pair {
     pin: usize,
 }
 
-/// One exit slot of the grouping loop.
-#[derive(Debug, Clone)]
-struct Slot {
-    /// Per earlier slot: `bytes_digest_eq` and the `or` into the duplicate flag (absent for
-    /// the first, folded against `false`).
-    dedup: Vec<(DigestEq, Option<usize>)>,
-    /// Per candidate: `bytes_digest_eq`, `select(match, amount, 0)` and the `add` into the
-    /// accumulator (absent for the first, folded against `zero`).
-    matches: Vec<(DigestEq, usize, Option<usize>)>,
-    sum_sel: usize,
-    exit_sel: [usize; 4],
-}
-
-/// One switch of the odd-even network.
+/// One exit slot: the witnessed amount and account targets, the amount's `range_check 32`
+/// and its `add` into the output total (absent for the first, folded against `zero`).
 #[derive(Debug, Clone, Copy)]
-struct Switch {
-    assert: usize,
-    /// Per limb: the `select`s producing routed position `i` and `i + 1`.
-    sel: [[usize; 2]; 4],
+struct ExitSlot {
+    amount: Target,
+    account: [Target; 4],
+    range: usize,
+    add: Option<usize>,
 }
 
 /// The recorded wrapper, indexed by role.
 #[derive(Debug, Clone)]
 pub struct Shape {
     pub n: usize,
-    /// The `22n + 8` registered public inputs.
+    /// The number of exit slots `m`.
+    pub m: usize,
+    /// The `8 + 5m + 4n` registered public inputs.
     public_inputs: Vec<Target>,
     leaves: Vec<Leaf>,
-    /// The output-total `add`s over the `2n` masked amounts (the first is folded).
-    add_output: Vec<Option<usize>>,
-    /// `sub`, `range_check`, `mul`, `mul`, `sub`, `range_check` of the fee comparator.
-    fee: [usize; 6],
-    slots: Vec<Slot>,
+    slots: Vec<ExitSlot>,
+    /// `range_check 14` of the fee, then `sub`, `range_check 14`, `mul`, `mul`, `sub`,
+    /// `range_check 52` of the fee comparator.
+    fee: [usize; 7],
     pairs: Vec<Pair>,
-    /// The switches, grouped by round.
-    rounds: Vec<Vec<Switch>>,
-    switches: Vec<Target>,
     one: Target,
     zero: Target,
     total: Target,
     ten_thousand: Target,
-    fee_ref: Target,
+    /// The witnessed `volume_fee_bps`.
+    fee_witness: Target,
     number_ref: Target,
     block_ref: [Target; 4],
     total_in: Target,
@@ -296,16 +275,6 @@ impl Cursor<'_> {
         }
     }
 
-    fn assert_bool(&mut self, b: Target, what: &str) -> Result<usize, String> {
-        let (k, f) = self.next(what)?;
-        match *f {
-            Fact::AssertBool { b: b1 } if b1 == b => Ok(k),
-            ref f => Err(format!(
-                "call {k}: expected assert_bool for {what}, got {f:?}"
-            )),
-        }
-    }
-
     /// `bytes_digest_eq(x, y)`: four `is_equal` then `and(e0, e1)`, `and(e2, e3)`, `and(·, ·)`.
     fn digest_eq(
         &mut self,
@@ -337,14 +306,6 @@ fn limbs(pis: &[Target], base: usize) -> [Target; 4] {
     [pis[base], pis[base + 1], pis[base + 2], pis[base + 3]]
 }
 
-/// The switch layout of `permute_digests4` over `n` positions: round `r` pairs the
-/// positions `(i, i + 1)` for `i ≡ r (mod 2)`.
-fn switch_positions(n: usize) -> Vec<Vec<usize>> {
-    (0..n)
-        .map(|r| (r % 2..n).step_by(2).filter(|i| i + 1 < n).collect())
-        .collect()
-}
-
 impl Shape {
     pub fn read(t: &LoadedTrace) -> Result<Shape, String> {
         let named = |name: &str| -> Result<&Vec<Target>, String> {
@@ -366,7 +327,7 @@ impl Shape {
             .map(|i| named(&format!("leaf_pis_{i}")).cloned())
             .collect::<Result<_, _>>()?;
         if pis.iter().any(|p| p.len() != layout::LEAF_PI_LEN) {
-            return Err("leaf_pis_i is not 22 targets".into());
+            return Err("leaf_pis_i is not 11 targets".into());
         }
         check_verifiers(t, "leaf_circuit", &pis)?;
         let pres: Vec<Vec<Target>> = (0..n)
@@ -375,15 +336,31 @@ impl Shape {
         if pres.iter().any(|p| p.len() != layout::PRE_IMAGE_LEN) {
             return Err("dummy_pre_image_i is not 4 targets".into());
         }
-        let switches = named("switches")?.clone();
-        let positions = switch_positions(n);
-        let switch_count: usize = positions.iter().map(Vec::len).sum();
-        if switches.len() != switch_count {
-            return Err(format!(
-                "expected {switch_count} switches for n={n}, found {}",
-                switches.len()
-            ));
+        let fee_witness = match named("volume_fee_bps")?.as_slice() {
+            [f] => *f,
+            _ => return Err("volume_fee_bps is not one target".into()),
+        };
+        let m =
+            t.ex.named
+                .iter()
+                .filter(|(name, _)| name.starts_with("exit_amount_"))
+                .count();
+        if m < 2 {
+            return Err(format!("expected at least two exit_amount_i, found {m}"));
         }
+        let slot_targets: Vec<(Target, [Target; 4])> = (0..m)
+            .map(|k| {
+                let amount = match named(&format!("exit_amount_{k}"))?.as_slice() {
+                    [x] => *x,
+                    _ => return Err(format!("exit_amount_{k} is not one target")),
+                };
+                let account: [Target; 4] = named(&format!("exit_account_{k}"))?
+                    .clone()
+                    .try_into()
+                    .map_err(|_| format!("exit_account_{k} is not 4 targets"))?;
+                Ok((amount, account))
+            })
+            .collect::<Result<_, String>>()?;
 
         let constants: Vec<(Target, u64)> =
             t.ex.constants
@@ -406,7 +383,7 @@ impl Shape {
         };
         let one = const_target(1)?;
         let zero = const_target(0)?;
-        let total_value = (2 * n) as u64;
+        let total_value = m as u64;
         let total = const_target(total_value)?;
         let ten_thousand = const_target(layout::FEE_DENOMINATOR)?;
         let _two_pow_59 = const_target(1 << 59)?;
@@ -424,15 +401,15 @@ impl Shape {
         // A. Dummy checks.
         let mut leaves: Vec<Leaf> = Vec::with_capacity(n);
         let mut dummies: Vec<Target> = Vec::with_capacity(n);
-        for i in 0..n {
+        for (i, pis_i) in pis.iter().enumerate() {
             let (dummy, d) = c.digest_eq(
-                limbs(&pis[i], layout::BLOCK_HASH),
+                limbs(pis_i, layout::BLOCK_HASH),
                 [zero; 4],
                 &format!("dummy check of leaf {i}"),
             )?;
             dummies.push(d);
             leaves.push(Leaf {
-                pis: pis[i].clone(),
+                pis: pis_i.clone(),
                 dummy,
                 is_real: 0,
                 not_found: None,
@@ -440,7 +417,6 @@ impl Shape {
                 found: None,
                 sel_block: [0; 4],
                 sel_number: 0,
-                sel_fee: 0,
                 block: DigestEq {
                     eq: [0; 4],
                     and: [0; 3],
@@ -448,11 +424,6 @@ impl Shape {
                 block_or: 0,
                 block_pin: 0,
                 asset_pin: None,
-                fee_eq: 0,
-                fee_or: 0,
-                fee_pin: 0,
-                mask_exit: [[0; 4]; 2],
-                mask_amount: [0; 2],
                 mask_input: 0,
                 add_input: None,
                 hash_inner: 0,
@@ -461,9 +432,9 @@ impl Shape {
             });
         }
 
-        // B. First-real header scan.
+        // B. First-real block scan.
         let mut found_prev = zero;
-        let mut ref_prev: Vec<Target> = vec![zero; 6];
+        let mut ref_prev: Vec<Target> = vec![zero; 5];
         for i in 0..n {
             let (k_real, is_real) = c.not(dummies[i], &format!("not(is_dummy_{i})"))?;
             let (k_nf, not_found) =
@@ -485,10 +456,9 @@ impl Shape {
                 pis[i][layout::BLOCK_HASH + 2],
                 pis[i][layout::BLOCK_HASH + 3],
                 pis[i][layout::BLOCK_NUMBER],
-                pis[i][layout::VOLUME_FEE_BPS],
             ];
-            let mut ref_now = Vec::with_capacity(6);
-            let mut ks = [0usize; 6];
+            let mut ref_now = Vec::with_capacity(5);
+            let mut ks = [0usize; 5];
             for (j, s) in src.iter().enumerate() {
                 let (k, o) = c.select(
                     take,
@@ -515,12 +485,11 @@ impl Shape {
             }
             leaf.sel_block = [ks[0], ks[1], ks[2], ks[3]];
             leaf.sel_number = ks[4];
-            leaf.sel_fee = ks[5];
             found_prev = found;
             ref_prev = ref_now;
         }
         let block_ref: [Target; 4] = [ref_prev[0], ref_prev[1], ref_prev[2], ref_prev[3]];
-        let (number_ref, fee_ref) = (ref_prev[4], ref_prev[5]);
+        let number_ref = ref_prev[4];
         let asset_ref = pis[0][layout::ASSET_ID];
 
         // C. Consistency checks.
@@ -538,63 +507,14 @@ impl Shape {
                 asset_ref,
                 &format!("asset pin of leaf {i}"),
             )?;
-            let (k_feq, feq) = c.is_equal(
-                pis[i][layout::VOLUME_FEE_BPS],
-                fee_ref,
-                &format!("fee is_equal of leaf {i}"),
-            )?;
-            let (k_for, fok) = c.or(d, feq, &format!("or(is_dummy_{i}, fee_matches)"))?;
-            let k_fpin = c.connect(fok, one, &format!("connect(fee_ok_{i}, one)"))?;
             let leaf = &mut leaves[i];
             leaf.block = block;
             leaf.block_or = k_or;
             leaf.block_pin = k_pin;
             leaf.asset_pin = (i > 0).then_some(k_asset);
-            leaf.fee_eq = k_feq;
-            leaf.fee_or = k_for;
-            leaf.fee_pin = k_fpin;
         }
 
-        // D. Masked exit/amount candidates, in slot order.
-        let mut cand_exit: Vec<[Target; 4]> = Vec::with_capacity(2 * n);
-        let mut cand_amount: Vec<Target> = Vec::with_capacity(2 * n);
-        for i in 0..n {
-            let d = dummies[i];
-            for o in 0..2 {
-                let exit_base = if o == 0 {
-                    layout::EXIT_ACCOUNT_1
-                } else {
-                    layout::EXIT_ACCOUNT_2
-                };
-                let amount = if o == 0 {
-                    layout::OUTPUT_AMOUNT_1
-                } else {
-                    layout::OUTPUT_AMOUNT_2
-                };
-                let mut e = [zero; 4];
-                for l in 0..4 {
-                    let (k, out) = c.select(
-                        d,
-                        zero,
-                        pis[i][exit_base + l],
-                        &format!("masked exit {o} limb {l} of leaf {i}"),
-                    )?;
-                    leaves[i].mask_exit[o][l] = k;
-                    e[l] = out;
-                }
-                let (k, m) = c.select(
-                    d,
-                    zero,
-                    pis[i][amount],
-                    &format!("masked amount {o} of leaf {i}"),
-                )?;
-                leaves[i].mask_amount[o] = k;
-                cand_exit.push(e);
-                cand_amount.push(m);
-            }
-        }
-
-        // E. Input total.
+        // D. Input total.
         let mut acc = zero;
         for i in 0..n {
             let (k, m) = c.select(
@@ -618,112 +538,43 @@ impl Shape {
         }
         let total_in = acc;
 
-        // F. Output total.
+        // E. Exit-amount range checks and the output total.
         let mut acc = zero;
-        let mut add_output = Vec::with_capacity(2 * n);
-        for (k, &m) in cand_amount.iter().enumerate() {
-            let (k_add, s) = c.add(acc, m, &format!("output total after slot {k}"))?;
-            if k == 0 {
-                if s != m {
+        let mut slots = Vec::with_capacity(m);
+        for (k, &(amount, account)) in slot_targets.iter().enumerate() {
+            let range = c.range_check(amount, layout::AMOUNT_BITS, &format!("exit amount {k}"))?;
+            let (k_add, sum) = c.add(acc, amount, &format!("output total after slot {k}"))?;
+            let add = if k == 0 {
+                if sum != amount {
                     return Err(
-                        "slot 0: add(zero, masked_amount_0) should fold to masked_amount_0".into(),
+                        "slot 0: add(zero, exit_amount_0) should fold to exit_amount_0".into(),
                     );
                 }
-                add_output.push(None);
+                None
             } else {
-                add_output.push(Some(k_add));
-            }
-            acc = s;
+                Some(k_add)
+            };
+            slots.push(ExitSlot {
+                amount,
+                account,
+                range,
+                add,
+            });
+            acc = sum;
         }
         let total_out = acc;
 
-        // G. Fee comparator.
-        let (k_comp, comp) = c.sub(ten_thousand, fee_ref, "fee complement")?;
-        let k_comp_rc = c.range_check(comp, layout::FEE_COMPLEMENT_BITS, "fee complement")?;
+        // F. Fee comparator. The fee is a free witness: its own range check comes first.
+        let k_fee_rc = c.range_check(fee_witness, layout::FEE_BITS, "volume_fee_bps")?;
+        let (k_comp, comp) = c.sub(ten_thousand, fee_witness, "fee complement")?;
+        let k_comp_rc = c.range_check(comp, layout::FEE_BITS, "fee complement")?;
         let (k_rhs, rhs) = c.mul(total_out, ten_thousand, "total_out * 10000")?;
         let (k_lhs, lhs) = c.mul(total_in, comp, "total_in * complement")?;
         let (k_diff, diff) = c.sub(lhs, rhs, "fee difference")?;
         let k_diff_rc = c.range_check(diff, layout::FEE_DIFF_BITS, "fee difference")?;
-        let fee = [k_comp, k_comp_rc, k_rhs, k_lhs, k_diff, k_diff_rc];
+        let fee = [k_fee_rc, k_comp, k_comp_rc, k_rhs, k_lhs, k_diff, k_diff_rc];
 
-        // H. Exit-slot grouping.
-        let mut slots = Vec::with_capacity(2 * n);
-        let mut slot_pis: Vec<Target> = Vec::new();
-        for k in 0..2 * n {
-            let ek = cand_exit[k];
-            let mut dedup = Vec::with_capacity(k);
-            let mut dup = zero;
-            for j in 0..k {
-                let (de, m) = c.digest_eq(
-                    cand_exit[j],
-                    ek,
-                    &format!("dedup slot {k} against slot {j}"),
-                )?;
-                let (k_or, d) = c.or(dup, m, &format!("dup flag of slot {k} after slot {j}"))?;
-                if j == 0 {
-                    if d != m {
-                        return Err(format!(
-                            "slot {k}: or(false, match_0) should fold to match_0"
-                        ));
-                    }
-                    dedup.push((de, None));
-                } else {
-                    dedup.push((de, Some(k_or)));
-                }
-                dup = d;
-            }
-            let mut matches = Vec::with_capacity(2 * n);
-            let mut acc = zero;
-            for j in 0..2 * n {
-                let (me, m) = c.digest_eq(
-                    cand_exit[j],
-                    ek,
-                    &format!("match of slot {k} against candidate {j}"),
-                )?;
-                let (k_sel, s) = c.select(
-                    m,
-                    cand_amount[j],
-                    zero,
-                    &format!("contribution of candidate {j} to slot {k}"),
-                )?;
-                let (k_add, a) = c.add(acc, s, &format!("slot {k} sum after candidate {j}"))?;
-                if j == 0 {
-                    if a != s {
-                        return Err(format!(
-                            "slot {k}: add(zero, contribution_0) should fold to contribution_0"
-                        ));
-                    }
-                    matches.push((me, k_sel, None));
-                } else {
-                    matches.push((me, k_sel, Some(k_add)));
-                }
-                acc = a;
-            }
-            let (k_sum, sum) = c.select(dup, zero, acc, &format!("masked sum of slot {k}"))?;
-            let mut exit_sel = [0usize; 4];
-            let mut exit_out = [zero; 4];
-            for l in 0..4 {
-                let (ks, o) = c.select(
-                    dup,
-                    zero,
-                    ek[l],
-                    &format!("masked exit limb {l} of slot {k}"),
-                )?;
-                exit_sel[l] = ks;
-                exit_out[l] = o;
-            }
-            c.range_check(sum, layout::AMOUNT_BITS, &format!("sum of slot {k}"))?;
-            slot_pis.push(sum);
-            slot_pis.extend(exit_out);
-            slots.push(Slot {
-                dedup,
-                matches,
-                sum_sel: k_sum,
-                exit_sel,
-            });
-        }
-
-        // I. Nullifier uniqueness.
+        // G. Nullifier uniqueness.
         let mut pairs = Vec::new();
         for i in 0..n {
             let (k_not_i, nr_i) =
@@ -752,7 +603,7 @@ impl Shape {
             }
         }
 
-        // J. Dummy nullifiers and the nullifier selects.
+        // H. Dummy nullifiers and the nullifier selects.
         let mut current: Vec<[Target; 4]> = Vec::with_capacity(n);
         for i in 0..n {
             let pre: [Target; 4] = pres[i].clone().try_into().unwrap();
@@ -782,53 +633,21 @@ impl Shape {
             current.push(outs);
         }
 
-        // K. The odd-even switch network.
-        let mut rounds = Vec::with_capacity(n);
-        let mut s = 0usize;
-        for (r, pos) in positions.iter().enumerate() {
-            let mut round = Vec::with_capacity(pos.len());
-            for &i in pos {
-                let sw = switches[s];
-                let assert = c.assert_bool(sw, &format!("switch {s} (round {r}, position {i})"))?;
-                let mut sel = [[0usize; 2]; 4];
-                let mut lo = [zero; 4];
-                let mut hi = [zero; 4];
-                for l in 0..4 {
-                    let (k0, o0) = c.select(
-                        sw,
-                        current[i + 1][l],
-                        current[i][l],
-                        &format!("switch {s} routed {i} limb {l}"),
-                    )?;
-                    let (k1, o1) = c.select(
-                        sw,
-                        current[i][l],
-                        current[i + 1][l],
-                        &format!("switch {s} routed {} limb {l}", i + 1),
-                    )?;
-                    sel[l] = [k0, k1];
-                    lo[l] = o0;
-                    hi[l] = o1;
-                }
-                current[i] = lo;
-                current[i + 1] = hi;
-                round.push(Switch { assert, sel });
-                s += 1;
-            }
-            rounds.push(round);
-        }
         if c.k != t.calls.len() {
             return Err(format!(
-                "{} trailing gadget calls after the switch network",
+                "{} trailing gadget calls after the nullifier selects",
                 t.calls.len() - c.k
             ));
         }
 
         // Public inputs.
-        let mut public_inputs: Vec<Target> = vec![total, asset_ref, fee_ref];
+        let mut public_inputs: Vec<Target> = vec![total, asset_ref, fee_witness];
         public_inputs.extend(block_ref);
         public_inputs.push(number_ref);
-        public_inputs.extend(slot_pis);
+        for slot in &slots {
+            public_inputs.push(slot.amount);
+            public_inputs.extend(slot.account);
+        }
         for digest in &current {
             public_inputs.extend(digest);
         }
@@ -842,19 +661,17 @@ impl Shape {
 
         Ok(Shape {
             n,
+            m,
             public_inputs: t.ex.public_inputs.clone(),
             leaves,
-            add_output,
-            fee,
             slots,
+            fee,
             pairs,
-            rounds,
-            switches,
             one,
             zero,
             total,
             ten_thousand,
-            fee_ref,
+            fee_witness,
             number_ref,
             block_ref,
             total_in,
@@ -934,7 +751,7 @@ fn digest_fun(ts: &[Target]) -> String {
 /// Render the bridge module for a recorded private-batch wrapper.
 pub fn render(shape: &Shape) -> String {
     let n = shape.n;
-    let s2 = 2 * n;
+    let m = shape.m;
     let pi_total = shape.public_inputs.len();
     let circuit = format!("privateBatchWrapper{n}");
     let leaves = &shape.leaves;
@@ -948,18 +765,19 @@ pub fn render(shape: &Shape) -> String {
     w!("  `n = {n}` private-batch wrapper trace `private_batch_wrapper_n{n}.json`. Do not edit;");
     w!("  regenerate with `cargo run -p qp-plonky2-constraint-exporter --bin export-constraints`.");
     w!("");
-    w!("  Step 8e — `Generated/PrivateBatchWrapper{n}.lean` proves, from `Satisfies` on the wiring the");
+    w!("  Step 8e — `Generated/Wrapper{n}.lean` proves, from `Satisfies` on the wiring the real");
     w!(
-        "  real `CircuitBuilder` emitted plus `Poseidon2Rows perm`, the meaning of each of the {}",
+        "  `CircuitBuilder` emitted plus `Poseidon2Rows perm`, the meaning of each of the {}",
         shape.calls.len()
     );
-    w!("  gadget calls `build_private_batch_constraints` made over {n} leaves. This module reads the");
-    w!("  spec objects off the named targets and public inputs (`row`, `leaves`, `us`, `out`) and");
-    w!("  discharges every hypothesis of `private_batch_val_rows` (`Plonky2Bridge/PrivateBatch.lean`),");
-    w!("  so `private_batch_end_to_end` is restated on the wiring (`end_to_end_wired`), with the");
-    w!("  children's `Rleaf` recovered from their accepted proofs through the one trusted axiom");
-    w!("  `proof_sound` and the leaf bridge (Step 10). `accepted_sound` is the wrapper's own");
-    w!("  `proof_sound` consequence, for the public-batch wrapper above it.");
+    w!("  gadget calls `build_private_batch_constraints` made over {n} leaves and {m} exit slots.");
+    w!("  This module reads the spec objects off the named targets and public inputs (`row`,");
+    w!("  `leaves`, `us`, `slots`, `out`) and discharges every hypothesis of");
+    w!("  `private_batch_val_rows` (`Plonky2Bridge/PrivateBatch.lean`), so `private_batch_end_to_end`");
+    w!("  is restated on the wiring (`end_to_end_wired`), with the children's `Rleaf` recovered from");
+    w!("  their accepted proofs through the one trusted axiom `proof_sound` and the leaf bridge");
+    w!("  (Step 10). `accepted_sound` is the wrapper's own `proof_sound` consequence, for the");
+    w!("  public-batch wrapper above it.");
     w!("-/");
     w!("import Plonky2Bridge.PrivateBatch");
     w!("import Plonky2Bridge.Generated.Leaf");
@@ -967,15 +785,14 @@ pub fn render(shape: &Shape) -> String {
     w!("");
     w!("namespace Plonky2Bridge.Wrapper{n}");
     w!("");
-    w!("open Plonky2Spec (IsBool bselect band bnot bor scanStep rangeCheck feeDen FeeCheck network digestEq");
-    w!("  Digest4)");
+    w!("open Plonky2Spec (IsBool bselect band bnot bor scanStep rangeCheck feeDen FeeCheck digestEq Digest4)");
     w!("open Plonky2Spec.Wiring");
     w!("open Plonky2Spec.Generated");
     w!("open Plonky2Spec.Poseidon2 (St)");
     w!("open Plonky2Spec.Sponge (spongeHash)");
     w!("open WormholeSpec (Digest Felt LeafPublic PrivateBatchOutput ExitSlot inRange RPrivateBatch");
-    w!("  maskedOutputTotal realLeaves realNullifiers rawOutputTotal outputExitTotal");
-    w!("  RPrivateBatch_value_conservation RPrivateBatch_settles_distinct_spends LeafWitness Rleaf)");
+    w!("  maskedInputTotal rawInputTotal realLeaves realNullifiers outputExitTotal");
+    w!("  RPrivateBatch_settlement_le_input RPrivateBatch_settles_distinct_spends LeafWitness Rleaf)");
     w!("");
     w!("variable {{p : ℕ}} [Fact p.Prime]");
     w!("");
@@ -983,8 +800,14 @@ pub fn render(shape: &Shape) -> String {
     w!("");
     w!("/-! ### Reading the spec objects off the wiring -/");
     w!("");
-    w!("/-- The 22 leaf public inputs of leaf `i` (`leaf_pis_i`). -/");
-    w!("def leafPis : Fin {n} → Fin 22 → Target");
+    w!(
+        "/-- The {} leaf public inputs of leaf `i` (`leaf_pis_i`). -/",
+        layout::LEAF_PI_LEN
+    );
+    w!(
+        "def leafPis : Fin {n} → Fin {} → Target",
+        layout::LEAF_PI_LEN
+    );
     for i in 0..n {
         w!("  | {i} => {circuit}.leaf_pis_{i}");
     }
@@ -1009,30 +832,16 @@ pub fn render(shape: &Shape) -> String {
         let row_out = shape.fact(leaf.hash_outer).digest_row().unwrap();
         w!("  | {i} =>");
         w!(
-            "    {{ assetId := a (leafPis {i} {}), out1 := a (leafPis {i} {}), out2 := a (leafPis {i} {}),",
+            "    {{ assetId := a (leafPis {i} {}), nullifier := fun j => a (leafPis {i} ⟨{} + j, by omega⟩),",
             layout::ASSET_ID,
-            layout::OUTPUT_AMOUNT_1,
-            layout::OUTPUT_AMOUNT_2
-        );
-        w!("      fee := a (leafPis {i} {})", layout::VOLUME_FEE_BPS);
-        w!(
-            "      nullifier := fun j => a (leafPis {i} ⟨{} + j, by omega⟩)",
             layout::NULLIFIER
         );
         w!(
-            "      exit1 := fun j => a (leafPis {i} ⟨{} + j, by omega⟩)",
-            layout::EXIT_ACCOUNT_1
-        );
-        w!(
-            "      exit2 := fun j => a (leafPis {i} ⟨{} + j, by omega⟩)",
-            layout::EXIT_ACCOUNT_2
-        );
-        w!(
-            "      blockHash := fun j => a (leafPis {i} ⟨{} + j, by omega⟩)",
+            "      blockHash := fun j => a (leafPis {i} ⟨{} + j, by omega⟩),",
             layout::BLOCK_HASH
         );
         w!(
-            "      blockNumber := a (leafPis {i} {}), inputAmount := a (leafPis {i} {})",
+            "      blockNumber := a (leafPis {i} {}), inputAmount := a (leafPis {i} {}),",
             layout::BLOCK_NUMBER,
             layout::INPUT_AMOUNT
         );
@@ -1065,14 +874,23 @@ pub fn render(shape: &Shape) -> String {
     w!("omit [Fact p.Prime] in");
     w!("theorem rows_us (a : Assignment p) : (rows a).map LeafRow.u = us a := rfl");
     w!("");
+    let slot_list: Vec<String> = shape
+        .slots
+        .iter()
+        .map(|slot| format!("({}, {})", a(slot.amount), digest_fun(&slot.account)))
+        .collect();
+    w!("/-- The {m} witnessed exit slots `(exit_amount_k, exit_account_k)`. -/");
+    w!("def slots (a : Assignment p) : List (SlotF p) :=");
+    w!("  [{}]", slot_list.join(",\n   "));
+    w!("");
     w!("/-- Public input `k` of the wrapper, decoded through `.val`. -/");
     w!("def pv (a : Assignment p) (k : ℕ) : Felt :=");
     w!("  (a (({circuit} p).publicInputs.getD k (.virt 0))).val");
     w!("");
-    let header = 8;
-    let slot_pvs: Vec<String> = (0..s2)
+    let header = layout::HEADER_LEN;
+    let slot_pvs: Vec<String> = (0..m)
         .map(|k| {
-            let b = header + 5 * k;
+            let b = header + layout::EXIT_SLOT_LEN * k;
             format!(
                 "⟨pv a {b}, ⟨pv a {}, pv a {}, pv a {}, pv a {}⟩⟩",
                 b + 1,
@@ -1082,7 +900,7 @@ pub fn render(shape: &Shape) -> String {
             )
         })
         .collect();
-    let null_base = header + 5 * s2;
+    let null_base = header + layout::EXIT_SLOT_LEN * m;
     let null_pvs: Vec<String> = (0..n)
         .map(|i| {
             let b = null_base + 4 * i;
@@ -1090,70 +908,13 @@ pub fn render(shape: &Shape) -> String {
         })
         .collect();
     w!("/-- The aggregated output at the `aggregated_output` layout: header `[num_exit_slots,");
-    w!("    asset_id, volume_fee_bps, block_hash(4), block_number]`, `2N = {s2}` exit slots");
-    w!("    `[sum, account(4)]`, `N = {n}` nullifiers. -/");
+    w!("    asset_id, volume_fee_bps, block_hash(4), block_number]`, `M = {m}` exit slots");
+    w!("    `[amount, account(4)]`, `N = {n}` nullifiers. -/");
     w!("def out (a : Assignment p) : PrivateBatchOutput :=");
     w!("  {{ numExitSlots := pv a 0, assetId := pv a 1, volumeFeeBps := pv a 2,");
     w!("    blockHash := ⟨pv a 3, pv a 4, pv a 5, pv a 6⟩, blockNumber := pv a 7,");
     w!("    exitSlots := [{}],", slot_pvs.join(",\n      "));
     w!("    nullifiers := [{}] }}", null_pvs.join(",\n      "));
-    w!("");
-    // Candidates and emitted slots on the wires.
-    let cand_exit: Vec<[Target; 4]> = leaves
-        .iter()
-        .flat_map(|leaf| {
-            leaf.mask_exit.iter().map(|ks| {
-                [
-                    shape.out(ks[0]),
-                    shape.out(ks[1]),
-                    shape.out(ks[2]),
-                    shape.out(ks[3]),
-                ]
-            })
-        })
-        .collect();
-    let cand_amount: Vec<Target> = leaves
-        .iter()
-        .flat_map(|leaf| leaf.mask_amount.iter().map(|&k| shape.out(k)))
-        .collect();
-    let cand_list: Vec<String> = (0..s2)
-        .map(|k| format!("({}, {})", digest_fun(&cand_exit[k]), a(cand_amount[k])))
-        .collect();
-    w!("/-- The `2N` masked `(exit, amount)` candidates, in slot order. -/");
-    w!("def cands (a : Assignment p) : List (Digest4 p × ZMod p) :=");
-    w!("  [{}]", cand_list.join(",\n   "));
-    let slot_list: Vec<String> = shape
-        .slots
-        .iter()
-        .map(|slot| {
-            let outs: Vec<Target> = slot.exit_sel.iter().map(|&k| shape.out(k)).collect();
-            format!("({}, {})", a(shape.out(slot.sum_sel)), digest_fun(&outs))
-        })
-        .collect();
-    w!("");
-    w!("/-- The `2N` emitted exit slots `(select(dup, 0, sum), select(dup, 0, exit))`. -/");
-    w!("def slots (a : Assignment p) : List (SlotF p) :=");
-    w!("  [{}]", slot_list.join(",\n   "));
-    w!("");
-    let round_list: Vec<String> = shape
-        .rounds
-        .iter()
-        .map(|round| {
-            let sws: Vec<String> = round
-                .iter()
-                .map(|sw| match *shape.fact(sw.assert) {
-                    Fact::AssertBool { b } => a(b),
-                    _ => unreachable!(),
-                })
-                .collect();
-            format!("[{}]", sws.join(", "))
-        })
-        .collect();
-    w!("/-- The switches of the `n = {n}` odd-even network, by round. -/");
-    w!(
-        "def rounds (a : Assignment p) : List (List (ZMod p)) := [{}]",
-        round_list.join(", ")
-    );
     w!("");
 
     // The scan in normal form.
@@ -1208,7 +969,7 @@ pub fn render(shape: &Shape) -> String {
 
     let d = |i: usize| a(shape.out(leaves[i].dummy.and[2]));
     let block_ref = digest_fun(&shape.block_ref);
-    let fee_ref = a(shape.fee_ref);
+    let fee = a(shape.fee_witness);
     let number_ref = a(shape.number_ref);
     let asset_ref = a(leaves[0].pis[layout::ASSET_ID]);
     let total_in = a(shape.total_in);
@@ -1216,14 +977,13 @@ pub fn render(shape: &Shape) -> String {
 
     w!("set_option maxHeartbeats 4000000 in");
     w!("/-- **The recorded private-batch wrapper satisfies `RPrivateBatch`.** Every satisfying");
-    w!("    assignment whose Poseidon2 rows compute `perm`, with the leaves' 32-bit ranges (which");
-    w!("    the leaf proofs certify), decodes to an `RPrivateBatch` instance on the {n} children,");
-    w!("    their preimages and the aggregated output. -/");
+    w!("    assignment whose Poseidon2 rows compute `perm`, with the leaves' 32-bit input amounts");
+    w!("    (which the leaf proofs certify), decodes to an `RPrivateBatch` instance on the {n}");
+    w!("    children, their preimages and the aggregated output. -/");
     w!("theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)");
     w!("    (a : Assignment p) (h : Satisfies ({circuit} p) a)");
     w!("    (hp : Poseidon2Rows perm ({circuit} p) a)");
-    w!("    (h32 : ∀ q ∈ leaves a, inRange 32 q.inputAmount ∧ inRange 32 q.outputAmount1 ∧");
-    w!("      inRange 32 q.outputAmount2 ∧ inRange 32 q.volumeFeeBps) :");
+    w!("    (h32 : ∀ q ∈ leaves a, inRange 32 q.inputAmount) :");
     w!("    RPrivateBatch (spongeRO perm) (leaves a) (us a) (out a) := by");
     w!("  obtain ⟨{}⟩ := consts a h", const_names.join(", "));
 
@@ -1258,7 +1018,6 @@ pub fn render(shape: &Shape) -> String {
             proj(format!("sb{i}_{j}"), leaf.sel_block[j]);
         }
         proj(format!("sn{i}"), leaf.sel_number);
-        proj(format!("sf{i}"), leaf.sel_fee);
         if let Some(k) = leaf.found {
             proj(format!("fo{i}"), k);
         }
@@ -1270,17 +1029,6 @@ pub fn render(shape: &Shape) -> String {
         if let Some(k) = leaf.asset_pin {
             proj(format!("ca{i}"), k);
         }
-        proj(format!("cf{i}"), leaf.fee_eq);
-        proj(format!("cfo{i}"), leaf.fee_or);
-        proj(format!("cfk{i}"), leaf.fee_pin);
-    }
-    for (i, leaf) in leaves.iter().enumerate() {
-        for o in 0..2 {
-            for l in 0..4 {
-                proj(format!("mE{}_{l}", 2 * i + o), leaf.mask_exit[o][l]);
-            }
-            proj(format!("mA{}", 2 * i + o), leaf.mask_amount[o]);
-        }
     }
     for (i, leaf) in leaves.iter().enumerate() {
         proj(format!("mi{i}"), leaf.mask_input);
@@ -1288,36 +1036,19 @@ pub fn render(shape: &Shape) -> String {
             proj(format!("ai{i}"), k);
         }
     }
-    for (k, add) in shape.add_output.iter().enumerate() {
-        if let Some(c) = add {
-            proj(format!("ao{k}"), *c);
-        }
-    }
-    proj("fc".into(), shape.fee[0]);
-    proj("fcr".into(), shape.fee[1]);
-    proj("fr".into(), shape.fee[2]);
-    proj("fl".into(), shape.fee[3]);
-    proj("fd".into(), shape.fee[4]);
-    proj("fdr".into(), shape.fee[5]);
     for (k, slot) in shape.slots.iter().enumerate() {
-        for (j, (de, or)) in slot.dedup.iter().enumerate() {
-            digest_eq_proj(&mut proj, &format!("x{k}_{j}"), de);
-            if let Some(c) = or {
-                proj(format!("xo{k}_{j}"), *c);
-            }
-        }
-        for (j, (de, sel, add)) in slot.matches.iter().enumerate() {
-            digest_eq_proj(&mut proj, &format!("y{k}_{j}"), de);
-            proj(format!("ys{k}_{j}"), *sel);
-            if let Some(c) = add {
-                proj(format!("yd{k}_{j}"), *c);
-            }
-        }
-        proj(format!("os{k}"), slot.sum_sel);
-        for l in 0..4 {
-            proj(format!("oe{k}_{l}"), slot.exit_sel[l]);
+        proj(format!("rc{k}"), slot.range);
+        if let Some(c) = slot.add {
+            proj(format!("ao{k}"), c);
         }
     }
+    proj("ffr".into(), shape.fee[0]);
+    proj("fc".into(), shape.fee[1]);
+    proj("fcr".into(), shape.fee[2]);
+    proj("fr".into(), shape.fee[3]);
+    proj("fl".into(), shape.fee[4]);
+    proj("fd".into(), shape.fee[5]);
+    proj("fdr".into(), shape.fee[6]);
     for pair in &shape.pairs {
         let (i, j) = (pair.i, pair.j);
         proj(format!("un{i}_{j}"), pair.not_i);
@@ -1330,15 +1061,6 @@ pub fn render(shape: &Shape) -> String {
     for (i, leaf) in leaves.iter().enumerate() {
         for l in 0..4 {
             proj(format!("s{i}_{l}"), leaf.null_sel[l]);
-        }
-    }
-    for (r, round) in shape.rounds.iter().enumerate() {
-        for (s, sw) in round.iter().enumerate() {
-            proj(format!("ab{r}_{s}"), sw.assert);
-            for l in 0..4 {
-                proj(format!("w{r}_{s}_{l}_0"), sw.sel[l][0]);
-                proj(format!("w{r}_{s}_{l}_1"), sw.sel[l][1]);
-            }
         }
     }
     for line in &proj_lines {
@@ -1417,137 +1139,6 @@ pub fn render(shape: &Shape) -> String {
     let sns: Vec<String> = (0..n).rev().map(|i| format!("sn{i}")).collect();
     w!("  have hnumRef : {number_ref} = scanRefL (rows a) fun r => r.blockNumber := by");
     w!("    rw [rows, scanRefL_{n}, {}, hsel]; rfl", sns.join(", "));
-    let sfs: Vec<String> = (0..n).rev().map(|i| format!("sf{i}")).collect();
-    w!("  have hfeeRef : {fee_ref} = scanRefL (rows a) fun r => r.fee := by");
-    w!("    rw [rows, scanRefL_{n}, {}, hsel]; rfl", sfs.join(", "));
-
-    // Candidates.
-    for k in 0..s2 {
-        let i = k / 2;
-        let field = if k % 2 == 0 { "exit1" } else { "exit2" };
-        let amount = if k % 2 == 0 { "out1" } else { "out2" };
-        w!(
-            "  have hE{k} : ({}) = fun j => bselect (row a {i}).isDummy 0 ((row a {i}).{field} j) := by",
-            digest_fun(&cand_exit[k])
-        );
-        w!("    funext j");
-        w!("    fin_cases j");
-        for l in 0..4 {
-            w!("    · show a ({}) = _", lean_target(cand_exit[k][l]));
-            w!("      rw [mE{k}_{l}, hd{i}]; rfl");
-        }
-        w!(
-            "  have hA{k} : {} = bselect (row a {i}).isDummy 0 (row a {i}).{amount} := by",
-            a(cand_amount[k])
-        );
-        w!("    rw [mA{k}, hd{i}]; rfl");
-    }
-    let hes: Vec<String> = (0..s2).map(|k| format!("hE{k}")).collect();
-    let has: Vec<String> = (0..s2).map(|k| format!("hA{k}")).collect();
-    w!("  have hcands : cands a = candsL (rows a) := by");
-    w!("    simp only [cands, candsL, rows, List.flatMap_cons, List.flatMap_nil, List.cons_append,");
-    w!("      List.nil_append, List.append_nil]");
-    w!("    rw [{}, {}]", hes.join(", "), has.join(", "));
-
-    // The grouping loop.
-    w!("  have hslots : SlotsOk [] (cands a) (slots a) := by");
-    w!("    simp only [SlotsOk, SlotCheck, cands, slots, List.nil_append, List.cons_append]");
-    let mut witnesses: Vec<String> = Vec::new();
-    for (k, slot) in shape.slots.iter().enumerate() {
-        let dup = if k == 0 {
-            "0".to_string()
-        } else {
-            let last = &slot.dedup[k - 1];
-            match last.1 {
-                Some(c) => a(shape.out(c)),
-                None => a(shape.out(last.0.and[2])),
-            }
-        };
-        let acc = match slot.matches[s2 - 1].2 {
-            Some(c) => a(shape.out(c)),
-            None => a(shape.out(slot.matches[s2 - 1].1)),
-        };
-        let eqk = a(shape.out(slot.matches[k].0.and[2]));
-        let dup_flags: Vec<String> = slot
-            .dedup
-            .iter()
-            .map(|(de, _)| a(shape.out(de.and[2])))
-            .collect();
-        let m_earlier: Vec<String> = (0..k)
-            .map(|j| a(shape.out(slot.matches[j].0.and[2])))
-            .collect();
-        let m_later: Vec<String> = (k + 1..s2)
-            .map(|j| a(shape.out(slot.matches[j].0.and[2])))
-            .collect();
-        witnesses.push(format!(
-            "⟨⟨{dup}, {acc}, {eqk}, [{}], [{}], [{}]⟩, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩",
-            dup_flags.join(", "),
-            m_earlier.join(", "),
-            m_later.join(", ")
-        ));
-    }
-    w!("    refine ⟨{}, trivial⟩", witnesses.join(",\n      "));
-    let digest_eq_witness = |shape: &Shape, prefix: &str, de: &DigestEq| -> String {
-        let (eqs, invs): (Vec<Target>, Vec<Target>) =
-            de.eq.iter().map(|&k| shape.is_equal_witness(k)).unzip();
-        format!(
-            "⟨{}, {}, fun j => by fin_cases j <;> assumption, by rw [{prefix}m, {prefix}a, {prefix}b]; rfl⟩",
-            vec4(&eqs),
-            vec4(&invs)
-        )
-    };
-    for (k, slot) in shape.slots.iter().enumerate() {
-        let forall2 = |items: Vec<String>| -> String {
-            let mut t = "List.Forall₂.nil".to_string();
-            for it in items.into_iter().rev() {
-                t = format!("List.Forall₂.cons ({it}) ({t})");
-            }
-            t
-        };
-        w!("    · -- slot {k}: dedup flags");
-        let dedups: Vec<String> = slot
-            .dedup
-            .iter()
-            .enumerate()
-            .map(|(j, (de, _))| digest_eq_witness(shape, &format!("x{k}_{j}"), de))
-            .collect();
-        w!("      exact {}", forall2(dedups));
-        w!("    · -- slot {k}: matches against the earlier candidates");
-        let earlier: Vec<String> = (0..k)
-            .map(|j| digest_eq_witness(shape, &format!("y{k}_{j}"), &slot.matches[j].0))
-            .collect();
-        w!("      exact {}", forall2(earlier));
-        w!("    · -- slot {k}: self match");
-        w!(
-            "      exact {}",
-            digest_eq_witness(shape, &format!("y{k}_{k}"), &slot.matches[k].0)
-        );
-        w!("    · -- slot {k}: matches against the later candidates");
-        let later: Vec<String> = (k + 1..s2)
-            .map(|j| digest_eq_witness(shape, &format!("y{k}_{j}"), &slot.matches[j].0))
-            .collect();
-        w!("      exact {}", forall2(later));
-        w!("    · -- slot {k}: duplicate flag");
-        if k == 0 {
-            w!("      simp only [List.foldl_nil]");
-        } else {
-            w!("      simp only [List.foldl_cons, List.foldl_nil, bor_zero_left]");
-        }
-        let ors: Vec<String> = (1..k).rev().map(|j| format!("xo{k}_{j}")).collect();
-        if !ors.is_empty() {
-            w!("      rw [{}]", ors.join(", "));
-        }
-        w!("    · -- slot {k}: accumulated sum");
-        w!("      simp only [List.zipWith_cons_cons, List.zipWith_nil_left, List.zipWith_nil_right,");
-        w!("        List.cons_append, List.nil_append, List.foldl_cons, List.foldl_nil, zero_add]");
-        let mut rws: Vec<String> = (1..s2).rev().map(|j| format!("yd{k}_{j}")).collect();
-        rws.extend((0..s2).map(|j| format!("ys{k}_{j}")));
-        w!("      rw [{}]", rws.join(", "));
-        w!("    · -- slot {k}: masked sum");
-        w!("      exact os{k}");
-        w!("    · -- slot {k}: masked exit");
-        w!("      intro j; fin_cases j <;> assumption");
-    }
 
     // Totals.
     for i in 0..n {
@@ -1565,50 +1156,51 @@ pub fn render(shape: &Shape) -> String {
     if n > 2 {
         w!("    ring");
     }
-    w!("  have hout : {total_out} =");
-    w!("      ((rows a).map fun r => bselect r.isDummy 0 r.out1 + bselect r.isDummy 0 r.out2).sum := by");
-    w!("    simp only [rows, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, add_zero]");
-    let mut rws: Vec<String> = (1..s2).rev().map(|k| format!("ao{k}")).collect();
-    rws.extend(has.iter().cloned());
+    w!("  have hout : {total_out} = ((slots a).map Prod.fst).sum := by");
+    w!("    simp only [slots, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, add_zero]");
+    let rws: Vec<String> = (1..m).rev().map(|k| format!("ao{k}")).collect();
     w!("    rw [{}]", rws.join(", "));
-    w!("    ring");
+    if m > 2 {
+        w!("    ring");
+    }
+
+    // Exit-amount range checks.
+    w!("  have hslots32 : ∀ s ∈ slots a, rangeCheck s.1 32 := by");
+    w!("    intro s hs");
+    w!("    simp only [slots, List.mem_cons, List.not_mem_nil, or_false] at hs");
+    let slot_rfls = vec!["rfl"; m].join(" | ");
+    w!("    rcases hs with {slot_rfls}");
+    for k in 0..m {
+        w!("    · exact rc{k}");
+    }
 
     // Fee.
-    w!("  have hfc : FeeCheck ({fee_ref}) ({total_in}) ({total_out}) := by");
-    w!("    refine ⟨?_, ?_⟩");
-    w!("    · show rangeCheck (feeDen - {fee_ref}) 14");
+    w!("  have hfc : FeeCheck ({fee}) ({total_in}) ({total_out}) := by");
+    w!("    refine ⟨ffr, ?_, ?_⟩");
+    w!("    · show rangeCheck (feeDen - {fee}) 14");
     w!("      unfold feeDen; rw [Nat.cast_ofNat, ← kten, ← fc]; exact fcr");
-    w!("    · show rangeCheck ({total_in} * (feeDen - {fee_ref}) - {total_out} * feeDen) 52");
+    w!("    · show rangeCheck ({total_in} * (feeDen - {fee}) - {total_out} * feeDen) 52");
     w!("      unfold feeDen; rw [Nat.cast_ofNat, ← kten, ← fc, ← fl, ← fr, ← fd]; exact fdr");
 
-    // Nullifier network.
-    let final_nulls = network_outputs(shape);
-    let null_lits: Vec<String> = final_nulls
+    // Nullifiers.
+    let null_lits: Vec<String> = leaves
         .iter()
-        .map(|dg| {
+        .map(|leaf| {
             format!(
                 "⟨({}).val, ({}).val, ({}).val, ({}).val⟩",
-                a(dg[0]),
-                a(dg[1]),
-                a(dg[2]),
-                a(dg[3])
+                a(shape.out(leaf.null_sel[0])),
+                a(shape.out(leaf.null_sel[1])),
+                a(shape.out(leaf.null_sel[2])),
+                a(shape.out(leaf.null_sel[3]))
             )
         })
         .collect();
-    w!("  have hnulls : (out a).nullifiers = (network (rounds a) ((rows a).map fun r => r.slot.sel)).map valDigest := by");
+    w!("  have hnulls : (out a).nullifiers = ((rows a).map fun r => r.slot.sel).map valDigest := by");
     w!(
         "    show ([{}] : List Digest) = _",
         null_lits.join(",\n      ")
     );
     let mut rws: Vec<String> = Vec::new();
-    for (r, round) in shape.rounds.iter().enumerate().rev() {
-        for (s, _) in round.iter().enumerate().rev() {
-            for l in 0..4 {
-                rws.push(format!("w{r}_{s}_{l}_0"));
-                rws.push(format!("w{r}_{s}_{l}_1"));
-            }
-        }
-    }
     for i in 0..n {
         for l in 0..4 {
             rws.push(format!("s{i}_{l}"));
@@ -1619,6 +1211,15 @@ pub fn render(shape: &Shape) -> String {
     w!("    rfl");
 
     // Uniqueness.
+    let digest_eq_witness = |shape: &Shape, prefix: &str, de: &DigestEq| -> String {
+        let (eqs, invs): (Vec<Target>, Vec<Target>) =
+            de.eq.iter().map(|&k| shape.is_equal_witness(k)).unzip();
+        format!(
+            "⟨{}, {}, fun j => by fin_cases j <;> assumption, by rw [{prefix}m, {prefix}a, {prefix}b]; rfl⟩",
+            vec4(&eqs),
+            vec4(&invs)
+        )
+    };
     for pair in &shape.pairs {
         let (i, j) = (pair.i, pair.j);
         w!("  have u{i}_{j} : UniqCheck (row a {i}).nullifier (row a {j}).nullifier (row a {i}).isDummy (row a {j}).isDummy :=");
@@ -1651,25 +1252,12 @@ pub fn render(shape: &Shape) -> String {
     }
 
     // Assembly.
-    let total_value = 2 * n;
     w!("  have hR : RPrivateBatch (spongeRO perm) ((rows a).map LeafRow.leaf) ((rows a).map LeafRow.u) (out a) := by");
-    w!("    refine private_batch_val_rows perm hpg (rows a) (rounds a) (out := out a)");
-    w!("      (feeRef := {fee_ref}) (totalIn := {total_in}) (totalOut := {total_out})");
+    w!("    refine private_batch_val_rows perm hpg (rows a) (out := out a)");
+    w!("      (fee := {fee}) (totalIn := {total_in}) (totalOut := {total_out})");
     w!("      (assetRef := {asset_ref}) (numRef := {number_ref}) (blockRef := {block_ref})");
-    w!("      (cands := cands a) (slots := slots a) ?_ ?_ ?_ (by show {n} ≤ 64; decide) h32");
-    w!("      hblockRef hnumRef hfeeRef ?_ ?_ ?_ rfl rfl rfl rfl ?_ hin hout hfc hcands hslots rfl hnulls hcol");
-    w!("    · -- the switches are boolean");
-    w!("      intro s hs");
-    w!("      simp only [rounds, List.flatten_cons, List.flatten_nil, List.cons_append, List.nil_append,");
-    w!("        List.append_nil, List.mem_cons, List.not_mem_nil, or_false] at hs");
-    let sw_count = shape.switches.len();
-    let sw_alts = vec!["rfl"; sw_count].join(" | ");
-    if sw_count == 1 {
-        w!("      rcases hs with rfl");
-        w!("      assumption");
-    } else {
-        w!("      rcases hs with {sw_alts} <;> assumption");
-    }
+    w!("      (slots := slots a) ?_ ?_ (by show {n} ≤ 64; decide) h32 hblockRef hnumRef ?_ ?_");
+    w!("      rfl rfl rfl rfl ?_ hin hslots32 (by show {m} ≤ 64; decide) hout hfc rfl hnulls hcol");
     w!("    · -- dummy checks");
     w!("      intro r hr");
     w!("      rcases hmem r hr with {rfls}");
@@ -1693,12 +1281,6 @@ pub fn render(shape: &Shape) -> String {
         } else {
             w!("      · exact ca{i}");
         }
-    }
-    w!("    · -- fee consistency");
-    w!("      intro r hr");
-    w!("      rcases hmem r hr with {rfls}");
-    for i in 0..n {
-        w!("      · exact ⟨_, _, cf{i}, by rw [← hd{i}, ← cfo{i}, cfk{i}, kone]⟩");
     }
     w!("    · -- block consistency");
     w!("      intro r hr");
@@ -1725,9 +1307,9 @@ pub fn render(shape: &Shape) -> String {
         w!("        rw [← hd{i}, ← cb{i}a, ← cb{i}b, ← cb{i}m, ← cbo{i}, cbk{i}, kone]");
     }
     w!("    · -- the slot count");
-    w!("      show ({}).val = 2 * {n}", a(shape.total));
+    w!("      show ({}).val = {m}", a(shape.total));
     w!("      rw [ktot]");
-    w!("      have hc : ({total_value} : ℕ) < p := lt_of_lt_of_le (by decide) hpg");
+    w!("      have hc : ({m} : ℕ) < p := lt_of_lt_of_le (by decide) hpg");
     w!("      rw [← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]");
     w!("  rwa [rows_leaves, rows_us] at hR");
     w!("");
@@ -1756,15 +1338,16 @@ pub fn render(shape: &Shape) -> String {
     w!("/-- **The capstone on the recorded wiring.** `private_batch_end_to_end` with its decode");
     w!("    hypotheses discharged by `sound`: a satisfying assignment of the `n = {n}` private-batch");
     w!("    wrapper whose recursion gadgets accepted every child leaf proof (i) satisfies");
-    w!("    `RPrivateBatch`, (ii) conserves value, (iii) settles distinct spends and (iv) attests");
-    w!("    every child's `Rleaf` — through `proof_sound`, the only axiom, and `leaf_wired`. -/");
+    w!("    `RPrivateBatch`, (ii) settles at most the masked input total, (iii) settles at most the");
+    w!("    real inputs with distinct spends and (iv) attests every child's `Rleaf` — through");
+    w!("    `proof_sound`, the only axiom, and `leaf_wired`. -/");
     w!("theorem end_to_end_wired (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)");
     w!("    (a : Assignment p) (h : Satisfies ({circuit} p) a)");
     w!("    (hp : Poseidon2Rows perm ({circuit} p) a)");
     w!("    (hacc : ∀ i : Fin {n}, ProofAccepted perm LeafCircuit.tree ((List.ofFn (leafPis i)).map a)) :");
     w!("    RPrivateBatch (spongeRO perm) (leaves a) (us a) (out a)");
-    w!("      ∧ outputExitTotal (out a) = maskedOutputTotal (leaves a)");
-    w!("      ∧ (outputExitTotal (out a) = rawOutputTotal (realLeaves (leaves a))");
+    w!("      ∧ outputExitTotal (out a) ≤ maskedInputTotal (leaves a)");
+    w!("      ∧ (outputExitTotal (out a) ≤ rawInputTotal (realLeaves (leaves a))");
     w!("          ∧ (realNullifiers (leaves a)).Nodup)");
     w!("      ∧ ∀ pub ∈ leaves a, ∃ w : LeafWitness, Rleaf (spongeRO perm) pub w := by");
     w!("  have hleaf : ∀ pub ∈ leaves a, ∃ w : LeafWitness, Rleaf (spongeRO perm) pub w := by");
@@ -1778,7 +1361,7 @@ pub fn render(shape: &Shape) -> String {
     w!("  have hR := sound perm hpg a h hp fun q hq =>");
     w!("    let ⟨_, hw⟩ := hleaf q hq");
     w!("    Rleaf_ranges hw");
-    w!("  exact ⟨hR, RPrivateBatch_value_conservation hR, RPrivateBatch_settles_distinct_spends hR, hleaf⟩");
+    w!("  exact ⟨hR, RPrivateBatch_settlement_le_input hR, RPrivateBatch_settles_distinct_spends hR, hleaf⟩");
     w!("");
     w!("/-- The {pi_total} public inputs in registration order. -/");
     w!("def pi : Fin {pi_total} → Target :=");
@@ -1796,9 +1379,9 @@ pub fn render(shape: &Shape) -> String {
     w!("/-- `out` as a function of the public-input values alone. -/");
     w!("def outOf (v : Fin {pi_total} → ZMod p) : PrivateBatchOutput :=");
     let vv = |k: usize| format!("(v {k}).val");
-    let slot_vs: Vec<String> = (0..s2)
+    let slot_vs: Vec<String> = (0..m)
         .map(|k| {
-            let b = header + 5 * k;
+            let b = header + layout::EXIT_SLOT_LEN * k;
             format!(
                 "⟨{}, ⟨{}, {}, {}, {}⟩⟩",
                 vv(b),
@@ -1859,43 +1442,6 @@ pub fn render(shape: &Shape) -> String {
     w!("");
     w!("end Plonky2Bridge.Wrapper{n}");
     o
-}
-
-/// The final nullifier digests after the switch network, position by position.
-fn network_outputs(shape: &Shape) -> Vec<[Target; 4]> {
-    let n = shape.n;
-    let mut current: Vec<[Target; 4]> = shape
-        .leaves
-        .iter()
-        .map(|leaf| {
-            [
-                shape.out(leaf.null_sel[0]),
-                shape.out(leaf.null_sel[1]),
-                shape.out(leaf.null_sel[2]),
-                shape.out(leaf.null_sel[3]),
-            ]
-        })
-        .collect();
-    let positions = switch_positions(n);
-    for (round, pos) in shape.rounds.iter().zip(positions.iter()) {
-        for (sw, &i) in round.iter().zip(pos.iter()) {
-            let lo = [
-                shape.out(sw.sel[0][0]),
-                shape.out(sw.sel[1][0]),
-                shape.out(sw.sel[2][0]),
-                shape.out(sw.sel[3][0]),
-            ];
-            let hi = [
-                shape.out(sw.sel[0][1]),
-                shape.out(sw.sel[1][1]),
-                shape.out(sw.sel[2][1]),
-                shape.out(sw.sel[3][1]),
-            ];
-            current[i] = lo;
-            current[i + 1] = hi;
-        }
-    }
-    current
 }
 
 /// The normal form `simp only [scanRefL, …, scanStep, bor_zero_left, bnot_zero, band_one_right]`

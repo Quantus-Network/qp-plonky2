@@ -2,8 +2,9 @@
 //! recorded `n_inner = N` public-batch wrapper trace into `RPublicBatch` (PLAN.md Step 8e).
 //!
 //! `build_public_batch_constraints` makes its gadget calls in a fixed order determined by
-//! `(n_inner, private_batch_num_leaves)`: the per-inner dummy checks, the first-real prefix
-//! scan, the per-inner consistency checks, then the masked slot and nullifier forwards.
+//! `(n_inner, private_batch_shape)`: the per-inner slot-count pins, the per-inner dummy
+//! checks, the first-real prefix scan, the per-inner consistency checks, then the masked
+//! slot and nullifier forwards.
 //! [`Shape::read`] indexes the recorded calls positionally and checks each one against the
 //! role it must play (which named targets it reads, which constants, how the outputs chain),
 //! so a change in the wrapper's structure is a generator error rather than a proof that
@@ -31,13 +32,15 @@ mod layout {
     pub const BLOCK_NUMBER: usize = 7;
     pub const HEADER_LEN: usize = 8;
     pub const EXIT_SLOT_LEN: usize = 5;
-    pub const LEAF_PI_LEN: usize = 22;
+    pub const NULLIFIER_LEN: usize = 4;
 }
 
 /// One inner proof's calls, by role (indices into the trace's calls).
 #[derive(Debug, Clone)]
 struct Inner {
     pis: Vec<Target>,
+    /// `connect(num_exit_slots, constant(slots_per_inner))`.
+    count_pin: usize,
     /// `bytes_digest_eq(block_hash, 0)`: four `is_equal` then the `and` tree.
     dummy_eq: [usize; 4],
     dummy_and: [usize; 3],
@@ -83,6 +86,8 @@ pub struct Shape {
     inners: Vec<Inner>,
     one: Target,
     zero: Target,
+    /// `constant(slots_per_inner)`, every inner's slot-count header.
+    slots_const: Target,
     total: Target,
     /// `(target, value)` in the order of the export's `constants`.
     constants: Vec<(Target, u64)>,
@@ -123,13 +128,34 @@ impl Shape {
         if pis.iter().any(|p| p.len() != pi_len) {
             return Err("inner_pis_i differ in length".into());
         }
-        if pi_len < layout::HEADER_LEN || (pi_len - layout::HEADER_LEN) % layout::LEAF_PI_LEN != 0 {
-            return Err(format!("inner PI length {pi_len} is not 22·leaves + 8"));
-        }
-        let leaves = (pi_len - layout::HEADER_LEN) / layout::LEAF_PI_LEN;
-        check_verifiers(t, &format!("private_batch_wrapper_n{leaves}"), &pis)?;
-        let slots_per_inner = 2 * leaves;
+        // The inner shape `(leaves, exit slots)` is not recoverable from the PI length alone:
+        // the leaf count comes from the child circuit the recursion gadgets verify, the slot
+        // count from what remains of the layout `header ‖ slots × 5 ‖ nullifiers × 4`.
+        let child =
+            t.ex.verifiers
+                .first()
+                .map(|(tag, _)| tag.clone())
+                .ok_or("trace has no verify_proof gadgets")?;
+        let leaves: usize = child
+            .strip_prefix("private_batch_wrapper_n")
+            .and_then(|s| s.parse().ok())
+            .ok_or_else(|| format!("verifier child {child:?} is not a private-batch wrapper"))?;
+        check_verifiers(t, &child, &pis)?;
         let nulls_per_inner = leaves;
+        let null_len = nulls_per_inner * layout::NULLIFIER_LEN;
+        if pi_len < layout::HEADER_LEN + null_len
+            || (pi_len - layout::HEADER_LEN - null_len) % layout::EXIT_SLOT_LEN != 0
+        {
+            return Err(format!(
+                "inner PI length {pi_len} is not 8 + 5·slots + 4·{leaves}"
+            ));
+        }
+        let slots_per_inner = (pi_len - layout::HEADER_LEN - null_len) / layout::EXIT_SLOT_LEN;
+        if slots_per_inner < 2 {
+            return Err(format!(
+                "expected at least two exit slots per inner, found {slots_per_inner}"
+            ));
+        }
         let aggregator_address: [Target; 4] = named("aggregator_address")?
             .clone()
             .try_into()
@@ -156,16 +182,18 @@ impl Shape {
         };
         let one = const_target(1)?;
         let zero = const_target(0)?;
+        let slots_value = slots_per_inner as u64;
+        let slots_const = const_target(slots_value)?;
         let total_value = (n * slots_per_inner) as u64;
         let total = const_target(total_value)?;
-        if constants.len() != 3 {
+        if constants.len() != 4 {
             return Err(format!(
-                "expected constants {{1, 0, {total_value}}}, found {constants:?}"
+                "expected constants {{1, 0, {slots_value}, {total_value}}}, found {constants:?}"
             ));
         }
 
         let calls = &t.calls;
-        let expected_calls = 33 * n + 5 * slots_per_inner * n + 4 * nulls_per_inner * n;
+        let expected_calls = 34 * n + 5 * slots_per_inner * n + 4 * nulls_per_inner * n;
         if calls.len() != expected_calls {
             return Err(format!(
                 "expected {expected_calls} gadget calls for n_inner={n}, leaves={leaves}; trace has {}",
@@ -181,10 +209,23 @@ impl Shape {
             }
         };
 
+        // Slot-count pins.
+        for (i, pis_i) in pis.iter().enumerate() {
+            match *fact(i) {
+                Fact::Connect { x, y }
+                    if x == pis_i[layout::NUM_EXIT_SLOTS] && y == slots_const => {}
+                ref f => {
+                    return Err(format!(
+                        "call {i}: expected connect(num_exit_slots_{i}, slots_per_inner), got {f:?}"
+                    ))
+                }
+            }
+        }
+
         let mut inners = Vec::with_capacity(n);
         // Dummy checks.
         for (i, pis_i) in pis.iter().enumerate() {
-            let base = 7 * i;
+            let base = n + 7 * i;
             let mut eqs = [Target::VirtualTarget { index: 0 }; 4];
             for j in 0..4 {
                 match *fact(base + j) {
@@ -230,6 +271,7 @@ impl Shape {
             }
             inners.push(Inner {
                 pis: pis_i.clone(),
+                count_pin: i,
                 dummy_eq: [base, base + 1, base + 2, base + 3],
                 dummy_and: [base + 4, base + 5, base + 6],
                 is_real: 0,
@@ -264,7 +306,7 @@ impl Shape {
         let mut found_prev = zero;
         let mut ref_prev: Vec<Target> = vec![zero; 7];
         for i in 0..n {
-            let base = 7 * n + 11 * i;
+            let base = 8 * n + 11 * i;
             let is_real = match *fact(base) {
                 Fact::Not { b, out } if b == dummy(i) => out,
                 ref f => {
@@ -361,7 +403,7 @@ impl Shape {
 
         // Consistency checks.
         for i in 0..n {
-            let base = 18 * n + 15 * i;
+            let base = 19 * n + 15 * i;
             let d = dummy(i);
             let pis_i = inners[i].pis.clone();
             let scalar =
@@ -474,7 +516,7 @@ impl Shape {
         public_inputs.extend([number_ref, total]);
         let slot_limbs = slots_per_inner * layout::EXIT_SLOT_LEN;
         for i in 0..n {
-            let base = 33 * n + slot_limbs * i;
+            let base = 34 * n + slot_limbs * i;
             let d = dummy(i);
             for k in 0..slot_limbs {
                 match *fact(base + k) {
@@ -496,7 +538,7 @@ impl Shape {
         let null_limbs = nulls_per_inner * 4;
         let nulls_start = layout::HEADER_LEN + slot_limbs;
         for i in 0..n {
-            let base = 33 * n + slot_limbs * n + null_limbs * i;
+            let base = 34 * n + slot_limbs * n + null_limbs * i;
             let d = dummy(i);
             for k in 0..null_limbs {
                 match *fact(base + k) {
@@ -529,6 +571,7 @@ impl Shape {
             inners,
             one,
             zero,
+            slots_const,
             total,
             constants,
             calls: calls.clone(),
@@ -790,6 +833,8 @@ pub fn render(shape: &Shape) -> String {
                 "kone".to_string()
             } else if *t == shape.zero {
                 "kzero".to_string()
+            } else if *t == shape.slots_const {
+                "kslots".to_string()
             } else {
                 "ktot".to_string()
             }
@@ -807,6 +852,9 @@ pub fn render(shape: &Shape) -> String {
     w!("  have hf := {decode} a h");
     // Projections.
     let mut proj = |name: String, k: usize| w!("  have {name} := {}", shape.projection(k));
+    for (i, inner) in inners.iter().enumerate() {
+        proj(format!("cp{i}"), inner.count_pin);
+    }
     for (i, inner) in inners.iter().enumerate() {
         for j in 0..4 {
             proj(format!("e{i}_{j}"), inner.dummy_eq[j]);
@@ -973,7 +1021,7 @@ pub fn render(shape: &Shape) -> String {
     let dec_rfls = vec!["rfl"; n].join(" ");
     w!("  refine public_batch_val ro (rows a) (k := {s}) rfl ?_ (hdec _ {dec_rfls}) (hdec _ {dec_rfls})");
     w!("    (hdec _ {dec_rfls}) (hdec _ {dec_rfls}) (hdec _ {dec_rfls}) (hdec _ {dec_rfls}) ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_");
-    w!("    ?_ ?_");
+    w!("    ?_ ?_ ?_");
     w!("  · -- dummy checks");
     w!("    intro t ht");
     w!("    rcases hmem t ht with {rfls}");
@@ -1060,8 +1108,20 @@ pub fn render(shape: &Shape) -> String {
         hds.join(", ")
     );
     w!("    rfl");
-    w!("  · intro t ht");
+    w!("  · -- each inner exposes {s} exit slots");
+    w!("    intro t ht");
     w!("    rcases hmem t ht with {rfls} <;> rfl");
+    w!("  · -- each inner's slot-count header is the constant {s}");
+    w!("    have hc : ({s} : ℕ) < p := lt_of_lt_of_le (by decide) hpg");
+    w!("    intro t ht");
+    w!("    rcases hmem t ht with {rfls}");
+    for (i, inner) in inners.iter().enumerate() {
+        w!(
+            "    · show ({}).val = {s}",
+            a(inner.pis[layout::NUM_EXIT_SLOTS])
+        );
+        w!("      rw [cp{i}, kslots, ← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]");
+    }
     let total_value = n * s;
     w!("  · show ({}).val = {n} * {s}", a(shape.total));
     w!("    rw [ktot]");

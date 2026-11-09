@@ -1003,6 +1003,52 @@ relation and no particular circuit.
   `AggregationBridge.private_batch_sound` / `public_batch_sound` take the child relations, and
   `WormholeSpec` is axiom-free. `Plonky2Bridge.proof_sound` is the only axiom in either package.
 
+### Step 11 — Re-pin to the proof-of-burn leaf (qp-zk-circuits #198/#199/#200)  ✅ DONE
+The leaf no longer carries outputs: its public inputs are the 11 felts
+`asset_id | nullifier(4) | block_hash(4) | block_number | input_amount`, and the private
+batch takes `volume_fee_bps` and `M` exit slots `(amount, account(4))` as its own witnesses
+(`M` independent of `N`; the traces record `(N, M) = (2, 2)` and `(4, 4)`, the public traces
+`n_inner = 2, 4` over the `(2, 2)` inner). Nullifiers are emitted in slot order; the odd-even
+switch network is gone from the circuit. What changed here, and why:
+- **The fee was a free witness without its own range check, and the bridge did not notice.**
+  `FeeCheck.Assumptions.fee32` was discharged from the *leaf's* `range_check(fee, 32)`, so when
+  #198 moved the fee off the leaf, nothing in qp-plonky2 required the private batch to bound
+  it: `fee = p − k` has complement `10000 + k`, passes the 14-bit check, and the comparator
+  `in·(10000 − fee) − out·10000` wraps. `FeeCheck` now carries the gadget's own
+  `range_check(fee, 14)` as `feeRange`; `fee32` is gone from the `Assumptions`, and
+  `Shape::read` fails (`shape_rejects_perturbed_traces`) if the recorded wrapper drops that
+  call. `Plonky2Spec/Permutation.lean` and `OddEvenSort.lean` are retired with the network
+  (`RPrivateBatch` no longer has a `Perm` clause; `private_batch_complete` returns no rounds),
+  `Digest4` moved to `Wrapper.lean`.
+- **Private wrapper (`private_wrapper.rs`).** `Shape::read` walks: per-leaf dummy checks, the
+  first-real scan, per-leaf block/asset consistency, the masked input total, per-slot
+  `range_check(amount, 32)` + `add`, the fee comparator (`range_check 14`, `sub`,
+  `range_check 14`, `mul`, `mul`, `sub`, `range_check 52`), the uniqueness pairs, the chained
+  dummy hashes with the nullifier selects — `35N + 2M + 7 + 11·N(N−1)/2` calls, constants
+  `{1, 0, M, 10000, 2^59}`, public inputs `[M, asset, fee, block(4), number] ‖ M × slot ‖
+  N × nullifier`. `private_batch_val_rows` takes `slots : List (SlotF p)` with `hslots32`,
+  `hslotsLen`, `hout = (slots.map Prod.fst).sum` and `hoSlots : numExitSlots = exitSlots.length`
+  in place of the candidate/grouping/network hypotheses; `LeafRow` has the five leaf fields.
+  `private_batch_end_to_end` concludes `outputExitTotal ≤ maskedInputTotal` and
+  `RPrivateBatch_settles_distinct_spends` (`≤ rawInputTotal (realLeaves …) ∧ Nodup`).
+- **Public wrapper (`public_wrapper.rs`).** The inner PI length does not identify the inner
+  shape (`(N=1, M=5)` and `(N=6, M=1)` are both 37 felts), so the wrapper now `connect`s each
+  inner's `num_exit_slots` header to `constant(M)` first (qp-zk-circuits 31e2153); the reader
+  takes `N` from the recursion gadgets' child tag, derives `M` from the remaining length,
+  requires the per-inner pins against the `M` constant (a pin against the `N·M` total is
+  rejected), and `public_batch_val` gained `hcount : ∀ t ∈ rows, t.2.numExitSlots = k` for the
+  new `RPublicBatch` clause `∀ o ∈ inner, o.numExitSlots = o.exitSlots.length`.
+- **Acceptance (met):** `lake build Plonky2Spec Plonky2Bridge` clean, `ci/AxiomsCheck.lean`
+  footprints unchanged (eight `*_wired`/`accepted_sound` capstones `[…, proof_sound]`, the rest
+  bare), `cargo test -p qp-plonky2-constraint-exporter` with `FORMAL_TRACES_STRICT=1` green,
+  `wormholeSpec` pinned at `337f3438` (the #200 head).
+- **Follow-up (qp-zk-circuits CI).** Nothing in qp-zk-circuits runs these shape readers, so a
+  circuit change that drops a range check is only caught when this package is re-pinned. A
+  qp-zk-circuits job running `cargo test -p qp-plonky2-constraint-exporter --test
+  private_batch_wrapper --test public_batch_wrapper --test leaf_circuit` with
+  `WORMHOLE_TRACES=formal/traces` against the freshly regenerated traces would close that gap
+  at the source.
+
 ## 9. Definition of done
 
 `R_leaf` fully bridged (T0–T3), `R_L0`/`R_L1` bridged modulo the enumerated

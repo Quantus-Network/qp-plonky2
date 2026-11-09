@@ -4,7 +4,7 @@
   regenerate with `cargo run -p qp-plonky2-constraint-exporter --bin export-constraints`.
 
   Step 8e — `Generated/PublicBatchWrapper2.lean` proves, from `Satisfies` on the wiring the
-  real `CircuitBuilder` emitted, the meaning of each of the 122 gadget calls
+  real `CircuitBuilder` emitted, the meaning of each of the 104 gadget calls
   `build_public_batch_constraints` made over 2 `2`-leaf private batches. This module
   reads the inner outputs and the aggregated output off the named targets and public inputs
   and discharges every hypothesis of `public_batch_val` (`Plonky2Bridge/PublicBatch.lean`),
@@ -29,9 +29,9 @@ variable {p : ℕ} [Fact p.Prime]
 
 /-! ### Reading the spec objects off the wiring -/
 
-/-- The 52 public inputs of inner proof `i` (`inner_pis_i`), at the private-batch
+/-- The 26 public inputs of inner proof `i` (`inner_pis_i`), at the private-batch
     `aggregated_output` layout. -/
-def innerPis : Fin 2 → Fin 52 → Target
+def innerPis : Fin 2 → Fin 26 → Target
   | 0 => publicBatchWrapper2.inner_pis_0
   | 1 => publicBatchWrapper2.inner_pis_1
 
@@ -40,26 +40,22 @@ def innerPis : Fin 2 → Fin 52 → Target
 def row (a : Assignment p) : Fin 2 → InnerRow p
   | 0 =>
     { blockHash := fun j => a (innerPis 0 ⟨3 + j, by omega⟩)
-      dummyEq := ![a (.virt 19080), a (.virt 19082), a (.virt 19084), a (.virt 19086)]
-      dummyInv := ![a (.virt 19081), a (.virt 19083), a (.virt 19085), a (.virt 19087)]
+      dummyEq := ![a (.virt 11895), a (.virt 11897), a (.virt 11899), a (.virt 11901)]
+      dummyInv := ![a (.virt 11896), a (.virt 11898), a (.virt 11900), a (.virt 11902)]
       blockNumber := a (innerPis 0 7), assetId := a (innerPis 0 1), fee := a (innerPis 0 2)
       slots := [(a (innerPis 0 8), fun j => a (innerPis 0 ⟨9 + j, by omega⟩)),
-        (a (innerPis 0 13), fun j => a (innerPis 0 ⟨14 + j, by omega⟩)),
-        (a (innerPis 0 18), fun j => a (innerPis 0 ⟨19 + j, by omega⟩)),
-        (a (innerPis 0 23), fun j => a (innerPis 0 ⟨24 + j, by omega⟩))]
-      nulls := [fun j => a (innerPis 0 ⟨28 + j, by omega⟩),
-        fun j => a (innerPis 0 ⟨32 + j, by omega⟩)] }
+        (a (innerPis 0 13), fun j => a (innerPis 0 ⟨14 + j, by omega⟩))]
+      nulls := [fun j => a (innerPis 0 ⟨18 + j, by omega⟩),
+        fun j => a (innerPis 0 ⟨22 + j, by omega⟩)] }
   | 1 =>
     { blockHash := fun j => a (innerPis 1 ⟨3 + j, by omega⟩)
-      dummyEq := ![a (.virt 19088), a (.virt 19090), a (.virt 19092), a (.virt 19094)]
-      dummyInv := ![a (.virt 19089), a (.virt 19091), a (.virt 19093), a (.virt 19095)]
+      dummyEq := ![a (.virt 11903), a (.virt 11905), a (.virt 11907), a (.virt 11909)]
+      dummyInv := ![a (.virt 11904), a (.virt 11906), a (.virt 11908), a (.virt 11910)]
       blockNumber := a (innerPis 1 7), assetId := a (innerPis 1 1), fee := a (innerPis 1 2)
       slots := [(a (innerPis 1 8), fun j => a (innerPis 1 ⟨9 + j, by omega⟩)),
-        (a (innerPis 1 13), fun j => a (innerPis 1 ⟨14 + j, by omega⟩)),
-        (a (innerPis 1 18), fun j => a (innerPis 1 ⟨19 + j, by omega⟩)),
-        (a (innerPis 1 23), fun j => a (innerPis 1 ⟨24 + j, by omega⟩))]
-      nulls := [fun j => a (innerPis 1 ⟨28 + j, by omega⟩),
-        fun j => a (innerPis 1 ⟨32 + j, by omega⟩)] }
+        (a (innerPis 1 13), fun j => a (innerPis 1 ⟨14 + j, by omega⟩))]
+      nulls := [fun j => a (innerPis 1 ⟨18 + j, by omega⟩),
+        fun j => a (innerPis 1 ⟨22 + j, by omega⟩)] }
 
 /-- Inner `i`'s private-batch output, decoded through `.val`. -/
 def inner (a : Assignment p) (i : Fin 2) : PrivateBatchOutput :=
@@ -82,7 +78,7 @@ def pv (a : Assignment p) (k : ℕ) : Felt :=
   (a ((publicBatchWrapper2 p).publicInputs.getD k (.virt 0))).val
 
 /-- The aggregated output at the public-batch layout: `[aggregator_address(4), asset_id,
-    volume_fee_bps, block_hash(4), block_number, total_exit_slots]`, `2 · 4` forwarded exit
+    volume_fee_bps, block_hash(4), block_number, total_exit_slots]`, `2 · 2` forwarded exit
     slots `[sum, account(4)]`, `2 · 2` forwarded nullifiers. -/
 def out (a : Assignment p) : PublicBatchOutput :=
   { aggregatorAddress := ⟨pv a 0, pv a 1, pv a 2, pv a 3⟩, assetId := pv a 4, volumeFeeBps := pv a 5,
@@ -90,15 +86,11 @@ def out (a : Assignment p) : PublicBatchOutput :=
     exitSlots := [⟨(a (.wire 7 71)).val, ⟨(a (.wire 7 79)).val, (a (.wire 9 7)).val, (a (.wire 9 15)).val, (a (.wire 9 23)).val⟩⟩,
       ⟨(a (.wire 9 31)).val, ⟨(a (.wire 9 39)).val, (a (.wire 9 47)).val, (a (.wire 9 55)).val, (a (.wire 9 63)).val⟩⟩,
       ⟨(a (.wire 9 71)).val, ⟨(a (.wire 9 79)).val, (a (.wire 10 7)).val, (a (.wire 10 15)).val, (a (.wire 10 23)).val⟩⟩,
-      ⟨(a (.wire 10 31)).val, ⟨(a (.wire 10 39)).val, (a (.wire 10 47)).val, (a (.wire 10 55)).val, (a (.wire 10 63)).val⟩⟩,
-      ⟨(a (.wire 10 71)).val, ⟨(a (.wire 10 79)).val, (a (.wire 11 7)).val, (a (.wire 11 15)).val, (a (.wire 11 23)).val⟩⟩,
-      ⟨(a (.wire 11 31)).val, ⟨(a (.wire 11 39)).val, (a (.wire 11 47)).val, (a (.wire 11 55)).val, (a (.wire 11 63)).val⟩⟩,
-      ⟨(a (.wire 11 71)).val, ⟨(a (.wire 11 79)).val, (a (.wire 12 7)).val, (a (.wire 12 15)).val, (a (.wire 12 23)).val⟩⟩,
-      ⟨(a (.wire 12 31)).val, ⟨(a (.wire 12 39)).val, (a (.wire 12 47)).val, (a (.wire 12 55)).val, (a (.wire 12 63)).val⟩⟩],
-    nullifiers := [⟨(a (.wire 12 71)).val, (a (.wire 12 79)).val, (a (.wire 13 7)).val, (a (.wire 13 15)).val⟩,
-      ⟨(a (.wire 13 23)).val, (a (.wire 13 31)).val, (a (.wire 13 39)).val, (a (.wire 13 47)).val⟩,
-      ⟨(a (.wire 13 55)).val, (a (.wire 13 63)).val, (a (.wire 13 71)).val, (a (.wire 13 79)).val⟩,
-      ⟨(a (.wire 14 7)).val, (a (.wire 14 15)).val, (a (.wire 14 23)).val, (a (.wire 14 31)).val⟩] }
+      ⟨(a (.wire 10 31)).val, ⟨(a (.wire 10 39)).val, (a (.wire 10 47)).val, (a (.wire 10 55)).val, (a (.wire 10 63)).val⟩⟩],
+    nullifiers := [⟨(a (.wire 10 71)).val, (a (.wire 10 79)).val, (a (.wire 11 7)).val, (a (.wire 11 15)).val⟩,
+      ⟨(a (.wire 11 23)).val, (a (.wire 11 31)).val, (a (.wire 11 39)).val, (a (.wire 11 47)).val⟩,
+      ⟨(a (.wire 11 55)).val, (a (.wire 11 63)).val, (a (.wire 11 71)).val, (a (.wire 11 79)).val⟩,
+      ⟨(a (.wire 12 7)).val, (a (.wire 12 15)).val, (a (.wire 12 23)).val, (a (.wire 12 31)).val⟩] }
 
 /-! ### The 2-row scan -/
 
@@ -113,7 +105,7 @@ theorem scanRef_2 (t0 t1 : InnerPair p) (f : InnerPair p → ZMod p) :
 /-! ### Composition -/
 
 theorem consts (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
-    a (.virt 19078) = 1 ∧ a (.virt 19079) = 0 ∧ a (.virt 19120) = 8 := by
+    a (.virt 11892) = 1 ∧ a (.virt 11893) = 0 ∧ a (.virt 11894) = 2 ∧ a (.virt 11935) = 4 := by
   have hc := h.2.2
   simp only [publicBatchWrapper2, List.forall_mem_cons, List.not_mem_nil, false_implies,
     implies_true, and_true] at hc
@@ -126,126 +118,108 @@ theorem consts (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
 theorem sound (ro : RandomOracle) (hpg : WormholeSpec.goldilocks ≤ p)
     (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
     RPublicBatch ro (inners a) (addr a) (out a) := by
-  obtain ⟨kone, kzero, ktot⟩ := consts a h
+  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
   have hf := publicBatchWrapper2_decode a h
-  have e0_0 := hf.1.1
-  have e0_1 := hf.1.2.1
-  have e0_2 := hf.1.2.2.1
-  have e0_3 := hf.1.2.2.2.1
-  have da0 := hf.1.2.2.2.2.1
-  have db0 := hf.1.2.2.2.2.2.1
-  have d0 := hf.1.2.2.2.2.2.2.1
-  have e1_0 := hf.1.2.2.2.2.2.2.2.1
-  have e1_1 := hf.1.2.2.2.2.2.2.2.2.1
-  have e1_2 := hf.1.2.2.2.2.2.2.2.2.2.1
-  have e1_3 := hf.1.2.2.2.2.2.2.2.2.2.2.1
-  have da1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.1
-  have db1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have d1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have r0 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sb0_0 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sb0_1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sb0_2 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sb0_3 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sn0 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sa0 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sf0 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have r1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have nf1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have tk1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sb1_0 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sb1_1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sb1_2 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sb1_3 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have sn1 := hf.2.1.1
-  have sa1 := hf.2.1.2.1
-  have sf1 := hf.2.1.2.2.1
-  have ca0 := hf.2.1.2.2.2.2.1
-  have cao0 := hf.2.1.2.2.2.2.2.1
-  have cak0 := hf.2.1.2.2.2.2.2.2.1
-  have cf0 := hf.2.1.2.2.2.2.2.2.2.1
-  have cfo0 := hf.2.1.2.2.2.2.2.2.2.2.1
-  have cfk0 := hf.2.1.2.2.2.2.2.2.2.2.2.1
-  have cb0_0 := hf.2.1.2.2.2.2.2.2.2.2.2.2.1
-  have cb0_1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb0_2 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb0_3 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cba0 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cbb0 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cbc0 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cbo0 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cbk0 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have ca1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cao1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cak1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cf1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cfo1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cfk1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb1_0 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb1_1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb1_2 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb1_3 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cba1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cbb1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cbc1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have cbo1 := hf.2.2.1.1
-  have cbk1 := hf.2.2.1.2.1
-  have fs0_0 := hf.2.2.1.2.2.1
-  have fs0_1 := hf.2.2.1.2.2.2.1
-  have fs0_2 := hf.2.2.1.2.2.2.2.1
-  have fs0_3 := hf.2.2.1.2.2.2.2.2.1
-  have fs0_4 := hf.2.2.1.2.2.2.2.2.2.1
-  have fs0_5 := hf.2.2.1.2.2.2.2.2.2.2.1
-  have fs0_6 := hf.2.2.1.2.2.2.2.2.2.2.2.1
-  have fs0_7 := hf.2.2.1.2.2.2.2.2.2.2.2.2.1
-  have fs0_8 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.1
-  have fs0_9 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs0_10 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs0_11 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs0_12 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs0_13 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs0_14 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs0_15 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs0_16 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs0_17 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs0_18 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs0_19 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs1_0 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs1_1 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs1_2 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs1_3 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs1_4 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs1_5 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs1_6 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs1_7 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs1_8 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs1_9 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have fs1_10 := hf.2.2.2.1
-  have fs1_11 := hf.2.2.2.2.1
-  have fs1_12 := hf.2.2.2.2.2.1
-  have fs1_13 := hf.2.2.2.2.2.2.1
-  have fs1_14 := hf.2.2.2.2.2.2.2.1
-  have fs1_15 := hf.2.2.2.2.2.2.2.2.1
-  have fs1_16 := hf.2.2.2.2.2.2.2.2.2.1
-  have fs1_17 := hf.2.2.2.2.2.2.2.2.2.2.1
-  have fs1_18 := hf.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs1_19 := hf.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn0_0 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn0_1 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn0_2 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn0_3 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn0_4 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn0_5 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn0_6 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn0_7 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn1_0 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn1_1 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn1_2 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn1_3 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn1_4 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn1_5 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn1_6 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn1_7 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
+  have cp0 := hf.1.1
+  have cp1 := hf.1.2.1
+  have e0_0 := hf.1.2.2.1
+  have e0_1 := hf.1.2.2.2.1
+  have e0_2 := hf.1.2.2.2.2.1
+  have e0_3 := hf.1.2.2.2.2.2.1
+  have da0 := hf.1.2.2.2.2.2.2.1
+  have db0 := hf.1.2.2.2.2.2.2.2.1
+  have d0 := hf.1.2.2.2.2.2.2.2.2.1
+  have e1_0 := hf.1.2.2.2.2.2.2.2.2.2.1
+  have e1_1 := hf.1.2.2.2.2.2.2.2.2.2.2.1
+  have e1_2 := hf.1.2.2.2.2.2.2.2.2.2.2.2.1
+  have e1_3 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have da1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have db1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have d1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have r0 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have sb0_0 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have sb0_1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have sb0_2 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have sb0_3 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have sn0 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have sa0 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have sf0 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have r1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have nf1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have tk1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have sb1_0 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have sb1_1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
+  have sb1_2 := hf.2.1.1
+  have sb1_3 := hf.2.1.2.1
+  have sn1 := hf.2.1.2.2.1
+  have sa1 := hf.2.1.2.2.2.1
+  have sf1 := hf.2.1.2.2.2.2.1
+  have ca0 := hf.2.1.2.2.2.2.2.2.1
+  have cao0 := hf.2.1.2.2.2.2.2.2.2.1
+  have cak0 := hf.2.1.2.2.2.2.2.2.2.2.1
+  have cf0 := hf.2.1.2.2.2.2.2.2.2.2.2.1
+  have cfo0 := hf.2.1.2.2.2.2.2.2.2.2.2.2.1
+  have cfk0 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.1
+  have cb0_0 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have cb0_1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have cb0_2 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have cb0_3 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have cba0 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have cbb0 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have cbc0 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have cbo0 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have cbk0 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have ca1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have cao1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have cak1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have cf1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have cfo1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have cfk1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have cb1_0 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have cb1_1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have cb1_2 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have cb1_3 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have cba1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
+  have cbb1 := hf.2.2.1.1
+  have cbc1 := hf.2.2.1.2.1
+  have cbo1 := hf.2.2.1.2.2.1
+  have cbk1 := hf.2.2.1.2.2.2.1
+  have fs0_0 := hf.2.2.1.2.2.2.2.1
+  have fs0_1 := hf.2.2.1.2.2.2.2.2.1
+  have fs0_2 := hf.2.2.1.2.2.2.2.2.2.1
+  have fs0_3 := hf.2.2.1.2.2.2.2.2.2.2.1
+  have fs0_4 := hf.2.2.1.2.2.2.2.2.2.2.2.1
+  have fs0_5 := hf.2.2.1.2.2.2.2.2.2.2.2.2.1
+  have fs0_6 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.1
+  have fs0_7 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.1
+  have fs0_8 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have fs0_9 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have fs1_0 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have fs1_1 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have fs1_2 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have fs1_3 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have fs1_4 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have fs1_5 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have fs1_6 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have fs1_7 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have fs1_8 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have fs1_9 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have fn0_0 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have fn0_1 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have fn0_2 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have fn0_3 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have fn0_4 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have fn0_5 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have fn0_6 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+  have fn0_7 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
+  have fn1_0 := hf.2.2.2.1
+  have fn1_1 := hf.2.2.2.2.1
+  have fn1_2 := hf.2.2.2.2.2.1
+  have fn1_3 := hf.2.2.2.2.2.2.1
+  have fn1_4 := hf.2.2.2.2.2.2.2.1
+  have fn1_5 := hf.2.2.2.2.2.2.2.2.1
+  have fn1_6 := hf.2.2.2.2.2.2.2.2.2.1
+  have fn1_7 := hf.2.2.2.2.2.2.2.2.2.2
 
   rw [kzero] at e0_0 e0_1 e0_2 e0_3 e1_0 e1_1 e1_2 e1_3
   have hd0 : a (.wire 1 43) = (row a 0).isDummy := by rw [d0, da0, db0]; rfl
@@ -286,9 +260,9 @@ theorem sound (ro : RandomOracle) (hpg : WormholeSpec.goldilocks ≤ p)
     rcases hmem t ht with rfl | rfl
     · exact h0
     · exact h1
-  refine public_batch_val ro (rows a) (k := 4) rfl ?_ (hdec _ rfl rfl) (hdec _ rfl rfl)
+  refine public_batch_val ro (rows a) (k := 2) rfl ?_ (hdec _ rfl rfl) (hdec _ rfl rfl)
     (hdec _ rfl rfl) (hdec _ rfl rfl) (hdec _ rfl rfl) (hdec _ rfl rfl) ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
-    ?_ ?_
+    ?_ ?_ ?_
   · -- dummy checks
     intro t ht
     rcases hmem t ht with rfl | rfl
@@ -318,41 +292,46 @@ theorem sound (ro : RandomOracle) (hpg : WormholeSpec.goldilocks ≤ p)
   · -- block consistency
     intro t ht
     rcases hmem t ht with rfl | rfl
-    · refine ⟨![a (.virt 19100), a (.virt 19102), a (.virt 19104), a (.virt 19106)],
-        ![a (.virt 19101), a (.virt 19103), a (.virt 19105), a (.virt 19107)], ?_, ?_⟩
+    · refine ⟨![a (.virt 11915), a (.virt 11917), a (.virt 11919), a (.virt 11921)],
+        ![a (.virt 11916), a (.virt 11918), a (.virt 11920), a (.virt 11922)], ?_, ?_⟩
       · intro j; rw [← hblk j]; fin_cases j <;> assumption
-      · show bor (row a 0).isDummy (band (band (a (.virt 19100)) (a (.virt 19102)))
-          (band (a (.virt 19104)) (a (.virt 19106)))) = 1
+      · show bor (row a 0).isDummy (band (band (a (.virt 11915)) (a (.virt 11917)))
+          (band (a (.virt 11919)) (a (.virt 11921)))) = 1
         rw [← hd0, ← cba0, ← cbb0, ← cbc0, ← cbo0, cbk0, kone]
-    · refine ⟨![a (.virt 19112), a (.virt 19114), a (.virt 19116), a (.virt 19118)],
-        ![a (.virt 19113), a (.virt 19115), a (.virt 19117), a (.virt 19119)], ?_, ?_⟩
+    · refine ⟨![a (.virt 11927), a (.virt 11929), a (.virt 11931), a (.virt 11933)],
+        ![a (.virt 11928), a (.virt 11930), a (.virt 11932), a (.virt 11934)], ?_, ?_⟩
       · intro j; rw [← hblk j]; fin_cases j <;> assumption
-      · show bor (row a 1).isDummy (band (band (a (.virt 19112)) (a (.virt 19114)))
-          (band (a (.virt 19116)) (a (.virt 19118)))) = 1
+      · show bor (row a 1).isDummy (band (band (a (.virt 11927)) (a (.virt 11929)))
+          (band (a (.virt 11931)) (a (.virt 11933)))) = 1
         rw [← hd1, ← cba1, ← cbb1, ← cbc1, ← cbo1, cbk1, kone]
   · -- forwarded exit slots
     show ([⟨(a (.wire 7 71)).val, ⟨(a (.wire 7 79)).val, (a (.wire 9 7)).val, (a (.wire 9 15)).val, (a (.wire 9 23)).val⟩⟩,
       ⟨(a (.wire 9 31)).val, ⟨(a (.wire 9 39)).val, (a (.wire 9 47)).val, (a (.wire 9 55)).val, (a (.wire 9 63)).val⟩⟩,
       ⟨(a (.wire 9 71)).val, ⟨(a (.wire 9 79)).val, (a (.wire 10 7)).val, (a (.wire 10 15)).val, (a (.wire 10 23)).val⟩⟩,
-      ⟨(a (.wire 10 31)).val, ⟨(a (.wire 10 39)).val, (a (.wire 10 47)).val, (a (.wire 10 55)).val, (a (.wire 10 63)).val⟩⟩,
-      ⟨(a (.wire 10 71)).val, ⟨(a (.wire 10 79)).val, (a (.wire 11 7)).val, (a (.wire 11 15)).val, (a (.wire 11 23)).val⟩⟩,
-      ⟨(a (.wire 11 31)).val, ⟨(a (.wire 11 39)).val, (a (.wire 11 47)).val, (a (.wire 11 55)).val, (a (.wire 11 63)).val⟩⟩,
-      ⟨(a (.wire 11 71)).val, ⟨(a (.wire 11 79)).val, (a (.wire 12 7)).val, (a (.wire 12 15)).val, (a (.wire 12 23)).val⟩⟩,
-      ⟨(a (.wire 12 31)).val, ⟨(a (.wire 12 39)).val, (a (.wire 12 47)).val, (a (.wire 12 55)).val, (a (.wire 12 63)).val⟩⟩] : List ExitSlot) = _
-    rw [fs0_0, fs0_1, fs0_2, fs0_3, fs0_4, fs0_5, fs0_6, fs0_7, fs0_8, fs0_9, fs0_10, fs0_11, fs0_12, fs0_13, fs0_14, fs0_15, fs0_16, fs0_17, fs0_18, fs0_19, fs1_0, fs1_1, fs1_2, fs1_3, fs1_4, fs1_5, fs1_6, fs1_7, fs1_8, fs1_9, fs1_10, fs1_11, fs1_12, fs1_13, fs1_14, fs1_15, fs1_16, fs1_17, fs1_18, fs1_19, kzero, hd0, hd1]
+      ⟨(a (.wire 10 31)).val, ⟨(a (.wire 10 39)).val, (a (.wire 10 47)).val, (a (.wire 10 55)).val, (a (.wire 10 63)).val⟩⟩] : List ExitSlot) = _
+    rw [fs0_0, fs0_1, fs0_2, fs0_3, fs0_4, fs0_5, fs0_6, fs0_7, fs0_8, fs0_9, fs1_0, fs1_1, fs1_2, fs1_3, fs1_4, fs1_5, fs1_6, fs1_7, fs1_8, fs1_9, kzero, hd0, hd1]
     rfl
   · -- forwarded nullifiers
-    show ([⟨(a (.wire 12 71)).val, (a (.wire 12 79)).val, (a (.wire 13 7)).val, (a (.wire 13 15)).val⟩,
-      ⟨(a (.wire 13 23)).val, (a (.wire 13 31)).val, (a (.wire 13 39)).val, (a (.wire 13 47)).val⟩,
-      ⟨(a (.wire 13 55)).val, (a (.wire 13 63)).val, (a (.wire 13 71)).val, (a (.wire 13 79)).val⟩,
-      ⟨(a (.wire 14 7)).val, (a (.wire 14 15)).val, (a (.wire 14 23)).val, (a (.wire 14 31)).val⟩] : List Digest) = _
+    show ([⟨(a (.wire 10 71)).val, (a (.wire 10 79)).val, (a (.wire 11 7)).val, (a (.wire 11 15)).val⟩,
+      ⟨(a (.wire 11 23)).val, (a (.wire 11 31)).val, (a (.wire 11 39)).val, (a (.wire 11 47)).val⟩,
+      ⟨(a (.wire 11 55)).val, (a (.wire 11 63)).val, (a (.wire 11 71)).val, (a (.wire 11 79)).val⟩,
+      ⟨(a (.wire 12 7)).val, (a (.wire 12 15)).val, (a (.wire 12 23)).val, (a (.wire 12 31)).val⟩] : List Digest) = _
     rw [fn0_0, fn0_1, fn0_2, fn0_3, fn0_4, fn0_5, fn0_6, fn0_7, fn1_0, fn1_1, fn1_2, fn1_3, fn1_4, fn1_5, fn1_6, fn1_7, kzero, hd0, hd1]
     rfl
-  · intro t ht
+  · -- each inner exposes 2 exit slots
+    intro t ht
     rcases hmem t ht with rfl | rfl <;> rfl
-  · show (a (.virt 19120)).val = 2 * 4
+  · -- each inner's slot-count header is the constant 2
+    have hc : (2 : ℕ) < p := lt_of_lt_of_le (by decide) hpg
+    intro t ht
+    rcases hmem t ht with rfl | rfl
+    · show (a (.virt 5918)).val = 2
+      rw [cp0, kslots, ← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]
+    · show (a (.virt 11862)).val = 2
+      rw [cp1, kslots, ← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]
+  · show (a (.virt 11935)).val = 2 * 2
     rw [ktot]
-    have hc : (8 : ℕ) < p := lt_of_lt_of_le (by decide) hpg
+    have hc : (4 : ℕ) < p := lt_of_lt_of_le (by decide) hpg
     rw [← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]
 
 /-! ### The wrapper as a recursion tree (PLAN.md Step 10) -/

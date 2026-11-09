@@ -36,9 +36,9 @@ fn leaf_trace_shape() {
     let kinds = |k: &GateKind| t.ex.rows.iter().filter(|r| r.0 == *k).count();
     // Hashes: 2 (unspendable account) + 2 (nullifier) + 1 (leaf) + 16 (levels) + 1 (header).
     assert_eq!(kinds(&GateKind::Poseidon2), 61);
-    assert_eq!(kinds(&GateKind::BaseSum2 { num_limbs: 63 }), 41);
+    assert_eq!(kinds(&GateKind::BaseSum2 { num_limbs: 59 }), 38);
     assert!(t.ex.rows.iter().all(|r| !matches!(r.0, GateKind::Other(_))));
-    assert_eq!(t.ex.public_inputs.len(), 22);
+    assert_eq!(t.ex.public_inputs.len(), 11);
     let named: BTreeMap<&str, usize> =
         t.ex.named
             .iter()
@@ -71,12 +71,12 @@ fn leaf_trace_shape() {
         BTreeMap::from([(4, 2), (7, 1), (8, 1), (9, 1), (16, 16), (45, 1)])
     );
     let count = |f: fn(&Fact) -> bool| t.calls.iter().filter(|c| f(&c.fact)).count();
-    // 7 amounts/ids/fee + the block number + 16 positions.
-    assert_eq!(count(|f| matches!(f, Fact::RangeCheck { .. })), 24);
+    // transfer_count (2), asset_id, input_amount, block_number + 16 positions.
+    assert_eq!(count(|f| matches!(f, Fact::RangeCheck { .. })), 21);
     // `is_const_less_than(level, depth, 5)` per level, and `enforce_target_less_than_const`.
     assert_eq!(count(|f| matches!(f, Fact::SplitLe { bits: 5, .. })), 17);
     assert_eq!(count(|f| matches!(f, Fact::AssertBool { .. })), 1);
-    assert_eq!(t.calls.len(), 1566);
+    assert_eq!(t.calls.len(), 1561);
     assert!(t.calls.len() > FACT_GROUP, "decode theorem is grouped");
     let split = t
         .calls
@@ -136,7 +136,7 @@ fn leaf_lean_is_current() {
     assert_eq!(generated.matches("have hr := baseSum_of_row").count(), 17);
     assert_eq!(
         generated.matches("have hr := rangeCheck_of_row").count(),
-        24
+        21
     );
 }
 
@@ -159,7 +159,7 @@ fn shape_rejects_perturbed_traces() {
     short.calls.pop();
     let err = Shape::read(&short).unwrap_err();
     assert!(
-        err.contains("call 1565: expected connect for zk_tree_root binding, but the trace ends"),
+        err.contains("call 1560: expected connect for zk_tree_root binding, but the trace ends"),
         "{err}"
     );
     // An extra trailing call.
@@ -243,9 +243,7 @@ fn shape_rejects_perturbed_traces() {
     }
     let err = Shape::read(&dummy).unwrap_err();
     assert!(
-        err.contains(&format!(
-            "call {k}: expected is_equal for output_amount == 0"
-        )),
+        err.contains(&format!("call {k}: expected is_equal for block_hash == 0")),
         "{err}"
     );
 }
@@ -287,9 +285,10 @@ fn leaf_bridge_lean_is_current() {
     );
     assert_eq!(generated.matches("· exact pos_lt_four hpg f").count(), 16);
     assert!(generated.contains("have hnd := notDummy_spec "));
+    assert!(generated.contains("have hburn := dummyBurn_spec "));
     assert!(generated.contains("have hWA := WA_of_hashes perm hpg f1 f2\n"));
-    assert!(generated.contains("have hnull := Null_of_hashes perm hpg f1527 f1528\n"));
-    assert!(generated.contains("have hhdr := H_of_hash perm f1541\n"));
+    assert!(generated.contains("have hnull := Null_of_hashes perm hpg f1522 f1523\n"));
+    assert!(generated.contains("have hhdr := H_of_hash perm f1536\n"));
     // Every recorded fact but the re-emitted `or(e0, e1)`s is consumed.
     let used: std::collections::BTreeSet<usize> = generated
         .match_indices("have f")
@@ -302,7 +301,7 @@ fn leaf_bridge_lean_is_current() {
                 .unwrap()
         })
         .collect();
-    assert_eq!(used.len(), 1566 - 16 * 3);
+    assert_eq!(used.len(), 1561 - 16 * 3);
     // The recursion base: a leaf tree with no children, and an accepted proof of it attests
     // `Rleaf` through `proof_sound`.
     assert!(

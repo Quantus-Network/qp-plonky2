@@ -12,9 +12,14 @@ use constraint_exporter::public_wrapper::{generate_public_wrapper_bridge_lean, S
 use constraint_exporter::trace::{
     assert_vendored_trace_matches_pinned, generate_public_batch_wrapper_lean, load, traces_dir,
 };
+use plonky2::field::types::PrimeField64;
 
 const SIZES: [usize; 2] = [2, 4];
+/// The inner private-batch shape the vendored traces were recorded against: `N = 2` leaves
+/// and `M = 2` exit slots.
 const LEAVES: usize = 2;
+const SLOTS: usize = 2;
+const INNER_PI_LEN: usize = 8 + 5 * SLOTS + 4 * LEAVES;
 
 fn trace_name(n: usize) -> String {
     format!("public_batch_wrapper_n{n}.json")
@@ -46,7 +51,7 @@ fn wrapper_trace_shape() {
             .rows
             .iter()
             .all(|r| r.0 == GateKind::Arithmetic { num_ops: 20 }));
-        let slots = 2 * LEAVES;
+        let slots = SLOTS;
         let nulls = LEAVES;
         // 12 header felts + n · slots · 5 limbs + n · nulls · 4 limbs.
         assert_eq!(t.ex.public_inputs.len(), 12 + n * slots * 5 + n * nulls * 4);
@@ -56,7 +61,7 @@ fn wrapper_trace_shape() {
                 .map(|(n, v)| (n.as_str(), v.len()))
                 .collect();
         let mut expected: Vec<(String, usize)> = (0..n)
-            .map(|i| (format!("inner_pis_{i}"), 22 * LEAVES + 8))
+            .map(|i| (format!("inner_pis_{i}"), INNER_PI_LEN))
             .collect();
         expected.push(("aggregator_address".into(), 4));
         assert_eq!(
@@ -75,11 +80,12 @@ fn wrapper_trace_shape() {
             count(|f| matches!(f, Fact::Select { .. })),
             n * (7 + slots * 5 + nulls * 4)
         );
-        // Each `or(is_dummy, eq) = 1` consistency check is pinned with a `connect`.
-        assert_eq!(count(|f| matches!(f, Fact::Connect { .. })), 3 * n);
+        // Per inner: the slot-count header pin and the three `or(is_dummy, eq) = 1`
+        // consistency pins.
+        assert_eq!(count(|f| matches!(f, Fact::Connect { .. })), 4 * n);
         assert_eq!(count(|f| matches!(f, Fact::Poseidon2 { .. })), 0);
         assert_eq!(count(|f| matches!(f, Fact::RangeCheck { .. })), 0);
-        assert_eq!(t.calls.len(), 33 * n + n * slots * 5 + n * nulls * 4);
+        assert_eq!(t.calls.len(), 34 * n + n * slots * 5 + n * nulls * 4);
         assert!(t.calls.len() > FACT_GROUP, "decode theorem is grouped");
 
         let shape = Shape::read(&t).expect("the trace has the wrapper's call structure");
@@ -88,7 +94,7 @@ fn wrapper_trace_shape() {
             (shape.slots_per_inner, shape.nulls_per_inner),
             (slots, nulls)
         );
-        assert_eq!(shape.pi_len, 22 * LEAVES + 8);
+        assert_eq!(shape.pi_len, INNER_PI_LEN);
     }
 }
 
@@ -98,27 +104,59 @@ fn wrapper_trace_shape() {
 #[test]
 fn shape_rejects_perturbed_traces() {
     let t = wrapper(2);
-    // Swap the first two `is_equal`s of inner 0's dummy check: the limbs no longer line up.
+    // Swap the slot-count pins of inners 0 and 1: each must read its own header.
     let mut swapped = wrapper(2);
     swapped.calls.swap(0, 1);
     let err = Shape::read(&swapped).unwrap_err();
-    assert!(err.contains("call 0: expected dummy is_equal"), "{err}");
+    assert!(
+        err.contains("call 0: expected connect(num_exit_slots_0, slots_per_inner)"),
+        "{err}"
+    );
+    // A slot-count pin against the total rather than the per-inner constant: a same-length
+    // inner of another shape would pass.
+    let mut total = wrapper(2);
+    let constant = |v: u64| {
+        total
+            .ex
+            .constants
+            .iter()
+            .find(|(_, c)| c.to_canonical_u64() == v)
+            .unwrap()
+            .0
+    };
+    let (kslots, ktot) = (constant(SLOTS as u64), constant((2 * SLOTS) as u64));
+    if let Fact::Connect { x, y } = total.calls[0].fact {
+        assert_eq!(y, kslots);
+        total.calls[0].fact = Fact::Connect { x, y: ktot };
+    }
+    let err = Shape::read(&total).unwrap_err();
+    assert!(
+        err.contains("call 0: expected connect(num_exit_slots_0, slots_per_inner)"),
+        "{err}"
+    );
+    // Swap the first two `is_equal`s of inner 0's dummy check: the limbs no longer line up.
+    let mut swapped = wrapper(2);
+    swapped.calls.swap(2, 3);
+    let err = Shape::read(&swapped).unwrap_err();
+    assert!(err.contains("call 2: expected dummy is_equal"), "{err}");
     // Drop the last call: the count no longer matches `(n_inner, leaves)`.
     let mut short = wrapper(2);
     short.calls.pop();
     let err = Shape::read(&short).unwrap_err();
-    assert!(err.contains("expected 122 gadget calls"), "{err}");
+    assert!(err.contains("expected 104 gadget calls"), "{err}");
     // Reorder the public inputs: the output layout check fires.
     let mut pis = wrapper(2);
     pis.ex.public_inputs.swap(4, 5);
     let err = Shape::read(&pis).unwrap_err();
     assert!(err.contains("recorded public inputs"), "{err}");
-    // A consistency `connect` pinned to something other than `one`.
+    // A consistency `connect` pinned to something other than `one` (the first `connect`
+    // after the two slot-count pins).
     let mut pin = wrapper(2);
     let k = t
         .calls
         .iter()
-        .position(|c| matches!(c.fact, Fact::Connect { .. }))
+        .enumerate()
+        .position(|(i, c)| i >= 2 && matches!(c.fact, Fact::Connect { .. }))
         .unwrap();
     if let Fact::Connect { x, .. } = pin.calls[k].fact {
         pin.calls[k].fact = Fact::Connect { x, y: x };
@@ -135,11 +173,21 @@ fn shape_rejects_perturbed_traces() {
         err.contains("expected 2 verify_proof gadgets, trace has 3"),
         "{err}"
     );
+    // The first verifier names the inner shape; the others must agree with it.
     let mut key = wrapper(2);
     key.ex.verifiers[0].0 = "leaf_circuit".into();
     let err = Shape::read(&key).unwrap_err();
     assert!(
-        err.contains("verifier 0 is for \"leaf_circuit\", expected \"private_batch_wrapper_n2\""),
+        err.contains("verifier child \"leaf_circuit\" is not a private-batch wrapper"),
+        "{err}"
+    );
+    let mut key = wrapper(2);
+    key.ex.verifiers[1].0 = "private_batch_wrapper_n4".into();
+    let err = Shape::read(&key).unwrap_err();
+    assert!(
+        err.contains(
+            "verifier 1 is for \"private_batch_wrapper_n4\", expected \"private_batch_wrapper_n2\""
+        ),
         "{err}"
     );
     let mut targets = wrapper(2);
@@ -182,9 +230,15 @@ fn wrapper_lean_is_current() {
             "(hacc : ∀ i : Fin {n}, ProofAccepted perm Wrapper{LEAVES}.tree ((List.ofFn (innerPis i)).map a))"
         )));
         assert!(generated.contains(&format!(
-            "refine public_batch_val ro (rows a) (k := {})",
-            2 * LEAVES
+            "refine public_batch_val ro (rows a) (k := {SLOTS})"
         )));
+        // Each inner's slot-count header is read back from its `connect` to the constant.
+        assert_eq!(
+            generated
+                .matches(", kslots, ← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]")
+                .count(),
+            n
+        );
         assert!(generated.contains(&format!(
             ".node \"public_batch_wrapper_n{n}\" (publicBatchWrapper{n} p)"
         )));

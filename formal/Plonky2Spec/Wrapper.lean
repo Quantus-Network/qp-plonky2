@@ -178,6 +178,9 @@ theorem scanFirst_correct : ∀ (xs : List (ZMod p × ZMod p)) (init : ZMod p),
   `and(and(e0, e1), and(e2, e3))` over the four per-limb `is_equal` flags. `andAll`
   above is the list-fold form; the circuit's is this balanced tree. -/
 
+/-- A four-limb digest over the field. -/
+abbrev Digest4 (p : ℕ) := Fin 4 → ZMod p
+
 /-- The digest-equality flag from four per-limb flags. -/
 def digestEq (e : Fin 4 → ZMod p) : ZMod p := band (band (e 0) (e 1)) (band (e 2) (e 3))
 

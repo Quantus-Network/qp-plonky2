@@ -444,6 +444,48 @@ mod tests {
     }
 
     #[test]
+    fn generator_rejects_out_of_bounds_indices() -> Result<()> {
+        type F = GoldilocksField;
+        const D: usize = 2;
+        let gate = RandomAccessGate::<F, D>::new(1, 2, 0);
+        let generator = RandomAccessGenerator {
+            row: 0,
+            gate,
+            copy: 0,
+        };
+        let representatives: Vec<_> = (0..gate.num_wires()).collect();
+        let mut output = GeneratedValues::empty();
+
+        for index in [F::from_canonical_u64(4), F::NEG_ONE, F::TWO] {
+            let mut witness = PartitionWitness::new(gate.num_wires(), 1, &representatives);
+            witness.set_target(Target::wire(0, gate.wire_access_index(0)), index)?;
+            for i in 0..gate.vec_size() {
+                witness.set_target(
+                    Target::wire(0, gate.wire_list_item(i, 0)),
+                    F::from_canonical_usize(i + 10),
+                )?;
+            }
+            output.target_values.clear();
+            let result = generator.run_once(&witness, &mut output);
+            if index == F::TWO {
+                result?;
+                assert_eq!(
+                    output.target_values[0],
+                    (
+                        Target::wire(0, gate.wire_claimed_element(0)),
+                        F::from_canonical_u64(12),
+                    )
+                );
+            } else {
+                let error = result.unwrap_err();
+                assert!(error.to_string().contains("random access index"), "{error}");
+                assert!(output.target_values.is_empty());
+            }
+        }
+        Ok(())
+    }
+
+    #[test]
     fn test_gate_constraint() {
         const D: usize = 2;
         type C = PoseidonGoldilocksConfig;
