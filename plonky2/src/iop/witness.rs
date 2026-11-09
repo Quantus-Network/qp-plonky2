@@ -387,7 +387,7 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
         let dense = self
             .dense
             .as_mut()
-            .ok_or_else(|| anyhow!("witness is not dense"))?;
+            .ok_or_else(|| anyhow!("dense witness storage is required"))?;
         Ok(dense.values_and_assignment_flags())
     }
 
@@ -445,7 +445,9 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
 
     /// Borrows mutable dense storage.
     pub(super) fn dense_mut(&mut self) -> &mut DenseStorage<F> {
-        self.dense.as_mut().expect("witness is not dense")
+        self.dense
+            .as_mut()
+            .expect("dense witness storage is required")
     }
 }
 
@@ -463,7 +465,10 @@ impl<F: Field> PartitionWitness<'_, F> {
     /// requirements of [`DenseStorage::set_shared`].
     pub(super) unsafe fn set_target_shared(&self, target: Target, value: F) -> Result<()> {
         let rep_index = self.representative_map[self.target_index(target)];
-        let dense = self.dense.as_ref().expect("witness is not dense");
+        let dense = self
+            .dense
+            .as_ref()
+            .expect("dense witness storage is required");
         // SAFETY: The executor supplies the required slot ordering.
         unsafe { dense.set_shared(rep_index, value) }
     }

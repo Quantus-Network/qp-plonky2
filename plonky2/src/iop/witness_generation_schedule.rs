@@ -109,13 +109,15 @@ impl GeneratorDependencies {
     ) -> Result<Self> {
         ensure!(
             reads.len() == writes.len(),
-            "generator read and write counts do not match"
+            "generator read and write list counts differ: {} != {}",
+            reads.len(),
+            writes.len()
         );
         for rep_indices in reads.iter_mut().chain(&mut writes) {
             for &rep_index in rep_indices.iter() {
                 ensure!(
                     rep_index < num_targets,
-                    "invalid representative index {rep_index}"
+                    "representative index {rep_index} is out of bounds for {num_targets} targets"
                 );
             }
             rep_indices.sort_unstable();

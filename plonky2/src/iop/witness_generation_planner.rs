@@ -159,7 +159,8 @@ where
         .ok_or_else(|| anyhow!("target {target:?} is outside the witness"))?;
     ensure!(
         rep_index < representative_map.len(),
-        "invalid representative index {rep_index}"
+        "representative index {rep_index} is out of bounds for {} targets",
+        representative_map.len()
     );
     ensure!(
         representative_map[rep_index] == rep_index,
@@ -184,43 +185,45 @@ fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
     let input_rule = dummy_input_rule(&id)?;
     let read_targets = generator
         .reads()
-        .ok_or_else(|| anyhow!("generator {id} does not declare its reads"))?;
+        .ok_or_else(|| anyhow!("generator does not declare its reads"))?;
     let override_value = match input_rule {
         DummyInputRule::Zero => None,
         DummyInputRule::Quotient => {
             ensure!(
                 D > 0 && D.checked_mul(2) == Some(read_targets.len()),
-                "invalid read declaration for generator {id}"
+                "invalid read declaration: extension degree {D}, {} read targets",
+                read_targets.len()
             );
             Some((read_targets[D], F::ONE))
         }
         DummyInputRule::Interpolation => Some((
             *read_targets
                 .first()
-                .ok_or_else(|| anyhow!("{id} has no shift input"))?,
+                .ok_or_else(|| anyhow!("missing shift input"))?,
             F::ONE,
         )),
         DummyInputRule::Lookup => {
             ensure!(
                 read_targets.len() == 1,
-                "invalid read declaration for generator {id}"
+                "expected one read target, got {}",
+                read_targets.len()
             );
             let mut parameters = Vec::new();
             generator
                 .serialize(&mut parameters, common)
-                .map_err(|_| anyhow!("failed to serialize generator {id}"))?;
+                .map_err(|_| anyhow!("could not serialize lookup parameters"))?;
             let mut reader = Buffer::new(&parameters);
             let table = (|| {
                 reader.read_usize()?; // row
                 reader.read_usize()?; // slot within the row
                 reader.read_usize() // common lookup-table index
             })()
-            .map_err(|_| anyhow!("invalid serialized lookup parameters for {id}"))?;
+            .map_err(|_| anyhow!("invalid serialized lookup parameters"))?;
             let &(key, _) = common
                 .luts
                 .get(table)
                 .and_then(|lut| lut.first())
-                .ok_or_else(|| anyhow!("{id} references missing or empty lookup table {table}"))?;
+                .ok_or_else(|| anyhow!("lookup table {table} is missing or empty"))?;
             Some((read_targets[0], F::from_canonical_u16(key)))
         }
     };
@@ -229,12 +232,11 @@ fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
         let rep_index = *probe_witness
             .representative_map
             .get(target_index)
-            .ok_or_else(|| {
-                anyhow!("target {target:?} is outside the witness for generator {id}")
-            })?;
+            .ok_or_else(|| anyhow!("target {target:?} is outside the witness"))?;
         ensure!(
             rep_index < probe_witness.representative_map.len(),
-            "invalid representative index {rep_index} for generator {id}"
+            "representative index {rep_index} is out of bounds for {} targets",
+            probe_witness.representative_map.len()
         );
         Ok(rep_index)
     };
@@ -264,7 +266,7 @@ fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
         }
         ensure!(
             generator.run(probe_witness, &mut output_buffer),
-            "failed to determine output targets for generator {id}"
+            "could not determine output targets"
         );
         Ok(())
     })();
@@ -316,22 +318,22 @@ fn dummy_input_rule(id: &str) -> Result<DummyInputRule> {
         | "ConstantGenerator" => Ok(DummyInputRule::Zero),
         _ => {
             if let Some(base) = id.strip_prefix("BaseSplitGenerator + Base: ") {
-                let base = parse_base(id, base)?;
-                ensure!(base != 0, "invalid zero base for {id}");
+                let base = parse_base(base)?;
+                ensure!(base != 0, "generator base must be nonzero");
                 return Ok(DummyInputRule::Zero);
             }
             if let Some(base) = id.strip_prefix("BaseSumGenerator + Base: ") {
-                parse_base(id, base)?;
+                parse_base(base)?;
                 return Ok(DummyInputRule::Zero);
             }
-            Err(anyhow!("unsupported generator ID: {id}"))
+            Err(anyhow!("unsupported generator ID"))
         }
     }
 }
 
-fn parse_base(id: &str, base: &str) -> Result<usize> {
+fn parse_base(base: &str) -> Result<usize> {
     base.parse()
-        .map_err(|_| anyhow!("invalid base in built-in generator ID: {id}"))
+        .map_err(|_| anyhow!("invalid generator base: {base}"))
 }
 
 #[cfg(all(test, feature = "std"))]
