@@ -129,7 +129,6 @@ pub struct WitnessGenerationPlanning<
 > {
     planner: &'p WitnessGenerationPlanner<'a, F, C, D>,
     promised_rep_indices: Vec<usize>,
-    newly_produced: Vec<usize>,
     state: WitnessGenerationState,
     plan: WitnessGenerationPlan,
 }
@@ -142,7 +141,6 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         Self {
             planner,
             promised_rep_indices: Vec::new(),
-            newly_produced: Vec::new(),
             state: WitnessGenerationState::new(
                 circuit.prover_only.representative_map.len(),
                 planner.dependencies().reads().len(),
@@ -176,10 +174,9 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         for &generator_index in schedule.generator_indices() {
             self.state.mark_scheduled(generator_index);
         }
-        for &rep_index in &newly_produced {
+        for rep_index in newly_produced {
             self.state.mark_assigned(rep_index);
         }
-        self.newly_produced = newly_produced;
         self.plan.stages.push(WitnessGenerationStage {
             promised_rep_indices,
             schedule,
@@ -216,7 +213,6 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         f.debug_struct("WitnessGenerationPlanning")
             .field("num_stages", &self.plan.num_stages())
             .field("num_pending_assignments", &self.promised_rep_indices.len())
-            .field("num_newly_produced", &self.newly_produced.len())
             .field("state", &self.state)
             .finish_non_exhaustive()
     }
