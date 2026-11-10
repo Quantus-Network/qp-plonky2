@@ -20,7 +20,7 @@ default = ["gate_testing", "parallel", "chacha", "timing", "thread_rng", "rand"]
 gate_testing = []
 # Exposes Poseidon2 primitive helpers for `qp-plonky2-constraint-exporter` only.
 formal-export = []
-parallel = ["hashbrown/rayon", "plonky2_maybe_rayon/parallel"]
+parallel = ["dep:crossbeam-deque", "hashbrown/rayon", "plonky2_maybe_rayon/parallel"]
 std = [
   "anyhow/std",
   "rand/std",
@@ -34,6 +34,7 @@ chacha = ["rand/chacha"]
 thread_rng = ["rand/thread_rng"]
 
 [dependencies]
+crossbeam-deque = { version = "=0.8.6", optional = true }
 ahash = { workspace = true }
 anyhow = { workspace = true }
 once_cell = { version = "=1.21.3", default-features = false, features = [

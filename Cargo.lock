@@ -709,6 +709,7 @@ dependencies = [
  "clap",
  "criterion",
  "critical-section",
+ "crossbeam-deque",
  "env_logger",
  "getrandom",
  "hashbrown 0.14.5",

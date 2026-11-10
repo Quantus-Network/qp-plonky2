@@ -1,0 +1,671 @@
+//! Serial and parallel execution of immutable witness-generation plans.
+
+#[cfg(not(feature = "std"))]
+use alloc::sync::Arc;
+#[cfg(not(all(feature = "std", feature = "parallel")))]
+use core::marker::PhantomData;
+
+#[cfg(feature = "std")]
+use std::sync::Arc;
+#[cfg(all(feature = "std", feature = "parallel"))]
+use std::{
+    panic::{catch_unwind, resume_unwind, AssertUnwindSafe},
+    sync::atomic::{AtomicUsize, Ordering},
+};
+
+#[cfg(all(feature = "std", feature = "parallel"))]
+use crossbeam_deque::Worker;
+
+use anyhow::{anyhow, ensure, Result};
+
+use crate::field::extension::Extendable;
+use crate::hash::hash_types::RichField;
+use crate::iop::generator::GeneratedValues;
+use crate::iop::target::Target;
+use crate::iop::witness::{PartitionWitness, WitnessWrite};
+use crate::iop::witness_generation_plan::WitnessGenerationPlan;
+use crate::iop::witness_generation_planner::WitnessGenerationPlanner;
+use crate::plonk::circuit_data::CircuitData;
+use crate::plonk::config::GenericConfig;
+#[cfg(all(feature = "std", feature = "parallel"))]
+use crate::{
+    field::types::Field,
+    iop::{
+        witness_generation_schedule::WitnessGenerationSchedule,
+        worker_coordinator::WorkerCoordinator,
+    },
+};
+
+/// Executes a witness generation plan with reusable worker allocations.
+pub struct WitnessGenerationExecutor<F: RichField> {
+    plan: Arc<WitnessGenerationPlan>,
+    #[cfg(all(feature = "std", feature = "parallel"))]
+    scratch: GenerationScratch<F>,
+    #[cfg(not(all(feature = "std", feature = "parallel")))]
+    _phantom: PhantomData<F>,
+}
+
+impl<F: RichField> WitnessGenerationExecutor<F> {
+    pub fn new(plan: Arc<WitnessGenerationPlan>) -> Self {
+        Self {
+            plan,
+            #[cfg(all(feature = "std", feature = "parallel"))]
+            scratch: GenerationScratch::new(),
+            #[cfg(not(all(feature = "std", feature = "parallel")))]
+            _phantom: PhantomData,
+        }
+    }
+
+    /// Creates an executor with a complete single-stage plan for the supplied input targets.
+    pub fn new_with_inputs<C: GenericConfig<D, F = F>, const D: usize>(
+        circuit: &CircuitData<F, C, D>,
+        input_targets: impl IntoIterator<Item = Target>,
+    ) -> Result<Self>
+    where
+        F: Extendable<D>,
+    {
+        let planner = WitnessGenerationPlanner::new(circuit)?;
+        let plan = planner.input_plan(input_targets)?;
+        Ok(Self::new(plan))
+    }
+
+    /// Creates an empty dense witness for the supplied circuit. Its public `values`
+    /// vector is empty; access assignments through witness methods.
+    pub fn new_witness<'a, C: GenericConfig<D, F = F>, const D: usize>(
+        &self,
+        circuit: &'a CircuitData<F, C, D>,
+    ) -> PartitionWitness<'a, F>
+    where
+        F: Extendable<D>,
+    {
+        PartitionWitness::new_dense(
+            circuit.common.config.num_wires,
+            circuit.common.degree(),
+            &circuit.prover_only.representative_map,
+        )
+    }
+
+    /// Borrows the circuit, executor and witness for execution starting at the first stage.
+    /// Use the unchanged circuit from which the plan was prepared.
+    pub fn bind<'b, 'a, C: GenericConfig<D, F = F>, const D: usize>(
+        &'b mut self,
+        circuit: &'a CircuitData<F, C, D>,
+        witness: &'b mut PartitionWitness<'a, F>,
+    ) -> Result<WitnessGenerationExecution<'b, 'a, F, C, D>>
+    where
+        F: Extendable<D>,
+    {
+        ensure!(
+            core::ptr::eq(
+                witness.representative_map,
+                circuit.prover_only.representative_map.as_slice()
+            ) && witness.num_wires == circuit.common.config.num_wires
+                && witness.degree == circuit.common.degree(),
+            "witness does not match execution circuit"
+        );
+        Ok(WitnessGenerationExecution {
+            executor: self,
+            circuit,
+            witness,
+            next_stage: 0,
+            failed: false,
+        })
+    }
+
+    /// Executes the entire plan with inputs supplied before this call.
+    /// Use the unchanged circuit from which the plan was prepared.
+    pub fn execute<'a, C: GenericConfig<D, F = F>, const D: usize>(
+        &mut self,
+        circuit: &'a CircuitData<F, C, D>,
+        witness: &mut PartitionWitness<'a, F>,
+    ) -> Result<()>
+    where
+        F: Extendable<D>,
+    {
+        let mut execution = self.bind(circuit, witness)?;
+        while !execution.is_done() {
+            execution.execute()?;
+        }
+        Ok(())
+    }
+
+    pub fn plan(&self) -> &Arc<WitnessGenerationPlan> {
+        &self.plan
+    }
+
+    fn run_generator<C: GenericConfig<D, F = F>, const D: usize>(
+        circuit: &CircuitData<F, C, D>,
+        plan: &WitnessGenerationPlan,
+        generator_index: usize,
+        witness: &mut PartitionWitness<'_, F>,
+        output_buffer: &mut GeneratedValues<F>,
+    ) -> Result<()>
+    where
+        F: Extendable<D>,
+    {
+        Self::run_generator_outputs(circuit, plan, generator_index, witness, output_buffer)?;
+        let generator = &circuit.prover_only.generators[generator_index].0;
+        for (target, value) in output_buffer.target_values.drain(..) {
+            witness.set_target(target, value).map_err(|error| {
+                anyhow!("generator {generator_index} ({}): {error}", generator.id())
+            })?;
+        }
+        Ok(())
+    }
+
+    fn run_generator_outputs<C: GenericConfig<D, F = F>, const D: usize>(
+        circuit: &CircuitData<F, C, D>,
+        _plan: &WitnessGenerationPlan,
+        generator_index: usize,
+        witness: &PartitionWitness<'_, F>,
+        output_buffer: &mut GeneratedValues<F>,
+    ) -> Result<()>
+    where
+        F: Extendable<D>,
+    {
+        let generator = &circuit.prover_only.generators[generator_index].0;
+        generator
+            .run_ready(witness, output_buffer)
+            .map_err(|error| {
+                anyhow!("generator {generator_index} ({}): {error}", generator.id())
+            })?;
+        #[cfg(debug_assertions)]
+        {
+            let expected_output_targets = _plan.expected_output_targets(generator_index);
+            debug_assert_eq!(
+                output_buffer.target_values.len(),
+                expected_output_targets.len(),
+                "generator {generator_index} ({}) emitted an unexpected number of outputs",
+                generator.id()
+            );
+            for (position, ((target, _), declared)) in output_buffer
+                .target_values
+                .iter()
+                .zip(expected_output_targets)
+                .enumerate()
+            {
+                debug_assert_eq!(
+                    target,
+                    declared,
+                    "generator {generator_index} ({}) emitted an unexpected output target at position {position}",
+                    generator.id()
+                );
+            }
+        }
+        Ok(())
+    }
+}
+
+#[cfg(all(feature = "std", feature = "parallel"))]
+impl<F: RichField> WitnessGenerationExecutor<F> {
+    /// Executes the entire plan with one OS thread per worker in each stage.
+    ///
+    /// # Safety
+    /// The circuit must be the unchanged circuit used to prepare the plan.
+    /// The generator access requirements of
+    /// [`WitnessGenerationExecution::execute_parallel`] must hold.
+    pub unsafe fn execute_parallel<'a, C: GenericConfig<D, F = F>, const D: usize>(
+        &mut self,
+        circuit: &'a CircuitData<F, C, D>,
+        witness: &mut PartitionWitness<'a, F>,
+        num_workers: usize,
+    ) -> Result<()>
+    where
+        F: Extendable<D>,
+    {
+        ensure!(
+            num_workers > 0,
+            "witness generation requires at least one worker"
+        );
+        witness.require_dense()?;
+        let mut execution = self.bind(circuit, witness)?;
+        while !execution.is_done() {
+            // SAFETY: The caller supplies the bound execution's access guarantees.
+            unsafe { execution.execute_parallel(num_workers)? };
+        }
+        Ok(())
+    }
+
+    unsafe fn run_parallel<C: GenericConfig<D, F = F>, const D: usize>(
+        &mut self,
+        circuit: &CircuitData<F, C, D>,
+        schedule: &WitnessGenerationSchedule,
+        witness: &mut PartitionWitness<'_, F>,
+        num_workers: usize,
+    ) -> Result<()>
+    where
+        F: Extendable<D>,
+    {
+        let plan = &self.plan;
+        let witness = &*witness;
+        let scratch = &mut self.scratch;
+        scratch.reset(schedule.dependency_counts(), num_workers);
+        scratch.seed_ready(schedule.initial_ready(), num_workers);
+        if schedule.initial_ready().is_empty() {
+            ensure!(
+                schedule.generator_indices().is_empty(),
+                "witness generation schedule has no ready generators"
+            );
+            return Ok(());
+        }
+        let pending_dependencies = &scratch.pending_dependencies;
+        let mut workers = core::mem::take(&mut scratch.workers);
+        let inactive = workers.split_off(num_workers);
+        let coordinator = WorkerCoordinator::new(
+            workers
+                .iter()
+                .map(|worker| worker.ready.stealer())
+                .collect(),
+        );
+        let (workers, completed) = std::thread::scope(|scope| {
+            let mut handles = Vec::with_capacity(num_workers);
+            for (worker_index, mut worker) in workers.into_iter().enumerate() {
+                let witness = &*witness;
+                let coordinator = &coordinator;
+                // Each deque moves with its owning worker; only its Stealer is shared.
+                let handle = std::thread::Builder::new().spawn_scoped(scope, move || {
+                    let mut completed = 0;
+                    let result = catch_unwind(AssertUnwindSafe(|| {
+                        let mut next_victim_index = (worker_index + 1) % num_workers;
+                        while let Some(local_index) =
+                            coordinator.next(&worker.ready, worker_index, &mut next_victim_index)
+                        {
+                            let generator_index = schedule.generator_indices()[local_index];
+                            // SAFETY: The caller guarantees stable, complete access
+                            // sets. Counter AcqRel publication and deque handoff
+                            // order every read/comparison after the selected writer.
+                            let result = unsafe {
+                                Self::run_generator_parallel(
+                                    circuit,
+                                    plan,
+                                    generator_index,
+                                    witness,
+                                    &mut worker.output_buffer,
+                                )
+                            };
+                            if let Err(error) = result {
+                                coordinator.fail(error);
+                                return;
+                            }
+                            let pushed = Self::release_successors(
+                                schedule,
+                                local_index,
+                                pending_dependencies,
+                                &worker.ready,
+                            );
+                            if pushed {
+                                coordinator.notify_work();
+                            }
+                            completed += 1;
+                        }
+                    }));
+                    if let Err(panic) = result {
+                        coordinator.abort();
+                        resume_unwind(panic);
+                    }
+                    (worker, completed)
+                });
+                match handle {
+                    Ok(handle) => handles.push(handle),
+                    Err(error) => {
+                        coordinator.fail(anyhow!(
+                            "could not spawn witness worker {worker_index}: {error}"
+                        ));
+                        break;
+                    }
+                }
+            }
+            let mut workers = Vec::with_capacity(num_workers);
+            let mut completed = 0;
+            let mut panic = None;
+            for handle in handles {
+                match handle.join() {
+                    Ok((worker, count)) => {
+                        workers.push(worker);
+                        completed += count;
+                    }
+                    Err(payload) => {
+                        if panic.is_none() {
+                            panic = Some(payload);
+                        }
+                    }
+                }
+            }
+            if let Some(panic) = panic {
+                resume_unwind(panic);
+            }
+            (workers, completed)
+        });
+        scratch.workers = workers;
+        scratch.workers.extend(inactive);
+        coordinator.finish()?;
+        ensure!(
+            completed == schedule.generator_indices().len(),
+            "completed {completed} of {} scheduled witness generators",
+            schedule.generator_indices().len()
+        );
+        Ok(())
+    }
+
+    fn release_successors(
+        schedule: &WitnessGenerationSchedule,
+        local_index: usize,
+        pending_dependencies: &[AtomicUsize],
+        local_queue: &Worker<usize>,
+    ) -> bool {
+        let mut pushed = false;
+        for &successor_local_index in schedule.successors(local_index) {
+            let previous =
+                pending_dependencies[successor_local_index].fetch_sub(1, Ordering::AcqRel);
+            assert!(
+                previous > 0,
+                "generator {} dependency count underflow",
+                schedule.generator_indices()[successor_local_index]
+            );
+            if previous == 1 {
+                local_queue.push(successor_local_index);
+                pushed = true;
+            }
+        }
+        pushed
+    }
+
+    unsafe fn run_generator_parallel<C: GenericConfig<D, F = F>, const D: usize>(
+        circuit: &CircuitData<F, C, D>,
+        plan: &WitnessGenerationPlan,
+        generator_index: usize,
+        witness: &PartitionWitness<'_, F>,
+        output_buffer: &mut GeneratedValues<F>,
+    ) -> Result<()>
+    where
+        F: Extendable<D>,
+    {
+        Self::run_generator_outputs(circuit, plan, generator_index, witness, output_buffer)?;
+        // SAFETY: The caller guarantees complete read/write declarations.
+        // Dependencies order reads and comparisons after initial assignment.
+        unsafe { Self::write_generator_outputs(circuit, generator_index, witness, output_buffer)? };
+        Ok(())
+    }
+
+    /// # Safety
+    /// Each output must satisfy the assignment and publication requirements
+    /// of [`PartitionWitness::set_target_shared`].
+    unsafe fn write_generator_outputs<C: GenericConfig<D, F = F>, const D: usize>(
+        circuit: &CircuitData<F, C, D>,
+        generator_index: usize,
+        witness: &PartitionWitness<'_, F>,
+        output_buffer: &mut GeneratedValues<F>,
+    ) -> Result<()>
+    where
+        F: Extendable<D>,
+    {
+        for (target, value) in output_buffer.target_values.drain(..) {
+            // SAFETY: The caller guarantees exclusive assignment followed by
+            // concurrent read-only comparisons, with readers after assignment.
+            unsafe { witness.set_target_shared(target, value) }.map_err(|error| {
+                anyhow!(
+                    "generator {generator_index} ({}): {error}",
+                    circuit.prover_only.generators[generator_index].0.id()
+                )
+            })?;
+        }
+        Ok(())
+    }
+}
+
+impl<F: RichField> core::fmt::Debug for WitnessGenerationExecutor<F> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        let mut debug = f.debug_struct("WitnessGenerationExecutor");
+        debug.field("plan", &self.plan);
+        #[cfg(all(feature = "std", feature = "parallel"))]
+        debug.field("scratch", &self.scratch);
+        debug.finish_non_exhaustive()
+    }
+}
+
+/// Executes successive stages while borrowing a circuit, executor and witness.
+pub struct WitnessGenerationExecution<
+    'b,
+    'a,
+    F: RichField + Extendable<D>,
+    C: GenericConfig<D, F = F>,
+    const D: usize,
+> {
+    executor: &'b mut WitnessGenerationExecutor<F>,
+    circuit: &'a CircuitData<F, C, D>,
+    witness: &'b mut PartitionWitness<'a, F>,
+    next_stage: usize,
+    failed: bool,
+}
+
+impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
+    WitnessGenerationExecution<'b, 'a, F, C, D>
+{
+    /// Releases the circuit, executor and witness borrows, preserving witness assignments.
+    pub fn unbind(self) {}
+
+    /// Releases the circuit, executor and witness borrows after successful completion.
+    /// Returns the execution when further work or recovery is required.
+    pub fn finish(self) -> core::result::Result<(), Self> {
+        if self.is_done() {
+            Ok(())
+        } else {
+            Err(self)
+        }
+    }
+
+    /// Clears witness assignments and restarts at the first stage, retaining
+    /// the executor's worker allocations. Also permits recovery after failure.
+    pub fn reset(&mut self) {
+        self.witness.clear();
+        self.next_stage = 0;
+        self.failed = false;
+    }
+
+    /// Executes the next stage serially. Validation errors permit retry;
+    /// execution errors or panics require reset or unbinding.
+    pub fn execute(&mut self) -> Result<()> {
+        self.begin_stage()?;
+        let plan = &self.executor.plan;
+        let schedule = plan.stages()[self.next_stage].schedule();
+        let mut output_buffer = GeneratedValues::empty();
+        for &generator_index in schedule.generator_indices() {
+            WitnessGenerationExecutor::run_generator(
+                self.circuit,
+                plan,
+                generator_index,
+                self.witness,
+                &mut output_buffer,
+            )?;
+        }
+        self.finish_stage();
+        Ok(())
+    }
+
+    pub fn witness(&self) -> &PartitionWitness<'a, F> {
+        self.witness
+    }
+
+    pub fn is_done(&self) -> bool {
+        !self.failed && self.next_stage == self.executor.plan.num_stages()
+    }
+
+    fn begin_stage(&mut self) -> Result<()> {
+        ensure!(
+            !self.failed,
+            "witness execution failed; reset before continuing"
+        );
+        let stage = self
+            .executor
+            .plan
+            .stages()
+            .get(self.next_stage)
+            .ok_or_else(|| anyhow!("all witness generation stages have completed"))?;
+        for &rep_index in stage.promised_rep_indices() {
+            ensure!(
+                self.witness.contains_rep(rep_index),
+                "representative index {rep_index} is not assigned before stage {}",
+                self.next_stage
+            );
+        }
+        self.failed = true;
+        Ok(())
+    }
+
+    fn finish_stage(&mut self) {
+        self.next_stage += 1;
+        self.failed = false;
+    }
+}
+
+#[cfg(all(feature = "std", feature = "parallel"))]
+impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
+    WitnessGenerationExecution<'b, 'a, F, C, D>
+{
+    /// Executes the next stage in parallel, retaining worker allocations.
+    ///
+    /// # Safety
+    /// The circuit must be the unchanged circuit used to prepare the plan.
+    /// The caller must ensure that every generator:
+    /// - declares every target it may read, including checks whether a target is assigned;
+    /// - emits the output target sequence discovered during planning on every
+    ///   successful call, independently of input values;
+    /// - accesses the witness through target-based methods;
+    /// - completes all witness access before execution returns.
+    pub unsafe fn execute_parallel(&mut self, num_workers: usize) -> Result<()> {
+        ensure!(
+            num_workers > 0,
+            "witness generation requires at least one worker"
+        );
+        self.witness.require_dense()?;
+        self.begin_stage()?;
+        let plan = Arc::clone(&self.executor.plan);
+        let schedule = plan.stages()[self.next_stage].schedule();
+        // SAFETY: The caller supplies generator access guarantees. Prior stages
+        // succeeded synchronously and this stage's initial promises were checked.
+        unsafe {
+            self.executor
+                .run_parallel(self.circuit, schedule, self.witness, num_workers)?
+        };
+        self.finish_stage();
+        Ok(())
+    }
+}
+
+impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
+    WitnessWrite<F> for WitnessGenerationExecution<'b, 'a, F, C, D>
+{
+    fn set_target(&mut self, target: Target, value: F) -> Result<()> {
+        ensure!(
+            !self.failed,
+            "witness execution failed; reset before continuing"
+        );
+        self.witness.set_target(target, value)
+    }
+}
+
+impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
+    core::fmt::Debug for WitnessGenerationExecution<'b, 'a, F, C, D>
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("WitnessGenerationExecution")
+            .field("next_stage", &self.next_stage)
+            .field("num_stages", &self.executor.plan.num_stages())
+            .field("failed", &self.failed)
+            .finish_non_exhaustive()
+    }
+}
+
+#[cfg(all(feature = "std", feature = "parallel"))]
+/// Reusable dependency counters, work queues and generator output buffers.
+struct GenerationScratch<F: Field> {
+    pending_dependencies: Vec<AtomicUsize>,
+    workers: Vec<WorkerScratch<F>>,
+}
+
+#[cfg(all(feature = "std", feature = "parallel"))]
+impl<F: Field> GenerationScratch<F> {
+    fn new() -> Self {
+        Self {
+            pending_dependencies: Vec::new(),
+            workers: Vec::new(),
+        }
+    }
+
+    fn reset(&mut self, dependency_counts: &[usize], num_workers: usize) {
+        assert!(
+            num_workers > 0,
+            "witness generation requires at least one worker"
+        );
+        self.pending_dependencies
+            .resize_with(dependency_counts.len(), || AtomicUsize::new(0));
+        for (pending_dependencies, &count) in
+            self.pending_dependencies.iter_mut().zip(dependency_counts)
+        {
+            *pending_dependencies.get_mut() = count;
+        }
+        if self.workers.len() < num_workers {
+            self.workers.resize_with(num_workers, WorkerScratch::new);
+        }
+        for worker in &mut self.workers {
+            worker.output_buffer.target_values.clear();
+            while worker.ready.pop().is_some() {}
+        }
+    }
+
+    /// Seeds balanced worker slices from roots already in circuit-builder order.
+    fn seed_ready(&mut self, initial_ready: &[usize], num_workers: usize) {
+        let workers = &self.workers[..num_workers];
+        assert!(
+            workers.iter().all(|worker| worker.ready.is_empty()),
+            "worker queues must be empty before seeding"
+        );
+        // Owners start at the slice's beginning; thieves take from its end.
+        let per_worker = initial_ready.len() / num_workers;
+        let extra = initial_ready.len() % num_workers;
+        let mut start = 0;
+        for (worker_index, worker) in workers.iter().enumerate() {
+            let end = start + per_worker + usize::from(worker_index < extra);
+            for &local_index in initial_ready[start..end].iter().rev() {
+                worker.ready.push(local_index);
+            }
+            start = end;
+        }
+    }
+}
+
+#[cfg(all(feature = "std", feature = "parallel"))]
+impl<F: Field> core::fmt::Debug for GenerationScratch<F> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("GenerationScratch")
+            .field("num_dependency_counters", &self.pending_dependencies.len())
+            .field("num_workers", &self.workers.len())
+            .finish_non_exhaustive()
+    }
+}
+
+#[cfg(all(feature = "std", feature = "parallel"))]
+struct WorkerScratch<F: Field> {
+    output_buffer: GeneratedValues<F>,
+    ready: Worker<usize>,
+}
+
+#[cfg(all(feature = "std", feature = "parallel"))]
+impl<F: Field> WorkerScratch<F> {
+    fn new() -> Self {
+        Self {
+            output_buffer: GeneratedValues::empty(),
+            ready: Worker::new_lifo(),
+        }
+    }
+}
+
+#[cfg(all(feature = "std", feature = "parallel"))]
+impl<F: Field> core::fmt::Debug for WorkerScratch<F> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("WorkerScratch")
+            .field("num_outputs", &self.output_buffer.target_values.len())
+            .field("num_ready", &self.ready.len())
+            .finish_non_exhaustive()
+    }
+}
