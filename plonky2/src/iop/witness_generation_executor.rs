@@ -96,6 +96,10 @@ impl<F: RichField> WitnessGenerationExecutor<F> {
         F: Extendable<D>,
     {
         ensure!(
+            self.plan.matches_circuit(circuit),
+            "circuit does not match witness generation plan"
+        );
+        ensure!(
             core::ptr::eq(
                 witness.representative_map,
                 circuit.prover_only.representative_map.as_slice()

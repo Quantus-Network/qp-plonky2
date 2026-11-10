@@ -14,10 +14,12 @@ use crate::iop::witness_generation_planner::WitnessGenerationPlanner;
 use crate::iop::witness_generation_schedule::{
     make_schedule, WitnessGenerationSchedule, WitnessGenerationState,
 };
-use crate::plonk::config::GenericConfig;
+use crate::plonk::circuit_data::CircuitData;
+use crate::plonk::config::{GenericConfig, GenericHashOut};
 
 /// An immutable sequence of witness generation stages for a circuit.
 pub struct WitnessGenerationPlan {
+    circuit_fingerprint: CircuitFingerprint,
     stages: Vec<WitnessGenerationStage>,
     #[cfg(debug_assertions)]
     expected_output_targets: Arc<Vec<Vec<Target>>>,
@@ -31,6 +33,17 @@ impl WitnessGenerationPlan {
     /// Read-only stages in execution order.
     pub fn stages(&self) -> &[WitnessGenerationStage] {
         &self.stages
+    }
+
+    pub(super) fn matches_circuit<
+        F: RichField + Extendable<D>,
+        C: GenericConfig<D, F = F>,
+        const D: usize,
+    >(
+        &self,
+        circuit: &CircuitData<F, C, D>,
+    ) -> bool {
+        self.circuit_fingerprint == CircuitFingerprint::from_circuit(circuit)
     }
 
     #[cfg(debug_assertions)]
@@ -52,6 +65,31 @@ impl core::fmt::Debug for WitnessGenerationPlan {
                     .sum::<usize>(),
             )
             .finish_non_exhaustive()
+    }
+}
+
+#[derive(PartialEq, Eq)]
+struct CircuitFingerprint {
+    circuit_digest: Vec<u8>,
+    num_generators: usize,
+    representative_map_len: usize,
+    num_wires: usize,
+    degree: usize,
+    extension_degree: usize,
+}
+
+impl CircuitFingerprint {
+    fn from_circuit<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>(
+        circuit: &CircuitData<F, C, D>,
+    ) -> Self {
+        Self {
+            circuit_digest: circuit.verifier_only.circuit_digest.to_bytes(),
+            num_generators: circuit.prover_only.generators.len(),
+            representative_map_len: circuit.prover_only.representative_map.len(),
+            num_wires: circuit.common.config.num_wires,
+            degree: circuit.common.degree(),
+            extension_degree: D,
+        }
     }
 }
 
@@ -110,6 +148,7 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
                 planner.dependencies().reads().len(),
             ),
             plan: WitnessGenerationPlan {
+                circuit_fingerprint: CircuitFingerprint::from_circuit(circuit),
                 stages: Vec::new(),
                 #[cfg(debug_assertions)]
                 expected_output_targets: Arc::clone(planner.expected_output_targets()),
@@ -277,6 +316,7 @@ mod tests {
         )?;
         let (schedule, _) = make_schedule(&dependencies, &state);
         let plan = Arc::new(WitnessGenerationPlan {
+            circuit_fingerprint: CircuitFingerprint::from_circuit(&data),
             stages: vec![WitnessGenerationStage {
                 promised_rep_indices: vec![input_rep],
                 schedule,

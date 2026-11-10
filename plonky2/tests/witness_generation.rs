@@ -216,6 +216,35 @@ fn mixed_circuit_matches_original_generation_and_proves() -> Result<()> {
 }
 
 #[test]
+fn execution_rejects_a_different_circuit() -> Result<()> {
+    let build = |value| {
+        let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+        let constant = builder.constant(value);
+        builder.register_public_input(constant);
+        builder.build::<C>()
+    };
+    let first = build(F::from_canonical_u64(3));
+    let second = build(F::from_canonical_u64(5));
+    assert_eq!(first.common, second.common);
+    assert_eq!(
+        first.prover_only.generators.len(),
+        second.prover_only.generators.len()
+    );
+    assert_eq!(
+        first.prover_only.representative_map.len(),
+        second.prover_only.representative_map.len()
+    );
+    let mut executor = Executor::new_with_inputs(&first, [])?;
+    let mut witness = executor.new_witness(&second);
+    let error = executor.bind(&second, &mut witness).unwrap_err();
+    assert_eq!(
+        error.to_string(),
+        "circuit does not match witness generation plan"
+    );
+    Ok(())
+}
+
+#[test]
 fn staged_plans_validate_inputs_and_support_reset_and_reuse() -> Result<()> {
     let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
     let a = builder.add_virtual_target();
