@@ -27,7 +27,7 @@ std = [
 
 [dependencies]
 # Use workspace versions for most deps
-once_cell = { version = "=1.21.3", default-features = false, features = [
+once_cell = { version = "=1.21.4", default-features = false, features = [
   "alloc",
   "race",
   "critical-section",
@@ -54,7 +54,7 @@ qp-plonky2-core = { version = "=1.6.0", path = "../core", default-features = fal
 criterion = { version = "=0.8.2", default-features = false, features = [
   "cargo_bench_support",
 ] }
-rand = { version = "=0.10.1", features = ["std_rng"] }
+rand = { version = "=0.10.3", features = ["std_rng"] }
 plonky2-field = { package = "qp-plonky2-field", version = "=1.6.0", path = "../field", features = [
   "rand",
 ] }
