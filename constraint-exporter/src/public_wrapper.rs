@@ -18,7 +18,7 @@ use plonky2::field::types::PrimeField64;
 use plonky2::iop::target::Target;
 
 use crate::circuit::lean_target;
-use crate::gadget::{Call, Fact, FACT_GROUP};
+use crate::gadget::{rec_depth_option, Call, Fact};
 use crate::trace::{check_verifiers, load, traces_dir, LoadedTrace};
 
 /// The private-batch `aggregated_output` public-input layout each inner proof exposes
@@ -543,24 +543,9 @@ impl Shape {
         out_of(self.fact(k)).expect("fact with an output")
     }
 
-    /// `hf.2.….1` projection path of fact `k` in the grouped decode conjunction.
+    /// The per-call decode lemma of fact `k`, applied to the wrapper hypotheses.
     fn projection(&self, k: usize) -> String {
-        let total = self.calls.len();
-        let groups = total.div_ceil(FACT_GROUP);
-        let (g, j) = (k / FACT_GROUP, k % FACT_GROUP);
-        let group_len = (total - g * FACT_GROUP).min(FACT_GROUP);
-        let mut path = String::from("hf");
-        if groups > 1 {
-            path.push_str(&".2".repeat(g));
-            if g + 1 < groups {
-                path.push_str(".1");
-            }
-        }
-        path.push_str(&".2".repeat(j));
-        if j + 1 < group_len {
-            path.push_str(".1");
-        }
-        path
+        format!("publicBatchWrapper{}_f{k} a h", self.n)
     }
 }
 
@@ -576,7 +561,6 @@ pub fn render(shape: &Shape) -> String {
     let u = shape.nulls_per_inner;
     let pi_len = shape.pi_len;
     let circuit = format!("publicBatchWrapper{n}");
-    let decode = format!("{circuit}_decode");
     let inners = &shape.inners;
     let mut o = String::new();
     macro_rules! w {
@@ -611,21 +595,26 @@ pub fn render(shape: &Shape) -> String {
     w!("");
     w!("open Plonky2Spec (bselect band bnot bor scanStep)");
     w!("open Plonky2Spec.Wiring");
-    w!("open Plonky2Spec.Generated ({circuit} {decode})");
+    w!("open Plonky2Spec.Generated");
     w!("open Plonky2Spec.Poseidon2 (St)");
     w!("open WormholeSpec (Digest Felt PrivateBatchOutput PublicBatchOutput ExitSlot RandomOracle RPublicBatch");
     w!("  RPrivateBatch RPublicBatch_totalExitSlots)");
     w!("");
     w!("variable {{p : ℕ}} [Fact p.Prime]");
     w!("");
+    let rec_depth = rec_depth_option(n * (layout::EXIT_SLOT_LEN * s + 4 * u));
+    if !rec_depth.is_empty() {
+        w!("{rec_depth}");
+    }
     w!("/-! ### Reading the spec objects off the wiring -/");
     w!("");
     w!("/-- The {pi_len} public inputs of inner proof `i` (`inner_pis_i`), at the private-batch");
     w!("    `aggregated_output` layout. -/");
     w!("def innerPis : Fin {n} → Fin {pi_len} → Target");
     for i in 0..n {
-        w!("  | {i} => {circuit}.inner_pis_{i}");
+        w!("  | ⟨{i}, _⟩ => {circuit}.inner_pis_{i}");
     }
+    w!("  | ⟨_ + {n}, h⟩ => absurd h (by omega)");
     w!("");
     w!("/-- The field wires of inner `i` the wrapper reads, with the `is_equal` witnesses of its");
     w!("    `bytes_digest_eq(block_hash, 0)` dummy check. -/");
@@ -639,7 +628,7 @@ pub fn render(shape: &Shape) -> String {
                 _ => unreachable!(),
             })
             .unzip();
-        w!("  | {i} =>");
+        w!("  | ⟨{i}, _⟩ =>");
         w!(
             "    {{ blockHash := fun j => a (innerPis {i} ⟨{} + j, by omega⟩)",
             layout::BLOCK_HASH
@@ -670,6 +659,7 @@ pub fn render(shape: &Shape) -> String {
             .collect();
         w!("      nulls := [{}] }}", nulls.join(",\n        "));
     }
+    w!("  | ⟨_ + {n}, h⟩ => absurd h (by omega)");
     w!("");
     w!("/-- Inner `i`'s private-batch output, decoded through `.val`. -/");
     w!("def inner (a : Assignment p) (i : Fin {n}) : PrivateBatchOutput :=");
@@ -776,102 +766,66 @@ pub fn render(shape: &Shape) -> String {
         .iter()
         .map(|(t, c)| format!("{} = {c}", a(*t)))
         .collect();
-    w!("    {} := by", cs.join(" ∧ "));
-    w!("  have hc := h.2.2");
-    w!("  simp only [{circuit}, List.forall_mem_cons, List.not_mem_nil, false_implies,");
-    w!("    implies_true, and_true] at hc");
-    w!("  exact hc");
+    w!("    {} :=", cs.join(" ∧ "));
+    w!("  Plonky2Spec.Generated.{circuit}_consts a h");
     w!("");
-    let const_names: Vec<String> = shape
-        .constants
-        .iter()
-        .map(|(t, _)| {
-            if *t == shape.one {
-                "kone".to_string()
-            } else if *t == shape.zero {
-                "kzero".to_string()
-            } else {
-                "ktot".to_string()
-            }
-        })
-        .collect();
+    // `obtain` on `consts`, naming the constants in `used` and clearing the rest.
+    let obtain_consts = |used: &[&str]| -> String {
+        let names: Vec<&str> = shape
+            .constants
+            .iter()
+            .map(|(t, _)| {
+                let name = if *t == shape.one {
+                    "kone"
+                } else if *t == shape.zero {
+                    "kzero"
+                } else {
+                    "ktot"
+                };
+                if used.contains(&name) {
+                    name
+                } else {
+                    "-"
+                }
+            })
+            .collect();
+        format!("  obtain ⟨{}⟩ := consts a h", names.join(", "))
+    };
+    // `have name := <decode lemma of call k>`, a dummy check's `zero` operand rewritten to `0`.
+    let have = |name: &str, k: usize| -> String {
+        let mut s = format!("  have {name} := {}", shape.projection(k));
+        if matches!(*shape.fact(k), Fact::IsEqual { y, .. } if y == shape.zero) {
+            let _ = write!(s, "\n  rw [kzero] at {name}");
+        }
+        s
+    };
+    let hyps = format!("(a : Assignment p) (h : Satisfies ({circuit} p) a)");
+    let d = |i: usize| a(shape.out(inners[i].dummy_and[2]));
 
-    w!("/-- **The recorded public-batch wrapper satisfies `RPublicBatch`.** Every satisfying");
-    w!("    assignment decodes to an `RPublicBatch` instance on the {n} inner outputs, the");
-    w!("    aggregator address and the aggregated output; the oracle is irrelevant (the wrapper");
-    w!("    hashes nothing). -/");
-    w!("theorem sound (ro : RandomOracle) (hpg : WormholeSpec.goldilocks ≤ p)");
-    w!("    (a : Assignment p) (h : Satisfies ({circuit} p) a) :");
-    w!("    RPublicBatch ro (inners a) (addr a) (out a) := by");
-    w!("  obtain ⟨{}⟩ := consts a h", const_names.join(", "));
-    w!("  have hf := {decode} a h");
-    // Projections.
-    let mut proj = |name: String, k: usize| w!("  have {name} := {}", shape.projection(k));
-    for (i, inner) in inners.iter().enumerate() {
-        for j in 0..4 {
-            proj(format!("e{i}_{j}"), inner.dummy_eq[j]);
-        }
-        proj(format!("da{i}"), inner.dummy_and[0]);
-        proj(format!("db{i}"), inner.dummy_and[1]);
-        proj(format!("d{i}"), inner.dummy_and[2]);
-    }
-    for (i, inner) in inners.iter().enumerate() {
-        proj(format!("r{i}"), inner.is_real);
-        if let Some(k) = inner.not_found {
-            proj(format!("nf{i}"), k);
-        }
-        if let Some(k) = inner.take {
-            proj(format!("tk{i}"), k);
-        }
-        for j in 0..4 {
-            proj(format!("sb{i}_{j}"), inner.sel_block[j]);
-        }
-        proj(format!("sn{i}"), inner.sel_number);
-        proj(format!("sa{i}"), inner.sel_asset);
-        proj(format!("sf{i}"), inner.sel_fee);
-        if let Some(k) = inner.found {
-            proj(format!("fo{i}"), k);
-        }
-    }
-    for (i, inner) in inners.iter().enumerate() {
-        proj(format!("ca{i}"), inner.asset_eq);
-        proj(format!("cao{i}"), inner.asset_or);
-        proj(format!("cak{i}"), inner.asset_pin);
-        proj(format!("cf{i}"), inner.fee_eq);
-        proj(format!("cfo{i}"), inner.fee_or);
-        proj(format!("cfk{i}"), inner.fee_pin);
-        for j in 0..4 {
-            proj(format!("cb{i}_{j}"), inner.block_eq[j]);
-        }
-        proj(format!("cba{i}"), inner.block_and[0]);
-        proj(format!("cbb{i}"), inner.block_and[1]);
-        proj(format!("cbc{i}"), inner.block_and[2]);
-        proj(format!("cbo{i}"), inner.block_or);
-        proj(format!("cbk{i}"), inner.block_pin);
-    }
-    for (i, inner) in inners.iter().enumerate() {
-        for (k, &c) in inner.slot_fwd.iter().enumerate() {
-            proj(format!("fs{i}_{k}"), c);
-        }
-    }
-    for (i, inner) in inners.iter().enumerate() {
-        for (k, &c) in inner.null_fwd.iter().enumerate() {
-            proj(format!("fn{i}_{k}"), c);
-        }
-    }
+    w!("/-! One lemma per inner and per reference, each over its own recorded calls, so their");
+    w!("    cost does not grow with the wrapper and Lean checks them in parallel. -/");
     w!("");
-    let all_eqs: Vec<String> = (0..n)
-        .flat_map(|i| (0..4).map(move |j| format!("e{i}_{j}")))
-        .collect();
-    w!("  rw [kzero] at {}", all_eqs.join(" "));
     for (i, inner) in inners.iter().enumerate() {
-        let d = shape.out(inner.dummy_and[2]);
+        w!("/-- Inner {i}: the `bytes_digest_eq(block_hash, 0)` constraints and the flag they output. -/");
+        w!("theorem dummy{i} {hyps} :");
         w!(
-            "  have hd{i} : {} = (row a {i}).isDummy := by rw [d{i}, da{i}, db{i}]; rfl",
-            a(d)
+            "    DummyCheck (row a {i}) ∧ {} = (row a {i}).isDummy := by",
+            d(i)
         );
+        w!("{}", obtain_consts(&["kzero"]));
+        for j in 0..4 {
+            w!("{}", have(&format!("e{j}"), inner.dummy_eq[j]));
+        }
+        w!("{}", have("da", inner.dummy_and[0]));
+        w!("{}", have("db", inner.dummy_and[1]));
+        w!("{}", have("d", inner.dummy_and[2]));
+        w!("  constructor");
+        w!("  · intro j; fin_cases j; exacts [e0, e1, e2, e3]");
+        w!("  · rw [d, da, db]; rfl");
+        w!("");
     }
-    // hsel: the select chain on the circuit's take wires.
+
+    // The select chain on the circuit's take wires.
     let xs: Vec<String> = (0..n).map(|i| format!("x{i}")).collect();
     let take_wire = |i: usize| -> Target {
         match inners[i].take {
@@ -884,10 +838,25 @@ pub fn render(shape: &Shape) -> String {
         chain = format!("bselect ({}) x{i} ({chain})", a(take_wire(i)));
     }
     let nf_rows = scan_normal_form(n, &|i| format!("(row a {i}).isDummy"), &|i| format!("x{i}"));
-    w!("  have hsel : ∀ {} : ZMod p,", xs.join(" "));
+    w!("/-- The circuit's `take` chain is the first-real scan over the rows' dummy flags. -/");
+    w!("theorem scan {hyps} :");
+    w!("    ∀ {} : ZMod p,", xs.join(" "));
     w!("      {chain}");
     w!("        = {nf_rows} := by");
-    w!("    intro {}", xs.join(" "));
+    for (i, inner) in inners.iter().enumerate() {
+        w!("{}", have(&format!("r{i}"), inner.is_real));
+        for (name, call) in [
+            ("nf", inner.not_found),
+            ("tk", inner.take),
+            ("fo", inner.found),
+        ] {
+            if let Some(k) = call {
+                w!("{}", have(&format!("{name}{i}"), k));
+            }
+        }
+        w!("  have hd{i} := (dummy{i} a h).2");
+    }
+    w!("  intro {}", xs.join(" "));
     let mut rws: Vec<String> = Vec::new();
     for i in (1..n).rev() {
         rws.push(format!("tk{i}"));
@@ -906,48 +875,183 @@ pub fn render(shape: &Shape) -> String {
     for i in 0..n {
         rws.push(format!("hd{i}"));
     }
-    w!("    rw [{}]", rws.join(", "));
-    // Block reference limbs.
+    w!("  rw [{}]", rws.join(", "));
+    w!("");
+
     let block_wires: Vec<Target> = (0..4)
         .map(|j| shape.out(inners[n - 1].sel_block[j]))
         .collect();
     let bw: Vec<String> = block_wires.iter().map(|t| lean_target(*t)).collect();
+    w!("/-- The block-hash reference wires are the scan's result. -/");
+    w!("theorem ref_block {hyps} :");
     w!(
-        "  have hblk : ∀ j, a (![{}] j) = blockRef (rows a) j := by",
+        "    ∀ j, a (![{}] j) = blockRef (rows a) j := by",
         bw.join(", ")
     );
-    w!("    intro j");
-    w!("    simp only [blockRef, rows, scanRef_{n}]");
-    w!("    fin_cases j");
-    for j in 0..4 {
+    w!("{}", obtain_consts(&["kzero"]));
+    for (i, inner) in inners.iter().enumerate() {
+        for j in 0..4 {
+            w!("{}", have(&format!("sb{i}_{j}"), inner.sel_block[j]));
+        }
+    }
+    w!("  intro j");
+    w!("  simp only [blockRef, rows, scanRef_{n}]");
+    w!("  fin_cases j");
+    for (j, wire) in bw.iter().enumerate() {
         let sels: Vec<String> = (0..n).rev().map(|i| format!("sb{i}_{j}")).collect();
-        w!("    · show a ({}) = _", bw[j]);
-        w!("      rw [{}, kzero, hsel]; rfl", sels.join(", "));
+        w!("  · show a ({wire}) = _");
+        w!("    rw [{}, kzero, scan a h]; rfl", sels.join(", "));
     }
-    for j in 0..4 {
+    w!("");
+    let sels_of = |sel: fn(&Inner) -> usize| -> Vec<usize> { inners.iter().map(sel).collect() };
+    for (name, field, calls) in [
+        ("number", "blockNumber", sels_of(|inner| inner.sel_number)),
+        ("asset", "assetId", sels_of(|inner| inner.sel_asset)),
+        ("fee", "fee", sels_of(|inner| inner.sel_fee)),
+    ] {
+        w!("/-- The `{field}` reference wire is the scan's result. -/");
+        w!("theorem ref_{name} {hyps} :");
         w!(
-            "  have hb{j} : a ({}) = blockRef (rows a) {j} := hblk {j}",
-            bw[j]
+            "    {} = scanRef (rows a) fun t => t.1.{field} := by",
+            a(shape.out(calls[n - 1]))
         );
-    }
-    let scalar_ref = |name: &str, field: &str, sel: &dyn Fn(usize) -> usize| -> String {
-        let wire = shape.out(sel(n - 1));
-        let sels: Vec<String> = (0..n).rev().map(|i| format!("{name}{i}")).collect();
-        format!(
-            "  have h{name}R : {} = scanRef (rows a) fun t => t.1.{field} := by\n    rw [rows, scanRef_{n}, {}, kzero, hsel]; rfl",
-            a(wire),
+        w!("{}", obtain_consts(&["kzero"]));
+        for (i, &k) in calls.iter().enumerate() {
+            w!("{}", have(&format!("s{i}"), k));
+        }
+        let sels: Vec<String> = (0..n).rev().map(|i| format!("s{i}")).collect();
+        w!(
+            "  rw [rows, scanRef_{n}, {}, kzero, scan a h]; rfl",
             sels.join(", ")
-        )
-    };
-    w!(
-        "{}",
-        scalar_ref("sn", "blockNumber", &|i| inners[i].sel_number)
-    );
-    w!("{}", scalar_ref("sa", "assetId", &|i| inners[i].sel_asset));
-    w!("{}", scalar_ref("sf", "fee", &|i| inners[i].sel_fee));
+        );
+        w!("");
+    }
     let number_wire = a(shape.out(inners[n - 1].sel_number));
     let asset_wire = a(shape.out(inners[n - 1].sel_asset));
     let fee_wire = a(shape.out(inners[n - 1].sel_fee));
+
+    for (i, inner) in inners.iter().enumerate() {
+        let (eqs, invs): (Vec<String>, Vec<String>) = inner
+            .block_eq
+            .iter()
+            .map(|&k| match *shape.fact(k) {
+                Fact::IsEqual { equal, inv, .. } => (a(equal), a(inv)),
+                _ => unreachable!(),
+            })
+            .unzip();
+        w!("/-- Inner {i}: its asset, fee and block hash are the references unless it is a dummy. -/");
+        w!("theorem consistent{i} {hyps} :");
+        w!("    ConsistencyCheck (row a {i}).isDummy (row a {i}).assetId (scanRef (rows a) fun t => t.1.assetId)");
+        w!("      ∧ ConsistencyCheck (row a {i}).isDummy (row a {i}).fee (scanRef (rows a) fun t => t.1.fee)");
+        w!("      ∧ DigestConsistencyCheck (row a {i}).isDummy (row a {i}).blockHash (blockRef (rows a)) := by");
+        w!("{}", obtain_consts(&["kone"]));
+        w!("  have hd := (dummy{i} a h).2");
+        w!("  have hsaR := ref_asset a h");
+        w!("  have hsfR := ref_fee a h");
+        for (name, k) in [
+            ("ca", inner.asset_eq),
+            ("cao", inner.asset_or),
+            ("cak", inner.asset_pin),
+            ("cf", inner.fee_eq),
+            ("cfo", inner.fee_or),
+            ("cfk", inner.fee_pin),
+            ("cb0", inner.block_eq[0]),
+            ("cb1", inner.block_eq[1]),
+            ("cb2", inner.block_eq[2]),
+            ("cb3", inner.block_eq[3]),
+            ("cba", inner.block_and[0]),
+            ("cbb", inner.block_and[1]),
+            ("cbc", inner.block_and[2]),
+            ("cbo", inner.block_or),
+            ("cbk", inner.block_pin),
+        ] {
+            w!("{}", have(name, k));
+        }
+        w!("  refine ⟨⟨_, _, hsaR ▸ ca, by rw [← hd, ← cao, cak, kone]⟩,");
+        w!("    ⟨_, _, hsfR ▸ cf, by rw [← hd, ← cfo, cfk, kone]⟩,");
+        w!("    ![{}],", eqs.join(", "));
+        w!("    ![{}], ?_, ?_⟩", invs.join(", "));
+        w!("  · intro j; rw [← ref_block a h j]; fin_cases j; exacts [cb0, cb1, cb2, cb3]");
+        w!(
+            "  · show bor (row a {i}).isDummy (band (band ({}) ({}))",
+            eqs[0],
+            eqs[1]
+        );
+        w!("        (band ({}) ({}))) = 1", eqs[2], eqs[3]);
+        w!("    rw [← hd, ← cba, ← cbb, ← cbc, ← cbo, cbk, kone]");
+        w!("");
+    }
+
+    // The forwarded regions, one literal list per inner.
+    let regions = |items: &[String], per_inner: usize| -> Vec<String> {
+        items
+            .chunks(per_inner)
+            .map(|c| format!("[{}]", c.join(",\n      ")))
+            .collect()
+    };
+    let slot_regions = regions(&slot_list, s);
+    let null_regions = regions(&null_list, u);
+    // Per forwarded region: lemma name, element type, the literal regions, the calls, the
+    // masked field region of a row and its `.val` decode.
+    type Forward<'a> = (
+        &'a str,
+        &'a str,
+        &'a [String],
+        fn(&Inner) -> &Vec<usize>,
+        fn(&str) -> String,
+        &'a str,
+    );
+    let forwards: [Forward; 2] = [
+        (
+            "slots",
+            "ExitSlot",
+            &slot_regions,
+            |inner| &inner.slot_fwd,
+            |r| format!("{r}.slots.map (maskSlot {r}.isDummy)"),
+            "valSlot",
+        ),
+        (
+            "nulls",
+            "Digest",
+            &null_regions,
+            |inner| &inner.null_fwd,
+            |r| format!("{r}.nulls.map fun x => fun j => bselect {r}.isDummy 0 (x j)"),
+            "valDigest",
+        ),
+    ];
+    for (name, ty, region, fwd, masked, val) in &forwards {
+        for (i, inner) in inners.iter().enumerate() {
+            let calls = fwd(inner);
+            let fs: Vec<String> = (0..calls.len()).map(|k| format!("f{k}")).collect();
+            w!("/-- Inner {i}: its forwarded `{name}` are its own, masked by its dummy flag. -/");
+            w!("theorem {name}{i} {hyps} :");
+            w!("    ({} : List {ty})", region[i]);
+            w!(
+                "      = ({}).map {val} := by",
+                masked(&format!("(row a {i})"))
+            );
+            w!("{}", obtain_consts(&["kzero"]));
+            w!("  have hd := (dummy{i} a h).2");
+            for (f, &k) in fs.iter().zip(calls) {
+                w!("{}", have(f, k));
+            }
+            w!("  rw [{}, kzero, hd]", fs.join(", "));
+            w!("  rfl");
+            w!("");
+        }
+    }
+
+    w!("/-- **The recorded public-batch wrapper satisfies `RPublicBatch`.** Every satisfying");
+    w!("    assignment decodes to an `RPublicBatch` instance on the {n} inner outputs, the");
+    w!("    aggregator address and the aggregated output; the oracle is irrelevant (the wrapper");
+    w!("    hashes nothing). -/");
+    w!("theorem sound (ro : RandomOracle) (hpg : WormholeSpec.goldilocks ≤ p)");
+    w!("    (a : Assignment p) (h : Satisfies ({circuit} p) a) :");
+    w!("    RPublicBatch ro (inners a) (addr a) (out a) := by");
+    w!("{}", obtain_consts(&["ktot"]));
+    for (j, wire) in bw.iter().enumerate() {
+        w!("  have hb{j} : a ({wire}) = blockRef (rows a) {j} := ref_block a h {j}");
+    }
     // Membership.
     let alts: Vec<String> = (0..n)
         .map(|i| format!("t = (row a {i}, inner a {i})"))
@@ -971,15 +1075,17 @@ pub fn render(shape: &Shape) -> String {
         w!("    · exact h{i}");
     }
     let dec_rfls = vec!["rfl"; n].join(" ");
+    let per_inner = |lemma: &str, part: &str| -> String {
+        (0..n)
+            .map(|i| format!("({lemma}{i} a h){part}"))
+            .collect::<Vec<_>>()
+            .join(" ")
+    };
     w!("  refine public_batch_val ro (rows a) (k := {s}) rfl ?_ (hdec _ {dec_rfls}) (hdec _ {dec_rfls})");
     w!("    (hdec _ {dec_rfls}) (hdec _ {dec_rfls}) (hdec _ {dec_rfls}) (hdec _ {dec_rfls}) ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_");
     w!("    ?_ ?_");
     w!("  · -- dummy checks");
-    w!("    intro t ht");
-    w!("    rcases hmem t ht with {rfls}");
-    for _ in 0..n {
-        w!("    · intro j; fin_cases j <;> assumption");
-    }
+    w!("    exact hdec _ {}", per_inner("dummy", ".1"));
     w!("  · -- header: block hash");
     w!(
         "    show (⟨{}⟩ : Digest)",
@@ -993,73 +1099,33 @@ pub fn render(shape: &Shape) -> String {
     w!("          (blockRef (rows a) 3).val⟩");
     w!("    rw [hb0, hb1, hb2, hb3]");
     w!("  · show ({number_wire}).val = _");
-    w!("    rw [hsnR]");
+    w!("    rw [ref_number a h]");
     w!("  · show ({asset_wire}).val = _");
-    w!("    rw [hsaR]");
+    w!("    rw [ref_asset a h]");
     w!("  · show ({fee_wire}).val = _");
-    w!("    rw [hsfR]");
+    w!("    rw [ref_fee a h]");
     w!("  · -- asset consistency");
-    w!("    intro t ht");
-    w!("    rcases hmem t ht with {rfls}");
-    for i in 0..n {
-        w!("    · exact ⟨_, _, hsaR ▸ ca{i}, by rw [← hd{i}, ← cao{i}, cak{i}, kone]⟩");
-    }
+    w!("    exact hdec _ {}", per_inner("consistent", ".1"));
     w!("  · -- fee consistency");
-    w!("    intro t ht");
-    w!("    rcases hmem t ht with {rfls}");
-    for i in 0..n {
-        w!("    · exact ⟨_, _, hsfR ▸ cf{i}, by rw [← hd{i}, ← cfo{i}, cfk{i}, kone]⟩");
-    }
+    w!("    exact hdec _ {}", per_inner("consistent", ".2.1"));
     w!("  · -- block consistency");
-    w!("    intro t ht");
-    w!("    rcases hmem t ht with {rfls}");
-    for (i, inner) in inners.iter().enumerate() {
-        let (eqs, invs): (Vec<String>, Vec<String>) = inner
-            .block_eq
-            .iter()
-            .map(|&k| match *shape.fact(k) {
-                Fact::IsEqual { equal, inv, .. } => (a(equal), a(inv)),
-                _ => unreachable!(),
-            })
-            .unzip();
-        w!("    · refine ⟨![{}],", eqs.join(", "));
-        w!("        ![{}], ?_, ?_⟩", invs.join(", "));
-        w!("      · intro j; rw [← hblk j]; fin_cases j <;> assumption");
+    w!("    exact hdec _ {}", per_inner("consistent", ".2.2"));
+    for (name, ty, region, _, masked, val) in &forwards {
+        let mut all = "List.Forall₂.nil".to_string();
+        for i in (0..n).rev() {
+            all = format!("List.Forall₂.cons ({name}{i} a h) ({all})");
+        }
+        w!("  · -- forwarded {name}");
         w!(
-            "      · show bor (row a {i}).isDummy (band (band ({}) ({}))",
-            eqs[0],
-            eqs[1]
+            "    show ([{}] : List (List {ty})).flatten = _",
+            region.join(",\n      ")
         );
-        w!("          (band ({}) ({}))) = 1", eqs[2], eqs[3]);
-        w!("        rw [← hd{i}, ← cba{i}, ← cbb{i}, ← cbc{i}, ← cbo{i}, cbk{i}, kone]");
+        w!(
+            "    exact flatten_eq_of_forall₂ (xs := rows a) (f := fun t => {}) (g := {val})",
+            masked("t.1")
+        );
+        w!("      ({all})");
     }
-    let hds: Vec<String> = (0..n).map(|i| format!("hd{i}")).collect();
-    let fs_names: Vec<String> = inners
-        .iter()
-        .enumerate()
-        .flat_map(|(i, inner)| (0..inner.slot_fwd.len()).map(move |k| format!("fs{i}_{k}")))
-        .collect();
-    let fn_names: Vec<String> = inners
-        .iter()
-        .enumerate()
-        .flat_map(|(i, inner)| (0..inner.null_fwd.len()).map(move |k| format!("fn{i}_{k}")))
-        .collect();
-    w!("  · -- forwarded exit slots");
-    w!("    show ({slot_list_s} : List ExitSlot) = _");
-    w!(
-        "    rw [{}, kzero, {}]",
-        fs_names.join(", "),
-        hds.join(", ")
-    );
-    w!("    rfl");
-    w!("  · -- forwarded nullifiers");
-    w!("    show ({null_list_s} : List Digest) = _");
-    w!(
-        "    rw [{}, kzero, {}]",
-        fn_names.join(", "),
-        hds.join(", ")
-    );
-    w!("    rfl");
     w!("  · intro t ht");
     w!("    rcases hmem t ht with {rfls} <;> rfl");
     let total_value = n * s;
@@ -1080,12 +1146,18 @@ pub fn render(shape: &Shape) -> String {
     w!("    [{}]", children.join(",\n     "));
     w!("");
     w!("omit [Fact p.Prime] in");
-    w!("set_option maxRecDepth 8192 in");
+    if rec_depth.is_empty() {
+        w!("set_option maxRecDepth 8192 in");
+    } else {
+        w!("set_option maxHeartbeats {} in", 4_000 * n * pi_len);
+    }
     w!("/-- The tree's gadgets are the recorded ones. -/");
     w!("theorem tree_verifiers : (tree (p := p)).verifiers = {circuit}.verifiers := rfl");
     w!("");
     w!("omit [Fact p.Prime] in");
-    w!("set_option maxRecDepth 8192 in");
+    if rec_depth.is_empty() {
+        w!("set_option maxRecDepth 8192 in");
+    }
     w!("/-- Inner `i`'s public inputs, as the wrapper reads them, are the private-batch wrapper's");
     w!("    `outOf`. -/");
     w!("theorem inner_eq (a : Assignment p) (i : Fin {n}) :");

@@ -1909,9 +1909,31 @@ pub fn generate_gadget_edge_cases_lean() -> String {
     )
 }
 
+/// Lean recurses once per element through a list literal (row lookups by `rfl`, compiling
+/// and unfolding a definition); beyond this many elements its default `maxRecDepth` of 512
+/// is too shallow.
+const DEFAULT_REC_DEPTH_LEN: usize = 256;
+
+/// The `set_option maxRecDepth` line a module whose longest list literal has `len` elements
+/// needs, or nothing below [`DEFAULT_REC_DEPTH_LEN`].
+pub fn rec_depth_option(len: usize) -> String {
+    if len > DEFAULT_REC_DEPTH_LEN {
+        format!("set_option maxRecDepth {}\n", 20 * len)
+    } else {
+        String::new()
+    }
+}
+
 /// A complete `Plonky2Spec.Generated` module: header, then each circuit's export and
 /// decode theorem.
 pub fn render_module(what: &str, circuits: &[GeneratedCircuit]) -> String {
+    let rec_depth = rec_depth_option(
+        circuits
+            .iter()
+            .map(|c| c.ex.rows.len().max(c.ex.public_inputs.len()))
+            .max()
+            .unwrap_or(0),
+    );
     let sponge = circuits
         .iter()
         .any(|c| c.calls.iter().any(|call| call.fact.is_poseidon2()));
@@ -1932,7 +1954,7 @@ pub fn render_module(what: &str, circuits: &[GeneratedCircuit]) -> String {
          import Plonky2Spec.WiringGadgets\n{}\n\
          namespace Plonky2Spec.Generated\n\n\
          open Plonky2Spec.Wiring\n{}\n\
-         set_option linter.all false\n\n\
+         set_option linter.all false\n{}\n\
          variable {{p : ℕ}} [Fact p.Prime]\n\n",
         if sponge {
             "import Plonky2Spec.WiringSponge\n"
@@ -1945,6 +1967,7 @@ pub fn render_module(what: &str, circuits: &[GeneratedCircuit]) -> String {
         } else {
             ""
         },
+        rec_depth,
     );
     for c in circuits {
         out.push_str(&crate::circuit::render_lean(&c.name, &c.doc, &c.ex));
