@@ -22,11 +22,10 @@ resolver = "2"
 
 [workspace.dependencies]
 anyhow = { version = "=1.0.104", default-features = false }
-# `ahash` is pulled in by hashbrown with default-features = false, i.e. without
-# compile-time-rng (that pulled const-random → getrandom 0.2 alongside rand 0.10's
-# getrandom 0.4). Fixed keys are fine for a deterministic prover.
-hashbrown = { version = "=0.14.5", default-features = false, features = [
-  "ahash",
+# `default-hasher` is foldhash, seeded once per process (as ahash was before).
+# Nothing here depends on map iteration order, so that is fine.
+hashbrown = { version = "=0.17.1", default-features = false, features = [
+  "default-hasher",
   "serde",
 ] }
 itertools = { version = "=0.13.0", default-features = false }
