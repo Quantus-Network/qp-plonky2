@@ -137,9 +137,9 @@ jobs:
           git checkout -b "$branch_name"
 
           # Workspace crates released together share a single version
-          release_crates=(field core verifier plonky2 starky)
+          release_crates=(unroll field core verifier plonky2 starky)
           # Package names dependents use to reference those crates
-          release_pkgs=(qp-plonky2-field qp-plonky2-core qp-plonky2-verifier qp-plonky2 starky)
+          release_pkgs=(qp-plonky2-unroll qp-plonky2-field qp-plonky2-core qp-plonky2-verifier qp-plonky2 starky)
 
           # Bump each release crate's package version
           for crate in "${release_crates[@]}"; do
@@ -165,7 +165,7 @@ jobs:
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           
-          git add field/Cargo.toml core/Cargo.toml verifier/Cargo.toml plonky2/Cargo.toml starky/Cargo.toml constraint-exporter/Cargo.toml
+          git add unroll/Cargo.toml field/Cargo.toml core/Cargo.toml verifier/Cargo.toml plonky2/Cargo.toml starky/Cargo.toml constraint-exporter/Cargo.toml
           git commit -m "ci: Automate version bump to $NEW_VERSION"
           git push origin "$branch_name"
 

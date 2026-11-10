@@ -31,7 +31,7 @@ static_assertions = { workspace = true }
 tiny-keccak = { version = "=2.0.2", default-features = false, features = [
   "keccak",
 ] }
-unroll = { workspace = true }
+unroll = { package = "qp-plonky2-unroll", version = "=1.6.0", path = "../unroll" }
 
 # Local dependencies
 plonky2-field = { package = "qp-plonky2-field", version = "=1.6.0", path = "../field", default-features = false }
