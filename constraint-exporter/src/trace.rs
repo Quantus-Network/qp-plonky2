@@ -401,8 +401,8 @@ pub fn generate_private_batch_wrapper_lean(n: usize) -> Result<String, String> {
 }
 
 /// Build `formal/Plonky2Spec/Generated/PublicBatchWrapper{n}.lean` from the recorded
-/// `n_inner = n` public-batch wrapper over `2`-leaf private batches.
-pub fn generate_public_batch_wrapper_lean(n: usize) -> Result<String, String> {
+/// `n_inner = n` public-batch wrapper over `leaves`-leaf private batches.
+pub fn generate_public_batch_wrapper_lean(n: usize, leaves: usize) -> Result<String, String> {
     generate_wrapper_lean(
         &format!("public_batch_wrapper_n{n}"),
         &format!(
@@ -412,7 +412,7 @@ pub fn generate_public_batch_wrapper_lean(n: usize) -> Result<String, String> {
         ),
         &format!("publicBatchWrapper{n}"),
         &format!(
-            "The public-batch aggregation wrapper at `n_inner = {n}` over `2`-leaf private \
+            "The public-batch aggregation wrapper at `n_inner = {n}` over `{leaves}`-leaf private \
              batches, without the inner verifiers \
              (`wormhole/aggregator/src/public_batch/circuit/circuit_logic.rs`): inner \
              public inputs `inner_pis_0..{}`, the `aggregator_address` witness, and the \

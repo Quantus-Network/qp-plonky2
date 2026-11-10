@@ -243,6 +243,16 @@ def forwardedSlotsF (rows : List (InnerPair p)) : List (SlotF p) :=
 def forwardedNullsF (rows : List (InnerPair p)) : List (Digest4 p) :=
   (rows.map fun t => t.1.nulls.map fun x => fun j => bselect t.1.isDummy 0 (x j)).flatten
 
+/-- A flattened region assembled from one decoded piece per row: the form the generated
+    bridges prove the forwarded regions in, one lemma per inner. -/
+theorem flatten_eq_of_forall₂ {α β γ : Type*} {f : α → List β} {g : β → γ} {xs : List α}
+    {ls : List (List γ)} (h : List.Forall₂ (fun x l => l = (f x).map g) xs ls) :
+    ls.flatten = ((xs.map f).flatten).map g := by
+  induction h with
+  | nil => rfl
+  | cons hl _ ih =>
+    rw [List.flatten_cons, List.map_cons, List.flatten_cons, List.map_append, hl, ih]
+
 theorem forwardedSlotsF_val (rows : List (InnerPair p))
     (hb : ∀ t ∈ rows, IsBool t.1.isDummy)
     (hd : ∀ t ∈ rows, t.1.isDummy = 1 ↔ isDummyInner t.2)

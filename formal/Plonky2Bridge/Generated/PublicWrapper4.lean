@@ -20,7 +20,7 @@ namespace Plonky2Bridge.PublicWrapper4
 
 open Plonky2Spec (bselect band bnot bor scanStep)
 open Plonky2Spec.Wiring
-open Plonky2Spec.Generated (publicBatchWrapper4 publicBatchWrapper4_decode)
+open Plonky2Spec.Generated
 open Plonky2Spec.Poseidon2 (St)
 open WormholeSpec (Digest Felt PrivateBatchOutput PublicBatchOutput ExitSlot RandomOracle RPublicBatch
   RPrivateBatch RPublicBatch_totalExitSlots)
@@ -32,15 +32,16 @@ variable {p : ℕ} [Fact p.Prime]
 /-- The 52 public inputs of inner proof `i` (`inner_pis_i`), at the private-batch
     `aggregated_output` layout. -/
 def innerPis : Fin 4 → Fin 52 → Target
-  | 0 => publicBatchWrapper4.inner_pis_0
-  | 1 => publicBatchWrapper4.inner_pis_1
-  | 2 => publicBatchWrapper4.inner_pis_2
-  | 3 => publicBatchWrapper4.inner_pis_3
+  | ⟨0, _⟩ => publicBatchWrapper4.inner_pis_0
+  | ⟨1, _⟩ => publicBatchWrapper4.inner_pis_1
+  | ⟨2, _⟩ => publicBatchWrapper4.inner_pis_2
+  | ⟨3, _⟩ => publicBatchWrapper4.inner_pis_3
+  | ⟨_ + 4, h⟩ => absurd h (by omega)
 
 /-- The field wires of inner `i` the wrapper reads, with the `is_equal` witnesses of its
     `bytes_digest_eq(block_hash, 0)` dummy check. -/
 def row (a : Assignment p) : Fin 4 → InnerRow p
-  | 0 =>
+  | ⟨0, _⟩ =>
     { blockHash := fun j => a (innerPis 0 ⟨3 + j, by omega⟩)
       dummyEq := ![a (.virt 38154), a (.virt 38156), a (.virt 38158), a (.virt 38160)]
       dummyInv := ![a (.virt 38155), a (.virt 38157), a (.virt 38159), a (.virt 38161)]
@@ -51,7 +52,7 @@ def row (a : Assignment p) : Fin 4 → InnerRow p
         (a (innerPis 0 23), fun j => a (innerPis 0 ⟨24 + j, by omega⟩))]
       nulls := [fun j => a (innerPis 0 ⟨28 + j, by omega⟩),
         fun j => a (innerPis 0 ⟨32 + j, by omega⟩)] }
-  | 1 =>
+  | ⟨1, _⟩ =>
     { blockHash := fun j => a (innerPis 1 ⟨3 + j, by omega⟩)
       dummyEq := ![a (.virt 38162), a (.virt 38164), a (.virt 38166), a (.virt 38168)]
       dummyInv := ![a (.virt 38163), a (.virt 38165), a (.virt 38167), a (.virt 38169)]
@@ -62,7 +63,7 @@ def row (a : Assignment p) : Fin 4 → InnerRow p
         (a (innerPis 1 23), fun j => a (innerPis 1 ⟨24 + j, by omega⟩))]
       nulls := [fun j => a (innerPis 1 ⟨28 + j, by omega⟩),
         fun j => a (innerPis 1 ⟨32 + j, by omega⟩)] }
-  | 2 =>
+  | ⟨2, _⟩ =>
     { blockHash := fun j => a (innerPis 2 ⟨3 + j, by omega⟩)
       dummyEq := ![a (.virt 38170), a (.virt 38172), a (.virt 38174), a (.virt 38176)]
       dummyInv := ![a (.virt 38171), a (.virt 38173), a (.virt 38175), a (.virt 38177)]
@@ -73,7 +74,7 @@ def row (a : Assignment p) : Fin 4 → InnerRow p
         (a (innerPis 2 23), fun j => a (innerPis 2 ⟨24 + j, by omega⟩))]
       nulls := [fun j => a (innerPis 2 ⟨28 + j, by omega⟩),
         fun j => a (innerPis 2 ⟨32 + j, by omega⟩)] }
-  | 3 =>
+  | ⟨3, _⟩ =>
     { blockHash := fun j => a (innerPis 3 ⟨3 + j, by omega⟩)
       dummyEq := ![a (.virt 38178), a (.virt 38180), a (.virt 38182), a (.virt 38184)]
       dummyInv := ![a (.virt 38179), a (.virt 38181), a (.virt 38183), a (.virt 38185)]
@@ -84,6 +85,7 @@ def row (a : Assignment p) : Fin 4 → InnerRow p
         (a (innerPis 3 23), fun j => a (innerPis 3 ⟨24 + j, by omega⟩))]
       nulls := [fun j => a (innerPis 3 ⟨28 + j, by omega⟩),
         fun j => a (innerPis 3 ⟨32 + j, by omega⟩)] }
+  | ⟨_ + 4, h⟩ => absurd h (by omega)
 
 /-- Inner `i`'s private-batch output, decoded through `.val`. -/
 def inner (a : Assignment p) (i : Fin 4) : PrivateBatchOutput :=
@@ -149,11 +151,505 @@ theorem scanRef_4 (t0 t1 t2 t3 : InnerPair p) (f : InnerPair p → ZMod p) :
 /-! ### Composition -/
 
 theorem consts (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 38152) = 1 ∧ a (.virt 38153) = 0 ∧ a (.virt 38234) = 16 := by
-  have hc := h.2.2
-  simp only [publicBatchWrapper4, List.forall_mem_cons, List.not_mem_nil, false_implies,
-    implies_true, and_true] at hc
-  exact hc
+    a (.virt 38152) = 1 ∧ a (.virt 38153) = 0 ∧ a (.virt 38234) = 16 :=
+  Plonky2Spec.Generated.publicBatchWrapper4_consts a h
+
+/-! One lemma per inner and per reference, each over its own recorded calls, so their
+    cost does not grow with the wrapper and Lean checks them in parallel. -/
+
+/-- Inner 0: the `bytes_digest_eq(block_hash, 0)` constraints and the flag they output. -/
+theorem dummy0 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
+    DummyCheck (row a 0) ∧ a (.wire 1 43) = (row a 0).isDummy := by
+  obtain ⟨-, kzero, -⟩ := consts a h
+  have e0 := publicBatchWrapper4_f0 a h
+  rw [kzero] at e0
+  have e1 := publicBatchWrapper4_f1 a h
+  rw [kzero] at e1
+  have e2 := publicBatchWrapper4_f2 a h
+  rw [kzero] at e2
+  have e3 := publicBatchWrapper4_f3 a h
+  rw [kzero] at e3
+  have da := publicBatchWrapper4_f4 a h
+  have db := publicBatchWrapper4_f5 a h
+  have d := publicBatchWrapper4_f6 a h
+  constructor
+  · intro j; fin_cases j; exacts [e0, e1, e2, e3]
+  · rw [d, da, db]; rfl
+
+/-- Inner 1: the `bytes_digest_eq(block_hash, 0)` constraints and the flag they output. -/
+theorem dummy1 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
+    DummyCheck (row a 1) ∧ a (.wire 2 7) = (row a 1).isDummy := by
+  obtain ⟨-, kzero, -⟩ := consts a h
+  have e0 := publicBatchWrapper4_f7 a h
+  rw [kzero] at e0
+  have e1 := publicBatchWrapper4_f8 a h
+  rw [kzero] at e1
+  have e2 := publicBatchWrapper4_f9 a h
+  rw [kzero] at e2
+  have e3 := publicBatchWrapper4_f10 a h
+  rw [kzero] at e3
+  have da := publicBatchWrapper4_f11 a h
+  have db := publicBatchWrapper4_f12 a h
+  have d := publicBatchWrapper4_f13 a h
+  constructor
+  · intro j; fin_cases j; exacts [e0, e1, e2, e3]
+  · rw [d, da, db]; rfl
+
+/-- Inner 2: the `bytes_digest_eq(block_hash, 0)` constraints and the flag they output. -/
+theorem dummy2 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
+    DummyCheck (row a 2) ∧ a (.wire 2 51) = (row a 2).isDummy := by
+  obtain ⟨-, kzero, -⟩ := consts a h
+  have e0 := publicBatchWrapper4_f14 a h
+  rw [kzero] at e0
+  have e1 := publicBatchWrapper4_f15 a h
+  rw [kzero] at e1
+  have e2 := publicBatchWrapper4_f16 a h
+  rw [kzero] at e2
+  have e3 := publicBatchWrapper4_f17 a h
+  rw [kzero] at e3
+  have da := publicBatchWrapper4_f18 a h
+  have db := publicBatchWrapper4_f19 a h
+  have d := publicBatchWrapper4_f20 a h
+  constructor
+  · intro j; fin_cases j; exacts [e0, e1, e2, e3]
+  · rw [d, da, db]; rfl
+
+/-- Inner 3: the `bytes_digest_eq(block_hash, 0)` constraints and the flag they output. -/
+theorem dummy3 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
+    DummyCheck (row a 3) ∧ a (.wire 4 15) = (row a 3).isDummy := by
+  obtain ⟨-, kzero, -⟩ := consts a h
+  have e0 := publicBatchWrapper4_f21 a h
+  rw [kzero] at e0
+  have e1 := publicBatchWrapper4_f22 a h
+  rw [kzero] at e1
+  have e2 := publicBatchWrapper4_f23 a h
+  rw [kzero] at e2
+  have e3 := publicBatchWrapper4_f24 a h
+  rw [kzero] at e3
+  have da := publicBatchWrapper4_f25 a h
+  have db := publicBatchWrapper4_f26 a h
+  have d := publicBatchWrapper4_f27 a h
+  constructor
+  · intro j; fin_cases j; exacts [e0, e1, e2, e3]
+  · rw [d, da, db]; rfl
+
+/-- The circuit's `take` chain is the first-real scan over the rows' dummy flags. -/
+theorem scan (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
+    ∀ x0 x1 x2 x3 : ZMod p,
+      bselect (a (.wire 4 27)) x3 (bselect (a (.wire 4 23)) x2 (bselect (a (.wire 4 19)) x1 (bselect (a (.wire 3 51)) x0 0)))
+        = bselect (band (bnot (row a 3).isDummy) (bnot (bor (bor (bnot (row a 0).isDummy) (bnot (row a 1).isDummy)) (bnot (row a 2).isDummy)))) x3 (bselect (band (bnot (row a 2).isDummy) (bnot (bor (bnot (row a 0).isDummy) (bnot (row a 1).isDummy)))) x2 (bselect (band (bnot (row a 1).isDummy) (bnot (bnot (row a 0).isDummy))) x1 (bselect (bnot (row a 0).isDummy) x0 0))) := by
+  have r0 := publicBatchWrapper4_f28 a h
+  have hd0 := (dummy0 a h).2
+  have r1 := publicBatchWrapper4_f39 a h
+  have nf1 := publicBatchWrapper4_f40 a h
+  have tk1 := publicBatchWrapper4_f41 a h
+  have fo1 := publicBatchWrapper4_f49 a h
+  have hd1 := (dummy1 a h).2
+  have r2 := publicBatchWrapper4_f50 a h
+  have nf2 := publicBatchWrapper4_f51 a h
+  have tk2 := publicBatchWrapper4_f52 a h
+  have fo2 := publicBatchWrapper4_f60 a h
+  have hd2 := (dummy2 a h).2
+  have r3 := publicBatchWrapper4_f61 a h
+  have nf3 := publicBatchWrapper4_f62 a h
+  have tk3 := publicBatchWrapper4_f63 a h
+  have hd3 := (dummy3 a h).2
+  intro x0 x1 x2 x3
+  rw [tk3, tk2, tk1, nf3, nf2, nf1, fo2, fo1, r3, r2, r1, r0, hd0, hd1, hd2, hd3]
+
+/-- The block-hash reference wires are the scan's result. -/
+theorem ref_block (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
+    ∀ j, a (![.wire 8 63, .wire 8 71, .wire 8 79, .wire 9 7] j) = blockRef (rows a) j := by
+  obtain ⟨-, kzero, -⟩ := consts a h
+  have sb0_0 := publicBatchWrapper4_f31 a h
+  have sb0_1 := publicBatchWrapper4_f32 a h
+  have sb0_2 := publicBatchWrapper4_f33 a h
+  have sb0_3 := publicBatchWrapper4_f34 a h
+  have sb1_0 := publicBatchWrapper4_f42 a h
+  have sb1_1 := publicBatchWrapper4_f43 a h
+  have sb1_2 := publicBatchWrapper4_f44 a h
+  have sb1_3 := publicBatchWrapper4_f45 a h
+  have sb2_0 := publicBatchWrapper4_f53 a h
+  have sb2_1 := publicBatchWrapper4_f54 a h
+  have sb2_2 := publicBatchWrapper4_f55 a h
+  have sb2_3 := publicBatchWrapper4_f56 a h
+  have sb3_0 := publicBatchWrapper4_f64 a h
+  have sb3_1 := publicBatchWrapper4_f65 a h
+  have sb3_2 := publicBatchWrapper4_f66 a h
+  have sb3_3 := publicBatchWrapper4_f67 a h
+  intro j
+  simp only [blockRef, rows, scanRef_4]
+  fin_cases j
+  · show a (.wire 8 63) = _
+    rw [sb3_0, sb2_0, sb1_0, sb0_0, kzero, scan a h]; rfl
+  · show a (.wire 8 71) = _
+    rw [sb3_1, sb2_1, sb1_1, sb0_1, kzero, scan a h]; rfl
+  · show a (.wire 8 79) = _
+    rw [sb3_2, sb2_2, sb1_2, sb0_2, kzero, scan a h]; rfl
+  · show a (.wire 9 7) = _
+    rw [sb3_3, sb2_3, sb1_3, sb0_3, kzero, scan a h]; rfl
+
+/-- The `blockNumber` reference wire is the scan's result. -/
+theorem ref_number (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
+    a (.wire 9 15) = scanRef (rows a) fun t => t.1.blockNumber := by
+  obtain ⟨-, kzero, -⟩ := consts a h
+  have s0 := publicBatchWrapper4_f35 a h
+  have s1 := publicBatchWrapper4_f46 a h
+  have s2 := publicBatchWrapper4_f57 a h
+  have s3 := publicBatchWrapper4_f68 a h
+  rw [rows, scanRef_4, s3, s2, s1, s0, kzero, scan a h]; rfl
+
+/-- The `assetId` reference wire is the scan's result. -/
+theorem ref_asset (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
+    a (.wire 9 23) = scanRef (rows a) fun t => t.1.assetId := by
+  obtain ⟨-, kzero, -⟩ := consts a h
+  have s0 := publicBatchWrapper4_f36 a h
+  have s1 := publicBatchWrapper4_f47 a h
+  have s2 := publicBatchWrapper4_f58 a h
+  have s3 := publicBatchWrapper4_f69 a h
+  rw [rows, scanRef_4, s3, s2, s1, s0, kzero, scan a h]; rfl
+
+/-- The `fee` reference wire is the scan's result. -/
+theorem ref_fee (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
+    a (.wire 9 31) = scanRef (rows a) fun t => t.1.fee := by
+  obtain ⟨-, kzero, -⟩ := consts a h
+  have s0 := publicBatchWrapper4_f37 a h
+  have s1 := publicBatchWrapper4_f48 a h
+  have s2 := publicBatchWrapper4_f59 a h
+  have s3 := publicBatchWrapper4_f70 a h
+  rw [rows, scanRef_4, s3, s2, s1, s0, kzero, scan a h]; rfl
+
+/-- Inner 0: its asset, fee and block hash are the references unless it is a dummy. -/
+theorem consistent0 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
+    ConsistencyCheck (row a 0).isDummy (row a 0).assetId (scanRef (rows a) fun t => t.1.assetId)
+      ∧ ConsistencyCheck (row a 0).isDummy (row a 0).fee (scanRef (rows a) fun t => t.1.fee)
+      ∧ DigestConsistencyCheck (row a 0).isDummy (row a 0).blockHash (blockRef (rows a)) := by
+  obtain ⟨kone, -, -⟩ := consts a h
+  have hd := (dummy0 a h).2
+  have hsaR := ref_asset a h
+  have hsfR := ref_fee a h
+  have ca := publicBatchWrapper4_f72 a h
+  have cao := publicBatchWrapper4_f73 a h
+  have cak := publicBatchWrapper4_f74 a h
+  have cf := publicBatchWrapper4_f75 a h
+  have cfo := publicBatchWrapper4_f76 a h
+  have cfk := publicBatchWrapper4_f77 a h
+  have cb0 := publicBatchWrapper4_f78 a h
+  have cb1 := publicBatchWrapper4_f79 a h
+  have cb2 := publicBatchWrapper4_f80 a h
+  have cb3 := publicBatchWrapper4_f81 a h
+  have cba := publicBatchWrapper4_f82 a h
+  have cbb := publicBatchWrapper4_f83 a h
+  have cbc := publicBatchWrapper4_f84 a h
+  have cbo := publicBatchWrapper4_f85 a h
+  have cbk := publicBatchWrapper4_f86 a h
+  refine ⟨⟨_, _, hsaR ▸ ca, by rw [← hd, ← cao, cak, kone]⟩,
+    ⟨_, _, hsfR ▸ cf, by rw [← hd, ← cfo, cfk, kone]⟩,
+    ![a (.virt 38190), a (.virt 38192), a (.virt 38194), a (.virt 38196)],
+    ![a (.virt 38191), a (.virt 38193), a (.virt 38195), a (.virt 38197)], ?_, ?_⟩
+  · intro j; rw [← ref_block a h j]; fin_cases j; exacts [cb0, cb1, cb2, cb3]
+  · show bor (row a 0).isDummy (band (band (a (.virt 38190)) (a (.virt 38192)))
+        (band (a (.virt 38194)) (a (.virt 38196)))) = 1
+    rw [← hd, ← cba, ← cbb, ← cbc, ← cbo, cbk, kone]
+
+/-- Inner 1: its asset, fee and block hash are the references unless it is a dummy. -/
+theorem consistent1 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
+    ConsistencyCheck (row a 1).isDummy (row a 1).assetId (scanRef (rows a) fun t => t.1.assetId)
+      ∧ ConsistencyCheck (row a 1).isDummy (row a 1).fee (scanRef (rows a) fun t => t.1.fee)
+      ∧ DigestConsistencyCheck (row a 1).isDummy (row a 1).blockHash (blockRef (rows a)) := by
+  obtain ⟨kone, -, -⟩ := consts a h
+  have hd := (dummy1 a h).2
+  have hsaR := ref_asset a h
+  have hsfR := ref_fee a h
+  have ca := publicBatchWrapper4_f87 a h
+  have cao := publicBatchWrapper4_f88 a h
+  have cak := publicBatchWrapper4_f89 a h
+  have cf := publicBatchWrapper4_f90 a h
+  have cfo := publicBatchWrapper4_f91 a h
+  have cfk := publicBatchWrapper4_f92 a h
+  have cb0 := publicBatchWrapper4_f93 a h
+  have cb1 := publicBatchWrapper4_f94 a h
+  have cb2 := publicBatchWrapper4_f95 a h
+  have cb3 := publicBatchWrapper4_f96 a h
+  have cba := publicBatchWrapper4_f97 a h
+  have cbb := publicBatchWrapper4_f98 a h
+  have cbc := publicBatchWrapper4_f99 a h
+  have cbo := publicBatchWrapper4_f100 a h
+  have cbk := publicBatchWrapper4_f101 a h
+  refine ⟨⟨_, _, hsaR ▸ ca, by rw [← hd, ← cao, cak, kone]⟩,
+    ⟨_, _, hsfR ▸ cf, by rw [← hd, ← cfo, cfk, kone]⟩,
+    ![a (.virt 38202), a (.virt 38204), a (.virt 38206), a (.virt 38208)],
+    ![a (.virt 38203), a (.virt 38205), a (.virt 38207), a (.virt 38209)], ?_, ?_⟩
+  · intro j; rw [← ref_block a h j]; fin_cases j; exacts [cb0, cb1, cb2, cb3]
+  · show bor (row a 1).isDummy (band (band (a (.virt 38202)) (a (.virt 38204)))
+        (band (a (.virt 38206)) (a (.virt 38208)))) = 1
+    rw [← hd, ← cba, ← cbb, ← cbc, ← cbo, cbk, kone]
+
+/-- Inner 2: its asset, fee and block hash are the references unless it is a dummy. -/
+theorem consistent2 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
+    ConsistencyCheck (row a 2).isDummy (row a 2).assetId (scanRef (rows a) fun t => t.1.assetId)
+      ∧ ConsistencyCheck (row a 2).isDummy (row a 2).fee (scanRef (rows a) fun t => t.1.fee)
+      ∧ DigestConsistencyCheck (row a 2).isDummy (row a 2).blockHash (blockRef (rows a)) := by
+  obtain ⟨kone, -, -⟩ := consts a h
+  have hd := (dummy2 a h).2
+  have hsaR := ref_asset a h
+  have hsfR := ref_fee a h
+  have ca := publicBatchWrapper4_f102 a h
+  have cao := publicBatchWrapper4_f103 a h
+  have cak := publicBatchWrapper4_f104 a h
+  have cf := publicBatchWrapper4_f105 a h
+  have cfo := publicBatchWrapper4_f106 a h
+  have cfk := publicBatchWrapper4_f107 a h
+  have cb0 := publicBatchWrapper4_f108 a h
+  have cb1 := publicBatchWrapper4_f109 a h
+  have cb2 := publicBatchWrapper4_f110 a h
+  have cb3 := publicBatchWrapper4_f111 a h
+  have cba := publicBatchWrapper4_f112 a h
+  have cbb := publicBatchWrapper4_f113 a h
+  have cbc := publicBatchWrapper4_f114 a h
+  have cbo := publicBatchWrapper4_f115 a h
+  have cbk := publicBatchWrapper4_f116 a h
+  refine ⟨⟨_, _, hsaR ▸ ca, by rw [← hd, ← cao, cak, kone]⟩,
+    ⟨_, _, hsfR ▸ cf, by rw [← hd, ← cfo, cfk, kone]⟩,
+    ![a (.virt 38214), a (.virt 38216), a (.virt 38218), a (.virt 38220)],
+    ![a (.virt 38215), a (.virt 38217), a (.virt 38219), a (.virt 38221)], ?_, ?_⟩
+  · intro j; rw [← ref_block a h j]; fin_cases j; exacts [cb0, cb1, cb2, cb3]
+  · show bor (row a 2).isDummy (band (band (a (.virt 38214)) (a (.virt 38216)))
+        (band (a (.virt 38218)) (a (.virt 38220)))) = 1
+    rw [← hd, ← cba, ← cbb, ← cbc, ← cbo, cbk, kone]
+
+/-- Inner 3: its asset, fee and block hash are the references unless it is a dummy. -/
+theorem consistent3 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
+    ConsistencyCheck (row a 3).isDummy (row a 3).assetId (scanRef (rows a) fun t => t.1.assetId)
+      ∧ ConsistencyCheck (row a 3).isDummy (row a 3).fee (scanRef (rows a) fun t => t.1.fee)
+      ∧ DigestConsistencyCheck (row a 3).isDummy (row a 3).blockHash (blockRef (rows a)) := by
+  obtain ⟨kone, -, -⟩ := consts a h
+  have hd := (dummy3 a h).2
+  have hsaR := ref_asset a h
+  have hsfR := ref_fee a h
+  have ca := publicBatchWrapper4_f117 a h
+  have cao := publicBatchWrapper4_f118 a h
+  have cak := publicBatchWrapper4_f119 a h
+  have cf := publicBatchWrapper4_f120 a h
+  have cfo := publicBatchWrapper4_f121 a h
+  have cfk := publicBatchWrapper4_f122 a h
+  have cb0 := publicBatchWrapper4_f123 a h
+  have cb1 := publicBatchWrapper4_f124 a h
+  have cb2 := publicBatchWrapper4_f125 a h
+  have cb3 := publicBatchWrapper4_f126 a h
+  have cba := publicBatchWrapper4_f127 a h
+  have cbb := publicBatchWrapper4_f128 a h
+  have cbc := publicBatchWrapper4_f129 a h
+  have cbo := publicBatchWrapper4_f130 a h
+  have cbk := publicBatchWrapper4_f131 a h
+  refine ⟨⟨_, _, hsaR ▸ ca, by rw [← hd, ← cao, cak, kone]⟩,
+    ⟨_, _, hsfR ▸ cf, by rw [← hd, ← cfo, cfk, kone]⟩,
+    ![a (.virt 38226), a (.virt 38228), a (.virt 38230), a (.virt 38232)],
+    ![a (.virt 38227), a (.virt 38229), a (.virt 38231), a (.virt 38233)], ?_, ?_⟩
+  · intro j; rw [← ref_block a h j]; fin_cases j; exacts [cb0, cb1, cb2, cb3]
+  · show bor (row a 3).isDummy (band (band (a (.virt 38226)) (a (.virt 38228)))
+        (band (a (.virt 38230)) (a (.virt 38232)))) = 1
+    rw [← hd, ← cba, ← cbb, ← cbc, ← cbo, cbk, kone]
+
+/-- Inner 0: its forwarded `slots` are its own, masked by its dummy flag. -/
+theorem slots0 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
+    ([⟨(a (.wire 16 7)).val, ⟨(a (.wire 16 15)).val, (a (.wire 16 23)).val, (a (.wire 16 31)).val, (a (.wire 16 39)).val⟩⟩,
+      ⟨(a (.wire 16 47)).val, ⟨(a (.wire 16 55)).val, (a (.wire 16 63)).val, (a (.wire 16 71)).val, (a (.wire 16 79)).val⟩⟩,
+      ⟨(a (.wire 17 7)).val, ⟨(a (.wire 17 15)).val, (a (.wire 17 23)).val, (a (.wire 17 31)).val, (a (.wire 17 39)).val⟩⟩,
+      ⟨(a (.wire 17 47)).val, ⟨(a (.wire 17 55)).val, (a (.wire 17 63)).val, (a (.wire 17 71)).val, (a (.wire 17 79)).val⟩⟩] : List ExitSlot)
+      = ((row a 0).slots.map (maskSlot (row a 0).isDummy)).map valSlot := by
+  obtain ⟨-, kzero, -⟩ := consts a h
+  have hd := (dummy0 a h).2
+  have f0 := publicBatchWrapper4_f132 a h
+  have f1 := publicBatchWrapper4_f133 a h
+  have f2 := publicBatchWrapper4_f134 a h
+  have f3 := publicBatchWrapper4_f135 a h
+  have f4 := publicBatchWrapper4_f136 a h
+  have f5 := publicBatchWrapper4_f137 a h
+  have f6 := publicBatchWrapper4_f138 a h
+  have f7 := publicBatchWrapper4_f139 a h
+  have f8 := publicBatchWrapper4_f140 a h
+  have f9 := publicBatchWrapper4_f141 a h
+  have f10 := publicBatchWrapper4_f142 a h
+  have f11 := publicBatchWrapper4_f143 a h
+  have f12 := publicBatchWrapper4_f144 a h
+  have f13 := publicBatchWrapper4_f145 a h
+  have f14 := publicBatchWrapper4_f146 a h
+  have f15 := publicBatchWrapper4_f147 a h
+  have f16 := publicBatchWrapper4_f148 a h
+  have f17 := publicBatchWrapper4_f149 a h
+  have f18 := publicBatchWrapper4_f150 a h
+  have f19 := publicBatchWrapper4_f151 a h
+  rw [f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, kzero, hd]
+  rfl
+
+/-- Inner 1: its forwarded `slots` are its own, masked by its dummy flag. -/
+theorem slots1 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
+    ([⟨(a (.wire 18 7)).val, ⟨(a (.wire 18 15)).val, (a (.wire 18 23)).val, (a (.wire 18 31)).val, (a (.wire 18 39)).val⟩⟩,
+      ⟨(a (.wire 18 47)).val, ⟨(a (.wire 18 55)).val, (a (.wire 18 63)).val, (a (.wire 18 71)).val, (a (.wire 18 79)).val⟩⟩,
+      ⟨(a (.wire 19 7)).val, ⟨(a (.wire 19 15)).val, (a (.wire 19 23)).val, (a (.wire 19 31)).val, (a (.wire 19 39)).val⟩⟩,
+      ⟨(a (.wire 19 47)).val, ⟨(a (.wire 19 55)).val, (a (.wire 19 63)).val, (a (.wire 19 71)).val, (a (.wire 19 79)).val⟩⟩] : List ExitSlot)
+      = ((row a 1).slots.map (maskSlot (row a 1).isDummy)).map valSlot := by
+  obtain ⟨-, kzero, -⟩ := consts a h
+  have hd := (dummy1 a h).2
+  have f0 := publicBatchWrapper4_f152 a h
+  have f1 := publicBatchWrapper4_f153 a h
+  have f2 := publicBatchWrapper4_f154 a h
+  have f3 := publicBatchWrapper4_f155 a h
+  have f4 := publicBatchWrapper4_f156 a h
+  have f5 := publicBatchWrapper4_f157 a h
+  have f6 := publicBatchWrapper4_f158 a h
+  have f7 := publicBatchWrapper4_f159 a h
+  have f8 := publicBatchWrapper4_f160 a h
+  have f9 := publicBatchWrapper4_f161 a h
+  have f10 := publicBatchWrapper4_f162 a h
+  have f11 := publicBatchWrapper4_f163 a h
+  have f12 := publicBatchWrapper4_f164 a h
+  have f13 := publicBatchWrapper4_f165 a h
+  have f14 := publicBatchWrapper4_f166 a h
+  have f15 := publicBatchWrapper4_f167 a h
+  have f16 := publicBatchWrapper4_f168 a h
+  have f17 := publicBatchWrapper4_f169 a h
+  have f18 := publicBatchWrapper4_f170 a h
+  have f19 := publicBatchWrapper4_f171 a h
+  rw [f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, kzero, hd]
+  rfl
+
+/-- Inner 2: its forwarded `slots` are its own, masked by its dummy flag. -/
+theorem slots2 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
+    ([⟨(a (.wire 20 7)).val, ⟨(a (.wire 20 15)).val, (a (.wire 20 23)).val, (a (.wire 20 31)).val, (a (.wire 20 39)).val⟩⟩,
+      ⟨(a (.wire 20 47)).val, ⟨(a (.wire 20 55)).val, (a (.wire 20 63)).val, (a (.wire 20 71)).val, (a (.wire 20 79)).val⟩⟩,
+      ⟨(a (.wire 21 7)).val, ⟨(a (.wire 21 15)).val, (a (.wire 21 23)).val, (a (.wire 21 31)).val, (a (.wire 21 39)).val⟩⟩,
+      ⟨(a (.wire 21 47)).val, ⟨(a (.wire 21 55)).val, (a (.wire 21 63)).val, (a (.wire 21 71)).val, (a (.wire 21 79)).val⟩⟩] : List ExitSlot)
+      = ((row a 2).slots.map (maskSlot (row a 2).isDummy)).map valSlot := by
+  obtain ⟨-, kzero, -⟩ := consts a h
+  have hd := (dummy2 a h).2
+  have f0 := publicBatchWrapper4_f172 a h
+  have f1 := publicBatchWrapper4_f173 a h
+  have f2 := publicBatchWrapper4_f174 a h
+  have f3 := publicBatchWrapper4_f175 a h
+  have f4 := publicBatchWrapper4_f176 a h
+  have f5 := publicBatchWrapper4_f177 a h
+  have f6 := publicBatchWrapper4_f178 a h
+  have f7 := publicBatchWrapper4_f179 a h
+  have f8 := publicBatchWrapper4_f180 a h
+  have f9 := publicBatchWrapper4_f181 a h
+  have f10 := publicBatchWrapper4_f182 a h
+  have f11 := publicBatchWrapper4_f183 a h
+  have f12 := publicBatchWrapper4_f184 a h
+  have f13 := publicBatchWrapper4_f185 a h
+  have f14 := publicBatchWrapper4_f186 a h
+  have f15 := publicBatchWrapper4_f187 a h
+  have f16 := publicBatchWrapper4_f188 a h
+  have f17 := publicBatchWrapper4_f189 a h
+  have f18 := publicBatchWrapper4_f190 a h
+  have f19 := publicBatchWrapper4_f191 a h
+  rw [f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, kzero, hd]
+  rfl
+
+/-- Inner 3: its forwarded `slots` are its own, masked by its dummy flag. -/
+theorem slots3 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
+    ([⟨(a (.wire 22 7)).val, ⟨(a (.wire 22 15)).val, (a (.wire 22 23)).val, (a (.wire 22 31)).val, (a (.wire 22 39)).val⟩⟩,
+      ⟨(a (.wire 22 47)).val, ⟨(a (.wire 22 55)).val, (a (.wire 22 63)).val, (a (.wire 22 71)).val, (a (.wire 22 79)).val⟩⟩,
+      ⟨(a (.wire 23 7)).val, ⟨(a (.wire 23 15)).val, (a (.wire 23 23)).val, (a (.wire 23 31)).val, (a (.wire 23 39)).val⟩⟩,
+      ⟨(a (.wire 23 47)).val, ⟨(a (.wire 23 55)).val, (a (.wire 23 63)).val, (a (.wire 23 71)).val, (a (.wire 23 79)).val⟩⟩] : List ExitSlot)
+      = ((row a 3).slots.map (maskSlot (row a 3).isDummy)).map valSlot := by
+  obtain ⟨-, kzero, -⟩ := consts a h
+  have hd := (dummy3 a h).2
+  have f0 := publicBatchWrapper4_f192 a h
+  have f1 := publicBatchWrapper4_f193 a h
+  have f2 := publicBatchWrapper4_f194 a h
+  have f3 := publicBatchWrapper4_f195 a h
+  have f4 := publicBatchWrapper4_f196 a h
+  have f5 := publicBatchWrapper4_f197 a h
+  have f6 := publicBatchWrapper4_f198 a h
+  have f7 := publicBatchWrapper4_f199 a h
+  have f8 := publicBatchWrapper4_f200 a h
+  have f9 := publicBatchWrapper4_f201 a h
+  have f10 := publicBatchWrapper4_f202 a h
+  have f11 := publicBatchWrapper4_f203 a h
+  have f12 := publicBatchWrapper4_f204 a h
+  have f13 := publicBatchWrapper4_f205 a h
+  have f14 := publicBatchWrapper4_f206 a h
+  have f15 := publicBatchWrapper4_f207 a h
+  have f16 := publicBatchWrapper4_f208 a h
+  have f17 := publicBatchWrapper4_f209 a h
+  have f18 := publicBatchWrapper4_f210 a h
+  have f19 := publicBatchWrapper4_f211 a h
+  rw [f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, kzero, hd]
+  rfl
+
+/-- Inner 0: its forwarded `nulls` are its own, masked by its dummy flag. -/
+theorem nulls0 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
+    ([⟨(a (.wire 24 7)).val, (a (.wire 24 15)).val, (a (.wire 24 23)).val, (a (.wire 24 31)).val⟩,
+      ⟨(a (.wire 24 39)).val, (a (.wire 24 47)).val, (a (.wire 24 55)).val, (a (.wire 24 63)).val⟩] : List Digest)
+      = ((row a 0).nulls.map fun x => fun j => bselect (row a 0).isDummy 0 (x j)).map valDigest := by
+  obtain ⟨-, kzero, -⟩ := consts a h
+  have hd := (dummy0 a h).2
+  have f0 := publicBatchWrapper4_f212 a h
+  have f1 := publicBatchWrapper4_f213 a h
+  have f2 := publicBatchWrapper4_f214 a h
+  have f3 := publicBatchWrapper4_f215 a h
+  have f4 := publicBatchWrapper4_f216 a h
+  have f5 := publicBatchWrapper4_f217 a h
+  have f6 := publicBatchWrapper4_f218 a h
+  have f7 := publicBatchWrapper4_f219 a h
+  rw [f0, f1, f2, f3, f4, f5, f6, f7, kzero, hd]
+  rfl
+
+/-- Inner 1: its forwarded `nulls` are its own, masked by its dummy flag. -/
+theorem nulls1 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
+    ([⟨(a (.wire 24 71)).val, (a (.wire 24 79)).val, (a (.wire 25 7)).val, (a (.wire 25 15)).val⟩,
+      ⟨(a (.wire 25 23)).val, (a (.wire 25 31)).val, (a (.wire 25 39)).val, (a (.wire 25 47)).val⟩] : List Digest)
+      = ((row a 1).nulls.map fun x => fun j => bselect (row a 1).isDummy 0 (x j)).map valDigest := by
+  obtain ⟨-, kzero, -⟩ := consts a h
+  have hd := (dummy1 a h).2
+  have f0 := publicBatchWrapper4_f220 a h
+  have f1 := publicBatchWrapper4_f221 a h
+  have f2 := publicBatchWrapper4_f222 a h
+  have f3 := publicBatchWrapper4_f223 a h
+  have f4 := publicBatchWrapper4_f224 a h
+  have f5 := publicBatchWrapper4_f225 a h
+  have f6 := publicBatchWrapper4_f226 a h
+  have f7 := publicBatchWrapper4_f227 a h
+  rw [f0, f1, f2, f3, f4, f5, f6, f7, kzero, hd]
+  rfl
+
+/-- Inner 2: its forwarded `nulls` are its own, masked by its dummy flag. -/
+theorem nulls2 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
+    ([⟨(a (.wire 25 55)).val, (a (.wire 25 63)).val, (a (.wire 25 71)).val, (a (.wire 25 79)).val⟩,
+      ⟨(a (.wire 26 7)).val, (a (.wire 26 15)).val, (a (.wire 26 23)).val, (a (.wire 26 31)).val⟩] : List Digest)
+      = ((row a 2).nulls.map fun x => fun j => bselect (row a 2).isDummy 0 (x j)).map valDigest := by
+  obtain ⟨-, kzero, -⟩ := consts a h
+  have hd := (dummy2 a h).2
+  have f0 := publicBatchWrapper4_f228 a h
+  have f1 := publicBatchWrapper4_f229 a h
+  have f2 := publicBatchWrapper4_f230 a h
+  have f3 := publicBatchWrapper4_f231 a h
+  have f4 := publicBatchWrapper4_f232 a h
+  have f5 := publicBatchWrapper4_f233 a h
+  have f6 := publicBatchWrapper4_f234 a h
+  have f7 := publicBatchWrapper4_f235 a h
+  rw [f0, f1, f2, f3, f4, f5, f6, f7, kzero, hd]
+  rfl
+
+/-- Inner 3: its forwarded `nulls` are its own, masked by its dummy flag. -/
+theorem nulls3 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
+    ([⟨(a (.wire 26 39)).val, (a (.wire 26 47)).val, (a (.wire 26 55)).val, (a (.wire 26 63)).val⟩,
+      ⟨(a (.wire 26 71)).val, (a (.wire 26 79)).val, (a (.wire 27 7)).val, (a (.wire 27 15)).val⟩] : List Digest)
+      = ((row a 3).nulls.map fun x => fun j => bselect (row a 3).isDummy 0 (x j)).map valDigest := by
+  obtain ⟨-, kzero, -⟩ := consts a h
+  have hd := (dummy3 a h).2
+  have f0 := publicBatchWrapper4_f236 a h
+  have f1 := publicBatchWrapper4_f237 a h
+  have f2 := publicBatchWrapper4_f238 a h
+  have f3 := publicBatchWrapper4_f239 a h
+  have f4 := publicBatchWrapper4_f240 a h
+  have f5 := publicBatchWrapper4_f241 a h
+  have f6 := publicBatchWrapper4_f242 a h
+  have f7 := publicBatchWrapper4_f243 a h
+  rw [f0, f1, f2, f3, f4, f5, f6, f7, kzero, hd]
+  rfl
 
 /-- **The recorded public-batch wrapper satisfies `RPublicBatch`.** Every satisfying
     assignment decodes to an `RPublicBatch` instance on the 4 inner outputs, the
@@ -162,281 +658,11 @@ theorem consts (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
 theorem sound (ro : RandomOracle) (hpg : WormholeSpec.goldilocks ≤ p)
     (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
     RPublicBatch ro (inners a) (addr a) (out a) := by
-  obtain ⟨kone, kzero, ktot⟩ := consts a h
-  have hf := publicBatchWrapper4_decode a h
-  have e0_0 := hf.1.1
-  have e0_1 := hf.1.2.1
-  have e0_2 := hf.1.2.2.1
-  have e0_3 := hf.1.2.2.2.1
-  have da0 := hf.1.2.2.2.2.1
-  have db0 := hf.1.2.2.2.2.2.1
-  have d0 := hf.1.2.2.2.2.2.2.1
-  have e1_0 := hf.1.2.2.2.2.2.2.2.1
-  have e1_1 := hf.1.2.2.2.2.2.2.2.2.1
-  have e1_2 := hf.1.2.2.2.2.2.2.2.2.2.1
-  have e1_3 := hf.1.2.2.2.2.2.2.2.2.2.2.1
-  have da1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.1
-  have db1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have d1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e2_0 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e2_1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e2_2 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e2_3 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have da2 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have db2 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have d2 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e3_0 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e3_1 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e3_2 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e3_3 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have da3 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have db3 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have d3 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have r0 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sb0_0 := hf.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have sb0_1 := hf.2.1.1
-  have sb0_2 := hf.2.1.2.1
-  have sb0_3 := hf.2.1.2.2.1
-  have sn0 := hf.2.1.2.2.2.1
-  have sa0 := hf.2.1.2.2.2.2.1
-  have sf0 := hf.2.1.2.2.2.2.2.1
-  have r1 := hf.2.1.2.2.2.2.2.2.2.1
-  have nf1 := hf.2.1.2.2.2.2.2.2.2.2.1
-  have tk1 := hf.2.1.2.2.2.2.2.2.2.2.2.1
-  have sb1_0 := hf.2.1.2.2.2.2.2.2.2.2.2.2.1
-  have sb1_1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.1
-  have sb1_2 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sb1_3 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sn1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sa1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sf1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fo1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have r2 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have nf2 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have tk2 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sb2_0 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sb2_1 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sb2_2 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sb2_3 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sn2 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sa2 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have sf2 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fo2 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have r3 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have nf3 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have tk3 := hf.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have sb3_0 := hf.2.2.1.1
-  have sb3_1 := hf.2.2.1.2.1
-  have sb3_2 := hf.2.2.1.2.2.1
-  have sb3_3 := hf.2.2.1.2.2.2.1
-  have sn3 := hf.2.2.1.2.2.2.2.1
-  have sa3 := hf.2.2.1.2.2.2.2.2.1
-  have sf3 := hf.2.2.1.2.2.2.2.2.2.1
-  have ca0 := hf.2.2.1.2.2.2.2.2.2.2.2.1
-  have cao0 := hf.2.2.1.2.2.2.2.2.2.2.2.2.1
-  have cak0 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.1
-  have cf0 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.1
-  have cfo0 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cfk0 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb0_0 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb0_1 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb0_2 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb0_3 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cba0 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cbb0 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cbc0 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cbo0 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cbk0 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have ca1 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cao1 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cak1 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cf1 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cfo1 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cfk1 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb1_0 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb1_1 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb1_2 := hf.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have cb1_3 := hf.2.2.2.1.1
-  have cba1 := hf.2.2.2.1.2.1
-  have cbb1 := hf.2.2.2.1.2.2.1
-  have cbc1 := hf.2.2.2.1.2.2.2.1
-  have cbo1 := hf.2.2.2.1.2.2.2.2.1
-  have cbk1 := hf.2.2.2.1.2.2.2.2.2.1
-  have ca2 := hf.2.2.2.1.2.2.2.2.2.2.1
-  have cao2 := hf.2.2.2.1.2.2.2.2.2.2.2.1
-  have cak2 := hf.2.2.2.1.2.2.2.2.2.2.2.2.1
-  have cf2 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.1
-  have cfo2 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.1
-  have cfk2 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb2_0 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb2_1 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb2_2 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb2_3 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cba2 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cbb2 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cbc2 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cbo2 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cbk2 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have ca3 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cao3 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cak3 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cf3 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cfo3 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cfk3 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb3_0 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb3_1 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb3_2 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cb3_3 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have cba3 := hf.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have cbb3 := hf.2.2.2.2.1.1
-  have cbc3 := hf.2.2.2.2.1.2.1
-  have cbo3 := hf.2.2.2.2.1.2.2.1
-  have cbk3 := hf.2.2.2.2.1.2.2.2.1
-  have fs0_0 := hf.2.2.2.2.1.2.2.2.2.1
-  have fs0_1 := hf.2.2.2.2.1.2.2.2.2.2.1
-  have fs0_2 := hf.2.2.2.2.1.2.2.2.2.2.2.1
-  have fs0_3 := hf.2.2.2.2.1.2.2.2.2.2.2.2.1
-  have fs0_4 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.1
-  have fs0_5 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.1
-  have fs0_6 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.1
-  have fs0_7 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs0_8 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs0_9 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs0_10 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs0_11 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs0_12 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs0_13 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs0_14 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs0_15 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs0_16 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs0_17 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs0_18 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs0_19 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs1_0 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs1_1 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs1_2 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs1_3 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs1_4 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs1_5 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs1_6 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs1_7 := hf.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have fs1_8 := hf.2.2.2.2.2.1.1
-  have fs1_9 := hf.2.2.2.2.2.1.2.1
-  have fs1_10 := hf.2.2.2.2.2.1.2.2.1
-  have fs1_11 := hf.2.2.2.2.2.1.2.2.2.1
-  have fs1_12 := hf.2.2.2.2.2.1.2.2.2.2.1
-  have fs1_13 := hf.2.2.2.2.2.1.2.2.2.2.2.1
-  have fs1_14 := hf.2.2.2.2.2.1.2.2.2.2.2.2.1
-  have fs1_15 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.1
-  have fs1_16 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.1
-  have fs1_17 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.1
-  have fs1_18 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.1
-  have fs1_19 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs2_0 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs2_1 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs2_2 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs2_3 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs2_4 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs2_5 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs2_6 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs2_7 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs2_8 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs2_9 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs2_10 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs2_11 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs2_12 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs2_13 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs2_14 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs2_15 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs2_16 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs2_17 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs2_18 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs2_19 := hf.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have fs3_0 := hf.2.2.2.2.2.2.1.1
-  have fs3_1 := hf.2.2.2.2.2.2.1.2.1
-  have fs3_2 := hf.2.2.2.2.2.2.1.2.2.1
-  have fs3_3 := hf.2.2.2.2.2.2.1.2.2.2.1
-  have fs3_4 := hf.2.2.2.2.2.2.1.2.2.2.2.1
-  have fs3_5 := hf.2.2.2.2.2.2.1.2.2.2.2.2.1
-  have fs3_6 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.1
-  have fs3_7 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.1
-  have fs3_8 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.1
-  have fs3_9 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.1
-  have fs3_10 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.1
-  have fs3_11 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs3_12 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs3_13 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs3_14 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs3_15 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs3_16 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs3_17 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs3_18 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fs3_19 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn0_0 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn0_1 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn0_2 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn0_3 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn0_4 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn0_5 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn0_6 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn0_7 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn1_0 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn1_1 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn1_2 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn1_3 := hf.2.2.2.2.2.2.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have fn1_4 := hf.2.2.2.2.2.2.2.1
-  have fn1_5 := hf.2.2.2.2.2.2.2.2.1
-  have fn1_6 := hf.2.2.2.2.2.2.2.2.2.1
-  have fn1_7 := hf.2.2.2.2.2.2.2.2.2.2.1
-  have fn2_0 := hf.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn2_1 := hf.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn2_2 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn2_3 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn2_4 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn2_5 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn2_6 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn2_7 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn3_0 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn3_1 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn3_2 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn3_3 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn3_4 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn3_5 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn3_6 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have fn3_7 := hf.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-
-  rw [kzero] at e0_0 e0_1 e0_2 e0_3 e1_0 e1_1 e1_2 e1_3 e2_0 e2_1 e2_2 e2_3 e3_0 e3_1 e3_2 e3_3
-  have hd0 : a (.wire 1 43) = (row a 0).isDummy := by rw [d0, da0, db0]; rfl
-  have hd1 : a (.wire 2 7) = (row a 1).isDummy := by rw [d1, da1, db1]; rfl
-  have hd2 : a (.wire 2 51) = (row a 2).isDummy := by rw [d2, da2, db2]; rfl
-  have hd3 : a (.wire 4 15) = (row a 3).isDummy := by rw [d3, da3, db3]; rfl
-  have hsel : ∀ x0 x1 x2 x3 : ZMod p,
-      bselect (a (.wire 4 27)) x3 (bselect (a (.wire 4 23)) x2 (bselect (a (.wire 4 19)) x1 (bselect (a (.wire 3 51)) x0 0)))
-        = bselect (band (bnot (row a 3).isDummy) (bnot (bor (bor (bnot (row a 0).isDummy) (bnot (row a 1).isDummy)) (bnot (row a 2).isDummy)))) x3 (bselect (band (bnot (row a 2).isDummy) (bnot (bor (bnot (row a 0).isDummy) (bnot (row a 1).isDummy)))) x2 (bselect (band (bnot (row a 1).isDummy) (bnot (bnot (row a 0).isDummy))) x1 (bselect (bnot (row a 0).isDummy) x0 0))) := by
-    intro x0 x1 x2 x3
-    rw [tk3, tk2, tk1, nf3, nf2, nf1, fo2, fo1, r3, r2, r1, r0, hd0, hd1, hd2, hd3]
-  have hblk : ∀ j, a (![.wire 8 63, .wire 8 71, .wire 8 79, .wire 9 7] j) = blockRef (rows a) j := by
-    intro j
-    simp only [blockRef, rows, scanRef_4]
-    fin_cases j
-    · show a (.wire 8 63) = _
-      rw [sb3_0, sb2_0, sb1_0, sb0_0, kzero, hsel]; rfl
-    · show a (.wire 8 71) = _
-      rw [sb3_1, sb2_1, sb1_1, sb0_1, kzero, hsel]; rfl
-    · show a (.wire 8 79) = _
-      rw [sb3_2, sb2_2, sb1_2, sb0_2, kzero, hsel]; rfl
-    · show a (.wire 9 7) = _
-      rw [sb3_3, sb2_3, sb1_3, sb0_3, kzero, hsel]; rfl
-  have hb0 : a (.wire 8 63) = blockRef (rows a) 0 := hblk 0
-  have hb1 : a (.wire 8 71) = blockRef (rows a) 1 := hblk 1
-  have hb2 : a (.wire 8 79) = blockRef (rows a) 2 := hblk 2
-  have hb3 : a (.wire 9 7) = blockRef (rows a) 3 := hblk 3
-  have hsnR : a (.wire 9 15) = scanRef (rows a) fun t => t.1.blockNumber := by
-    rw [rows, scanRef_4, sn3, sn2, sn1, sn0, kzero, hsel]; rfl
-  have hsaR : a (.wire 9 23) = scanRef (rows a) fun t => t.1.assetId := by
-    rw [rows, scanRef_4, sa3, sa2, sa1, sa0, kzero, hsel]; rfl
-  have hsfR : a (.wire 9 31) = scanRef (rows a) fun t => t.1.fee := by
-    rw [rows, scanRef_4, sf3, sf2, sf1, sf0, kzero, hsel]; rfl
+  obtain ⟨-, -, ktot⟩ := consts a h
+  have hb0 : a (.wire 8 63) = blockRef (rows a) 0 := ref_block a h 0
+  have hb1 : a (.wire 8 71) = blockRef (rows a) 1 := ref_block a h 1
+  have hb2 : a (.wire 8 79) = blockRef (rows a) 2 := ref_block a h 2
+  have hb3 : a (.wire 9 7) = blockRef (rows a) 3 := ref_block a h 3
   have hmem : ∀ t ∈ rows a, t = (row a 0, inner a 0) ∨ t = (row a 1, inner a 1) ∨ t = (row a 2, inner a 2) ∨ t = (row a 3, inner a 3) := by
     intro t ht
     simpa only [rows, List.mem_cons, List.not_mem_nil, or_false] using ht
@@ -452,94 +678,54 @@ theorem sound (ro : RandomOracle) (hpg : WormholeSpec.goldilocks ≤ p)
     (hdec _ rfl rfl rfl rfl) (hdec _ rfl rfl rfl rfl) (hdec _ rfl rfl rfl rfl) (hdec _ rfl rfl rfl rfl) ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
     ?_ ?_
   · -- dummy checks
-    intro t ht
-    rcases hmem t ht with rfl | rfl | rfl | rfl
-    · intro j; fin_cases j <;> assumption
-    · intro j; fin_cases j <;> assumption
-    · intro j; fin_cases j <;> assumption
-    · intro j; fin_cases j <;> assumption
+    exact hdec _ (dummy0 a h).1 (dummy1 a h).1 (dummy2 a h).1 (dummy3 a h).1
   · -- header: block hash
     show (⟨(a (.wire 8 63)).val, (a (.wire 8 71)).val, (a (.wire 8 79)).val, (a (.wire 9 7)).val⟩ : Digest)
       = ⟨(blockRef (rows a) 0).val, (blockRef (rows a) 1).val, (blockRef (rows a) 2).val,
           (blockRef (rows a) 3).val⟩
     rw [hb0, hb1, hb2, hb3]
   · show (a (.wire 9 15)).val = _
-    rw [hsnR]
+    rw [ref_number a h]
   · show (a (.wire 9 23)).val = _
-    rw [hsaR]
+    rw [ref_asset a h]
   · show (a (.wire 9 31)).val = _
-    rw [hsfR]
+    rw [ref_fee a h]
   · -- asset consistency
-    intro t ht
-    rcases hmem t ht with rfl | rfl | rfl | rfl
-    · exact ⟨_, _, hsaR ▸ ca0, by rw [← hd0, ← cao0, cak0, kone]⟩
-    · exact ⟨_, _, hsaR ▸ ca1, by rw [← hd1, ← cao1, cak1, kone]⟩
-    · exact ⟨_, _, hsaR ▸ ca2, by rw [← hd2, ← cao2, cak2, kone]⟩
-    · exact ⟨_, _, hsaR ▸ ca3, by rw [← hd3, ← cao3, cak3, kone]⟩
+    exact hdec _ (consistent0 a h).1 (consistent1 a h).1 (consistent2 a h).1 (consistent3 a h).1
   · -- fee consistency
-    intro t ht
-    rcases hmem t ht with rfl | rfl | rfl | rfl
-    · exact ⟨_, _, hsfR ▸ cf0, by rw [← hd0, ← cfo0, cfk0, kone]⟩
-    · exact ⟨_, _, hsfR ▸ cf1, by rw [← hd1, ← cfo1, cfk1, kone]⟩
-    · exact ⟨_, _, hsfR ▸ cf2, by rw [← hd2, ← cfo2, cfk2, kone]⟩
-    · exact ⟨_, _, hsfR ▸ cf3, by rw [← hd3, ← cfo3, cfk3, kone]⟩
+    exact hdec _ (consistent0 a h).2.1 (consistent1 a h).2.1 (consistent2 a h).2.1 (consistent3 a h).2.1
   · -- block consistency
-    intro t ht
-    rcases hmem t ht with rfl | rfl | rfl | rfl
-    · refine ⟨![a (.virt 38190), a (.virt 38192), a (.virt 38194), a (.virt 38196)],
-        ![a (.virt 38191), a (.virt 38193), a (.virt 38195), a (.virt 38197)], ?_, ?_⟩
-      · intro j; rw [← hblk j]; fin_cases j <;> assumption
-      · show bor (row a 0).isDummy (band (band (a (.virt 38190)) (a (.virt 38192)))
-          (band (a (.virt 38194)) (a (.virt 38196)))) = 1
-        rw [← hd0, ← cba0, ← cbb0, ← cbc0, ← cbo0, cbk0, kone]
-    · refine ⟨![a (.virt 38202), a (.virt 38204), a (.virt 38206), a (.virt 38208)],
-        ![a (.virt 38203), a (.virt 38205), a (.virt 38207), a (.virt 38209)], ?_, ?_⟩
-      · intro j; rw [← hblk j]; fin_cases j <;> assumption
-      · show bor (row a 1).isDummy (band (band (a (.virt 38202)) (a (.virt 38204)))
-          (band (a (.virt 38206)) (a (.virt 38208)))) = 1
-        rw [← hd1, ← cba1, ← cbb1, ← cbc1, ← cbo1, cbk1, kone]
-    · refine ⟨![a (.virt 38214), a (.virt 38216), a (.virt 38218), a (.virt 38220)],
-        ![a (.virt 38215), a (.virt 38217), a (.virt 38219), a (.virt 38221)], ?_, ?_⟩
-      · intro j; rw [← hblk j]; fin_cases j <;> assumption
-      · show bor (row a 2).isDummy (band (band (a (.virt 38214)) (a (.virt 38216)))
-          (band (a (.virt 38218)) (a (.virt 38220)))) = 1
-        rw [← hd2, ← cba2, ← cbb2, ← cbc2, ← cbo2, cbk2, kone]
-    · refine ⟨![a (.virt 38226), a (.virt 38228), a (.virt 38230), a (.virt 38232)],
-        ![a (.virt 38227), a (.virt 38229), a (.virt 38231), a (.virt 38233)], ?_, ?_⟩
-      · intro j; rw [← hblk j]; fin_cases j <;> assumption
-      · show bor (row a 3).isDummy (band (band (a (.virt 38226)) (a (.virt 38228)))
-          (band (a (.virt 38230)) (a (.virt 38232)))) = 1
-        rw [← hd3, ← cba3, ← cbb3, ← cbc3, ← cbo3, cbk3, kone]
-  · -- forwarded exit slots
-    show ([⟨(a (.wire 16 7)).val, ⟨(a (.wire 16 15)).val, (a (.wire 16 23)).val, (a (.wire 16 31)).val, (a (.wire 16 39)).val⟩⟩,
+    exact hdec _ (consistent0 a h).2.2 (consistent1 a h).2.2 (consistent2 a h).2.2 (consistent3 a h).2.2
+  · -- forwarded slots
+    show ([[⟨(a (.wire 16 7)).val, ⟨(a (.wire 16 15)).val, (a (.wire 16 23)).val, (a (.wire 16 31)).val, (a (.wire 16 39)).val⟩⟩,
       ⟨(a (.wire 16 47)).val, ⟨(a (.wire 16 55)).val, (a (.wire 16 63)).val, (a (.wire 16 71)).val, (a (.wire 16 79)).val⟩⟩,
       ⟨(a (.wire 17 7)).val, ⟨(a (.wire 17 15)).val, (a (.wire 17 23)).val, (a (.wire 17 31)).val, (a (.wire 17 39)).val⟩⟩,
-      ⟨(a (.wire 17 47)).val, ⟨(a (.wire 17 55)).val, (a (.wire 17 63)).val, (a (.wire 17 71)).val, (a (.wire 17 79)).val⟩⟩,
-      ⟨(a (.wire 18 7)).val, ⟨(a (.wire 18 15)).val, (a (.wire 18 23)).val, (a (.wire 18 31)).val, (a (.wire 18 39)).val⟩⟩,
+      ⟨(a (.wire 17 47)).val, ⟨(a (.wire 17 55)).val, (a (.wire 17 63)).val, (a (.wire 17 71)).val, (a (.wire 17 79)).val⟩⟩],
+      [⟨(a (.wire 18 7)).val, ⟨(a (.wire 18 15)).val, (a (.wire 18 23)).val, (a (.wire 18 31)).val, (a (.wire 18 39)).val⟩⟩,
       ⟨(a (.wire 18 47)).val, ⟨(a (.wire 18 55)).val, (a (.wire 18 63)).val, (a (.wire 18 71)).val, (a (.wire 18 79)).val⟩⟩,
       ⟨(a (.wire 19 7)).val, ⟨(a (.wire 19 15)).val, (a (.wire 19 23)).val, (a (.wire 19 31)).val, (a (.wire 19 39)).val⟩⟩,
-      ⟨(a (.wire 19 47)).val, ⟨(a (.wire 19 55)).val, (a (.wire 19 63)).val, (a (.wire 19 71)).val, (a (.wire 19 79)).val⟩⟩,
-      ⟨(a (.wire 20 7)).val, ⟨(a (.wire 20 15)).val, (a (.wire 20 23)).val, (a (.wire 20 31)).val, (a (.wire 20 39)).val⟩⟩,
+      ⟨(a (.wire 19 47)).val, ⟨(a (.wire 19 55)).val, (a (.wire 19 63)).val, (a (.wire 19 71)).val, (a (.wire 19 79)).val⟩⟩],
+      [⟨(a (.wire 20 7)).val, ⟨(a (.wire 20 15)).val, (a (.wire 20 23)).val, (a (.wire 20 31)).val, (a (.wire 20 39)).val⟩⟩,
       ⟨(a (.wire 20 47)).val, ⟨(a (.wire 20 55)).val, (a (.wire 20 63)).val, (a (.wire 20 71)).val, (a (.wire 20 79)).val⟩⟩,
       ⟨(a (.wire 21 7)).val, ⟨(a (.wire 21 15)).val, (a (.wire 21 23)).val, (a (.wire 21 31)).val, (a (.wire 21 39)).val⟩⟩,
-      ⟨(a (.wire 21 47)).val, ⟨(a (.wire 21 55)).val, (a (.wire 21 63)).val, (a (.wire 21 71)).val, (a (.wire 21 79)).val⟩⟩,
-      ⟨(a (.wire 22 7)).val, ⟨(a (.wire 22 15)).val, (a (.wire 22 23)).val, (a (.wire 22 31)).val, (a (.wire 22 39)).val⟩⟩,
+      ⟨(a (.wire 21 47)).val, ⟨(a (.wire 21 55)).val, (a (.wire 21 63)).val, (a (.wire 21 71)).val, (a (.wire 21 79)).val⟩⟩],
+      [⟨(a (.wire 22 7)).val, ⟨(a (.wire 22 15)).val, (a (.wire 22 23)).val, (a (.wire 22 31)).val, (a (.wire 22 39)).val⟩⟩,
       ⟨(a (.wire 22 47)).val, ⟨(a (.wire 22 55)).val, (a (.wire 22 63)).val, (a (.wire 22 71)).val, (a (.wire 22 79)).val⟩⟩,
       ⟨(a (.wire 23 7)).val, ⟨(a (.wire 23 15)).val, (a (.wire 23 23)).val, (a (.wire 23 31)).val, (a (.wire 23 39)).val⟩⟩,
-      ⟨(a (.wire 23 47)).val, ⟨(a (.wire 23 55)).val, (a (.wire 23 63)).val, (a (.wire 23 71)).val, (a (.wire 23 79)).val⟩⟩] : List ExitSlot) = _
-    rw [fs0_0, fs0_1, fs0_2, fs0_3, fs0_4, fs0_5, fs0_6, fs0_7, fs0_8, fs0_9, fs0_10, fs0_11, fs0_12, fs0_13, fs0_14, fs0_15, fs0_16, fs0_17, fs0_18, fs0_19, fs1_0, fs1_1, fs1_2, fs1_3, fs1_4, fs1_5, fs1_6, fs1_7, fs1_8, fs1_9, fs1_10, fs1_11, fs1_12, fs1_13, fs1_14, fs1_15, fs1_16, fs1_17, fs1_18, fs1_19, fs2_0, fs2_1, fs2_2, fs2_3, fs2_4, fs2_5, fs2_6, fs2_7, fs2_8, fs2_9, fs2_10, fs2_11, fs2_12, fs2_13, fs2_14, fs2_15, fs2_16, fs2_17, fs2_18, fs2_19, fs3_0, fs3_1, fs3_2, fs3_3, fs3_4, fs3_5, fs3_6, fs3_7, fs3_8, fs3_9, fs3_10, fs3_11, fs3_12, fs3_13, fs3_14, fs3_15, fs3_16, fs3_17, fs3_18, fs3_19, kzero, hd0, hd1, hd2, hd3]
-    rfl
-  · -- forwarded nullifiers
-    show ([⟨(a (.wire 24 7)).val, (a (.wire 24 15)).val, (a (.wire 24 23)).val, (a (.wire 24 31)).val⟩,
-      ⟨(a (.wire 24 39)).val, (a (.wire 24 47)).val, (a (.wire 24 55)).val, (a (.wire 24 63)).val⟩,
-      ⟨(a (.wire 24 71)).val, (a (.wire 24 79)).val, (a (.wire 25 7)).val, (a (.wire 25 15)).val⟩,
-      ⟨(a (.wire 25 23)).val, (a (.wire 25 31)).val, (a (.wire 25 39)).val, (a (.wire 25 47)).val⟩,
-      ⟨(a (.wire 25 55)).val, (a (.wire 25 63)).val, (a (.wire 25 71)).val, (a (.wire 25 79)).val⟩,
-      ⟨(a (.wire 26 7)).val, (a (.wire 26 15)).val, (a (.wire 26 23)).val, (a (.wire 26 31)).val⟩,
-      ⟨(a (.wire 26 39)).val, (a (.wire 26 47)).val, (a (.wire 26 55)).val, (a (.wire 26 63)).val⟩,
-      ⟨(a (.wire 26 71)).val, (a (.wire 26 79)).val, (a (.wire 27 7)).val, (a (.wire 27 15)).val⟩] : List Digest) = _
-    rw [fn0_0, fn0_1, fn0_2, fn0_3, fn0_4, fn0_5, fn0_6, fn0_7, fn1_0, fn1_1, fn1_2, fn1_3, fn1_4, fn1_5, fn1_6, fn1_7, fn2_0, fn2_1, fn2_2, fn2_3, fn2_4, fn2_5, fn2_6, fn2_7, fn3_0, fn3_1, fn3_2, fn3_3, fn3_4, fn3_5, fn3_6, fn3_7, kzero, hd0, hd1, hd2, hd3]
-    rfl
+      ⟨(a (.wire 23 47)).val, ⟨(a (.wire 23 55)).val, (a (.wire 23 63)).val, (a (.wire 23 71)).val, (a (.wire 23 79)).val⟩⟩]] : List (List ExitSlot)).flatten = _
+    exact flatten_eq_of_forall₂ (xs := rows a) (f := fun t => t.1.slots.map (maskSlot t.1.isDummy)) (g := valSlot)
+      (List.Forall₂.cons (slots0 a h) (List.Forall₂.cons (slots1 a h) (List.Forall₂.cons (slots2 a h) (List.Forall₂.cons (slots3 a h) (List.Forall₂.nil)))))
+  · -- forwarded nulls
+    show ([[⟨(a (.wire 24 7)).val, (a (.wire 24 15)).val, (a (.wire 24 23)).val, (a (.wire 24 31)).val⟩,
+      ⟨(a (.wire 24 39)).val, (a (.wire 24 47)).val, (a (.wire 24 55)).val, (a (.wire 24 63)).val⟩],
+      [⟨(a (.wire 24 71)).val, (a (.wire 24 79)).val, (a (.wire 25 7)).val, (a (.wire 25 15)).val⟩,
+      ⟨(a (.wire 25 23)).val, (a (.wire 25 31)).val, (a (.wire 25 39)).val, (a (.wire 25 47)).val⟩],
+      [⟨(a (.wire 25 55)).val, (a (.wire 25 63)).val, (a (.wire 25 71)).val, (a (.wire 25 79)).val⟩,
+      ⟨(a (.wire 26 7)).val, (a (.wire 26 15)).val, (a (.wire 26 23)).val, (a (.wire 26 31)).val⟩],
+      [⟨(a (.wire 26 39)).val, (a (.wire 26 47)).val, (a (.wire 26 55)).val, (a (.wire 26 63)).val⟩,
+      ⟨(a (.wire 26 71)).val, (a (.wire 26 79)).val, (a (.wire 27 7)).val, (a (.wire 27 15)).val⟩]] : List (List Digest)).flatten = _
+    exact flatten_eq_of_forall₂ (xs := rows a) (f := fun t => t.1.nulls.map fun x => fun j => bselect t.1.isDummy 0 (x j)) (g := valDigest)
+      (List.Forall₂.cons (nulls0 a h) (List.Forall₂.cons (nulls1 a h) (List.Forall₂.cons (nulls2 a h) (List.Forall₂.cons (nulls3 a h) (List.Forall₂.nil)))))
   · intro t ht
     rcases hmem t ht with rfl | rfl | rfl | rfl <;> rfl
   · show (a (.virt 38234)).val = 4 * 4

@@ -108,8 +108,9 @@ jobs:
 
   formal-spec:
     name: 📐 Formal Spec (Lean)
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
+    # The deployed-size decode modules need more memory than a standard runner has (PLAN.md, Step 11).
+    runs-on: Large-Linux-x64-Runner
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       # Builds the Lean 4 gadget→constraint model under `formal/` (see formal/PLAN.md).
@@ -149,8 +150,9 @@ jobs:
   # `Lean.ofReduceBool`, or a silent compile failure.
   formal-bridge:
     name: 📐 Formal Bridge (Lean)
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # The deployed-size decode modules need more memory than a standard runner has (PLAN.md, Step 11).
+    runs-on: Large-Linux-x64-Runner
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - name: Prepare Lean toolchain + mathlib cache
@@ -206,15 +208,20 @@ jobs:
           check Plonky2Bridge.public_batch_end_to_end
           check Plonky2Bridge.private_batch_end_to_end_wired Plonky2Bridge.proof_sound
           check Plonky2Bridge.private_batch_end_to_end_wired_n4 Plonky2Bridge.proof_sound
+          check Plonky2Bridge.private_batch_end_to_end_wired_n7 Plonky2Bridge.proof_sound
           check Plonky2Bridge.public_batch_end_to_end_wired Plonky2Bridge.proof_sound
           check Plonky2Bridge.public_batch_end_to_end_wired_n4 Plonky2Bridge.proof_sound
+          check Plonky2Bridge.public_batch_end_to_end_wired_n53 Plonky2Bridge.proof_sound
           check Plonky2Bridge.LeafCircuit.accepted_sound Plonky2Bridge.proof_sound
           check Plonky2Bridge.Wrapper2.accepted_sound Plonky2Bridge.proof_sound
           check Plonky2Bridge.Wrapper4.accepted_sound Plonky2Bridge.proof_sound
+          check Plonky2Bridge.Wrapper7.accepted_sound Plonky2Bridge.proof_sound
           check Plonky2Bridge.Wrapper2.sound
           check Plonky2Bridge.Wrapper4.sound
+          check Plonky2Bridge.Wrapper7.sound
           check Plonky2Bridge.PublicWrapper2.sound
           check Plonky2Bridge.PublicWrapper4.sound
+          check Plonky2Bridge.PublicWrapper53.sound
           check Plonky2Bridge.leaf_wired
           check Plonky2Bridge.LeafCircuit.sound
 

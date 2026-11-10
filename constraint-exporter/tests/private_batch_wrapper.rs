@@ -13,9 +13,8 @@ use constraint_exporter::trace::{
     assert_vendored_trace_matches_pinned, generate_private_batch_wrapper_lean, load, parse,
     traces_dir,
 };
+use constraint_exporter::PRIVATE_WRAPPER_SIZES as SIZES;
 use plonky2::iop::target::Target;
-
-const SIZES: [usize; 2] = [2, 4];
 
 fn trace_name(n: usize) -> String {
     format!("private_batch_wrapper_n{n}.json")

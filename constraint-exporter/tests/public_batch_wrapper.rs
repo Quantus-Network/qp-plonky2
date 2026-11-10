@@ -12,9 +12,7 @@ use constraint_exporter::public_wrapper::{generate_public_wrapper_bridge_lean, S
 use constraint_exporter::trace::{
     assert_vendored_trace_matches_pinned, generate_public_batch_wrapper_lean, load, traces_dir,
 };
-
-const SIZES: [usize; 2] = [2, 4];
-const LEAVES: usize = 2;
+use constraint_exporter::PUBLIC_WRAPPER_SIZES as SIZES;
 
 fn trace_name(n: usize) -> String {
     format!("public_batch_wrapper_n{n}.json")
@@ -30,14 +28,14 @@ fn wrapper(n: usize) -> constraint_exporter::trace::LoadedTrace {
 /// `lake build`, where a missing or differing file fails.
 #[test]
 fn vendored_trace_matches_pinned_package() {
-    for n in SIZES {
+    for (n, _) in SIZES {
         assert_vendored_trace_matches_pinned(&trace_name(n));
     }
 }
 
 #[test]
 fn wrapper_trace_shape() {
-    for n in SIZES {
+    for (n, leaves) in SIZES {
         let t = wrapper(n);
         assert_eq!(t.circuit, format!("public_batch_wrapper_n{n}"));
         // The wrapper is pure boolean/select logic: no hashes, no range checks.
@@ -46,8 +44,8 @@ fn wrapper_trace_shape() {
             .rows
             .iter()
             .all(|r| r.0 == GateKind::Arithmetic { num_ops: 20 }));
-        let slots = 2 * LEAVES;
-        let nulls = LEAVES;
+        let slots = 2 * leaves;
+        let nulls = leaves;
         // 12 header felts + n · slots · 5 limbs + n · nulls · 4 limbs.
         assert_eq!(t.ex.public_inputs.len(), 12 + n * slots * 5 + n * nulls * 4);
         let named: Vec<(&str, usize)> =
@@ -56,7 +54,7 @@ fn wrapper_trace_shape() {
                 .map(|(n, v)| (n.as_str(), v.len()))
                 .collect();
         let mut expected: Vec<(String, usize)> = (0..n)
-            .map(|i| (format!("inner_pis_{i}"), 22 * LEAVES + 8))
+            .map(|i| (format!("inner_pis_{i}"), 22 * leaves + 8))
             .collect();
         expected.push(("aggregator_address".into(), 4));
         assert_eq!(
@@ -83,12 +81,12 @@ fn wrapper_trace_shape() {
         assert!(t.calls.len() > FACT_GROUP, "decode theorem is grouped");
 
         let shape = Shape::read(&t).expect("the trace has the wrapper's call structure");
-        assert_eq!((shape.n, shape.leaves), (n, LEAVES));
+        assert_eq!((shape.n, shape.leaves), (n, leaves));
         assert_eq!(
             (shape.slots_per_inner, shape.nulls_per_inner),
             (slots, nulls)
         );
-        assert_eq!(shape.pi_len, 22 * LEAVES + 8);
+        assert_eq!(shape.pi_len, 22 * leaves + 8);
     }
 }
 
@@ -154,13 +152,13 @@ fn shape_rejects_perturbed_traces() {
 
 #[test]
 fn wrapper_lean_is_current() {
-    for n in SIZES {
+    for (n, leaves) in SIZES {
         let decode_path = format!(
             "{}/../formal/Plonky2Spec/Generated/PublicBatchWrapper{n}.lean",
             env!("CARGO_MANIFEST_DIR")
         );
         let on_disk = std::fs::read_to_string(&decode_path).unwrap();
-        let generated = generate_public_batch_wrapper_lean(n).unwrap();
+        let generated = generate_public_batch_wrapper_lean(n, leaves).unwrap();
         assert_eq!(on_disk, generated, "run export-constraints ({decode_path})");
         assert!(generated.contains(&format!(
             "theorem publicBatchWrapper{n}_decode (a : Assignment p) \
@@ -178,26 +176,33 @@ fn wrapper_lean_is_current() {
         assert!(generated.contains(&format!("namespace Plonky2Bridge.PublicWrapper{n}\n")));
         assert!(generated.contains("RPublicBatch ro (inners a) (addr a) (out a) := by"));
         assert!(generated.contains("theorem end_to_end_wired"));
+        for lemma in ["dummy", "consistent", "slots", "nulls"] {
+            assert_eq!(
+                generated.matches(&format!("\ntheorem {lemma}")).count(),
+                n,
+                "one `{lemma}` lemma per inner"
+            );
+        }
         assert!(generated.contains(&format!(
-            "(hacc : ∀ i : Fin {n}, ProofAccepted perm Wrapper{LEAVES}.tree ((List.ofFn (innerPis i)).map a))"
+            "(hacc : ∀ i : Fin {n}, ProofAccepted perm Wrapper{leaves}.tree ((List.ofFn (innerPis i)).map a))"
         )));
         assert!(generated.contains(&format!(
             "refine public_batch_val ro (rows a) (k := {})",
-            2 * LEAVES
+            2 * leaves
         )));
         assert!(generated.contains(&format!(
             ".node \"public_batch_wrapper_n{n}\" (publicBatchWrapper{n} p)"
         )));
         assert_eq!(
             generated
-                .matches(&format!("(Wrapper{LEAVES}.tree, List.ofFn (innerPis "))
+                .matches(&format!("(Wrapper{leaves}.tree, List.ofFn (innerPis "))
                 .count(),
             n
         );
         assert_eq!(
             generated
                 .matches(&format!(
-                    "exact Wrapper{LEAVES}.accepted_sound perm hpg (hacc "
+                    "exact Wrapper{leaves}.accepted_sound perm hpg (hacc "
                 ))
                 .count(),
             n
