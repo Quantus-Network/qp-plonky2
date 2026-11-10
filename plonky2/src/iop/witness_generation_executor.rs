@@ -2,6 +2,9 @@
 
 #[cfg(not(feature = "std"))]
 use alloc::sync::Arc;
+#[cfg(not(all(feature = "std", feature = "parallel")))]
+use core::marker::PhantomData;
+
 #[cfg(feature = "std")]
 use std::sync::Arc;
 #[cfg(all(feature = "std", feature = "parallel"))]
@@ -34,42 +37,47 @@ use crate::{
 };
 
 /// Executes a witness generation plan with reusable worker allocations.
-pub struct WitnessGenerationExecutor<
-    'a,
-    F: RichField + Extendable<D>,
-    C: GenericConfig<D, F = F>,
-    const D: usize,
-> {
-    plan: Arc<WitnessGenerationPlan<'a, F, C, D>>,
+pub struct WitnessGenerationExecutor<F: RichField> {
+    plan: Arc<WitnessGenerationPlan>,
     #[cfg(all(feature = "std", feature = "parallel"))]
     scratch: GenerationScratch<F>,
+    #[cfg(not(all(feature = "std", feature = "parallel")))]
+    _phantom: PhantomData<F>,
 }
 
-impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
-    WitnessGenerationExecutor<'a, F, C, D>
-{
-    pub fn new(plan: Arc<WitnessGenerationPlan<'a, F, C, D>>) -> Self {
+impl<F: RichField> WitnessGenerationExecutor<F> {
+    pub fn new(plan: Arc<WitnessGenerationPlan>) -> Self {
         Self {
             plan,
             #[cfg(all(feature = "std", feature = "parallel"))]
             scratch: GenerationScratch::new(),
+            #[cfg(not(all(feature = "std", feature = "parallel")))]
+            _phantom: PhantomData,
         }
     }
 
     /// Creates an executor with a complete single-stage plan for the supplied input targets.
-    pub fn new_with_inputs(
-        circuit: &'a CircuitData<F, C, D>,
+    pub fn new_with_inputs<C: GenericConfig<D, F = F>, const D: usize>(
+        circuit: &CircuitData<F, C, D>,
         input_targets: impl IntoIterator<Item = Target>,
-    ) -> Result<Self> {
+    ) -> Result<Self>
+    where
+        F: Extendable<D>,
+    {
         let planner = WitnessGenerationPlanner::new(circuit)?;
         let plan = planner.input_plan(input_targets)?;
         Ok(Self::new(plan))
     }
 
-    /// Creates a matching empty dense witness. Its public `values` vector is
-    /// empty; access assignments through witness methods.
-    pub fn new_witness(&self) -> PartitionWitness<'a, F> {
-        let circuit = self.plan.circuit();
+    /// Creates an empty dense witness for the supplied circuit. Its public `values`
+    /// vector is empty; access assignments through witness methods.
+    pub fn new_witness<'a, C: GenericConfig<D, F = F>, const D: usize>(
+        &self,
+        circuit: &'a CircuitData<F, C, D>,
+    ) -> PartitionWitness<'a, F>
+    where
+        F: Extendable<D>,
+    {
         PartitionWitness::new_dense(
             circuit.common.config.num_wires,
             circuit.common.degree(),
@@ -77,22 +85,27 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         )
     }
 
-    /// Borrows the executor and witness for execution starting at the first stage.
-    pub fn bind<'b>(
+    /// Borrows the circuit, executor and witness for execution starting at the first stage.
+    /// Use the unchanged circuit from which the plan was prepared.
+    pub fn bind<'b, 'a, C: GenericConfig<D, F = F>, const D: usize>(
         &'b mut self,
+        circuit: &'a CircuitData<F, C, D>,
         witness: &'b mut PartitionWitness<'a, F>,
-    ) -> Result<WitnessGenerationExecution<'b, 'a, F, C, D>> {
-        let circuit = self.plan.circuit();
+    ) -> Result<WitnessGenerationExecution<'b, 'a, F, C, D>>
+    where
+        F: Extendable<D>,
+    {
         ensure!(
             core::ptr::eq(
                 witness.representative_map,
                 circuit.prover_only.representative_map.as_slice()
             ) && witness.num_wires == circuit.common.config.num_wires
                 && witness.degree == circuit.common.degree(),
-            "witness does not match plan circuit"
+            "witness does not match execution circuit"
         );
         Ok(WitnessGenerationExecution {
             executor: self,
+            circuit,
             witness,
             next_stage: 0,
             failed: false,
@@ -100,26 +113,38 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     }
 
     /// Executes the entire plan with inputs supplied before this call.
-    pub fn execute(&mut self, witness: &mut PartitionWitness<'a, F>) -> Result<()> {
-        let mut execution = self.bind(witness)?;
+    /// Use the unchanged circuit from which the plan was prepared.
+    pub fn execute<'a, C: GenericConfig<D, F = F>, const D: usize>(
+        &mut self,
+        circuit: &'a CircuitData<F, C, D>,
+        witness: &mut PartitionWitness<'a, F>,
+    ) -> Result<()>
+    where
+        F: Extendable<D>,
+    {
+        let mut execution = self.bind(circuit, witness)?;
         while !execution.is_done() {
             execution.execute()?;
         }
         Ok(())
     }
 
-    pub fn plan(&self) -> &Arc<WitnessGenerationPlan<'a, F, C, D>> {
+    pub fn plan(&self) -> &Arc<WitnessGenerationPlan> {
         &self.plan
     }
 
-    fn run_generator(
-        plan: &WitnessGenerationPlan<'a, F, C, D>,
+    fn run_generator<C: GenericConfig<D, F = F>, const D: usize>(
+        circuit: &CircuitData<F, C, D>,
+        plan: &WitnessGenerationPlan,
         generator_index: usize,
         witness: &mut PartitionWitness<'_, F>,
         output_buffer: &mut GeneratedValues<F>,
-    ) -> Result<()> {
-        Self::run_generator_outputs(plan, generator_index, witness, output_buffer)?;
-        let generator = &plan.circuit().prover_only.generators[generator_index].0;
+    ) -> Result<()>
+    where
+        F: Extendable<D>,
+    {
+        Self::run_generator_outputs(circuit, plan, generator_index, witness, output_buffer)?;
+        let generator = &circuit.prover_only.generators[generator_index].0;
         for (target, value) in output_buffer.target_values.drain(..) {
             witness.set_target(target, value).map_err(|error| {
                 anyhow!("generator {generator_index} ({}): {error}", generator.id())
@@ -128,13 +153,17 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         Ok(())
     }
 
-    fn run_generator_outputs(
-        plan: &WitnessGenerationPlan<'a, F, C, D>,
+    fn run_generator_outputs<C: GenericConfig<D, F = F>, const D: usize>(
+        circuit: &CircuitData<F, C, D>,
+        _plan: &WitnessGenerationPlan,
         generator_index: usize,
         witness: &PartitionWitness<'_, F>,
         output_buffer: &mut GeneratedValues<F>,
-    ) -> Result<()> {
-        let generator = &plan.circuit().prover_only.generators[generator_index].0;
+    ) -> Result<()>
+    where
+        F: Extendable<D>,
+    {
+        let generator = &circuit.prover_only.generators[generator_index].0;
         generator
             .run_ready(witness, output_buffer)
             .map_err(|error| {
@@ -142,7 +171,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
             })?;
         #[cfg(debug_assertions)]
         {
-            let expected_output_targets = plan.expected_output_targets(generator_index);
+            let expected_output_targets = _plan.expected_output_targets(generator_index);
             debug_assert_eq!(
                 output_buffer.target_values.len(),
                 expected_output_targets.len(),
@@ -168,25 +197,28 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
 }
 
 #[cfg(all(feature = "std", feature = "parallel"))]
-impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
-    WitnessGenerationExecutor<'a, F, C, D>
-{
+impl<F: RichField> WitnessGenerationExecutor<F> {
     /// Executes the entire plan with one OS thread per worker in each stage.
     ///
     /// # Safety
+    /// The circuit must be the unchanged circuit used to prepare the plan.
     /// The generator access requirements of
     /// [`WitnessGenerationExecution::execute_parallel`] must hold.
-    pub unsafe fn execute_parallel(
+    pub unsafe fn execute_parallel<'a, C: GenericConfig<D, F = F>, const D: usize>(
         &mut self,
+        circuit: &'a CircuitData<F, C, D>,
         witness: &mut PartitionWitness<'a, F>,
         num_workers: usize,
-    ) -> Result<()> {
+    ) -> Result<()>
+    where
+        F: Extendable<D>,
+    {
         ensure!(
             num_workers > 0,
             "witness generation requires at least one worker"
         );
         witness.require_dense()?;
-        let mut execution = self.bind(witness)?;
+        let mut execution = self.bind(circuit, witness)?;
         while !execution.is_done() {
             // SAFETY: The caller supplies the bound execution's access guarantees.
             unsafe { execution.execute_parallel(num_workers)? };
@@ -194,12 +226,16 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         Ok(())
     }
 
-    unsafe fn run_parallel(
+    unsafe fn run_parallel<C: GenericConfig<D, F = F>, const D: usize>(
         &mut self,
+        circuit: &CircuitData<F, C, D>,
         schedule: &WitnessGenerationSchedule,
         witness: &mut PartitionWitness<'_, F>,
         num_workers: usize,
-    ) -> Result<()> {
+    ) -> Result<()>
+    where
+        F: Extendable<D>,
+    {
         let plan = &self.plan;
         let witness = &*witness;
         let scratch = &mut self.scratch;
@@ -240,6 +276,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
                             // order every read/comparison after the selected writer.
                             let result = unsafe {
                                 Self::run_generator_parallel(
+                                    circuit,
                                     plan,
                                     generator_index,
                                     witness,
@@ -333,37 +370,42 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         pushed
     }
 
-    unsafe fn run_generator_parallel(
-        plan: &WitnessGenerationPlan<'a, F, C, D>,
+    unsafe fn run_generator_parallel<C: GenericConfig<D, F = F>, const D: usize>(
+        circuit: &CircuitData<F, C, D>,
+        plan: &WitnessGenerationPlan,
         generator_index: usize,
         witness: &PartitionWitness<'_, F>,
         output_buffer: &mut GeneratedValues<F>,
-    ) -> Result<()> {
-        Self::run_generator_outputs(plan, generator_index, witness, output_buffer)?;
+    ) -> Result<()>
+    where
+        F: Extendable<D>,
+    {
+        Self::run_generator_outputs(circuit, plan, generator_index, witness, output_buffer)?;
         // SAFETY: The caller guarantees complete read/write declarations.
         // Dependencies order reads and comparisons after initial assignment.
-        unsafe { Self::write_generator_outputs(plan, generator_index, witness, output_buffer)? };
+        unsafe { Self::write_generator_outputs(circuit, generator_index, witness, output_buffer)? };
         Ok(())
     }
 
     /// # Safety
     /// Each output must satisfy the assignment and publication requirements
     /// of [`PartitionWitness::set_target_shared`].
-    unsafe fn write_generator_outputs(
-        plan: &WitnessGenerationPlan<'a, F, C, D>,
+    unsafe fn write_generator_outputs<C: GenericConfig<D, F = F>, const D: usize>(
+        circuit: &CircuitData<F, C, D>,
         generator_index: usize,
         witness: &PartitionWitness<'_, F>,
         output_buffer: &mut GeneratedValues<F>,
-    ) -> Result<()> {
+    ) -> Result<()>
+    where
+        F: Extendable<D>,
+    {
         for (target, value) in output_buffer.target_values.drain(..) {
             // SAFETY: The caller guarantees exclusive assignment followed by
             // concurrent read-only comparisons, with readers after assignment.
             unsafe { witness.set_target_shared(target, value) }.map_err(|error| {
                 anyhow!(
                     "generator {generator_index} ({}): {error}",
-                    plan.circuit().prover_only.generators[generator_index]
-                        .0
-                        .id()
+                    circuit.prover_only.generators[generator_index].0.id()
                 )
             })?;
         }
@@ -371,9 +413,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     }
 }
 
-impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize> core::fmt::Debug
-    for WitnessGenerationExecutor<'a, F, C, D>
-{
+impl<F: RichField> core::fmt::Debug for WitnessGenerationExecutor<F> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         let mut debug = f.debug_struct("WitnessGenerationExecutor");
         debug.field("plan", &self.plan);
@@ -383,7 +423,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     }
 }
 
-/// Executes successive stages while borrowing an executor and one witness.
+/// Executes successive stages while borrowing a circuit, executor and witness.
 pub struct WitnessGenerationExecution<
     'b,
     'a,
@@ -391,7 +431,8 @@ pub struct WitnessGenerationExecution<
     C: GenericConfig<D, F = F>,
     const D: usize,
 > {
-    executor: &'b mut WitnessGenerationExecutor<'a, F, C, D>,
+    executor: &'b mut WitnessGenerationExecutor<F>,
+    circuit: &'a CircuitData<F, C, D>,
     witness: &'b mut PartitionWitness<'a, F>,
     next_stage: usize,
     failed: bool,
@@ -400,10 +441,10 @@ pub struct WitnessGenerationExecution<
 impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
     WitnessGenerationExecution<'b, 'a, F, C, D>
 {
-    /// Releases the executor and witness borrows, preserving witness assignments.
+    /// Releases the circuit, executor and witness borrows, preserving witness assignments.
     pub fn unbind(self) {}
 
-    /// Releases the executor and witness borrows after successful completion.
+    /// Releases the circuit, executor and witness borrows after successful completion.
     /// Returns the execution when further work or recovery is required.
     pub fn finish(self) -> core::result::Result<(), Self> {
         if self.is_done() {
@@ -430,6 +471,7 @@ impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         let mut output_buffer = GeneratedValues::empty();
         for &generator_index in schedule.generator_indices() {
             WitnessGenerationExecutor::run_generator(
+                self.circuit,
                 plan,
                 generator_index,
                 self.witness,
@@ -483,6 +525,7 @@ impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
     /// Executes the next stage in parallel, retaining worker allocations.
     ///
     /// # Safety
+    /// The circuit must be the unchanged circuit used to prepare the plan.
     /// The caller must ensure that every generator:
     /// - declares every target it may read, including checks whether a target is assigned;
     /// - emits the output target sequence discovered during planning on every
@@ -502,7 +545,7 @@ impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         // succeeded synchronously and this stage's initial promises were checked.
         unsafe {
             self.executor
-                .run_parallel(schedule, self.witness, num_workers)?
+                .run_parallel(self.circuit, schedule, self.witness, num_workers)?
         };
         self.finish_stage();
         Ok(())

@@ -103,7 +103,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     pub(super) fn input_plan(
         &self,
         input_targets: impl IntoIterator<Item = Target>,
-    ) -> Result<Arc<WitnessGenerationPlan<'a, F, C, D>>> {
+    ) -> Result<Arc<WitnessGenerationPlan>> {
         let mut planning = self.new_plan();
         for target in input_targets {
             planning.assume_assigned(target)?;

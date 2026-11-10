@@ -14,32 +14,18 @@ use crate::iop::witness_generation_planner::WitnessGenerationPlanner;
 use crate::iop::witness_generation_schedule::{
     make_schedule, WitnessGenerationSchedule, WitnessGenerationState,
 };
-use crate::plonk::circuit_data::CircuitData;
 use crate::plonk::config::GenericConfig;
 
 /// An immutable sequence of witness generation stages for a circuit.
-pub struct WitnessGenerationPlan<
-    'a,
-    F: RichField + Extendable<D>,
-    C: GenericConfig<D, F = F>,
-    const D: usize,
-> {
-    circuit: &'a CircuitData<F, C, D>,
+pub struct WitnessGenerationPlan {
     stages: Vec<WitnessGenerationStage>,
     #[cfg(debug_assertions)]
     expected_output_targets: Arc<Vec<Vec<Target>>>,
 }
 
-impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
-    WitnessGenerationPlan<'a, F, C, D>
-{
+impl WitnessGenerationPlan {
     pub fn num_stages(&self) -> usize {
         self.stages.len()
-    }
-
-    /// Circuit used to construct this plan.
-    pub fn circuit(&self) -> &'a CircuitData<F, C, D> {
-        self.circuit
     }
 
     /// Read-only stages in execution order.
@@ -53,13 +39,18 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     }
 }
 
-impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize> core::fmt::Debug
-    for WitnessGenerationPlan<'a, F, C, D>
-{
+impl core::fmt::Debug for WitnessGenerationPlan {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("WitnessGenerationPlan")
             .field("num_stages", &self.stages.len())
-            .field("num_generators", &self.circuit.prover_only.generators.len())
+            .field(
+                "num_generators",
+                &self
+                    .stages
+                    .iter()
+                    .map(|stage| stage.schedule.generator_indices().len())
+                    .sum::<usize>(),
+            )
             .finish_non_exhaustive()
     }
 }
@@ -102,7 +93,7 @@ pub struct WitnessGenerationPlanning<
     promised_rep_indices: Vec<usize>,
     newly_produced: Vec<usize>,
     state: WitnessGenerationState,
-    plan: WitnessGenerationPlan<'a, F, C, D>,
+    plan: WitnessGenerationPlan,
 }
 
 impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
@@ -119,7 +110,6 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
                 planner.dependencies().reads().len(),
             ),
             plan: WitnessGenerationPlan {
-                circuit,
                 stages: Vec::new(),
                 #[cfg(debug_assertions)]
                 expected_output_targets: Arc::clone(planner.expected_output_targets()),
@@ -160,7 +150,7 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
     /// Returns the immutable plan when all generators are scheduled and all
     /// assignment requirements belong to stages. Returns the planning object
     /// when more stages are required.
-    pub fn finish(self) -> core::result::Result<Arc<WitnessGenerationPlan<'a, F, C, D>>, Self> {
+    pub fn finish(self) -> core::result::Result<Arc<WitnessGenerationPlan>, Self> {
         if self.is_done() {
             Ok(Arc::new(self.plan))
         } else {
@@ -287,7 +277,6 @@ mod tests {
         )?;
         let (schedule, _) = make_schedule(&dependencies, &state);
         let plan = Arc::new(WitnessGenerationPlan {
-            circuit: &data,
             stages: vec![WitnessGenerationStage {
                 promised_rep_indices: vec![input_rep],
                 schedule,
@@ -298,8 +287,8 @@ mod tests {
         for bad_value in [F::ZERO, F::ONE] {
             for &num_workers in EXECUTION_MODES {
                 let mut executor = WitnessGenerationExecutor::new(Arc::clone(&plan));
-                let mut witness = executor.new_witness();
-                let mut execution = executor.bind(&mut witness)?;
+                let mut witness = executor.new_witness(&data);
+                let mut execution = executor.bind(&data, &mut witness)?;
                 execution.set_target(input, bad_value)?;
                 let result = catch_unwind(AssertUnwindSafe(|| {
                     execute_stage(&mut execution, num_workers)
@@ -330,9 +319,9 @@ mod tests {
                 execute_stage(&mut execution, num_workers)?;
                 assert_eq!(execution.witness().get_target(output), F::TWO);
                 execution.finish().unwrap();
-                let mut next = executor.new_witness();
+                let mut next = executor.new_witness(&data);
                 next.set_target(input, F::from_canonical_u64(3))?;
-                executor.execute(&mut next)?;
+                executor.execute(&data, &mut next)?;
                 assert_eq!(next.get_target(output), F::from_canonical_u64(3));
             }
         }

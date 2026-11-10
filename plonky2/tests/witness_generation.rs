@@ -43,21 +43,22 @@ fn execute_stage(
 }
 
 fn generate<'a>(
-    plan: &Arc<Plan<'a, F, C, D>>,
+    data: &'a CircuitData<F, C, D>,
+    plan: &Arc<Plan>,
     inputs: &PartialWitness<F>,
     num_workers: Option<usize>,
 ) -> Result<PartitionWitness<'a, F>> {
     let mut executor = Executor::new(Arc::clone(plan));
-    let mut witness = executor.new_witness();
+    let mut witness = executor.new_witness(data);
     for (&target, &value) in &inputs.target_values {
         witness.set_target(target, value)?;
     }
     match num_workers {
-        None => executor.execute(&mut witness)?,
+        None => executor.execute(data, &mut witness)?,
         #[cfg(feature = "parallel")]
         Some(num_workers) => {
             // SAFETY: The fixtures use genuine built-ins with fixed, complete access sets.
-            unsafe { executor.execute_parallel(&mut witness, num_workers)? };
+            unsafe { executor.execute_parallel(data, &mut witness, num_workers)? };
         }
         #[cfg(not(feature = "parallel"))]
         Some(_) => unreachable!("parallel execution requires the parallel feature"),
@@ -65,14 +66,17 @@ fn generate<'a>(
     Ok(witness)
 }
 
-fn assert_conflicting_assignments(plan: &Arc<Plan<'_, F, C, D>>, inputs: &PartialWitness<F>) {
-    let data = plan.circuit();
+fn assert_conflicting_assignments(
+    data: &CircuitData<F, C, D>,
+    plan: &Arc<Plan>,
+    inputs: &PartialWitness<F>,
+) {
     assert!(
         generate_partial_witness(inputs.clone(), &data.prover_only, &data.common).is_err(),
         "original generation accepted conflicting assignments: {inputs:?}"
     );
     for &num_workers in EXECUTION_MODES {
-        let error = generate(plan, inputs, num_workers).unwrap_err();
+        let error = generate(data, plan, inputs, num_workers).unwrap_err();
         assert!(
             error.to_string().contains("different values"),
             "inputs={inputs:?}, num_workers={num_workers:?}: {error}"
@@ -172,6 +176,7 @@ fn mixed_circuit_matches_original_generation_and_proves() -> Result<()> {
         )?
         .plan(),
     );
+    let data = Arc::new(data);
     for (case_index, (a_value, b_value, extension_values, selector_value)) in [
         (0, 0, [0, 0], 0),
         (1, 2, [3, 4], 1),
@@ -191,7 +196,7 @@ fn mixed_circuit_matches_original_generation_and_proves() -> Result<()> {
         }
         let expected = generate_partial_witness(inputs.clone(), &data.prover_only, &data.common)?;
         let num_workers = EXECUTION_MODES[case_index % EXECUTION_MODES.len()];
-        let actual = generate(&plan, &inputs, num_workers)?;
+        let actual = generate(&data, &plan, &inputs, num_workers)?;
         assert_witnesses_match(&data, &expected, &actual);
         if case_index == 2 {
             let proof = prove_with_partition_witness(
@@ -243,15 +248,14 @@ fn staged_plans_validate_inputs_and_support_reset_and_reuse() -> Result<()> {
         planning.finish().unwrap()
     };
     // The plan and its debug declarations outlive the planner.
-    assert!(core::ptr::eq(plan.circuit(), &data));
     assert_eq!(plan.num_stages(), 4);
     assert!(plan.stages()[2].schedule().generator_indices().is_empty());
 
     for &num_workers in EXECUTION_MODES {
         let mut executor = Executor::new(Arc::clone(&plan));
-        let mut witness = executor.new_witness();
+        let mut witness = executor.new_witness(&data);
         let values_pointer = witness.dense_values_and_assignment_flags()?.0.as_ptr();
-        let execution = executor.bind(&mut witness)?;
+        let execution = executor.bind(&data, &mut witness)?;
         let mut execution = execution.finish().expect_err("no stages have run");
         for (a_value, b_value) in [(3, 5), (7, 11)] {
             execute_stage(&mut execution, num_workers)?;
@@ -307,7 +311,7 @@ fn staged_plans_validate_inputs_and_support_reset_and_reuse() -> Result<()> {
         &data.prover_only.representative_map,
     );
     let values_pointer = witness.values.as_ptr();
-    let mut execution = executor.bind(&mut witness)?;
+    let mut execution = executor.bind(&data, &mut witness)?;
     execution.set_target(alias, F::from_canonical_u64(3))?;
     execution.set_target(b, F::from_canonical_u64(5))?;
     #[cfg(feature = "parallel")]
@@ -372,13 +376,13 @@ fn duplicate_writers_are_compared_without_readers() -> Result<()> {
             let expected =
                 generate_partial_witness(inputs.clone(), &data.prover_only, &data.common)?;
             for &num_workers in EXECUTION_MODES {
-                let actual = generate(&plan, &inputs, num_workers)?;
+                let actual = generate(&data, &plan, &inputs, num_workers)?;
                 assert_witnesses_match(&data, &expected, &actual);
                 assert_eq!(actual.get_target(first), F::from_canonical_u64(3));
                 assert_eq!(actual.get_target(first), actual.get_target(second));
             }
         } else {
-            assert_conflicting_assignments(&plan, &inputs);
+            assert_conflicting_assignments(&data, &plan, &inputs);
         }
     }
     Ok(())
@@ -420,11 +424,11 @@ fn repeated_emissions_to_one_representative_must_agree() -> Result<()> {
             }
             assert!(repeated);
             for &num_workers in EXECUTION_MODES {
-                let actual = generate(&plan, &inputs, num_workers)?;
+                let actual = generate(&data, &plan, &inputs, num_workers)?;
                 assert_witnesses_match(&data, &expected, &actual);
             }
         } else {
-            assert_conflicting_assignments(&plan, &inputs);
+            assert_conflicting_assignments(&data, &plan, &inputs);
         }
     }
     Ok(())
@@ -450,11 +454,11 @@ fn caller_assignments_must_agree_with_generated_values_and_aliases() -> Result<(
             let expected =
                 generate_partial_witness(inputs.clone(), &data.prover_only, &data.common)?;
             for &num_workers in EXECUTION_MODES {
-                let actual = generate(&plan, &inputs, num_workers)?;
+                let actual = generate(&data, &plan, &inputs, num_workers)?;
                 assert_witnesses_match(&data, &expected, &actual);
             }
         } else {
-            assert_conflicting_assignments(&plan, &inputs);
+            assert_conflicting_assignments(&data, &plan, &inputs);
         }
     }
     Ok(())
@@ -468,16 +472,19 @@ fn incompatible_witness_is_rejected_without_changes() -> Result<()> {
     builder.add(input, input);
     let data = builder.build::<C>();
     let mut executor = Executor::new_with_inputs(&data, [input])?;
+    let data = Arc::new(data);
     let mut other_builder = CircuitBuilder::<F, D>::new(config);
     let other_input = other_builder.add_virtual_target();
     other_builder.add(other_input, other_input);
     let other_data = other_builder.build::<C>();
     let other = Executor::new_with_inputs(&other_data, [other_input])?;
-    let mut witness = other.new_witness();
+    let mut witness = other.new_witness(&other_data);
     witness.set_target(other_input, F::TWO)?;
-    let error = executor.bind(&mut witness).unwrap_err();
+    let error = executor.bind(&data, &mut witness).unwrap_err();
     assert!(
-        error.to_string().contains("does not match plan circuit"),
+        error
+            .to_string()
+            .contains("does not match execution circuit"),
         "{error}"
     );
     assert_eq!(witness.get_target(other_input), F::TWO);
