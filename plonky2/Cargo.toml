@@ -36,7 +36,7 @@ thread_rng = ["rand/thread_rng"]
 
 [dependencies]
 anyhow = { workspace = true }
-once_cell = { version = "=1.21.3", default-features = false, features = [
+once_cell = { version = "=1.21.4", default-features = false, features = [
   "alloc",
   "race",
   "critical-section",
@@ -65,16 +65,15 @@ qp-plonky2-core = { version = "=1.6.0", path = "../core", default-features = fal
 criterion = { version = "=0.8.2", default-features = false, features = [
   "cargo_bench_support",
 ] }
-env_logger = { version = "=0.9.3", default-features = false }
-num_cpus = { version = "=1.17.0", default-features = false }
-rand = { version = "=0.10.1", features = ["std_rng", "thread_rng"] }
+env_logger = { version = "=0.11.11", default-features = false }
+rand = { version = "=0.10.3", features = ["std_rng", "thread_rng"] }
 ciborium = { version = "=0.2.2" }
-serde_json = { version = "=1.0.145" }
-clap = { version = "=4.5.50", features = ["derive", "env"] }
-tynm = { version = "=0.1.10", default-features = false }
+serde_json = { version = "=1.0.154" }
+clap = { version = "=4.6.7", features = ["derive", "env"] }
+tynm = { version = "=0.2.0", default-features = false }
 
 [target.'cfg(not(target_env = "msvc"))'.dev-dependencies]
-jemallocator = "=0.5.4"
+tikv-jemallocator = "=0.7.0"
 
 [[bin]]
 name = "generate_constants"
