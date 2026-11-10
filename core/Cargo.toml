@@ -24,11 +24,13 @@ rand = ["plonky2-field/rand", "dep:rand"]
 anyhow = { workspace = true }
 hashbrown = { workspace = true }
 itertools = { workspace = true }
-keccak-hash = { version = "=0.8.0", default-features = false }
 log = { workspace = true }
 num = { version = "=0.4.3", default-features = false, features = ["alloc"] }
 serde = { workspace = true, features = ["rc"] }
 static_assertions = { workspace = true }
+tiny-keccak = { version = "=2.0.2", default-features = false, features = [
+  "keccak",
+] }
 unroll = { workspace = true }
 
 # Local dependencies
