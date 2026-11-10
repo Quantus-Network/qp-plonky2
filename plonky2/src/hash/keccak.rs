@@ -3,7 +3,7 @@ use alloc::{vec, vec::Vec};
 use core::mem::size_of;
 
 use itertools::Itertools;
-use keccak_hash::keccak;
+use qp_plonky2_core::keccak::keccak256;
 
 use crate::hash::hash_types::{BytesHash, RichField};
 use crate::hash::hashing::PlonkyPermutation;
@@ -68,7 +68,7 @@ impl<F: RichField> PlonkyPermutation<F> for KeccakPermutation<F> {
         }
 
         let hash_onion = core::iter::repeat_with(|| {
-            let output = keccak(state_bytes.clone()).to_fixed_bytes();
+            let output = keccak256(&state_bytes);
             state_bytes = output.to_vec();
             output
         });
@@ -110,7 +110,7 @@ impl<F: RichField, const N: usize> Hasher<F> for KeccakHash<N> {
         let mut buffer = Vec::with_capacity(input.len());
         buffer.write_field_vec(input).unwrap();
         let mut arr = [0; N];
-        let hash_bytes = keccak(buffer).0;
+        let hash_bytes = keccak256(&buffer);
         arr.copy_from_slice(&hash_bytes[..N]);
         BytesHash(arr)
     }
@@ -122,7 +122,7 @@ impl<F: RichField, const N: usize> Hasher<F> for KeccakHash<N> {
         buffer.push(0x00); // Leaf domain separator
         buffer.write_field_vec(input).unwrap();
         let mut arr = [0; N];
-        let hash_bytes = keccak(buffer).0;
+        let hash_bytes = keccak256(&buffer);
         arr.copy_from_slice(&hash_bytes[..N]);
         BytesHash(arr)
     }
@@ -132,7 +132,7 @@ impl<F: RichField, const N: usize> Hasher<F> for KeccakHash<N> {
         v[0..N].copy_from_slice(&left.0);
         v[N..].copy_from_slice(&right.0);
         let mut arr = [0; N];
-        arr.copy_from_slice(&keccak(v).0[..N]);
+        arr.copy_from_slice(&keccak256(&v)[..N]);
         BytesHash(arr)
     }
 }

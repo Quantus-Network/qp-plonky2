@@ -23,6 +23,7 @@ formal-export = []
 parallel = ["hashbrown/rayon", "plonky2_maybe_rayon/parallel"]
 std = [
   "anyhow/std",
+  "critical-section/std",
   "rand/std",
   "itertools/use_std",
   "plonky2-verifier/std",
@@ -34,25 +35,22 @@ chacha = ["rand/chacha"]
 thread_rng = ["rand/thread_rng"]
 
 [dependencies]
-ahash = { workspace = true }
 anyhow = { workspace = true }
 once_cell = { version = "=1.21.3", default-features = false, features = [
   "alloc",
   "race",
   "critical-section",
 ] }
-critical-section = { version = "=1.2.0", default-features = false, features = [
-  "std",
-] }
+# `once_cell/critical-section` needs a `critical-section` implementation at link
+# time. The `std` feature supplies the std one; no_std consumers must provide
+# their own (see the critical-section docs).
+critical-section = { version = "=1.2.0", default-features = false }
 hashbrown = { workspace = true }
 itertools = { workspace = true }
-keccak-hash = { version = "=0.8.0", default-features = false }
 qp-poseidon-core = { version = "=3.1.0", default-features = false }
 rand = { workspace = true }
 log = { workspace = true }
-num = { workspace = true }
 serde = { workspace = true, features = ["rc"] }
-static_assertions = { workspace = true }
 unroll = { workspace = true }
 web-time = { version = "=1.1.0", optional = true }
 
@@ -62,12 +60,6 @@ plonky2-verifier = { package = "qp-plonky2-verifier", version = "=1.6.0", path =
 plonky2_maybe_rayon = { version = "=1.0.0", path = "../maybe_rayon", default-features = false }
 plonky2_util = { version = "=1.0.0", path = "../util", default-features = false }
 qp-plonky2-core = { version = "=1.6.0", path = "../core", default-features = false }
-
-
-[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
-getrandom = { version = "=0.4.2", default-features = false, features = [
-  "wasm_js",
-], optional = true }
 
 [dev-dependencies]
 criterion = { version = "=0.8.2", default-features = false, features = [

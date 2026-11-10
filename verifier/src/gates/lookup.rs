@@ -2,7 +2,7 @@
 use alloc::{format, string::String, vec, vec::Vec};
 
 use itertools::Itertools;
-use keccak_hash::keccak;
+use qp_plonky2_core::keccak::keccak256;
 
 use super::lookup_table::LookupTable;
 use crate::field::extension::Extendable;
@@ -38,7 +38,7 @@ impl LookupGate {
         Self {
             num_slots: Self::num_slots(config),
             lut,
-            lut_hash: keccak(table_bytes).0,
+            lut_hash: keccak256(&table_bytes),
         }
     }
     pub(crate) const fn num_slots(config: &CircuitConfig) -> usize {

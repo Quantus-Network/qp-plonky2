@@ -19,32 +19,28 @@ categories.workspace = true
 default = []
 std = [
   "anyhow/std",
+  "critical-section/std",
   "itertools/use_std",
-  "num/std",
   "serde/std",
   "qp-plonky2-core/std",
 ]
 
 [dependencies]
 # Use workspace versions for most deps
-ahash = { workspace = true }
 once_cell = { version = "=1.21.3", default-features = false, features = [
   "alloc",
   "race",
   "critical-section",
 ] }
+# `once_cell/critical-section` needs a `critical-section` implementation at link
+# time. The `std` feature supplies the std one; no_std consumers must provide
+# their own (see the critical-section docs).
 critical-section = { version = "=1.2.0", default-features = false }
 anyhow = { workspace = true }
 hashbrown = { workspace = true }
 itertools = { workspace = true }
-keccak-hash = { version = "=0.8.0", default-features = false }
 log = { workspace = true }
-# Override num to NOT include rand feature - this prevents rand → getrandom
-# from being pulled into WASM builds
-num = { version = "=0.4.3", default-features = false, features = ["alloc"] }
 serde = { workspace = true, features = ["rc"] }
-static_assertions = { workspace = true }
-unroll = { workspace = true }
 
 # Poseidon2 - self-contained implementation
 qp-poseidon-core = { version = "=3.1.0", default-features = false }

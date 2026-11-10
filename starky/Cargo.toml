@@ -22,7 +22,6 @@ timing = ["qp-plonky2/timing"]
 rand = ["qp-plonky2/rand"]
 
 [dependencies]
-ahash = { workspace = true }
 anyhow = { workspace = true }
 hashbrown = { workspace = true }
 itertools = { workspace = true }
