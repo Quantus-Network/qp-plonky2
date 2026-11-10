@@ -4,7 +4,7 @@ use alloc::{format, string::String, sync::Arc, vec, vec::Vec};
 use std::sync::Arc;
 
 use itertools::Itertools;
-use keccak_hash::keccak;
+use qp_plonky2_core::keccak::keccak256;
 
 use crate::field::extension::Extendable;
 use crate::field::packed::PackedField;
@@ -43,7 +43,7 @@ impl LookupTableGate {
         Self {
             num_slots: Self::num_slots(config),
             lut,
-            lut_hash: keccak(table_bytes).0,
+            lut_hash: keccak256(&table_bytes),
             last_lut_row,
         }
     }

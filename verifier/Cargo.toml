@@ -39,7 +39,6 @@ critical-section = { version = "=1.2.0", default-features = false }
 anyhow = { workspace = true }
 hashbrown = { workspace = true }
 itertools = { workspace = true }
-keccak-hash = { version = "=0.8.0", default-features = false }
 log = { workspace = true }
 serde = { workspace = true, features = ["rc"] }
 
