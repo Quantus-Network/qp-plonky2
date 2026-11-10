@@ -21,7 +21,6 @@ std = ["anyhow/std", "itertools/use_std", "serde/std"]
 rand = ["plonky2-field/rand", "dep:rand"]
 
 [dependencies]
-ahash = { workspace = true }
 anyhow = { workspace = true }
 hashbrown = { workspace = true }
 itertools = { workspace = true }

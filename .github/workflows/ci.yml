@@ -65,8 +65,12 @@ jobs:
         run: rustup target add wasm32v1-none
       - name: Build
         run: cargo build --release
+      # wasm32v1-none has no `std` at all, so this fails if anything in the
+      # no-default-features graph links std (a host-target check passes vacuously).
       - name: Check no-std (without rand)
-        run: cargo check --package qp-plonky2 --no-default-features
+        run: |
+          cargo check --package qp-plonky2 --no-default-features --target wasm32v1-none
+          cargo check --package qp-plonky2-verifier --no-default-features --target wasm32v1-none
       - name: Test
         run: cargo test --release
       # The constraint exporter is a formal-verification dev tool (not in
