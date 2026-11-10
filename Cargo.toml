@@ -6,6 +6,7 @@ members = [
   "maybe_rayon",
   "plonky2",
   "starky",
+  "unroll",
   "util",
   "verifier",
 ]
@@ -15,6 +16,7 @@ default-members = [
   "maybe_rayon",
   "plonky2",
   "starky",
+  "unroll",
   "util",
   "verifier",
 ]
@@ -37,7 +39,6 @@ serde = { version = "=1.0.228", default-features = false, features = [
   "derive",
 ] }
 static_assertions = { version = "=1.1.0", default-features = false }
-unroll = { version = "=0.1.5", default-features = false }
 
 [profile.release]
 opt-level = 3

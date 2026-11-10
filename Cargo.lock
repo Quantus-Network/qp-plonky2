@@ -203,7 +203,7 @@ dependencies = [
  "heck",
  "proc-macro2",
  "quote",
- "syn 2.0.108",
+ "syn",
 ]
 
 [[package]]
@@ -644,7 +644,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "479ca8adacdd7ce8f1fb39ce9ecccbfe93a3f1344b3d0d97f20bc0196208f62b"
 dependencies = [
  "proc-macro2",
- "syn 2.0.108",
+ "syn",
 ]
 
 [[package]]
@@ -676,13 +676,13 @@ dependencies = [
  "plonky2_util",
  "qp-plonky2-core",
  "qp-plonky2-field",
+ "qp-plonky2-unroll",
  "qp-plonky2-verifier",
  "qp-poseidon-core",
  "rand",
  "serde",
  "serde_json",
  "tynm",
- "unroll",
  "web-time",
 ]
 
@@ -709,11 +709,11 @@ dependencies = [
  "num",
  "plonky2_util",
  "qp-plonky2-field",
+ "qp-plonky2-unroll",
  "rand",
  "serde",
  "static_assertions",
  "tiny-keccak",
- "unroll",
 ]
 
 [[package]]
@@ -724,11 +724,19 @@ dependencies = [
  "itertools",
  "num",
  "plonky2_util",
+ "qp-plonky2-unroll",
  "rand",
  "rustc_version",
  "serde",
  "static_assertions",
- "unroll",
+]
+
+[[package]]
+name = "qp-plonky2-unroll"
+version = "1.6.0"
+dependencies = [
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -902,7 +910,7 @@ checksum = "d540f220d3187173da220f885ab66608367b6574e925011a9353e4badda91d79"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.108",
+ "syn",
 ]
 
 [[package]]
@@ -954,17 +962,6 @@ checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
 
 [[package]]
 name = "syn"
-version = "1.0.109"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "72b64191b275b66ffe2469e8af2c1cfe3bafa67b529ead792a6d0160888b4237"
-dependencies = [
- "proc-macro2",
- "quote",
- "unicode-ident",
-]
-
-[[package]]
-name = "syn"
 version = "2.0.108"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "da58917d35242480a05c2897064da0a80589a2a0476c9a3f2fdc83b53502e917"
@@ -1013,16 +1010,6 @@ name = "unicode-xid"
 version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ebc1c04c71510c7f702b52b7c350734c9ff1295c464a03335b00bb84fc54f853"
-
-[[package]]
-name = "unroll"
-version = "0.1.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ad948c1cb799b1a70f836077721a92a35ac177d4daddf4c20a633786d4cf618"
-dependencies = [
- "quote",
- "syn 1.0.109",
-]
 
 [[package]]
 name = "utf8parse"
@@ -1096,7 +1083,7 @@ dependencies = [
  "bumpalo",
  "proc-macro2",
  "quote",
- "syn 2.0.108",
+ "syn",
  "wasm-bindgen-shared",
 ]
 
@@ -1235,7 +1222,7 @@ dependencies = [
  "heck",
  "indexmap",
  "prettyplease",
- "syn 2.0.108",
+ "syn",
  "wasm-metadata",
  "wit-bindgen-core",
  "wit-component",
@@ -1251,7 +1238,7 @@ dependencies = [
  "prettyplease",
  "proc-macro2",
  "quote",
- "syn 2.0.108",
+ "syn",
  "wit-bindgen-core",
  "wit-bindgen-rust",
 ]
@@ -1310,5 +1297,5 @@ checksum = "88d2b8d9c68ad2b9e4340d7832716a4d21a22a1154777ad56ea55c51a9cf3831"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.108",
+ "syn",
 ]

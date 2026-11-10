@@ -51,7 +51,7 @@ qp-poseidon-core = { version = "=3.1.0", default-features = false }
 rand = { workspace = true }
 log = { workspace = true }
 serde = { workspace = true, features = ["rc"] }
-unroll = { workspace = true }
+unroll = { package = "qp-plonky2-unroll", version = "=1.6.0", path = "../unroll" }
 web-time = { version = "=1.1.0", optional = true }
 
 # Local dependencies
