@@ -53,15 +53,15 @@ def row (a : Assignment p) : Fin 2 → LeafRow p
     { assetId := a (leafPis 0 0), nullifier := fun j => a (leafPis 0 ⟨1 + j, by omega⟩),
       blockHash := fun j => a (leafPis 0 ⟨5 + j, by omega⟩),
       blockNumber := a (leafPis 0 9), inputAmount := a (leafPis 0 10),
-      dummyEq := ![a (.virt 11858), a (.virt 11860), a (.virt 11862), a (.virt 11864)]
-      dummyInv := ![a (.virt 11859), a (.virt 11861), a (.virt 11863), a (.virt 11865)]
+      dummyEq := ![a (.virt 13212), a (.virt 13214), a (.virt 13216), a (.virt 13218)]
+      dummyInv := ![a (.virt 13213), a (.virt 13215), a (.virt 13217), a (.virt 13219)]
       pre := fun j => a (preimage 0 j), dnull := fun j => a (.wire 18 (12 + j)) }
   | 1 =>
     { assetId := a (leafPis 1 0), nullifier := fun j => a (leafPis 1 ⟨1 + j, by omega⟩),
       blockHash := fun j => a (leafPis 1 ⟨5 + j, by omega⟩),
       blockNumber := a (leafPis 1 9), inputAmount := a (leafPis 1 10),
-      dummyEq := ![a (.virt 11866), a (.virt 11868), a (.virt 11870), a (.virt 11872)]
-      dummyInv := ![a (.virt 11867), a (.virt 11869), a (.virt 11871), a (.virt 11873)]
+      dummyEq := ![a (.virt 13220), a (.virt 13222), a (.virt 13224), a (.virt 13226)]
+      dummyInv := ![a (.virt 13221), a (.virt 13223), a (.virt 13225), a (.virt 13227)]
       pre := fun j => a (preimage 1 j), dnull := fun j => a (.wire 20 (12 + j)) }
 
 def rows (a : Assignment p) : List (LeafRow p) := [row a 0, row a 1]
@@ -78,8 +78,8 @@ theorem rows_us (a : Assignment p) : (rows a).map LeafRow.u = us a := rfl
 
 /-- The 2 witnessed exit slots `(exit_amount_k, exit_account_k)`. -/
 def slots (a : Assignment p) : List (SlotF p) :=
-  [(a (.virt 11841), fun j => a (![Target.virt 11837, Target.virt 11838, Target.virt 11839, Target.virt 11840] j)),
-   (a (.virt 11846), fun j => a (![Target.virt 11842, Target.virt 11843, Target.virt 11844, Target.virt 11845] j))]
+  [(a (.virt 13195), fun j => a (![Target.virt 13191, Target.virt 13192, Target.virt 13193, Target.virt 13194] j)),
+   (a (.virt 13200), fun j => a (![Target.virt 13196, Target.virt 13197, Target.virt 13198, Target.virt 13199] j))]
 
 /-- Public input `k` of the wrapper, decoded through `.val`. -/
 def pv (a : Assignment p) (k : ℕ) : Felt :=
@@ -109,7 +109,7 @@ theorem scanRefL_2 (r0 r1 : LeafRow p) (f : LeafRow p → ZMod p) :
 /-! ### Composition -/
 
 theorem consts (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.virt 11855) = 1 ∧ a (.virt 11856) = 0 ∧ a (.virt 11857) = 2 ∧ a (.virt 11890) = 576460752303423488 ∧ a (.virt 11891) = 10000 := by
+    a (.virt 13209) = 1 ∧ a (.virt 13210) = 0 ∧ a (.virt 13211) = 2 ∧ a (.virt 13244) = 576460752303423488 ∧ a (.virt 13245) = 10000 := by
   have hc := h.2.2
   simp only [privateBatchWrapper2, List.forall_mem_cons, List.not_mem_nil, false_implies,
     implies_true, and_true] at hc
@@ -267,11 +267,11 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     rcases hs with rfl | rfl
     · exact rc0
     · exact rc1
-  have hfc : FeeCheck (a (.virt 11836)) (a (.wire 6 15)) (a (.wire 6 19)) := by
+  have hfc : FeeCheck (a (.virt 13190)) (a (.wire 6 15)) (a (.wire 6 19)) := by
     refine ⟨ffr, ?_, ?_⟩
-    · show rangeCheck (feeDen - a (.virt 11836)) 14
+    · show rangeCheck (feeDen - a (.virt 13190)) 14
       unfold feeDen; rw [Nat.cast_ofNat, ← kten, ← fc]; exact fcr
-    · show rangeCheck (a (.wire 6 15) * (feeDen - a (.virt 11836)) - a (.wire 6 19) * feeDen) 52
+    · show rangeCheck (a (.wire 6 15) * (feeDen - a (.virt 13190)) - a (.wire 6 19) * feeDen) 52
       unfold feeDen; rw [Nat.cast_ofNat, ← kten, ← fc, ← fl, ← fr, ← fd]; exact fdr
   have hnulls : (out a).nullifiers = ((rows a).map fun r => r.slot.sel).map valDigest := by
     show ([⟨(a (.wire 16 11)).val, (a (.wire 16 19)).val, (a (.wire 16 27)).val, (a (.wire 16 35)).val⟩,
@@ -279,7 +279,7 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     rw [s0_0, s0_1, s0_2, s0_3, s1_0, s1_1, s1_2, s1_3, hd0, hd1]
     rfl
   have u0_1 : UniqCheck (row a 0).nullifier (row a 1).nullifier (row a 0).isDummy (row a 1).isDummy :=
-    ⟨a (.wire 14 55), ⟨![a (.virt 11892), a (.virt 11894), a (.virt 11896), a (.virt 11898)], ![a (.virt 11893), a (.virt 11895), a (.virt 11897), a (.virt 11899)], fun j => by fin_cases j <;> assumption, by rw [q0_1m, q0_1a, q0_1b]; rfl⟩, by
+    ⟨a (.wire 14 55), ⟨![a (.virt 13246), a (.virt 13248), a (.virt 13250), a (.virt 13252)], ![a (.virt 13247), a (.virt 13249), a (.virt 13251), a (.virt 13253)], fun j => by fin_cases j <;> assumption, by rw [q0_1m, q0_1a, q0_1b]; rfl⟩, by
       rw [← hd0, ← hd1, ← un0_1, ← um0_1, ← ub0_1, ← uc0_1]; exact uz0_1⟩
   have hcol : (rows a).Pairwise fun r s => UniqCheck r.nullifier s.nullifier r.isDummy s.isDummy := by
     unfold rows
@@ -292,8 +292,8 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
       nomatch hs
   have hR : RPrivateBatch (spongeRO perm) ((rows a).map LeafRow.leaf) ((rows a).map LeafRow.u) (out a) := by
     refine private_batch_val_rows perm hpg (rows a) (out := out a)
-      (fee := a (.virt 11836)) (totalIn := a (.wire 6 15)) (totalOut := a (.wire 6 19))
-      (assetRef := a (.virt 5907)) (numRef := a (.wire 4 15)) (blockRef := fun j => a (![Target.wire 3 43, Target.wire 3 51, Target.wire 3 59, Target.wire 4 7] j))
+      (fee := a (.virt 13190)) (totalIn := a (.wire 6 15)) (totalOut := a (.wire 6 19))
+      (assetRef := a (.virt 6584)) (numRef := a (.wire 4 15)) (blockRef := fun j => a (![Target.wire 3 43, Target.wire 3 51, Target.wire 3 59, Target.wire 4 7] j))
       (slots := slots a) ?_ ?_ (by show 2 ≤ 64; decide) h32 hblockRef hnumRef ?_ ?_
       rfl rfl rfl rfl ?_ hin hslots32 (by show 2 ≤ 64; decide) hout hfc rfl hnulls hcol
     · -- dummy checks
@@ -316,14 +316,14 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     · -- block consistency
       intro r hr
       rcases hmem r hr with rfl | rfl
-      · refine ⟨![a (.virt 11874), a (.virt 11876), a (.virt 11878), a (.virt 11880)], ![a (.virt 11875), a (.virt 11877), a (.virt 11879), a (.virt 11881)], fun j => by fin_cases j <;> assumption, ?_⟩
-        show bor (row a 0).isDummy (band (band (a (.virt 11874)) (a (.virt 11876))) (band (a (.virt 11878)) (a (.virt 11880)))) = 1
+      · refine ⟨![a (.virt 13228), a (.virt 13230), a (.virt 13232), a (.virt 13234)], ![a (.virt 13229), a (.virt 13231), a (.virt 13233), a (.virt 13235)], fun j => by fin_cases j <;> assumption, ?_⟩
+        show bor (row a 0).isDummy (band (band (a (.virt 13228)) (a (.virt 13230))) (band (a (.virt 13232)) (a (.virt 13234)))) = 1
         rw [← hd0, ← cb0a, ← cb0b, ← cb0m, ← cbo0, cbk0, kone]
-      · refine ⟨![a (.virt 11882), a (.virt 11884), a (.virt 11886), a (.virt 11888)], ![a (.virt 11883), a (.virt 11885), a (.virt 11887), a (.virt 11889)], fun j => by fin_cases j <;> assumption, ?_⟩
-        show bor (row a 1).isDummy (band (band (a (.virt 11882)) (a (.virt 11884))) (band (a (.virt 11886)) (a (.virt 11888)))) = 1
+      · refine ⟨![a (.virt 13236), a (.virt 13238), a (.virt 13240), a (.virt 13242)], ![a (.virt 13237), a (.virt 13239), a (.virt 13241), a (.virt 13243)], fun j => by fin_cases j <;> assumption, ?_⟩
+        show bor (row a 1).isDummy (band (band (a (.virt 13236)) (a (.virt 13238))) (band (a (.virt 13240)) (a (.virt 13242)))) = 1
         rw [← hd1, ← cb1a, ← cb1b, ← cb1m, ← cbo1, cbk1, kone]
     · -- the slot count
-      show (a (.virt 11857)).val = 2
+      show (a (.virt 13211)).val = 2
       rw [ktot]
       have hc : (2 : ℕ) < p := lt_of_lt_of_le (by decide) hpg
       rw [← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]
@@ -377,7 +377,7 @@ theorem end_to_end_wired (perm : St p → St p) (hpg : WormholeSpec.goldilocks �
 
 /-- The 26 public inputs in registration order. -/
 def pi : Fin 26 → Target :=
-  ![.virt 11857, .virt 5907, .virt 11836, .wire 3 43, .wire 3 51, .wire 3 59, .wire 4 7, .wire 4 15, .virt 11841, .virt 11837, .virt 11838, .virt 11839, .virt 11840, .virt 11846, .virt 11842, .virt 11843, .virt 11844, .virt 11845, .wire 16 11, .wire 16 19, .wire 16 27, .wire 16 35, .wire 16 43, .wire 16 51, .wire 16 59, .wire 21 7]
+  ![.virt 13211, .virt 6584, .virt 13190, .wire 3 43, .wire 3 51, .wire 3 59, .wire 4 7, .wire 4 15, .virt 13195, .virt 13191, .virt 13192, .virt 13193, .virt 13194, .virt 13200, .virt 13196, .virt 13197, .virt 13198, .virt 13199, .wire 16 11, .wire 16 19, .wire 16 27, .wire 16 35, .wire 16 43, .wire 16 51, .wire 16 59, .wire 21 7]
 
 omit [Fact p.Prime] in
 set_option maxRecDepth 8192 in
