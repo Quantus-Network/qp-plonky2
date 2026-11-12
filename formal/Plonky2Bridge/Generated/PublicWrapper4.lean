@@ -42,8 +42,8 @@ def innerPis : Fin 4 → Fin 26 → Target
 def row (a : Assignment p) : Fin 4 → InnerRow p
   | 0 =>
     { blockHash := fun j => a (innerPis 0 ⟨3 + j, by omega⟩)
-      dummyEq := ![a (.virt 23783), a (.virt 23785), a (.virt 23787), a (.virt 23789)]
-      dummyInv := ![a (.virt 23784), a (.virt 23786), a (.virt 23788), a (.virt 23790)]
+      dummyEq := ![a (.virt 26491), a (.virt 26493), a (.virt 26495), a (.virt 26497)]
+      dummyInv := ![a (.virt 26492), a (.virt 26494), a (.virt 26496), a (.virt 26498)]
       blockNumber := a (innerPis 0 7), assetId := a (innerPis 0 1), fee := a (innerPis 0 2)
       slots := [(a (innerPis 0 8), fun j => a (innerPis 0 ⟨9 + j, by omega⟩)),
         (a (innerPis 0 13), fun j => a (innerPis 0 ⟨14 + j, by omega⟩))]
@@ -51,8 +51,8 @@ def row (a : Assignment p) : Fin 4 → InnerRow p
         fun j => a (innerPis 0 ⟨22 + j, by omega⟩)] }
   | 1 =>
     { blockHash := fun j => a (innerPis 1 ⟨3 + j, by omega⟩)
-      dummyEq := ![a (.virt 23791), a (.virt 23793), a (.virt 23795), a (.virt 23797)]
-      dummyInv := ![a (.virt 23792), a (.virt 23794), a (.virt 23796), a (.virt 23798)]
+      dummyEq := ![a (.virt 26499), a (.virt 26501), a (.virt 26503), a (.virt 26505)]
+      dummyInv := ![a (.virt 26500), a (.virt 26502), a (.virt 26504), a (.virt 26506)]
       blockNumber := a (innerPis 1 7), assetId := a (innerPis 1 1), fee := a (innerPis 1 2)
       slots := [(a (innerPis 1 8), fun j => a (innerPis 1 ⟨9 + j, by omega⟩)),
         (a (innerPis 1 13), fun j => a (innerPis 1 ⟨14 + j, by omega⟩))]
@@ -60,8 +60,8 @@ def row (a : Assignment p) : Fin 4 → InnerRow p
         fun j => a (innerPis 1 ⟨22 + j, by omega⟩)] }
   | 2 =>
     { blockHash := fun j => a (innerPis 2 ⟨3 + j, by omega⟩)
-      dummyEq := ![a (.virt 23799), a (.virt 23801), a (.virt 23803), a (.virt 23805)]
-      dummyInv := ![a (.virt 23800), a (.virt 23802), a (.virt 23804), a (.virt 23806)]
+      dummyEq := ![a (.virt 26507), a (.virt 26509), a (.virt 26511), a (.virt 26513)]
+      dummyInv := ![a (.virt 26508), a (.virt 26510), a (.virt 26512), a (.virt 26514)]
       blockNumber := a (innerPis 2 7), assetId := a (innerPis 2 1), fee := a (innerPis 2 2)
       slots := [(a (innerPis 2 8), fun j => a (innerPis 2 ⟨9 + j, by omega⟩)),
         (a (innerPis 2 13), fun j => a (innerPis 2 ⟨14 + j, by omega⟩))]
@@ -69,8 +69,8 @@ def row (a : Assignment p) : Fin 4 → InnerRow p
         fun j => a (innerPis 2 ⟨22 + j, by omega⟩)] }
   | 3 =>
     { blockHash := fun j => a (innerPis 3 ⟨3 + j, by omega⟩)
-      dummyEq := ![a (.virt 23807), a (.virt 23809), a (.virt 23811), a (.virt 23813)]
-      dummyInv := ![a (.virt 23808), a (.virt 23810), a (.virt 23812), a (.virt 23814)]
+      dummyEq := ![a (.virt 26515), a (.virt 26517), a (.virt 26519), a (.virt 26521)]
+      dummyInv := ![a (.virt 26516), a (.virt 26518), a (.virt 26520), a (.virt 26522)]
       blockNumber := a (innerPis 3 7), assetId := a (innerPis 3 1), fee := a (innerPis 3 2)
       slots := [(a (innerPis 3 8), fun j => a (innerPis 3 ⟨9 + j, by omega⟩)),
         (a (innerPis 3 13), fun j => a (innerPis 3 ⟨14 + j, by omega⟩))]
@@ -133,7 +133,7 @@ theorem scanRef_4 (t0 t1 t2 t3 : InnerPair p) (f : InnerPair p → ZMod p) :
 /-! ### Composition -/
 
 theorem consts (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 23780) = 1 ∧ a (.virt 23781) = 0 ∧ a (.virt 23782) = 2 ∧ a (.virt 23863) = 8 := by
+    a (.virt 26488) = 1 ∧ a (.virt 26489) = 0 ∧ a (.virt 26490) = 2 ∧ a (.virt 26571) = 8 := by
   have hc := h.2.2
   simp only [publicBatchWrapper4, List.forall_mem_cons, List.not_mem_nil, false_implies,
     implies_true, and_true] at hc
@@ -434,29 +434,29 @@ theorem sound (ro : RandomOracle) (hpg : WormholeSpec.goldilocks ≤ p)
   · -- block consistency
     intro t ht
     rcases hmem t ht with rfl | rfl | rfl | rfl
-    · refine ⟨![a (.virt 23819), a (.virt 23821), a (.virt 23823), a (.virt 23825)],
-        ![a (.virt 23820), a (.virt 23822), a (.virt 23824), a (.virt 23826)], ?_, ?_⟩
+    · refine ⟨![a (.virt 26527), a (.virt 26529), a (.virt 26531), a (.virt 26533)],
+        ![a (.virt 26528), a (.virt 26530), a (.virt 26532), a (.virt 26534)], ?_, ?_⟩
       · intro j; rw [← hblk j]; fin_cases j <;> assumption
-      · show bor (row a 0).isDummy (band (band (a (.virt 23819)) (a (.virt 23821)))
-          (band (a (.virt 23823)) (a (.virt 23825)))) = 1
+      · show bor (row a 0).isDummy (band (band (a (.virt 26527)) (a (.virt 26529)))
+          (band (a (.virt 26531)) (a (.virt 26533)))) = 1
         rw [← hd0, ← cba0, ← cbb0, ← cbc0, ← cbo0, cbk0, kone]
-    · refine ⟨![a (.virt 23831), a (.virt 23833), a (.virt 23835), a (.virt 23837)],
-        ![a (.virt 23832), a (.virt 23834), a (.virt 23836), a (.virt 23838)], ?_, ?_⟩
+    · refine ⟨![a (.virt 26539), a (.virt 26541), a (.virt 26543), a (.virt 26545)],
+        ![a (.virt 26540), a (.virt 26542), a (.virt 26544), a (.virt 26546)], ?_, ?_⟩
       · intro j; rw [← hblk j]; fin_cases j <;> assumption
-      · show bor (row a 1).isDummy (band (band (a (.virt 23831)) (a (.virt 23833)))
-          (band (a (.virt 23835)) (a (.virt 23837)))) = 1
+      · show bor (row a 1).isDummy (band (band (a (.virt 26539)) (a (.virt 26541)))
+          (band (a (.virt 26543)) (a (.virt 26545)))) = 1
         rw [← hd1, ← cba1, ← cbb1, ← cbc1, ← cbo1, cbk1, kone]
-    · refine ⟨![a (.virt 23843), a (.virt 23845), a (.virt 23847), a (.virt 23849)],
-        ![a (.virt 23844), a (.virt 23846), a (.virt 23848), a (.virt 23850)], ?_, ?_⟩
+    · refine ⟨![a (.virt 26551), a (.virt 26553), a (.virt 26555), a (.virt 26557)],
+        ![a (.virt 26552), a (.virt 26554), a (.virt 26556), a (.virt 26558)], ?_, ?_⟩
       · intro j; rw [← hblk j]; fin_cases j <;> assumption
-      · show bor (row a 2).isDummy (band (band (a (.virt 23843)) (a (.virt 23845)))
-          (band (a (.virt 23847)) (a (.virt 23849)))) = 1
+      · show bor (row a 2).isDummy (band (band (a (.virt 26551)) (a (.virt 26553)))
+          (band (a (.virt 26555)) (a (.virt 26557)))) = 1
         rw [← hd2, ← cba2, ← cbb2, ← cbc2, ← cbo2, cbk2, kone]
-    · refine ⟨![a (.virt 23855), a (.virt 23857), a (.virt 23859), a (.virt 23861)],
-        ![a (.virt 23856), a (.virt 23858), a (.virt 23860), a (.virt 23862)], ?_, ?_⟩
+    · refine ⟨![a (.virt 26563), a (.virt 26565), a (.virt 26567), a (.virt 26569)],
+        ![a (.virt 26564), a (.virt 26566), a (.virt 26568), a (.virt 26570)], ?_, ?_⟩
       · intro j; rw [← hblk j]; fin_cases j <;> assumption
-      · show bor (row a 3).isDummy (band (band (a (.virt 23855)) (a (.virt 23857)))
-          (band (a (.virt 23859)) (a (.virt 23861)))) = 1
+      · show bor (row a 3).isDummy (band (band (a (.virt 26563)) (a (.virt 26565)))
+          (band (a (.virt 26567)) (a (.virt 26569)))) = 1
         rw [← hd3, ← cba3, ← cbb3, ← cbc3, ← cbo3, cbk3, kone]
   · -- forwarded exit slots
     show ([⟨(a (.wire 16 7)).val, ⟨(a (.wire 16 15)).val, (a (.wire 16 23)).val, (a (.wire 16 31)).val, (a (.wire 16 39)).val⟩⟩,
@@ -487,15 +487,15 @@ theorem sound (ro : RandomOracle) (hpg : WormholeSpec.goldilocks ≤ p)
     have hc : (2 : ℕ) < p := lt_of_lt_of_le (by decide) hpg
     intro t ht
     rcases hmem t ht with rfl | rfl | rfl | rfl
-    · show (a (.virt 5918)).val = 2
+    · show (a (.virt 6595)).val = 2
       rw [cp0, kslots, ← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]
-    · show (a (.virt 11862)).val = 2
+    · show (a (.virt 13216)).val = 2
       rw [cp1, kslots, ← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]
-    · show (a (.virt 17806)).val = 2
+    · show (a (.virt 19837)).val = 2
       rw [cp2, kslots, ← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]
-    · show (a (.virt 23750)).val = 2
+    · show (a (.virt 26458)).val = 2
       rw [cp3, kslots, ← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]
-  · show (a (.virt 23863)).val = 4 * 2
+  · show (a (.virt 26571)).val = 4 * 2
     rw [ktot]
     have hc : (8 : ℕ) < p := lt_of_lt_of_le (by decide) hpg
     rw [← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]

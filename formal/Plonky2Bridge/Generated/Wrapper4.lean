@@ -57,29 +57,29 @@ def row (a : Assignment p) : Fin 4 → LeafRow p
     { assetId := a (leafPis 0 0), nullifier := fun j => a (leafPis 0 ⟨1 + j, by omega⟩),
       blockHash := fun j => a (leafPis 0 ⟨5 + j, by omega⟩),
       blockNumber := a (leafPis 0 9), inputAmount := a (leafPis 0 10),
-      dummyEq := ![a (.virt 23712), a (.virt 23714), a (.virt 23716), a (.virt 23718)]
-      dummyInv := ![a (.virt 23713), a (.virt 23715), a (.virt 23717), a (.virt 23719)]
+      dummyEq := ![a (.virt 26420), a (.virt 26422), a (.virt 26424), a (.virt 26426)]
+      dummyInv := ![a (.virt 26421), a (.virt 26423), a (.virt 26425), a (.virt 26427)]
       pre := fun j => a (preimage 0 j), dnull := fun j => a (.wire 36 (12 + j)) }
   | 1 =>
     { assetId := a (leafPis 1 0), nullifier := fun j => a (leafPis 1 ⟨1 + j, by omega⟩),
       blockHash := fun j => a (leafPis 1 ⟨5 + j, by omega⟩),
       blockNumber := a (leafPis 1 9), inputAmount := a (leafPis 1 10),
-      dummyEq := ![a (.virt 23720), a (.virt 23722), a (.virt 23724), a (.virt 23726)]
-      dummyInv := ![a (.virt 23721), a (.virt 23723), a (.virt 23725), a (.virt 23727)]
+      dummyEq := ![a (.virt 26428), a (.virt 26430), a (.virt 26432), a (.virt 26434)]
+      dummyInv := ![a (.virt 26429), a (.virt 26431), a (.virt 26433), a (.virt 26435)]
       pre := fun j => a (preimage 1 j), dnull := fun j => a (.wire 39 (12 + j)) }
   | 2 =>
     { assetId := a (leafPis 2 0), nullifier := fun j => a (leafPis 2 ⟨1 + j, by omega⟩),
       blockHash := fun j => a (leafPis 2 ⟨5 + j, by omega⟩),
       blockNumber := a (leafPis 2 9), inputAmount := a (leafPis 2 10),
-      dummyEq := ![a (.virt 23728), a (.virt 23730), a (.virt 23732), a (.virt 23734)]
-      dummyInv := ![a (.virt 23729), a (.virt 23731), a (.virt 23733), a (.virt 23735)]
+      dummyEq := ![a (.virt 26436), a (.virt 26438), a (.virt 26440), a (.virt 26442)]
+      dummyInv := ![a (.virt 26437), a (.virt 26439), a (.virt 26441), a (.virt 26443)]
       pre := fun j => a (preimage 2 j), dnull := fun j => a (.wire 41 (12 + j)) }
   | 3 =>
     { assetId := a (leafPis 3 0), nullifier := fun j => a (leafPis 3 ⟨1 + j, by omega⟩),
       blockHash := fun j => a (leafPis 3 ⟨5 + j, by omega⟩),
       blockNumber := a (leafPis 3 9), inputAmount := a (leafPis 3 10),
-      dummyEq := ![a (.virt 23736), a (.virt 23738), a (.virt 23740), a (.virt 23742)]
-      dummyInv := ![a (.virt 23737), a (.virt 23739), a (.virt 23741), a (.virt 23743)]
+      dummyEq := ![a (.virt 26444), a (.virt 26446), a (.virt 26448), a (.virt 26450)]
+      dummyInv := ![a (.virt 26445), a (.virt 26447), a (.virt 26449), a (.virt 26451)]
       pre := fun j => a (preimage 3 j), dnull := fun j => a (.wire 44 (12 + j)) }
 
 def rows (a : Assignment p) : List (LeafRow p) := [row a 0, row a 1, row a 2, row a 3]
@@ -96,10 +96,10 @@ theorem rows_us (a : Assignment p) : (rows a).map LeafRow.u = us a := rfl
 
 /-- The 4 witnessed exit slots `(exit_amount_k, exit_account_k)`. -/
 def slots (a : Assignment p) : List (SlotF p) :=
-  [(a (.virt 23677), fun j => a (![Target.virt 23673, Target.virt 23674, Target.virt 23675, Target.virt 23676] j)),
-   (a (.virt 23682), fun j => a (![Target.virt 23678, Target.virt 23679, Target.virt 23680, Target.virt 23681] j)),
-   (a (.virt 23687), fun j => a (![Target.virt 23683, Target.virt 23684, Target.virt 23685, Target.virt 23686] j)),
-   (a (.virt 23692), fun j => a (![Target.virt 23688, Target.virt 23689, Target.virt 23690, Target.virt 23691] j))]
+  [(a (.virt 26385), fun j => a (![Target.virt 26381, Target.virt 26382, Target.virt 26383, Target.virt 26384] j)),
+   (a (.virt 26390), fun j => a (![Target.virt 26386, Target.virt 26387, Target.virt 26388, Target.virt 26389] j)),
+   (a (.virt 26395), fun j => a (![Target.virt 26391, Target.virt 26392, Target.virt 26393, Target.virt 26394] j)),
+   (a (.virt 26400), fun j => a (![Target.virt 26396, Target.virt 26397, Target.virt 26398, Target.virt 26399] j))]
 
 /-- Public input `k` of the wrapper, decoded through `.val`. -/
 def pv (a : Assignment p) (k : ℕ) : Felt :=
@@ -133,7 +133,7 @@ theorem scanRefL_4 (r0 r1 r2 r3 : LeafRow p) (f : LeafRow p → ZMod p) :
 /-! ### Composition -/
 
 theorem consts (a : Assignment p) (h : Satisfies (privateBatchWrapper4 p) a) :
-    a (.virt 23709) = 1 ∧ a (.virt 23710) = 0 ∧ a (.virt 23711) = 4 ∧ a (.virt 23776) = 576460752303423488 ∧ a (.virt 23777) = 10000 := by
+    a (.virt 26417) = 1 ∧ a (.virt 26418) = 0 ∧ a (.virt 26419) = 4 ∧ a (.virt 26484) = 576460752303423488 ∧ a (.virt 26485) = 10000 := by
   have hc := h.2.2
   simp only [privateBatchWrapper4, List.forall_mem_cons, List.not_mem_nil, false_implies,
     implies_true, and_true] at hc
@@ -448,11 +448,11 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     · exact rc1
     · exact rc2
     · exact rc3
-  have hfc : FeeCheck (a (.virt 23672)) (a (.wire 8 39)) (a (.wire 8 51)) := by
+  have hfc : FeeCheck (a (.virt 26380)) (a (.wire 8 39)) (a (.wire 8 51)) := by
     refine ⟨ffr, ?_, ?_⟩
-    · show rangeCheck (feeDen - a (.virt 23672)) 14
+    · show rangeCheck (feeDen - a (.virt 26380)) 14
       unfold feeDen; rw [Nat.cast_ofNat, ← kten, ← fc]; exact fcr
-    · show rangeCheck (a (.wire 8 39) * (feeDen - a (.virt 23672)) - a (.wire 8 51) * feeDen) 52
+    · show rangeCheck (a (.wire 8 39) * (feeDen - a (.virt 26380)) - a (.wire 8 51) * feeDen) 52
       unfold feeDen; rw [Nat.cast_ofNat, ← kten, ← fc, ← fl, ← fr, ← fd]; exact fdr
   have hnulls : (out a).nullifiers = ((rows a).map fun r => r.slot.sel).map valDigest := by
     show ([⟨(a (.wire 33 43)).val, (a (.wire 33 51)).val, (a (.wire 33 59)).val, (a (.wire 37 7)).val⟩,
@@ -462,22 +462,22 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     rw [s0_0, s0_1, s0_2, s0_3, s1_0, s1_1, s1_2, s1_3, s2_0, s2_1, s2_2, s2_3, s3_0, s3_1, s3_2, s3_3, hd0, hd1, hd2, hd3]
     rfl
   have u0_1 : UniqCheck (row a 0).nullifier (row a 1).nullifier (row a 0).isDummy (row a 1).isDummy :=
-    ⟨a (.wire 17 59), ⟨![a (.virt 23778), a (.virt 23780), a (.virt 23782), a (.virt 23784)], ![a (.virt 23779), a (.virt 23781), a (.virt 23783), a (.virt 23785)], fun j => by fin_cases j <;> assumption, by rw [q0_1m, q0_1a, q0_1b]; rfl⟩, by
+    ⟨a (.wire 17 59), ⟨![a (.virt 26486), a (.virt 26488), a (.virt 26490), a (.virt 26492)], ![a (.virt 26487), a (.virt 26489), a (.virt 26491), a (.virt 26493)], fun j => by fin_cases j <;> assumption, by rw [q0_1m, q0_1a, q0_1b]; rfl⟩, by
       rw [← hd0, ← hd1, ← un0_1, ← um0_1, ← ub0_1, ← uc0_1]; exact uz0_1⟩
   have u0_2 : UniqCheck (row a 0).nullifier (row a 2).nullifier (row a 0).isDummy (row a 2).isDummy :=
-    ⟨a (.wire 26 51), ⟨![a (.virt 23786), a (.virt 23788), a (.virt 23790), a (.virt 23792)], ![a (.virt 23787), a (.virt 23789), a (.virt 23791), a (.virt 23793)], fun j => by fin_cases j <;> assumption, by rw [q0_2m, q0_2a, q0_2b]; rfl⟩, by
+    ⟨a (.wire 26 51), ⟨![a (.virt 26494), a (.virt 26496), a (.virt 26498), a (.virt 26500)], ![a (.virt 26495), a (.virt 26497), a (.virt 26499), a (.virt 26501)], fun j => by fin_cases j <;> assumption, by rw [q0_2m, q0_2a, q0_2b]; rfl⟩, by
       rw [← hd0, ← hd2, ← un0_2, ← um0_2, ← ub0_2, ← uc0_2]; exact uz0_2⟩
   have u0_3 : UniqCheck (row a 0).nullifier (row a 3).nullifier (row a 0).isDummy (row a 3).isDummy :=
-    ⟨a (.wire 28 43), ⟨![a (.virt 23794), a (.virt 23796), a (.virt 23798), a (.virt 23800)], ![a (.virt 23795), a (.virt 23797), a (.virt 23799), a (.virt 23801)], fun j => by fin_cases j <;> assumption, by rw [q0_3m, q0_3a, q0_3b]; rfl⟩, by
+    ⟨a (.wire 28 43), ⟨![a (.virt 26502), a (.virt 26504), a (.virt 26506), a (.virt 26508)], ![a (.virt 26503), a (.virt 26505), a (.virt 26507), a (.virt 26509)], fun j => by fin_cases j <;> assumption, by rw [q0_3m, q0_3a, q0_3b]; rfl⟩, by
       rw [← hd0, ← hd3, ← un0_3, ← um0_3, ← ub0_3, ← uc0_3]; exact uz0_3⟩
   have u1_2 : UniqCheck (row a 1).nullifier (row a 2).nullifier (row a 1).isDummy (row a 2).isDummy :=
-    ⟨a (.wire 30 35), ⟨![a (.virt 23802), a (.virt 23804), a (.virt 23806), a (.virt 23808)], ![a (.virt 23803), a (.virt 23805), a (.virt 23807), a (.virt 23809)], fun j => by fin_cases j <;> assumption, by rw [q1_2m, q1_2a, q1_2b]; rfl⟩, by
+    ⟨a (.wire 30 35), ⟨![a (.virt 26510), a (.virt 26512), a (.virt 26514), a (.virt 26516)], ![a (.virt 26511), a (.virt 26513), a (.virt 26515), a (.virt 26517)], fun j => by fin_cases j <;> assumption, by rw [q1_2m, q1_2a, q1_2b]; rfl⟩, by
       rw [← hd1, ← hd2, ← un1_2, ← um1_2, ← ub1_2, ← uc1_2]; exact uz1_2⟩
   have u1_3 : UniqCheck (row a 1).nullifier (row a 3).nullifier (row a 1).isDummy (row a 3).isDummy :=
-    ⟨a (.wire 32 27), ⟨![a (.virt 23810), a (.virt 23812), a (.virt 23814), a (.virt 23816)], ![a (.virt 23811), a (.virt 23813), a (.virt 23815), a (.virt 23817)], fun j => by fin_cases j <;> assumption, by rw [q1_3m, q1_3a, q1_3b]; rfl⟩, by
+    ⟨a (.wire 32 27), ⟨![a (.virt 26518), a (.virt 26520), a (.virt 26522), a (.virt 26524)], ![a (.virt 26519), a (.virt 26521), a (.virt 26523), a (.virt 26525)], fun j => by fin_cases j <;> assumption, by rw [q1_3m, q1_3a, q1_3b]; rfl⟩, by
       rw [← hd1, ← hd3, ← un1_3, ← um1_3, ← ub1_3, ← uc1_3]; exact uz1_3⟩
   have u2_3 : UniqCheck (row a 2).nullifier (row a 3).nullifier (row a 2).isDummy (row a 3).isDummy :=
-    ⟨a (.wire 34 19), ⟨![a (.virt 23818), a (.virt 23820), a (.virt 23822), a (.virt 23824)], ![a (.virt 23819), a (.virt 23821), a (.virt 23823), a (.virt 23825)], fun j => by fin_cases j <;> assumption, by rw [q2_3m, q2_3a, q2_3b]; rfl⟩, by
+    ⟨a (.wire 34 19), ⟨![a (.virt 26526), a (.virt 26528), a (.virt 26530), a (.virt 26532)], ![a (.virt 26527), a (.virt 26529), a (.virt 26531), a (.virt 26533)], fun j => by fin_cases j <;> assumption, by rw [q2_3m, q2_3a, q2_3b]; rfl⟩, by
       rw [← hd2, ← hd3, ← un2_3, ← um2_3, ← ub2_3, ← uc2_3]; exact uz2_3⟩
   have hcol : (rows a).Pairwise fun r s => UniqCheck r.nullifier s.nullifier r.isDummy s.isDummy := by
     unfold rows
@@ -501,8 +501,8 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
       nomatch hs
   have hR : RPrivateBatch (spongeRO perm) ((rows a).map LeafRow.leaf) ((rows a).map LeafRow.u) (out a) := by
     refine private_batch_val_rows perm hpg (rows a) (out := out a)
-      (fee := a (.virt 23672)) (totalIn := a (.wire 8 39)) (totalOut := a (.wire 8 51))
-      (assetRef := a (.virt 5907)) (numRef := a (.wire 10 55)) (blockRef := fun j => a (![Target.wire 10 23, Target.wire 10 31, Target.wire 10 39, Target.wire 10 47] j))
+      (fee := a (.virt 26380)) (totalIn := a (.wire 8 39)) (totalOut := a (.wire 8 51))
+      (assetRef := a (.virt 6584)) (numRef := a (.wire 10 55)) (blockRef := fun j => a (![Target.wire 10 23, Target.wire 10 31, Target.wire 10 39, Target.wire 10 47] j))
       (slots := slots a) ?_ ?_ (by show 4 ≤ 64; decide) h32 hblockRef hnumRef ?_ ?_
       rfl rfl rfl rfl ?_ hin hslots32 (by show 4 ≤ 64; decide) hout hfc rfl hnulls hcol
     · -- dummy checks
@@ -533,20 +533,20 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     · -- block consistency
       intro r hr
       rcases hmem r hr with rfl | rfl | rfl | rfl
-      · refine ⟨![a (.virt 23744), a (.virt 23746), a (.virt 23748), a (.virt 23750)], ![a (.virt 23745), a (.virt 23747), a (.virt 23749), a (.virt 23751)], fun j => by fin_cases j <;> assumption, ?_⟩
-        show bor (row a 0).isDummy (band (band (a (.virt 23744)) (a (.virt 23746))) (band (a (.virt 23748)) (a (.virt 23750)))) = 1
+      · refine ⟨![a (.virt 26452), a (.virt 26454), a (.virt 26456), a (.virt 26458)], ![a (.virt 26453), a (.virt 26455), a (.virt 26457), a (.virt 26459)], fun j => by fin_cases j <;> assumption, ?_⟩
+        show bor (row a 0).isDummy (band (band (a (.virt 26452)) (a (.virt 26454))) (band (a (.virt 26456)) (a (.virt 26458)))) = 1
         rw [← hd0, ← cb0a, ← cb0b, ← cb0m, ← cbo0, cbk0, kone]
-      · refine ⟨![a (.virt 23752), a (.virt 23754), a (.virt 23756), a (.virt 23758)], ![a (.virt 23753), a (.virt 23755), a (.virt 23757), a (.virt 23759)], fun j => by fin_cases j <;> assumption, ?_⟩
-        show bor (row a 1).isDummy (band (band (a (.virt 23752)) (a (.virt 23754))) (band (a (.virt 23756)) (a (.virt 23758)))) = 1
+      · refine ⟨![a (.virt 26460), a (.virt 26462), a (.virt 26464), a (.virt 26466)], ![a (.virt 26461), a (.virt 26463), a (.virt 26465), a (.virt 26467)], fun j => by fin_cases j <;> assumption, ?_⟩
+        show bor (row a 1).isDummy (band (band (a (.virt 26460)) (a (.virt 26462))) (band (a (.virt 26464)) (a (.virt 26466)))) = 1
         rw [← hd1, ← cb1a, ← cb1b, ← cb1m, ← cbo1, cbk1, kone]
-      · refine ⟨![a (.virt 23760), a (.virt 23762), a (.virt 23764), a (.virt 23766)], ![a (.virt 23761), a (.virt 23763), a (.virt 23765), a (.virt 23767)], fun j => by fin_cases j <;> assumption, ?_⟩
-        show bor (row a 2).isDummy (band (band (a (.virt 23760)) (a (.virt 23762))) (band (a (.virt 23764)) (a (.virt 23766)))) = 1
+      · refine ⟨![a (.virt 26468), a (.virt 26470), a (.virt 26472), a (.virt 26474)], ![a (.virt 26469), a (.virt 26471), a (.virt 26473), a (.virt 26475)], fun j => by fin_cases j <;> assumption, ?_⟩
+        show bor (row a 2).isDummy (band (band (a (.virt 26468)) (a (.virt 26470))) (band (a (.virt 26472)) (a (.virt 26474)))) = 1
         rw [← hd2, ← cb2a, ← cb2b, ← cb2m, ← cbo2, cbk2, kone]
-      · refine ⟨![a (.virt 23768), a (.virt 23770), a (.virt 23772), a (.virt 23774)], ![a (.virt 23769), a (.virt 23771), a (.virt 23773), a (.virt 23775)], fun j => by fin_cases j <;> assumption, ?_⟩
-        show bor (row a 3).isDummy (band (band (a (.virt 23768)) (a (.virt 23770))) (band (a (.virt 23772)) (a (.virt 23774)))) = 1
+      · refine ⟨![a (.virt 26476), a (.virt 26478), a (.virt 26480), a (.virt 26482)], ![a (.virt 26477), a (.virt 26479), a (.virt 26481), a (.virt 26483)], fun j => by fin_cases j <;> assumption, ?_⟩
+        show bor (row a 3).isDummy (band (band (a (.virt 26476)) (a (.virt 26478))) (band (a (.virt 26480)) (a (.virt 26482)))) = 1
         rw [← hd3, ← cb3a, ← cb3b, ← cb3m, ← cbo3, cbk3, kone]
     · -- the slot count
-      show (a (.virt 23711)).val = 4
+      show (a (.virt 26419)).val = 4
       rw [ktot]
       have hc : (4 : ℕ) < p := lt_of_lt_of_le (by decide) hpg
       rw [← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]
@@ -604,7 +604,7 @@ theorem end_to_end_wired (perm : St p → St p) (hpg : WormholeSpec.goldilocks �
 
 /-- The 44 public inputs in registration order. -/
 def pi : Fin 44 → Target :=
-  ![.virt 23711, .virt 5907, .virt 23672, .wire 10 23, .wire 10 31, .wire 10 39, .wire 10 47, .wire 10 55, .virt 23677, .virt 23673, .virt 23674, .virt 23675, .virt 23676, .virt 23682, .virt 23678, .virt 23679, .virt 23680, .virt 23681, .virt 23687, .virt 23683, .virt 23684, .virt 23685, .virt 23686, .virt 23692, .virt 23688, .virt 23689, .virt 23690, .virt 23691, .wire 33 43, .wire 33 51, .wire 33 59, .wire 37 7, .wire 37 15, .wire 37 23, .wire 37 31, .wire 37 39, .wire 37 47, .wire 37 55, .wire 42 3, .wire 42 11, .wire 42 19, .wire 42 27, .wire 42 35, .wire 42 43]
+  ![.virt 26419, .virt 6584, .virt 26380, .wire 10 23, .wire 10 31, .wire 10 39, .wire 10 47, .wire 10 55, .virt 26385, .virt 26381, .virt 26382, .virt 26383, .virt 26384, .virt 26390, .virt 26386, .virt 26387, .virt 26388, .virt 26389, .virt 26395, .virt 26391, .virt 26392, .virt 26393, .virt 26394, .virt 26400, .virt 26396, .virt 26397, .virt 26398, .virt 26399, .wire 33 43, .wire 33 51, .wire 33 59, .wire 37 7, .wire 37 15, .wire 37 23, .wire 37 31, .wire 37 39, .wire 37 47, .wire 37 55, .wire 42 3, .wire 42 11, .wire 42 19, .wire 42 27, .wire 42 35, .wire 42 43]
 
 omit [Fact p.Prime] in
 set_option maxRecDepth 8192 in

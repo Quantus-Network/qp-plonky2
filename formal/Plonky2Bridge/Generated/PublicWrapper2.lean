@@ -40,8 +40,8 @@ def innerPis : Fin 2 → Fin 26 → Target
 def row (a : Assignment p) : Fin 2 → InnerRow p
   | 0 =>
     { blockHash := fun j => a (innerPis 0 ⟨3 + j, by omega⟩)
-      dummyEq := ![a (.virt 11895), a (.virt 11897), a (.virt 11899), a (.virt 11901)]
-      dummyInv := ![a (.virt 11896), a (.virt 11898), a (.virt 11900), a (.virt 11902)]
+      dummyEq := ![a (.virt 13249), a (.virt 13251), a (.virt 13253), a (.virt 13255)]
+      dummyInv := ![a (.virt 13250), a (.virt 13252), a (.virt 13254), a (.virt 13256)]
       blockNumber := a (innerPis 0 7), assetId := a (innerPis 0 1), fee := a (innerPis 0 2)
       slots := [(a (innerPis 0 8), fun j => a (innerPis 0 ⟨9 + j, by omega⟩)),
         (a (innerPis 0 13), fun j => a (innerPis 0 ⟨14 + j, by omega⟩))]
@@ -49,8 +49,8 @@ def row (a : Assignment p) : Fin 2 → InnerRow p
         fun j => a (innerPis 0 ⟨22 + j, by omega⟩)] }
   | 1 =>
     { blockHash := fun j => a (innerPis 1 ⟨3 + j, by omega⟩)
-      dummyEq := ![a (.virt 11903), a (.virt 11905), a (.virt 11907), a (.virt 11909)]
-      dummyInv := ![a (.virt 11904), a (.virt 11906), a (.virt 11908), a (.virt 11910)]
+      dummyEq := ![a (.virt 13257), a (.virt 13259), a (.virt 13261), a (.virt 13263)]
+      dummyInv := ![a (.virt 13258), a (.virt 13260), a (.virt 13262), a (.virt 13264)]
       blockNumber := a (innerPis 1 7), assetId := a (innerPis 1 1), fee := a (innerPis 1 2)
       slots := [(a (innerPis 1 8), fun j => a (innerPis 1 ⟨9 + j, by omega⟩)),
         (a (innerPis 1 13), fun j => a (innerPis 1 ⟨14 + j, by omega⟩))]
@@ -105,7 +105,7 @@ theorem scanRef_2 (t0 t1 : InnerPair p) (f : InnerPair p → ZMod p) :
 /-! ### Composition -/
 
 theorem consts (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
-    a (.virt 11892) = 1 ∧ a (.virt 11893) = 0 ∧ a (.virt 11894) = 2 ∧ a (.virt 11935) = 4 := by
+    a (.virt 13246) = 1 ∧ a (.virt 13247) = 0 ∧ a (.virt 13248) = 2 ∧ a (.virt 13289) = 4 := by
   have hc := h.2.2
   simp only [publicBatchWrapper2, List.forall_mem_cons, List.not_mem_nil, false_implies,
     implies_true, and_true] at hc
@@ -292,17 +292,17 @@ theorem sound (ro : RandomOracle) (hpg : WormholeSpec.goldilocks ≤ p)
   · -- block consistency
     intro t ht
     rcases hmem t ht with rfl | rfl
-    · refine ⟨![a (.virt 11915), a (.virt 11917), a (.virt 11919), a (.virt 11921)],
-        ![a (.virt 11916), a (.virt 11918), a (.virt 11920), a (.virt 11922)], ?_, ?_⟩
+    · refine ⟨![a (.virt 13269), a (.virt 13271), a (.virt 13273), a (.virt 13275)],
+        ![a (.virt 13270), a (.virt 13272), a (.virt 13274), a (.virt 13276)], ?_, ?_⟩
       · intro j; rw [← hblk j]; fin_cases j <;> assumption
-      · show bor (row a 0).isDummy (band (band (a (.virt 11915)) (a (.virt 11917)))
-          (band (a (.virt 11919)) (a (.virt 11921)))) = 1
+      · show bor (row a 0).isDummy (band (band (a (.virt 13269)) (a (.virt 13271)))
+          (band (a (.virt 13273)) (a (.virt 13275)))) = 1
         rw [← hd0, ← cba0, ← cbb0, ← cbc0, ← cbo0, cbk0, kone]
-    · refine ⟨![a (.virt 11927), a (.virt 11929), a (.virt 11931), a (.virt 11933)],
-        ![a (.virt 11928), a (.virt 11930), a (.virt 11932), a (.virt 11934)], ?_, ?_⟩
+    · refine ⟨![a (.virt 13281), a (.virt 13283), a (.virt 13285), a (.virt 13287)],
+        ![a (.virt 13282), a (.virt 13284), a (.virt 13286), a (.virt 13288)], ?_, ?_⟩
       · intro j; rw [← hblk j]; fin_cases j <;> assumption
-      · show bor (row a 1).isDummy (band (band (a (.virt 11927)) (a (.virt 11929)))
-          (band (a (.virt 11931)) (a (.virt 11933)))) = 1
+      · show bor (row a 1).isDummy (band (band (a (.virt 13281)) (a (.virt 13283)))
+          (band (a (.virt 13285)) (a (.virt 13287)))) = 1
         rw [← hd1, ← cba1, ← cbb1, ← cbc1, ← cbo1, cbk1, kone]
   · -- forwarded exit slots
     show ([⟨(a (.wire 7 71)).val, ⟨(a (.wire 7 79)).val, (a (.wire 9 7)).val, (a (.wire 9 15)).val, (a (.wire 9 23)).val⟩⟩,
@@ -325,11 +325,11 @@ theorem sound (ro : RandomOracle) (hpg : WormholeSpec.goldilocks ≤ p)
     have hc : (2 : ℕ) < p := lt_of_lt_of_le (by decide) hpg
     intro t ht
     rcases hmem t ht with rfl | rfl
-    · show (a (.virt 5918)).val = 2
+    · show (a (.virt 6595)).val = 2
       rw [cp0, kslots, ← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]
-    · show (a (.virt 11862)).val = 2
+    · show (a (.virt 13216)).val = 2
       rw [cp1, kslots, ← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]
-  · show (a (.virt 11935)).val = 2 * 2
+  · show (a (.virt 13289)).val = 2 * 2
     rw [ktot]
     have hc : (4 : ℕ) < p := lt_of_lt_of_le (by decide) hpg
     rw [← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]
