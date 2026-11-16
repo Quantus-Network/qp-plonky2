@@ -131,11 +131,8 @@ theorem scanRefL_2 (r0 r1 : LeafRow p) (f : LeafRow p → ZMod p) :
 /-! ### Composition -/
 
 theorem consts (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.virt 18978) = 1 ∧ a (.virt 18979) = 0 ∧ a (.virt 18980) = 4 ∧ a (.virt 19017) = 10000 ∧ a (.virt 19018) = 576460752303423488 := by
-  have hc := h.2.2
-  simp only [privateBatchWrapper2, List.forall_mem_cons, List.not_mem_nil, false_implies,
-    implies_true, and_true] at hc
-  exact hc
+    a (.virt 18978) = 1 ∧ a (.virt 18979) = 0 ∧ a (.virt 18980) = 4 ∧ a (.virt 19017) = 10000 ∧ a (.virt 19018) = 576460752303423488 :=
+  Plonky2Spec.Generated.privateBatchWrapper2_consts a h
 
 set_option maxHeartbeats 4000000 in
 /-- **The recorded private-batch wrapper satisfies `RPrivateBatch`.** Every satisfying
@@ -641,9 +638,9 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     · -- slot 0: matches against the earlier candidates
       exact List.Forall₂.nil
     · -- slot 0: self match
-      exact ⟨![a (.virt 19019), a (.virt 19021), a (.virt 19023), a (.virt 19025)], ![a (.virt 19020), a (.virt 19022), a (.virt 19024), a (.virt 19026)], fun j => by fin_cases j <;> assumption, by rw [y0_0m, y0_0a, y0_0b]; rfl⟩
+      exact ⟨![a (.virt 19019), a (.virt 19021), a (.virt 19023), a (.virt 19025)], ![a (.virt 19020), a (.virt 19022), a (.virt 19024), a (.virt 19026)], fun j => by fin_cases j; exacts [y0_0_0, y0_0_1, y0_0_2, y0_0_3], by rw [y0_0m, y0_0a, y0_0b]; rfl⟩
     · -- slot 0: matches against the later candidates
-      exact List.Forall₂.cons (⟨![a (.virt 19027), a (.virt 19029), a (.virt 19031), a (.virt 19033)], ![a (.virt 19028), a (.virt 19030), a (.virt 19032), a (.virt 19034)], fun j => by fin_cases j <;> assumption, by rw [y0_1m, y0_1a, y0_1b]; rfl⟩) (List.Forall₂.cons (⟨![a (.virt 19035), a (.virt 19037), a (.virt 19039), a (.virt 19041)], ![a (.virt 19036), a (.virt 19038), a (.virt 19040), a (.virt 19042)], fun j => by fin_cases j <;> assumption, by rw [y0_2m, y0_2a, y0_2b]; rfl⟩) (List.Forall₂.cons (⟨![a (.virt 19043), a (.virt 19045), a (.virt 19047), a (.virt 19049)], ![a (.virt 19044), a (.virt 19046), a (.virt 19048), a (.virt 19050)], fun j => by fin_cases j <;> assumption, by rw [y0_3m, y0_3a, y0_3b]; rfl⟩) (List.Forall₂.nil)))
+      exact List.Forall₂.cons (⟨![a (.virt 19027), a (.virt 19029), a (.virt 19031), a (.virt 19033)], ![a (.virt 19028), a (.virt 19030), a (.virt 19032), a (.virt 19034)], fun j => by fin_cases j; exacts [y0_1_0, y0_1_1, y0_1_2, y0_1_3], by rw [y0_1m, y0_1a, y0_1b]; rfl⟩) (List.Forall₂.cons (⟨![a (.virt 19035), a (.virt 19037), a (.virt 19039), a (.virt 19041)], ![a (.virt 19036), a (.virt 19038), a (.virt 19040), a (.virt 19042)], fun j => by fin_cases j; exacts [y0_2_0, y0_2_1, y0_2_2, y0_2_3], by rw [y0_2m, y0_2a, y0_2b]; rfl⟩) (List.Forall₂.cons (⟨![a (.virt 19043), a (.virt 19045), a (.virt 19047), a (.virt 19049)], ![a (.virt 19044), a (.virt 19046), a (.virt 19048), a (.virt 19050)], fun j => by fin_cases j; exacts [y0_3_0, y0_3_1, y0_3_2, y0_3_3], by rw [y0_3m, y0_3a, y0_3b]; rfl⟩) (List.Forall₂.nil)))
     · -- slot 0: duplicate flag
       simp only [List.foldl_nil]
     · -- slot 0: accumulated sum
@@ -653,15 +650,15 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     · -- slot 0: masked sum
       exact os0
     · -- slot 0: masked exit
-      intro j; fin_cases j <;> assumption
+      intro j; fin_cases j; exacts [oe0_0, oe0_1, oe0_2, oe0_3]
     · -- slot 1: dedup flags
-      exact List.Forall₂.cons (⟨![a (.virt 19051), a (.virt 19053), a (.virt 19055), a (.virt 19057)], ![a (.virt 19052), a (.virt 19054), a (.virt 19056), a (.virt 19058)], fun j => by fin_cases j <;> assumption, by rw [x1_0m, x1_0a, x1_0b]; rfl⟩) (List.Forall₂.nil)
+      exact List.Forall₂.cons (⟨![a (.virt 19051), a (.virt 19053), a (.virt 19055), a (.virt 19057)], ![a (.virt 19052), a (.virt 19054), a (.virt 19056), a (.virt 19058)], fun j => by fin_cases j; exacts [x1_0_0, x1_0_1, x1_0_2, x1_0_3], by rw [x1_0m, x1_0a, x1_0b]; rfl⟩) (List.Forall₂.nil)
     · -- slot 1: matches against the earlier candidates
-      exact List.Forall₂.cons (⟨![a (.virt 19059), a (.virt 19061), a (.virt 19063), a (.virt 19065)], ![a (.virt 19060), a (.virt 19062), a (.virt 19064), a (.virt 19066)], fun j => by fin_cases j <;> assumption, by rw [y1_0m, y1_0a, y1_0b]; rfl⟩) (List.Forall₂.nil)
+      exact List.Forall₂.cons (⟨![a (.virt 19059), a (.virt 19061), a (.virt 19063), a (.virt 19065)], ![a (.virt 19060), a (.virt 19062), a (.virt 19064), a (.virt 19066)], fun j => by fin_cases j; exacts [y1_0_0, y1_0_1, y1_0_2, y1_0_3], by rw [y1_0m, y1_0a, y1_0b]; rfl⟩) (List.Forall₂.nil)
     · -- slot 1: self match
-      exact ⟨![a (.virt 19067), a (.virt 19069), a (.virt 19071), a (.virt 19073)], ![a (.virt 19068), a (.virt 19070), a (.virt 19072), a (.virt 19074)], fun j => by fin_cases j <;> assumption, by rw [y1_1m, y1_1a, y1_1b]; rfl⟩
+      exact ⟨![a (.virt 19067), a (.virt 19069), a (.virt 19071), a (.virt 19073)], ![a (.virt 19068), a (.virt 19070), a (.virt 19072), a (.virt 19074)], fun j => by fin_cases j; exacts [y1_1_0, y1_1_1, y1_1_2, y1_1_3], by rw [y1_1m, y1_1a, y1_1b]; rfl⟩
     · -- slot 1: matches against the later candidates
-      exact List.Forall₂.cons (⟨![a (.virt 19075), a (.virt 19077), a (.virt 19079), a (.virt 19081)], ![a (.virt 19076), a (.virt 19078), a (.virt 19080), a (.virt 19082)], fun j => by fin_cases j <;> assumption, by rw [y1_2m, y1_2a, y1_2b]; rfl⟩) (List.Forall₂.cons (⟨![a (.virt 19083), a (.virt 19085), a (.virt 19087), a (.virt 19089)], ![a (.virt 19084), a (.virt 19086), a (.virt 19088), a (.virt 19090)], fun j => by fin_cases j <;> assumption, by rw [y1_3m, y1_3a, y1_3b]; rfl⟩) (List.Forall₂.nil))
+      exact List.Forall₂.cons (⟨![a (.virt 19075), a (.virt 19077), a (.virt 19079), a (.virt 19081)], ![a (.virt 19076), a (.virt 19078), a (.virt 19080), a (.virt 19082)], fun j => by fin_cases j; exacts [y1_2_0, y1_2_1, y1_2_2, y1_2_3], by rw [y1_2m, y1_2a, y1_2b]; rfl⟩) (List.Forall₂.cons (⟨![a (.virt 19083), a (.virt 19085), a (.virt 19087), a (.virt 19089)], ![a (.virt 19084), a (.virt 19086), a (.virt 19088), a (.virt 19090)], fun j => by fin_cases j; exacts [y1_3_0, y1_3_1, y1_3_2, y1_3_3], by rw [y1_3m, y1_3a, y1_3b]; rfl⟩) (List.Forall₂.nil))
     · -- slot 1: duplicate flag
       simp only [List.foldl_cons, List.foldl_nil, bor_zero_left]
     · -- slot 1: accumulated sum
@@ -671,15 +668,15 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     · -- slot 1: masked sum
       exact os1
     · -- slot 1: masked exit
-      intro j; fin_cases j <;> assumption
+      intro j; fin_cases j; exacts [oe1_0, oe1_1, oe1_2, oe1_3]
     · -- slot 2: dedup flags
-      exact List.Forall₂.cons (⟨![a (.virt 19091), a (.virt 19093), a (.virt 19095), a (.virt 19097)], ![a (.virt 19092), a (.virt 19094), a (.virt 19096), a (.virt 19098)], fun j => by fin_cases j <;> assumption, by rw [x2_0m, x2_0a, x2_0b]; rfl⟩) (List.Forall₂.cons (⟨![a (.virt 19099), a (.virt 19101), a (.virt 19103), a (.virt 19105)], ![a (.virt 19100), a (.virt 19102), a (.virt 19104), a (.virt 19106)], fun j => by fin_cases j <;> assumption, by rw [x2_1m, x2_1a, x2_1b]; rfl⟩) (List.Forall₂.nil))
+      exact List.Forall₂.cons (⟨![a (.virt 19091), a (.virt 19093), a (.virt 19095), a (.virt 19097)], ![a (.virt 19092), a (.virt 19094), a (.virt 19096), a (.virt 19098)], fun j => by fin_cases j; exacts [x2_0_0, x2_0_1, x2_0_2, x2_0_3], by rw [x2_0m, x2_0a, x2_0b]; rfl⟩) (List.Forall₂.cons (⟨![a (.virt 19099), a (.virt 19101), a (.virt 19103), a (.virt 19105)], ![a (.virt 19100), a (.virt 19102), a (.virt 19104), a (.virt 19106)], fun j => by fin_cases j; exacts [x2_1_0, x2_1_1, x2_1_2, x2_1_3], by rw [x2_1m, x2_1a, x2_1b]; rfl⟩) (List.Forall₂.nil))
     · -- slot 2: matches against the earlier candidates
-      exact List.Forall₂.cons (⟨![a (.virt 19107), a (.virt 19109), a (.virt 19111), a (.virt 19113)], ![a (.virt 19108), a (.virt 19110), a (.virt 19112), a (.virt 19114)], fun j => by fin_cases j <;> assumption, by rw [y2_0m, y2_0a, y2_0b]; rfl⟩) (List.Forall₂.cons (⟨![a (.virt 19115), a (.virt 19117), a (.virt 19119), a (.virt 19121)], ![a (.virt 19116), a (.virt 19118), a (.virt 19120), a (.virt 19122)], fun j => by fin_cases j <;> assumption, by rw [y2_1m, y2_1a, y2_1b]; rfl⟩) (List.Forall₂.nil))
+      exact List.Forall₂.cons (⟨![a (.virt 19107), a (.virt 19109), a (.virt 19111), a (.virt 19113)], ![a (.virt 19108), a (.virt 19110), a (.virt 19112), a (.virt 19114)], fun j => by fin_cases j; exacts [y2_0_0, y2_0_1, y2_0_2, y2_0_3], by rw [y2_0m, y2_0a, y2_0b]; rfl⟩) (List.Forall₂.cons (⟨![a (.virt 19115), a (.virt 19117), a (.virt 19119), a (.virt 19121)], ![a (.virt 19116), a (.virt 19118), a (.virt 19120), a (.virt 19122)], fun j => by fin_cases j; exacts [y2_1_0, y2_1_1, y2_1_2, y2_1_3], by rw [y2_1m, y2_1a, y2_1b]; rfl⟩) (List.Forall₂.nil))
     · -- slot 2: self match
-      exact ⟨![a (.virt 19123), a (.virt 19125), a (.virt 19127), a (.virt 19129)], ![a (.virt 19124), a (.virt 19126), a (.virt 19128), a (.virt 19130)], fun j => by fin_cases j <;> assumption, by rw [y2_2m, y2_2a, y2_2b]; rfl⟩
+      exact ⟨![a (.virt 19123), a (.virt 19125), a (.virt 19127), a (.virt 19129)], ![a (.virt 19124), a (.virt 19126), a (.virt 19128), a (.virt 19130)], fun j => by fin_cases j; exacts [y2_2_0, y2_2_1, y2_2_2, y2_2_3], by rw [y2_2m, y2_2a, y2_2b]; rfl⟩
     · -- slot 2: matches against the later candidates
-      exact List.Forall₂.cons (⟨![a (.virt 19131), a (.virt 19133), a (.virt 19135), a (.virt 19137)], ![a (.virt 19132), a (.virt 19134), a (.virt 19136), a (.virt 19138)], fun j => by fin_cases j <;> assumption, by rw [y2_3m, y2_3a, y2_3b]; rfl⟩) (List.Forall₂.nil)
+      exact List.Forall₂.cons (⟨![a (.virt 19131), a (.virt 19133), a (.virt 19135), a (.virt 19137)], ![a (.virt 19132), a (.virt 19134), a (.virt 19136), a (.virt 19138)], fun j => by fin_cases j; exacts [y2_3_0, y2_3_1, y2_3_2, y2_3_3], by rw [y2_3m, y2_3a, y2_3b]; rfl⟩) (List.Forall₂.nil)
     · -- slot 2: duplicate flag
       simp only [List.foldl_cons, List.foldl_nil, bor_zero_left]
       rw [xo2_1]
@@ -690,13 +687,13 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     · -- slot 2: masked sum
       exact os2
     · -- slot 2: masked exit
-      intro j; fin_cases j <;> assumption
+      intro j; fin_cases j; exacts [oe2_0, oe2_1, oe2_2, oe2_3]
     · -- slot 3: dedup flags
-      exact List.Forall₂.cons (⟨![a (.virt 19139), a (.virt 19141), a (.virt 19143), a (.virt 19145)], ![a (.virt 19140), a (.virt 19142), a (.virt 19144), a (.virt 19146)], fun j => by fin_cases j <;> assumption, by rw [x3_0m, x3_0a, x3_0b]; rfl⟩) (List.Forall₂.cons (⟨![a (.virt 19147), a (.virt 19149), a (.virt 19151), a (.virt 19153)], ![a (.virt 19148), a (.virt 19150), a (.virt 19152), a (.virt 19154)], fun j => by fin_cases j <;> assumption, by rw [x3_1m, x3_1a, x3_1b]; rfl⟩) (List.Forall₂.cons (⟨![a (.virt 19155), a (.virt 19157), a (.virt 19159), a (.virt 19161)], ![a (.virt 19156), a (.virt 19158), a (.virt 19160), a (.virt 19162)], fun j => by fin_cases j <;> assumption, by rw [x3_2m, x3_2a, x3_2b]; rfl⟩) (List.Forall₂.nil)))
+      exact List.Forall₂.cons (⟨![a (.virt 19139), a (.virt 19141), a (.virt 19143), a (.virt 19145)], ![a (.virt 19140), a (.virt 19142), a (.virt 19144), a (.virt 19146)], fun j => by fin_cases j; exacts [x3_0_0, x3_0_1, x3_0_2, x3_0_3], by rw [x3_0m, x3_0a, x3_0b]; rfl⟩) (List.Forall₂.cons (⟨![a (.virt 19147), a (.virt 19149), a (.virt 19151), a (.virt 19153)], ![a (.virt 19148), a (.virt 19150), a (.virt 19152), a (.virt 19154)], fun j => by fin_cases j; exacts [x3_1_0, x3_1_1, x3_1_2, x3_1_3], by rw [x3_1m, x3_1a, x3_1b]; rfl⟩) (List.Forall₂.cons (⟨![a (.virt 19155), a (.virt 19157), a (.virt 19159), a (.virt 19161)], ![a (.virt 19156), a (.virt 19158), a (.virt 19160), a (.virt 19162)], fun j => by fin_cases j; exacts [x3_2_0, x3_2_1, x3_2_2, x3_2_3], by rw [x3_2m, x3_2a, x3_2b]; rfl⟩) (List.Forall₂.nil)))
     · -- slot 3: matches against the earlier candidates
-      exact List.Forall₂.cons (⟨![a (.virt 19163), a (.virt 19165), a (.virt 19167), a (.virt 19169)], ![a (.virt 19164), a (.virt 19166), a (.virt 19168), a (.virt 19170)], fun j => by fin_cases j <;> assumption, by rw [y3_0m, y3_0a, y3_0b]; rfl⟩) (List.Forall₂.cons (⟨![a (.virt 19171), a (.virt 19173), a (.virt 19175), a (.virt 19177)], ![a (.virt 19172), a (.virt 19174), a (.virt 19176), a (.virt 19178)], fun j => by fin_cases j <;> assumption, by rw [y3_1m, y3_1a, y3_1b]; rfl⟩) (List.Forall₂.cons (⟨![a (.virt 19179), a (.virt 19181), a (.virt 19183), a (.virt 19185)], ![a (.virt 19180), a (.virt 19182), a (.virt 19184), a (.virt 19186)], fun j => by fin_cases j <;> assumption, by rw [y3_2m, y3_2a, y3_2b]; rfl⟩) (List.Forall₂.nil)))
+      exact List.Forall₂.cons (⟨![a (.virt 19163), a (.virt 19165), a (.virt 19167), a (.virt 19169)], ![a (.virt 19164), a (.virt 19166), a (.virt 19168), a (.virt 19170)], fun j => by fin_cases j; exacts [y3_0_0, y3_0_1, y3_0_2, y3_0_3], by rw [y3_0m, y3_0a, y3_0b]; rfl⟩) (List.Forall₂.cons (⟨![a (.virt 19171), a (.virt 19173), a (.virt 19175), a (.virt 19177)], ![a (.virt 19172), a (.virt 19174), a (.virt 19176), a (.virt 19178)], fun j => by fin_cases j; exacts [y3_1_0, y3_1_1, y3_1_2, y3_1_3], by rw [y3_1m, y3_1a, y3_1b]; rfl⟩) (List.Forall₂.cons (⟨![a (.virt 19179), a (.virt 19181), a (.virt 19183), a (.virt 19185)], ![a (.virt 19180), a (.virt 19182), a (.virt 19184), a (.virt 19186)], fun j => by fin_cases j; exacts [y3_2_0, y3_2_1, y3_2_2, y3_2_3], by rw [y3_2m, y3_2a, y3_2b]; rfl⟩) (List.Forall₂.nil)))
     · -- slot 3: self match
-      exact ⟨![a (.virt 19187), a (.virt 19189), a (.virt 19191), a (.virt 19193)], ![a (.virt 19188), a (.virt 19190), a (.virt 19192), a (.virt 19194)], fun j => by fin_cases j <;> assumption, by rw [y3_3m, y3_3a, y3_3b]; rfl⟩
+      exact ⟨![a (.virt 19187), a (.virt 19189), a (.virt 19191), a (.virt 19193)], ![a (.virt 19188), a (.virt 19190), a (.virt 19192), a (.virt 19194)], fun j => by fin_cases j; exacts [y3_3_0, y3_3_1, y3_3_2, y3_3_3], by rw [y3_3m, y3_3a, y3_3b]; rfl⟩
     · -- slot 3: matches against the later candidates
       exact List.Forall₂.nil
     · -- slot 3: duplicate flag
@@ -709,7 +706,7 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     · -- slot 3: masked sum
       exact os3
     · -- slot 3: masked exit
-      intro j; fin_cases j <;> assumption
+      intro j; fin_cases j; exacts [oe3_0, oe3_1, oe3_2, oe3_3]
   have hM0 : a (.wire 13 15) = bselect (row a 0).isDummy 0 (row a 0).inputAmount := by
     rw [mi0, hd0]; rfl
   have hM1 : a (.wire 13 23) = bselect (row a 1).isDummy 0 (row a 1).inputAmount := by
@@ -734,7 +731,7 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     rw [w0_0_0_0, w0_0_0_1, w0_0_1_0, w0_0_1_1, w0_0_2_0, w0_0_2_1, w0_0_3_0, w0_0_3_1, s0_0, s0_1, s0_2, s0_3, s1_0, s1_1, s1_2, s1_3, hd0, hd1]
     rfl
   have u0_1 : UniqCheck (row a 0).nullifier (row a 1).nullifier (row a 0).isDummy (row a 1).isDummy :=
-    ⟨a (.wire 57 19), ⟨![a (.virt 19195), a (.virt 19197), a (.virt 19199), a (.virt 19201)], ![a (.virt 19196), a (.virt 19198), a (.virt 19200), a (.virt 19202)], fun j => by fin_cases j <;> assumption, by rw [q0_1m, q0_1a, q0_1b]; rfl⟩, by
+    ⟨a (.wire 57 19), ⟨![a (.virt 19195), a (.virt 19197), a (.virt 19199), a (.virt 19201)], ![a (.virt 19196), a (.virt 19198), a (.virt 19200), a (.virt 19202)], fun j => by fin_cases j; exacts [q0_1_0, q0_1_1, q0_1_2, q0_1_3], by rw [q0_1m, q0_1a, q0_1b]; rfl⟩, by
       rw [← hd0, ← hd1, ← un0_1, ← um0_1, ← ub0_1, ← uc0_1]; exact uz0_1⟩
   have hcol : (rows a).Pairwise fun r s => UniqCheck r.nullifier s.nullifier r.isDummy s.isDummy := by
     unfold rows
@@ -756,19 +753,19 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
       simp only [rounds, List.flatten_cons, List.flatten_nil, List.cons_append, List.nil_append,
         List.append_nil, List.mem_cons, List.not_mem_nil, or_false] at hs
       rcases hs with rfl
-      assumption
+      exacts [ab0_0]
     · -- dummy checks
       intro r hr
       rcases hmem r hr with rfl | rfl
-      · intro j; fin_cases j <;> assumption
-      · intro j; fin_cases j <;> assumption
+      · intro j; fin_cases j; exacts [e0_0, e0_1, e0_2, e0_3]
+      · intro j; fin_cases j; exacts [e1_0, e1_1, e1_2, e1_3]
     · -- dummy nullifiers
       intro r hr
       rcases hmem r hr with rfl | rfl
-      · exact ⟨fun j => a (.wire 59 (12 + j)), fun j => by fin_cases j <;> assumption,
-          fun j => by fin_cases j <;> assumption⟩
-      · exact ⟨fun j => a (.wire 61 (12 + j)), fun j => by fin_cases j <;> assumption,
-          fun j => by fin_cases j <;> assumption⟩
+      · exact ⟨fun j => a (.wire 59 (12 + j)), fun j => by fin_cases j; exacts [hi0_0, hi0_1, hi0_2, hi0_3],
+          fun j => by fin_cases j; exacts [ho0_0, ho0_1, ho0_2, ho0_3]⟩
+      · exact ⟨fun j => a (.wire 61 (12 + j)), fun j => by fin_cases j; exacts [hi1_0, hi1_1, hi1_2, hi1_3],
+          fun j => by fin_cases j; exacts [ho1_0, ho1_1, ho1_2, ho1_3]⟩
     · -- asset consistency
       intro r hr
       rcases hmem r hr with rfl | rfl
@@ -782,10 +779,10 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     · -- block consistency
       intro r hr
       rcases hmem r hr with rfl | rfl
-      · refine ⟨![a (.virt 18997), a (.virt 18999), a (.virt 19001), a (.virt 19003)], ![a (.virt 18998), a (.virt 19000), a (.virt 19002), a (.virt 19004)], fun j => by fin_cases j <;> assumption, ?_⟩
+      · refine ⟨![a (.virt 18997), a (.virt 18999), a (.virt 19001), a (.virt 19003)], ![a (.virt 18998), a (.virt 19000), a (.virt 19002), a (.virt 19004)], fun j => by fin_cases j; exacts [cb0_0, cb0_1, cb0_2, cb0_3], ?_⟩
         show bor (row a 0).isDummy (band (band (a (.virt 18997)) (a (.virt 18999))) (band (a (.virt 19001)) (a (.virt 19003)))) = 1
         rw [← hd0, ← cb0a, ← cb0b, ← cb0m, ← cbo0, cbk0, kone]
-      · refine ⟨![a (.virt 19007), a (.virt 19009), a (.virt 19011), a (.virt 19013)], ![a (.virt 19008), a (.virt 19010), a (.virt 19012), a (.virt 19014)], fun j => by fin_cases j <;> assumption, ?_⟩
+      · refine ⟨![a (.virt 19007), a (.virt 19009), a (.virt 19011), a (.virt 19013)], ![a (.virt 19008), a (.virt 19010), a (.virt 19012), a (.virt 19014)], fun j => by fin_cases j; exacts [cb1_0, cb1_1, cb1_2, cb1_3], ?_⟩
         show bor (row a 1).isDummy (band (band (a (.virt 19007)) (a (.virt 19009))) (band (a (.virt 19011)) (a (.virt 19013)))) = 1
         rw [← hd1, ← cb1a, ← cb1b, ← cb1m, ← cbo1, cbk1, kone]
     · -- the slot count

@@ -14,6 +14,12 @@ pub mod render;
 pub mod symbolic;
 pub mod trace;
 
+/// Private-batch wrapper sizes with a recorded trace; `7` is the deployed runtime's (spec 153).
+pub const PRIVATE_WRAPPER_SIZES: [usize; 3] = [2, 4, 7];
+/// Public-batch wrapper sizes with a recorded trace, as `(n_inner, leaves per inner)`;
+/// `(53, 7)` is the deployed runtime's (spec 153).
+pub const PUBLIC_WRAPPER_SIZES: [(usize, usize); 3] = [(2, 2), (4, 2), (53, 7)];
+
 use core::fmt::Write as _;
 
 use extract::Extracted;

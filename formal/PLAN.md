@@ -919,7 +919,8 @@ sponges, bit decompositions, a bit-serial comparator and a 16-level gated Merkle
   felt, then the `1` terminator word), pinned to the Rust encoder by `salts_match_formal_spec`
   there. `WA_of_hashes` / `Null_of_hashes` are stated on those literals, and `Shape::read`
   rejects a trace whose salt constants differ, so `sound` takes no salt hypotheses.
-- **Pinning.** `wormholeSpec` is pinned at qp-zk-circuits `fa5f57d` (the #194 merge), whose
+- **Pinning.** `wormholeSpec` is pinned by `rev` in `lakefile.toml` (qp-zk-circuits #194 plus the
+  deployed-size traces of Step 11), whose
   `formal/traces/leaf_circuit.json` the strict vendored-trace CI step checks byte-for-byte
   against `constraint-exporter/traces/leaf_circuit.json`, alongside the wrapper traces.
   `leaf_wired` establishes `Rleaf` for a *satisfying assignment*; tying a verified proof to
@@ -1003,6 +1004,43 @@ relation and no particular circuit.
   `AggregationBridge.private_batch_sound` / `public_batch_sound` take the child relations, and
   `WormholeSpec` is axiom-free. `Plonky2Bridge.proof_sound` is the only axiom in either package.
 
+### Step 11 — The deployed sizes (runtime spec 153)  ✅ DONE
+Steps 8–10 prove the wrappers at `n = 2, 4`. The circuits live on mainnet are the `n = 7`
+private batch and the `n_inner = 53` public batch over it (chain `v1.0.2-Qm`, `spec_version`
+153; qp-zk-circuits `formal/SPEC.md`, "Deployed circuits", ties them to the verifier data in
+the runtime wasm). This branch runs the same pipeline on traces recorded
+at those sizes; `main` has since moved to the proof-of-burn leaf, which is not deployed.
+
+- **Traces.** `private_batch_wrapper_n7.json` (598 rows, 28 743 copies, 3 359 calls) and
+  `public_batch_wrapper_n53.json` over `7`-leaf inners (725 rows, 44 593 copies, 6 943 calls,
+  children `private_batch_wrapper_n7`). Both shape readers accept them unchanged; `7` is the
+  first odd leaf count the switch network is decoded at. The sizes with a trace are
+  `constraint_exporter::{PRIVATE,PUBLIC}_WRAPPER_SIZES`.
+- **Capstones.** `private_batch_end_to_end_wired_n7` and `public_batch_end_to_end_wired_n53`,
+  the latter on the tree `PublicWrapper53.tree` over `Wrapper7.tree` over `LeafCircuit.tree`.
+  Both are gated in `ci/AxiomsCheck.lean` on the allow-list plus `proof_sound`;
+  `Wrapper7.sound` and `PublicWrapper53.sound` are bare.
+- **What scaling needed.**
+  - Generated modules raise `maxRecDepth` with their longest list literal
+    (`gadget::rec_depth_option`): a row lookup by `rfl`, and compiling or unfolding the
+    circuit, recurse once per element.
+  - The bridges cite each fact by name instead of `assumption`, whose search over a
+    several-thousand-hypothesis context was most of `Wrapper{N}.sound`'s cost, and take
+    `consts` from the decode module instead of re-deriving it by `simp` over the circuit.
+  - `Wrapper{N}.sound` is still one proof; its heartbeat budget grows with `n³`.
+  - `PublicWrapper{N}` no longer projects the decode conjunction inside one proof. It takes
+    each fact from its own lemma and proves one lemma per inner (`dummy{i}`, `consistent{i}`,
+    `slots{i}`, `nulls{i}`) and per reference (`scan`, `ref_block`, `ref_number`, `ref_asset`,
+    `ref_fee`); `sound` assembles them, the forwarded regions through
+    `flatten_eq_of_forall₂`. The single proof at `n_inner = 53` held 7 006 hypotheses and
+    16 GB without finishing; the split one checks in parallel.
+  - Functions on `Fin n` are matched as `⟨k, _⟩` with an explicit out-of-range arm: Lean
+    rejects literal arms as non-exhaustive from `n = 16`.
+- **Cost.** On 18 cores: `PrivateBatchWrapper7` 268 s, `PublicBatchWrapper53` 502 s,
+  `Wrapper7` 181 s, `PublicWrapper53` 143 s. With `-j 4`: 278 s / 9.3 GB, 485 s / 16.9 GB,
+  259 s / 6.3 GB, 203 s / 12.9 GB. The public decode therefore does not fit a 16 GB runner, so
+  the two formal CI jobs run on the 32 GB `Large-Linux-x64-Runner`.
+
 ## 9. Definition of done
 
 `R_leaf` fully bridged (T0–T3), `R_L0`/`R_L1` bridged modulo the enumerated
@@ -1016,9 +1054,10 @@ the same way (`public_batch_end_to_end`, Step 7a). The remaining gap is exactly
 (a) the residual **wiring/copy-constraint** model fidelity (§3 — gate constraints
 are exporter-backed and the wrapper *logic* is bridged, but the public-input
 **decode** that feeds the bridges its `hd`/`hnull`/`hexits`/… wire assignments
-was hand-modeled; Step 8 closes it for both wrappers at every recorded size (`n = 2, 4`
-and `n_inner = 2, 4`, bridges generated from the traces):
-`private_batch_end_to_end_wired{,_n4}` and `public_batch_end_to_end_wired{,_n4}` are the
+was hand-modeled; Steps 8 and 11 close it for both wrappers at every recorded size (`n = 2, 4, 7`
+and `n_inner = 2, 4, 53`, the last of each being the deployed runtime's, bridges generated from
+the traces): `private_batch_end_to_end_wired{,_n4,_n7}` and
+`public_batch_end_to_end_wired{,_n4,_n53}` are the
 capstones stated on the exported wiring, with no decode hypotheses; Step 9 closes it for
 the leaf: `leaf_wired` is `Rleaf` on the exported leaf wiring, standard-axioms-only)
 and (b) the layer-1 assumptions (§7) — both explicit.

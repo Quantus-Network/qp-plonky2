@@ -21,10 +21,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-/// The private-batch wrapper sizes with recorded traces.
-const PRIVATE_WRAPPER_SIZES: [usize; 2] = [2, 4];
-/// The public-batch wrapper sizes with recorded traces.
-const PUBLIC_WRAPPER_SIZES: [usize; 2] = [2, 4];
+use constraint_exporter::{PRIVATE_WRAPPER_SIZES, PUBLIC_WRAPPER_SIZES};
 
 fn formal_dir() -> PathBuf {
     // <repo>/qp-plonky2/constraint-exporter -> <repo>/qp-plonky2/formal
@@ -71,8 +68,8 @@ fn main() -> std::io::Result<()> {
     let leaf_bridge =
         constraint_exporter::leaf::generate_leaf_bridge_lean().map_err(std::io::Error::other)?;
     let mut public_wrappers = Vec::new();
-    for n in PUBLIC_WRAPPER_SIZES {
-        let decode = constraint_exporter::trace::generate_public_batch_wrapper_lean(n)
+    for (n, leaves) in PUBLIC_WRAPPER_SIZES {
+        let decode = constraint_exporter::trace::generate_public_batch_wrapper_lean(n, leaves)
             .map_err(std::io::Error::other)?;
         let bridge = constraint_exporter::public_wrapper::generate_public_wrapper_bridge_lean(n)
             .map_err(std::io::Error::other)?;

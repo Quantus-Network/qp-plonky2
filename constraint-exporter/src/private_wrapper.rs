@@ -931,6 +931,11 @@ fn digest_fun(ts: &[Target]) -> String {
     )
 }
 
+/// `sound` is one proof over all `O(n²)` recorded facts, each step in a context that large.
+fn sound_heartbeats(n: usize) -> usize {
+    4_000_000.max(62_500 * n.pow(3))
+}
+
 /// Render the bridge module for a recorded private-batch wrapper.
 pub fn render(shape: &Shape) -> String {
     let n = shape.n;
@@ -1182,11 +1187,8 @@ pub fn render(shape: &Shape) -> String {
         .iter()
         .map(|(t, c)| format!("{} = {c}", a(*t)))
         .collect();
-    w!("    {} := by", cs.join(" ∧ "));
-    w!("  have hc := h.2.2");
-    w!("  simp only [{circuit}, List.forall_mem_cons, List.not_mem_nil, false_implies,");
-    w!("    implies_true, and_true] at hc");
-    w!("  exact hc");
+    w!("    {} :=", cs.join(" ∧ "));
+    w!("  Plonky2Spec.Generated.{circuit}_consts a h");
     w!("");
     let const_names: Vec<String> = shape
         .constants
@@ -1214,7 +1216,7 @@ pub fn render(shape: &Shape) -> String {
     let total_in = a(shape.total_in);
     let total_out = a(shape.total_out);
 
-    w!("set_option maxHeartbeats 4000000 in");
+    w!("set_option maxHeartbeats {} in", sound_heartbeats(n));
     w!("/-- **The recorded private-batch wrapper satisfies `RPrivateBatch`.** Every satisfying");
     w!("    assignment whose Poseidon2 rows compute `perm`, with the leaves' 32-bit ranges (which");
     w!("    the leaf proofs certify), decodes to an `RPrivateBatch` instance on the {n} children,");
@@ -1491,7 +1493,7 @@ pub fn render(shape: &Shape) -> String {
         let (eqs, invs): (Vec<Target>, Vec<Target>) =
             de.eq.iter().map(|&k| shape.is_equal_witness(k)).unzip();
         format!(
-            "⟨{}, {}, fun j => by fin_cases j <;> assumption, by rw [{prefix}m, {prefix}a, {prefix}b]; rfl⟩",
+            "⟨{}, {}, fun j => by fin_cases j; exacts [{prefix}_0, {prefix}_1, {prefix}_2, {prefix}_3], by rw [{prefix}m, {prefix}a, {prefix}b]; rfl⟩",
             vec4(&eqs),
             vec4(&invs)
         )
@@ -1546,7 +1548,7 @@ pub fn render(shape: &Shape) -> String {
         w!("    · -- slot {k}: masked sum");
         w!("      exact os{k}");
         w!("    · -- slot {k}: masked exit");
-        w!("      intro j; fin_cases j <;> assumption");
+        w!("      intro j; fin_cases j; exacts [oe{k}_0, oe{k}_1, oe{k}_2, oe{k}_3]");
     }
 
     // Totals.
@@ -1662,27 +1664,28 @@ pub fn render(shape: &Shape) -> String {
     w!("      intro s hs");
     w!("      simp only [rounds, List.flatten_cons, List.flatten_nil, List.cons_append, List.nil_append,");
     w!("        List.append_nil, List.mem_cons, List.not_mem_nil, or_false] at hs");
-    let sw_count = shape.switches.len();
-    let sw_alts = vec!["rfl"; sw_count].join(" | ");
-    if sw_count == 1 {
-        w!("      rcases hs with rfl");
-        w!("      assumption");
-    } else {
-        w!("      rcases hs with {sw_alts} <;> assumption");
-    }
+    let sw_alts = vec!["rfl"; shape.switches.len()].join(" | ");
+    let sw_bools: Vec<String> = shape
+        .rounds
+        .iter()
+        .enumerate()
+        .flat_map(|(r, round)| (0..round.len()).map(move |s| format!("ab{r}_{s}")))
+        .collect();
+    w!("      rcases hs with {sw_alts}");
+    w!("      exacts [{}]", sw_bools.join(", "));
     w!("    · -- dummy checks");
     w!("      intro r hr");
     w!("      rcases hmem r hr with {rfls}");
-    for _ in 0..n {
-        w!("      · intro j; fin_cases j <;> assumption");
+    for i in 0..n {
+        w!("      · intro j; fin_cases j; exacts [e{i}_0, e{i}_1, e{i}_2, e{i}_3]");
     }
     w!("    · -- dummy nullifiers");
     w!("      intro r hr");
     w!("      rcases hmem r hr with {rfls}");
-    for leaf in leaves.iter() {
+    for (i, leaf) in leaves.iter().enumerate() {
         let row_in = shape.fact(leaf.hash_inner).digest_row().unwrap();
-        w!("      · exact ⟨fun j => a (.wire {row_in} (12 + j)), fun j => by fin_cases j <;> assumption,");
-        w!("          fun j => by fin_cases j <;> assumption⟩");
+        w!("      · exact ⟨fun j => a (.wire {row_in} (12 + j)), fun j => by fin_cases j; exacts [hi{i}_0, hi{i}_1, hi{i}_2, hi{i}_3],");
+        w!("          fun j => by fin_cases j; exacts [ho{i}_0, ho{i}_1, ho{i}_2, ho{i}_3]⟩");
     }
     w!("    · -- asset consistency");
     w!("      intro r hr");
@@ -1711,7 +1714,7 @@ pub fn render(shape: &Shape) -> String {
             .map(|&k| shape.is_equal_witness(k))
             .unzip();
         w!(
-            "      · refine ⟨{}, {}, fun j => by fin_cases j <;> assumption, ?_⟩",
+            "      · refine ⟨{}, {}, fun j => by fin_cases j; exacts [cb{i}_0, cb{i}_1, cb{i}_2, cb{i}_3], ?_⟩",
             vec4(&eqs),
             vec4(&invs)
         );
