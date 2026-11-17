@@ -4,9 +4,10 @@
   The shell step in `.github/workflows/ci.yml` runs this file and parses `#print axioms`
   output per theorem, asserting the complete allow-list
   `{propext, Classical.choice, Quot.sound}` plus, where a theorem consumes accepted proofs,
-  exactly the three declarations `proof_sound` composes
+  exactly the four declarations `proof_sound` composes
   (`Plonky2Bridge.poseidon_transcript_oracle`, `Plonky2Bridge.fri_proximity_gap`,
-  `Plonky2Bridge.verifier_algebra`). `proof_sound` itself is a theorem.
+  `Plonky2Bridge.algebraic_sampling`, `Plonky2Bridge.verifier_algebra`).
+  `proof_sound` itself is a theorem.
 
   * `private_batch_end_to_end` / `public_batch_end_to_end` take the children's relations as
     hypotheses and are gated on the bare allow-list.
@@ -14,7 +15,7 @@
     capstones on the exporter-generated `n = 2` / `4` wrapper wiring, with `ProofAccepted`
     for the children — and `LeafCircuit.accepted_sound` / `Wrapper{2,4}.accepted_sound` — an
     accepted proof of the named tree attests its relation — are gated on the allow-list plus
-    those three declarations.
+    those four declarations.
   * `Wrapper{2,4}.sound`, `PublicWrapper{2,4}.sound` and `leaf_wired` (`LeafCircuit.sound`),
     the wiring-to-relation steps underneath, use no trusted axiom.
   It is not part of `defaultTargets` or `Plonky2Bridge`; import-only.

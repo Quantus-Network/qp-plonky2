@@ -149,7 +149,7 @@ jobs:
   # `formal-spec` job above never compiles them. This job builds the cross-package bridge
   # (wormholeSpec pinned in lake-manifest.json) and asserts each capstone's axiom footprint
   # is exactly the standard Lean axioms plus, where the theorem consumes an accepted proof,
-  # the three declarations composed by `proof_sound` (none for the leaf wiring capstone,
+  # the four declarations composed by `proof_sound` (none for the leaf wiring capstone,
   # the base of the recursion) — not e.g. `sorryAx`, `Lean.ofReduceBool`, or a silent
   # compile failure.
   formal-bridge:
@@ -187,7 +187,7 @@ jobs:
           printf '%s\n' "$output"
           # expect <theorem> <axiom...>: the footprint must be exactly the named axioms.
           # `proof_sound` is a theorem. Its footprint is the standard propositional axioms
-          # plus the three declarations it composes; capstones that consume an accepted
+          # plus the four declarations it composes; capstones that consume an accepted
           # proof have that same footprint.
           expect() {
             local thm="$1"
@@ -214,6 +214,7 @@ jobs:
           trusted=(
             Plonky2Bridge.poseidon_transcript_oracle
             Plonky2Bridge.fri_proximity_gap
+            Plonky2Bridge.algebraic_sampling
             Plonky2Bridge.verifier_algebra
           )
           expect Plonky2Bridge.proof_sound "${base[@]}" "${trusted[@]}"

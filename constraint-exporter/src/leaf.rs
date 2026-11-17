@@ -1287,7 +1287,7 @@ pub fn render(shape: &Shape, t: &LoadedTrace) -> String {
     w!("theorem tree_verifiers : (tree (p := p)).verifiers = leafCircuit.verifiers := rfl");
     w!("");
     w!("/-- **An accepted leaf proof attests `Rleaf`.** Through `proof_sound`");
-    w!("    (`poseidon_transcript_oracle`, `fri_proximity_gap`, `verifier_algebra`): the accepted public inputs are those of an assignment satisfying the");
+    w!("    (`poseidon_transcript_oracle`, `fri_proximity_gap`, `algebraic_sampling`, `verifier_algebra`): the accepted public inputs are those of an assignment satisfying the");
     w!("    leaf's exported wiring, hence (`sound`) an `Rleaf` instance. This is what");
     w!("    `WormholeSpec.leaf_proof_sound` used to assume. -/");
     w!("theorem accepted_sound (perm : St p → St p) (hpg : goldilocks ≤ p) {{ts : Fin {} → Target}}", layout::LEAF_PI_LEN);

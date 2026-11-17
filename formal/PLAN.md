@@ -156,18 +156,22 @@ Poseidon2 instantiates `RandomOracle.H` (its felt outputs are `digest.val`s).
 ## 7. Trusted assumptions (the seam to layer 1)
 
 `Plonky2Bridge/Trusted.lean` is the only place an `axiom` is declared. `proof_sound`
-is a theorem, the composition of three declarations (Step 12):
+is a theorem, the composition of four declarations (Step 12):
 
 - **`poseidon_transcript_oracle`** — the proof-system Poseidon
   (`PoseidonGoldilocksConfig`) is a random oracle on the verifier transcript
   (QROM for the post-quantum reading). Merkle binding is a corollary. This is not
   collision resistance, and it is not the wormhole Poseidon2.
 - **`fri_proximity_gap`** — FRI proximity gaps at the circuit's FRI parameters.
-  For `standard_recursion_config` the ethSTARK accounting is 100 bits
-  (`28 * 3 + 16`); the error is statistical and stays even if both hashes are ideal.
-- **`verifier_algebra`** — the unproved mathematics, not a cryptographic assumption:
-  low-degree openings that passed the transcript checks are a satisfying assignment
-  of the exported circuit (`build`, vanishing, permutation, native and recursive
+  For `standard_recursion_config` the statistical query error is `(1/8)^28 = 2^{-84}`
+  (`friQueryBits = 84`). The extra 16 bits in `friConjecturedBits = 100` are grinding,
+  a work factor against the oracle, not another statistical `2^{-16}`.
+- **`algebraic_sampling`** — the native verifier checks the vanishing and permutation
+  identities at the Fiat–Shamir point, not identically. Low degree plus those point
+  checks imply identical constraints only on a Schwartz–Zippel good event. That error
+  remains when the hash is ideal and FRI proximity is perfect.
+- **`verifier_algebra`** — deterministic given identical constraints: they are a
+  satisfying assignment of the exported circuit (`build`, native and recursive
   verifier correspondence, Poseidon2 rows).
 
 Poseidon2 collision resistance is not one of these. It stays the `*_or_collision`
@@ -175,7 +179,7 @@ reduction against `spongeRO`. A break of `verify` does not produce a collision, 
 `proof_sound` is not `Satisfies ∨ Collision`.
 
 Each declaration says what would discharge it. Capstones still call `proof_sound`;
-their axiom footprint is exactly these three.
+their axiom footprint is exactly these four.
 
 ## 8. Execution plan (commit checkpoint between each step)
 
@@ -1060,13 +1064,15 @@ switch network is gone from the circuit. What changed here, and why:
   at the source.
 
 ### Step 12 — Split `proof_sound` into the layer-1 assumptions  ✅ DONE
-`proof_sound` is no longer an axiom. `Trusted.lean` declares the two cryptographic
-assumptions (`poseidon_transcript_oracle`, `fri_proximity_gap`) and the mathematical
-obligation `verifier_algebra`, and `proof_sound` is the theorem that composes them in
-that order. Poseidon2 collision resistance stays outside this file. The capstone
-statements are unchanged; `ci/AxiomsCheck.lean` now expects the three declarations
-instead of a single `proof_sound` axiom. `friConjecturedBits standardRecursionFri = 100`
-pins the in-repo ethSTARK accounting.
+`proof_sound` is no longer an axiom. `Trusted.lean` declares `poseidon_transcript_oracle`,
+`fri_proximity_gap`, `algebraic_sampling`, and the deterministic obligation
+`verifier_algebra`. `proof_sound` composes them in that order. Poseidon2 collision
+resistance stays outside this file. `friQueryBits standardRecursionFri = 84` is the
+statistical FRI query exponent `(1/8)^28`; `friConjecturedBits = 100` adds 16 bits of
+grinding as a work factor, and the `rfl` checks certify only that arithmetic.
+`algebraic_sampling` is the Schwartz–Zippel good event for the point checks at `ζ`.
+The capstone statements are unchanged; `ci/AxiomsCheck.lean` expects these four
+declarations.
 
 ## 9. Definition of done
 
@@ -1087,4 +1093,4 @@ and `n_inner = 2, 4`, bridges generated from the traces):
 capstones stated on the exported wiring, with no decode hypotheses; Step 9 closes it for
 the leaf: `leaf_wired` is `Rleaf` on the exported leaf wiring, standard-axioms-only)
 and (b) the layer-1 assumptions (§7) — `poseidon_transcript_oracle`, `fri_proximity_gap`,
-and the unproved `verifier_algebra`, composed as `proof_sound`.
+`algebraic_sampling`, and the deterministic `verifier_algebra`, composed as `proof_sound`.
