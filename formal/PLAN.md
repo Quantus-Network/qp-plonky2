@@ -166,10 +166,14 @@ is a theorem, the composition of four declarations (Step 12):
   For `standard_recursion_config` the statistical query error is `(1/8)^28 = 2^{-84}`
   (`friQueryBits = 84`). The extra 16 bits in `friConjecturedBits = 100` are grinding,
   a work factor against the oracle, not another statistical `2^{-16}`.
-- **`algebraic_sampling`** — the native verifier checks the vanishing and permutation
-  identities at the Fiat–Shamir point, not identically. Low degree plus those point
-  checks imply identical constraints only on a Schwartz–Zippel good event. That error
-  remains when the hash is ideal and FRI proximity is perfect.
+- **`algebraic_sampling`** — low degree plus the Fiat–Shamir checks imply identical
+  constraints only on a good event of probability `1 − ε`. The failure probability
+  `ε` is a sum of two kinds of terms. `α`, `β`, and `γ` (and lookup deltas, when
+  present) are base-field elements, repeated `num_challenges` times, independent of
+  the extension degree. Only the opening point `ζ` is sampled in the extension.
+  A single factor of `1/|F^D|` drops the base-field terms. No closed form is stated
+  until that bound is derived. The error remains when the hash is ideal and FRI
+  proximity is perfect.
 - **`verifier_algebra`** — deterministic given identical constraints: they are a
   satisfying assignment of the exported circuit (`build`, native and recursive
   verifier correspondence, Poseidon2 rows).
@@ -1070,7 +1074,10 @@ switch network is gone from the circuit. What changed here, and why:
 resistance stays outside this file. `friQueryBits standardRecursionFri = 84` is the
 statistical FRI query exponent `(1/8)^28`; `friConjecturedBits = 100` adds 16 bits of
 grinding as a work factor, and the `rfl` checks certify only that arithmetic.
-`algebraic_sampling` is the Schwartz–Zippel good event for the point checks at `ζ`.
+`algebraic_sampling` is the good event for the base-field challenges (`α`, `β`, `γ`,
+repeated `num_challenges` times) and, separately, the extension-field opening at `ζ`.
+Its failure probability is `ε` and the declared event has probability `1 − ε`. No
+numeric estimate is pinned.
 The capstone statements are unchanged; `ci/AxiomsCheck.lean` expects these four
 declarations.
 

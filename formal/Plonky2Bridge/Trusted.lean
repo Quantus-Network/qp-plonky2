@@ -9,9 +9,10 @@
     corollary. This is `PoseidonGoldilocksConfig`'s Poseidon, not the wormhole Poseidon2.
   * `fri_proximity_gap` — FRI proximity gaps. The query error is statistical
     (`2^{-84}` for the default config). Grinding is a separate work factor.
-  * `algebraic_sampling` — point checks at the Fiat–Shamir challenges imply identical
-    constraints only on a good event. Schwartz–Zippel and permutation-challenge
-    failures remain after ideal hashes and perfect FRI.
+  * `algebraic_sampling` — the point checks imply identical constraints only on a
+    good event of probability `1 − ε`. `ε` adds the base-field challenge failures
+    (`α`, `β`, `γ`, repeated `num_challenges` times) to the extension-field opening
+    at `ζ`. Both remain after ideal hashes and perfect FRI.
   * `verifier_algebra` — the deterministic remainder: identical constraints are a
     satisfying assignment of the exported circuit.
 
@@ -127,17 +128,35 @@ axiom fri_proximity_gap (perm : St p → St p) (r : Recursive p) (pis : List (ZM
 /-- **TRUSTED — algebraic sampling.** Low-degree openings whose vanishing, quotient,
     and permutation checks hold at the Fiat–Shamir challenges are identical constraints.
 
-    The native verifier checks those identities at the sampled point `ζ`
-    (`eval_vanishing_poly` against the quotient in `verifier/src/plonk/verifier.rs`),
-    not on the whole domain. A nonzero discrepancy of degree below the FRI claim can
-    still vanish there. Schwartz–Zippel and a bad permutation challenge remain when
-    the hash is ideal and FRI proximity is perfect; the low-degree-only IOP keeps a
-    nonzero error (Lemma 4.9 of *Fiat-Shamir Security of FRI and Related SNARKs*).
-    This implication is that good event. Its probability is on the order of
-    `(degree · number of checks) / |F^D|`, independent of `friQueryBits` and of grinding.
-    It is not a `Prop`.
+    Two different fields are sampled (`core/src/proof.rs`, `get_challenges` in
+    `plonky2/src/plonk/get_challenges.rs`). The permutation challenges `β`, `γ` and
+    the constraint-combination challenges `α` are base-field elements, each drawn
+    `num_challenges` times by `get_n_challenges`. That repetition count does not
+    depend on the extension degree `D`. Lookup deltas, when the circuit has lookups,
+    are further base-field coins of the same kind. Only the opening point `ζ` is an
+    extension element (`get_extension_challenge`).
 
-    Discharging this is the concrete Schwartz–Zippel bound for these checks. -/
+    A bad base-field challenge is already a failure, before any opening. With
+    `β = 0` the verifier's numerator `wire + β·s_id + γ` and denominator
+    `wire + β·s_sigma + γ` (`verifier/src/plonk/vanishing_poly.rs`) coincide even
+    when the copy constraints are violated. One such value has probability `1/|F|`
+    per draw, about `2^{-64}` on Goldilocks, and `CircuitBuilder` accepts
+    `num_challenges = 1`. The extension-field term is separate: the vanishing
+    identity is checked at `ζ` (`eval_vanishing_poly` against the quotient in
+    `verifier/src/plonk/verifier.rs`), so a nonzero discrepancy of degree below the
+    FRI claim can still vanish there. Lemma 4.9 of *Fiat-Shamir Security of FRI
+    and Related SNARKs* keeps the repeated base-field terms apart from that
+    extension-field evaluation.
+
+    This implication is the conjunction of those good events. Write `ε` for its
+    failure probability, the sum of the base-field terms and the extension-field
+    term. The good-event probability is `1 − ε`. No closed form is stated: a single
+    factor `(degree · number of checks) / |F^D|` drops the base-field terms and
+    understates `ε`. `ε` is independent of `friQueryBits` and of grinding, and it
+    is not itself the `Prop`.
+
+    Discharging this is a concrete bound that states the base-field terms and the
+    extension-field term separately. -/
 axiom algebraic_sampling (perm : St p → St p) (r : Recursive p) (pis : List (ZMod p)) :
     LowDegreeOpenings perm r pis → IdenticalConstraints perm r pis
 
