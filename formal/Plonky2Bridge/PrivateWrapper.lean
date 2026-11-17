@@ -12,6 +12,7 @@
 -/
 import Plonky2Bridge.Generated.Wrapper2
 import Plonky2Bridge.Generated.Wrapper4
+import Plonky2Bridge.Generated.Wrapper8
 
 namespace Plonky2Bridge
 
@@ -20,5 +21,9 @@ alias private_batch_end_to_end_wired := Wrapper2.end_to_end_wired
 
 /-- `private_batch_end_to_end` on the `n = 4` wiring (`Wrapper4.end_to_end_wired`). -/
 alias private_batch_end_to_end_wired_n4 := Wrapper4.end_to_end_wired
+
+/-- `private_batch_end_to_end` on the production wiring: 8 leaves and 32 exit slots
+    (`Wrapper8.end_to_end_wired`). -/
+alias private_batch_end_to_end_wired_production := Wrapper8.end_to_end_wired
 
 end Plonky2Bridge

@@ -8,18 +8,19 @@
 
 use constraint_exporter::circuit::GateKind;
 use constraint_exporter::gadget::{Fact, FACT_GROUP};
-use constraint_exporter::public_wrapper::{generate_public_wrapper_bridge_lean, Shape};
+use constraint_exporter::public_wrapper::{generate_public_wrapper_bridge_modules, Shape};
 use constraint_exporter::trace::{
-    assert_vendored_trace_matches_pinned, generate_public_batch_wrapper_lean, load, traces_dir,
+    assert_vendored_trace_matches_pinned, generate_public_batch_wrapper_modules, load, traces_dir,
 };
 use plonky2::field::types::PrimeField64;
 
-const SIZES: [usize; 2] = [2, 4];
-/// The inner private-batch shape the vendored traces were recorded against: `N = 2` leaves
-/// and `M = 2` exit slots.
-const LEAVES: usize = 2;
-const SLOTS: usize = 2;
-const INNER_PI_LEN: usize = 8 + 5 * SLOTS + 4 * LEAVES;
+/// Recorded `(n_inner, leaves, exit slots)`. `n_inner = 89` is the production public
+/// batch, over the production private batch (`8` leaves, `32` exit slots).
+const SIZES: [(usize, usize, usize); 3] = [(2, 2, 2), (4, 2, 2), (89, 8, 32)];
+
+fn inner_pi_len(leaves: usize, slots: usize) -> usize {
+    8 + 5 * slots + 4 * leaves
+}
 
 fn trace_name(n: usize) -> String {
     format!("public_batch_wrapper_n{n}.json")
@@ -35,14 +36,14 @@ fn wrapper(n: usize) -> constraint_exporter::trace::LoadedTrace {
 /// `lake build`, where a missing or differing file fails.
 #[test]
 fn vendored_trace_matches_pinned_package() {
-    for n in SIZES {
+    for (n, _, _) in SIZES {
         assert_vendored_trace_matches_pinned(&trace_name(n));
     }
 }
 
 #[test]
 fn wrapper_trace_shape() {
-    for n in SIZES {
+    for (n, leaves, slots) in SIZES {
         let t = wrapper(n);
         assert_eq!(t.circuit, format!("public_batch_wrapper_n{n}"));
         // The wrapper is pure boolean/select logic: no hashes, no range checks.
@@ -51,8 +52,8 @@ fn wrapper_trace_shape() {
             .rows
             .iter()
             .all(|r| r.0 == GateKind::Arithmetic { num_ops: 20 }));
-        let slots = SLOTS;
-        let nulls = LEAVES;
+        let nulls = leaves;
+        let pi_len = inner_pi_len(leaves, slots);
         // 12 header felts + n · slots · 5 limbs + n · nulls · 4 limbs.
         assert_eq!(t.ex.public_inputs.len(), 12 + n * slots * 5 + n * nulls * 4);
         let named: Vec<(&str, usize)> =
@@ -60,9 +61,8 @@ fn wrapper_trace_shape() {
                 .iter()
                 .map(|(n, v)| (n.as_str(), v.len()))
                 .collect();
-        let mut expected: Vec<(String, usize)> = (0..n)
-            .map(|i| (format!("inner_pis_{i}"), INNER_PI_LEN))
-            .collect();
+        let mut expected: Vec<(String, usize)> =
+            (0..n).map(|i| (format!("inner_pis_{i}"), pi_len)).collect();
         expected.push(("aggregator_address".into(), 4));
         assert_eq!(
             named,
@@ -89,12 +89,12 @@ fn wrapper_trace_shape() {
         assert!(t.calls.len() > FACT_GROUP, "decode theorem is grouped");
 
         let shape = Shape::read(&t).expect("the trace has the wrapper's call structure");
-        assert_eq!((shape.n, shape.leaves), (n, LEAVES));
+        assert_eq!((shape.n, shape.leaves), (n, leaves));
         assert_eq!(
             (shape.slots_per_inner, shape.nulls_per_inner),
             (slots, nulls)
         );
-        assert_eq!(shape.pi_len, INNER_PI_LEN);
+        assert_eq!(shape.pi_len, pi_len);
     }
 }
 
@@ -124,7 +124,7 @@ fn shape_rejects_perturbed_traces() {
             .unwrap()
             .0
     };
-    let (kslots, ktot) = (constant(SLOTS as u64), constant((2 * SLOTS) as u64));
+    let (kslots, ktot) = (constant(2), constant(4));
     if let Fact::Connect { x, y } = total.calls[0].fact {
         assert_eq!(y, kslots);
         total.calls[0].fact = Fact::Connect { x, y: ktot };
@@ -202,35 +202,57 @@ fn shape_rejects_perturbed_traces() {
 
 #[test]
 fn wrapper_lean_is_current() {
-    for n in SIZES {
-        let decode_path = format!(
-            "{}/../formal/Plonky2Spec/Generated/PublicBatchWrapper{n}.lean",
-            env!("CARGO_MANIFEST_DIR")
-        );
-        let on_disk = std::fs::read_to_string(&decode_path).unwrap();
-        let generated = generate_public_batch_wrapper_lean(n).unwrap();
-        assert_eq!(on_disk, generated, "run export-constraints ({decode_path})");
+    for (n, leaves, slots) in SIZES {
+        let generated_modules = generate_public_batch_wrapper_modules(n).unwrap();
+        let generated = generated_modules
+            .iter()
+            .map(|m| m.contents.as_str())
+            .collect::<Vec<_>>()
+            .join("\n");
+        for module in &generated_modules {
+            let decode_path = format!(
+                "{}/../formal/Plonky2Spec/Generated/{}",
+                env!("CARGO_MANIFEST_DIR"),
+                module.relative
+            );
+            let on_disk = std::fs::read_to_string(&decode_path).unwrap_or_default();
+            assert_eq!(
+                on_disk, module.contents,
+                "run export-constraints ({decode_path})"
+            );
+        }
         assert!(generated.contains(&format!(
             "theorem publicBatchWrapper{n}_decode (a : Assignment p) \
              (h : Satisfies (publicBatchWrapper{n} p) a) :"
         )));
         assert!(!generated.contains("Poseidon2Rows"));
 
-        let bridge_path = format!(
-            "{}/../formal/Plonky2Bridge/Generated/PublicWrapper{n}.lean",
-            env!("CARGO_MANIFEST_DIR")
-        );
-        let on_disk = std::fs::read_to_string(&bridge_path).unwrap();
-        let generated = generate_public_wrapper_bridge_lean(n).unwrap();
-        assert_eq!(on_disk, generated, "run export-constraints ({bridge_path})");
+        let bridge_modules = generate_public_wrapper_bridge_modules(n).unwrap();
+        for module in &bridge_modules {
+            let bridge_path = format!(
+                "{}/../formal/Plonky2Bridge/Generated/{}",
+                env!("CARGO_MANIFEST_DIR"),
+                module.relative
+            );
+            let on_disk = std::fs::read_to_string(&bridge_path).unwrap_or_default();
+            assert_eq!(
+                on_disk, module.contents,
+                "run export-constraints ({bridge_path})"
+            );
+        }
+        let generated = bridge_modules
+            .iter()
+            .map(|m| m.contents.as_str())
+            .collect::<Vec<_>>()
+            .join("\n");
         assert!(generated.contains(&format!("namespace Plonky2Bridge.PublicWrapper{n}\n")));
         assert!(generated.contains("RPublicBatch ro (inners a) (addr a) (out a) := by"));
         assert!(generated.contains("theorem end_to_end_wired"));
         assert!(generated.contains(&format!(
-            "(hacc : ∀ i : Fin {n}, ProofAccepted perm Wrapper{LEAVES}.tree ((List.ofFn (innerPis i)).map a))"
+            "(hacc : ∀ i : Fin {n}, ProofAccepted perm Wrapper{leaves}.tree ((List.ofFn (innerPis i)).map a))"
         )));
         assert!(generated.contains(&format!(
-            "refine public_batch_val ro (rows a) (k := {SLOTS})"
+            "refine public_batch_val ro (rows a) (k := {slots})"
         )));
         // Each inner's slot-count header is read back from its `connect` to the constant.
         assert_eq!(
@@ -244,18 +266,13 @@ fn wrapper_lean_is_current() {
         )));
         assert_eq!(
             generated
-                .matches(&format!("(Wrapper{LEAVES}.tree, List.ofFn (innerPis "))
+                .matches(&format!("(Wrapper{leaves}.tree, List.ofFn (innerPis "))
                 .count(),
             n
         );
-        assert_eq!(
-            generated
-                .matches(&format!(
-                    "exact Wrapper{LEAVES}.accepted_sound perm hpg (hacc "
-                ))
-                .count(),
-            n
-        );
+        assert!(generated.contains(&format!(
+            "exact Wrapper{leaves}.accepted_sound perm hpg (hacc i)"
+        )));
         assert!(!generated.contains("private_batch_proof_sound"));
         assert!(!generated.contains("PrivateBatchProofAccepted"));
     }

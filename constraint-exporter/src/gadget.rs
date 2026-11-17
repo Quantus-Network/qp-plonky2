@@ -901,6 +901,8 @@ fn chunk_mem(n: usize, k: usize) -> String {
 pub const FACT_GROUP: usize = 32;
 /// Heartbeat budget for decode theorems with more than one fact group.
 const LARGE_HEARTBEATS: usize = 4_000_000;
+/// Heartbeat budget for a production-sized decode (tens of thousands of facts).
+const HUGE_HEARTBEATS: usize = 20_000_000;
 
 /// Render `theorem <name>_decode (a) (h : Satisfies (<name> p) a) : fact₁ ∧ …`, assembled
 /// from one lemma `<name>_f<k>` per recorded call. Each lemma destructures only the copy
@@ -1124,7 +1126,9 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
 
     // The conjunction, grouped `FACT_GROUP` to a parenthesised conjunction: a flat `∧`
     // chain hundreds deep is superlinear to elaborate.
-    if facts.len() > FACT_GROUP {
+    if facts.len() > 4_000 {
+        let _ = writeln!(out, "set_option maxHeartbeats {HUGE_HEARTBEATS} in");
+    } else if facts.len() > FACT_GROUP {
         let _ = writeln!(out, "set_option maxHeartbeats {LARGE_HEARTBEATS} in");
     }
     let _ = writeln!(out, "{doc}");

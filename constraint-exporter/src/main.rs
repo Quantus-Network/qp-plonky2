@@ -21,10 +21,13 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-/// The private-batch wrapper sizes with recorded traces.
-const PRIVATE_WRAPPER_SIZES: [usize; 2] = [2, 4];
-/// The public-batch wrapper sizes with recorded traces.
-const PUBLIC_WRAPPER_SIZES: [usize; 2] = [2, 4];
+/// The private-batch wrapper leaf counts with recorded traces. `n = 2` and `4` are
+/// recorded with as many exit slots as leaves; `n = 8` is the production shape
+/// (`NUM_EXIT_SLOTS = 32`), read off the trace.
+const PRIVATE_WRAPPER_SIZES: [usize; 3] = [2, 4, 8];
+/// The public-batch wrapper arities with recorded traces. `n = 2` and `4` are over
+/// 2-leaf private batches; `n = 89` is the production arity over the `n = 8` one.
+const PUBLIC_WRAPPER_SIZES: [usize; 3] = [2, 4, 89];
 
 fn formal_dir() -> PathBuf {
     // <repo>/qp-plonky2/constraint-exporter -> <repo>/qp-plonky2/formal
@@ -43,6 +46,9 @@ fn bridge_generated_dir() -> PathBuf {
 
 fn write(dir: &Path, name: &str, contents: &str) -> std::io::Result<()> {
     let path = dir.join(name);
+    if let Some(parent) = path.parent() {
+        fs::create_dir_all(parent)?;
+    }
     fs::write(&path, contents)?;
     eprintln!("wrote {} ({} bytes)", path.display(), contents.len());
     Ok(())
@@ -72,9 +78,9 @@ fn main() -> std::io::Result<()> {
         constraint_exporter::leaf::generate_leaf_bridge_lean().map_err(std::io::Error::other)?;
     let mut public_wrappers = Vec::new();
     for n in PUBLIC_WRAPPER_SIZES {
-        let decode = constraint_exporter::trace::generate_public_batch_wrapper_lean(n)
+        let decode = constraint_exporter::trace::generate_public_batch_wrapper_modules(n)
             .map_err(std::io::Error::other)?;
-        let bridge = constraint_exporter::public_wrapper::generate_public_wrapper_bridge_lean(n)
+        let bridge = constraint_exporter::public_wrapper::generate_public_wrapper_bridge_modules(n)
             .map_err(std::io::Error::other)?;
         public_wrappers.push((n, decode, bridge));
     }
@@ -91,9 +97,37 @@ fn main() -> std::io::Result<()> {
         write(&dir, &format!("PrivateBatchWrapper{n}.lean"), decode)?;
         write(&bridge_dir, &format!("Wrapper{n}.lean"), bridge)?;
     }
-    for (n, decode, bridge) in &public_wrappers {
-        write(&dir, &format!("PublicBatchWrapper{n}.lean"), decode)?;
-        write(&bridge_dir, &format!("PublicWrapper{n}.lean"), bridge)?;
+    for (n, modules, bridge) in &public_wrappers {
+        let sub = dir.join(format!("PublicBatchWrapper{n}"));
+        if sub.is_dir() {
+            for entry in fs::read_dir(&sub)? {
+                let entry = entry?;
+                let name = entry.file_name();
+                let name = name.to_string_lossy();
+                let relative = format!("PublicBatchWrapper{n}/{name}");
+                if !modules.iter().any(|m| m.relative == relative) {
+                    fs::remove_file(entry.path())?;
+                }
+            }
+        }
+        for module in modules {
+            write(&dir, &module.relative, &module.contents)?;
+        }
+        let bridge_sub = bridge_dir.join(format!("PublicWrapper{n}"));
+        if bridge_sub.is_dir() {
+            for entry in fs::read_dir(&bridge_sub)? {
+                let entry = entry?;
+                let name = entry.file_name();
+                let name = name.to_string_lossy();
+                let relative = format!("PublicWrapper{n}/{name}");
+                if !bridge.iter().any(|m| m.relative == relative) {
+                    fs::remove_file(entry.path())?;
+                }
+            }
+        }
+        for module in bridge {
+            write(&bridge_dir, &module.relative, &module.contents)?;
+        }
     }
     write(&dir, "LeafCircuit.lean", &leaf)?;
     write(&bridge_dir, "Leaf.lean", &leaf_bridge)?;
@@ -115,11 +149,31 @@ fn main() -> std::io::Result<()> {
         println!("\n-- ===== Plonky2Bridge/Generated/Wrapper{n}.lean =====");
         print!("{bridge}");
     }
-    for (n, decode, bridge) in &public_wrappers {
-        println!("\n-- ===== PublicBatchWrapper{n}.lean =====");
-        print!("{decode}");
-        println!("\n-- ===== Plonky2Bridge/Generated/PublicWrapper{n}.lean =====");
-        print!("{bridge}");
+    for (n, modules, bridge) in &public_wrappers {
+        println!(
+            "\n-- ===== PublicBatchWrapper{n} ({} files) =====",
+            modules.len()
+        );
+        for module in modules {
+            if module.contents.len() > 100_000 {
+                println!("-- {} ({} bytes)", module.relative, module.contents.len());
+            } else {
+                println!("-- ===== {} =====", module.relative);
+                print!("{}", module.contents);
+            }
+        }
+        println!(
+            "\n-- ===== Plonky2Bridge/Generated/PublicWrapper{n} ({} files) =====",
+            bridge.len()
+        );
+        for module in bridge {
+            if module.contents.len() > 100_000 {
+                println!("-- {} ({} bytes)", module.relative, module.contents.len());
+            } else {
+                println!("-- ===== {} =====", module.relative);
+                print!("{}", module.contents);
+            }
+        }
     }
     println!("\n-- ===== LeafCircuit.lean =====");
     print!("{leaf}");
