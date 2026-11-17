@@ -2502,8 +2502,8 @@ def tree : Recursive p := .node "leaf_circuit" (leafCircuit p) []
 omit [Fact p.Prime] in
 theorem tree_verifiers : (tree (p := p)).verifiers = leafCircuit.verifiers := rfl
 
-/-- **An accepted leaf proof attests `Rleaf`.** Through the one trusted axiom
-    `proof_sound`: the accepted public inputs are those of an assignment satisfying the
+/-- **An accepted leaf proof attests `Rleaf`.** Through `proof_sound`
+    (`poseidon_transcript_oracle`, `fri_proximity_gap`, `verifier_algebra`): the accepted public inputs are those of an assignment satisfying the
     leaf's exported wiring, hence (`sound`) an `Rleaf` instance. This is what
     `WormholeSpec.leaf_proof_sound` used to assume. -/
 theorem accepted_sound (perm : St p → St p) (hpg : goldilocks ≤ p) {ts : Fin 11 → Target}

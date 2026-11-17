@@ -14,7 +14,7 @@ circuit constraints actually enforce* — not merely asserted.
       ⇧  ===  THIS PACKAGE: the bridge  ===
 (2) Circuit constraints     ← gadget semantics here + a faithful model of each circuit()
       ⇧
-(1) Proof-system soundness  ← FRI + Plonk arithmetization + Fiat–Shamir + recursion  (TRUSTED, see §7)
+(1) Proof-system soundness  ← random oracle + FRI proximity gaps + verifier algebra  (see §7)
 ```
 
 - **(1)** says "a valid proof ⟹ *some* witness satisfies *this* constraint system."
@@ -155,17 +155,27 @@ Poseidon2 instantiates `RandomOracle.H` (its felt outputs are `digest.val`s).
 
 ## 7. Trusted assumptions (the seam to layer 1)
 
-Captured as explicit Lean `axiom`s in a dedicated `Trusted.lean`, mirroring how
-`RandomOracle` makes collision-resistance explicit:
+`Plonky2Bridge/Trusted.lean` is the only place an `axiom` is declared. `proof_sound`
+is a theorem, the composition of three declarations (Step 12):
 
-- **`verify_proof` soundness:** `verify_proof(vk, x, π)` constrains that `π` is a
-  valid proof of statement `x` under `vk`; given (1), a satisfied recursion gadget
-  implies the child's public-input relation holds.
-- **Proof-system soundness (1):** FRI query soundness, Plonk/AIR arithmetization,
-  Fiat–Shamir (and **QROM** Fiat–Shamir for the post-quantum claims), recursion.
+- **`poseidon_transcript_oracle`** — the proof-system Poseidon
+  (`PoseidonGoldilocksConfig`) is a random oracle on the verifier transcript
+  (QROM for the post-quantum reading). Merkle binding is a corollary. This is not
+  collision resistance, and it is not the wormhole Poseidon2.
+- **`fri_proximity_gap`** — FRI proximity gaps at the circuit's FRI parameters.
+  For `standard_recursion_config` the ethSTARK accounting is 100 bits
+  (`28 * 3 + 16`); the error is statistical and stays even if both hashes are ideal.
+- **`verifier_algebra`** — the unproved mathematics, not a cryptographic assumption:
+  low-degree openings that passed the transcript checks are a satisfying assignment
+  of the exported circuit (`build`, vanishing, permutation, native and recursive
+  verifier correspondence, Poseidon2 rows).
 
-Each axiom is documented with what it would take to discharge it, so the
-trusted base is auditable and individually replaceable later.
+Poseidon2 collision resistance is not one of these. It stays the `*_or_collision`
+reduction against `spongeRO`. A break of `verify` does not produce a collision, so
+`proof_sound` is not `Satisfies ∨ Collision`.
+
+Each declaration says what would discharge it. Capstones still call `proof_sound`;
+their axiom footprint is exactly these three.
 
 ## 8. Execution plan (commit checkpoint between each step)
 
@@ -1049,6 +1059,15 @@ switch network is gone from the circuit. What changed here, and why:
   `WORMHOLE_TRACES=formal/traces` against the freshly regenerated traces would close that gap
   at the source.
 
+### Step 12 — Split `proof_sound` into the layer-1 assumptions  ✅ DONE
+`proof_sound` is no longer an axiom. `Trusted.lean` declares the two cryptographic
+assumptions (`poseidon_transcript_oracle`, `fri_proximity_gap`) and the mathematical
+obligation `verifier_algebra`, and `proof_sound` is the theorem that composes them in
+that order. Poseidon2 collision resistance stays outside this file. The capstone
+statements are unchanged; `ci/AxiomsCheck.lean` now expects the three declarations
+instead of a single `proof_sound` axiom. `friConjecturedBits standardRecursionFri = 100`
+pins the in-repo ethSTARK accounting.
+
 ## 9. Definition of done
 
 `R_leaf` fully bridged (T0–T3), `R_L0`/`R_L1` bridged modulo the enumerated
@@ -1067,4 +1086,5 @@ and `n_inner = 2, 4`, bridges generated from the traces):
 `private_batch_end_to_end_wired{,_n4}` and `public_batch_end_to_end_wired{,_n4}` are the
 capstones stated on the exported wiring, with no decode hypotheses; Step 9 closes it for
 the leaf: `leaf_wired` is `Rleaf` on the exported leaf wiring, standard-axioms-only)
-and (b) the layer-1 assumptions (§7) — both explicit.
+and (b) the layer-1 assumptions (§7) — `poseidon_transcript_oracle`, `fri_proximity_gap`,
+and the unproved `verifier_algebra`, composed as `proof_sound`.

@@ -41,8 +41,10 @@
   (`RPrivateBatch`, `private_batch_bridge`, `RPrivateBatch_settlement_le_input`,
   `RPrivateBatch_settles_distinct_spends`, …). Those objects are stated and proved in
   qp-zk-circuits/formal at the commit pinned in `formal/lakefile.toml` — this package does
-  not restate or re-verify them. The one trusted axiom of the whole stack, proof-system
-  soundness on the exported recursion tree, lives in `Plonky2Bridge/Trusted.lean`. What
+  not restate or re-verify them. The trusted base of the whole stack, proof-system
+  soundness on the exported recursion tree, lives in `Plonky2Bridge/Trusted.lean`
+  (`poseidon_transcript_oracle`, `fri_proximity_gap`, `verifier_algebra`, composed as
+  `proof_sound`). What
   *is* here: `spongeRO`, the `.val` seam, and the gadget-level bridges (nullifier selection,
   uniqueness loop, fee comparator, public-batch forwarding masks) into
   `RPrivateBatch (spongeRO perm) …`.
@@ -459,8 +461,8 @@ theorem private_batch_val (perm : St p → St p) (hpg : WormholeSpec.goldilocks 
   checks). The exit amounts and the fee rate are batch witnesses; their bounds are the
   wrapper's own range checks (`hslots`, `FeeCheck.feeRange`), not anything upstream. The
   children's `Rleaf` itself is the hypothesis `hleaf`; on the exported wiring it is
-  discharged from the accepted leaf proofs by `LeafCircuit.accepted_sound` through the one
-  trusted axiom `Plonky2Bridge.proof_sound` (`Wrapper{2,4}.end_to_end_wired`).
+  discharged from the accepted leaf proofs by `LeafCircuit.accepted_sound` through
+  `Plonky2Bridge.proof_sound` (`Wrapper{2,4}.end_to_end_wired`).
 
   Two things sit *outside* the Lean hypotheses, by design:
   * **Fidelity to the Rust** — that `spongeRO`/the wrapper gadgets *are* the deployed circuit —
