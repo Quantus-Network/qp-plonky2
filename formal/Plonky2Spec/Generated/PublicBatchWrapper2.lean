@@ -804,7 +804,7 @@ def publicBatchWrapper2.copies21 : List (Target × Target) := [
     (.wire 12 27, .wire 12 30)
   ]
 
-/-- The public-batch aggregation wrapper at `n_inner = 2` over `2`-leaf private batches, without the inner verifiers (`wormhole/aggregator/src/public_batch/circuit/circuit_logic.rs`): inner public inputs `inner_pis_0..1`, the `aggregator_address` witness, and the aggregated public inputs. -/
+/-- The public-batch aggregation wrapper at `n_inner = 2` over the inner private-batch shape named by its recursion gadgets, without the inner verifiers (`wormhole/aggregator/src/public_batch/circuit/circuit_logic.rs`): inner public inputs `inner_pis_0..1`, the `aggregator_address` witness, and the aggregated public inputs. -/
 def publicBatchWrapper2 (p : ℕ) : Circuit p where
   rows := [
     ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 0

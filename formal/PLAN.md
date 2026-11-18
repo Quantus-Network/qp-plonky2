@@ -852,7 +852,10 @@ it. Pieces:
   (~3 min), its bridge checks in ~16 s. `Plonky2Bridge/PublicWrapper.lean` aliases the
   capstones (`public_batch_end_to_end_wired`, `public_batch_end_to_end_wired_n4`) for the
   axiom gate; `wrapper_lean_is_current` covers all four generated files and CI diffs
-  `Plonky2Bridge/Generated/` too.
+  `Plonky2Bridge/Generated/` too. The production trace (`n_inner = 89` over 8-leaf,
+  32-slot private batches, 20114 calls) is the same generator: its decode is split across
+  `PublicBatchWrapper89/` so each module stays under the elaborator budget, and
+  `public_batch_end_to_end_wired_production` aliases `PublicWrapper89.end_to_end_wired`.
 - **8e — generated bridges, private wrapper (done).** `constraint-exporter/src/private_wrapper.rs`
   does the same for `privateBatchWrapper{N}`. `Shape::read` walks the recorded calls in the
   order `build_private_batch_constraints` emits them — per-leaf dummy checks, the first-real
@@ -876,6 +879,8 @@ it. Pieces:
   #190) both go through unchanged: the `N = 4` decode has 1178 facts (~4.5 min), its bridge
   checks in ~3.5 min; `N = 2` in ~35 s. `Plonky2Bridge/PrivateWrapper.lean` aliases
   `private_batch_end_to_end_wired` / `private_batch_end_to_end_wired_n4` for the axiom gate.
+  The production trace (`n = 8` leaves, 32 exit slots) is the same generator;
+  `private_batch_end_to_end_wired_production` aliases `Wrapper8.end_to_end_wired`.
 
 ### Step 9 — Wiring-level decode of the leaf circuit: `circuit ⟹ Rleaf`  ✅ DONE
 
@@ -1131,9 +1136,11 @@ the same way (`public_batch_end_to_end`, Step 7a). The remaining gap is exactly
 (a) the residual **wiring/copy-constraint** model fidelity (§3 — gate constraints
 are exporter-backed and the wrapper *logic* is bridged, but the public-input
 **decode** that feeds the bridges its `hd`/`hnull`/`hexits`/… wire assignments
-was hand-modeled; Step 8 closes it for both wrappers at every recorded size (`n = 2, 4`
-and `n_inner = 2, 4`, bridges generated from the traces):
-`private_batch_end_to_end_wired{,_n4}` and `public_batch_end_to_end_wired{,_n4}` are the
+was hand-modeled; Step 8 closes it for both wrappers at every recorded size (`n = 2, 4, 8`
+and `n_inner = 2, 4, 89`, bridges generated from the traces; 8 leaves / 32 slots and
+89 inners are the production shapes):
+`private_batch_end_to_end_wired{,_n4,_production}` and
+`public_batch_end_to_end_wired{,_n4,_production}` are the
 capstones stated on the exported wiring, with no decode hypotheses; Step 9 closes it for
 the leaf: `leaf_wired` is `Rleaf` on the exported leaf wiring, standard-axioms-only)
 and (b) the layer-1 assumptions (§7) — `poseidon_transcript_oracle`, `fri_proximity_gap`,

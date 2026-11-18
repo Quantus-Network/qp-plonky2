@@ -21,10 +21,13 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-/// The private-batch wrapper sizes with recorded traces.
-const PRIVATE_WRAPPER_SIZES: [usize; 2] = [2, 4];
-/// The public-batch wrapper sizes with recorded traces.
-const PUBLIC_WRAPPER_SIZES: [usize; 2] = [2, 4];
+/// The private-batch wrapper leaf counts with recorded traces. `n = 2` and `4` are
+/// recorded with as many exit slots as leaves; `n = 8` is the production shape
+/// (`NUM_EXIT_SLOTS = 32`), read off the trace.
+const PRIVATE_WRAPPER_SIZES: [usize; 3] = [2, 4, 8];
+/// The public-batch wrapper arities with recorded traces. `n = 2` and `4` are over
+/// 2-leaf private batches; `n = 89` is the production arity over the `n = 8` one.
+const PUBLIC_WRAPPER_SIZES: [usize; 3] = [2, 4, 89];
 
 fn formal_dir() -> PathBuf {
     // <repo>/qp-plonky2/constraint-exporter -> <repo>/qp-plonky2/formal
@@ -41,8 +44,53 @@ fn bridge_generated_dir() -> PathBuf {
     formal_dir().join("Plonky2Bridge").join("Generated")
 }
 
+/// Write modules for one public-batch wrapper.
+///
+/// A split wrapper has pieces under `{dir_name}/` plus a root file next to that
+/// directory. Pieces are owned through `{dir_name}/.generated-files`: only a
+/// basename on the previous manifest is eligible for deletion. Files outside
+/// the directory, such as `PublicBatchWrapper2.lean`, are written in place.
+fn write_split(parent: &Path, dir_name: &str, modules: &[(&str, &str)]) -> std::io::Result<()> {
+    let prefix = format!("{dir_name}/");
+    let mut inside = Vec::new();
+    for &(relative, contents) in modules {
+        if let Some(name) = relative.strip_prefix(&prefix) {
+            inside.push((name, contents));
+        } else {
+            write(parent, relative, contents)?;
+        }
+    }
+    if !inside.is_empty() {
+        let sub = parent.join(dir_name);
+        let removed = constraint_exporter::lean_split::sync_owned_files(&sub, &inside)?;
+        for name in removed {
+            eprintln!("removed {}", sub.join(name).display());
+        }
+        for (name, contents) in &inside {
+            eprintln!(
+                "wrote {} ({} bytes)",
+                sub.join(name).display(),
+                contents.len()
+            );
+        }
+    }
+    Ok(())
+}
+
+fn print_exported(wrapper_arity: usize, relative: &str, contents: &str) {
+    if constraint_exporter::lean_split::stdout_includes_source(wrapper_arity, contents.len()) {
+        println!("-- ===== {relative} =====");
+        print!("{contents}");
+    } else {
+        println!("-- {relative} ({} bytes)", contents.len());
+    }
+}
+
 fn write(dir: &Path, name: &str, contents: &str) -> std::io::Result<()> {
     let path = dir.join(name);
+    if let Some(parent) = path.parent() {
+        fs::create_dir_all(parent)?;
+    }
     fs::write(&path, contents)?;
     eprintln!("wrote {} ({} bytes)", path.display(), contents.len());
     Ok(())
@@ -72,9 +120,9 @@ fn main() -> std::io::Result<()> {
         constraint_exporter::leaf::generate_leaf_bridge_lean().map_err(std::io::Error::other)?;
     let mut public_wrappers = Vec::new();
     for n in PUBLIC_WRAPPER_SIZES {
-        let decode = constraint_exporter::trace::generate_public_batch_wrapper_lean(n)
+        let decode = constraint_exporter::trace::generate_public_batch_wrapper_modules(n)
             .map_err(std::io::Error::other)?;
-        let bridge = constraint_exporter::public_wrapper::generate_public_wrapper_bridge_lean(n)
+        let bridge = constraint_exporter::public_wrapper::generate_public_wrapper_bridge_modules(n)
             .map_err(std::io::Error::other)?;
         public_wrappers.push((n, decode, bridge));
     }
@@ -91,9 +139,23 @@ fn main() -> std::io::Result<()> {
         write(&dir, &format!("PrivateBatchWrapper{n}.lean"), decode)?;
         write(&bridge_dir, &format!("Wrapper{n}.lean"), bridge)?;
     }
-    for (n, decode, bridge) in &public_wrappers {
-        write(&dir, &format!("PublicBatchWrapper{n}.lean"), decode)?;
-        write(&bridge_dir, &format!("PublicWrapper{n}.lean"), bridge)?;
+    for (n, modules, bridge) in &public_wrappers {
+        write_split(
+            &dir,
+            &format!("PublicBatchWrapper{n}"),
+            &modules
+                .iter()
+                .map(|m| (m.relative.as_str(), m.contents.as_str()))
+                .collect::<Vec<_>>(),
+        )?;
+        write_split(
+            &bridge_dir,
+            &format!("PublicWrapper{n}"),
+            &bridge
+                .iter()
+                .map(|m| (m.relative.as_str(), m.contents.as_str()))
+                .collect::<Vec<_>>(),
+        )?;
     }
     write(&dir, "LeafCircuit.lean", &leaf)?;
     write(&bridge_dir, "Leaf.lean", &leaf_bridge)?;
@@ -115,11 +177,21 @@ fn main() -> std::io::Result<()> {
         println!("\n-- ===== Plonky2Bridge/Generated/Wrapper{n}.lean =====");
         print!("{bridge}");
     }
-    for (n, decode, bridge) in &public_wrappers {
-        println!("\n-- ===== PublicBatchWrapper{n}.lean =====");
-        print!("{decode}");
-        println!("\n-- ===== Plonky2Bridge/Generated/PublicWrapper{n}.lean =====");
-        print!("{bridge}");
+    for (n, modules, bridge) in &public_wrappers {
+        println!(
+            "\n-- ===== PublicBatchWrapper{n} ({} files) =====",
+            modules.len()
+        );
+        for module in modules {
+            print_exported(*n, &module.relative, &module.contents);
+        }
+        println!(
+            "\n-- ===== Plonky2Bridge/Generated/PublicWrapper{n} ({} files) =====",
+            bridge.len()
+        );
+        for module in bridge {
+            print_exported(*n, &module.relative, &module.contents);
+        }
     }
     println!("\n-- ===== LeafCircuit.lean =====");
     print!("{leaf}");
