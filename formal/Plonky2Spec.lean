@@ -98,6 +98,8 @@ import Plonky2Spec.Generated.GadgetEdgeCasesCircuit
 import Plonky2Spec.WiringSponge
 import Plonky2Spec.Generated.PrivateBatchWrapper2
 import Plonky2Spec.Generated.PrivateBatchWrapper4
+import Plonky2Spec.Generated.PrivateBatchWrapper8
 import Plonky2Spec.Generated.PublicBatchWrapper2
 import Plonky2Spec.Generated.PublicBatchWrapper4
+import Plonky2Spec.Generated.PublicBatchWrapper89
 import Plonky2Spec.Generated.LeafCircuit

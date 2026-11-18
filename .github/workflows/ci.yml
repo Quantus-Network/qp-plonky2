@@ -113,7 +113,7 @@ jobs:
   formal-spec:
     name: 📐 Formal Spec (Lean)
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
       # Builds the Lean 4 gadget→constraint model under `formal/` (see formal/PLAN.md).
@@ -155,7 +155,7 @@ jobs:
   formal-bridge:
     name: 📐 Formal Bridge (Lean)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
       - name: Prepare Lean toolchain + mathlib cache
@@ -165,7 +165,7 @@ jobs:
           use-mathlib-cache: "true"
       - name: Build Plonky2Bridge (cross-package capstone)
         run: cd formal && lake build Plonky2Bridge
-      # The exporter's `Generated/*Wrapper{2,4}.lean` are produced from the vendored copies of
+      # The exporter's `Generated/*Wrapper*.lean` are produced from the vendored copies of
       # the qp-zk-circuits gadget-call traces in `constraint-exporter/traces/`. The only job
       # with the pinned `wormholeSpec` package on disk is this one (after `lake build`), so
       # this is where vendored == pinned is enforced; `FORMAL_TRACES_STRICT` turns the
@@ -222,15 +222,20 @@ jobs:
           expect Plonky2Bridge.public_batch_end_to_end "${base[@]}"
           expect Plonky2Bridge.private_batch_end_to_end_wired "${base[@]}" "${trusted[@]}"
           expect Plonky2Bridge.private_batch_end_to_end_wired_n4 "${base[@]}" "${trusted[@]}"
+          expect Plonky2Bridge.private_batch_end_to_end_wired_production "${base[@]}" "${trusted[@]}"
           expect Plonky2Bridge.public_batch_end_to_end_wired "${base[@]}" "${trusted[@]}"
           expect Plonky2Bridge.public_batch_end_to_end_wired_n4 "${base[@]}" "${trusted[@]}"
+          expect Plonky2Bridge.public_batch_end_to_end_wired_production "${base[@]}" "${trusted[@]}"
           expect Plonky2Bridge.LeafCircuit.accepted_sound "${base[@]}" "${trusted[@]}"
           expect Plonky2Bridge.Wrapper2.accepted_sound "${base[@]}" "${trusted[@]}"
           expect Plonky2Bridge.Wrapper4.accepted_sound "${base[@]}" "${trusted[@]}"
+          expect Plonky2Bridge.Wrapper8.accepted_sound "${base[@]}" "${trusted[@]}"
           expect Plonky2Bridge.Wrapper2.sound "${base[@]}"
           expect Plonky2Bridge.Wrapper4.sound "${base[@]}"
+          expect Plonky2Bridge.Wrapper8.sound "${base[@]}"
           expect Plonky2Bridge.PublicWrapper2.sound "${base[@]}"
           expect Plonky2Bridge.PublicWrapper4.sound "${base[@]}"
+          expect Plonky2Bridge.PublicWrapper89.sound "${base[@]}"
           expect Plonky2Bridge.leaf_wired "${base[@]}"
           expect Plonky2Bridge.LeafCircuit.sound "${base[@]}"
 
