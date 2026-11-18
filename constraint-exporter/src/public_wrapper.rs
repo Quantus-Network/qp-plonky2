@@ -643,8 +643,8 @@ pub fn render(shape: &Shape) -> String {
     w!("  reads the inner outputs and the aggregated output off the named targets and public inputs");
     w!("  and discharges every hypothesis of `public_batch_val` (`Plonky2Bridge/PublicBatch.lean`),");
     w!("  so `public_batch_end_to_end` is restated on the wiring (`end_to_end_wired`), with each");
-    w!("  inner's `RPrivateBatch` recovered from its accepted proof through the one trusted axiom");
-    w!("  `proof_sound` and the private-batch wrapper bridge (Step 10).");
+    w!("  inner's `RPrivateBatch` recovered from its accepted proof through `proof_sound`");
+    w!("  and the private-batch wrapper bridge (Step 10).");
     w!("-/");
     w!("import Plonky2Bridge.PublicBatch");
     w!("import Plonky2Bridge.Generated.Wrapper{leaves}");
@@ -1157,7 +1157,7 @@ pub fn render(shape: &Shape) -> String {
     w!("    public-batch wrapper whose recursion gadgets accepted every inner private-batch proof");
     w!("    (i) satisfies `RPublicBatch`, (ii) has the slot-count header equal to the sum of the");
     w!("    inners' slot counts and (iii) attests every inner's `RPrivateBatch` — through");
-    w!("    `proof_sound`, the only axiom, and the wired wrapper bridges below it. -/");
+    w!("    `proof_sound` and the wired wrapper bridges below it. -/");
     w!("theorem end_to_end_wired (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)");
     w!("    (a : Assignment p) (h : Satisfies ({circuit} p) a)");
     w!("    (hacc : ∀ i : Fin {n}, ProofAccepted perm Wrapper{leaves}.tree ((List.ofFn (innerPis i)).map a)) :");

@@ -341,7 +341,7 @@ theorem public_batch_val (ro : RandomOracle) (rows : List (InnerPair p)) {addr :
     inners satisfies `RPrivateBatch` (i) satisfies `RPublicBatch`, (ii) has the slot-count
     header equal to the sum of the inners' slot counts, and (iii) re-attests every inner's
     `RPrivateBatch`. On the exported wiring the inners' `RPrivateBatch` is discharged from
-    the accepted proofs by `Wrapper{2,4}.accepted_sound` through the one trusted axiom
+    the accepted proofs by `Wrapper{2,4}.accepted_sound` through
     `Plonky2Bridge.proof_sound` (`PublicWrapper{2,4}.end_to_end_wired`); this theorem is
     standard-axioms-only. -/
 theorem public_batch_end_to_end (ro : RandomOracle) (rows : List (InnerPair p)) {addr : Digest}
