@@ -219,7 +219,7 @@ pub trait Witness<F: Field>: WitnessWrite<F> {
         F: RichField + Extendable<D>,
     {
         F::Extension::from_basefield_array(
-            self.get_targets(&et.to_target_array()).try_into().unwrap(),
+            et.to_target_array().map(|target| self.get_target(target)),
         )
     }
 
