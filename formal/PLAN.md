@@ -156,7 +156,7 @@ Poseidon2 instantiates `RandomOracle.H` (its felt outputs are `digest.val`s).
 ## 7. Trusted assumptions (the seam to layer 1)
 
 `Plonky2Bridge/Trusted.lean` is the only place an `axiom` is declared. `proof_sound`
-is a theorem, the composition of four declarations (Step 12):
+is a theorem, the composition of three assumptions and `verifier_algebra` (Steps 12, 13):
 
 - **`poseidon_transcript_oracle`** — the proof-system Poseidon
   (`PoseidonGoldilocksConfig`) is a random oracle on the verifier transcript
@@ -174,16 +174,26 @@ is a theorem, the composition of four declarations (Step 12):
   A single factor of `1/|F^D|` drops the base-field terms. No closed form is stated
   until that bound is derived. The error remains when the hash is ideal and FRI
   proximity is perfect.
-- **`verifier_algebra`** — deterministic given identical constraints: they are a
-  satisfying assignment of the exported circuit (`build`, native and recursive
-  verifier correspondence, Poseidon2 rows).
+- **`verifier_algebra`** — identical constraints are a satisfying assignment of the
+  exported circuit. A theorem since Step 13: `Satisfies` is proved
+  (`Built.Refines.satisfies`), and five obligations remain as declarations:
+  - **`build_refines_export`** — the system the verifier key commits to refines the
+    pre-`build` export.
+  - **`poseidon2_gate_rows`** — a `Poseidon2Gate` row computes `perm`.
+  - **`public_input_wires`** — the witness carries `pis` on the public-input targets.
+    Not deterministic: the identities fix the hash of `pis`, so this rests on the
+    binding of the proof-system hash.
+  - **`child_gadget_satisfied`** — the built system holds each child's `verify_proof`
+    gadget, on the targets the tree names.
+  - **`recursive_verifier_transcript`** — a satisfied gadget is `ProofAccepted`: the
+    recursive verifier implements the `TranscriptAccepted` the native one does.
 
 Poseidon2 collision resistance is not one of these. It stays the `*_or_collision`
 reduction against `spongeRO`. A break of `verify` does not produce a collision, so
 `proof_sound` is not `Satisfies ∨ Collision`.
 
 Each declaration says what would discharge it. Capstones still call `proof_sound`;
-their axiom footprint is exactly these four.
+their axiom footprint is exactly the three assumptions and the five obligations.
 
 ## 8. Execution plan (commit checkpoint between each step)
 
@@ -1081,6 +1091,33 @@ numeric estimate is pinned.
 The capstone statements are unchanged; `ci/AxiomsCheck.lean` expects these four
 declarations.
 
+### Step 13 — `IdenticalConstraints` defined; `Satisfies` proved from it  ✅ DONE
+`IdenticalConstraints` is no longer `opaque`. It says there is a built system `b` that
+the verifier key commits to (`BuildOf`, opaque: `build` is not modelled) and opened
+values `o` whose gate, copy, and permutation identities hold on every row of the domain
+(`DomainIdentities`). `Built` is rows, routed width, `σ`, position labels, routed
+constants, and the place `loc` of each export target. The witness is `b.witness o`.
+- **Proved.** `Built.Refines.satisfies`: if `b` refines the export `c`, the identities
+  give `Satisfies c (b.witness o)`. Rows come from the gate identities, copies from the
+  copy identities along `σ`, constant targets from both. Standard axioms only.
+- **Why `Refines` is not row inclusion.** The wrapper traces start at row `0` on a
+  builder with no `verify_proof` rows, and production runs `add_recursive_verifiers`
+  first. Deployed rows and virtual targets are numbered differently from the export,
+  arithmetic ops are packed into whatever row has a free slot, and constants can sit on
+  `RandomAccessGate` wires. `Refines` is therefore stated up to `loc`: arithmetic rows
+  op by op, base-sum and Poseidon2 rows whole, copies as `σ`-chains, constants as chains
+  to a routed constant.
+- **Left as declarations.** `build_refines_export`, `poseidon2_gate_rows`,
+  `public_input_wires`, `child_gadget_satisfied`, `recursive_verifier_transcript` (§7).
+  `verifier_algebra` is their composition with the theorem above.
+- **Finding.** `public_input_wires` is not a field identity. `PublicInputGate`
+  constrains four wires to the hash of `pis`, so equal public inputs follow from the
+  identities only where that hash does not collide. The statement is unchanged.
+- **Axiom gate.** `proof_sound` and the eight accepted-proof capstones are the three
+  assumptions plus the five obligations. `verifier_algebra` is the five,
+  `identical_constraints_satisfies` is `build_refines_export` alone, and
+  `Built.Refines.satisfies` is bare.
+
 ## 9. Definition of done
 
 `R_leaf` fully bridged (T0–T3), `R_L0`/`R_L1` bridged modulo the enumerated
@@ -1100,4 +1137,5 @@ and `n_inner = 2, 4`, bridges generated from the traces):
 capstones stated on the exported wiring, with no decode hypotheses; Step 9 closes it for
 the leaf: `leaf_wired` is `Rleaf` on the exported leaf wiring, standard-axioms-only)
 and (b) the layer-1 assumptions (§7) — `poseidon_transcript_oracle`, `fri_proximity_gap`,
-`algebraic_sampling`, and the deterministic `verifier_algebra`, composed as `proof_sound`.
+`algebraic_sampling`, and the five obligations under `verifier_algebra`, composed as
+`proof_sound`.
