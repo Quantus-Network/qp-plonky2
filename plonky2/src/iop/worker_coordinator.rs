@@ -141,9 +141,10 @@ struct CoordinationState {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::sync::atomic::AtomicUsize;
     use std::sync::mpsc;
+
+    use super::*;
 
     fn wait_for_sleepers(coordinator: &WorkerCoordinator, count: usize) {
         loop {

@@ -4,7 +4,6 @@
 use alloc::sync::Arc;
 #[cfg(not(all(feature = "std", feature = "parallel")))]
 use core::marker::PhantomData;
-
 #[cfg(feature = "std")]
 use std::sync::Arc;
 #[cfg(all(feature = "std", feature = "parallel"))]
@@ -13,10 +12,9 @@ use std::{
     sync::atomic::{AtomicUsize, Ordering},
 };
 
+use anyhow::{anyhow, ensure, Result};
 #[cfg(all(feature = "std", feature = "parallel"))]
 use crossbeam_deque::Worker;
-
-use anyhow::{anyhow, ensure, Result};
 
 use crate::field::extension::Extendable;
 use crate::hash::hash_types::RichField;
@@ -148,18 +146,28 @@ impl<F: RichField> WitnessGenerationExecutor<F> {
         F: Extendable<D>,
     {
         Self::run_generator_outputs(circuit, plan, generator_index, witness, output_buffer)?;
-        let generator = &circuit.prover_only.generators[generator_index].0;
-        for (target, value) in output_buffer.target_values.drain(..) {
+        let planned = plan.expected_output_reps(generator_index);
+        for ((target, value), &planned_rep) in output_buffer.target_values.drain(..).zip(planned) {
+            Self::check_output(
+                circuit,
+                generator_index,
+                witness.rep_index(target),
+                planned_rep,
+            )?;
             witness.set_target(target, value).map_err(|error| {
-                anyhow!("generator {generator_index} ({}): {error}", generator.id())
+                anyhow!(
+                    "generator {generator_index} ({}): {error}",
+                    circuit.prover_only.generators[generator_index].0.id()
+                )
             })?;
         }
         Ok(())
     }
 
+    /// Runs a generator and checks that it emitted the planned number of outputs.
     fn run_generator_outputs<C: GenericConfig<D, F = F>, const D: usize>(
         circuit: &CircuitData<F, C, D>,
-        _plan: &WitnessGenerationPlan,
+        plan: &WitnessGenerationPlan,
         generator_index: usize,
         witness: &PartitionWitness<'_, F>,
         output_buffer: &mut GeneratedValues<F>,
@@ -173,29 +181,31 @@ impl<F: RichField> WitnessGenerationExecutor<F> {
             .map_err(|error| {
                 anyhow!("generator {generator_index} ({}): {error}", generator.id())
             })?;
-        #[cfg(debug_assertions)]
-        {
-            let expected_output_targets = _plan.expected_output_targets(generator_index);
-            debug_assert_eq!(
-                output_buffer.target_values.len(),
-                expected_output_targets.len(),
-                "generator {generator_index} ({}) emitted an unexpected number of outputs",
-                generator.id()
-            );
-            for (position, ((target, _), declared)) in output_buffer
-                .target_values
-                .iter()
-                .zip(expected_output_targets)
-                .enumerate()
-            {
-                debug_assert_eq!(
-                    target,
-                    declared,
-                    "generator {generator_index} ({}) emitted an unexpected output target at position {position}",
-                    generator.id()
-                );
-            }
-        }
+        let planned = plan.expected_output_reps(generator_index).len();
+        ensure!(
+            output_buffer.target_values.len() == planned,
+            "generator {generator_index} ({}) emitted {} outputs, expected {planned}",
+            generator.id(),
+            output_buffer.target_values.len()
+        );
+        Ok(())
+    }
+
+    #[inline]
+    fn check_output<C: GenericConfig<D, F = F>, const D: usize>(
+        circuit: &CircuitData<F, C, D>,
+        generator_index: usize,
+        rep_index: usize,
+        planned_rep: u32,
+    ) -> Result<()>
+    where
+        F: Extendable<D>,
+    {
+        ensure!(
+            rep_index == planned_rep as usize,
+            "generator {generator_index} ({}) emitted an unplanned output target",
+            circuit.prover_only.generators[generator_index].0.id()
+        );
         Ok(())
     }
 }
@@ -203,12 +213,9 @@ impl<F: RichField> WitnessGenerationExecutor<F> {
 #[cfg(all(feature = "std", feature = "parallel"))]
 impl<F: RichField> WitnessGenerationExecutor<F> {
     /// Executes the entire plan with one OS thread per worker in each stage.
-    ///
-    /// # Safety
-    /// The circuit must be the unchanged circuit used to prepare the plan.
-    /// The generator access requirements of
-    /// [`WitnessGenerationExecution::execute_parallel`] must hold.
-    pub unsafe fn execute_parallel<'a, C: GenericConfig<D, F = F>, const D: usize>(
+    /// Use the unchanged circuit from which the plan was prepared; see
+    /// [`WitnessGenerationExecution::execute_parallel`] for generator requirements.
+    pub fn execute_parallel<'a, C: GenericConfig<D, F = F>, const D: usize>(
         &mut self,
         circuit: &'a CircuitData<F, C, D>,
         witness: &mut PartitionWitness<'a, F>,
@@ -224,13 +231,12 @@ impl<F: RichField> WitnessGenerationExecutor<F> {
         witness.require_dense()?;
         let mut execution = self.bind(circuit, witness)?;
         while !execution.is_done() {
-            // SAFETY: The caller supplies the bound execution's access guarantees.
-            unsafe { execution.execute_parallel(num_workers)? };
+            execution.execute_parallel(num_workers)?;
         }
         Ok(())
     }
 
-    unsafe fn run_parallel<C: GenericConfig<D, F = F>, const D: usize>(
+    fn run_parallel<C: GenericConfig<D, F = F>, const D: usize>(
         &mut self,
         circuit: &CircuitData<F, C, D>,
         schedule: &WitnessGenerationSchedule,
@@ -275,18 +281,13 @@ impl<F: RichField> WitnessGenerationExecutor<F> {
                             coordinator.next(&worker.ready, worker_index, &mut next_victim_index)
                         {
                             let generator_index = schedule.generator_indices()[local_index];
-                            // SAFETY: The caller guarantees stable, complete access
-                            // sets. Counter AcqRel publication and deque handoff
-                            // order every read/comparison after the selected writer.
-                            let result = unsafe {
-                                Self::run_generator_parallel(
-                                    circuit,
-                                    plan,
-                                    generator_index,
-                                    witness,
-                                    &mut worker.output_buffer,
-                                )
-                            };
+                            let result = Self::run_generator_parallel(
+                                circuit,
+                                plan,
+                                generator_index,
+                                witness,
+                                &mut worker.output_buffer,
+                            );
                             if let Err(error) = result {
                                 coordinator.fail(error);
                                 return;
@@ -374,7 +375,7 @@ impl<F: RichField> WitnessGenerationExecutor<F> {
         pushed
     }
 
-    unsafe fn run_generator_parallel<C: GenericConfig<D, F = F>, const D: usize>(
+    fn run_generator_parallel<C: GenericConfig<D, F = F>, const D: usize>(
         circuit: &CircuitData<F, C, D>,
         plan: &WitnessGenerationPlan,
         generator_index: usize,
@@ -385,17 +386,18 @@ impl<F: RichField> WitnessGenerationExecutor<F> {
         F: Extendable<D>,
     {
         Self::run_generator_outputs(circuit, plan, generator_index, witness, output_buffer)?;
-        // SAFETY: The caller guarantees complete read/write declarations.
-        // Dependencies order reads and comparisons after initial assignment.
-        unsafe { Self::write_generator_outputs(circuit, generator_index, witness, output_buffer)? };
+        Self::write_generator_outputs(circuit, plan, generator_index, witness, output_buffer)?;
         Ok(())
     }
 
-    /// # Safety
-    /// Each output must satisfy the assignment and publication requirements
-    /// of [`PartitionWitness::set_target_shared`].
-    unsafe fn write_generator_outputs<C: GenericConfig<D, F = F>, const D: usize>(
+    /// Publishes outputs that match the plan. Checking each output against the
+    /// planned representative before publishing guarantees that every
+    /// representative has exactly one first writer per stage, ordered before all
+    /// of its readers and later writers by the schedule, so every read observes
+    /// a fully published value.
+    fn write_generator_outputs<C: GenericConfig<D, F = F>, const D: usize>(
         circuit: &CircuitData<F, C, D>,
+        plan: &WitnessGenerationPlan,
         generator_index: usize,
         witness: &PartitionWitness<'_, F>,
         output_buffer: &mut GeneratedValues<F>,
@@ -403,10 +405,11 @@ impl<F: RichField> WitnessGenerationExecutor<F> {
     where
         F: Extendable<D>,
     {
-        for (target, value) in output_buffer.target_values.drain(..) {
-            // SAFETY: The caller guarantees exclusive assignment followed by
-            // concurrent read-only comparisons, with readers after assignment.
-            unsafe { witness.set_target_shared(target, value) }.map_err(|error| {
+        let planned = plan.expected_output_reps(generator_index);
+        for ((target, value), &planned_rep) in output_buffer.target_values.drain(..).zip(planned) {
+            let rep_index = witness.rep_index(target);
+            Self::check_output(circuit, generator_index, rep_index, planned_rep)?;
+            witness.set_rep_shared(rep_index, value).map_err(|error| {
                 anyhow!(
                     "generator {generator_index} ({}): {error}",
                     circuit.prover_only.generators[generator_index].0.id()
@@ -528,15 +531,12 @@ impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
 {
     /// Executes the next stage in parallel, retaining worker allocations.
     ///
-    /// # Safety
-    /// The circuit must be the unchanged circuit used to prepare the plan.
-    /// The caller must ensure that every generator:
-    /// - declares every target it may read, including checks whether a target is assigned;
-    /// - emits the output target sequence discovered during planning on every
-    ///   successful call, independently of input values;
-    /// - accesses the witness through target-based methods;
-    /// - completes all witness access before execution returns.
-    pub unsafe fn execute_parallel(&mut self, num_workers: usize) -> Result<()> {
+    /// Use the unchanged circuit from which the plan was prepared. Generators
+    /// must declare every target they may read and emit the output target
+    /// sequence discovered during planning; a generator that violates this is
+    /// scheduled incorrectly and fails with an unassigned read or a conflicting
+    /// assignment error rather than racing.
+    pub fn execute_parallel(&mut self, num_workers: usize) -> Result<()> {
         ensure!(
             num_workers > 0,
             "witness generation requires at least one worker"
@@ -545,12 +545,8 @@ impl<'b, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
         self.begin_stage()?;
         let plan = Arc::clone(&self.executor.plan);
         let schedule = plan.stages()[self.next_stage].schedule();
-        // SAFETY: The caller supplies generator access guarantees. Prior stages
-        // succeeded synchronously and this stage's initial promises were checked.
-        unsafe {
-            self.executor
-                .run_parallel(self.circuit, schedule, self.witness, num_workers)?
-        };
+        self.executor
+            .run_parallel(self.circuit, schedule, self.witness, num_workers)?;
         self.finish_stage();
         Ok(())
     }

@@ -1,13 +1,14 @@
 #[cfg(not(feature = "std"))]
 use alloc::{vec, vec::Vec};
 use core::iter::zip;
+use core::sync::atomic::{AtomicU64, AtomicU8};
 
 use anyhow::{anyhow, Result};
 use hashbrown::HashMap;
 use itertools::{zip_eq, Itertools};
 
 use crate::field::extension::{Extendable, FieldExtension};
-use crate::field::types::Field;
+use crate::field::types::{Field, PrimeField64};
 use crate::fri::structure::{FriOpenings, FriOpeningsTarget};
 use crate::fri::witness_util::set_fri_proof_target;
 use crate::hash::hash_types::{HashOut, HashOutTarget, MerkleCapTarget, RichField};
@@ -344,7 +345,7 @@ pub struct PartitionWitness<'a, F: Field> {
     dense: Option<DenseStorage<F>>,
 }
 
-impl<'a, F: Field> PartitionWitness<'a, F> {
+impl<'a, F: PrimeField64> PartitionWitness<'a, F> {
     pub fn new(num_wires: usize, degree: usize, representative_map: &'a [usize]) -> Self {
         Self {
             values: vec![None; representative_map.len()],
@@ -381,12 +382,15 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
 
     /// Borrows dense values and assignment flags.
     /// Use representative indices from `representative_map` to access both slices.
-    /// Read values whose assignment flags are nonzero; zero flags mark unassigned entries.
+    /// Values are stored as noncanonical `u64`s (`F::from_noncanonical_u64`) and are
+    /// meaningful only where the assignment flag is nonzero. Both slices are
+    /// atomics so they can be shared without copying; with exclusive access,
+    /// `Ordering::Relaxed` loads suffice.
     /// Returns an error for witnesses using optional-value storage.
-    pub fn dense_values_and_assignment_flags(&mut self) -> Result<(&[F], &[u8])> {
+    pub fn dense_values_and_assignment_flags(&self) -> Result<(&[AtomicU64], &[AtomicU8])> {
         let dense = self
             .dense
-            .as_mut()
+            .as_ref()
             .ok_or_else(|| anyhow!("dense witness storage is required"))?;
         Ok(dense.values_and_assignment_flags())
     }
@@ -436,6 +440,11 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
         MatrixWitness { wire_values }
     }
 
+    /// Resolves a target to its representative index.
+    pub(super) fn rep_index(&self, target: Target) -> usize {
+        self.representative_map[self.target_index(target)]
+    }
+
     pub(super) fn contains_rep(&self, rep_index: usize) -> bool {
         match &self.dense {
             Some(dense) => dense.is_assigned(rep_index),
@@ -452,29 +461,22 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
 }
 
 #[cfg(all(feature = "std", feature = "parallel"))]
-impl<F: Field> PartitionWitness<'_, F> {
+impl<F: PrimeField64> PartitionWitness<'_, F> {
     pub(super) fn require_dense(&self) -> Result<()> {
         anyhow::ensure!(self.dense.is_some(), "dense witness storage is required");
         Ok(())
     }
 
-    /// Sets a target through shared access during scheduled dense generation.
-    ///
-    /// # Safety
-    /// The resolved representative must satisfy the assignment and publication
-    /// requirements of [`DenseStorage::set_shared`].
-    pub(super) unsafe fn set_target_shared(&self, target: Target, value: F) -> Result<()> {
-        let rep_index = self.representative_map[self.target_index(target)];
-        let dense = self
-            .dense
+    /// Sets a representative through shared access during scheduled dense generation.
+    pub(super) fn set_rep_shared(&self, rep_index: usize, value: F) -> Result<()> {
+        self.dense
             .as_ref()
-            .expect("dense witness storage is required");
-        // SAFETY: The executor supplies the required slot ordering.
-        unsafe { dense.set_shared(rep_index, value) }
+            .expect("dense witness storage is required")
+            .set_shared(rep_index, value)
     }
 }
 
-impl<F: Field> Clone for PartitionWitness<'_, F> {
+impl<F: PrimeField64> Clone for PartitionWitness<'_, F> {
     /// Clones a non-dense witness, retaining its borrowed representative map.
     ///
     /// # Panics
@@ -491,13 +493,13 @@ impl<F: Field> Clone for PartitionWitness<'_, F> {
     }
 }
 
-impl<F: Field> WitnessWrite<F> for PartitionWitness<'_, F> {
+impl<F: PrimeField64> WitnessWrite<F> for PartitionWitness<'_, F> {
     fn set_target(&mut self, target: Target, value: F) -> Result<()> {
         self.set_target_returning_rep(target, value).map(|_| ())
     }
 }
 
-impl<F: Field> Witness<F> for PartitionWitness<'_, F> {
+impl<F: PrimeField64> Witness<F> for PartitionWitness<'_, F> {
     fn try_get_target(&self, target: Target) -> Option<F> {
         let rep_index = self.representative_map[self.target_index(target)];
         match &self.dense {

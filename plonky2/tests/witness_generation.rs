@@ -33,10 +33,7 @@ fn execute_stage(
     match num_workers {
         None => execution.execute(),
         #[cfg(feature = "parallel")]
-        Some(num_workers) => {
-            // SAFETY: The fixtures use genuine built-ins with fixed, complete access sets.
-            unsafe { execution.execute_parallel(num_workers) }
-        }
+        Some(num_workers) => execution.execute_parallel(num_workers),
         #[cfg(not(feature = "parallel"))]
         Some(_) => unreachable!("parallel execution requires the parallel feature"),
     }
@@ -57,8 +54,7 @@ fn generate<'a>(
         None => executor.execute(data, &mut witness)?,
         #[cfg(feature = "parallel")]
         Some(num_workers) => {
-            // SAFETY: The fixtures use genuine built-ins with fixed, complete access sets.
-            unsafe { executor.execute_parallel(data, &mut witness, num_workers)? };
+            executor.execute_parallel(data, &mut witness, num_workers)?;
         }
         #[cfg(not(feature = "parallel"))]
         Some(_) => unreachable!("parallel execution requires the parallel feature"),
@@ -346,8 +342,7 @@ fn staged_plans_validate_inputs_and_support_reset_and_reuse() -> Result<()> {
     #[cfg(feature = "parallel")]
     {
         let before = execution.witness().values.clone();
-        // SAFETY: The fixture uses genuine built-ins with complete access sets.
-        let error = unsafe { execution.execute_parallel(4) }.unwrap_err();
+        let error = execution.execute_parallel(4).unwrap_err();
         assert!(
             error
                 .to_string()

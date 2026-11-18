@@ -14,7 +14,9 @@ use crate::hash::hash_types::RichField;
 use crate::iop::generator::{GeneratedValues, WitnessGenerator};
 use crate::iop::target::Target;
 use crate::iop::witness::PartitionWitness;
-use crate::iop::witness_generation_plan::{WitnessGenerationPlan, WitnessGenerationPlanning};
+use crate::iop::witness_generation_plan::{
+    ExpectedOutputs, WitnessGenerationPlan, WitnessGenerationPlanning,
+};
 use crate::iop::witness_generation_schedule::GeneratorDependencies;
 use crate::plonk::circuit_data::{CircuitData, CommonCircuitData};
 use crate::plonk::config::GenericConfig;
@@ -32,8 +34,7 @@ pub struct WitnessGenerationPlanner<
 > {
     circuit: &'a CircuitData<F, C, D>,
     dependencies: GeneratorDependencies,
-    #[cfg(debug_assertions)]
-    expected_output_targets: Arc<Vec<Vec<Target>>>,
+    expected_outputs: Arc<ExpectedOutputs>,
 }
 
 impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
@@ -52,8 +53,6 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         );
         let mut reads = Vec::with_capacity(generators.len());
         let mut writes = Vec::with_capacity(generators.len());
-        #[cfg(debug_assertions)]
-        let mut expected_output_targets = Vec::with_capacity(generators.len());
         for (generator_index, generator) in generators.iter().enumerate() {
             let targets = generator.0.reads().ok_or_else(|| {
                 anyhow!(
@@ -81,15 +80,13 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
                     .map(&resolve)
                     .collect::<Result<Vec<_>>>()?,
             );
-            #[cfg(debug_assertions)]
-            expected_output_targets.push(discovered);
         }
+        let expected_outputs = Arc::new(ExpectedOutputs::new(&writes)?);
         let dependencies =
             GeneratorDependencies::new(reads, writes, prover.representative_map.len())?;
         Ok(Self {
             circuit,
-            #[cfg(debug_assertions)]
-            expected_output_targets: Arc::new(expected_output_targets),
+            expected_outputs,
             dependencies,
         })
     }
@@ -128,9 +125,8 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         &self.dependencies
     }
 
-    #[cfg(debug_assertions)]
-    pub(super) fn expected_output_targets(&self) -> &Arc<Vec<Vec<Target>>> {
-        &self.expected_output_targets
+    pub(super) fn expected_outputs(&self) -> &Arc<ExpectedOutputs> {
+        &self.expected_outputs
     }
 }
 
@@ -338,9 +334,9 @@ fn parse_base(base: &str) -> Result<usize> {
 
 #[cfg(all(test, feature = "std"))]
 mod tests {
-    use super::*;
     use std::collections::BTreeSet;
 
+    use super::*;
     use crate::field::types::Field;
     use crate::gadgets::split_join::SplitGenerator;
     use crate::gates::arithmetic_base::ArithmeticGate;

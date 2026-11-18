@@ -5,7 +5,7 @@ use alloc::{sync::Arc, vec::Vec};
 #[cfg(feature = "std")]
 use std::sync::Arc;
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 
 use crate::field::extension::Extendable;
 use crate::hash::hash_types::RichField;
@@ -21,8 +21,40 @@ use crate::plonk::config::{GenericConfig, GenericHashOut};
 pub struct WitnessGenerationPlan {
     circuit_fingerprint: CircuitFingerprint,
     stages: Vec<WitnessGenerationStage>,
-    #[cfg(debug_assertions)]
-    expected_output_targets: Arc<Vec<Vec<Target>>>,
+    expected_outputs: Arc<ExpectedOutputs>,
+}
+
+/// Planned output representative indices of every generator, in emission order.
+/// Execution checks emitted outputs against this before publishing them, which
+/// is what guarantees that every representative has a single ordered writer.
+pub(super) struct ExpectedOutputs {
+    rep_indices: Vec<u32>,
+    offsets: Vec<usize>,
+}
+
+impl ExpectedOutputs {
+    pub(super) fn new(rep_index_lists: &[Vec<usize>]) -> Result<Self> {
+        let mut offsets = Vec::with_capacity(rep_index_lists.len() + 1);
+        offsets.push(0);
+        let mut rep_indices = Vec::with_capacity(rep_index_lists.iter().map(Vec::len).sum());
+        for list in rep_index_lists {
+            for &rep_index in list {
+                rep_indices.push(
+                    u32::try_from(rep_index)
+                        .map_err(|_| anyhow!("representative index {rep_index} exceeds u32"))?,
+                );
+            }
+            offsets.push(rep_indices.len());
+        }
+        Ok(Self {
+            rep_indices,
+            offsets,
+        })
+    }
+
+    pub(super) fn get(&self, generator_index: usize) -> &[u32] {
+        &self.rep_indices[self.offsets[generator_index]..self.offsets[generator_index + 1]]
+    }
 }
 
 impl WitnessGenerationPlan {
@@ -46,9 +78,9 @@ impl WitnessGenerationPlan {
         self.circuit_fingerprint == CircuitFingerprint::from_circuit(circuit)
     }
 
-    #[cfg(debug_assertions)]
-    pub(super) fn expected_output_targets(&self, generator_index: usize) -> &[Target] {
-        &self.expected_output_targets[generator_index]
+    /// Planned output representative indices of a generator, in emission order.
+    pub(super) fn expected_output_reps(&self, generator_index: usize) -> &[u32] {
+        self.expected_outputs.get(generator_index)
     }
 }
 
@@ -148,8 +180,7 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
             plan: WitnessGenerationPlan {
                 circuit_fingerprint: CircuitFingerprint::from_circuit(circuit),
                 stages: Vec::new(),
-                #[cfg(debug_assertions)]
-                expected_output_targets: Arc::clone(planner.expected_output_targets()),
+                expected_outputs: Arc::clone(planner.expected_outputs()),
             },
         }
     }
@@ -220,9 +251,9 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
 
 #[cfg(all(test, feature = "std"))]
 mod tests {
-    use super::*;
     use std::panic::{catch_unwind, AssertUnwindSafe};
 
+    use super::*;
     use crate::field::types::Field;
     use crate::iop::generator::{GeneratedValues, SimpleGenerator, WitnessGeneratorRef};
     use crate::iop::witness::{PartitionWitness, Witness, WitnessWrite};
@@ -278,10 +309,7 @@ mod tests {
         match num_workers {
             None => execution.execute(),
             #[cfg(feature = "parallel")]
-            Some(workers) => {
-                // SAFETY: The test generator declares its exact fixed access sets.
-                unsafe { execution.execute_parallel(workers) }
-            }
+            Some(workers) => execution.execute_parallel(workers),
             #[cfg(not(feature = "parallel"))]
             Some(_) => unreachable!("parallel execution requires the parallel feature"),
         }
@@ -317,8 +345,7 @@ mod tests {
                 promised_rep_indices: vec![input_rep],
                 schedule,
             }],
-            #[cfg(debug_assertions)]
-            expected_output_targets: Arc::new(vec![vec![output]]),
+            expected_outputs: Arc::new(ExpectedOutputs::new(&[vec![output_rep]])?),
         });
         for bad_value in [F::ZERO, F::ONE] {
             for &num_workers in EXECUTION_MODES {
