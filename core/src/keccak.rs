@@ -3,7 +3,7 @@ use alloc::{vec, vec::Vec};
 use core::mem::size_of;
 
 use itertools::Itertools;
-use keccak_hash::keccak;
+use tiny_keccak::{Hasher as _, Keccak};
 
 use crate::config::Hasher;
 use crate::hash_types::{BytesHash, RichField};
@@ -12,6 +12,15 @@ use crate::hashing::PlonkyPermutation;
 pub const SPONGE_RATE: usize = 8;
 pub const SPONGE_CAPACITY: usize = 4;
 pub const SPONGE_WIDTH: usize = SPONGE_RATE + SPONGE_CAPACITY;
+
+/// Keccak-256 (the original Keccak padding, as used by Ethereum; not SHA3-256).
+pub fn keccak256(data: &[u8]) -> [u8; 32] {
+    let mut hasher = Keccak::v256();
+    hasher.update(data);
+    let mut output = [0u8; 32];
+    hasher.finalize(&mut output);
+    output
+}
 
 /// Keccak-256 pseudo-permutation (not necessarily one-to-one) used in the challenger.
 /// A state `input: [F; 12]` is sent to the field representation of `H(input) || H(H(input)) || H(H(H(input)))`
@@ -67,7 +76,7 @@ impl<F: RichField> PlonkyPermutation<F> for KeccakPermutation<F> {
         }
 
         let hash_onion = core::iter::repeat_with(|| {
-            let output = keccak(state_bytes.clone()).to_fixed_bytes();
+            let output = keccak256(&state_bytes);
             state_bytes = output.to_vec();
             output
         });
@@ -112,7 +121,7 @@ impl<F: RichField, const N: usize> Hasher<F> for KeccakHash<N> {
             buffer.extend_from_slice(&f.to_canonical_u64().to_le_bytes());
         }
         let mut arr = [0; N];
-        let hash_bytes = keccak(buffer).0;
+        let hash_bytes = keccak256(&buffer);
         arr.copy_from_slice(&hash_bytes[..N]);
         BytesHash(arr)
     }
@@ -126,7 +135,7 @@ impl<F: RichField, const N: usize> Hasher<F> for KeccakHash<N> {
             buffer.extend_from_slice(&f.to_canonical_u64().to_le_bytes());
         }
         let mut arr = [0; N];
-        let hash_bytes = keccak(buffer).0;
+        let hash_bytes = keccak256(&buffer);
         arr.copy_from_slice(&hash_bytes[..N]);
         BytesHash(arr)
     }
@@ -136,7 +145,29 @@ impl<F: RichField, const N: usize> Hasher<F> for KeccakHash<N> {
         v[0..N].copy_from_slice(&left.0);
         v[N..].copy_from_slice(&right.0);
         let mut arr = [0; N];
-        arr.copy_from_slice(&keccak(v).0[..N]);
+        arr.copy_from_slice(&keccak256(&v)[..N]);
         BytesHash(arr)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::keccak256;
+
+    /// Pins the primitive to Keccak-256 (Ethereum padding), not SHA3-256.
+    #[test]
+    fn keccak256_known_answers() {
+        const EMPTY: [u8; 32] = [
+            0xc5, 0xd2, 0x46, 0x01, 0x86, 0xf7, 0x23, 0x3c, 0x92, 0x7e, 0x7d, 0xb2, 0xdc, 0xc7,
+            0x03, 0xc0, 0xe5, 0x00, 0xb6, 0x53, 0xca, 0x82, 0x27, 0x3b, 0x7b, 0xfa, 0xd8, 0x04,
+            0x5d, 0x85, 0xa4, 0x70,
+        ];
+        const ABC: [u8; 32] = [
+            0x4e, 0x03, 0x65, 0x7a, 0xea, 0x45, 0xa9, 0x4f, 0xc7, 0xd4, 0x7b, 0xa8, 0x26, 0xc8,
+            0xd6, 0x67, 0xc0, 0xd1, 0xe6, 0xe3, 0x3a, 0x64, 0xa0, 0x36, 0xec, 0x44, 0xf5, 0x8f,
+            0xa1, 0x2d, 0x6c, 0x45,
+        ];
+        assert_eq!(keccak256(b""), EMPTY);
+        assert_eq!(keccak256(b"abc"), ABC);
     }
 }

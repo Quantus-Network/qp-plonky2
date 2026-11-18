@@ -65,8 +65,12 @@ jobs:
         run: rustup target add wasm32v1-none
       - name: Build
         run: cargo build --release
+      # wasm32v1-none has no `std` at all, so this fails if anything in the
+      # no-default-features graph links std (a host-target check passes vacuously).
       - name: Check no-std (without rand)
-        run: cargo check --package qp-plonky2 --no-default-features
+        run: |
+          cargo check --package qp-plonky2 --no-default-features --target wasm32v1-none
+          cargo check --package qp-plonky2-verifier --no-default-features --target wasm32v1-none
       - name: Test
         run: cargo test --release
       # The constraint exporter is a formal-verification dev tool (not in
@@ -109,7 +113,7 @@ jobs:
   formal-spec:
     name: 📐 Formal Spec (Lean)
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
       # Builds the Lean 4 gadget→constraint model under `formal/` (see formal/PLAN.md).
@@ -144,13 +148,14 @@ jobs:
   # `Plonky2Bridge.public_batch_end_to_end`) live outside `defaultTargets`, so the
   # `formal-spec` job above never compiles them. This job builds the cross-package bridge
   # (wormholeSpec pinned in lake-manifest.json) and asserts each capstone's axiom footprint
-  # is exactly the standard Lean axioms plus its one trusted `WormholeSpec` axiom (none for
-  # the leaf capstone, the base of the recursion) — not e.g. `sorryAx`,
-  # `Lean.ofReduceBool`, or a silent compile failure.
+  # is exactly the standard Lean axioms plus, where the theorem consumes an accepted proof,
+  # the four declarations composed by `proof_sound` (none for the leaf wiring capstone,
+  # the base of the recursion) — not e.g. `sorryAx`, `Lean.ofReduceBool`, or a silent
+  # compile failure.
   formal-bridge:
     name: 📐 Formal Bridge (Lean)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
       - name: Prepare Lean toolchain + mathlib cache
@@ -160,7 +165,7 @@ jobs:
           use-mathlib-cache: "true"
       - name: Build Plonky2Bridge (cross-package capstone)
         run: cd formal && lake build Plonky2Bridge
-      # The exporter's `Generated/*Wrapper{2,4}.lean` are produced from the vendored copies of
+      # The exporter's `Generated/*Wrapper*.lean` are produced from the vendored copies of
       # the qp-zk-circuits gadget-call traces in `constraint-exporter/traces/`. The only job
       # with the pinned `wormholeSpec` package on disk is this one (after `lake build`), so
       # this is where vendored == pinned is enforced; `FORMAL_TRACES_STRICT` turns the
@@ -180,10 +185,13 @@ jobs:
           cd formal
           output=$(lake env lean ci/AxiomsCheck.lean 2>&1)
           printf '%s\n' "$output"
-          # check <theorem> [<trusted axiom>]: the footprint must be exactly the allow-list
-          # plus the one trusted axiom, or the bare allow-list when none is given.
-          check() {
-            local thm="$1" trusted="${2:-}"
+          # expect <theorem> <axiom...>: the footprint must be exactly the named axioms.
+          # `proof_sound` is a theorem. Its footprint is the standard propositional axioms
+          # plus the four declarations it composes; capstones that consume an accepted
+          # proof have that same footprint.
+          expect() {
+            local thm="$1"
+            shift
             local block axioms expected
             block=$(awk -v pat="'$thm' depends on axioms:" \
               'index($0, pat) { f = 1 } f { printf "%s", $0; if (index($0, "]")) exit }' <<< "$output")
@@ -192,7 +200,7 @@ jobs:
               exit 1
             fi
             axioms=$(sed 's/.*\[\(.*\)\].*/\1/' <<< "$block" | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | grep -v '^$' | sort)
-            expected=$(printf '%s\n' 'propext' 'Classical.choice' 'Quot.sound' ${trusted:+"$trusted"} | sort)
+            expected=$(printf '%s\n' "$@" | sort)
             if [ "$axioms" != "$expected" ]; then
               echo "::error::$thm axiom footprint mismatch"
               echo "expected exactly:"
@@ -202,21 +210,34 @@ jobs:
               exit 1
             fi
           }
-          check Plonky2Bridge.private_batch_end_to_end
-          check Plonky2Bridge.public_batch_end_to_end
-          check Plonky2Bridge.private_batch_end_to_end_wired Plonky2Bridge.proof_sound
-          check Plonky2Bridge.private_batch_end_to_end_wired_n4 Plonky2Bridge.proof_sound
-          check Plonky2Bridge.public_batch_end_to_end_wired Plonky2Bridge.proof_sound
-          check Plonky2Bridge.public_batch_end_to_end_wired_n4 Plonky2Bridge.proof_sound
-          check Plonky2Bridge.LeafCircuit.accepted_sound Plonky2Bridge.proof_sound
-          check Plonky2Bridge.Wrapper2.accepted_sound Plonky2Bridge.proof_sound
-          check Plonky2Bridge.Wrapper4.accepted_sound Plonky2Bridge.proof_sound
-          check Plonky2Bridge.Wrapper2.sound
-          check Plonky2Bridge.Wrapper4.sound
-          check Plonky2Bridge.PublicWrapper2.sound
-          check Plonky2Bridge.PublicWrapper4.sound
-          check Plonky2Bridge.leaf_wired
-          check Plonky2Bridge.LeafCircuit.sound
+          base=(propext Classical.choice Quot.sound)
+          trusted=(
+            Plonky2Bridge.poseidon_transcript_oracle
+            Plonky2Bridge.fri_proximity_gap
+            Plonky2Bridge.algebraic_sampling
+            Plonky2Bridge.verifier_algebra
+          )
+          expect Plonky2Bridge.proof_sound "${base[@]}" "${trusted[@]}"
+          expect Plonky2Bridge.private_batch_end_to_end "${base[@]}"
+          expect Plonky2Bridge.public_batch_end_to_end "${base[@]}"
+          expect Plonky2Bridge.private_batch_end_to_end_wired "${base[@]}" "${trusted[@]}"
+          expect Plonky2Bridge.private_batch_end_to_end_wired_n4 "${base[@]}" "${trusted[@]}"
+          expect Plonky2Bridge.private_batch_end_to_end_wired_production "${base[@]}" "${trusted[@]}"
+          expect Plonky2Bridge.public_batch_end_to_end_wired "${base[@]}" "${trusted[@]}"
+          expect Plonky2Bridge.public_batch_end_to_end_wired_n4 "${base[@]}" "${trusted[@]}"
+          expect Plonky2Bridge.public_batch_end_to_end_wired_production "${base[@]}" "${trusted[@]}"
+          expect Plonky2Bridge.LeafCircuit.accepted_sound "${base[@]}" "${trusted[@]}"
+          expect Plonky2Bridge.Wrapper2.accepted_sound "${base[@]}" "${trusted[@]}"
+          expect Plonky2Bridge.Wrapper4.accepted_sound "${base[@]}" "${trusted[@]}"
+          expect Plonky2Bridge.Wrapper8.accepted_sound "${base[@]}" "${trusted[@]}"
+          expect Plonky2Bridge.Wrapper2.sound "${base[@]}"
+          expect Plonky2Bridge.Wrapper4.sound "${base[@]}"
+          expect Plonky2Bridge.Wrapper8.sound "${base[@]}"
+          expect Plonky2Bridge.PublicWrapper2.sound "${base[@]}"
+          expect Plonky2Bridge.PublicWrapper4.sound "${base[@]}"
+          expect Plonky2Bridge.PublicWrapper89.sound "${base[@]}"
+          expect Plonky2Bridge.leaf_wired "${base[@]}"
+          expect Plonky2Bridge.LeafCircuit.sound "${base[@]}"
 
   security-audit:
     name: 🔒 Security Audit

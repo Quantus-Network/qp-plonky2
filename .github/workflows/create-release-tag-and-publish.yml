@@ -170,7 +170,7 @@ jobs:
             echo "ERROR: timed out waiting for $crate $cargo_version"; return 1
           }
 
-          for crate in qp-plonky2-field qp-plonky2-core qp-plonky2-verifier qp-plonky2; do
+          for crate in qp-plonky2-unroll qp-plonky2-field qp-plonky2-core qp-plonky2-verifier qp-plonky2; do
             publish_crate "$crate"
             wait_for_crate "$crate"
           done

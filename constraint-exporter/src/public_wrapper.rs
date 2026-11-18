@@ -19,7 +19,7 @@ use plonky2::field::types::PrimeField64;
 use plonky2::iop::target::Target;
 
 use crate::circuit::lean_target;
-use crate::gadget::{Call, Fact, FACT_GROUP};
+use crate::gadget::{Call, Fact};
 use crate::trace::{check_verifiers, load, traces_dir, LoadedTrace};
 
 /// The private-batch `aggregated_output` public-input layout each inner proof exposes
@@ -586,29 +586,23 @@ impl Shape {
         out_of(self.fact(k)).expect("fact with an output")
     }
 
-    /// `hf.2.….1` projection path of fact `k` in the grouped decode conjunction.
+    /// The per-call decode lemma of fact `k`, parenthesized so it is one `rw` argument.
+    /// Projecting the grouped conjunction (`hf.2.….1`) is superlinear once a trace has
+    /// tens of thousands of calls, and introducing every lemma as a local hypothesis is too.
     fn projection(&self, k: usize) -> String {
-        let total = self.calls.len();
-        let groups = total.div_ceil(FACT_GROUP);
-        let (g, j) = (k / FACT_GROUP, k % FACT_GROUP);
-        let group_len = (total - g * FACT_GROUP).min(FACT_GROUP);
-        let mut path = String::from("hf");
-        if groups > 1 {
-            path.push_str(&".2".repeat(g));
-            if g + 1 < groups {
-                path.push_str(".1");
-            }
-        }
-        path.push_str(&".2".repeat(j));
-        if j + 1 < group_len {
-            path.push_str(".1");
-        }
-        path
+        format!("(publicBatchWrapper{}_f{k} a h)", self.n)
     }
 }
 
 fn a(t: Target) -> String {
     format!("a ({})", lean_target(t))
+}
+
+fn fact_term(bound: &std::collections::HashMap<String, String>, name: &str) -> String {
+    bound
+        .get(name)
+        .unwrap_or_else(|| panic!("missing projection {name}"))
+        .clone()
 }
 
 /// Render the bridge module for a recorded public-batch wrapper.
@@ -619,7 +613,6 @@ pub fn render(shape: &Shape) -> String {
     let u = shape.nulls_per_inner;
     let pi_len = shape.pi_len;
     let circuit = format!("publicBatchWrapper{n}");
-    let decode = format!("{circuit}_decode");
     let inners = &shape.inners;
     let mut o = String::new();
     macro_rules! w {
@@ -643,8 +636,8 @@ pub fn render(shape: &Shape) -> String {
     w!("  reads the inner outputs and the aggregated output off the named targets and public inputs");
     w!("  and discharges every hypothesis of `public_batch_val` (`Plonky2Bridge/PublicBatch.lean`),");
     w!("  so `public_batch_end_to_end` is restated on the wiring (`end_to_end_wired`), with each");
-    w!("  inner's `RPrivateBatch` recovered from its accepted proof through the one trusted axiom");
-    w!("  `proof_sound` and the private-batch wrapper bridge (Step 10).");
+    w!("  inner's `RPrivateBatch` recovered from its accepted proof through `proof_sound`");
+    w!("  and the private-batch wrapper bridge (Step 10).");
     w!("-/");
     w!("import Plonky2Bridge.PublicBatch");
     w!("import Plonky2Bridge.Generated.Wrapper{leaves}");
@@ -654,13 +647,21 @@ pub fn render(shape: &Shape) -> String {
     w!("");
     w!("open Plonky2Spec (bselect band bnot bor scanStep)");
     w!("open Plonky2Spec.Wiring");
-    w!("open Plonky2Spec.Generated ({circuit} {decode})");
+    w!("open Plonky2Spec.Generated");
     w!("open Plonky2Spec.Poseidon2 (St)");
     w!("open WormholeSpec (Digest Felt PrivateBatchOutput PublicBatchOutput ExitSlot RandomOracle RPublicBatch");
     w!("  RPrivateBatch RPublicBatch_totalExitSlots)");
     w!("");
     w!("variable {{p : ℕ}} [Fact p.Prime]");
     w!("");
+    // `Fin n` matches of this size are checked by a unary decision tree. A final
+    // catch-all keeps that check from walking all `n` successors, and the lists in
+    // `out` are longer than the default recursion and heartbeat budgets.
+    if n > 4 {
+        w!("set_option maxRecDepth 200000");
+        w!("set_option maxHeartbeats 0");
+        w!("");
+    }
     w!("/-! ### Reading the spec objects off the wiring -/");
     w!("");
     w!("/-- The {pi_len} public inputs of inner proof `i` (`inner_pis_i`), at the private-batch");
@@ -669,11 +670,12 @@ pub fn render(shape: &Shape) -> String {
     for i in 0..n {
         w!("  | {i} => {circuit}.inner_pis_{i}");
     }
+    w!("  | _ => {circuit}.inner_pis_0");
     w!("");
     w!("/-- The field wires of inner `i` the wrapper reads, with the `is_equal` witnesses of its");
     w!("    `bytes_digest_eq(block_hash, 0)` dummy check. -/");
     w!("def row (a : Assignment p) : Fin {n} → InnerRow p");
-    for (i, inner) in inners.iter().enumerate() {
+    let mut emit_row = |pat: String, i: usize, inner: &Inner| {
         let (eqs, invs): (Vec<String>, Vec<String>) = inner
             .dummy_eq
             .iter()
@@ -682,7 +684,7 @@ pub fn render(shape: &Shape) -> String {
                 _ => unreachable!(),
             })
             .unzip();
-        w!("  | {i} =>");
+        w!("  | {pat} =>");
         w!(
             "    {{ blockHash := fun j => a (innerPis {i} ⟨{} + j, by omega⟩)",
             layout::BLOCK_HASH
@@ -712,7 +714,11 @@ pub fn render(shape: &Shape) -> String {
             })
             .collect();
         w!("      nulls := [{}] }}", nulls.join(",\n        "));
+    };
+    for (i, inner) in inners.iter().enumerate() {
+        emit_row(format!("{i}"), i, inner);
     }
+    emit_row("_".to_string(), 0, &inners[0]);
     w!("");
     w!("/-- Inner `i`'s private-batch output, decoded through `.val`. -/");
     w!("def inner (a : Assignment p) (i : Fin {n}) : PrivateBatchOutput :=");
@@ -754,43 +760,70 @@ pub fn render(shape: &Shape) -> String {
     w!("def pv (a : Assignment p) (k : ℕ) : Felt :=");
     w!("  (a (({circuit} p).publicInputs.getD k (.virt 0))).val");
     w!("");
-    // Output slots and nullifiers, as literal lists over the forwarded wires.
-    let slot_wires: Vec<Target> = inners
-        .iter()
-        .flat_map(|i| i.slot_fwd.iter().map(|&k| shape.out(k)))
-        .collect();
-    let null_wires: Vec<Target> = inners
-        .iter()
-        .flat_map(|i| i.null_fwd.iter().map(|&k| shape.out(k)))
-        .collect();
+    // One list per inner. `out` concatenates them in the same right-nested shape as
+    // `List.flatten`, so the forwarding proof rewrites one inner at a time instead of
+    // a single goal the size of every forwarded limb (production is 89 · 32 slots).
     let v = |t: Target| format!("({}).val", a(t));
-    let slot_list: Vec<String> = slot_wires
-        .chunks(layout::EXIT_SLOT_LEN)
-        .map(|c| {
-            format!(
-                "⟨{}, ⟨{}, {}, {}, {}⟩⟩",
-                v(c[0]),
-                v(c[1]),
-                v(c[2]),
-                v(c[3]),
-                v(c[4])
-            )
+    let slot_lits: Vec<String> = inners
+        .iter()
+        .map(|inner| {
+            let wires: Vec<Target> = inner.slot_fwd.iter().map(|&k| shape.out(k)).collect();
+            let slots: Vec<String> = wires
+                .chunks(layout::EXIT_SLOT_LEN)
+                .map(|c| {
+                    format!(
+                        "⟨{}, ⟨{}, {}, {}, {}⟩⟩",
+                        v(c[0]),
+                        v(c[1]),
+                        v(c[2]),
+                        v(c[3]),
+                        v(c[4])
+                    )
+                })
+                .collect();
+            format!("[{}]", slots.join(",\n      "))
         })
         .collect();
-    let null_list: Vec<String> = null_wires
-        .chunks(4)
-        .map(|c| format!("⟨{}, {}, {}, {}⟩", v(c[0]), v(c[1]), v(c[2]), v(c[3])))
+    let null_lits: Vec<String> = inners
+        .iter()
+        .map(|inner| {
+            let wires: Vec<Target> = inner.null_fwd.iter().map(|&k| shape.out(k)).collect();
+            let nulls: Vec<String> = wires
+                .chunks(layout::NULLIFIER_LEN)
+                .map(|c| format!("⟨{}, {}, {}, {}⟩", v(c[0]), v(c[1]), v(c[2]), v(c[3])))
+                .collect();
+            format!("[{}]", nulls.join(",\n      "))
+        })
         .collect();
-    let slot_list_s = format!("[{}]", slot_list.join(",\n      "));
-    let null_list_s = format!("[{}]", null_list.join(",\n      "));
+    let nest = |name: &str| {
+        let mut acc = "[]".to_string();
+        for i in (0..n).rev() {
+            acc = format!("{name} a {i} ++ ({acc})");
+        }
+        acc
+    };
+    w!("/-- Inner `i`'s forwarded exit slots, read off the wiring. -/");
+    w!("def exitChunk (a : Assignment p) : Fin {n} → List ExitSlot");
+    for (i, lit) in slot_lits.iter().enumerate() {
+        w!("  | {i} => {lit}");
+    }
+    w!("  | _ => []");
+    w!("");
+    w!("/-- Inner `i`'s forwarded nullifiers, read off the wiring. -/");
+    w!("def nullChunk (a : Assignment p) : Fin {n} → List Digest");
+    for (i, lit) in null_lits.iter().enumerate() {
+        w!("  | {i} => {lit}");
+    }
+    w!("  | _ => []");
+    w!("");
     w!("/-- The aggregated output at the public-batch layout: `[aggregator_address(4), asset_id,");
     w!("    volume_fee_bps, block_hash(4), block_number, total_exit_slots]`, `{n} · {s}` forwarded exit");
     w!("    slots `[sum, account(4)]`, `{n} · {u}` forwarded nullifiers. -/");
     w!("def out (a : Assignment p) : PublicBatchOutput :=");
     w!("  {{ aggregatorAddress := ⟨pv a 0, pv a 1, pv a 2, pv a 3⟩, assetId := pv a 4, volumeFeeBps := pv a 5,");
     w!("    blockHash := ⟨pv a 6, pv a 7, pv a 8, pv a 9⟩, blockNumber := pv a 10, totalExitSlots := pv a 11,");
-    w!("    exitSlots := {slot_list_s},");
-    w!("    nullifiers := {null_list_s} }}");
+    w!("    exitSlots := {},", nest("exitChunk"));
+    w!("    nullifiers := {} }}", nest("nullChunk"));
     w!("");
 
     // The scan in normal form.
@@ -841,6 +874,462 @@ pub fn render(shape: &Shape) -> String {
         })
         .collect();
 
+    // Per-call lemmas are applied where they are used. Naming all of them in one
+    // context (production is ~20k calls) makes elaboration quadratic in the trace.
+    let mut bound: std::collections::HashMap<String, String> = std::collections::HashMap::new();
+    {
+        let mut bind = |name: String, k: usize| {
+            bound.insert(name, shape.projection(k));
+        };
+        for (i, inner) in inners.iter().enumerate() {
+            bind(format!("cp{i}"), inner.count_pin);
+        }
+        for (i, inner) in inners.iter().enumerate() {
+            for j in 0..4 {
+                bind(format!("e{i}_{j}"), inner.dummy_eq[j]);
+            }
+            bind(format!("da{i}"), inner.dummy_and[0]);
+            bind(format!("db{i}"), inner.dummy_and[1]);
+            bind(format!("d{i}"), inner.dummy_and[2]);
+        }
+        for (i, inner) in inners.iter().enumerate() {
+            bind(format!("r{i}"), inner.is_real);
+            if let Some(k) = inner.not_found {
+                bind(format!("nf{i}"), k);
+            }
+            if let Some(k) = inner.take {
+                bind(format!("tk{i}"), k);
+            }
+            for j in 0..4 {
+                bind(format!("sb{i}_{j}"), inner.sel_block[j]);
+            }
+            bind(format!("sn{i}"), inner.sel_number);
+            bind(format!("sa{i}"), inner.sel_asset);
+            bind(format!("sf{i}"), inner.sel_fee);
+            if let Some(k) = inner.found {
+                bind(format!("fo{i}"), k);
+            }
+        }
+        for (i, inner) in inners.iter().enumerate() {
+            bind(format!("ca{i}"), inner.asset_eq);
+            bind(format!("cao{i}"), inner.asset_or);
+            bind(format!("cak{i}"), inner.asset_pin);
+            bind(format!("cf{i}"), inner.fee_eq);
+            bind(format!("cfo{i}"), inner.fee_or);
+            bind(format!("cfk{i}"), inner.fee_pin);
+            for j in 0..4 {
+                bind(format!("cb{i}_{j}"), inner.block_eq[j]);
+            }
+            bind(format!("cba{i}"), inner.block_and[0]);
+            bind(format!("cbb{i}"), inner.block_and[1]);
+            bind(format!("cbc{i}"), inner.block_and[2]);
+            bind(format!("cbo{i}"), inner.block_or);
+            bind(format!("cbk{i}"), inner.block_pin);
+        }
+        for (i, inner) in inners.iter().enumerate() {
+            for (k, &c) in inner.slot_fwd.iter().enumerate() {
+                bind(format!("fs{i}_{k}"), c);
+            }
+        }
+        for (i, inner) in inners.iter().enumerate() {
+            for (k, &c) in inner.null_fwd.iter().enumerate() {
+                bind(format!("fn{i}_{k}"), c);
+            }
+        }
+    }
+    let obtain = format!("obtain ⟨{}⟩ := consts a h", const_names.join(", "));
+    for (i, inner) in inners.iter().enumerate() {
+        let d = shape.out(inner.dummy_and[2]);
+        let hd = format!(
+            "have hd : {} = (row a {i}).isDummy := by rw [{}, {}, {}]; rfl",
+            a(d),
+            fact_term(&bound, &format!("d{i}")),
+            fact_term(&bound, &format!("da{i}")),
+            fact_term(&bound, &format!("db{i}"))
+        );
+        let slot_rules: Vec<String> = (0..inner.slot_fwd.len())
+            .map(|k| fact_term(&bound, &format!("fs{i}_{k}")))
+            .collect();
+        w!("theorem exitChunk_eq_{i} (a : Assignment p) (h : Satisfies ({circuit} p) a) :");
+        w!("    exitChunk a {i} = ((row a {i}).slots.map (maskSlot (row a {i}).isDummy)).map valSlot := by");
+        w!("  unfold exitChunk");
+        w!("  {obtain}");
+        w!("  {hd}");
+        if !slot_rules.is_empty() {
+            w!("  rw [{}]", slot_rules.join(", "));
+        }
+        w!("  rw [kzero, hd]");
+        w!("  rfl");
+        w!("");
+        let null_rules: Vec<String> = (0..inner.null_fwd.len())
+            .map(|k| fact_term(&bound, &format!("fn{i}_{k}")))
+            .collect();
+        w!("theorem nullChunk_eq_{i} (a : Assignment p) (h : Satisfies ({circuit} p) a) :");
+        w!("    nullChunk a {i} = ((row a {i}).nulls.map fun x j => bselect (row a {i}).isDummy 0 (x j)).map valDigest := by");
+        w!("  unfold nullChunk");
+        w!("  {obtain}");
+        w!("  {hd}");
+        if !null_rules.is_empty() {
+            w!("  rw [{}]", null_rules.join(", "));
+        }
+        w!("  rw [kzero, hd]");
+        w!("  rfl");
+        w!("");
+    }
+    let take_tgt = |i: usize| -> Target {
+        match inners[i].take {
+            Some(k) => shape.out(k),
+            None => shape.out(inners[i].is_real),
+        }
+    };
+    let dummy_expr = |i: usize| format!("(row a {i}).isDummy");
+    let acc_expr = |i: usize| -> String {
+        let mut acc = format!("(bnot {})", dummy_expr(0));
+        for j in 1..=i {
+            acc = format!("(bor {acc} (bnot {}))", dummy_expr(j));
+        }
+        acc
+    };
+    let take_expr = |i: usize| -> String {
+        if i == 0 {
+            format!("(bnot {})", dummy_expr(0))
+        } else {
+            format!("(band (bnot {}) (bnot {}))", dummy_expr(i), acc_expr(i - 1))
+        }
+    };
+    let hd_of = |i: usize| -> String {
+        let d = shape.out(inners[i].dummy_and[2]);
+        format!(
+            "have hd : {} = (row a {i}).isDummy := by rw [{}, {}, {}]; rfl",
+            a(d),
+            fact_term(&bound, &format!("d{i}")),
+            fact_term(&bound, &format!("da{i}")),
+            fact_term(&bound, &format!("db{i}"))
+        )
+    };
+    w!("/-- The take wire of inner `i` (`is_real` for inner 0, where the scan folds). -/");
+    w!("def takeWire : Fin {n} → Target");
+    for i in 0..n {
+        w!("  | {i} => {}", lean_target(take_tgt(i)));
+    }
+    w!("  | _ => {}", lean_target(take_tgt(0)));
+    w!("");
+    for i in 0..n {
+        let real = a(shape.out(inners[i].is_real));
+        let hd = hd_of(i);
+        w!("theorem realEq_{i} (a : Assignment p) (h : Satisfies ({circuit} p) a) :");
+        w!("    {real} = (bnot (row a {i}).isDummy) := by");
+        w!("  {hd}");
+        w!("  rw [{}, hd]", fact_term(&bound, &format!("r{i}")));
+        w!("");
+        if inners[i].found.is_some() {
+            w!("theorem foundEq_{i} (a : Assignment p) (h : Satisfies ({circuit} p) a) :");
+            w!(
+                "    {} = {} := by",
+                a(shape.out(inners[i].found.unwrap())),
+                acc_expr(i)
+            );
+            w!("  {hd}");
+            w!("  rw [{}]", fact_term(&bound, &format!("fo{i}")));
+            w!("  rw [{}, hd]", fact_term(&bound, &format!("r{i}")));
+            if i == 1 {
+                w!("  rw [realEq_0 a h]");
+            } else {
+                w!("  rw [foundEq_{} a h]", i - 1);
+            }
+            w!("");
+        }
+        w!("theorem takeEq_{i} (a : Assignment p) (h : Satisfies ({circuit} p) a) :");
+        w!("    {} = {} := by", a(take_tgt(i)), take_expr(i));
+        if i == 0 {
+            w!("  exact realEq_0 a h");
+        } else {
+            w!("  {hd}");
+            w!("  rw [{}]", fact_term(&bound, &format!("tk{i}")));
+            w!("  rw [{}, hd]", fact_term(&bound, &format!("r{i}")));
+            w!("  rw [{}]", fact_term(&bound, &format!("nf{i}")));
+            if i == 1 {
+                w!("  rw [realEq_0 a h]");
+            } else {
+                w!("  rw [foundEq_{} a h]", i - 1);
+            }
+        }
+        w!("");
+    }
+    let xs_sc: Vec<String> = (0..n).map(|i| format!("x{i}")).collect();
+    let mut chain_sc = format!("bselect ({}) x0 0", a(take_tgt(0)));
+    for i in 1..n {
+        chain_sc = format!("bselect ({}) x{i} ({chain_sc})", a(take_tgt(i)));
+    }
+    let nf_sc = scan_normal_form(n, &|i| format!("(row a {i}).isDummy"), &|i| format!("x{i}"));
+    w!("theorem selChain_eq (a : Assignment p) (h : Satisfies ({circuit} p) a) :");
+    w!("    ∀ {} : ZMod p, {chain_sc}", xs_sc.join(" "));
+    w!("      = {nf_sc} := by");
+    w!("  intro {}", xs_sc.join(" "));
+    for i in (0..n).rev() {
+        w!("  rw [takeEq_{i} a h]");
+    }
+    w!("");
+    // One theorem per scanned output. Inlining the chain in `sound` keeps the
+    // normal form in the local context for every later tactic step.
+    let block_wires: Vec<Target> = (0..4)
+        .map(|j| shape.out(inners[n - 1].sel_block[j]))
+        .collect();
+    let bw: Vec<String> = block_wires.iter().map(|t| lean_target(*t)).collect();
+    for j in 0..4 {
+        w!("theorem blockLimb_{j} (a : Assignment p) (h : Satisfies ({circuit} p) a) :");
+        w!("    a ({}) = blockRef (rows a) {j} := by", bw[j]);
+        w!("  {obtain}");
+        for i in (0..n).rev() {
+            w!("  rw [{}]", fact_term(&bound, &format!("sb{i}_{j}")));
+        }
+        w!("  rw [kzero, selChain_eq a h]");
+        w!("  rw [blockRef, rows, scanRef_{n}]");
+        w!("  rfl");
+        w!("");
+    }
+    let emit_scan = |name: &str, field: &str, last: usize| {
+        let wire = a(shape.out(last));
+        let mut lines = vec![
+            format!("theorem scan_{name} (a : Assignment p) (h : Satisfies ({circuit} p) a) :"),
+            format!("    {wire} = scanRef (rows a) fun t => t.1.{field} := by"),
+            format!("  {obtain}"),
+        ];
+        for i in (0..n).rev() {
+            lines.push(format!(
+                "  rw [{}]",
+                fact_term(&bound, &format!("{name}{i}"))
+            ));
+        }
+        lines.push("  rw [kzero, selChain_eq a h]".to_string());
+        lines.push(format!("  rw [rows, scanRef_{n}]"));
+        lines.push("  rfl".to_string());
+        lines.join("\n")
+    };
+    w!(
+        "{}",
+        emit_scan("sn", "blockNumber", inners[n - 1].sel_number)
+    );
+    w!("");
+    w!("{}", emit_scan("sa", "assetId", inners[n - 1].sel_asset));
+    w!("");
+    w!("{}", emit_scan("sf", "fee", inners[n - 1].sel_fee));
+    w!("");
+    for (i, inner) in inners.iter().enumerate() {
+        let d = shape.out(inner.dummy_and[2]);
+        let hd = format!(
+            "have hd : {} = (row a {i}).isDummy := by rw [{}, {}, {}]; rfl",
+            a(d),
+            fact_term(&bound, &format!("d{i}")),
+            fact_term(&bound, &format!("da{i}")),
+            fact_term(&bound, &format!("db{i}"))
+        );
+        w!("theorem dummyAt_{i} (a : Assignment p) (h : Satisfies ({circuit} p) a) :");
+        w!("    DummyCheck (row a {i}) := by");
+        w!("  {obtain}");
+        w!("  intro j; fin_cases j");
+        for j in 0..4 {
+            w!(
+                "  · have e := {}; rw [kzero] at e; exact e",
+                fact_term(&bound, &format!("e{i}_{j}"))
+            );
+        }
+        w!("");
+        w!("theorem assetAt_{i} (a : Assignment p) (h : Satisfies ({circuit} p) a) :");
+        w!("    ConsistencyCheck (row a {i}).isDummy (row a {i}).assetId");
+        w!("      (scanRef (rows a) fun t => t.1.assetId) := by");
+        w!("  {obtain}");
+        w!("  {hd}");
+        w!(
+            "  exact ⟨_, _, scan_sa a h ▸ {}, by rw [← hd, ← {}, {}, kone]⟩",
+            fact_term(&bound, &format!("ca{i}")),
+            fact_term(&bound, &format!("cao{i}")),
+            fact_term(&bound, &format!("cak{i}"))
+        );
+        w!("");
+        w!("theorem feeAt_{i} (a : Assignment p) (h : Satisfies ({circuit} p) a) :");
+        w!("    ConsistencyCheck (row a {i}).isDummy (row a {i}).fee");
+        w!("      (scanRef (rows a) fun t => t.1.fee) := by");
+        w!("  {obtain}");
+        w!("  {hd}");
+        w!(
+            "  exact ⟨_, _, scan_sf a h ▸ {}, by rw [← hd, ← {}, {}, kone]⟩",
+            fact_term(&bound, &format!("cf{i}")),
+            fact_term(&bound, &format!("cfo{i}")),
+            fact_term(&bound, &format!("cfk{i}"))
+        );
+        w!("");
+        let (eqs, invs): (Vec<String>, Vec<String>) = inner
+            .block_eq
+            .iter()
+            .map(|&k| match *shape.fact(k) {
+                Fact::IsEqual { equal, inv, .. } => (a(equal), a(inv)),
+                _ => unreachable!(),
+            })
+            .unzip();
+        w!("theorem blockAt_{i} (a : Assignment p) (h : Satisfies ({circuit} p) a) :");
+        w!("    DigestConsistencyCheck (row a {i}).isDummy (row a {i}).blockHash (blockRef (rows a)) := by");
+        w!("  {obtain}");
+        w!("  {hd}");
+        w!(
+            "  have hblk : ∀ j, a (![{}] j) = blockRef (rows a) j := by",
+            bw.join(", ")
+        );
+        w!("    intro j; fin_cases j");
+        for j in 0..4 {
+            w!("    · exact blockLimb_{j} a h");
+        }
+        w!("  refine ⟨![{}],", eqs.join(", "));
+        w!("    ![{}], ?_, ?_⟩", invs.join(", "));
+        w!("  · intro j; rw [← hblk j]; fin_cases j");
+        for j in 0..4 {
+            w!("    · exact {}", fact_term(&bound, &format!("cb{i}_{j}")));
+        }
+        w!(
+            "  · show bor (row a {i}).isDummy (band (band ({}) ({}))",
+            eqs[0],
+            eqs[1]
+        );
+        w!("      (band ({}) ({}))) = 1", eqs[2], eqs[3]);
+        w!(
+            "    rw [← hd, ← {}, ← {}, ← {}, ← {}, {}, kone]",
+            fact_term(&bound, &format!("cba{i}")),
+            fact_term(&bound, &format!("cbb{i}")),
+            fact_term(&bound, &format!("cbc{i}")),
+            fact_term(&bound, &format!("cbo{i}")),
+            fact_term(&bound, &format!("cbk{i}"))
+        );
+        w!("");
+        w!("theorem countAt_{i} (a : Assignment p) (h : Satisfies ({circuit} p) a)");
+        w!("    (hpg : WormholeSpec.goldilocks ≤ p) :");
+        w!("    (inner a {i}).numExitSlots = {s} := by");
+        w!("  {obtain}");
+        w!("  have hc : ({s} : ℕ) < p := lt_of_lt_of_le (by decide) hpg");
+        w!(
+            "  show ({}).val = {s}",
+            a(inner.pis[layout::NUM_EXIT_SLOTS])
+        );
+        w!(
+            "  rw [{}, kslots, ← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]",
+            fact_term(&bound, &format!("cp{i}"))
+        );
+        w!("");
+    }
+    let mem_head = "  intro t ht\n  rw [show rows a = List.ofFn (fun i => (row a i, inner a i)) from rfl] at ht\n  obtain ⟨i, rfl⟩ := List.mem_ofFn.mp ht";
+    let cases = |name: &str, ty: &str, extra: &str, arm: &dyn Fn(usize) -> String| {
+        let mut lines = vec![
+            format!("theorem {name} (a : Assignment p) (h : Satisfies ({circuit} p) a){extra} :"),
+            format!("    {ty} := by"),
+            mem_head.to_string(),
+            "  fin_cases i".to_string(),
+        ];
+        for i in 0..n {
+            lines.push(format!("  · {}", arm(i)));
+        }
+        lines.join("\n")
+    };
+    w!(
+        "{}",
+        cases(
+            "dummyAll",
+            "∀ t ∈ rows a, DummyCheck t.1",
+            "",
+            &|i| format!("exact dummyAt_{i} a h")
+        )
+    );
+    w!("");
+    w!(
+        "{}",
+        cases(
+            "assetAll",
+            "∀ t ∈ rows a, ConsistencyCheck t.1.isDummy t.1.assetId (scanRef (rows a) fun t => t.1.assetId)",
+            "",
+            &|i| format!("exact assetAt_{i} a h")
+        )
+    );
+    w!("");
+    w!(
+        "{}",
+        cases(
+            "feeAll",
+            "∀ t ∈ rows a, ConsistencyCheck t.1.isDummy t.1.fee (scanRef (rows a) fun t => t.1.fee)",
+            "",
+            &|i| format!("exact feeAt_{i} a h")
+        )
+    );
+    w!("");
+    w!(
+        "{}",
+        cases(
+            "blockAll",
+            "∀ t ∈ rows a, DigestConsistencyCheck t.1.isDummy t.1.blockHash (blockRef (rows a))",
+            "",
+            &|i| format!("exact blockAt_{i} a h")
+        )
+    );
+    w!("");
+    w!(
+        "{}",
+        cases(
+            "countAll",
+            &format!("∀ t ∈ rows a, t.2.numExitSlots = {s}"),
+            " (hpg : WormholeSpec.goldilocks ≤ p)",
+            &|i| format!("exact countAt_{i} a h hpg")
+        )
+    );
+    w!("");
+    w!("theorem decBlock (a : Assignment p) :");
+    w!("    ∀ t ∈ rows a, valDigest t.1.blockHash = t.2.blockHash := by");
+    w!("{mem_head}");
+    w!("  rfl");
+    w!("");
+    w!("theorem decSlots (a : Assignment p) :");
+    w!("    ∀ t ∈ rows a, t.1.slots.map valSlot = t.2.exitSlots := by");
+    w!("{mem_head}");
+    w!("  rfl");
+    w!("");
+    w!("theorem decNulls (a : Assignment p) :");
+    w!("    ∀ t ∈ rows a, t.1.nulls.map valDigest = t.2.nullifiers := by");
+    w!("{mem_head}");
+    w!("  rfl");
+    w!("");
+    for (name, ty) in [
+        (
+            "decNum",
+            "∀ t ∈ rows a, t.1.blockNumber.val = t.2.blockNumber",
+        ),
+        ("decAsset", "∀ t ∈ rows a, t.1.assetId.val = t.2.assetId"),
+        ("decFee", "∀ t ∈ rows a, t.1.fee.val = t.2.volumeFeeBps"),
+        (
+            "shapeAll",
+            &format!("∀ t ∈ rows a, t.1.slots.length = {s}") as &str,
+        ),
+    ] {
+        w!("theorem {name} (a : Assignment p) :");
+        w!("    {ty} := by");
+        w!("{mem_head}");
+        w!("  fin_cases i <;> rfl");
+        w!("");
+    }
+    let exit_eqs: Vec<String> = (0..n).map(|i| format!("exitChunk_eq_{i} a h")).collect();
+    let null_eqs: Vec<String> = (0..n).map(|i| format!("nullChunk_eq_{i} a h")).collect();
+    w!("theorem exitFwd (a : Assignment p) (h : Satisfies ({circuit} p) a) :");
+    w!("    (out a).exitSlots = (forwardedSlotsF (rows a)).map valSlot := by");
+    w!("  simp only [out, forwardedSlotsF, rows, List.map_cons, List.map_nil,");
+    w!("    List.flatten_cons, List.flatten_nil]");
+    w!("  rw [{}]", exit_eqs.join(", "));
+    w!("  rfl");
+    w!("");
+    w!("theorem nullFwd (a : Assignment p) (h : Satisfies ({circuit} p) a) :");
+    w!("    (out a).nullifiers = (forwardedNullsF (rows a)).map valDigest := by");
+    w!("  simp only [out, forwardedNullsF, rows, List.map_cons, List.map_nil,");
+    w!("    List.flatten_cons, List.flatten_nil]");
+    w!("  rw [{}]", null_eqs.join(", "));
+    w!("  rfl");
+    w!("");
+    if shape.calls.len() > 1000 {
+        w!("set_option maxHeartbeats 20000000 in");
+    }
     w!("/-- **The recorded public-batch wrapper satisfies `RPublicBatch`.** Every satisfying");
     w!("    assignment decodes to an `RPublicBatch` instance on the {n} inner outputs, the");
     w!("    aggregator address and the aggregated output; the oracle is irrelevant (the wrapper");
@@ -848,129 +1337,15 @@ pub fn render(shape: &Shape) -> String {
     w!("theorem sound (ro : RandomOracle) (hpg : WormholeSpec.goldilocks ≤ p)");
     w!("    (a : Assignment p) (h : Satisfies ({circuit} p) a) :");
     w!("    RPublicBatch ro (inners a) (addr a) (out a) := by");
-    w!("  obtain ⟨{}⟩ := consts a h", const_names.join(", "));
-    w!("  have hf := {decode} a h");
-    // Projections.
-    let mut proj = |name: String, k: usize| w!("  have {name} := {}", shape.projection(k));
-    for (i, inner) in inners.iter().enumerate() {
-        proj(format!("cp{i}"), inner.count_pin);
-    }
-    for (i, inner) in inners.iter().enumerate() {
-        for j in 0..4 {
-            proj(format!("e{i}_{j}"), inner.dummy_eq[j]);
-        }
-        proj(format!("da{i}"), inner.dummy_and[0]);
-        proj(format!("db{i}"), inner.dummy_and[1]);
-        proj(format!("d{i}"), inner.dummy_and[2]);
-    }
-    for (i, inner) in inners.iter().enumerate() {
-        proj(format!("r{i}"), inner.is_real);
-        if let Some(k) = inner.not_found {
-            proj(format!("nf{i}"), k);
-        }
-        if let Some(k) = inner.take {
-            proj(format!("tk{i}"), k);
-        }
-        for j in 0..4 {
-            proj(format!("sb{i}_{j}"), inner.sel_block[j]);
-        }
-        proj(format!("sn{i}"), inner.sel_number);
-        proj(format!("sa{i}"), inner.sel_asset);
-        proj(format!("sf{i}"), inner.sel_fee);
-        if let Some(k) = inner.found {
-            proj(format!("fo{i}"), k);
-        }
-    }
-    for (i, inner) in inners.iter().enumerate() {
-        proj(format!("ca{i}"), inner.asset_eq);
-        proj(format!("cao{i}"), inner.asset_or);
-        proj(format!("cak{i}"), inner.asset_pin);
-        proj(format!("cf{i}"), inner.fee_eq);
-        proj(format!("cfo{i}"), inner.fee_or);
-        proj(format!("cfk{i}"), inner.fee_pin);
-        for j in 0..4 {
-            proj(format!("cb{i}_{j}"), inner.block_eq[j]);
-        }
-        proj(format!("cba{i}"), inner.block_and[0]);
-        proj(format!("cbb{i}"), inner.block_and[1]);
-        proj(format!("cbc{i}"), inner.block_and[2]);
-        proj(format!("cbo{i}"), inner.block_or);
-        proj(format!("cbk{i}"), inner.block_pin);
-    }
-    for (i, inner) in inners.iter().enumerate() {
-        for (k, &c) in inner.slot_fwd.iter().enumerate() {
-            proj(format!("fs{i}_{k}"), c);
-        }
-    }
-    for (i, inner) in inners.iter().enumerate() {
-        for (k, &c) in inner.null_fwd.iter().enumerate() {
-            proj(format!("fn{i}_{k}"), c);
-        }
-    }
-    w!("");
-    let all_eqs: Vec<String> = (0..n)
-        .flat_map(|i| (0..4).map(move |j| format!("e{i}_{j}")))
-        .collect();
-    w!("  rw [kzero] at {}", all_eqs.join(" "));
-    for (i, inner) in inners.iter().enumerate() {
-        let d = shape.out(inner.dummy_and[2]);
-        w!(
-            "  have hd{i} : {} = (row a {i}).isDummy := by rw [d{i}, da{i}, db{i}]; rfl",
-            a(d)
-        );
-    }
-    // hsel: the select chain on the circuit's take wires.
-    let xs: Vec<String> = (0..n).map(|i| format!("x{i}")).collect();
-    let take_wire = |i: usize| -> Target {
-        match inners[i].take {
-            Some(k) => shape.out(k),
-            None => shape.out(inners[i].is_real),
-        }
-    };
-    let mut chain = format!("bselect ({}) x0 0", a(take_wire(0)));
-    for i in 1..n {
-        chain = format!("bselect ({}) x{i} ({chain})", a(take_wire(i)));
-    }
-    let nf_rows = scan_normal_form(n, &|i| format!("(row a {i}).isDummy"), &|i| format!("x{i}"));
-    w!("  have hsel : ∀ {} : ZMod p,", xs.join(" "));
-    w!("      {chain}");
-    w!("        = {nf_rows} := by");
-    w!("    intro {}", xs.join(" "));
-    let mut rws: Vec<String> = Vec::new();
-    for i in (1..n).rev() {
-        rws.push(format!("tk{i}"));
-    }
-    for i in (1..n).rev() {
-        rws.push(format!("nf{i}"));
-    }
-    for i in (1..n).rev() {
-        if inners[i].found.is_some() {
-            rws.push(format!("fo{i}"));
-        }
-    }
-    for i in (0..n).rev() {
-        rws.push(format!("r{i}"));
-    }
-    for i in 0..n {
-        rws.push(format!("hd{i}"));
-    }
-    w!("    rw [{}]", rws.join(", "));
-    // Block reference limbs.
-    let block_wires: Vec<Target> = (0..4)
-        .map(|j| shape.out(inners[n - 1].sel_block[j]))
-        .collect();
-    let bw: Vec<String> = block_wires.iter().map(|t| lean_target(*t)).collect();
+    w!("  {obtain}");
     w!(
         "  have hblk : ∀ j, a (![{}] j) = blockRef (rows a) j := by",
         bw.join(", ")
     );
     w!("    intro j");
-    w!("    simp only [blockRef, rows, scanRef_{n}]");
     w!("    fin_cases j");
     for j in 0..4 {
-        let sels: Vec<String> = (0..n).rev().map(|i| format!("sb{i}_{j}")).collect();
-        w!("    · show a ({}) = _", bw[j]);
-        w!("      rw [{}, kzero, hsel]; rfl", sels.join(", "));
+        w!("    · exact blockLimb_{j} a h");
     }
     for j in 0..4 {
         w!(
@@ -978,56 +1353,17 @@ pub fn render(shape: &Shape) -> String {
             bw[j]
         );
     }
-    let scalar_ref = |name: &str, field: &str, sel: &dyn Fn(usize) -> usize| -> String {
-        let wire = shape.out(sel(n - 1));
-        let sels: Vec<String> = (0..n).rev().map(|i| format!("{name}{i}")).collect();
-        format!(
-            "  have h{name}R : {} = scanRef (rows a) fun t => t.1.{field} := by\n    rw [rows, scanRef_{n}, {}, kzero, hsel]; rfl",
-            a(wire),
-            sels.join(", ")
-        )
-    };
-    w!(
-        "{}",
-        scalar_ref("sn", "blockNumber", &|i| inners[i].sel_number)
-    );
-    w!("{}", scalar_ref("sa", "assetId", &|i| inners[i].sel_asset));
-    w!("{}", scalar_ref("sf", "fee", &|i| inners[i].sel_fee));
+    w!("  have hsnR := scan_sn a h");
+    w!("  have hsaR := scan_sa a h");
+    w!("  have hsfR := scan_sf a h");
     let number_wire = a(shape.out(inners[n - 1].sel_number));
     let asset_wire = a(shape.out(inners[n - 1].sel_asset));
     let fee_wire = a(shape.out(inners[n - 1].sel_fee));
-    // Membership.
-    let alts: Vec<String> = (0..n)
-        .map(|i| format!("t = (row a {i}, inner a {i})"))
-        .collect();
-    w!("  have hmem : ∀ t ∈ rows a, {} := by", alts.join(" ∨ "));
-    w!("    intro t ht");
-    w!("    simpa only [rows, List.mem_cons, List.not_mem_nil, or_false] using ht");
-    let ps: Vec<String> = (0..n)
-        .map(|i| format!("P (row a {i}, inner a {i})"))
-        .collect();
-    let hs: Vec<String> = (0..n).map(|i| format!("h{i}")).collect();
-    let rfls = vec!["rfl"; n].join(" | ");
-    w!(
-        "  have hdec : ∀ (P : InnerPair p → Prop), {} →",
-        ps.join(" → ")
-    );
-    w!("      ∀ t ∈ rows a, P t := by");
-    w!("    intro P {} t ht", hs.join(" "));
-    w!("    rcases hmem t ht with {rfls}");
-    for i in 0..n {
-        w!("    · exact h{i}");
-    }
-    let dec_rfls = vec!["rfl"; n].join(" ");
-    w!("  refine public_batch_val ro (rows a) (k := {s}) rfl ?_ (hdec _ {dec_rfls}) (hdec _ {dec_rfls})");
-    w!("    (hdec _ {dec_rfls}) (hdec _ {dec_rfls}) (hdec _ {dec_rfls}) (hdec _ {dec_rfls}) ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_");
-    w!("    ?_ ?_ ?_");
-    w!("  · -- dummy checks");
-    w!("    intro t ht");
-    w!("    rcases hmem t ht with {rfls}");
-    for _ in 0..n {
-        w!("    · intro j; fin_cases j <;> assumption");
-    }
+    w!("  refine public_batch_val ro (rows a) (k := {s}) rfl");
+    w!("    (dummyAll a h) (decBlock a) (decNum a) (decAsset a) (decFee a)");
+    w!("    (decSlots a) (decNulls a) ?_ ?_ ?_ ?_");
+    w!("    (assetAll a h) (feeAll a h) (blockAll a h)");
+    w!("    (exitFwd a h) (nullFwd a h) (shapeAll a) (countAll a h hpg) ?_");
     w!("  · -- header: block hash");
     w!(
         "    show (⟨{}⟩ : Digest)",
@@ -1046,82 +1382,6 @@ pub fn render(shape: &Shape) -> String {
     w!("    rw [hsaR]");
     w!("  · show ({fee_wire}).val = _");
     w!("    rw [hsfR]");
-    w!("  · -- asset consistency");
-    w!("    intro t ht");
-    w!("    rcases hmem t ht with {rfls}");
-    for i in 0..n {
-        w!("    · exact ⟨_, _, hsaR ▸ ca{i}, by rw [← hd{i}, ← cao{i}, cak{i}, kone]⟩");
-    }
-    w!("  · -- fee consistency");
-    w!("    intro t ht");
-    w!("    rcases hmem t ht with {rfls}");
-    for i in 0..n {
-        w!("    · exact ⟨_, _, hsfR ▸ cf{i}, by rw [← hd{i}, ← cfo{i}, cfk{i}, kone]⟩");
-    }
-    w!("  · -- block consistency");
-    w!("    intro t ht");
-    w!("    rcases hmem t ht with {rfls}");
-    for (i, inner) in inners.iter().enumerate() {
-        let (eqs, invs): (Vec<String>, Vec<String>) = inner
-            .block_eq
-            .iter()
-            .map(|&k| match *shape.fact(k) {
-                Fact::IsEqual { equal, inv, .. } => (a(equal), a(inv)),
-                _ => unreachable!(),
-            })
-            .unzip();
-        w!("    · refine ⟨![{}],", eqs.join(", "));
-        w!("        ![{}], ?_, ?_⟩", invs.join(", "));
-        w!("      · intro j; rw [← hblk j]; fin_cases j <;> assumption");
-        w!(
-            "      · show bor (row a {i}).isDummy (band (band ({}) ({}))",
-            eqs[0],
-            eqs[1]
-        );
-        w!("          (band ({}) ({}))) = 1", eqs[2], eqs[3]);
-        w!("        rw [← hd{i}, ← cba{i}, ← cbb{i}, ← cbc{i}, ← cbo{i}, cbk{i}, kone]");
-    }
-    let hds: Vec<String> = (0..n).map(|i| format!("hd{i}")).collect();
-    let fs_names: Vec<String> = inners
-        .iter()
-        .enumerate()
-        .flat_map(|(i, inner)| (0..inner.slot_fwd.len()).map(move |k| format!("fs{i}_{k}")))
-        .collect();
-    let fn_names: Vec<String> = inners
-        .iter()
-        .enumerate()
-        .flat_map(|(i, inner)| (0..inner.null_fwd.len()).map(move |k| format!("fn{i}_{k}")))
-        .collect();
-    w!("  · -- forwarded exit slots");
-    w!("    show ({slot_list_s} : List ExitSlot) = _");
-    w!(
-        "    rw [{}, kzero, {}]",
-        fs_names.join(", "),
-        hds.join(", ")
-    );
-    w!("    rfl");
-    w!("  · -- forwarded nullifiers");
-    w!("    show ({null_list_s} : List Digest) = _");
-    w!(
-        "    rw [{}, kzero, {}]",
-        fn_names.join(", "),
-        hds.join(", ")
-    );
-    w!("    rfl");
-    w!("  · -- each inner exposes {s} exit slots");
-    w!("    intro t ht");
-    w!("    rcases hmem t ht with {rfls} <;> rfl");
-    w!("  · -- each inner's slot-count header is the constant {s}");
-    w!("    have hc : ({s} : ℕ) < p := lt_of_lt_of_le (by decide) hpg");
-    w!("    intro t ht");
-    w!("    rcases hmem t ht with {rfls}");
-    for (i, inner) in inners.iter().enumerate() {
-        w!(
-            "    · show ({}).val = {s}",
-            a(inner.pis[layout::NUM_EXIT_SLOTS])
-        );
-        w!("      rw [cp{i}, kslots, ← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]");
-    }
     let total_value = n * s;
     w!("  · show ({}).val = {n} * {s}", a(shape.total));
     w!("    rw [ktot]");
@@ -1139,10 +1399,22 @@ pub fn render(shape: &Shape) -> String {
         .collect();
     w!("    [{}]", children.join(",\n     "));
     w!("");
-    w!("omit [Fact p.Prime] in");
-    w!("set_option maxRecDepth 8192 in");
+    for i in 0..n {
+        w!("theorem pisEq_{i} :");
+        w!("    List.ofFn (innerPis {i}) = ({circuit}.verifiers[{i}]'(by decide)).2 := by");
+        w!("  rfl");
+        w!("");
+    }
     w!("/-- The tree's gadgets are the recorded ones. -/");
-    w!("theorem tree_verifiers : (tree (p := p)).verifiers = {circuit}.verifiers := rfl");
+    w!("theorem tree_verifiers : (tree (p := p)).verifiers = {circuit}.verifiers := by");
+    w!("  have htag : Wrapper{leaves}.tree.tag (p := p) = \"private_batch_wrapper_n{leaves}\" := by");
+    w!("    simp only [Recursive.tag, Wrapper{leaves}.tree]");
+    w!("  rw [Recursive.verifiers, tree, Recursive.children]");
+    for i in 0..n {
+        w!("  rw [List.map_cons, htag, pisEq_{i}]");
+    }
+    w!("  rw [List.map_nil]");
+    w!("  rfl");
     w!("");
     w!("omit [Fact p.Prime] in");
     w!("set_option maxRecDepth 8192 in");
@@ -1157,7 +1429,7 @@ pub fn render(shape: &Shape) -> String {
     w!("    public-batch wrapper whose recursion gadgets accepted every inner private-batch proof");
     w!("    (i) satisfies `RPublicBatch`, (ii) has the slot-count header equal to the sum of the");
     w!("    inners' slot counts and (iii) attests every inner's `RPrivateBatch` — through");
-    w!("    `proof_sound`, the only axiom, and the wired wrapper bridges below it. -/");
+    w!("    `proof_sound` and the wired wrapper bridges below it. -/");
     w!("theorem end_to_end_wired (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)");
     w!("    (a : Assignment p) (h : Satisfies ({circuit} p) a)");
     w!("    (hacc : ∀ i : Fin {n}, ProofAccepted perm Wrapper{leaves}.tree ((List.ofFn (innerPis i)).map a)) :");
@@ -1167,12 +1439,10 @@ pub fn render(shape: &Shape) -> String {
     w!("  have hR := sound (spongeRO perm) hpg a h");
     w!("  refine ⟨hR, RPublicBatch_totalExitSlots hR, ?_⟩");
     w!("  intro o ho");
-    w!("  simp only [inners, List.mem_cons, List.mem_nil_iff, or_false] at ho");
-    let alts: Vec<&str> = (0..n).map(|_| "rfl").collect();
-    w!("  rcases ho with {}", alts.join(" | "));
-    for i in 0..n {
-        w!("  · rw [inner_eq]; exact Wrapper{leaves}.accepted_sound perm hpg (hacc {i})");
-    }
+    w!("  rw [show inners a = List.ofFn (inner a) from rfl] at ho");
+    w!("  obtain ⟨i, rfl⟩ := List.mem_ofFn.mp ho");
+    w!("  rw [inner_eq]");
+    w!("  exact Wrapper{leaves}.accepted_sound perm hpg (hacc i)");
     w!("");
     w!("end Plonky2Bridge.PublicWrapper{n}");
     o
@@ -1211,4 +1481,462 @@ pub fn generate_public_wrapper_bridge_lean(n: usize) -> Result<String, String> {
         return Err(format!("trace {circuit} has {} inners", shape.n));
     }
     Ok(render(&shape))
+}
+
+/// One generated bridge file, relative to `formal/Plonky2Bridge/Generated/`.
+pub struct BridgeModule {
+    pub relative: String,
+    pub contents: String,
+}
+
+/// The bridge for `n`, split into separately elaborated files once `n` is large
+/// enough that one `lean` process cannot hold `row`, the forwarded chunks and
+/// every per-inner rewrite at once. Small `n` stays a single file.
+pub fn generate_public_wrapper_bridge_modules(n: usize) -> Result<Vec<BridgeModule>, String> {
+    let src = generate_public_wrapper_bridge_lean(n)?;
+    if n <= 4 {
+        return Ok(vec![BridgeModule {
+            relative: format!("PublicWrapper{n}.lean"),
+            contents: src,
+        }]);
+    }
+    Ok(split_bridge(n, &src))
+}
+
+/// Inners per forwarding file. Each inner is two theorems (slots and nullifiers);
+/// one inner keeps a single elaboration well under the memory a CI runner gives
+/// four parallel `lean` processes.
+const INNERS_PER_FWD_FILE: usize = 1;
+
+fn split_bridge(n: usize, src: &str) -> Vec<BridgeModule> {
+    let module = format!("PublicWrapper{n}");
+    let ns = format!("Plonky2Bridge.PublicWrapper{n}");
+    let trimmed = src
+        .trim_end()
+        .trim_end_matches(&format!("end {ns}"))
+        .trim_end();
+    let lines: Vec<&str> = trimmed.lines().collect();
+    let mut idx = 0;
+    let mut header = String::new();
+    if lines.first().is_some_and(|l| l.starts_with("/-")) {
+        while idx < lines.len() {
+            header.push_str(lines[idx]);
+            header.push('\n');
+            if lines[idx].starts_with("-/") {
+                idx += 1;
+                break;
+            }
+            idx += 1;
+        }
+    }
+    while idx < lines.len() && lines[idx].is_empty() {
+        idx += 1;
+    }
+    let mut imports = Vec::new();
+    while idx < lines.len() && lines[idx].starts_with("import ") {
+        imports.push(lines[idx].to_string());
+        idx += 1;
+    }
+    while idx < lines.len() && lines[idx].is_empty() {
+        idx += 1;
+    }
+    assert!(
+        lines[idx].starts_with("namespace "),
+        "bridge is missing its namespace"
+    );
+    idx += 1;
+    while idx < lines.len() && lines[idx].is_empty() {
+        idx += 1;
+    }
+    let mut opens = Vec::new();
+    while idx < lines.len() && !lines[idx].starts_with("variable ") {
+        if !lines[idx].is_empty() {
+            opens.push(lines[idx].to_string());
+        }
+        idx += 1;
+    }
+    let variable = lines[idx].to_string();
+    assert!(
+        variable.starts_with("variable "),
+        "bridge is missing its variable line"
+    );
+    idx += 1;
+    while idx < lines.len() && lines[idx].is_empty() {
+        idx += 1;
+    }
+    let mut options = Vec::new();
+    while idx < lines.len() && lines[idx].starts_with("set_option ") {
+        options.push(lines[idx].to_string());
+        idx += 1;
+    }
+    let blocks = decl_blocks(&lines[idx..].join("\n"));
+    let mut read: Vec<String> = Vec::new();
+    let mut scan: Vec<String> = Vec::new();
+    let mut take: Vec<String> = Vec::new();
+    let mut fwd: Vec<Vec<String>> = vec![Vec::new(); n];
+    let mut limb: Vec<Vec<String>> = vec![Vec::new(); 4];
+    let mut scalar: Vec<String> = Vec::new();
+    let mut rel: Vec<String> = Vec::new();
+    let mut dispatch: Vec<String> = Vec::new();
+    let mut fwd_join: Vec<String> = Vec::new();
+    let mut tree: Vec<String> = Vec::new();
+    let mut sound: Vec<String> = Vec::new();
+    let mut seen_fwd = false;
+    let mut pending = String::new();
+    for mut block in blocks {
+        if is_directive_only(&block) {
+            pending.push_str(&block);
+            continue;
+        }
+        if !pending.is_empty() {
+            pending.push_str(&block);
+            block = std::mem::take(&mut pending);
+        }
+        if let Some(i) = chunk_eq_index(&block) {
+            seen_fwd = true;
+            fwd[i].push(block);
+        } else if let Some(j) = block_limb_index(&block) {
+            limb[j].push(block);
+        } else if is_scan_scalar(&block) {
+            scalar.push(block);
+        } else if is_rel_block(&block) {
+            rel.push(block);
+        } else if is_dispatch_block(&block) {
+            dispatch.push(block);
+        } else if is_tree_block(&block) {
+            tree.push(block);
+        } else if is_fwd_join(&block) {
+            fwd_join.push(block);
+        } else if is_take_block(&block) {
+            take.push(block);
+        } else if block_starts_with(&block, "theorem scanRef_") {
+            scan.push(block);
+        } else if seen_fwd {
+            sound.push(block);
+        } else {
+            read.push(block);
+        }
+    }
+    assert!(seen_fwd, "no per-inner forwarding theorems to split");
+
+    let part = |name: &str,
+                use_imports: bool,
+                deps: &[String],
+                body: &str,
+                with_header: bool|
+     -> BridgeModule {
+        BridgeModule {
+            relative: format!("{module}/{name}.lean"),
+            contents: render_bridge_part(
+                &ns,
+                if with_header { &header } else { "" },
+                if use_imports { &imports } else { &[] },
+                deps,
+                &opens,
+                &variable,
+                &options,
+                body,
+            ),
+        }
+    };
+    let mut files = Vec::new();
+    files.push(part("Read", true, &[], &read.join("\n"), true));
+    files.push(part(
+        "Scan",
+        false,
+        &[format!("Plonky2Bridge.Generated.{module}.Read")],
+        &scan.join("\n"),
+        false,
+    ));
+    files.push(part(
+        "Take",
+        false,
+        &[format!("Plonky2Bridge.Generated.{module}.Read")],
+        &take.join("\n"),
+        false,
+    ));
+    let mut limb_deps = Vec::new();
+    for (j, blocks) in limb.iter().enumerate() {
+        let name = format!("Limb{j}");
+        files.push(part(
+            &name,
+            false,
+            &[
+                format!("Plonky2Bridge.Generated.{module}.Scan"),
+                format!("Plonky2Bridge.Generated.{module}.Take"),
+            ],
+            &blocks.join("\n"),
+            false,
+        ));
+        limb_deps.push(format!("Plonky2Bridge.Generated.{module}.{name}"));
+    }
+    files.push(part(
+        "Scalar",
+        false,
+        &[
+            format!("Plonky2Bridge.Generated.{module}.Scan"),
+            format!("Plonky2Bridge.Generated.{module}.Take"),
+        ],
+        &scalar.join("\n"),
+        false,
+    ));
+    limb_deps.push(format!("Plonky2Bridge.Generated.{module}.Scalar"));
+    files.push(part("Rel", false, &limb_deps, &rel.join("\n"), false));
+    files.push(part(
+        "Dispatch",
+        false,
+        &[format!("Plonky2Bridge.Generated.{module}.Rel")],
+        &dispatch.join("\n"),
+        false,
+    ));
+    files.push(part(
+        "Tree",
+        false,
+        &[format!("Plonky2Bridge.Generated.{module}.Read")],
+        &tree.join("\n"),
+        false,
+    ));
+    limb_deps.push(format!("Plonky2Bridge.Generated.{module}.Tree"));
+    files.push(part(
+        "FwdJoin",
+        false,
+        &[format!("Plonky2Bridge.Generated.{module}.Fwd")],
+        &fwd_join.join("\n"),
+        false,
+    ));
+    limb_deps.push(format!("Plonky2Bridge.Generated.{module}.Dispatch"));
+    limb_deps.push(format!("Plonky2Bridge.Generated.{module}.FwdJoin"));
+    let mut fwd_names = Vec::new();
+    for (batch, group) in fwd.chunks(INNERS_PER_FWD_FILE).enumerate() {
+        let body = group
+            .iter()
+            .flat_map(|blocks| blocks.iter())
+            .cloned()
+            .collect::<Vec<_>>()
+            .join("\n");
+        if body.trim().is_empty() {
+            continue;
+        }
+        let name = format!("Fwd{batch}");
+        files.push(part(
+            &name,
+            false,
+            &[format!("Plonky2Bridge.Generated.{module}.Read")],
+            &body,
+            false,
+        ));
+        fwd_names.push(name);
+    }
+    let barrel = fwd_names
+        .iter()
+        .map(|name| format!("import Plonky2Bridge.Generated.{module}.{name}\n"))
+        .collect::<String>();
+    files.push(BridgeModule {
+        relative: format!("{module}/Fwd.lean"),
+        contents: barrel,
+    });
+    files.push(part(
+        "Sound",
+        false,
+        &{
+            let mut deps = limb_deps.clone();
+            deps.push(format!("Plonky2Bridge.Generated.{module}.Fwd"));
+            deps
+        },
+        &sound.join("\n"),
+        false,
+    ));
+    files.push(BridgeModule {
+        relative: format!("{module}.lean"),
+        contents: format!("import Plonky2Bridge.Generated.{module}.Sound\n"),
+    });
+    files
+}
+
+fn chunk_eq_index(block: &str) -> Option<usize> {
+    for line in block.lines() {
+        let Some(rest) = line
+            .strip_prefix("theorem exitChunk_eq_")
+            .or_else(|| line.strip_prefix("theorem nullChunk_eq_"))
+        else {
+            continue;
+        };
+        let num: String = rest.chars().take_while(|c| c.is_ascii_digit()).collect();
+        if !num.is_empty() && rest[num.len()..].starts_with(' ') {
+            return num.parse().ok();
+        }
+    }
+    None
+}
+
+fn block_limb_index(block: &str) -> Option<usize> {
+    for line in block.lines() {
+        let Some(rest) = line.strip_prefix("theorem blockLimb_") else {
+            continue;
+        };
+        let num: String = rest.chars().take_while(|c| c.is_ascii_digit()).collect();
+        if !num.is_empty() && rest[num.len()..].starts_with(' ') {
+            return num.parse().ok();
+        }
+    }
+    None
+}
+
+fn is_rel_block(block: &str) -> bool {
+    block.lines().any(|line| {
+        line.starts_with("theorem dummyAt_")
+            || line.starts_with("theorem assetAt_")
+            || line.starts_with("theorem feeAt_")
+            || line.starts_with("theorem blockAt_")
+            || line.starts_with("theorem countAt_")
+    })
+}
+
+fn is_dispatch_block(block: &str) -> bool {
+    block.lines().any(|line| {
+        line.starts_with("theorem dummyAll")
+            || line.starts_with("theorem assetAll")
+            || line.starts_with("theorem feeAll")
+            || line.starts_with("theorem blockAll")
+            || line.starts_with("theorem countAll")
+            || line.starts_with("theorem shapeAll")
+            || line.starts_with("theorem decBlock")
+            || line.starts_with("theorem decNum")
+            || line.starts_with("theorem decAsset")
+            || line.starts_with("theorem decFee")
+            || line.starts_with("theorem decSlots")
+            || line.starts_with("theorem decNulls")
+    })
+}
+
+fn is_directive_only(block: &str) -> bool {
+    block.lines().all(|line| {
+        let line = line.trim();
+        line.is_empty()
+            || line.starts_with("omit ")
+            || line.starts_with("set_option ")
+            || line.starts_with("/-")
+            || line.starts_with("-/")
+    })
+}
+
+fn is_tree_block(block: &str) -> bool {
+    block.lines().any(|line| {
+        line.starts_with("def tree ")
+            || line.starts_with("theorem pisEq_")
+            || line.starts_with("theorem tree_verifiers")
+            || line.starts_with("theorem inner_eq")
+    })
+}
+
+fn is_fwd_join(block: &str) -> bool {
+    block
+        .lines()
+        .any(|line| line.starts_with("theorem exitFwd") || line.starts_with("theorem nullFwd"))
+}
+
+fn is_scan_scalar(block: &str) -> bool {
+    block.lines().any(|line| line.starts_with("theorem scan_"))
+}
+
+fn is_take_block(block: &str) -> bool {
+    block.lines().any(|line| {
+        line.starts_with("def takeWire")
+            || line.starts_with("theorem realEq_")
+            || line.starts_with("theorem foundEq_")
+            || line.starts_with("theorem takeEq_")
+            || line.starts_with("theorem selChain_eq")
+    })
+}
+
+fn block_starts_with(block: &str, prefix: &str) -> bool {
+    block
+        .lines()
+        .any(|line| line.starts_with(prefix) || line.trim_start().starts_with(prefix))
+}
+
+fn decl_blocks(src: &str) -> Vec<String> {
+    let mut blocks = Vec::new();
+    let mut cur = String::new();
+    let mut has_decl = false;
+    for line in src.lines() {
+        let starts = line.starts_with("def ")
+            || line.starts_with("theorem ")
+            || line.starts_with("omit ")
+            || line.starts_with("set_option ")
+            || line.starts_with("/--")
+            || line.starts_with("/-!");
+        if starts && has_decl {
+            blocks.push(std::mem::take(&mut cur));
+            has_decl = false;
+        }
+        if line.starts_with("def ")
+            || line.starts_with("theorem ")
+            || line.starts_with("omit ")
+            || line.starts_with("set_option ")
+        {
+            has_decl = true;
+        }
+        cur.push_str(line);
+        cur.push('\n');
+    }
+    if !cur.trim().is_empty() {
+        blocks.push(cur);
+    }
+    blocks
+}
+
+fn render_bridge_part(
+    ns: &str,
+    header: &str,
+    imports: &[String],
+    deps: &[String],
+    opens: &[String],
+    variable: &str,
+    options: &[String],
+    body: &str,
+) -> String {
+    let mut out = String::new();
+    if !header.is_empty() {
+        out.push_str(header);
+        if !header.ends_with('\n') {
+            out.push('\n');
+        }
+        out.push('\n');
+    }
+    for import in imports {
+        out.push_str(import);
+        out.push('\n');
+    }
+    for dep in deps {
+        out.push_str("import ");
+        out.push_str(dep);
+        out.push('\n');
+    }
+    out.push('\n');
+    out.push_str("namespace ");
+    out.push_str(ns);
+    out.push_str("\n\n");
+    for open in opens {
+        out.push_str(open);
+        out.push('\n');
+    }
+    out.push('\n');
+    out.push_str(variable);
+    out.push_str("\n\n");
+    for option in options {
+        out.push_str(option);
+        out.push('\n');
+    }
+    if !options.is_empty() {
+        out.push('\n');
+    }
+    out.push_str(body.trim_start_matches('\n'));
+    if !out.ends_with('\n') {
+        out.push('\n');
+    }
+    out.push_str("end ");
+    out.push_str(ns);
+    out.push('\n');
+    out
 }

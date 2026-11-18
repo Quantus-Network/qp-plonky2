@@ -1,0 +1,22 @@
+[package]
+name = "qp-plonky2-unroll"
+description = "Attribute macro that unrolls for loops with integer literal bounds (vendored fork of `unroll`)"
+version = "1.6.0"
+authors = ["Egor Larionov <egor.larionov@gmail.com>"]
+readme = "README.md"
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+keywords = ["unroll", "for-loop", "attribute"]
+categories = ["development-tools"]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+quote = "1"
+syn = { version = "2", features = ["full"] }
+
+[lints]
+workspace = true

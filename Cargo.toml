@@ -6,6 +6,7 @@ members = [
   "maybe_rayon",
   "plonky2",
   "starky",
+  "unroll",
   "util",
   "verifier",
 ]
@@ -15,30 +16,28 @@ default-members = [
   "maybe_rayon",
   "plonky2",
   "starky",
+  "unroll",
   "util",
   "verifier",
 ]
 resolver = "2"
 
 [workspace.dependencies]
-# No compile-time-rng: that pulled const-random → getrandom 0.2 alongside
-# rand 0.10's getrandom 0.4. Fixed keys are fine for a deterministic prover.
-ahash = { version = "=0.8.12", default-features = false } # NOTE: Be sure to keep this version the same as the dependency in `hashbrown`.
 anyhow = { version = "=1.0.104", default-features = false }
-hashbrown = { version = "=0.14.5", default-features = false, features = [
-  "ahash",
+# `default-hasher` is foldhash, seeded once per process (as ahash was before).
+# Nothing here depends on map iteration order, so that is fine.
+hashbrown = { version = "=0.17.1", default-features = false, features = [
+  "default-hasher",
   "serde",
-] } # NOTE: When upgrading, see `ahash` dependency.
-itertools = { version = "=0.13.0", default-features = false }
-log = { version = "=0.4.28", default-features = false }
+] }
+itertools = { version = "=0.15.0", default-features = false }
+log = { version = "=0.4.35", default-features = false }
 num = { version = "=0.4.3", default-features = false }
-rand = { version = "=0.10.1", default-features = false }
-rand_core = { version = "=0.10.0", default-features = false }
-serde = { version = "=1.0.228", default-features = false, features = [
+rand = { version = "=0.10.3", default-features = false }
+serde = { version = "=1.0.229", default-features = false, features = [
   "derive",
 ] }
 static_assertions = { version = "=1.1.0", default-features = false }
-unroll = { version = "=0.1.5", default-features = false }
 
 [profile.release]
 opt-level = 3

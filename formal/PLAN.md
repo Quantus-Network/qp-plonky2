@@ -14,7 +14,7 @@ circuit constraints actually enforce* — not merely asserted.
       ⇧  ===  THIS PACKAGE: the bridge  ===
 (2) Circuit constraints     ← gadget semantics here + a faithful model of each circuit()
       ⇧
-(1) Proof-system soundness  ← FRI + Plonk arithmetization + Fiat–Shamir + recursion  (TRUSTED, see §7)
+(1) Proof-system soundness  ← random oracle + FRI proximity gaps + verifier algebra  (see §7)
 ```
 
 - **(1)** says "a valid proof ⟹ *some* witness satisfies *this* constraint system."
@@ -155,17 +155,35 @@ Poseidon2 instantiates `RandomOracle.H` (its felt outputs are `digest.val`s).
 
 ## 7. Trusted assumptions (the seam to layer 1)
 
-Captured as explicit Lean `axiom`s in a dedicated `Trusted.lean`, mirroring how
-`RandomOracle` makes collision-resistance explicit:
+`Plonky2Bridge/Trusted.lean` is the only place an `axiom` is declared. `proof_sound`
+is a theorem, the composition of four declarations (Step 12):
 
-- **`verify_proof` soundness:** `verify_proof(vk, x, π)` constrains that `π` is a
-  valid proof of statement `x` under `vk`; given (1), a satisfied recursion gadget
-  implies the child's public-input relation holds.
-- **Proof-system soundness (1):** FRI query soundness, Plonk/AIR arithmetization,
-  Fiat–Shamir (and **QROM** Fiat–Shamir for the post-quantum claims), recursion.
+- **`poseidon_transcript_oracle`** — the proof-system Poseidon
+  (`PoseidonGoldilocksConfig`) is a random oracle on the verifier transcript
+  (QROM for the post-quantum reading). Merkle binding is a corollary. This is not
+  collision resistance, and it is not the wormhole Poseidon2.
+- **`fri_proximity_gap`** — FRI proximity gaps at the circuit's FRI parameters.
+  For `standard_recursion_config` the statistical query error is `(1/8)^28 = 2^{-84}`
+  (`friQueryBits = 84`). The extra 16 bits in `friConjecturedBits = 100` are grinding,
+  a work factor against the oracle, not another statistical `2^{-16}`.
+- **`algebraic_sampling`** — low degree plus the Fiat–Shamir checks imply identical
+  constraints only on a good event of probability `1 − ε`. The failure probability
+  `ε` is a sum of two kinds of terms. `α`, `β`, and `γ` (and lookup deltas, when
+  present) are base-field elements, repeated `num_challenges` times, independent of
+  the extension degree. Only the opening point `ζ` is sampled in the extension.
+  A single factor of `1/|F^D|` drops the base-field terms. No closed form is stated
+  until that bound is derived. The error remains when the hash is ideal and FRI
+  proximity is perfect.
+- **`verifier_algebra`** — deterministic given identical constraints: they are a
+  satisfying assignment of the exported circuit (`build`, native and recursive
+  verifier correspondence, Poseidon2 rows).
 
-Each axiom is documented with what it would take to discharge it, so the
-trusted base is auditable and individually replaceable later.
+Poseidon2 collision resistance is not one of these. It stays the `*_or_collision`
+reduction against `spongeRO`. A break of `verify` does not produce a collision, so
+`proof_sound` is not `Satisfies ∨ Collision`.
+
+Each declaration says what would discharge it. Capstones still call `proof_sound`;
+their axiom footprint is exactly these four.
 
 ## 8. Execution plan (commit checkpoint between each step)
 
@@ -824,7 +842,10 @@ it. Pieces:
   (~3 min), its bridge checks in ~16 s. `Plonky2Bridge/PublicWrapper.lean` aliases the
   capstones (`public_batch_end_to_end_wired`, `public_batch_end_to_end_wired_n4`) for the
   axiom gate; `wrapper_lean_is_current` covers all four generated files and CI diffs
-  `Plonky2Bridge/Generated/` too.
+  `Plonky2Bridge/Generated/` too. The production trace (`n_inner = 89` over 8-leaf,
+  32-slot private batches, 20114 calls) is the same generator: its decode is split across
+  `PublicBatchWrapper89/` so each module stays under the elaborator budget, and
+  `public_batch_end_to_end_wired_production` aliases `PublicWrapper89.end_to_end_wired`.
 - **8e — generated bridges, private wrapper (done).** `constraint-exporter/src/private_wrapper.rs`
   does the same for `privateBatchWrapper{N}`. `Shape::read` walks the recorded calls in the
   order `build_private_batch_constraints` emits them — per-leaf dummy checks, the first-real
@@ -848,6 +869,8 @@ it. Pieces:
   #190) both go through unchanged: the `N = 4` decode has 1178 facts (~4.5 min), its bridge
   checks in ~3.5 min; `N = 2` in ~35 s. `Plonky2Bridge/PrivateWrapper.lean` aliases
   `private_batch_end_to_end_wired` / `private_batch_end_to_end_wired_n4` for the axiom gate.
+  The production trace (`n = 8` leaves, 32 exit slots) is the same generator;
+  `private_batch_end_to_end_wired_production` aliases `Wrapper8.end_to_end_wired`.
 
 ### Step 9 — Wiring-level decode of the leaf circuit: `circuit ⟹ Rleaf`  ✅ DONE
 
@@ -1049,6 +1072,20 @@ switch network is gone from the circuit. What changed here, and why:
   `WORMHOLE_TRACES=formal/traces` against the freshly regenerated traces would close that gap
   at the source.
 
+### Step 12 — Split `proof_sound` into the layer-1 assumptions  ✅ DONE
+`proof_sound` is no longer an axiom. `Trusted.lean` declares `poseidon_transcript_oracle`,
+`fri_proximity_gap`, `algebraic_sampling`, and the deterministic obligation
+`verifier_algebra`. `proof_sound` composes them in that order. Poseidon2 collision
+resistance stays outside this file. `friQueryBits standardRecursionFri = 84` is the
+statistical FRI query exponent `(1/8)^28`; `friConjecturedBits = 100` adds 16 bits of
+grinding as a work factor, and the `rfl` checks certify only that arithmetic.
+`algebraic_sampling` is the good event for the base-field challenges (`α`, `β`, `γ`,
+repeated `num_challenges` times) and, separately, the extension-field opening at `ζ`.
+Its failure probability is `ε` and the declared event has probability `1 − ε`. No
+numeric estimate is pinned.
+The capstone statements are unchanged; `ci/AxiomsCheck.lean` expects these four
+declarations.
+
 ## 9. Definition of done
 
 `R_leaf` fully bridged (T0–T3), `R_L0`/`R_L1` bridged modulo the enumerated
@@ -1062,9 +1099,12 @@ the same way (`public_batch_end_to_end`, Step 7a). The remaining gap is exactly
 (a) the residual **wiring/copy-constraint** model fidelity (§3 — gate constraints
 are exporter-backed and the wrapper *logic* is bridged, but the public-input
 **decode** that feeds the bridges its `hd`/`hnull`/`hexits`/… wire assignments
-was hand-modeled; Step 8 closes it for both wrappers at every recorded size (`n = 2, 4`
-and `n_inner = 2, 4`, bridges generated from the traces):
-`private_batch_end_to_end_wired{,_n4}` and `public_batch_end_to_end_wired{,_n4}` are the
+was hand-modeled; Step 8 closes it for both wrappers at every recorded size (`n = 2, 4, 8`
+and `n_inner = 2, 4, 89`, bridges generated from the traces; 8 leaves / 32 slots and
+89 inners are the production shapes):
+`private_batch_end_to_end_wired{,_n4,_production}` and
+`public_batch_end_to_end_wired{,_n4,_production}` are the
 capstones stated on the exported wiring, with no decode hypotheses; Step 9 closes it for
 the leaf: `leaf_wired` is `Rleaf` on the exported leaf wiring, standard-axioms-only)
-and (b) the layer-1 assumptions (§7) — both explicit.
+and (b) the layer-1 assumptions (§7) — `poseidon_transcript_oracle`, `fri_proximity_gap`,
+`algebraic_sampling`, and the deterministic `verifier_algebra`, composed as `proof_sound`.

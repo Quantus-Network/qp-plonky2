@@ -28,72 +28,72 @@ variable {p : ℕ} [Fact p.Prime]
 
 /-- `privateBatchWrapper2.copies`, items `0..32`. -/
 def privateBatchWrapper2.copies0 : List (Target × Target) := [
-    (.virt 11855, .wire 0 0),
-    (.virt 11855, .wire 0 1),
-    (.virt 11858, .wire 0 2),
-    (.virt 11858, .wire 1 0),
-    (.virt 5912, .wire 1 1),
-    (.virt 11858, .wire 1 2),
-    (.virt 5912, .wire 1 4),
-    (.virt 11859, .wire 1 5),
-    (.virt 5912, .wire 1 6),
+    (.virt 13209, .wire 0 0),
+    (.virt 13209, .wire 0 1),
+    (.virt 13212, .wire 0 2),
+    (.virt 13212, .wire 1 0),
+    (.virt 6589, .wire 1 1),
+    (.virt 13212, .wire 1 2),
+    (.virt 6589, .wire 1 4),
+    (.virt 13213, .wire 1 5),
+    (.virt 6589, .wire 1 6),
     (.wire 1 7, .wire 0 4),
-    (.virt 11855, .wire 0 5),
+    (.virt 13209, .wire 0 5),
     (.wire 0 3, .wire 0 6),
-    (.wire 1 3, .virt 11856),
-    (.wire 0 7, .virt 11856),
-    (.virt 11855, .wire 0 8),
-    (.virt 11855, .wire 0 9),
-    (.virt 11860, .wire 0 10),
-    (.virt 11860, .wire 1 8),
-    (.virt 5913, .wire 1 9),
-    (.virt 11860, .wire 1 10),
-    (.virt 5913, .wire 1 12),
-    (.virt 11861, .wire 1 13),
-    (.virt 5913, .wire 1 14),
+    (.wire 1 3, .virt 13210),
+    (.wire 0 7, .virt 13210),
+    (.virt 13209, .wire 0 8),
+    (.virt 13209, .wire 0 9),
+    (.virt 13214, .wire 0 10),
+    (.virt 13214, .wire 1 8),
+    (.virt 6590, .wire 1 9),
+    (.virt 13214, .wire 1 10),
+    (.virt 6590, .wire 1 12),
+    (.virt 13215, .wire 1 13),
+    (.virt 6590, .wire 1 14),
     (.wire 1 15, .wire 0 12),
-    (.virt 11855, .wire 0 13),
+    (.virt 13209, .wire 0 13),
     (.wire 0 11, .wire 0 14),
-    (.wire 1 11, .virt 11856),
-    (.wire 0 15, .virt 11856),
-    (.virt 11855, .wire 0 16),
-    (.virt 11855, .wire 0 17),
-    (.virt 11862, .wire 0 18),
-    (.virt 11862, .wire 1 16)
+    (.wire 1 11, .virt 13210),
+    (.wire 0 15, .virt 13210),
+    (.virt 13209, .wire 0 16),
+    (.virt 13209, .wire 0 17),
+    (.virt 13216, .wire 0 18),
+    (.virt 13216, .wire 1 16)
   ]
 
 /-- `privateBatchWrapper2.copies`, items `32..64`. -/
 def privateBatchWrapper2.copies1 : List (Target × Target) := [
-    (.virt 5914, .wire 1 17),
-    (.virt 11862, .wire 1 18),
-    (.virt 5914, .wire 1 20),
-    (.virt 11863, .wire 1 21),
-    (.virt 5914, .wire 1 22),
+    (.virt 6591, .wire 1 17),
+    (.virt 13216, .wire 1 18),
+    (.virt 6591, .wire 1 20),
+    (.virt 13217, .wire 1 21),
+    (.virt 6591, .wire 1 22),
     (.wire 1 23, .wire 0 20),
-    (.virt 11855, .wire 0 21),
+    (.virt 13209, .wire 0 21),
     (.wire 0 19, .wire 0 22),
-    (.wire 1 19, .virt 11856),
-    (.wire 0 23, .virt 11856),
-    (.virt 11855, .wire 0 24),
-    (.virt 11855, .wire 0 25),
-    (.virt 11864, .wire 0 26),
-    (.virt 11864, .wire 1 24),
-    (.virt 5915, .wire 1 25),
-    (.virt 11864, .wire 1 26),
-    (.virt 5915, .wire 1 28),
-    (.virt 11865, .wire 1 29),
-    (.virt 5915, .wire 1 30),
+    (.wire 1 19, .virt 13210),
+    (.wire 0 23, .virt 13210),
+    (.virt 13209, .wire 0 24),
+    (.virt 13209, .wire 0 25),
+    (.virt 13218, .wire 0 26),
+    (.virt 13218, .wire 1 24),
+    (.virt 6592, .wire 1 25),
+    (.virt 13218, .wire 1 26),
+    (.virt 6592, .wire 1 28),
+    (.virt 13219, .wire 1 29),
+    (.virt 6592, .wire 1 30),
     (.wire 1 31, .wire 0 28),
-    (.virt 11855, .wire 0 29),
+    (.virt 13209, .wire 0 29),
     (.wire 0 27, .wire 0 30),
-    (.wire 1 27, .virt 11856),
-    (.wire 0 31, .virt 11856),
-    (.virt 11858, .wire 1 32),
-    (.virt 11860, .wire 1 33),
-    (.virt 11858, .wire 1 34),
-    (.virt 11862, .wire 1 36),
-    (.virt 11864, .wire 1 37),
-    (.virt 11862, .wire 1 38),
+    (.wire 1 27, .virt 13210),
+    (.wire 0 31, .virt 13210),
+    (.virt 13212, .wire 1 32),
+    (.virt 13214, .wire 1 33),
+    (.virt 13212, .wire 1 34),
+    (.virt 13216, .wire 1 36),
+    (.virt 13218, .wire 1 37),
+    (.virt 13216, .wire 1 38),
     (.wire 1 35, .wire 1 40),
     (.wire 1 39, .wire 1 41)
   ]
@@ -101,72 +101,72 @@ def privateBatchWrapper2.copies1 : List (Target × Target) := [
 /-- `privateBatchWrapper2.copies`, items `64..96`. -/
 def privateBatchWrapper2.copies2 : List (Target × Target) := [
     (.wire 1 35, .wire 1 42),
-    (.virt 11855, .wire 0 32),
-    (.virt 11855, .wire 0 33),
-    (.virt 11866, .wire 0 34),
-    (.virt 11866, .wire 1 44),
-    (.virt 11830, .wire 1 45),
-    (.virt 11866, .wire 1 46),
-    (.virt 11830, .wire 1 48),
-    (.virt 11867, .wire 1 49),
-    (.virt 11830, .wire 1 50),
+    (.virt 13209, .wire 0 32),
+    (.virt 13209, .wire 0 33),
+    (.virt 13220, .wire 0 34),
+    (.virt 13220, .wire 1 44),
+    (.virt 13184, .wire 1 45),
+    (.virt 13220, .wire 1 46),
+    (.virt 13184, .wire 1 48),
+    (.virt 13221, .wire 1 49),
+    (.virt 13184, .wire 1 50),
     (.wire 1 51, .wire 0 36),
-    (.virt 11855, .wire 0 37),
+    (.virt 13209, .wire 0 37),
     (.wire 0 35, .wire 0 38),
-    (.wire 1 47, .virt 11856),
-    (.wire 0 39, .virt 11856),
-    (.virt 11855, .wire 0 40),
-    (.virt 11855, .wire 0 41),
-    (.virt 11868, .wire 0 42),
-    (.virt 11868, .wire 1 52),
-    (.virt 11831, .wire 1 53),
-    (.virt 11868, .wire 1 54),
-    (.virt 11831, .wire 1 56),
-    (.virt 11869, .wire 1 57),
-    (.virt 11831, .wire 1 58),
+    (.wire 1 47, .virt 13210),
+    (.wire 0 39, .virt 13210),
+    (.virt 13209, .wire 0 40),
+    (.virt 13209, .wire 0 41),
+    (.virt 13222, .wire 0 42),
+    (.virt 13222, .wire 1 52),
+    (.virt 13185, .wire 1 53),
+    (.virt 13222, .wire 1 54),
+    (.virt 13185, .wire 1 56),
+    (.virt 13223, .wire 1 57),
+    (.virt 13185, .wire 1 58),
     (.wire 1 59, .wire 0 44),
-    (.virt 11855, .wire 0 45),
+    (.virt 13209, .wire 0 45),
     (.wire 0 43, .wire 0 46),
-    (.wire 1 55, .virt 11856),
-    (.wire 0 47, .virt 11856),
-    (.virt 11855, .wire 0 48),
-    (.virt 11855, .wire 0 49),
-    (.virt 11870, .wire 0 50)
+    (.wire 1 55, .virt 13210),
+    (.wire 0 47, .virt 13210),
+    (.virt 13209, .wire 0 48),
+    (.virt 13209, .wire 0 49),
+    (.virt 13224, .wire 0 50)
   ]
 
 /-- `privateBatchWrapper2.copies`, items `96..128`. -/
 def privateBatchWrapper2.copies3 : List (Target × Target) := [
-    (.virt 11870, .wire 2 0),
-    (.virt 11832, .wire 2 1),
-    (.virt 11870, .wire 2 2),
-    (.virt 11832, .wire 2 4),
-    (.virt 11871, .wire 2 5),
-    (.virt 11832, .wire 2 6),
+    (.virt 13224, .wire 2 0),
+    (.virt 13186, .wire 2 1),
+    (.virt 13224, .wire 2 2),
+    (.virt 13186, .wire 2 4),
+    (.virt 13225, .wire 2 5),
+    (.virt 13186, .wire 2 6),
     (.wire 2 7, .wire 0 52),
-    (.virt 11855, .wire 0 53),
+    (.virt 13209, .wire 0 53),
     (.wire 0 51, .wire 0 54),
-    (.wire 2 3, .virt 11856),
-    (.wire 0 55, .virt 11856),
-    (.virt 11855, .wire 0 56),
-    (.virt 11855, .wire 0 57),
-    (.virt 11872, .wire 0 58),
-    (.virt 11872, .wire 2 8),
-    (.virt 11833, .wire 2 9),
-    (.virt 11872, .wire 2 10),
-    (.virt 11833, .wire 2 12),
-    (.virt 11873, .wire 2 13),
-    (.virt 11833, .wire 2 14),
+    (.wire 2 3, .virt 13210),
+    (.wire 0 55, .virt 13210),
+    (.virt 13209, .wire 0 56),
+    (.virt 13209, .wire 0 57),
+    (.virt 13226, .wire 0 58),
+    (.virt 13226, .wire 2 8),
+    (.virt 13187, .wire 2 9),
+    (.virt 13226, .wire 2 10),
+    (.virt 13187, .wire 2 12),
+    (.virt 13227, .wire 2 13),
+    (.virt 13187, .wire 2 14),
     (.wire 2 15, .wire 3 0),
-    (.virt 11855, .wire 3 1),
+    (.virt 13209, .wire 3 1),
     (.wire 0 59, .wire 3 2),
-    (.wire 2 11, .virt 11856),
-    (.wire 3 3, .virt 11856),
-    (.virt 11866, .wire 2 16),
-    (.virt 11868, .wire 2 17),
-    (.virt 11866, .wire 2 18),
-    (.virt 11870, .wire 2 20),
-    (.virt 11872, .wire 2 21),
-    (.virt 11870, .wire 2 22),
+    (.wire 2 11, .virt 13210),
+    (.wire 3 3, .virt 13210),
+    (.virt 13220, .wire 2 16),
+    (.virt 13222, .wire 2 17),
+    (.virt 13220, .wire 2 18),
+    (.virt 13224, .wire 2 20),
+    (.virt 13226, .wire 2 21),
+    (.virt 13224, .wire 2 22),
     (.wire 2 19, .wire 2 24)
   ]
 
@@ -174,29 +174,29 @@ def privateBatchWrapper2.copies3 : List (Target × Target) := [
 def privateBatchWrapper2.copies4 : List (Target × Target) := [
     (.wire 2 23, .wire 2 25),
     (.wire 2 19, .wire 2 26),
-    (.virt 11855, .wire 3 4),
-    (.virt 11855, .wire 3 5),
+    (.virt 13209, .wire 3 4),
+    (.virt 13209, .wire 3 5),
     (.wire 1 43, .wire 3 6),
     (.wire 3 7, .wire 3 8),
-    (.virt 5912, .wire 3 9),
-    (.virt 11856, .wire 3 10),
+    (.virt 6589, .wire 3 9),
+    (.virt 13210, .wire 3 10),
     (.wire 3 7, .wire 3 12),
-    (.virt 5913, .wire 3 13),
-    (.virt 11856, .wire 3 14),
+    (.virt 6590, .wire 3 13),
+    (.virt 13210, .wire 3 14),
     (.wire 3 7, .wire 3 16),
-    (.virt 5914, .wire 3 17),
-    (.virt 11856, .wire 3 18),
+    (.virt 6591, .wire 3 17),
+    (.virt 13210, .wire 3 18),
     (.wire 3 7, .wire 3 20),
-    (.virt 5915, .wire 3 21),
-    (.virt 11856, .wire 3 22),
+    (.virt 6592, .wire 3 21),
+    (.virt 13210, .wire 3 22),
     (.wire 3 7, .wire 3 24),
-    (.virt 5916, .wire 3 25),
-    (.virt 11856, .wire 3 26),
-    (.virt 11855, .wire 3 28),
-    (.virt 11855, .wire 3 29),
+    (.virt 6593, .wire 3 25),
+    (.virt 13210, .wire 3 26),
+    (.virt 13209, .wire 3 28),
+    (.virt 13209, .wire 3 29),
     (.wire 2 27, .wire 3 30),
-    (.virt 11855, .wire 3 32),
-    (.virt 11855, .wire 3 33),
+    (.virt 13209, .wire 3 32),
+    (.virt 13209, .wire 3 33),
     (.wire 3 7, .wire 3 34),
     (.wire 3 31, .wire 2 28),
     (.wire 3 35, .wire 2 29),
@@ -209,124 +209,124 @@ def privateBatchWrapper2.copies4 : List (Target × Target) := [
 /-- `privateBatchWrapper2.copies`, items `160..192`. -/
 def privateBatchWrapper2.copies5 : List (Target × Target) := [
     (.wire 2 31, .wire 3 40),
-    (.virt 11830, .wire 3 41),
+    (.virt 13184, .wire 3 41),
     (.wire 3 39, .wire 3 42),
     (.wire 2 31, .wire 3 44),
     (.wire 3 15, .wire 3 45),
     (.wire 3 15, .wire 3 46),
     (.wire 2 31, .wire 3 48),
-    (.virt 11831, .wire 3 49),
+    (.virt 13185, .wire 3 49),
     (.wire 3 47, .wire 3 50),
     (.wire 2 31, .wire 3 52),
     (.wire 3 19, .wire 3 53),
     (.wire 3 19, .wire 3 54),
     (.wire 2 31, .wire 3 56),
-    (.virt 11832, .wire 3 57),
+    (.virt 13186, .wire 3 57),
     (.wire 3 55, .wire 3 58),
     (.wire 2 31, .wire 4 0),
     (.wire 3 23, .wire 4 1),
     (.wire 3 23, .wire 4 2),
     (.wire 2 31, .wire 4 4),
-    (.virt 11833, .wire 4 5),
+    (.virt 13187, .wire 4 5),
     (.wire 4 3, .wire 4 6),
     (.wire 2 31, .wire 4 8),
     (.wire 3 27, .wire 4 9),
     (.wire 3 27, .wire 4 10),
     (.wire 2 31, .wire 4 12),
-    (.virt 11834, .wire 4 13),
+    (.virt 13188, .wire 4 13),
     (.wire 4 11, .wire 4 14),
     (.wire 3 7, .wire 5 0),
     (.wire 3 31, .wire 5 1),
     (.wire 3 7, .wire 5 2),
     (.wire 5 3, .wire 6 0),
-    (.virt 11855, .wire 6 1)
+    (.virt 13209, .wire 6 1)
   ]
 
 /-- `privateBatchWrapper2.copies`, items `192..224`. -/
 def privateBatchWrapper2.copies6 : List (Target × Target) := [
     (.wire 3 31, .wire 6 2),
-    (.virt 11855, .wire 4 16),
-    (.virt 11855, .wire 4 17),
-    (.virt 11874, .wire 4 18),
-    (.virt 5912, .wire 4 20),
-    (.virt 11855, .wire 4 21),
+    (.virt 13209, .wire 4 16),
+    (.virt 13209, .wire 4 17),
+    (.virt 13228, .wire 4 18),
+    (.virt 6589, .wire 4 20),
+    (.virt 13209, .wire 4 21),
     (.wire 3 43, .wire 4 22),
-    (.virt 11874, .wire 2 32),
+    (.virt 13228, .wire 2 32),
     (.wire 4 23, .wire 2 33),
-    (.virt 11874, .wire 2 34),
+    (.virt 13228, .wire 2 34),
     (.wire 4 23, .wire 2 36),
-    (.virt 11875, .wire 2 37),
+    (.virt 13229, .wire 2 37),
     (.wire 4 23, .wire 2 38),
     (.wire 2 39, .wire 4 24),
-    (.virt 11855, .wire 4 25),
+    (.virt 13209, .wire 4 25),
     (.wire 4 19, .wire 4 26),
-    (.wire 2 35, .virt 11856),
-    (.wire 4 27, .virt 11856),
-    (.virt 11855, .wire 4 28),
-    (.virt 11855, .wire 4 29),
-    (.virt 11876, .wire 4 30),
-    (.virt 5913, .wire 4 32),
-    (.virt 11855, .wire 4 33),
+    (.wire 2 35, .virt 13210),
+    (.wire 4 27, .virt 13210),
+    (.virt 13209, .wire 4 28),
+    (.virt 13209, .wire 4 29),
+    (.virt 13230, .wire 4 30),
+    (.virt 6590, .wire 4 32),
+    (.virt 13209, .wire 4 33),
     (.wire 3 51, .wire 4 34),
-    (.virt 11876, .wire 2 40),
+    (.virt 13230, .wire 2 40),
     (.wire 4 35, .wire 2 41),
-    (.virt 11876, .wire 2 42),
+    (.virt 13230, .wire 2 42),
     (.wire 4 35, .wire 2 44),
-    (.virt 11877, .wire 2 45),
+    (.virt 13231, .wire 2 45),
     (.wire 4 35, .wire 2 46),
     (.wire 2 47, .wire 4 36),
-    (.virt 11855, .wire 4 37)
+    (.virt 13209, .wire 4 37)
   ]
 
 /-- `privateBatchWrapper2.copies`, items `224..256`. -/
 def privateBatchWrapper2.copies7 : List (Target × Target) := [
     (.wire 4 31, .wire 4 38),
-    (.wire 2 43, .virt 11856),
-    (.wire 4 39, .virt 11856),
-    (.virt 11855, .wire 4 40),
-    (.virt 11855, .wire 4 41),
-    (.virt 11878, .wire 4 42),
-    (.virt 5914, .wire 4 44),
-    (.virt 11855, .wire 4 45),
+    (.wire 2 43, .virt 13210),
+    (.wire 4 39, .virt 13210),
+    (.virt 13209, .wire 4 40),
+    (.virt 13209, .wire 4 41),
+    (.virt 13232, .wire 4 42),
+    (.virt 6591, .wire 4 44),
+    (.virt 13209, .wire 4 45),
     (.wire 3 59, .wire 4 46),
-    (.virt 11878, .wire 2 48),
+    (.virt 13232, .wire 2 48),
     (.wire 4 47, .wire 2 49),
-    (.virt 11878, .wire 2 50),
+    (.virt 13232, .wire 2 50),
     (.wire 4 47, .wire 2 52),
-    (.virt 11879, .wire 2 53),
+    (.virt 13233, .wire 2 53),
     (.wire 4 47, .wire 2 54),
     (.wire 2 55, .wire 4 48),
-    (.virt 11855, .wire 4 49),
+    (.virt 13209, .wire 4 49),
     (.wire 4 43, .wire 4 50),
-    (.wire 2 51, .virt 11856),
-    (.wire 4 51, .virt 11856),
-    (.virt 11855, .wire 4 52),
-    (.virt 11855, .wire 4 53),
-    (.virt 11880, .wire 4 54),
-    (.virt 5915, .wire 4 56),
-    (.virt 11855, .wire 4 57),
+    (.wire 2 51, .virt 13210),
+    (.wire 4 51, .virt 13210),
+    (.virt 13209, .wire 4 52),
+    (.virt 13209, .wire 4 53),
+    (.virt 13234, .wire 4 54),
+    (.virt 6592, .wire 4 56),
+    (.virt 13209, .wire 4 57),
     (.wire 4 7, .wire 4 58),
-    (.virt 11880, .wire 2 56),
+    (.virt 13234, .wire 2 56),
     (.wire 4 59, .wire 2 57),
-    (.virt 11880, .wire 2 58),
+    (.virt 13234, .wire 2 58),
     (.wire 4 59, .wire 7 0),
-    (.virt 11881, .wire 7 1),
+    (.virt 13235, .wire 7 1),
     (.wire 4 59, .wire 7 2)
   ]
 
 /-- `privateBatchWrapper2.copies`, items `256..288`. -/
 def privateBatchWrapper2.copies8 : List (Target × Target) := [
     (.wire 7 3, .wire 8 0),
-    (.virt 11855, .wire 8 1),
+    (.virt 13209, .wire 8 1),
     (.wire 4 55, .wire 8 2),
-    (.wire 2 59, .virt 11856),
-    (.wire 8 3, .virt 11856),
-    (.virt 11874, .wire 7 4),
-    (.virt 11876, .wire 7 5),
-    (.virt 11874, .wire 7 6),
-    (.virt 11878, .wire 7 8),
-    (.virt 11880, .wire 7 9),
-    (.virt 11878, .wire 7 10),
+    (.wire 2 59, .virt 13210),
+    (.wire 8 3, .virt 13210),
+    (.virt 13228, .wire 7 4),
+    (.virt 13230, .wire 7 5),
+    (.virt 13228, .wire 7 6),
+    (.virt 13232, .wire 7 8),
+    (.virt 13234, .wire 7 9),
+    (.virt 13232, .wire 7 10),
     (.wire 7 7, .wire 7 12),
     (.wire 7 11, .wire 7 13),
     (.wire 7 7, .wire 7 14),
@@ -334,92 +334,92 @@ def privateBatchWrapper2.copies8 : List (Target × Target) := [
     (.wire 7 15, .wire 5 5),
     (.wire 1 43, .wire 5 6),
     (.wire 5 7, .wire 6 4),
-    (.virt 11855, .wire 6 5),
+    (.virt 13209, .wire 6 5),
     (.wire 7 15, .wire 6 6),
-    (.wire 6 7, .virt 11855),
-    (.virt 5907, .virt 5907),
-    (.virt 11855, .wire 8 4),
-    (.virt 11855, .wire 8 5),
-    (.virt 11882, .wire 8 6),
-    (.virt 11830, .wire 8 8),
-    (.virt 11855, .wire 8 9),
+    (.wire 6 7, .virt 13209),
+    (.virt 6584, .virt 6584),
+    (.virt 13209, .wire 8 4),
+    (.virt 13209, .wire 8 5),
+    (.virt 13236, .wire 8 6),
+    (.virt 13184, .wire 8 8),
+    (.virt 13209, .wire 8 9),
     (.wire 3 43, .wire 8 10),
-    (.virt 11882, .wire 7 16),
+    (.virt 13236, .wire 7 16),
     (.wire 8 11, .wire 7 17),
-    (.virt 11882, .wire 7 18),
+    (.virt 13236, .wire 7 18),
     (.wire 8 11, .wire 7 20)
   ]
 
 /-- `privateBatchWrapper2.copies`, items `288..320`. -/
 def privateBatchWrapper2.copies9 : List (Target × Target) := [
-    (.virt 11883, .wire 7 21),
+    (.virt 13237, .wire 7 21),
     (.wire 8 11, .wire 7 22),
     (.wire 7 23, .wire 8 12),
-    (.virt 11855, .wire 8 13),
+    (.virt 13209, .wire 8 13),
     (.wire 8 7, .wire 8 14),
-    (.wire 7 19, .virt 11856),
-    (.wire 8 15, .virt 11856),
-    (.virt 11855, .wire 8 16),
-    (.virt 11855, .wire 8 17),
-    (.virt 11884, .wire 8 18),
-    (.virt 11831, .wire 8 20),
-    (.virt 11855, .wire 8 21),
+    (.wire 7 19, .virt 13210),
+    (.wire 8 15, .virt 13210),
+    (.virt 13209, .wire 8 16),
+    (.virt 13209, .wire 8 17),
+    (.virt 13238, .wire 8 18),
+    (.virt 13185, .wire 8 20),
+    (.virt 13209, .wire 8 21),
     (.wire 3 51, .wire 8 22),
-    (.virt 11884, .wire 7 24),
+    (.virt 13238, .wire 7 24),
     (.wire 8 23, .wire 7 25),
-    (.virt 11884, .wire 7 26),
+    (.virt 13238, .wire 7 26),
     (.wire 8 23, .wire 7 28),
-    (.virt 11885, .wire 7 29),
+    (.virt 13239, .wire 7 29),
     (.wire 8 23, .wire 7 30),
     (.wire 7 31, .wire 8 24),
-    (.virt 11855, .wire 8 25),
+    (.virt 13209, .wire 8 25),
     (.wire 8 19, .wire 8 26),
-    (.wire 7 27, .virt 11856),
-    (.wire 8 27, .virt 11856),
-    (.virt 11855, .wire 8 28),
-    (.virt 11855, .wire 8 29),
-    (.virt 11886, .wire 8 30),
-    (.virt 11832, .wire 8 32),
-    (.virt 11855, .wire 8 33),
+    (.wire 7 27, .virt 13210),
+    (.wire 8 27, .virt 13210),
+    (.virt 13209, .wire 8 28),
+    (.virt 13209, .wire 8 29),
+    (.virt 13240, .wire 8 30),
+    (.virt 13186, .wire 8 32),
+    (.virt 13209, .wire 8 33),
     (.wire 3 59, .wire 8 34),
-    (.virt 11886, .wire 7 32),
+    (.virt 13240, .wire 7 32),
     (.wire 8 35, .wire 7 33)
   ]
 
 /-- `privateBatchWrapper2.copies`, items `320..352`. -/
 def privateBatchWrapper2.copies10 : List (Target × Target) := [
-    (.virt 11886, .wire 7 34),
+    (.virt 13240, .wire 7 34),
     (.wire 8 35, .wire 7 36),
-    (.virt 11887, .wire 7 37),
+    (.virt 13241, .wire 7 37),
     (.wire 8 35, .wire 7 38),
     (.wire 7 39, .wire 8 36),
-    (.virt 11855, .wire 8 37),
+    (.virt 13209, .wire 8 37),
     (.wire 8 31, .wire 8 38),
-    (.wire 7 35, .virt 11856),
-    (.wire 8 39, .virt 11856),
-    (.virt 11855, .wire 8 40),
-    (.virt 11855, .wire 8 41),
-    (.virt 11888, .wire 8 42),
-    (.virt 11833, .wire 8 44),
-    (.virt 11855, .wire 8 45),
+    (.wire 7 35, .virt 13210),
+    (.wire 8 39, .virt 13210),
+    (.virt 13209, .wire 8 40),
+    (.virt 13209, .wire 8 41),
+    (.virt 13242, .wire 8 42),
+    (.virt 13187, .wire 8 44),
+    (.virt 13209, .wire 8 45),
     (.wire 4 7, .wire 8 46),
-    (.virt 11888, .wire 7 40),
+    (.virt 13242, .wire 7 40),
     (.wire 8 47, .wire 7 41),
-    (.virt 11888, .wire 7 42),
+    (.virt 13242, .wire 7 42),
     (.wire 8 47, .wire 7 44),
-    (.virt 11889, .wire 7 45),
+    (.virt 13243, .wire 7 45),
     (.wire 8 47, .wire 7 46),
     (.wire 7 47, .wire 8 48),
-    (.virt 11855, .wire 8 49),
+    (.virt 13209, .wire 8 49),
     (.wire 8 43, .wire 8 50),
-    (.wire 7 43, .virt 11856),
-    (.wire 8 51, .virt 11856),
-    (.virt 11882, .wire 7 48),
-    (.virt 11884, .wire 7 49),
-    (.virt 11882, .wire 7 50),
-    (.virt 11886, .wire 7 52),
-    (.virt 11888, .wire 7 53),
-    (.virt 11886, .wire 7 54)
+    (.wire 7 43, .virt 13210),
+    (.wire 8 51, .virt 13210),
+    (.virt 13236, .wire 7 48),
+    (.virt 13238, .wire 7 49),
+    (.virt 13236, .wire 7 50),
+    (.virt 13240, .wire 7 52),
+    (.virt 13242, .wire 7 53),
+    (.virt 13240, .wire 7 54)
   ]
 
 /-- `privateBatchWrapper2.copies`, items `352..384`. -/
@@ -431,355 +431,355 @@ def privateBatchWrapper2.copies11 : List (Target × Target) := [
     (.wire 7 59, .wire 5 9),
     (.wire 2 27, .wire 5 10),
     (.wire 5 11, .wire 6 8),
-    (.virt 11855, .wire 6 9),
+    (.virt 13209, .wire 6 9),
     (.wire 7 59, .wire 6 10),
-    (.wire 6 11, .virt 11855),
-    (.virt 11825, .virt 5907),
+    (.wire 6 11, .virt 13209),
+    (.virt 13179, .virt 6584),
     (.wire 1 43, .wire 8 52),
-    (.virt 5917, .wire 8 53),
-    (.virt 5917, .wire 8 54),
+    (.virt 6594, .wire 8 53),
+    (.virt 6594, .wire 8 54),
     (.wire 1 43, .wire 8 56),
-    (.virt 11856, .wire 8 57),
+    (.virt 13210, .wire 8 57),
     (.wire 8 55, .wire 8 58),
     (.wire 2 27, .wire 9 0),
-    (.virt 11835, .wire 9 1),
-    (.virt 11835, .wire 9 2),
+    (.virt 13189, .wire 9 1),
+    (.virt 13189, .wire 9 2),
     (.wire 2 27, .wire 9 4),
-    (.virt 11856, .wire 9 5),
+    (.virt 13210, .wire 9 5),
     (.wire 9 3, .wire 9 6),
     (.wire 8 59, .wire 6 12),
-    (.virt 11855, .wire 6 13),
+    (.virt 13209, .wire 6 13),
     (.wire 9 7, .wire 6 14),
-    (.wire 10 33, .virt 11856),
-    (.wire 10 34, .virt 11856),
-    (.wire 10 35, .virt 11856),
-    (.wire 10 36, .virt 11856),
-    (.wire 10 37, .virt 11856),
-    (.wire 10 38, .virt 11856)
+    (.wire 10 33, .virt 13210),
+    (.wire 10 34, .virt 13210),
+    (.wire 10 35, .virt 13210),
+    (.wire 10 36, .virt 13210),
+    (.wire 10 37, .virt 13210),
+    (.wire 10 38, .virt 13210)
   ]
 
 /-- `privateBatchWrapper2.copies`, items `384..416`. -/
 def privateBatchWrapper2.copies12 : List (Target × Target) := [
-    (.wire 10 39, .virt 11856),
-    (.wire 10 40, .virt 11856),
-    (.wire 10 41, .virt 11856),
-    (.wire 10 42, .virt 11856),
-    (.wire 10 43, .virt 11856),
-    (.wire 10 44, .virt 11856),
-    (.wire 10 45, .virt 11856),
-    (.wire 10 46, .virt 11856),
-    (.wire 10 47, .virt 11856),
-    (.wire 10 48, .virt 11856),
-    (.wire 10 49, .virt 11856),
-    (.wire 10 50, .virt 11856),
-    (.wire 10 51, .virt 11856),
-    (.wire 10 52, .virt 11856),
-    (.wire 10 53, .virt 11856),
-    (.wire 10 54, .virt 11856),
-    (.wire 10 55, .virt 11856),
-    (.wire 10 56, .virt 11856),
-    (.wire 10 57, .virt 11856),
-    (.wire 10 58, .virt 11856),
-    (.wire 10 59, .virt 11856),
-    (.wire 10 0, .virt 11841),
-    (.wire 11 33, .virt 11856),
-    (.wire 11 34, .virt 11856),
-    (.wire 11 35, .virt 11856),
-    (.wire 11 36, .virt 11856),
-    (.wire 11 37, .virt 11856),
-    (.wire 11 38, .virt 11856),
-    (.wire 11 39, .virt 11856),
-    (.wire 11 40, .virt 11856),
-    (.wire 11 41, .virt 11856),
-    (.wire 11 42, .virt 11856)
+    (.wire 10 39, .virt 13210),
+    (.wire 10 40, .virt 13210),
+    (.wire 10 41, .virt 13210),
+    (.wire 10 42, .virt 13210),
+    (.wire 10 43, .virt 13210),
+    (.wire 10 44, .virt 13210),
+    (.wire 10 45, .virt 13210),
+    (.wire 10 46, .virt 13210),
+    (.wire 10 47, .virt 13210),
+    (.wire 10 48, .virt 13210),
+    (.wire 10 49, .virt 13210),
+    (.wire 10 50, .virt 13210),
+    (.wire 10 51, .virt 13210),
+    (.wire 10 52, .virt 13210),
+    (.wire 10 53, .virt 13210),
+    (.wire 10 54, .virt 13210),
+    (.wire 10 55, .virt 13210),
+    (.wire 10 56, .virt 13210),
+    (.wire 10 57, .virt 13210),
+    (.wire 10 58, .virt 13210),
+    (.wire 10 59, .virt 13210),
+    (.wire 10 0, .virt 13195),
+    (.wire 11 33, .virt 13210),
+    (.wire 11 34, .virt 13210),
+    (.wire 11 35, .virt 13210),
+    (.wire 11 36, .virt 13210),
+    (.wire 11 37, .virt 13210),
+    (.wire 11 38, .virt 13210),
+    (.wire 11 39, .virt 13210),
+    (.wire 11 40, .virt 13210),
+    (.wire 11 41, .virt 13210),
+    (.wire 11 42, .virt 13210)
   ]
 
 /-- `privateBatchWrapper2.copies`, items `416..448`. -/
 def privateBatchWrapper2.copies13 : List (Target × Target) := [
-    (.wire 11 43, .virt 11856),
-    (.wire 11 44, .virt 11856),
-    (.wire 11 45, .virt 11856),
-    (.wire 11 46, .virt 11856),
-    (.wire 11 47, .virt 11856),
-    (.wire 11 48, .virt 11856),
-    (.wire 11 49, .virt 11856),
-    (.wire 11 50, .virt 11856),
-    (.wire 11 51, .virt 11856),
-    (.wire 11 52, .virt 11856),
-    (.wire 11 53, .virt 11856),
-    (.wire 11 54, .virt 11856),
-    (.wire 11 55, .virt 11856),
-    (.wire 11 56, .virt 11856),
-    (.wire 11 57, .virt 11856),
-    (.wire 11 58, .virt 11856),
-    (.wire 11 59, .virt 11856),
-    (.wire 11 0, .virt 11846),
-    (.virt 11841, .wire 6 16),
-    (.virt 11855, .wire 6 17),
-    (.virt 11846, .wire 6 18),
-    (.wire 12 15, .virt 11856),
-    (.wire 12 16, .virt 11856),
-    (.wire 12 17, .virt 11856),
-    (.wire 12 18, .virt 11856),
-    (.wire 12 19, .virt 11856),
-    (.wire 12 20, .virt 11856),
-    (.wire 12 21, .virt 11856),
-    (.wire 12 22, .virt 11856),
-    (.wire 12 23, .virt 11856),
-    (.wire 12 24, .virt 11856),
-    (.wire 12 25, .virt 11856)
+    (.wire 11 43, .virt 13210),
+    (.wire 11 44, .virt 13210),
+    (.wire 11 45, .virt 13210),
+    (.wire 11 46, .virt 13210),
+    (.wire 11 47, .virt 13210),
+    (.wire 11 48, .virt 13210),
+    (.wire 11 49, .virt 13210),
+    (.wire 11 50, .virt 13210),
+    (.wire 11 51, .virt 13210),
+    (.wire 11 52, .virt 13210),
+    (.wire 11 53, .virt 13210),
+    (.wire 11 54, .virt 13210),
+    (.wire 11 55, .virt 13210),
+    (.wire 11 56, .virt 13210),
+    (.wire 11 57, .virt 13210),
+    (.wire 11 58, .virt 13210),
+    (.wire 11 59, .virt 13210),
+    (.wire 11 0, .virt 13200),
+    (.virt 13195, .wire 6 16),
+    (.virt 13209, .wire 6 17),
+    (.virt 13200, .wire 6 18),
+    (.wire 12 15, .virt 13210),
+    (.wire 12 16, .virt 13210),
+    (.wire 12 17, .virt 13210),
+    (.wire 12 18, .virt 13210),
+    (.wire 12 19, .virt 13210),
+    (.wire 12 20, .virt 13210),
+    (.wire 12 21, .virt 13210),
+    (.wire 12 22, .virt 13210),
+    (.wire 12 23, .virt 13210),
+    (.wire 12 24, .virt 13210),
+    (.wire 12 25, .virt 13210)
   ]
 
 /-- `privateBatchWrapper2.copies`, items `448..480`. -/
 def privateBatchWrapper2.copies14 : List (Target × Target) := [
-    (.wire 12 26, .virt 11856),
-    (.wire 12 27, .virt 11856),
-    (.wire 12 28, .virt 11856),
-    (.wire 12 29, .virt 11856),
-    (.wire 12 30, .virt 11856),
-    (.wire 12 31, .virt 11856),
-    (.wire 12 32, .virt 11856),
-    (.wire 12 33, .virt 11856),
-    (.wire 12 34, .virt 11856),
-    (.wire 12 35, .virt 11856),
-    (.wire 12 36, .virt 11856),
-    (.wire 12 37, .virt 11856),
-    (.wire 12 38, .virt 11856),
-    (.wire 12 39, .virt 11856),
-    (.wire 12 40, .virt 11856),
-    (.wire 12 41, .virt 11856),
-    (.wire 12 42, .virt 11856),
-    (.wire 12 43, .virt 11856),
-    (.wire 12 44, .virt 11856),
-    (.wire 12 45, .virt 11856),
-    (.wire 12 46, .virt 11856),
-    (.wire 12 47, .virt 11856),
-    (.wire 12 48, .virt 11856),
-    (.wire 12 49, .virt 11856),
-    (.wire 12 50, .virt 11856),
-    (.wire 12 51, .virt 11856),
-    (.wire 12 52, .virt 11856),
-    (.wire 12 53, .virt 11856),
-    (.wire 12 54, .virt 11856),
-    (.wire 12 55, .virt 11856),
-    (.wire 12 56, .virt 11856),
-    (.wire 12 57, .virt 11856)
+    (.wire 12 26, .virt 13210),
+    (.wire 12 27, .virt 13210),
+    (.wire 12 28, .virt 13210),
+    (.wire 12 29, .virt 13210),
+    (.wire 12 30, .virt 13210),
+    (.wire 12 31, .virt 13210),
+    (.wire 12 32, .virt 13210),
+    (.wire 12 33, .virt 13210),
+    (.wire 12 34, .virt 13210),
+    (.wire 12 35, .virt 13210),
+    (.wire 12 36, .virt 13210),
+    (.wire 12 37, .virt 13210),
+    (.wire 12 38, .virt 13210),
+    (.wire 12 39, .virt 13210),
+    (.wire 12 40, .virt 13210),
+    (.wire 12 41, .virt 13210),
+    (.wire 12 42, .virt 13210),
+    (.wire 12 43, .virt 13210),
+    (.wire 12 44, .virt 13210),
+    (.wire 12 45, .virt 13210),
+    (.wire 12 46, .virt 13210),
+    (.wire 12 47, .virt 13210),
+    (.wire 12 48, .virt 13210),
+    (.wire 12 49, .virt 13210),
+    (.wire 12 50, .virt 13210),
+    (.wire 12 51, .virt 13210),
+    (.wire 12 52, .virt 13210),
+    (.wire 12 53, .virt 13210),
+    (.wire 12 54, .virt 13210),
+    (.wire 12 55, .virt 13210),
+    (.wire 12 56, .virt 13210),
+    (.wire 12 57, .virt 13210)
   ]
 
 /-- `privateBatchWrapper2.copies`, items `480..512`. -/
 def privateBatchWrapper2.copies15 : List (Target × Target) := [
-    (.wire 12 58, .virt 11856),
-    (.wire 12 59, .virt 11856),
-    (.wire 12 0, .virt 11836),
-    (.virt 11891, .wire 9 8),
-    (.virt 11855, .wire 9 9),
-    (.virt 11836, .wire 9 10),
-    (.wire 13 15, .virt 11856),
-    (.wire 13 16, .virt 11856),
-    (.wire 13 17, .virt 11856),
-    (.wire 13 18, .virt 11856),
-    (.wire 13 19, .virt 11856),
-    (.wire 13 20, .virt 11856),
-    (.wire 13 21, .virt 11856),
-    (.wire 13 22, .virt 11856),
-    (.wire 13 23, .virt 11856),
-    (.wire 13 24, .virt 11856),
-    (.wire 13 25, .virt 11856),
-    (.wire 13 26, .virt 11856),
-    (.wire 13 27, .virt 11856),
-    (.wire 13 28, .virt 11856),
-    (.wire 13 29, .virt 11856),
-    (.wire 13 30, .virt 11856),
-    (.wire 13 31, .virt 11856),
-    (.wire 13 32, .virt 11856),
-    (.wire 13 33, .virt 11856),
-    (.wire 13 34, .virt 11856),
-    (.wire 13 35, .virt 11856),
-    (.wire 13 36, .virt 11856),
-    (.wire 13 37, .virt 11856),
-    (.wire 13 38, .virt 11856),
-    (.wire 13 39, .virt 11856),
-    (.wire 13 40, .virt 11856)
+    (.wire 12 58, .virt 13210),
+    (.wire 12 59, .virt 13210),
+    (.wire 12 0, .virt 13190),
+    (.virt 13245, .wire 9 8),
+    (.virt 13209, .wire 9 9),
+    (.virt 13190, .wire 9 10),
+    (.wire 13 15, .virt 13210),
+    (.wire 13 16, .virt 13210),
+    (.wire 13 17, .virt 13210),
+    (.wire 13 18, .virt 13210),
+    (.wire 13 19, .virt 13210),
+    (.wire 13 20, .virt 13210),
+    (.wire 13 21, .virt 13210),
+    (.wire 13 22, .virt 13210),
+    (.wire 13 23, .virt 13210),
+    (.wire 13 24, .virt 13210),
+    (.wire 13 25, .virt 13210),
+    (.wire 13 26, .virt 13210),
+    (.wire 13 27, .virt 13210),
+    (.wire 13 28, .virt 13210),
+    (.wire 13 29, .virt 13210),
+    (.wire 13 30, .virt 13210),
+    (.wire 13 31, .virt 13210),
+    (.wire 13 32, .virt 13210),
+    (.wire 13 33, .virt 13210),
+    (.wire 13 34, .virt 13210),
+    (.wire 13 35, .virt 13210),
+    (.wire 13 36, .virt 13210),
+    (.wire 13 37, .virt 13210),
+    (.wire 13 38, .virt 13210),
+    (.wire 13 39, .virt 13210),
+    (.wire 13 40, .virt 13210)
   ]
 
 /-- `privateBatchWrapper2.copies`, items `512..544`. -/
 def privateBatchWrapper2.copies16 : List (Target × Target) := [
-    (.wire 13 41, .virt 11856),
-    (.wire 13 42, .virt 11856),
-    (.wire 13 43, .virt 11856),
-    (.wire 13 44, .virt 11856),
-    (.wire 13 45, .virt 11856),
-    (.wire 13 46, .virt 11856),
-    (.wire 13 47, .virt 11856),
-    (.wire 13 48, .virt 11856),
-    (.wire 13 49, .virt 11856),
-    (.wire 13 50, .virt 11856),
-    (.wire 13 51, .virt 11856),
-    (.wire 13 52, .virt 11856),
-    (.wire 13 53, .virt 11856),
-    (.wire 13 54, .virt 11856),
-    (.wire 13 55, .virt 11856),
-    (.wire 13 56, .virt 11856),
-    (.wire 13 57, .virt 11856),
-    (.wire 13 58, .virt 11856),
-    (.wire 13 59, .virt 11856),
+    (.wire 13 41, .virt 13210),
+    (.wire 13 42, .virt 13210),
+    (.wire 13 43, .virt 13210),
+    (.wire 13 44, .virt 13210),
+    (.wire 13 45, .virt 13210),
+    (.wire 13 46, .virt 13210),
+    (.wire 13 47, .virt 13210),
+    (.wire 13 48, .virt 13210),
+    (.wire 13 49, .virt 13210),
+    (.wire 13 50, .virt 13210),
+    (.wire 13 51, .virt 13210),
+    (.wire 13 52, .virt 13210),
+    (.wire 13 53, .virt 13210),
+    (.wire 13 54, .virt 13210),
+    (.wire 13 55, .virt 13210),
+    (.wire 13 56, .virt 13210),
+    (.wire 13 57, .virt 13210),
+    (.wire 13 58, .virt 13210),
+    (.wire 13 59, .virt 13210),
     (.wire 13 0, .wire 9 11),
     (.wire 6 19, .wire 14 0),
-    (.virt 11891, .wire 14 1),
+    (.virt 13245, .wire 14 1),
     (.wire 6 19, .wire 14 2),
     (.wire 6 15, .wire 14 4),
     (.wire 9 11, .wire 14 5),
     (.wire 6 15, .wire 14 6),
     (.wire 14 7, .wire 9 12),
-    (.virt 11855, .wire 9 13),
+    (.virt 13209, .wire 9 13),
     (.wire 14 3, .wire 9 14),
-    (.wire 15 53, .virt 11856),
-    (.wire 15 54, .virt 11856),
-    (.wire 15 55, .virt 11856)
+    (.wire 15 53, .virt 13210),
+    (.wire 15 54, .virt 13210),
+    (.wire 15 55, .virt 13210)
   ]
 
 /-- `privateBatchWrapper2.copies`, items `544..576`. -/
 def privateBatchWrapper2.copies17 : List (Target × Target) := [
-    (.wire 15 56, .virt 11856),
-    (.wire 15 57, .virt 11856),
-    (.wire 15 58, .virt 11856),
-    (.wire 15 59, .virt 11856),
+    (.wire 15 56, .virt 13210),
+    (.wire 15 57, .virt 13210),
+    (.wire 15 58, .virt 13210),
+    (.wire 15 59, .virt 13210),
     (.wire 15 0, .wire 9 15),
     (.wire 3 7, .wire 14 8),
     (.wire 3 31, .wire 14 9),
     (.wire 3 7, .wire 14 10),
-    (.virt 11855, .wire 9 16),
-    (.virt 11855, .wire 9 17),
-    (.virt 11892, .wire 9 18),
-    (.virt 5908, .wire 9 20),
-    (.virt 11855, .wire 9 21),
-    (.virt 11826, .wire 9 22),
-    (.virt 11892, .wire 14 12),
+    (.virt 13209, .wire 9 16),
+    (.virt 13209, .wire 9 17),
+    (.virt 13246, .wire 9 18),
+    (.virt 6585, .wire 9 20),
+    (.virt 13209, .wire 9 21),
+    (.virt 13180, .wire 9 22),
+    (.virt 13246, .wire 14 12),
     (.wire 9 23, .wire 14 13),
-    (.virt 11892, .wire 14 14),
+    (.virt 13246, .wire 14 14),
     (.wire 9 23, .wire 14 16),
-    (.virt 11893, .wire 14 17),
+    (.virt 13247, .wire 14 17),
     (.wire 9 23, .wire 14 18),
     (.wire 14 19, .wire 9 24),
-    (.virt 11855, .wire 9 25),
+    (.virt 13209, .wire 9 25),
     (.wire 9 19, .wire 9 26),
-    (.wire 14 15, .virt 11856),
-    (.wire 9 27, .virt 11856),
-    (.virt 11855, .wire 9 28),
-    (.virt 11855, .wire 9 29),
-    (.virt 11894, .wire 9 30),
-    (.virt 5909, .wire 9 32),
-    (.virt 11855, .wire 9 33),
-    (.virt 11827, .wire 9 34),
-    (.virt 11894, .wire 14 20)
+    (.wire 14 15, .virt 13210),
+    (.wire 9 27, .virt 13210),
+    (.virt 13209, .wire 9 28),
+    (.virt 13209, .wire 9 29),
+    (.virt 13248, .wire 9 30),
+    (.virt 6586, .wire 9 32),
+    (.virt 13209, .wire 9 33),
+    (.virt 13181, .wire 9 34),
+    (.virt 13248, .wire 14 20)
   ]
 
 /-- `privateBatchWrapper2.copies`, items `576..608`. -/
 def privateBatchWrapper2.copies18 : List (Target × Target) := [
     (.wire 9 35, .wire 14 21),
-    (.virt 11894, .wire 14 22),
+    (.virt 13248, .wire 14 22),
     (.wire 9 35, .wire 14 24),
-    (.virt 11895, .wire 14 25),
+    (.virt 13249, .wire 14 25),
     (.wire 9 35, .wire 14 26),
     (.wire 14 27, .wire 9 36),
-    (.virt 11855, .wire 9 37),
+    (.virt 13209, .wire 9 37),
     (.wire 9 31, .wire 9 38),
-    (.wire 14 23, .virt 11856),
-    (.wire 9 39, .virt 11856),
-    (.virt 11855, .wire 9 40),
-    (.virt 11855, .wire 9 41),
-    (.virt 11896, .wire 9 42),
-    (.virt 5910, .wire 9 44),
-    (.virt 11855, .wire 9 45),
-    (.virt 11828, .wire 9 46),
-    (.virt 11896, .wire 14 28),
+    (.wire 14 23, .virt 13210),
+    (.wire 9 39, .virt 13210),
+    (.virt 13209, .wire 9 40),
+    (.virt 13209, .wire 9 41),
+    (.virt 13250, .wire 9 42),
+    (.virt 6587, .wire 9 44),
+    (.virt 13209, .wire 9 45),
+    (.virt 13182, .wire 9 46),
+    (.virt 13250, .wire 14 28),
     (.wire 9 47, .wire 14 29),
-    (.virt 11896, .wire 14 30),
+    (.virt 13250, .wire 14 30),
     (.wire 9 47, .wire 14 32),
-    (.virt 11897, .wire 14 33),
+    (.virt 13251, .wire 14 33),
     (.wire 9 47, .wire 14 34),
     (.wire 14 35, .wire 9 48),
-    (.virt 11855, .wire 9 49),
+    (.virt 13209, .wire 9 49),
     (.wire 9 43, .wire 9 50),
-    (.wire 14 31, .virt 11856),
-    (.wire 9 51, .virt 11856),
-    (.virt 11855, .wire 9 52),
-    (.virt 11855, .wire 9 53),
-    (.virt 11898, .wire 9 54),
-    (.virt 5911, .wire 9 56),
-    (.virt 11855, .wire 9 57)
+    (.wire 14 31, .virt 13210),
+    (.wire 9 51, .virt 13210),
+    (.virt 13209, .wire 9 52),
+    (.virt 13209, .wire 9 53),
+    (.virt 13252, .wire 9 54),
+    (.virt 6588, .wire 9 56),
+    (.virt 13209, .wire 9 57)
   ]
 
 /-- `privateBatchWrapper2.copies`, items `608..640`. -/
 def privateBatchWrapper2.copies19 : List (Target × Target) := [
-    (.virt 11829, .wire 9 58),
-    (.virt 11898, .wire 14 36),
+    (.virt 13183, .wire 9 58),
+    (.virt 13252, .wire 14 36),
     (.wire 9 59, .wire 14 37),
-    (.virt 11898, .wire 14 38),
+    (.virt 13252, .wire 14 38),
     (.wire 9 59, .wire 14 40),
-    (.virt 11899, .wire 14 41),
+    (.virt 13253, .wire 14 41),
     (.wire 9 59, .wire 14 42),
     (.wire 14 43, .wire 16 0),
-    (.virt 11855, .wire 16 1),
+    (.virt 13209, .wire 16 1),
     (.wire 9 55, .wire 16 2),
-    (.wire 14 39, .virt 11856),
-    (.wire 16 3, .virt 11856),
-    (.virt 11892, .wire 14 44),
-    (.virt 11894, .wire 14 45),
-    (.virt 11892, .wire 14 46),
-    (.virt 11896, .wire 14 48),
-    (.virt 11898, .wire 14 49),
-    (.virt 11896, .wire 14 50),
+    (.wire 14 39, .virt 13210),
+    (.wire 16 3, .virt 13210),
+    (.virt 13246, .wire 14 44),
+    (.virt 13248, .wire 14 45),
+    (.virt 13246, .wire 14 46),
+    (.virt 13250, .wire 14 48),
+    (.virt 13252, .wire 14 49),
+    (.virt 13250, .wire 14 50),
     (.wire 14 47, .wire 14 52),
     (.wire 14 51, .wire 14 53),
     (.wire 14 47, .wire 14 54),
     (.wire 14 11, .wire 14 56),
     (.wire 14 55, .wire 14 57),
     (.wire 14 11, .wire 14 58),
-    (.wire 14 59, .virt 11856),
-    (.virt 11847, .wire 17 0),
-    (.virt 11848, .wire 17 1),
-    (.virt 11849, .wire 17 2),
-    (.virt 11850, .wire 17 3),
-    (.virt 11855, .wire 17 4),
-    (.virt 11856, .wire 17 5),
-    (.virt 11856, .wire 17 6)
+    (.wire 14 59, .virt 13210),
+    (.virt 13201, .wire 17 0),
+    (.virt 13202, .wire 17 1),
+    (.virt 13203, .wire 17 2),
+    (.virt 13204, .wire 17 3),
+    (.virt 13209, .wire 17 4),
+    (.virt 13210, .wire 17 5),
+    (.virt 13210, .wire 17 6)
   ]
 
 /-- `privateBatchWrapper2.copies`, items `640..672`. -/
 def privateBatchWrapper2.copies20 : List (Target × Target) := [
-    (.virt 11856, .wire 17 7),
-    (.virt 11856, .wire 17 8),
-    (.virt 11856, .wire 17 9),
-    (.virt 11856, .wire 17 10),
-    (.virt 11856, .wire 17 11),
+    (.virt 13210, .wire 17 7),
+    (.virt 13210, .wire 17 8),
+    (.virt 13210, .wire 17 9),
+    (.virt 13210, .wire 17 10),
+    (.virt 13210, .wire 17 11),
     (.wire 17 12, .wire 18 0),
     (.wire 17 13, .wire 18 1),
     (.wire 17 14, .wire 18 2),
     (.wire 17 15, .wire 18 3),
-    (.virt 11855, .wire 18 4),
-    (.virt 11856, .wire 18 5),
-    (.virt 11856, .wire 18 6),
-    (.virt 11856, .wire 18 7),
-    (.virt 11856, .wire 18 8),
-    (.virt 11856, .wire 18 9),
-    (.virt 11856, .wire 18 10),
-    (.virt 11856, .wire 18 11),
+    (.virt 13209, .wire 18 4),
+    (.virt 13210, .wire 18 5),
+    (.virt 13210, .wire 18 6),
+    (.virt 13210, .wire 18 7),
+    (.virt 13210, .wire 18 8),
+    (.virt 13210, .wire 18 9),
+    (.virt 13210, .wire 18 10),
+    (.virt 13210, .wire 18 11),
     (.wire 1 43, .wire 16 4),
-    (.virt 5908, .wire 16 5),
-    (.virt 5908, .wire 16 6),
+    (.virt 6585, .wire 16 5),
+    (.virt 6585, .wire 16 6),
     (.wire 1 43, .wire 16 8),
     (.wire 18 12, .wire 16 9),
     (.wire 16 7, .wire 16 10),
     (.wire 1 43, .wire 16 12),
-    (.virt 5909, .wire 16 13),
-    (.virt 5909, .wire 16 14),
+    (.virt 6586, .wire 16 13),
+    (.virt 6586, .wire 16 14),
     (.wire 1 43, .wire 16 16),
     (.wire 18 13, .wire 16 17),
     (.wire 16 15, .wire 16 18),
     (.wire 1 43, .wire 16 20),
-    (.virt 5910, .wire 16 21),
-    (.virt 5910, .wire 16 22)
+    (.virt 6587, .wire 16 21),
+    (.virt 6587, .wire 16 22)
   ]
 
 /-- `privateBatchWrapper2.copies`, items `672..704`. -/
@@ -788,60 +788,60 @@ def privateBatchWrapper2.copies21 : List (Target × Target) := [
     (.wire 18 14, .wire 16 25),
     (.wire 16 23, .wire 16 26),
     (.wire 1 43, .wire 16 28),
-    (.virt 5911, .wire 16 29),
-    (.virt 5911, .wire 16 30),
+    (.virt 6588, .wire 16 29),
+    (.virt 6588, .wire 16 30),
     (.wire 1 43, .wire 16 32),
     (.wire 18 15, .wire 16 33),
     (.wire 16 31, .wire 16 34),
-    (.virt 11851, .wire 19 0),
-    (.virt 11852, .wire 19 1),
-    (.virt 11853, .wire 19 2),
-    (.virt 11854, .wire 19 3),
-    (.virt 11855, .wire 19 4),
-    (.virt 11856, .wire 19 5),
-    (.virt 11856, .wire 19 6),
-    (.virt 11856, .wire 19 7),
-    (.virt 11856, .wire 19 8),
-    (.virt 11856, .wire 19 9),
-    (.virt 11856, .wire 19 10),
-    (.virt 11856, .wire 19 11),
+    (.virt 13205, .wire 19 0),
+    (.virt 13206, .wire 19 1),
+    (.virt 13207, .wire 19 2),
+    (.virt 13208, .wire 19 3),
+    (.virt 13209, .wire 19 4),
+    (.virt 13210, .wire 19 5),
+    (.virt 13210, .wire 19 6),
+    (.virt 13210, .wire 19 7),
+    (.virt 13210, .wire 19 8),
+    (.virt 13210, .wire 19 9),
+    (.virt 13210, .wire 19 10),
+    (.virt 13210, .wire 19 11),
     (.wire 19 12, .wire 20 0),
     (.wire 19 13, .wire 20 1),
     (.wire 19 14, .wire 20 2),
     (.wire 19 15, .wire 20 3),
-    (.virt 11855, .wire 20 4),
-    (.virt 11856, .wire 20 5),
-    (.virt 11856, .wire 20 6),
-    (.virt 11856, .wire 20 7),
-    (.virt 11856, .wire 20 8),
-    (.virt 11856, .wire 20 9),
-    (.virt 11856, .wire 20 10)
+    (.virt 13209, .wire 20 4),
+    (.virt 13210, .wire 20 5),
+    (.virt 13210, .wire 20 6),
+    (.virt 13210, .wire 20 7),
+    (.virt 13210, .wire 20 8),
+    (.virt 13210, .wire 20 9),
+    (.virt 13210, .wire 20 10)
   ]
 
 /-- `privateBatchWrapper2.copies`, items `704..729`. -/
 def privateBatchWrapper2.copies22 : List (Target × Target) := [
-    (.virt 11856, .wire 20 11),
+    (.virt 13210, .wire 20 11),
     (.wire 2 27, .wire 16 36),
-    (.virt 11826, .wire 16 37),
-    (.virt 11826, .wire 16 38),
+    (.virt 13180, .wire 16 37),
+    (.virt 13180, .wire 16 38),
     (.wire 2 27, .wire 16 40),
     (.wire 20 12, .wire 16 41),
     (.wire 16 39, .wire 16 42),
     (.wire 2 27, .wire 16 44),
-    (.virt 11827, .wire 16 45),
-    (.virt 11827, .wire 16 46),
+    (.virt 13181, .wire 16 45),
+    (.virt 13181, .wire 16 46),
     (.wire 2 27, .wire 16 48),
     (.wire 20 13, .wire 16 49),
     (.wire 16 47, .wire 16 50),
     (.wire 2 27, .wire 16 52),
-    (.virt 11828, .wire 16 53),
-    (.virt 11828, .wire 16 54),
+    (.virt 13182, .wire 16 53),
+    (.virt 13182, .wire 16 54),
     (.wire 2 27, .wire 16 56),
     (.wire 20 14, .wire 16 57),
     (.wire 16 55, .wire 16 58),
     (.wire 2 27, .wire 21 0),
-    (.virt 11829, .wire 21 1),
-    (.virt 11829, .wire 21 2),
+    (.virt 13183, .wire 21 1),
+    (.virt 13183, .wire 21 2),
     (.wire 2 27, .wire 21 4),
     (.wire 20 15, .wire 21 5),
     (.wire 21 3, .wire 21 6)
@@ -875,31 +875,31 @@ def privateBatchWrapper2 (p : ℕ) : Circuit p where
   ]
   copies := ((((privateBatchWrapper2.copies0 ++ privateBatchWrapper2.copies1) ++ (privateBatchWrapper2.copies2 ++ (privateBatchWrapper2.copies3 ++ privateBatchWrapper2.copies4))) ++ ((privateBatchWrapper2.copies5 ++ (privateBatchWrapper2.copies6 ++ privateBatchWrapper2.copies7)) ++ (privateBatchWrapper2.copies8 ++ (privateBatchWrapper2.copies9 ++ privateBatchWrapper2.copies10)))) ++ (((privateBatchWrapper2.copies11 ++ (privateBatchWrapper2.copies12 ++ privateBatchWrapper2.copies13)) ++ (privateBatchWrapper2.copies14 ++ (privateBatchWrapper2.copies15 ++ privateBatchWrapper2.copies16))) ++ ((privateBatchWrapper2.copies17 ++ (privateBatchWrapper2.copies18 ++ privateBatchWrapper2.copies19)) ++ (privateBatchWrapper2.copies20 ++ (privateBatchWrapper2.copies21 ++ privateBatchWrapper2.copies22)))))
   constants := [
-    (.virt 11855, 1),
-    (.virt 11856, 0),
-    (.virt 11857, 2),
-    (.virt 11890, 576460752303423488 /- canonical u64; faithful only at p = goldilocks -/),
-    (.virt 11891, 10000)
+    (.virt 13209, 1),
+    (.virt 13210, 0),
+    (.virt 13211, 2),
+    (.virt 13244, 576460752303423488 /- canonical u64; faithful only at p = goldilocks -/),
+    (.virt 13245, 10000)
   ]
   publicInputs := [
-    .virt 11857,
-    .virt 5907,
-    .virt 11836,
+    .virt 13211,
+    .virt 6584,
+    .virt 13190,
     .wire 3 43,
     .wire 3 51,
     .wire 3 59,
     .wire 4 7,
     .wire 4 15,
-    .virt 11841,
-    .virt 11837,
-    .virt 11838,
-    .virt 11839,
-    .virt 11840,
-    .virt 11846,
-    .virt 11842,
-    .virt 11843,
-    .virt 11844,
-    .virt 11845,
+    .virt 13195,
+    .virt 13191,
+    .virt 13192,
+    .virt 13193,
+    .virt 13194,
+    .virt 13200,
+    .virt 13196,
+    .virt 13197,
+    .virt 13198,
+    .virt 13199,
     .wire 16 11,
     .wire 16 19,
     .wire 16 27,
@@ -912,192 +912,192 @@ def privateBatchWrapper2 (p : ℕ) : Circuit p where
 
 /-- Named targets `leaf_pis_0`. -/
 def privateBatchWrapper2.leaf_pis_0 : Fin 11 → Target :=
-  ![.virt 5907, .virt 5908, .virt 5909, .virt 5910, .virt 5911, .virt 5912, .virt 5913, .virt 5914, .virt 5915, .virt 5916, .virt 5917]
+  ![.virt 6584, .virt 6585, .virt 6586, .virt 6587, .virt 6588, .virt 6589, .virt 6590, .virt 6591, .virt 6592, .virt 6593, .virt 6594]
 
 /-- Named targets `leaf_pis_1`. -/
 def privateBatchWrapper2.leaf_pis_1 : Fin 11 → Target :=
-  ![.virt 11825, .virt 11826, .virt 11827, .virt 11828, .virt 11829, .virt 11830, .virt 11831, .virt 11832, .virt 11833, .virt 11834, .virt 11835]
+  ![.virt 13179, .virt 13180, .virt 13181, .virt 13182, .virt 13183, .virt 13184, .virt 13185, .virt 13186, .virt 13187, .virt 13188, .virt 13189]
 
 /-- Named target `volume_fee_bps`. -/
-def privateBatchWrapper2.volume_fee_bps : Target := .virt 11836
+def privateBatchWrapper2.volume_fee_bps : Target := .virt 13190
 
 /-- Named target `exit_amount_0`. -/
-def privateBatchWrapper2.exit_amount_0 : Target := .virt 11841
+def privateBatchWrapper2.exit_amount_0 : Target := .virt 13195
 
 /-- Named targets `exit_account_0`. -/
 def privateBatchWrapper2.exit_account_0 : Fin 4 → Target :=
-  ![.virt 11837, .virt 11838, .virt 11839, .virt 11840]
+  ![.virt 13191, .virt 13192, .virt 13193, .virt 13194]
 
 /-- Named target `exit_amount_1`. -/
-def privateBatchWrapper2.exit_amount_1 : Target := .virt 11846
+def privateBatchWrapper2.exit_amount_1 : Target := .virt 13200
 
 /-- Named targets `exit_account_1`. -/
 def privateBatchWrapper2.exit_account_1 : Fin 4 → Target :=
-  ![.virt 11842, .virt 11843, .virt 11844, .virt 11845]
+  ![.virt 13196, .virt 13197, .virt 13198, .virt 13199]
 
 /-- Named targets `dummy_pre_image_0`. -/
 def privateBatchWrapper2.dummy_pre_image_0 : Fin 4 → Target :=
-  ![.virt 11847, .virt 11848, .virt 11849, .virt 11850]
+  ![.virt 13201, .virt 13202, .virt 13203, .virt 13204]
 
 /-- Named targets `dummy_pre_image_1`. -/
 def privateBatchWrapper2.dummy_pre_image_1 : Fin 4 → Target :=
-  ![.virt 11851, .virt 11852, .virt 11853, .virt 11854]
+  ![.virt 13205, .virt 13206, .virt 13207, .virt 13208]
 
 /-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
     name and the targets carrying its public inputs (`Recursive.children`). -/
 def privateBatchWrapper2.verifiers : List (String × List Target) :=
   [
-    ("leaf_circuit", [.virt 5907, .virt 5908, .virt 5909, .virt 5910, .virt 5911, .virt 5912, .virt 5913, .virt 5914, .virt 5915, .virt 5916, .virt 5917]),
-    ("leaf_circuit", [.virt 11825, .virt 11826, .virt 11827, .virt 11828, .virt 11829, .virt 11830, .virt 11831, .virt 11832, .virt 11833, .virt 11834, .virt 11835])
+    ("leaf_circuit", [.virt 6584, .virt 6585, .virt 6586, .virt 6587, .virt 6588, .virt 6589, .virt 6590, .virt 6591, .virt 6592, .virt 6593, .virt 6594]),
+    ("leaf_circuit", [.virt 13179, .virt 13180, .virt 13181, .virt 13182, .virt 13183, .virt 13184, .virt 13185, .virt 13186, .virt 13187, .virt 13188, .virt 13189])
   ]
 
 theorem privateBatchWrapper2_copies0 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.virt 11855) = a (.wire 0 0) ∧ a (.virt 11855) = a (.wire 0 1) ∧ a (.virt 11858) = a (.wire 0 2) ∧ a (.virt 11858) = a (.wire 1 0) ∧ a (.virt 5912) = a (.wire 1 1) ∧ a (.virt 11858) = a (.wire 1 2) ∧ a (.virt 5912) = a (.wire 1 4) ∧ a (.virt 11859) = a (.wire 1 5) ∧ a (.virt 5912) = a (.wire 1 6) ∧ a (.wire 1 7) = a (.wire 0 4) ∧ a (.virt 11855) = a (.wire 0 5) ∧ a (.wire 0 3) = a (.wire 0 6) ∧ a (.wire 1 3) = a (.virt 11856) ∧ a (.wire 0 7) = a (.virt 11856) ∧ a (.virt 11855) = a (.wire 0 8) ∧ a (.virt 11855) = a (.wire 0 9) ∧ a (.virt 11860) = a (.wire 0 10) ∧ a (.virt 11860) = a (.wire 1 8) ∧ a (.virt 5913) = a (.wire 1 9) ∧ a (.virt 11860) = a (.wire 1 10) ∧ a (.virt 5913) = a (.wire 1 12) ∧ a (.virt 11861) = a (.wire 1 13) ∧ a (.virt 5913) = a (.wire 1 14) ∧ a (.wire 1 15) = a (.wire 0 12) ∧ a (.virt 11855) = a (.wire 0 13) ∧ a (.wire 0 11) = a (.wire 0 14) ∧ a (.wire 1 11) = a (.virt 11856) ∧ a (.wire 0 15) = a (.virt 11856) ∧ a (.virt 11855) = a (.wire 0 16) ∧ a (.virt 11855) = a (.wire 0 17) ∧ a (.virt 11862) = a (.wire 0 18) ∧ a (.virt 11862) = a (.wire 1 16) := by
+    a (.virt 13209) = a (.wire 0 0) ∧ a (.virt 13209) = a (.wire 0 1) ∧ a (.virt 13212) = a (.wire 0 2) ∧ a (.virt 13212) = a (.wire 1 0) ∧ a (.virt 6589) = a (.wire 1 1) ∧ a (.virt 13212) = a (.wire 1 2) ∧ a (.virt 6589) = a (.wire 1 4) ∧ a (.virt 13213) = a (.wire 1 5) ∧ a (.virt 6589) = a (.wire 1 6) ∧ a (.wire 1 7) = a (.wire 0 4) ∧ a (.virt 13209) = a (.wire 0 5) ∧ a (.wire 0 3) = a (.wire 0 6) ∧ a (.wire 1 3) = a (.virt 13210) ∧ a (.wire 0 7) = a (.virt 13210) ∧ a (.virt 13209) = a (.wire 0 8) ∧ a (.virt 13209) = a (.wire 0 9) ∧ a (.virt 13214) = a (.wire 0 10) ∧ a (.virt 13214) = a (.wire 1 8) ∧ a (.virt 6590) = a (.wire 1 9) ∧ a (.virt 13214) = a (.wire 1 10) ∧ a (.virt 6590) = a (.wire 1 12) ∧ a (.virt 13215) = a (.wire 1 13) ∧ a (.virt 6590) = a (.wire 1 14) ∧ a (.wire 1 15) = a (.wire 0 12) ∧ a (.virt 13209) = a (.wire 0 13) ∧ a (.wire 0 11) = a (.wire 0 14) ∧ a (.wire 1 11) = a (.virt 13210) ∧ a (.wire 0 15) = a (.virt 13210) ∧ a (.virt 13209) = a (.wire 0 16) ∧ a (.virt 13209) = a (.wire 0 17) ∧ a (.virt 13216) = a (.wire 0 18) ∧ a (.virt 13216) = a (.wire 1 16) := by
   have hc : ∀ q ∈ privateBatchWrapper2.copies0, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ hq))))
   simp only [privateBatchWrapper2.copies0, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem privateBatchWrapper2_copies1 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.virt 5914) = a (.wire 1 17) ∧ a (.virt 11862) = a (.wire 1 18) ∧ a (.virt 5914) = a (.wire 1 20) ∧ a (.virt 11863) = a (.wire 1 21) ∧ a (.virt 5914) = a (.wire 1 22) ∧ a (.wire 1 23) = a (.wire 0 20) ∧ a (.virt 11855) = a (.wire 0 21) ∧ a (.wire 0 19) = a (.wire 0 22) ∧ a (.wire 1 19) = a (.virt 11856) ∧ a (.wire 0 23) = a (.virt 11856) ∧ a (.virt 11855) = a (.wire 0 24) ∧ a (.virt 11855) = a (.wire 0 25) ∧ a (.virt 11864) = a (.wire 0 26) ∧ a (.virt 11864) = a (.wire 1 24) ∧ a (.virt 5915) = a (.wire 1 25) ∧ a (.virt 11864) = a (.wire 1 26) ∧ a (.virt 5915) = a (.wire 1 28) ∧ a (.virt 11865) = a (.wire 1 29) ∧ a (.virt 5915) = a (.wire 1 30) ∧ a (.wire 1 31) = a (.wire 0 28) ∧ a (.virt 11855) = a (.wire 0 29) ∧ a (.wire 0 27) = a (.wire 0 30) ∧ a (.wire 1 27) = a (.virt 11856) ∧ a (.wire 0 31) = a (.virt 11856) ∧ a (.virt 11858) = a (.wire 1 32) ∧ a (.virt 11860) = a (.wire 1 33) ∧ a (.virt 11858) = a (.wire 1 34) ∧ a (.virt 11862) = a (.wire 1 36) ∧ a (.virt 11864) = a (.wire 1 37) ∧ a (.virt 11862) = a (.wire 1 38) ∧ a (.wire 1 35) = a (.wire 1 40) ∧ a (.wire 1 39) = a (.wire 1 41) := by
+    a (.virt 6591) = a (.wire 1 17) ∧ a (.virt 13216) = a (.wire 1 18) ∧ a (.virt 6591) = a (.wire 1 20) ∧ a (.virt 13217) = a (.wire 1 21) ∧ a (.virt 6591) = a (.wire 1 22) ∧ a (.wire 1 23) = a (.wire 0 20) ∧ a (.virt 13209) = a (.wire 0 21) ∧ a (.wire 0 19) = a (.wire 0 22) ∧ a (.wire 1 19) = a (.virt 13210) ∧ a (.wire 0 23) = a (.virt 13210) ∧ a (.virt 13209) = a (.wire 0 24) ∧ a (.virt 13209) = a (.wire 0 25) ∧ a (.virt 13218) = a (.wire 0 26) ∧ a (.virt 13218) = a (.wire 1 24) ∧ a (.virt 6592) = a (.wire 1 25) ∧ a (.virt 13218) = a (.wire 1 26) ∧ a (.virt 6592) = a (.wire 1 28) ∧ a (.virt 13219) = a (.wire 1 29) ∧ a (.virt 6592) = a (.wire 1 30) ∧ a (.wire 1 31) = a (.wire 0 28) ∧ a (.virt 13209) = a (.wire 0 29) ∧ a (.wire 0 27) = a (.wire 0 30) ∧ a (.wire 1 27) = a (.virt 13210) ∧ a (.wire 0 31) = a (.virt 13210) ∧ a (.virt 13212) = a (.wire 1 32) ∧ a (.virt 13214) = a (.wire 1 33) ∧ a (.virt 13212) = a (.wire 1 34) ∧ a (.virt 13216) = a (.wire 1 36) ∧ a (.virt 13218) = a (.wire 1 37) ∧ a (.virt 13216) = a (.wire 1 38) ∧ a (.wire 1 35) = a (.wire 1 40) ∧ a (.wire 1 39) = a (.wire 1 41) := by
   have hc : ∀ q ∈ privateBatchWrapper2.copies1, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ hq))))
   simp only [privateBatchWrapper2.copies1, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem privateBatchWrapper2_copies2 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 1 35) = a (.wire 1 42) ∧ a (.virt 11855) = a (.wire 0 32) ∧ a (.virt 11855) = a (.wire 0 33) ∧ a (.virt 11866) = a (.wire 0 34) ∧ a (.virt 11866) = a (.wire 1 44) ∧ a (.virt 11830) = a (.wire 1 45) ∧ a (.virt 11866) = a (.wire 1 46) ∧ a (.virt 11830) = a (.wire 1 48) ∧ a (.virt 11867) = a (.wire 1 49) ∧ a (.virt 11830) = a (.wire 1 50) ∧ a (.wire 1 51) = a (.wire 0 36) ∧ a (.virt 11855) = a (.wire 0 37) ∧ a (.wire 0 35) = a (.wire 0 38) ∧ a (.wire 1 47) = a (.virt 11856) ∧ a (.wire 0 39) = a (.virt 11856) ∧ a (.virt 11855) = a (.wire 0 40) ∧ a (.virt 11855) = a (.wire 0 41) ∧ a (.virt 11868) = a (.wire 0 42) ∧ a (.virt 11868) = a (.wire 1 52) ∧ a (.virt 11831) = a (.wire 1 53) ∧ a (.virt 11868) = a (.wire 1 54) ∧ a (.virt 11831) = a (.wire 1 56) ∧ a (.virt 11869) = a (.wire 1 57) ∧ a (.virt 11831) = a (.wire 1 58) ∧ a (.wire 1 59) = a (.wire 0 44) ∧ a (.virt 11855) = a (.wire 0 45) ∧ a (.wire 0 43) = a (.wire 0 46) ∧ a (.wire 1 55) = a (.virt 11856) ∧ a (.wire 0 47) = a (.virt 11856) ∧ a (.virt 11855) = a (.wire 0 48) ∧ a (.virt 11855) = a (.wire 0 49) ∧ a (.virt 11870) = a (.wire 0 50) := by
+    a (.wire 1 35) = a (.wire 1 42) ∧ a (.virt 13209) = a (.wire 0 32) ∧ a (.virt 13209) = a (.wire 0 33) ∧ a (.virt 13220) = a (.wire 0 34) ∧ a (.virt 13220) = a (.wire 1 44) ∧ a (.virt 13184) = a (.wire 1 45) ∧ a (.virt 13220) = a (.wire 1 46) ∧ a (.virt 13184) = a (.wire 1 48) ∧ a (.virt 13221) = a (.wire 1 49) ∧ a (.virt 13184) = a (.wire 1 50) ∧ a (.wire 1 51) = a (.wire 0 36) ∧ a (.virt 13209) = a (.wire 0 37) ∧ a (.wire 0 35) = a (.wire 0 38) ∧ a (.wire 1 47) = a (.virt 13210) ∧ a (.wire 0 39) = a (.virt 13210) ∧ a (.virt 13209) = a (.wire 0 40) ∧ a (.virt 13209) = a (.wire 0 41) ∧ a (.virt 13222) = a (.wire 0 42) ∧ a (.virt 13222) = a (.wire 1 52) ∧ a (.virt 13185) = a (.wire 1 53) ∧ a (.virt 13222) = a (.wire 1 54) ∧ a (.virt 13185) = a (.wire 1 56) ∧ a (.virt 13223) = a (.wire 1 57) ∧ a (.virt 13185) = a (.wire 1 58) ∧ a (.wire 1 59) = a (.wire 0 44) ∧ a (.virt 13209) = a (.wire 0 45) ∧ a (.wire 0 43) = a (.wire 0 46) ∧ a (.wire 1 55) = a (.virt 13210) ∧ a (.wire 0 47) = a (.virt 13210) ∧ a (.virt 13209) = a (.wire 0 48) ∧ a (.virt 13209) = a (.wire 0 49) ∧ a (.virt 13224) = a (.wire 0 50) := by
   have hc : ∀ q ∈ privateBatchWrapper2.copies2, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ hq))))
   simp only [privateBatchWrapper2.copies2, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem privateBatchWrapper2_copies3 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.virt 11870) = a (.wire 2 0) ∧ a (.virt 11832) = a (.wire 2 1) ∧ a (.virt 11870) = a (.wire 2 2) ∧ a (.virt 11832) = a (.wire 2 4) ∧ a (.virt 11871) = a (.wire 2 5) ∧ a (.virt 11832) = a (.wire 2 6) ∧ a (.wire 2 7) = a (.wire 0 52) ∧ a (.virt 11855) = a (.wire 0 53) ∧ a (.wire 0 51) = a (.wire 0 54) ∧ a (.wire 2 3) = a (.virt 11856) ∧ a (.wire 0 55) = a (.virt 11856) ∧ a (.virt 11855) = a (.wire 0 56) ∧ a (.virt 11855) = a (.wire 0 57) ∧ a (.virt 11872) = a (.wire 0 58) ∧ a (.virt 11872) = a (.wire 2 8) ∧ a (.virt 11833) = a (.wire 2 9) ∧ a (.virt 11872) = a (.wire 2 10) ∧ a (.virt 11833) = a (.wire 2 12) ∧ a (.virt 11873) = a (.wire 2 13) ∧ a (.virt 11833) = a (.wire 2 14) ∧ a (.wire 2 15) = a (.wire 3 0) ∧ a (.virt 11855) = a (.wire 3 1) ∧ a (.wire 0 59) = a (.wire 3 2) ∧ a (.wire 2 11) = a (.virt 11856) ∧ a (.wire 3 3) = a (.virt 11856) ∧ a (.virt 11866) = a (.wire 2 16) ∧ a (.virt 11868) = a (.wire 2 17) ∧ a (.virt 11866) = a (.wire 2 18) ∧ a (.virt 11870) = a (.wire 2 20) ∧ a (.virt 11872) = a (.wire 2 21) ∧ a (.virt 11870) = a (.wire 2 22) ∧ a (.wire 2 19) = a (.wire 2 24) := by
+    a (.virt 13224) = a (.wire 2 0) ∧ a (.virt 13186) = a (.wire 2 1) ∧ a (.virt 13224) = a (.wire 2 2) ∧ a (.virt 13186) = a (.wire 2 4) ∧ a (.virt 13225) = a (.wire 2 5) ∧ a (.virt 13186) = a (.wire 2 6) ∧ a (.wire 2 7) = a (.wire 0 52) ∧ a (.virt 13209) = a (.wire 0 53) ∧ a (.wire 0 51) = a (.wire 0 54) ∧ a (.wire 2 3) = a (.virt 13210) ∧ a (.wire 0 55) = a (.virt 13210) ∧ a (.virt 13209) = a (.wire 0 56) ∧ a (.virt 13209) = a (.wire 0 57) ∧ a (.virt 13226) = a (.wire 0 58) ∧ a (.virt 13226) = a (.wire 2 8) ∧ a (.virt 13187) = a (.wire 2 9) ∧ a (.virt 13226) = a (.wire 2 10) ∧ a (.virt 13187) = a (.wire 2 12) ∧ a (.virt 13227) = a (.wire 2 13) ∧ a (.virt 13187) = a (.wire 2 14) ∧ a (.wire 2 15) = a (.wire 3 0) ∧ a (.virt 13209) = a (.wire 3 1) ∧ a (.wire 0 59) = a (.wire 3 2) ∧ a (.wire 2 11) = a (.virt 13210) ∧ a (.wire 3 3) = a (.virt 13210) ∧ a (.virt 13220) = a (.wire 2 16) ∧ a (.virt 13222) = a (.wire 2 17) ∧ a (.virt 13220) = a (.wire 2 18) ∧ a (.virt 13224) = a (.wire 2 20) ∧ a (.virt 13226) = a (.wire 2 21) ∧ a (.virt 13224) = a (.wire 2 22) ∧ a (.wire 2 19) = a (.wire 2 24) := by
   have hc : ∀ q ∈ privateBatchWrapper2.copies3, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ hq)))))
   simp only [privateBatchWrapper2.copies3, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem privateBatchWrapper2_copies4 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 2 23) = a (.wire 2 25) ∧ a (.wire 2 19) = a (.wire 2 26) ∧ a (.virt 11855) = a (.wire 3 4) ∧ a (.virt 11855) = a (.wire 3 5) ∧ a (.wire 1 43) = a (.wire 3 6) ∧ a (.wire 3 7) = a (.wire 3 8) ∧ a (.virt 5912) = a (.wire 3 9) ∧ a (.virt 11856) = a (.wire 3 10) ∧ a (.wire 3 7) = a (.wire 3 12) ∧ a (.virt 5913) = a (.wire 3 13) ∧ a (.virt 11856) = a (.wire 3 14) ∧ a (.wire 3 7) = a (.wire 3 16) ∧ a (.virt 5914) = a (.wire 3 17) ∧ a (.virt 11856) = a (.wire 3 18) ∧ a (.wire 3 7) = a (.wire 3 20) ∧ a (.virt 5915) = a (.wire 3 21) ∧ a (.virt 11856) = a (.wire 3 22) ∧ a (.wire 3 7) = a (.wire 3 24) ∧ a (.virt 5916) = a (.wire 3 25) ∧ a (.virt 11856) = a (.wire 3 26) ∧ a (.virt 11855) = a (.wire 3 28) ∧ a (.virt 11855) = a (.wire 3 29) ∧ a (.wire 2 27) = a (.wire 3 30) ∧ a (.virt 11855) = a (.wire 3 32) ∧ a (.virt 11855) = a (.wire 3 33) ∧ a (.wire 3 7) = a (.wire 3 34) ∧ a (.wire 3 31) = a (.wire 2 28) ∧ a (.wire 3 35) = a (.wire 2 29) ∧ a (.wire 3 31) = a (.wire 2 30) ∧ a (.wire 2 31) = a (.wire 3 36) ∧ a (.wire 3 11) = a (.wire 3 37) ∧ a (.wire 3 11) = a (.wire 3 38) := by
+    a (.wire 2 23) = a (.wire 2 25) ∧ a (.wire 2 19) = a (.wire 2 26) ∧ a (.virt 13209) = a (.wire 3 4) ∧ a (.virt 13209) = a (.wire 3 5) ∧ a (.wire 1 43) = a (.wire 3 6) ∧ a (.wire 3 7) = a (.wire 3 8) ∧ a (.virt 6589) = a (.wire 3 9) ∧ a (.virt 13210) = a (.wire 3 10) ∧ a (.wire 3 7) = a (.wire 3 12) ∧ a (.virt 6590) = a (.wire 3 13) ∧ a (.virt 13210) = a (.wire 3 14) ∧ a (.wire 3 7) = a (.wire 3 16) ∧ a (.virt 6591) = a (.wire 3 17) ∧ a (.virt 13210) = a (.wire 3 18) ∧ a (.wire 3 7) = a (.wire 3 20) ∧ a (.virt 6592) = a (.wire 3 21) ∧ a (.virt 13210) = a (.wire 3 22) ∧ a (.wire 3 7) = a (.wire 3 24) ∧ a (.virt 6593) = a (.wire 3 25) ∧ a (.virt 13210) = a (.wire 3 26) ∧ a (.virt 13209) = a (.wire 3 28) ∧ a (.virt 13209) = a (.wire 3 29) ∧ a (.wire 2 27) = a (.wire 3 30) ∧ a (.virt 13209) = a (.wire 3 32) ∧ a (.virt 13209) = a (.wire 3 33) ∧ a (.wire 3 7) = a (.wire 3 34) ∧ a (.wire 3 31) = a (.wire 2 28) ∧ a (.wire 3 35) = a (.wire 2 29) ∧ a (.wire 3 31) = a (.wire 2 30) ∧ a (.wire 2 31) = a (.wire 3 36) ∧ a (.wire 3 11) = a (.wire 3 37) ∧ a (.wire 3 11) = a (.wire 3 38) := by
   have hc : ∀ q ∈ privateBatchWrapper2.copies4, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ hq)))))
   simp only [privateBatchWrapper2.copies4, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem privateBatchWrapper2_copies5 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 2 31) = a (.wire 3 40) ∧ a (.virt 11830) = a (.wire 3 41) ∧ a (.wire 3 39) = a (.wire 3 42) ∧ a (.wire 2 31) = a (.wire 3 44) ∧ a (.wire 3 15) = a (.wire 3 45) ∧ a (.wire 3 15) = a (.wire 3 46) ∧ a (.wire 2 31) = a (.wire 3 48) ∧ a (.virt 11831) = a (.wire 3 49) ∧ a (.wire 3 47) = a (.wire 3 50) ∧ a (.wire 2 31) = a (.wire 3 52) ∧ a (.wire 3 19) = a (.wire 3 53) ∧ a (.wire 3 19) = a (.wire 3 54) ∧ a (.wire 2 31) = a (.wire 3 56) ∧ a (.virt 11832) = a (.wire 3 57) ∧ a (.wire 3 55) = a (.wire 3 58) ∧ a (.wire 2 31) = a (.wire 4 0) ∧ a (.wire 3 23) = a (.wire 4 1) ∧ a (.wire 3 23) = a (.wire 4 2) ∧ a (.wire 2 31) = a (.wire 4 4) ∧ a (.virt 11833) = a (.wire 4 5) ∧ a (.wire 4 3) = a (.wire 4 6) ∧ a (.wire 2 31) = a (.wire 4 8) ∧ a (.wire 3 27) = a (.wire 4 9) ∧ a (.wire 3 27) = a (.wire 4 10) ∧ a (.wire 2 31) = a (.wire 4 12) ∧ a (.virt 11834) = a (.wire 4 13) ∧ a (.wire 4 11) = a (.wire 4 14) ∧ a (.wire 3 7) = a (.wire 5 0) ∧ a (.wire 3 31) = a (.wire 5 1) ∧ a (.wire 3 7) = a (.wire 5 2) ∧ a (.wire 5 3) = a (.wire 6 0) ∧ a (.virt 11855) = a (.wire 6 1) := by
+    a (.wire 2 31) = a (.wire 3 40) ∧ a (.virt 13184) = a (.wire 3 41) ∧ a (.wire 3 39) = a (.wire 3 42) ∧ a (.wire 2 31) = a (.wire 3 44) ∧ a (.wire 3 15) = a (.wire 3 45) ∧ a (.wire 3 15) = a (.wire 3 46) ∧ a (.wire 2 31) = a (.wire 3 48) ∧ a (.virt 13185) = a (.wire 3 49) ∧ a (.wire 3 47) = a (.wire 3 50) ∧ a (.wire 2 31) = a (.wire 3 52) ∧ a (.wire 3 19) = a (.wire 3 53) ∧ a (.wire 3 19) = a (.wire 3 54) ∧ a (.wire 2 31) = a (.wire 3 56) ∧ a (.virt 13186) = a (.wire 3 57) ∧ a (.wire 3 55) = a (.wire 3 58) ∧ a (.wire 2 31) = a (.wire 4 0) ∧ a (.wire 3 23) = a (.wire 4 1) ∧ a (.wire 3 23) = a (.wire 4 2) ∧ a (.wire 2 31) = a (.wire 4 4) ∧ a (.virt 13187) = a (.wire 4 5) ∧ a (.wire 4 3) = a (.wire 4 6) ∧ a (.wire 2 31) = a (.wire 4 8) ∧ a (.wire 3 27) = a (.wire 4 9) ∧ a (.wire 3 27) = a (.wire 4 10) ∧ a (.wire 2 31) = a (.wire 4 12) ∧ a (.virt 13188) = a (.wire 4 13) ∧ a (.wire 4 11) = a (.wire 4 14) ∧ a (.wire 3 7) = a (.wire 5 0) ∧ a (.wire 3 31) = a (.wire 5 1) ∧ a (.wire 3 7) = a (.wire 5 2) ∧ a (.wire 5 3) = a (.wire 6 0) ∧ a (.virt 13209) = a (.wire 6 1) := by
   have hc : ∀ q ∈ privateBatchWrapper2.copies5, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_left _ hq))))
   simp only [privateBatchWrapper2.copies5, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem privateBatchWrapper2_copies6 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 3 31) = a (.wire 6 2) ∧ a (.virt 11855) = a (.wire 4 16) ∧ a (.virt 11855) = a (.wire 4 17) ∧ a (.virt 11874) = a (.wire 4 18) ∧ a (.virt 5912) = a (.wire 4 20) ∧ a (.virt 11855) = a (.wire 4 21) ∧ a (.wire 3 43) = a (.wire 4 22) ∧ a (.virt 11874) = a (.wire 2 32) ∧ a (.wire 4 23) = a (.wire 2 33) ∧ a (.virt 11874) = a (.wire 2 34) ∧ a (.wire 4 23) = a (.wire 2 36) ∧ a (.virt 11875) = a (.wire 2 37) ∧ a (.wire 4 23) = a (.wire 2 38) ∧ a (.wire 2 39) = a (.wire 4 24) ∧ a (.virt 11855) = a (.wire 4 25) ∧ a (.wire 4 19) = a (.wire 4 26) ∧ a (.wire 2 35) = a (.virt 11856) ∧ a (.wire 4 27) = a (.virt 11856) ∧ a (.virt 11855) = a (.wire 4 28) ∧ a (.virt 11855) = a (.wire 4 29) ∧ a (.virt 11876) = a (.wire 4 30) ∧ a (.virt 5913) = a (.wire 4 32) ∧ a (.virt 11855) = a (.wire 4 33) ∧ a (.wire 3 51) = a (.wire 4 34) ∧ a (.virt 11876) = a (.wire 2 40) ∧ a (.wire 4 35) = a (.wire 2 41) ∧ a (.virt 11876) = a (.wire 2 42) ∧ a (.wire 4 35) = a (.wire 2 44) ∧ a (.virt 11877) = a (.wire 2 45) ∧ a (.wire 4 35) = a (.wire 2 46) ∧ a (.wire 2 47) = a (.wire 4 36) ∧ a (.virt 11855) = a (.wire 4 37) := by
+    a (.wire 3 31) = a (.wire 6 2) ∧ a (.virt 13209) = a (.wire 4 16) ∧ a (.virt 13209) = a (.wire 4 17) ∧ a (.virt 13228) = a (.wire 4 18) ∧ a (.virt 6589) = a (.wire 4 20) ∧ a (.virt 13209) = a (.wire 4 21) ∧ a (.wire 3 43) = a (.wire 4 22) ∧ a (.virt 13228) = a (.wire 2 32) ∧ a (.wire 4 23) = a (.wire 2 33) ∧ a (.virt 13228) = a (.wire 2 34) ∧ a (.wire 4 23) = a (.wire 2 36) ∧ a (.virt 13229) = a (.wire 2 37) ∧ a (.wire 4 23) = a (.wire 2 38) ∧ a (.wire 2 39) = a (.wire 4 24) ∧ a (.virt 13209) = a (.wire 4 25) ∧ a (.wire 4 19) = a (.wire 4 26) ∧ a (.wire 2 35) = a (.virt 13210) ∧ a (.wire 4 27) = a (.virt 13210) ∧ a (.virt 13209) = a (.wire 4 28) ∧ a (.virt 13209) = a (.wire 4 29) ∧ a (.virt 13230) = a (.wire 4 30) ∧ a (.virt 6590) = a (.wire 4 32) ∧ a (.virt 13209) = a (.wire 4 33) ∧ a (.wire 3 51) = a (.wire 4 34) ∧ a (.virt 13230) = a (.wire 2 40) ∧ a (.wire 4 35) = a (.wire 2 41) ∧ a (.virt 13230) = a (.wire 2 42) ∧ a (.wire 4 35) = a (.wire 2 44) ∧ a (.virt 13231) = a (.wire 2 45) ∧ a (.wire 4 35) = a (.wire 2 46) ∧ a (.wire 2 47) = a (.wire 4 36) ∧ a (.virt 13209) = a (.wire 4 37) := by
   have hc : ∀ q ∈ privateBatchWrapper2.copies6, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ hq)))))
   simp only [privateBatchWrapper2.copies6, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem privateBatchWrapper2_copies7 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 4 31) = a (.wire 4 38) ∧ a (.wire 2 43) = a (.virt 11856) ∧ a (.wire 4 39) = a (.virt 11856) ∧ a (.virt 11855) = a (.wire 4 40) ∧ a (.virt 11855) = a (.wire 4 41) ∧ a (.virt 11878) = a (.wire 4 42) ∧ a (.virt 5914) = a (.wire 4 44) ∧ a (.virt 11855) = a (.wire 4 45) ∧ a (.wire 3 59) = a (.wire 4 46) ∧ a (.virt 11878) = a (.wire 2 48) ∧ a (.wire 4 47) = a (.wire 2 49) ∧ a (.virt 11878) = a (.wire 2 50) ∧ a (.wire 4 47) = a (.wire 2 52) ∧ a (.virt 11879) = a (.wire 2 53) ∧ a (.wire 4 47) = a (.wire 2 54) ∧ a (.wire 2 55) = a (.wire 4 48) ∧ a (.virt 11855) = a (.wire 4 49) ∧ a (.wire 4 43) = a (.wire 4 50) ∧ a (.wire 2 51) = a (.virt 11856) ∧ a (.wire 4 51) = a (.virt 11856) ∧ a (.virt 11855) = a (.wire 4 52) ∧ a (.virt 11855) = a (.wire 4 53) ∧ a (.virt 11880) = a (.wire 4 54) ∧ a (.virt 5915) = a (.wire 4 56) ∧ a (.virt 11855) = a (.wire 4 57) ∧ a (.wire 4 7) = a (.wire 4 58) ∧ a (.virt 11880) = a (.wire 2 56) ∧ a (.wire 4 59) = a (.wire 2 57) ∧ a (.virt 11880) = a (.wire 2 58) ∧ a (.wire 4 59) = a (.wire 7 0) ∧ a (.virt 11881) = a (.wire 7 1) ∧ a (.wire 4 59) = a (.wire 7 2) := by
+    a (.wire 4 31) = a (.wire 4 38) ∧ a (.wire 2 43) = a (.virt 13210) ∧ a (.wire 4 39) = a (.virt 13210) ∧ a (.virt 13209) = a (.wire 4 40) ∧ a (.virt 13209) = a (.wire 4 41) ∧ a (.virt 13232) = a (.wire 4 42) ∧ a (.virt 6591) = a (.wire 4 44) ∧ a (.virt 13209) = a (.wire 4 45) ∧ a (.wire 3 59) = a (.wire 4 46) ∧ a (.virt 13232) = a (.wire 2 48) ∧ a (.wire 4 47) = a (.wire 2 49) ∧ a (.virt 13232) = a (.wire 2 50) ∧ a (.wire 4 47) = a (.wire 2 52) ∧ a (.virt 13233) = a (.wire 2 53) ∧ a (.wire 4 47) = a (.wire 2 54) ∧ a (.wire 2 55) = a (.wire 4 48) ∧ a (.virt 13209) = a (.wire 4 49) ∧ a (.wire 4 43) = a (.wire 4 50) ∧ a (.wire 2 51) = a (.virt 13210) ∧ a (.wire 4 51) = a (.virt 13210) ∧ a (.virt 13209) = a (.wire 4 52) ∧ a (.virt 13209) = a (.wire 4 53) ∧ a (.virt 13234) = a (.wire 4 54) ∧ a (.virt 6592) = a (.wire 4 56) ∧ a (.virt 13209) = a (.wire 4 57) ∧ a (.wire 4 7) = a (.wire 4 58) ∧ a (.virt 13234) = a (.wire 2 56) ∧ a (.wire 4 59) = a (.wire 2 57) ∧ a (.virt 13234) = a (.wire 2 58) ∧ a (.wire 4 59) = a (.wire 7 0) ∧ a (.virt 13235) = a (.wire 7 1) ∧ a (.wire 4 59) = a (.wire 7 2) := by
   have hc : ∀ q ∈ privateBatchWrapper2.copies7, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ hq)))))
   simp only [privateBatchWrapper2.copies7, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem privateBatchWrapper2_copies8 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 7 3) = a (.wire 8 0) ∧ a (.virt 11855) = a (.wire 8 1) ∧ a (.wire 4 55) = a (.wire 8 2) ∧ a (.wire 2 59) = a (.virt 11856) ∧ a (.wire 8 3) = a (.virt 11856) ∧ a (.virt 11874) = a (.wire 7 4) ∧ a (.virt 11876) = a (.wire 7 5) ∧ a (.virt 11874) = a (.wire 7 6) ∧ a (.virt 11878) = a (.wire 7 8) ∧ a (.virt 11880) = a (.wire 7 9) ∧ a (.virt 11878) = a (.wire 7 10) ∧ a (.wire 7 7) = a (.wire 7 12) ∧ a (.wire 7 11) = a (.wire 7 13) ∧ a (.wire 7 7) = a (.wire 7 14) ∧ a (.wire 1 43) = a (.wire 5 4) ∧ a (.wire 7 15) = a (.wire 5 5) ∧ a (.wire 1 43) = a (.wire 5 6) ∧ a (.wire 5 7) = a (.wire 6 4) ∧ a (.virt 11855) = a (.wire 6 5) ∧ a (.wire 7 15) = a (.wire 6 6) ∧ a (.wire 6 7) = a (.virt 11855) ∧ True ∧ a (.virt 11855) = a (.wire 8 4) ∧ a (.virt 11855) = a (.wire 8 5) ∧ a (.virt 11882) = a (.wire 8 6) ∧ a (.virt 11830) = a (.wire 8 8) ∧ a (.virt 11855) = a (.wire 8 9) ∧ a (.wire 3 43) = a (.wire 8 10) ∧ a (.virt 11882) = a (.wire 7 16) ∧ a (.wire 8 11) = a (.wire 7 17) ∧ a (.virt 11882) = a (.wire 7 18) ∧ a (.wire 8 11) = a (.wire 7 20) := by
+    a (.wire 7 3) = a (.wire 8 0) ∧ a (.virt 13209) = a (.wire 8 1) ∧ a (.wire 4 55) = a (.wire 8 2) ∧ a (.wire 2 59) = a (.virt 13210) ∧ a (.wire 8 3) = a (.virt 13210) ∧ a (.virt 13228) = a (.wire 7 4) ∧ a (.virt 13230) = a (.wire 7 5) ∧ a (.virt 13228) = a (.wire 7 6) ∧ a (.virt 13232) = a (.wire 7 8) ∧ a (.virt 13234) = a (.wire 7 9) ∧ a (.virt 13232) = a (.wire 7 10) ∧ a (.wire 7 7) = a (.wire 7 12) ∧ a (.wire 7 11) = a (.wire 7 13) ∧ a (.wire 7 7) = a (.wire 7 14) ∧ a (.wire 1 43) = a (.wire 5 4) ∧ a (.wire 7 15) = a (.wire 5 5) ∧ a (.wire 1 43) = a (.wire 5 6) ∧ a (.wire 5 7) = a (.wire 6 4) ∧ a (.virt 13209) = a (.wire 6 5) ∧ a (.wire 7 15) = a (.wire 6 6) ∧ a (.wire 6 7) = a (.virt 13209) ∧ True ∧ a (.virt 13209) = a (.wire 8 4) ∧ a (.virt 13209) = a (.wire 8 5) ∧ a (.virt 13236) = a (.wire 8 6) ∧ a (.virt 13184) = a (.wire 8 8) ∧ a (.virt 13209) = a (.wire 8 9) ∧ a (.wire 3 43) = a (.wire 8 10) ∧ a (.virt 13236) = a (.wire 7 16) ∧ a (.wire 8 11) = a (.wire 7 17) ∧ a (.virt 13236) = a (.wire 7 18) ∧ a (.wire 8 11) = a (.wire 7 20) := by
   have hc : ∀ q ∈ privateBatchWrapper2.copies8, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ hq))))
   simp only [privateBatchWrapper2.copies8, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem privateBatchWrapper2_copies9 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.virt 11883) = a (.wire 7 21) ∧ a (.wire 8 11) = a (.wire 7 22) ∧ a (.wire 7 23) = a (.wire 8 12) ∧ a (.virt 11855) = a (.wire 8 13) ∧ a (.wire 8 7) = a (.wire 8 14) ∧ a (.wire 7 19) = a (.virt 11856) ∧ a (.wire 8 15) = a (.virt 11856) ∧ a (.virt 11855) = a (.wire 8 16) ∧ a (.virt 11855) = a (.wire 8 17) ∧ a (.virt 11884) = a (.wire 8 18) ∧ a (.virt 11831) = a (.wire 8 20) ∧ a (.virt 11855) = a (.wire 8 21) ∧ a (.wire 3 51) = a (.wire 8 22) ∧ a (.virt 11884) = a (.wire 7 24) ∧ a (.wire 8 23) = a (.wire 7 25) ∧ a (.virt 11884) = a (.wire 7 26) ∧ a (.wire 8 23) = a (.wire 7 28) ∧ a (.virt 11885) = a (.wire 7 29) ∧ a (.wire 8 23) = a (.wire 7 30) ∧ a (.wire 7 31) = a (.wire 8 24) ∧ a (.virt 11855) = a (.wire 8 25) ∧ a (.wire 8 19) = a (.wire 8 26) ∧ a (.wire 7 27) = a (.virt 11856) ∧ a (.wire 8 27) = a (.virt 11856) ∧ a (.virt 11855) = a (.wire 8 28) ∧ a (.virt 11855) = a (.wire 8 29) ∧ a (.virt 11886) = a (.wire 8 30) ∧ a (.virt 11832) = a (.wire 8 32) ∧ a (.virt 11855) = a (.wire 8 33) ∧ a (.wire 3 59) = a (.wire 8 34) ∧ a (.virt 11886) = a (.wire 7 32) ∧ a (.wire 8 35) = a (.wire 7 33) := by
+    a (.virt 13237) = a (.wire 7 21) ∧ a (.wire 8 11) = a (.wire 7 22) ∧ a (.wire 7 23) = a (.wire 8 12) ∧ a (.virt 13209) = a (.wire 8 13) ∧ a (.wire 8 7) = a (.wire 8 14) ∧ a (.wire 7 19) = a (.virt 13210) ∧ a (.wire 8 15) = a (.virt 13210) ∧ a (.virt 13209) = a (.wire 8 16) ∧ a (.virt 13209) = a (.wire 8 17) ∧ a (.virt 13238) = a (.wire 8 18) ∧ a (.virt 13185) = a (.wire 8 20) ∧ a (.virt 13209) = a (.wire 8 21) ∧ a (.wire 3 51) = a (.wire 8 22) ∧ a (.virt 13238) = a (.wire 7 24) ∧ a (.wire 8 23) = a (.wire 7 25) ∧ a (.virt 13238) = a (.wire 7 26) ∧ a (.wire 8 23) = a (.wire 7 28) ∧ a (.virt 13239) = a (.wire 7 29) ∧ a (.wire 8 23) = a (.wire 7 30) ∧ a (.wire 7 31) = a (.wire 8 24) ∧ a (.virt 13209) = a (.wire 8 25) ∧ a (.wire 8 19) = a (.wire 8 26) ∧ a (.wire 7 27) = a (.virt 13210) ∧ a (.wire 8 27) = a (.virt 13210) ∧ a (.virt 13209) = a (.wire 8 28) ∧ a (.virt 13209) = a (.wire 8 29) ∧ a (.virt 13240) = a (.wire 8 30) ∧ a (.virt 13186) = a (.wire 8 32) ∧ a (.virt 13209) = a (.wire 8 33) ∧ a (.wire 3 59) = a (.wire 8 34) ∧ a (.virt 13240) = a (.wire 7 32) ∧ a (.wire 8 35) = a (.wire 7 33) := by
   have hc : ∀ q ∈ privateBatchWrapper2.copies9, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ hq)))))
   simp only [privateBatchWrapper2.copies9, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem privateBatchWrapper2_copies10 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.virt 11886) = a (.wire 7 34) ∧ a (.wire 8 35) = a (.wire 7 36) ∧ a (.virt 11887) = a (.wire 7 37) ∧ a (.wire 8 35) = a (.wire 7 38) ∧ a (.wire 7 39) = a (.wire 8 36) ∧ a (.virt 11855) = a (.wire 8 37) ∧ a (.wire 8 31) = a (.wire 8 38) ∧ a (.wire 7 35) = a (.virt 11856) ∧ a (.wire 8 39) = a (.virt 11856) ∧ a (.virt 11855) = a (.wire 8 40) ∧ a (.virt 11855) = a (.wire 8 41) ∧ a (.virt 11888) = a (.wire 8 42) ∧ a (.virt 11833) = a (.wire 8 44) ∧ a (.virt 11855) = a (.wire 8 45) ∧ a (.wire 4 7) = a (.wire 8 46) ∧ a (.virt 11888) = a (.wire 7 40) ∧ a (.wire 8 47) = a (.wire 7 41) ∧ a (.virt 11888) = a (.wire 7 42) ∧ a (.wire 8 47) = a (.wire 7 44) ∧ a (.virt 11889) = a (.wire 7 45) ∧ a (.wire 8 47) = a (.wire 7 46) ∧ a (.wire 7 47) = a (.wire 8 48) ∧ a (.virt 11855) = a (.wire 8 49) ∧ a (.wire 8 43) = a (.wire 8 50) ∧ a (.wire 7 43) = a (.virt 11856) ∧ a (.wire 8 51) = a (.virt 11856) ∧ a (.virt 11882) = a (.wire 7 48) ∧ a (.virt 11884) = a (.wire 7 49) ∧ a (.virt 11882) = a (.wire 7 50) ∧ a (.virt 11886) = a (.wire 7 52) ∧ a (.virt 11888) = a (.wire 7 53) ∧ a (.virt 11886) = a (.wire 7 54) := by
+    a (.virt 13240) = a (.wire 7 34) ∧ a (.wire 8 35) = a (.wire 7 36) ∧ a (.virt 13241) = a (.wire 7 37) ∧ a (.wire 8 35) = a (.wire 7 38) ∧ a (.wire 7 39) = a (.wire 8 36) ∧ a (.virt 13209) = a (.wire 8 37) ∧ a (.wire 8 31) = a (.wire 8 38) ∧ a (.wire 7 35) = a (.virt 13210) ∧ a (.wire 8 39) = a (.virt 13210) ∧ a (.virt 13209) = a (.wire 8 40) ∧ a (.virt 13209) = a (.wire 8 41) ∧ a (.virt 13242) = a (.wire 8 42) ∧ a (.virt 13187) = a (.wire 8 44) ∧ a (.virt 13209) = a (.wire 8 45) ∧ a (.wire 4 7) = a (.wire 8 46) ∧ a (.virt 13242) = a (.wire 7 40) ∧ a (.wire 8 47) = a (.wire 7 41) ∧ a (.virt 13242) = a (.wire 7 42) ∧ a (.wire 8 47) = a (.wire 7 44) ∧ a (.virt 13243) = a (.wire 7 45) ∧ a (.wire 8 47) = a (.wire 7 46) ∧ a (.wire 7 47) = a (.wire 8 48) ∧ a (.virt 13209) = a (.wire 8 49) ∧ a (.wire 8 43) = a (.wire 8 50) ∧ a (.wire 7 43) = a (.virt 13210) ∧ a (.wire 8 51) = a (.virt 13210) ∧ a (.virt 13236) = a (.wire 7 48) ∧ a (.virt 13238) = a (.wire 7 49) ∧ a (.virt 13236) = a (.wire 7 50) ∧ a (.virt 13240) = a (.wire 7 52) ∧ a (.virt 13242) = a (.wire 7 53) ∧ a (.virt 13240) = a (.wire 7 54) := by
   have hc : ∀ q ∈ privateBatchWrapper2.copies10, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ hq)))))
   simp only [privateBatchWrapper2.copies10, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem privateBatchWrapper2_copies11 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 7 51) = a (.wire 7 56) ∧ a (.wire 7 55) = a (.wire 7 57) ∧ a (.wire 7 51) = a (.wire 7 58) ∧ a (.wire 2 27) = a (.wire 5 8) ∧ a (.wire 7 59) = a (.wire 5 9) ∧ a (.wire 2 27) = a (.wire 5 10) ∧ a (.wire 5 11) = a (.wire 6 8) ∧ a (.virt 11855) = a (.wire 6 9) ∧ a (.wire 7 59) = a (.wire 6 10) ∧ a (.wire 6 11) = a (.virt 11855) ∧ a (.virt 11825) = a (.virt 5907) ∧ a (.wire 1 43) = a (.wire 8 52) ∧ a (.virt 5917) = a (.wire 8 53) ∧ a (.virt 5917) = a (.wire 8 54) ∧ a (.wire 1 43) = a (.wire 8 56) ∧ a (.virt 11856) = a (.wire 8 57) ∧ a (.wire 8 55) = a (.wire 8 58) ∧ a (.wire 2 27) = a (.wire 9 0) ∧ a (.virt 11835) = a (.wire 9 1) ∧ a (.virt 11835) = a (.wire 9 2) ∧ a (.wire 2 27) = a (.wire 9 4) ∧ a (.virt 11856) = a (.wire 9 5) ∧ a (.wire 9 3) = a (.wire 9 6) ∧ a (.wire 8 59) = a (.wire 6 12) ∧ a (.virt 11855) = a (.wire 6 13) ∧ a (.wire 9 7) = a (.wire 6 14) ∧ a (.wire 10 33) = a (.virt 11856) ∧ a (.wire 10 34) = a (.virt 11856) ∧ a (.wire 10 35) = a (.virt 11856) ∧ a (.wire 10 36) = a (.virt 11856) ∧ a (.wire 10 37) = a (.virt 11856) ∧ a (.wire 10 38) = a (.virt 11856) := by
+    a (.wire 7 51) = a (.wire 7 56) ∧ a (.wire 7 55) = a (.wire 7 57) ∧ a (.wire 7 51) = a (.wire 7 58) ∧ a (.wire 2 27) = a (.wire 5 8) ∧ a (.wire 7 59) = a (.wire 5 9) ∧ a (.wire 2 27) = a (.wire 5 10) ∧ a (.wire 5 11) = a (.wire 6 8) ∧ a (.virt 13209) = a (.wire 6 9) ∧ a (.wire 7 59) = a (.wire 6 10) ∧ a (.wire 6 11) = a (.virt 13209) ∧ a (.virt 13179) = a (.virt 6584) ∧ a (.wire 1 43) = a (.wire 8 52) ∧ a (.virt 6594) = a (.wire 8 53) ∧ a (.virt 6594) = a (.wire 8 54) ∧ a (.wire 1 43) = a (.wire 8 56) ∧ a (.virt 13210) = a (.wire 8 57) ∧ a (.wire 8 55) = a (.wire 8 58) ∧ a (.wire 2 27) = a (.wire 9 0) ∧ a (.virt 13189) = a (.wire 9 1) ∧ a (.virt 13189) = a (.wire 9 2) ∧ a (.wire 2 27) = a (.wire 9 4) ∧ a (.virt 13210) = a (.wire 9 5) ∧ a (.wire 9 3) = a (.wire 9 6) ∧ a (.wire 8 59) = a (.wire 6 12) ∧ a (.virt 13209) = a (.wire 6 13) ∧ a (.wire 9 7) = a (.wire 6 14) ∧ a (.wire 10 33) = a (.virt 13210) ∧ a (.wire 10 34) = a (.virt 13210) ∧ a (.wire 10 35) = a (.virt 13210) ∧ a (.wire 10 36) = a (.virt 13210) ∧ a (.wire 10 37) = a (.virt 13210) ∧ a (.wire 10 38) = a (.virt 13210) := by
   have hc : ∀ q ∈ privateBatchWrapper2.copies11, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ hq))))
   simp only [privateBatchWrapper2.copies11, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem privateBatchWrapper2_copies12 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 10 39) = a (.virt 11856) ∧ a (.wire 10 40) = a (.virt 11856) ∧ a (.wire 10 41) = a (.virt 11856) ∧ a (.wire 10 42) = a (.virt 11856) ∧ a (.wire 10 43) = a (.virt 11856) ∧ a (.wire 10 44) = a (.virt 11856) ∧ a (.wire 10 45) = a (.virt 11856) ∧ a (.wire 10 46) = a (.virt 11856) ∧ a (.wire 10 47) = a (.virt 11856) ∧ a (.wire 10 48) = a (.virt 11856) ∧ a (.wire 10 49) = a (.virt 11856) ∧ a (.wire 10 50) = a (.virt 11856) ∧ a (.wire 10 51) = a (.virt 11856) ∧ a (.wire 10 52) = a (.virt 11856) ∧ a (.wire 10 53) = a (.virt 11856) ∧ a (.wire 10 54) = a (.virt 11856) ∧ a (.wire 10 55) = a (.virt 11856) ∧ a (.wire 10 56) = a (.virt 11856) ∧ a (.wire 10 57) = a (.virt 11856) ∧ a (.wire 10 58) = a (.virt 11856) ∧ a (.wire 10 59) = a (.virt 11856) ∧ a (.wire 10 0) = a (.virt 11841) ∧ a (.wire 11 33) = a (.virt 11856) ∧ a (.wire 11 34) = a (.virt 11856) ∧ a (.wire 11 35) = a (.virt 11856) ∧ a (.wire 11 36) = a (.virt 11856) ∧ a (.wire 11 37) = a (.virt 11856) ∧ a (.wire 11 38) = a (.virt 11856) ∧ a (.wire 11 39) = a (.virt 11856) ∧ a (.wire 11 40) = a (.virt 11856) ∧ a (.wire 11 41) = a (.virt 11856) ∧ a (.wire 11 42) = a (.virt 11856) := by
+    a (.wire 10 39) = a (.virt 13210) ∧ a (.wire 10 40) = a (.virt 13210) ∧ a (.wire 10 41) = a (.virt 13210) ∧ a (.wire 10 42) = a (.virt 13210) ∧ a (.wire 10 43) = a (.virt 13210) ∧ a (.wire 10 44) = a (.virt 13210) ∧ a (.wire 10 45) = a (.virt 13210) ∧ a (.wire 10 46) = a (.virt 13210) ∧ a (.wire 10 47) = a (.virt 13210) ∧ a (.wire 10 48) = a (.virt 13210) ∧ a (.wire 10 49) = a (.virt 13210) ∧ a (.wire 10 50) = a (.virt 13210) ∧ a (.wire 10 51) = a (.virt 13210) ∧ a (.wire 10 52) = a (.virt 13210) ∧ a (.wire 10 53) = a (.virt 13210) ∧ a (.wire 10 54) = a (.virt 13210) ∧ a (.wire 10 55) = a (.virt 13210) ∧ a (.wire 10 56) = a (.virt 13210) ∧ a (.wire 10 57) = a (.virt 13210) ∧ a (.wire 10 58) = a (.virt 13210) ∧ a (.wire 10 59) = a (.virt 13210) ∧ a (.wire 10 0) = a (.virt 13195) ∧ a (.wire 11 33) = a (.virt 13210) ∧ a (.wire 11 34) = a (.virt 13210) ∧ a (.wire 11 35) = a (.virt 13210) ∧ a (.wire 11 36) = a (.virt 13210) ∧ a (.wire 11 37) = a (.virt 13210) ∧ a (.wire 11 38) = a (.virt 13210) ∧ a (.wire 11 39) = a (.virt 13210) ∧ a (.wire 11 40) = a (.virt 13210) ∧ a (.wire 11 41) = a (.virt 13210) ∧ a (.wire 11 42) = a (.virt 13210) := by
   have hc : ∀ q ∈ privateBatchWrapper2.copies12, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ hq)))))
   simp only [privateBatchWrapper2.copies12, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem privateBatchWrapper2_copies13 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 11 43) = a (.virt 11856) ∧ a (.wire 11 44) = a (.virt 11856) ∧ a (.wire 11 45) = a (.virt 11856) ∧ a (.wire 11 46) = a (.virt 11856) ∧ a (.wire 11 47) = a (.virt 11856) ∧ a (.wire 11 48) = a (.virt 11856) ∧ a (.wire 11 49) = a (.virt 11856) ∧ a (.wire 11 50) = a (.virt 11856) ∧ a (.wire 11 51) = a (.virt 11856) ∧ a (.wire 11 52) = a (.virt 11856) ∧ a (.wire 11 53) = a (.virt 11856) ∧ a (.wire 11 54) = a (.virt 11856) ∧ a (.wire 11 55) = a (.virt 11856) ∧ a (.wire 11 56) = a (.virt 11856) ∧ a (.wire 11 57) = a (.virt 11856) ∧ a (.wire 11 58) = a (.virt 11856) ∧ a (.wire 11 59) = a (.virt 11856) ∧ a (.wire 11 0) = a (.virt 11846) ∧ a (.virt 11841) = a (.wire 6 16) ∧ a (.virt 11855) = a (.wire 6 17) ∧ a (.virt 11846) = a (.wire 6 18) ∧ a (.wire 12 15) = a (.virt 11856) ∧ a (.wire 12 16) = a (.virt 11856) ∧ a (.wire 12 17) = a (.virt 11856) ∧ a (.wire 12 18) = a (.virt 11856) ∧ a (.wire 12 19) = a (.virt 11856) ∧ a (.wire 12 20) = a (.virt 11856) ∧ a (.wire 12 21) = a (.virt 11856) ∧ a (.wire 12 22) = a (.virt 11856) ∧ a (.wire 12 23) = a (.virt 11856) ∧ a (.wire 12 24) = a (.virt 11856) ∧ a (.wire 12 25) = a (.virt 11856) := by
+    a (.wire 11 43) = a (.virt 13210) ∧ a (.wire 11 44) = a (.virt 13210) ∧ a (.wire 11 45) = a (.virt 13210) ∧ a (.wire 11 46) = a (.virt 13210) ∧ a (.wire 11 47) = a (.virt 13210) ∧ a (.wire 11 48) = a (.virt 13210) ∧ a (.wire 11 49) = a (.virt 13210) ∧ a (.wire 11 50) = a (.virt 13210) ∧ a (.wire 11 51) = a (.virt 13210) ∧ a (.wire 11 52) = a (.virt 13210) ∧ a (.wire 11 53) = a (.virt 13210) ∧ a (.wire 11 54) = a (.virt 13210) ∧ a (.wire 11 55) = a (.virt 13210) ∧ a (.wire 11 56) = a (.virt 13210) ∧ a (.wire 11 57) = a (.virt 13210) ∧ a (.wire 11 58) = a (.virt 13210) ∧ a (.wire 11 59) = a (.virt 13210) ∧ a (.wire 11 0) = a (.virt 13200) ∧ a (.virt 13195) = a (.wire 6 16) ∧ a (.virt 13209) = a (.wire 6 17) ∧ a (.virt 13200) = a (.wire 6 18) ∧ a (.wire 12 15) = a (.virt 13210) ∧ a (.wire 12 16) = a (.virt 13210) ∧ a (.wire 12 17) = a (.virt 13210) ∧ a (.wire 12 18) = a (.virt 13210) ∧ a (.wire 12 19) = a (.virt 13210) ∧ a (.wire 12 20) = a (.virt 13210) ∧ a (.wire 12 21) = a (.virt 13210) ∧ a (.wire 12 22) = a (.virt 13210) ∧ a (.wire 12 23) = a (.virt 13210) ∧ a (.wire 12 24) = a (.virt 13210) ∧ a (.wire 12 25) = a (.virt 13210) := by
   have hc : ∀ q ∈ privateBatchWrapper2.copies13, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ hq)))))
   simp only [privateBatchWrapper2.copies13, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem privateBatchWrapper2_copies14 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 12 26) = a (.virt 11856) ∧ a (.wire 12 27) = a (.virt 11856) ∧ a (.wire 12 28) = a (.virt 11856) ∧ a (.wire 12 29) = a (.virt 11856) ∧ a (.wire 12 30) = a (.virt 11856) ∧ a (.wire 12 31) = a (.virt 11856) ∧ a (.wire 12 32) = a (.virt 11856) ∧ a (.wire 12 33) = a (.virt 11856) ∧ a (.wire 12 34) = a (.virt 11856) ∧ a (.wire 12 35) = a (.virt 11856) ∧ a (.wire 12 36) = a (.virt 11856) ∧ a (.wire 12 37) = a (.virt 11856) ∧ a (.wire 12 38) = a (.virt 11856) ∧ a (.wire 12 39) = a (.virt 11856) ∧ a (.wire 12 40) = a (.virt 11856) ∧ a (.wire 12 41) = a (.virt 11856) ∧ a (.wire 12 42) = a (.virt 11856) ∧ a (.wire 12 43) = a (.virt 11856) ∧ a (.wire 12 44) = a (.virt 11856) ∧ a (.wire 12 45) = a (.virt 11856) ∧ a (.wire 12 46) = a (.virt 11856) ∧ a (.wire 12 47) = a (.virt 11856) ∧ a (.wire 12 48) = a (.virt 11856) ∧ a (.wire 12 49) = a (.virt 11856) ∧ a (.wire 12 50) = a (.virt 11856) ∧ a (.wire 12 51) = a (.virt 11856) ∧ a (.wire 12 52) = a (.virt 11856) ∧ a (.wire 12 53) = a (.virt 11856) ∧ a (.wire 12 54) = a (.virt 11856) ∧ a (.wire 12 55) = a (.virt 11856) ∧ a (.wire 12 56) = a (.virt 11856) ∧ a (.wire 12 57) = a (.virt 11856) := by
+    a (.wire 12 26) = a (.virt 13210) ∧ a (.wire 12 27) = a (.virt 13210) ∧ a (.wire 12 28) = a (.virt 13210) ∧ a (.wire 12 29) = a (.virt 13210) ∧ a (.wire 12 30) = a (.virt 13210) ∧ a (.wire 12 31) = a (.virt 13210) ∧ a (.wire 12 32) = a (.virt 13210) ∧ a (.wire 12 33) = a (.virt 13210) ∧ a (.wire 12 34) = a (.virt 13210) ∧ a (.wire 12 35) = a (.virt 13210) ∧ a (.wire 12 36) = a (.virt 13210) ∧ a (.wire 12 37) = a (.virt 13210) ∧ a (.wire 12 38) = a (.virt 13210) ∧ a (.wire 12 39) = a (.virt 13210) ∧ a (.wire 12 40) = a (.virt 13210) ∧ a (.wire 12 41) = a (.virt 13210) ∧ a (.wire 12 42) = a (.virt 13210) ∧ a (.wire 12 43) = a (.virt 13210) ∧ a (.wire 12 44) = a (.virt 13210) ∧ a (.wire 12 45) = a (.virt 13210) ∧ a (.wire 12 46) = a (.virt 13210) ∧ a (.wire 12 47) = a (.virt 13210) ∧ a (.wire 12 48) = a (.virt 13210) ∧ a (.wire 12 49) = a (.virt 13210) ∧ a (.wire 12 50) = a (.virt 13210) ∧ a (.wire 12 51) = a (.virt 13210) ∧ a (.wire 12 52) = a (.virt 13210) ∧ a (.wire 12 53) = a (.virt 13210) ∧ a (.wire 12 54) = a (.virt 13210) ∧ a (.wire 12 55) = a (.virt 13210) ∧ a (.wire 12 56) = a (.virt 13210) ∧ a (.wire 12 57) = a (.virt 13210) := by
   have hc : ∀ q ∈ privateBatchWrapper2.copies14, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ hq))))
   simp only [privateBatchWrapper2.copies14, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem privateBatchWrapper2_copies15 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 12 58) = a (.virt 11856) ∧ a (.wire 12 59) = a (.virt 11856) ∧ a (.wire 12 0) = a (.virt 11836) ∧ a (.virt 11891) = a (.wire 9 8) ∧ a (.virt 11855) = a (.wire 9 9) ∧ a (.virt 11836) = a (.wire 9 10) ∧ a (.wire 13 15) = a (.virt 11856) ∧ a (.wire 13 16) = a (.virt 11856) ∧ a (.wire 13 17) = a (.virt 11856) ∧ a (.wire 13 18) = a (.virt 11856) ∧ a (.wire 13 19) = a (.virt 11856) ∧ a (.wire 13 20) = a (.virt 11856) ∧ a (.wire 13 21) = a (.virt 11856) ∧ a (.wire 13 22) = a (.virt 11856) ∧ a (.wire 13 23) = a (.virt 11856) ∧ a (.wire 13 24) = a (.virt 11856) ∧ a (.wire 13 25) = a (.virt 11856) ∧ a (.wire 13 26) = a (.virt 11856) ∧ a (.wire 13 27) = a (.virt 11856) ∧ a (.wire 13 28) = a (.virt 11856) ∧ a (.wire 13 29) = a (.virt 11856) ∧ a (.wire 13 30) = a (.virt 11856) ∧ a (.wire 13 31) = a (.virt 11856) ∧ a (.wire 13 32) = a (.virt 11856) ∧ a (.wire 13 33) = a (.virt 11856) ∧ a (.wire 13 34) = a (.virt 11856) ∧ a (.wire 13 35) = a (.virt 11856) ∧ a (.wire 13 36) = a (.virt 11856) ∧ a (.wire 13 37) = a (.virt 11856) ∧ a (.wire 13 38) = a (.virt 11856) ∧ a (.wire 13 39) = a (.virt 11856) ∧ a (.wire 13 40) = a (.virt 11856) := by
+    a (.wire 12 58) = a (.virt 13210) ∧ a (.wire 12 59) = a (.virt 13210) ∧ a (.wire 12 0) = a (.virt 13190) ∧ a (.virt 13245) = a (.wire 9 8) ∧ a (.virt 13209) = a (.wire 9 9) ∧ a (.virt 13190) = a (.wire 9 10) ∧ a (.wire 13 15) = a (.virt 13210) ∧ a (.wire 13 16) = a (.virt 13210) ∧ a (.wire 13 17) = a (.virt 13210) ∧ a (.wire 13 18) = a (.virt 13210) ∧ a (.wire 13 19) = a (.virt 13210) ∧ a (.wire 13 20) = a (.virt 13210) ∧ a (.wire 13 21) = a (.virt 13210) ∧ a (.wire 13 22) = a (.virt 13210) ∧ a (.wire 13 23) = a (.virt 13210) ∧ a (.wire 13 24) = a (.virt 13210) ∧ a (.wire 13 25) = a (.virt 13210) ∧ a (.wire 13 26) = a (.virt 13210) ∧ a (.wire 13 27) = a (.virt 13210) ∧ a (.wire 13 28) = a (.virt 13210) ∧ a (.wire 13 29) = a (.virt 13210) ∧ a (.wire 13 30) = a (.virt 13210) ∧ a (.wire 13 31) = a (.virt 13210) ∧ a (.wire 13 32) = a (.virt 13210) ∧ a (.wire 13 33) = a (.virt 13210) ∧ a (.wire 13 34) = a (.virt 13210) ∧ a (.wire 13 35) = a (.virt 13210) ∧ a (.wire 13 36) = a (.virt 13210) ∧ a (.wire 13 37) = a (.virt 13210) ∧ a (.wire 13 38) = a (.virt 13210) ∧ a (.wire 13 39) = a (.virt 13210) ∧ a (.wire 13 40) = a (.virt 13210) := by
   have hc : ∀ q ∈ privateBatchWrapper2.copies15, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ hq)))))
   simp only [privateBatchWrapper2.copies15, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem privateBatchWrapper2_copies16 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 13 41) = a (.virt 11856) ∧ a (.wire 13 42) = a (.virt 11856) ∧ a (.wire 13 43) = a (.virt 11856) ∧ a (.wire 13 44) = a (.virt 11856) ∧ a (.wire 13 45) = a (.virt 11856) ∧ a (.wire 13 46) = a (.virt 11856) ∧ a (.wire 13 47) = a (.virt 11856) ∧ a (.wire 13 48) = a (.virt 11856) ∧ a (.wire 13 49) = a (.virt 11856) ∧ a (.wire 13 50) = a (.virt 11856) ∧ a (.wire 13 51) = a (.virt 11856) ∧ a (.wire 13 52) = a (.virt 11856) ∧ a (.wire 13 53) = a (.virt 11856) ∧ a (.wire 13 54) = a (.virt 11856) ∧ a (.wire 13 55) = a (.virt 11856) ∧ a (.wire 13 56) = a (.virt 11856) ∧ a (.wire 13 57) = a (.virt 11856) ∧ a (.wire 13 58) = a (.virt 11856) ∧ a (.wire 13 59) = a (.virt 11856) ∧ a (.wire 13 0) = a (.wire 9 11) ∧ a (.wire 6 19) = a (.wire 14 0) ∧ a (.virt 11891) = a (.wire 14 1) ∧ a (.wire 6 19) = a (.wire 14 2) ∧ a (.wire 6 15) = a (.wire 14 4) ∧ a (.wire 9 11) = a (.wire 14 5) ∧ a (.wire 6 15) = a (.wire 14 6) ∧ a (.wire 14 7) = a (.wire 9 12) ∧ a (.virt 11855) = a (.wire 9 13) ∧ a (.wire 14 3) = a (.wire 9 14) ∧ a (.wire 15 53) = a (.virt 11856) ∧ a (.wire 15 54) = a (.virt 11856) ∧ a (.wire 15 55) = a (.virt 11856) := by
+    a (.wire 13 41) = a (.virt 13210) ∧ a (.wire 13 42) = a (.virt 13210) ∧ a (.wire 13 43) = a (.virt 13210) ∧ a (.wire 13 44) = a (.virt 13210) ∧ a (.wire 13 45) = a (.virt 13210) ∧ a (.wire 13 46) = a (.virt 13210) ∧ a (.wire 13 47) = a (.virt 13210) ∧ a (.wire 13 48) = a (.virt 13210) ∧ a (.wire 13 49) = a (.virt 13210) ∧ a (.wire 13 50) = a (.virt 13210) ∧ a (.wire 13 51) = a (.virt 13210) ∧ a (.wire 13 52) = a (.virt 13210) ∧ a (.wire 13 53) = a (.virt 13210) ∧ a (.wire 13 54) = a (.virt 13210) ∧ a (.wire 13 55) = a (.virt 13210) ∧ a (.wire 13 56) = a (.virt 13210) ∧ a (.wire 13 57) = a (.virt 13210) ∧ a (.wire 13 58) = a (.virt 13210) ∧ a (.wire 13 59) = a (.virt 13210) ∧ a (.wire 13 0) = a (.wire 9 11) ∧ a (.wire 6 19) = a (.wire 14 0) ∧ a (.virt 13245) = a (.wire 14 1) ∧ a (.wire 6 19) = a (.wire 14 2) ∧ a (.wire 6 15) = a (.wire 14 4) ∧ a (.wire 9 11) = a (.wire 14 5) ∧ a (.wire 6 15) = a (.wire 14 6) ∧ a (.wire 14 7) = a (.wire 9 12) ∧ a (.virt 13209) = a (.wire 9 13) ∧ a (.wire 14 3) = a (.wire 9 14) ∧ a (.wire 15 53) = a (.virt 13210) ∧ a (.wire 15 54) = a (.virt 13210) ∧ a (.wire 15 55) = a (.virt 13210) := by
   have hc : ∀ q ∈ privateBatchWrapper2.copies16, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ hq)))))
   simp only [privateBatchWrapper2.copies16, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem privateBatchWrapper2_copies17 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 15 56) = a (.virt 11856) ∧ a (.wire 15 57) = a (.virt 11856) ∧ a (.wire 15 58) = a (.virt 11856) ∧ a (.wire 15 59) = a (.virt 11856) ∧ a (.wire 15 0) = a (.wire 9 15) ∧ a (.wire 3 7) = a (.wire 14 8) ∧ a (.wire 3 31) = a (.wire 14 9) ∧ a (.wire 3 7) = a (.wire 14 10) ∧ a (.virt 11855) = a (.wire 9 16) ∧ a (.virt 11855) = a (.wire 9 17) ∧ a (.virt 11892) = a (.wire 9 18) ∧ a (.virt 5908) = a (.wire 9 20) ∧ a (.virt 11855) = a (.wire 9 21) ∧ a (.virt 11826) = a (.wire 9 22) ∧ a (.virt 11892) = a (.wire 14 12) ∧ a (.wire 9 23) = a (.wire 14 13) ∧ a (.virt 11892) = a (.wire 14 14) ∧ a (.wire 9 23) = a (.wire 14 16) ∧ a (.virt 11893) = a (.wire 14 17) ∧ a (.wire 9 23) = a (.wire 14 18) ∧ a (.wire 14 19) = a (.wire 9 24) ∧ a (.virt 11855) = a (.wire 9 25) ∧ a (.wire 9 19) = a (.wire 9 26) ∧ a (.wire 14 15) = a (.virt 11856) ∧ a (.wire 9 27) = a (.virt 11856) ∧ a (.virt 11855) = a (.wire 9 28) ∧ a (.virt 11855) = a (.wire 9 29) ∧ a (.virt 11894) = a (.wire 9 30) ∧ a (.virt 5909) = a (.wire 9 32) ∧ a (.virt 11855) = a (.wire 9 33) ∧ a (.virt 11827) = a (.wire 9 34) ∧ a (.virt 11894) = a (.wire 14 20) := by
+    a (.wire 15 56) = a (.virt 13210) ∧ a (.wire 15 57) = a (.virt 13210) ∧ a (.wire 15 58) = a (.virt 13210) ∧ a (.wire 15 59) = a (.virt 13210) ∧ a (.wire 15 0) = a (.wire 9 15) ∧ a (.wire 3 7) = a (.wire 14 8) ∧ a (.wire 3 31) = a (.wire 14 9) ∧ a (.wire 3 7) = a (.wire 14 10) ∧ a (.virt 13209) = a (.wire 9 16) ∧ a (.virt 13209) = a (.wire 9 17) ∧ a (.virt 13246) = a (.wire 9 18) ∧ a (.virt 6585) = a (.wire 9 20) ∧ a (.virt 13209) = a (.wire 9 21) ∧ a (.virt 13180) = a (.wire 9 22) ∧ a (.virt 13246) = a (.wire 14 12) ∧ a (.wire 9 23) = a (.wire 14 13) ∧ a (.virt 13246) = a (.wire 14 14) ∧ a (.wire 9 23) = a (.wire 14 16) ∧ a (.virt 13247) = a (.wire 14 17) ∧ a (.wire 9 23) = a (.wire 14 18) ∧ a (.wire 14 19) = a (.wire 9 24) ∧ a (.virt 13209) = a (.wire 9 25) ∧ a (.wire 9 19) = a (.wire 9 26) ∧ a (.wire 14 15) = a (.virt 13210) ∧ a (.wire 9 27) = a (.virt 13210) ∧ a (.virt 13209) = a (.wire 9 28) ∧ a (.virt 13209) = a (.wire 9 29) ∧ a (.virt 13248) = a (.wire 9 30) ∧ a (.virt 6586) = a (.wire 9 32) ∧ a (.virt 13209) = a (.wire 9 33) ∧ a (.virt 13181) = a (.wire 9 34) ∧ a (.virt 13248) = a (.wire 14 20) := by
   have hc : ∀ q ∈ privateBatchWrapper2.copies17, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_left _ hq))))
   simp only [privateBatchWrapper2.copies17, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem privateBatchWrapper2_copies18 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 9 35) = a (.wire 14 21) ∧ a (.virt 11894) = a (.wire 14 22) ∧ a (.wire 9 35) = a (.wire 14 24) ∧ a (.virt 11895) = a (.wire 14 25) ∧ a (.wire 9 35) = a (.wire 14 26) ∧ a (.wire 14 27) = a (.wire 9 36) ∧ a (.virt 11855) = a (.wire 9 37) ∧ a (.wire 9 31) = a (.wire 9 38) ∧ a (.wire 14 23) = a (.virt 11856) ∧ a (.wire 9 39) = a (.virt 11856) ∧ a (.virt 11855) = a (.wire 9 40) ∧ a (.virt 11855) = a (.wire 9 41) ∧ a (.virt 11896) = a (.wire 9 42) ∧ a (.virt 5910) = a (.wire 9 44) ∧ a (.virt 11855) = a (.wire 9 45) ∧ a (.virt 11828) = a (.wire 9 46) ∧ a (.virt 11896) = a (.wire 14 28) ∧ a (.wire 9 47) = a (.wire 14 29) ∧ a (.virt 11896) = a (.wire 14 30) ∧ a (.wire 9 47) = a (.wire 14 32) ∧ a (.virt 11897) = a (.wire 14 33) ∧ a (.wire 9 47) = a (.wire 14 34) ∧ a (.wire 14 35) = a (.wire 9 48) ∧ a (.virt 11855) = a (.wire 9 49) ∧ a (.wire 9 43) = a (.wire 9 50) ∧ a (.wire 14 31) = a (.virt 11856) ∧ a (.wire 9 51) = a (.virt 11856) ∧ a (.virt 11855) = a (.wire 9 52) ∧ a (.virt 11855) = a (.wire 9 53) ∧ a (.virt 11898) = a (.wire 9 54) ∧ a (.virt 5911) = a (.wire 9 56) ∧ a (.virt 11855) = a (.wire 9 57) := by
+    a (.wire 9 35) = a (.wire 14 21) ∧ a (.virt 13248) = a (.wire 14 22) ∧ a (.wire 9 35) = a (.wire 14 24) ∧ a (.virt 13249) = a (.wire 14 25) ∧ a (.wire 9 35) = a (.wire 14 26) ∧ a (.wire 14 27) = a (.wire 9 36) ∧ a (.virt 13209) = a (.wire 9 37) ∧ a (.wire 9 31) = a (.wire 9 38) ∧ a (.wire 14 23) = a (.virt 13210) ∧ a (.wire 9 39) = a (.virt 13210) ∧ a (.virt 13209) = a (.wire 9 40) ∧ a (.virt 13209) = a (.wire 9 41) ∧ a (.virt 13250) = a (.wire 9 42) ∧ a (.virt 6587) = a (.wire 9 44) ∧ a (.virt 13209) = a (.wire 9 45) ∧ a (.virt 13182) = a (.wire 9 46) ∧ a (.virt 13250) = a (.wire 14 28) ∧ a (.wire 9 47) = a (.wire 14 29) ∧ a (.virt 13250) = a (.wire 14 30) ∧ a (.wire 9 47) = a (.wire 14 32) ∧ a (.virt 13251) = a (.wire 14 33) ∧ a (.wire 9 47) = a (.wire 14 34) ∧ a (.wire 14 35) = a (.wire 9 48) ∧ a (.virt 13209) = a (.wire 9 49) ∧ a (.wire 9 43) = a (.wire 9 50) ∧ a (.wire 14 31) = a (.virt 13210) ∧ a (.wire 9 51) = a (.virt 13210) ∧ a (.virt 13209) = a (.wire 9 52) ∧ a (.virt 13209) = a (.wire 9 53) ∧ a (.virt 13252) = a (.wire 9 54) ∧ a (.virt 6588) = a (.wire 9 56) ∧ a (.virt 13209) = a (.wire 9 57) := by
   have hc : ∀ q ∈ privateBatchWrapper2.copies18, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ hq)))))
   simp only [privateBatchWrapper2.copies18, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem privateBatchWrapper2_copies19 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.virt 11829) = a (.wire 9 58) ∧ a (.virt 11898) = a (.wire 14 36) ∧ a (.wire 9 59) = a (.wire 14 37) ∧ a (.virt 11898) = a (.wire 14 38) ∧ a (.wire 9 59) = a (.wire 14 40) ∧ a (.virt 11899) = a (.wire 14 41) ∧ a (.wire 9 59) = a (.wire 14 42) ∧ a (.wire 14 43) = a (.wire 16 0) ∧ a (.virt 11855) = a (.wire 16 1) ∧ a (.wire 9 55) = a (.wire 16 2) ∧ a (.wire 14 39) = a (.virt 11856) ∧ a (.wire 16 3) = a (.virt 11856) ∧ a (.virt 11892) = a (.wire 14 44) ∧ a (.virt 11894) = a (.wire 14 45) ∧ a (.virt 11892) = a (.wire 14 46) ∧ a (.virt 11896) = a (.wire 14 48) ∧ a (.virt 11898) = a (.wire 14 49) ∧ a (.virt 11896) = a (.wire 14 50) ∧ a (.wire 14 47) = a (.wire 14 52) ∧ a (.wire 14 51) = a (.wire 14 53) ∧ a (.wire 14 47) = a (.wire 14 54) ∧ a (.wire 14 11) = a (.wire 14 56) ∧ a (.wire 14 55) = a (.wire 14 57) ∧ a (.wire 14 11) = a (.wire 14 58) ∧ a (.wire 14 59) = a (.virt 11856) ∧ a (.virt 11847) = a (.wire 17 0) ∧ a (.virt 11848) = a (.wire 17 1) ∧ a (.virt 11849) = a (.wire 17 2) ∧ a (.virt 11850) = a (.wire 17 3) ∧ a (.virt 11855) = a (.wire 17 4) ∧ a (.virt 11856) = a (.wire 17 5) ∧ a (.virt 11856) = a (.wire 17 6) := by
+    a (.virt 13183) = a (.wire 9 58) ∧ a (.virt 13252) = a (.wire 14 36) ∧ a (.wire 9 59) = a (.wire 14 37) ∧ a (.virt 13252) = a (.wire 14 38) ∧ a (.wire 9 59) = a (.wire 14 40) ∧ a (.virt 13253) = a (.wire 14 41) ∧ a (.wire 9 59) = a (.wire 14 42) ∧ a (.wire 14 43) = a (.wire 16 0) ∧ a (.virt 13209) = a (.wire 16 1) ∧ a (.wire 9 55) = a (.wire 16 2) ∧ a (.wire 14 39) = a (.virt 13210) ∧ a (.wire 16 3) = a (.virt 13210) ∧ a (.virt 13246) = a (.wire 14 44) ∧ a (.virt 13248) = a (.wire 14 45) ∧ a (.virt 13246) = a (.wire 14 46) ∧ a (.virt 13250) = a (.wire 14 48) ∧ a (.virt 13252) = a (.wire 14 49) ∧ a (.virt 13250) = a (.wire 14 50) ∧ a (.wire 14 47) = a (.wire 14 52) ∧ a (.wire 14 51) = a (.wire 14 53) ∧ a (.wire 14 47) = a (.wire 14 54) ∧ a (.wire 14 11) = a (.wire 14 56) ∧ a (.wire 14 55) = a (.wire 14 57) ∧ a (.wire 14 11) = a (.wire 14 58) ∧ a (.wire 14 59) = a (.virt 13210) ∧ a (.virt 13201) = a (.wire 17 0) ∧ a (.virt 13202) = a (.wire 17 1) ∧ a (.virt 13203) = a (.wire 17 2) ∧ a (.virt 13204) = a (.wire 17 3) ∧ a (.virt 13209) = a (.wire 17 4) ∧ a (.virt 13210) = a (.wire 17 5) ∧ a (.virt 13210) = a (.wire 17 6) := by
   have hc : ∀ q ∈ privateBatchWrapper2.copies19, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ hq)))))
   simp only [privateBatchWrapper2.copies19, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem privateBatchWrapper2_copies20 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.virt 11856) = a (.wire 17 7) ∧ a (.virt 11856) = a (.wire 17 8) ∧ a (.virt 11856) = a (.wire 17 9) ∧ a (.virt 11856) = a (.wire 17 10) ∧ a (.virt 11856) = a (.wire 17 11) ∧ a (.wire 17 12) = a (.wire 18 0) ∧ a (.wire 17 13) = a (.wire 18 1) ∧ a (.wire 17 14) = a (.wire 18 2) ∧ a (.wire 17 15) = a (.wire 18 3) ∧ a (.virt 11855) = a (.wire 18 4) ∧ a (.virt 11856) = a (.wire 18 5) ∧ a (.virt 11856) = a (.wire 18 6) ∧ a (.virt 11856) = a (.wire 18 7) ∧ a (.virt 11856) = a (.wire 18 8) ∧ a (.virt 11856) = a (.wire 18 9) ∧ a (.virt 11856) = a (.wire 18 10) ∧ a (.virt 11856) = a (.wire 18 11) ∧ a (.wire 1 43) = a (.wire 16 4) ∧ a (.virt 5908) = a (.wire 16 5) ∧ a (.virt 5908) = a (.wire 16 6) ∧ a (.wire 1 43) = a (.wire 16 8) ∧ a (.wire 18 12) = a (.wire 16 9) ∧ a (.wire 16 7) = a (.wire 16 10) ∧ a (.wire 1 43) = a (.wire 16 12) ∧ a (.virt 5909) = a (.wire 16 13) ∧ a (.virt 5909) = a (.wire 16 14) ∧ a (.wire 1 43) = a (.wire 16 16) ∧ a (.wire 18 13) = a (.wire 16 17) ∧ a (.wire 16 15) = a (.wire 16 18) ∧ a (.wire 1 43) = a (.wire 16 20) ∧ a (.virt 5910) = a (.wire 16 21) ∧ a (.virt 5910) = a (.wire 16 22) := by
+    a (.virt 13210) = a (.wire 17 7) ∧ a (.virt 13210) = a (.wire 17 8) ∧ a (.virt 13210) = a (.wire 17 9) ∧ a (.virt 13210) = a (.wire 17 10) ∧ a (.virt 13210) = a (.wire 17 11) ∧ a (.wire 17 12) = a (.wire 18 0) ∧ a (.wire 17 13) = a (.wire 18 1) ∧ a (.wire 17 14) = a (.wire 18 2) ∧ a (.wire 17 15) = a (.wire 18 3) ∧ a (.virt 13209) = a (.wire 18 4) ∧ a (.virt 13210) = a (.wire 18 5) ∧ a (.virt 13210) = a (.wire 18 6) ∧ a (.virt 13210) = a (.wire 18 7) ∧ a (.virt 13210) = a (.wire 18 8) ∧ a (.virt 13210) = a (.wire 18 9) ∧ a (.virt 13210) = a (.wire 18 10) ∧ a (.virt 13210) = a (.wire 18 11) ∧ a (.wire 1 43) = a (.wire 16 4) ∧ a (.virt 6585) = a (.wire 16 5) ∧ a (.virt 6585) = a (.wire 16 6) ∧ a (.wire 1 43) = a (.wire 16 8) ∧ a (.wire 18 12) = a (.wire 16 9) ∧ a (.wire 16 7) = a (.wire 16 10) ∧ a (.wire 1 43) = a (.wire 16 12) ∧ a (.virt 6586) = a (.wire 16 13) ∧ a (.virt 6586) = a (.wire 16 14) ∧ a (.wire 1 43) = a (.wire 16 16) ∧ a (.wire 18 13) = a (.wire 16 17) ∧ a (.wire 16 15) = a (.wire 16 18) ∧ a (.wire 1 43) = a (.wire 16 20) ∧ a (.virt 6587) = a (.wire 16 21) ∧ a (.virt 6587) = a (.wire 16 22) := by
   have hc : ∀ q ∈ privateBatchWrapper2.copies20, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ hq))))
   simp only [privateBatchWrapper2.copies20, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem privateBatchWrapper2_copies21 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 1 43) = a (.wire 16 24) ∧ a (.wire 18 14) = a (.wire 16 25) ∧ a (.wire 16 23) = a (.wire 16 26) ∧ a (.wire 1 43) = a (.wire 16 28) ∧ a (.virt 5911) = a (.wire 16 29) ∧ a (.virt 5911) = a (.wire 16 30) ∧ a (.wire 1 43) = a (.wire 16 32) ∧ a (.wire 18 15) = a (.wire 16 33) ∧ a (.wire 16 31) = a (.wire 16 34) ∧ a (.virt 11851) = a (.wire 19 0) ∧ a (.virt 11852) = a (.wire 19 1) ∧ a (.virt 11853) = a (.wire 19 2) ∧ a (.virt 11854) = a (.wire 19 3) ∧ a (.virt 11855) = a (.wire 19 4) ∧ a (.virt 11856) = a (.wire 19 5) ∧ a (.virt 11856) = a (.wire 19 6) ∧ a (.virt 11856) = a (.wire 19 7) ∧ a (.virt 11856) = a (.wire 19 8) ∧ a (.virt 11856) = a (.wire 19 9) ∧ a (.virt 11856) = a (.wire 19 10) ∧ a (.virt 11856) = a (.wire 19 11) ∧ a (.wire 19 12) = a (.wire 20 0) ∧ a (.wire 19 13) = a (.wire 20 1) ∧ a (.wire 19 14) = a (.wire 20 2) ∧ a (.wire 19 15) = a (.wire 20 3) ∧ a (.virt 11855) = a (.wire 20 4) ∧ a (.virt 11856) = a (.wire 20 5) ∧ a (.virt 11856) = a (.wire 20 6) ∧ a (.virt 11856) = a (.wire 20 7) ∧ a (.virt 11856) = a (.wire 20 8) ∧ a (.virt 11856) = a (.wire 20 9) ∧ a (.virt 11856) = a (.wire 20 10) := by
+    a (.wire 1 43) = a (.wire 16 24) ∧ a (.wire 18 14) = a (.wire 16 25) ∧ a (.wire 16 23) = a (.wire 16 26) ∧ a (.wire 1 43) = a (.wire 16 28) ∧ a (.virt 6588) = a (.wire 16 29) ∧ a (.virt 6588) = a (.wire 16 30) ∧ a (.wire 1 43) = a (.wire 16 32) ∧ a (.wire 18 15) = a (.wire 16 33) ∧ a (.wire 16 31) = a (.wire 16 34) ∧ a (.virt 13205) = a (.wire 19 0) ∧ a (.virt 13206) = a (.wire 19 1) ∧ a (.virt 13207) = a (.wire 19 2) ∧ a (.virt 13208) = a (.wire 19 3) ∧ a (.virt 13209) = a (.wire 19 4) ∧ a (.virt 13210) = a (.wire 19 5) ∧ a (.virt 13210) = a (.wire 19 6) ∧ a (.virt 13210) = a (.wire 19 7) ∧ a (.virt 13210) = a (.wire 19 8) ∧ a (.virt 13210) = a (.wire 19 9) ∧ a (.virt 13210) = a (.wire 19 10) ∧ a (.virt 13210) = a (.wire 19 11) ∧ a (.wire 19 12) = a (.wire 20 0) ∧ a (.wire 19 13) = a (.wire 20 1) ∧ a (.wire 19 14) = a (.wire 20 2) ∧ a (.wire 19 15) = a (.wire 20 3) ∧ a (.virt 13209) = a (.wire 20 4) ∧ a (.virt 13210) = a (.wire 20 5) ∧ a (.virt 13210) = a (.wire 20 6) ∧ a (.virt 13210) = a (.wire 20 7) ∧ a (.virt 13210) = a (.wire 20 8) ∧ a (.virt 13210) = a (.wire 20 9) ∧ a (.virt 13210) = a (.wire 20 10) := by
   have hc : ∀ q ∈ privateBatchWrapper2.copies21, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ hq)))))
   simp only [privateBatchWrapper2.copies21, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem privateBatchWrapper2_copies22 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.virt 11856) = a (.wire 20 11) ∧ a (.wire 2 27) = a (.wire 16 36) ∧ a (.virt 11826) = a (.wire 16 37) ∧ a (.virt 11826) = a (.wire 16 38) ∧ a (.wire 2 27) = a (.wire 16 40) ∧ a (.wire 20 12) = a (.wire 16 41) ∧ a (.wire 16 39) = a (.wire 16 42) ∧ a (.wire 2 27) = a (.wire 16 44) ∧ a (.virt 11827) = a (.wire 16 45) ∧ a (.virt 11827) = a (.wire 16 46) ∧ a (.wire 2 27) = a (.wire 16 48) ∧ a (.wire 20 13) = a (.wire 16 49) ∧ a (.wire 16 47) = a (.wire 16 50) ∧ a (.wire 2 27) = a (.wire 16 52) ∧ a (.virt 11828) = a (.wire 16 53) ∧ a (.virt 11828) = a (.wire 16 54) ∧ a (.wire 2 27) = a (.wire 16 56) ∧ a (.wire 20 14) = a (.wire 16 57) ∧ a (.wire 16 55) = a (.wire 16 58) ∧ a (.wire 2 27) = a (.wire 21 0) ∧ a (.virt 11829) = a (.wire 21 1) ∧ a (.virt 11829) = a (.wire 21 2) ∧ a (.wire 2 27) = a (.wire 21 4) ∧ a (.wire 20 15) = a (.wire 21 5) ∧ a (.wire 21 3) = a (.wire 21 6) := by
+    a (.virt 13210) = a (.wire 20 11) ∧ a (.wire 2 27) = a (.wire 16 36) ∧ a (.virt 13180) = a (.wire 16 37) ∧ a (.virt 13180) = a (.wire 16 38) ∧ a (.wire 2 27) = a (.wire 16 40) ∧ a (.wire 20 12) = a (.wire 16 41) ∧ a (.wire 16 39) = a (.wire 16 42) ∧ a (.wire 2 27) = a (.wire 16 44) ∧ a (.virt 13181) = a (.wire 16 45) ∧ a (.virt 13181) = a (.wire 16 46) ∧ a (.wire 2 27) = a (.wire 16 48) ∧ a (.wire 20 13) = a (.wire 16 49) ∧ a (.wire 16 47) = a (.wire 16 50) ∧ a (.wire 2 27) = a (.wire 16 52) ∧ a (.virt 13182) = a (.wire 16 53) ∧ a (.virt 13182) = a (.wire 16 54) ∧ a (.wire 2 27) = a (.wire 16 56) ∧ a (.wire 20 14) = a (.wire 16 57) ∧ a (.wire 16 55) = a (.wire 16 58) ∧ a (.wire 2 27) = a (.wire 21 0) ∧ a (.virt 13183) = a (.wire 21 1) ∧ a (.virt 13183) = a (.wire 21 2) ∧ a (.wire 2 27) = a (.wire 21 4) ∧ a (.wire 20 15) = a (.wire 21 5) ∧ a (.wire 21 3) = a (.wire 21 6) := by
   have hc : ∀ q ∈ privateBatchWrapper2.copies22, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ hq)))))
   simp only [privateBatchWrapper2.copies22, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem privateBatchWrapper2_consts (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.virt 11855) = 1 ∧ a (.virt 11856) = 0 ∧ a (.virt 11857) = 2 ∧ a (.virt 11890) = 576460752303423488 ∧ a (.virt 11891) = 10000 := by
+    a (.virt 13209) = 1 ∧ a (.virt 13210) = 0 ∧ a (.virt 13211) = 2 ∧ a (.virt 13244) = 576460752303423488 ∧ a (.virt 13245) = 10000 := by
   have hconst := h.2.2
   simp only [privateBatchWrapper2, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hconst
   obtain ⟨k0, k1, k2, k3, k4⟩ := hconst
   exact ⟨k0, k1, k2, k3, k4⟩
 
 theorem privateBatchWrapper2_f0 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    IsEqual (a (.virt 5912)) (a (.virt 11856)) (a (.virt 11858)) (a (.virt 11859)) := by
+    IsEqual (a (.virt 6589)) (a (.virt 13210)) (a (.virt 13212)) (a (.virt 13213)) := by
   have c0 := (privateBatchWrapper2_copies0 a h).1
   have c1 := (privateBatchWrapper2_copies0 a h).2.1
   have c2 := (privateBatchWrapper2_copies0 a h).2.2.1
@@ -1134,7 +1134,7 @@ theorem privateBatchWrapper2_f0 (a : Assignment p) (h : Satisfies (privateBatchW
     linear_combination c13.trans k1 - hc
 
 theorem privateBatchWrapper2_f1 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    IsEqual (a (.virt 5913)) (a (.virt 11856)) (a (.virt 11860)) (a (.virt 11861)) := by
+    IsEqual (a (.virt 6590)) (a (.virt 13210)) (a (.virt 13214)) (a (.virt 13215)) := by
   have c14 := (privateBatchWrapper2_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c15 := (privateBatchWrapper2_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c16 := (privateBatchWrapper2_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -1171,7 +1171,7 @@ theorem privateBatchWrapper2_f1 (a : Assignment p) (h : Satisfies (privateBatchW
     linear_combination c27.trans k1 - hc
 
 theorem privateBatchWrapper2_f2 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    IsEqual (a (.virt 5914)) (a (.virt 11856)) (a (.virt 11862)) (a (.virt 11863)) := by
+    IsEqual (a (.virt 6591)) (a (.virt 13210)) (a (.virt 13216)) (a (.virt 13217)) := by
   have c28 := (privateBatchWrapper2_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c29 := (privateBatchWrapper2_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c30 := (privateBatchWrapper2_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -1208,7 +1208,7 @@ theorem privateBatchWrapper2_f2 (a : Assignment p) (h : Satisfies (privateBatchW
     linear_combination c41.trans k1 - hc
 
 theorem privateBatchWrapper2_f3 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    IsEqual (a (.virt 5915)) (a (.virt 11856)) (a (.virt 11864)) (a (.virt 11865)) := by
+    IsEqual (a (.virt 6592)) (a (.virt 13210)) (a (.virt 13218)) (a (.virt 13219)) := by
   have c42 := (privateBatchWrapper2_copies1 a h).2.2.2.2.2.2.2.2.2.2.1
   have c43 := (privateBatchWrapper2_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c44 := (privateBatchWrapper2_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -1245,7 +1245,7 @@ theorem privateBatchWrapper2_f3 (a : Assignment p) (h : Satisfies (privateBatchW
     linear_combination c55.trans k1 - hc
 
 theorem privateBatchWrapper2_f4 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 1 35) = band (a (.virt 11858)) (a (.virt 11860)) := by
+    a (.wire 1 35) = band (a (.virt 13212)) (a (.virt 13214)) := by
   have c56 := (privateBatchWrapper2_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c57 := (privateBatchWrapper2_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c58 := (privateBatchWrapper2_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -1257,7 +1257,7 @@ theorem privateBatchWrapper2_f4 (a : Assignment p) (h : Satisfies (privateBatchW
   linear_combination hr
 
 theorem privateBatchWrapper2_f5 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 1 39) = band (a (.virt 11862)) (a (.virt 11864)) := by
+    a (.wire 1 39) = band (a (.virt 13216)) (a (.virt 13218)) := by
   have c59 := (privateBatchWrapper2_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c60 := (privateBatchWrapper2_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c61 := (privateBatchWrapper2_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -1281,7 +1281,7 @@ theorem privateBatchWrapper2_f6 (a : Assignment p) (h : Satisfies (privateBatchW
   linear_combination hr
 
 theorem privateBatchWrapper2_f7 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    IsEqual (a (.virt 11830)) (a (.virt 11856)) (a (.virt 11866)) (a (.virt 11867)) := by
+    IsEqual (a (.virt 13184)) (a (.virt 13210)) (a (.virt 13220)) (a (.virt 13221)) := by
   have c65 := (privateBatchWrapper2_copies2 a h).2.1
   have c66 := (privateBatchWrapper2_copies2 a h).2.2.1
   have c67 := (privateBatchWrapper2_copies2 a h).2.2.2.1
@@ -1318,7 +1318,7 @@ theorem privateBatchWrapper2_f7 (a : Assignment p) (h : Satisfies (privateBatchW
     linear_combination c78.trans k1 - hc
 
 theorem privateBatchWrapper2_f8 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    IsEqual (a (.virt 11831)) (a (.virt 11856)) (a (.virt 11868)) (a (.virt 11869)) := by
+    IsEqual (a (.virt 13185)) (a (.virt 13210)) (a (.virt 13222)) (a (.virt 13223)) := by
   have c79 := (privateBatchWrapper2_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c80 := (privateBatchWrapper2_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c81 := (privateBatchWrapper2_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -1355,7 +1355,7 @@ theorem privateBatchWrapper2_f8 (a : Assignment p) (h : Satisfies (privateBatchW
     linear_combination c92.trans k1 - hc
 
 theorem privateBatchWrapper2_f9 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    IsEqual (a (.virt 11832)) (a (.virt 11856)) (a (.virt 11870)) (a (.virt 11871)) := by
+    IsEqual (a (.virt 13186)) (a (.virt 13210)) (a (.virt 13224)) (a (.virt 13225)) := by
   have c93 := (privateBatchWrapper2_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c94 := (privateBatchWrapper2_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c95 := (privateBatchWrapper2_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
@@ -1392,7 +1392,7 @@ theorem privateBatchWrapper2_f9 (a : Assignment p) (h : Satisfies (privateBatchW
     linear_combination c106.trans k1 - hc
 
 theorem privateBatchWrapper2_f10 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    IsEqual (a (.virt 11833)) (a (.virt 11856)) (a (.virt 11872)) (a (.virt 11873)) := by
+    IsEqual (a (.virt 13187)) (a (.virt 13210)) (a (.virt 13226)) (a (.virt 13227)) := by
   have c107 := (privateBatchWrapper2_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c108 := (privateBatchWrapper2_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c109 := (privateBatchWrapper2_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -1429,7 +1429,7 @@ theorem privateBatchWrapper2_f10 (a : Assignment p) (h : Satisfies (privateBatch
     linear_combination c120.trans k1 - hc
 
 theorem privateBatchWrapper2_f11 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 2 19) = band (a (.virt 11866)) (a (.virt 11868)) := by
+    a (.wire 2 19) = band (a (.virt 13220)) (a (.virt 13222)) := by
   have c121 := (privateBatchWrapper2_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c122 := (privateBatchWrapper2_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c123 := (privateBatchWrapper2_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -1441,7 +1441,7 @@ theorem privateBatchWrapper2_f11 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f12 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 2 23) = band (a (.virt 11870)) (a (.virt 11872)) := by
+    a (.wire 2 23) = band (a (.virt 13224)) (a (.virt 13226)) := by
   have c124 := (privateBatchWrapper2_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c125 := (privateBatchWrapper2_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c126 := (privateBatchWrapper2_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -1478,19 +1478,19 @@ theorem privateBatchWrapper2_f14 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f15 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.virt 11855) = bnot (a (.virt 11856)) := by
+    a (.virt 13209) = bnot (a (.virt 13210)) := by
   obtain ⟨k0, k1, k2, k3, k4⟩ := privateBatchWrapper2_consts a h
   simp only [bnot, k0, k1]
   ring
 
 theorem privateBatchWrapper2_f16 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 3 7) = band (a (.wire 3 7)) (a (.virt 11855)) := by
+    a (.wire 3 7) = band (a (.wire 3 7)) (a (.virt 13209)) := by
   obtain ⟨k0, k1, k2, k3, k4⟩ := privateBatchWrapper2_consts a h
   simp only [band, k0]
   ring
 
 theorem privateBatchWrapper2_f17 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 3 11) = bselect (a (.wire 3 7)) (a (.virt 5912)) (a (.virt 11856)) := by
+    a (.wire 3 11) = bselect (a (.wire 3 7)) (a (.virt 6589)) (a (.virt 13210)) := by
   have c133 := (privateBatchWrapper2_copies4 a h).2.2.2.2.2.1
   have c134 := (privateBatchWrapper2_copies4 a h).2.2.2.2.2.2.1
   have c135 := (privateBatchWrapper2_copies4 a h).2.2.2.2.2.2.2.1
@@ -1503,7 +1503,7 @@ theorem privateBatchWrapper2_f17 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f18 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 3 15) = bselect (a (.wire 3 7)) (a (.virt 5913)) (a (.virt 11856)) := by
+    a (.wire 3 15) = bselect (a (.wire 3 7)) (a (.virt 6590)) (a (.virt 13210)) := by
   have c136 := (privateBatchWrapper2_copies4 a h).2.2.2.2.2.2.2.2.1
   have c137 := (privateBatchWrapper2_copies4 a h).2.2.2.2.2.2.2.2.2.1
   have c138 := (privateBatchWrapper2_copies4 a h).2.2.2.2.2.2.2.2.2.2.1
@@ -1516,7 +1516,7 @@ theorem privateBatchWrapper2_f18 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f19 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 3 19) = bselect (a (.wire 3 7)) (a (.virt 5914)) (a (.virt 11856)) := by
+    a (.wire 3 19) = bselect (a (.wire 3 7)) (a (.virt 6591)) (a (.virt 13210)) := by
   have c139 := (privateBatchWrapper2_copies4 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c140 := (privateBatchWrapper2_copies4 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c141 := (privateBatchWrapper2_copies4 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -1529,7 +1529,7 @@ theorem privateBatchWrapper2_f19 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f20 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 3 23) = bselect (a (.wire 3 7)) (a (.virt 5915)) (a (.virt 11856)) := by
+    a (.wire 3 23) = bselect (a (.wire 3 7)) (a (.virt 6592)) (a (.virt 13210)) := by
   have c142 := (privateBatchWrapper2_copies4 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c143 := (privateBatchWrapper2_copies4 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c144 := (privateBatchWrapper2_copies4 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -1542,7 +1542,7 @@ theorem privateBatchWrapper2_f20 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f21 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 3 27) = bselect (a (.wire 3 7)) (a (.virt 5916)) (a (.virt 11856)) := by
+    a (.wire 3 27) = bselect (a (.wire 3 7)) (a (.virt 6593)) (a (.virt 13210)) := by
   have c145 := (privateBatchWrapper2_copies4 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c146 := (privateBatchWrapper2_copies4 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c147 := (privateBatchWrapper2_copies4 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -1555,7 +1555,7 @@ theorem privateBatchWrapper2_f21 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f22 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 3 7) = bor (a (.virt 11856)) (a (.wire 3 7)) := by
+    a (.wire 3 7) = bor (a (.virt 13210)) (a (.wire 3 7)) := by
   obtain ⟨k0, k1, k2, k3, k4⟩ := privateBatchWrapper2_consts a h
   simp only [bor, k1]
   ring
@@ -1599,7 +1599,7 @@ theorem privateBatchWrapper2_f25 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f26 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 3 43) = bselect (a (.wire 2 31)) (a (.virt 11830)) (a (.wire 3 11)) := by
+    a (.wire 3 43) = bselect (a (.wire 2 31)) (a (.virt 13184)) (a (.wire 3 11)) := by
   have c157 := (privateBatchWrapper2_copies4 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c158 := (privateBatchWrapper2_copies4 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c159 := (privateBatchWrapper2_copies4 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
@@ -1618,7 +1618,7 @@ theorem privateBatchWrapper2_f26 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f27 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 3 51) = bselect (a (.wire 2 31)) (a (.virt 11831)) (a (.wire 3 15)) := by
+    a (.wire 3 51) = bselect (a (.wire 2 31)) (a (.virt 13185)) (a (.wire 3 15)) := by
   have c163 := (privateBatchWrapper2_copies5 a h).2.2.2.1
   have c164 := (privateBatchWrapper2_copies5 a h).2.2.2.2.1
   have c165 := (privateBatchWrapper2_copies5 a h).2.2.2.2.2.1
@@ -1637,7 +1637,7 @@ theorem privateBatchWrapper2_f27 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f28 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 3 59) = bselect (a (.wire 2 31)) (a (.virt 11832)) (a (.wire 3 19)) := by
+    a (.wire 3 59) = bselect (a (.wire 2 31)) (a (.virt 13186)) (a (.wire 3 19)) := by
   have c169 := (privateBatchWrapper2_copies5 a h).2.2.2.2.2.2.2.2.2.1
   have c170 := (privateBatchWrapper2_copies5 a h).2.2.2.2.2.2.2.2.2.2.1
   have c171 := (privateBatchWrapper2_copies5 a h).2.2.2.2.2.2.2.2.2.2.2.1
@@ -1656,7 +1656,7 @@ theorem privateBatchWrapper2_f28 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f29 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 4 7) = bselect (a (.wire 2 31)) (a (.virt 11833)) (a (.wire 3 23)) := by
+    a (.wire 4 7) = bselect (a (.wire 2 31)) (a (.virt 13187)) (a (.wire 3 23)) := by
   have c175 := (privateBatchWrapper2_copies5 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c176 := (privateBatchWrapper2_copies5 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c177 := (privateBatchWrapper2_copies5 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -1675,7 +1675,7 @@ theorem privateBatchWrapper2_f29 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f30 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 4 15) = bselect (a (.wire 2 31)) (a (.virt 11834)) (a (.wire 3 27)) := by
+    a (.wire 4 15) = bselect (a (.wire 2 31)) (a (.virt 13188)) (a (.wire 3 27)) := by
   have c181 := (privateBatchWrapper2_copies5 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c182 := (privateBatchWrapper2_copies5 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c183 := (privateBatchWrapper2_copies5 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -1714,7 +1714,7 @@ theorem privateBatchWrapper2_f31 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f32 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    IsEqual (a (.virt 5912)) (a (.wire 3 43)) (a (.virt 11874)) (a (.virt 11875)) := by
+    IsEqual (a (.virt 6589)) (a (.wire 3 43)) (a (.virt 13228)) (a (.virt 13229)) := by
   have c193 := (privateBatchWrapper2_copies6 a h).2.1
   have c194 := (privateBatchWrapper2_copies6 a h).2.2.1
   have c195 := (privateBatchWrapper2_copies6 a h).2.2.2.1
@@ -1757,7 +1757,7 @@ theorem privateBatchWrapper2_f32 (a : Assignment p) (h : Satisfies (privateBatch
     linear_combination c209.trans k1 - hc
 
 theorem privateBatchWrapper2_f33 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    IsEqual (a (.virt 5913)) (a (.wire 3 51)) (a (.virt 11876)) (a (.virt 11877)) := by
+    IsEqual (a (.virt 6590)) (a (.wire 3 51)) (a (.virt 13230)) (a (.virt 13231)) := by
   have c210 := (privateBatchWrapper2_copies6 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c211 := (privateBatchWrapper2_copies6 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c212 := (privateBatchWrapper2_copies6 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -1800,7 +1800,7 @@ theorem privateBatchWrapper2_f33 (a : Assignment p) (h : Satisfies (privateBatch
     linear_combination c226.trans k1 - hc
 
 theorem privateBatchWrapper2_f34 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    IsEqual (a (.virt 5914)) (a (.wire 3 59)) (a (.virt 11878)) (a (.virt 11879)) := by
+    IsEqual (a (.virt 6591)) (a (.wire 3 59)) (a (.virt 13232)) (a (.virt 13233)) := by
   have c227 := (privateBatchWrapper2_copies7 a h).2.2.2.1
   have c228 := (privateBatchWrapper2_copies7 a h).2.2.2.2.1
   have c229 := (privateBatchWrapper2_copies7 a h).2.2.2.2.2.1
@@ -1843,7 +1843,7 @@ theorem privateBatchWrapper2_f34 (a : Assignment p) (h : Satisfies (privateBatch
     linear_combination c243.trans k1 - hc
 
 theorem privateBatchWrapper2_f35 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    IsEqual (a (.virt 5915)) (a (.wire 4 7)) (a (.virt 11880)) (a (.virt 11881)) := by
+    IsEqual (a (.virt 6592)) (a (.wire 4 7)) (a (.virt 13234)) (a (.virt 13235)) := by
   have c244 := (privateBatchWrapper2_copies7 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c245 := (privateBatchWrapper2_copies7 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c246 := (privateBatchWrapper2_copies7 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -1886,7 +1886,7 @@ theorem privateBatchWrapper2_f35 (a : Assignment p) (h : Satisfies (privateBatch
     linear_combination c260.trans k1 - hc
 
 theorem privateBatchWrapper2_f36 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 7 7) = band (a (.virt 11874)) (a (.virt 11876)) := by
+    a (.wire 7 7) = band (a (.virt 13228)) (a (.virt 13230)) := by
   have c261 := (privateBatchWrapper2_copies8 a h).2.2.2.2.2.1
   have c262 := (privateBatchWrapper2_copies8 a h).2.2.2.2.2.2.1
   have c263 := (privateBatchWrapper2_copies8 a h).2.2.2.2.2.2.2.1
@@ -1898,7 +1898,7 @@ theorem privateBatchWrapper2_f36 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f37 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 7 11) = band (a (.virt 11878)) (a (.virt 11880)) := by
+    a (.wire 7 11) = band (a (.virt 13232)) (a (.virt 13234)) := by
   have c264 := (privateBatchWrapper2_copies8 a h).2.2.2.2.2.2.2.2.1
   have c265 := (privateBatchWrapper2_copies8 a h).2.2.2.2.2.2.2.2.2.1
   have c266 := (privateBatchWrapper2_copies8 a h).2.2.2.2.2.2.2.2.2.2.1
@@ -1942,16 +1942,16 @@ theorem privateBatchWrapper2_f39 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f40 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 6 7) = a (.virt 11855) := by
+    a (.wire 6 7) = a (.virt 13209) := by
   have c276 := (privateBatchWrapper2_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   exact c276
 
 theorem privateBatchWrapper2_f41 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.virt 5907) = a (.virt 5907) := by
+    a (.virt 6584) = a (.virt 6584) := by
   rfl
 
 theorem privateBatchWrapper2_f42 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    IsEqual (a (.virt 11830)) (a (.wire 3 43)) (a (.virt 11882)) (a (.virt 11883)) := by
+    IsEqual (a (.virt 13184)) (a (.wire 3 43)) (a (.virt 13236)) (a (.virt 13237)) := by
   have c278 := (privateBatchWrapper2_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c279 := (privateBatchWrapper2_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c280 := (privateBatchWrapper2_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -1994,7 +1994,7 @@ theorem privateBatchWrapper2_f42 (a : Assignment p) (h : Satisfies (privateBatch
     linear_combination c294.trans k1 - hc
 
 theorem privateBatchWrapper2_f43 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    IsEqual (a (.virt 11831)) (a (.wire 3 51)) (a (.virt 11884)) (a (.virt 11885)) := by
+    IsEqual (a (.virt 13185)) (a (.wire 3 51)) (a (.virt 13238)) (a (.virt 13239)) := by
   have c295 := (privateBatchWrapper2_copies9 a h).2.2.2.2.2.2.2.1
   have c296 := (privateBatchWrapper2_copies9 a h).2.2.2.2.2.2.2.2.1
   have c297 := (privateBatchWrapper2_copies9 a h).2.2.2.2.2.2.2.2.2.1
@@ -2037,7 +2037,7 @@ theorem privateBatchWrapper2_f43 (a : Assignment p) (h : Satisfies (privateBatch
     linear_combination c311.trans k1 - hc
 
 theorem privateBatchWrapper2_f44 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    IsEqual (a (.virt 11832)) (a (.wire 3 59)) (a (.virt 11886)) (a (.virt 11887)) := by
+    IsEqual (a (.virt 13186)) (a (.wire 3 59)) (a (.virt 13240)) (a (.virt 13241)) := by
   have c312 := (privateBatchWrapper2_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c313 := (privateBatchWrapper2_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c314 := (privateBatchWrapper2_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -2080,7 +2080,7 @@ theorem privateBatchWrapper2_f44 (a : Assignment p) (h : Satisfies (privateBatch
     linear_combination c328.trans k1 - hc
 
 theorem privateBatchWrapper2_f45 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    IsEqual (a (.virt 11833)) (a (.wire 4 7)) (a (.virt 11888)) (a (.virt 11889)) := by
+    IsEqual (a (.virt 13187)) (a (.wire 4 7)) (a (.virt 13242)) (a (.virt 13243)) := by
   have c329 := (privateBatchWrapper2_copies10 a h).2.2.2.2.2.2.2.2.2.1
   have c330 := (privateBatchWrapper2_copies10 a h).2.2.2.2.2.2.2.2.2.2.1
   have c331 := (privateBatchWrapper2_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.1
@@ -2123,7 +2123,7 @@ theorem privateBatchWrapper2_f45 (a : Assignment p) (h : Satisfies (privateBatch
     linear_combination c345.trans k1 - hc
 
 theorem privateBatchWrapper2_f46 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 7 51) = band (a (.virt 11882)) (a (.virt 11884)) := by
+    a (.wire 7 51) = band (a (.virt 13236)) (a (.virt 13238)) := by
   have c346 := (privateBatchWrapper2_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c347 := (privateBatchWrapper2_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c348 := (privateBatchWrapper2_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -2135,7 +2135,7 @@ theorem privateBatchWrapper2_f46 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f47 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 7 55) = band (a (.virt 11886)) (a (.virt 11888)) := by
+    a (.wire 7 55) = band (a (.virt 13240)) (a (.virt 13242)) := by
   have c349 := (privateBatchWrapper2_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c350 := (privateBatchWrapper2_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c351 := (privateBatchWrapper2_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
@@ -2179,17 +2179,17 @@ theorem privateBatchWrapper2_f49 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f50 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 6 11) = a (.virt 11855) := by
+    a (.wire 6 11) = a (.virt 13209) := by
   have c361 := (privateBatchWrapper2_copies11 a h).2.2.2.2.2.2.2.2.2.1
   exact c361
 
 theorem privateBatchWrapper2_f51 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.virt 11825) = a (.virt 5907) := by
+    a (.virt 13179) = a (.virt 6584) := by
   have c362 := (privateBatchWrapper2_copies11 a h).2.2.2.2.2.2.2.2.2.2.1
   exact c362
 
 theorem privateBatchWrapper2_f52 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 8 59) = bselect (a (.wire 1 43)) (a (.virt 11856)) (a (.virt 5917)) := by
+    a (.wire 8 59) = bselect (a (.wire 1 43)) (a (.virt 13210)) (a (.virt 6594)) := by
   have c363 := (privateBatchWrapper2_copies11 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c364 := (privateBatchWrapper2_copies11 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c365 := (privateBatchWrapper2_copies11 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -2209,13 +2209,13 @@ theorem privateBatchWrapper2_f52 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f53 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 8 59) = a (.virt 11856) + a (.wire 8 59) := by
+    a (.wire 8 59) = a (.virt 13210) + a (.wire 8 59) := by
   obtain ⟨k0, k1, k2, k3, k4⟩ := privateBatchWrapper2_consts a h
   simp only [k1]
   ring
 
 theorem privateBatchWrapper2_f54 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 9 7) = bselect (a (.wire 2 27)) (a (.virt 11856)) (a (.virt 11835)) := by
+    a (.wire 9 7) = bselect (a (.wire 2 27)) (a (.virt 13210)) (a (.virt 13189)) := by
   have c369 := (privateBatchWrapper2_copies11 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c370 := (privateBatchWrapper2_copies11 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c371 := (privateBatchWrapper2_copies11 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -2247,7 +2247,7 @@ theorem privateBatchWrapper2_f55 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f56 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    rangeCheck (a (.virt 11841)) 32 := by
+    rangeCheck (a (.virt 13195)) 32 := by
   have c378 := (privateBatchWrapper2_copies11 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c379 := (privateBatchWrapper2_copies11 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c380 := (privateBatchWrapper2_copies11 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -2311,13 +2311,13 @@ theorem privateBatchWrapper2_f56 (a : Assignment p) (h : Satisfies (privateBatch
   rwa [c405] at hr
 
 theorem privateBatchWrapper2_f57 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.virt 11841) = a (.virt 11856) + a (.virt 11841) := by
+    a (.virt 13195) = a (.virt 13210) + a (.virt 13195) := by
   obtain ⟨k0, k1, k2, k3, k4⟩ := privateBatchWrapper2_consts a h
   simp only [k1]
   ring
 
 theorem privateBatchWrapper2_f58 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    rangeCheck (a (.virt 11846)) 32 := by
+    rangeCheck (a (.virt 13200)) 32 := by
   have c406 := (privateBatchWrapper2_copies12 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c407 := (privateBatchWrapper2_copies12 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c408 := (privateBatchWrapper2_copies12 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -2381,7 +2381,7 @@ theorem privateBatchWrapper2_f58 (a : Assignment p) (h : Satisfies (privateBatch
   rwa [c433] at hr
 
 theorem privateBatchWrapper2_f59 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 6 19) = a (.virt 11841) + a (.virt 11846) := by
+    a (.wire 6 19) = a (.virt 13195) + a (.virt 13200) := by
   have c434 := (privateBatchWrapper2_copies13 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c435 := (privateBatchWrapper2_copies13 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c436 := (privateBatchWrapper2_copies13 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -2393,7 +2393,7 @@ theorem privateBatchWrapper2_f59 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f60 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    rangeCheck (a (.virt 11836)) 14 := by
+    rangeCheck (a (.virt 13190)) 14 := by
   have c437 := (privateBatchWrapper2_copies13 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c438 := (privateBatchWrapper2_copies13 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c439 := (privateBatchWrapper2_copies13 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -2493,7 +2493,7 @@ theorem privateBatchWrapper2_f60 (a : Assignment p) (h : Satisfies (privateBatch
   rwa [c482] at hr
 
 theorem privateBatchWrapper2_f61 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 9 11) = a (.virt 11891) - a (.virt 11836) := by
+    a (.wire 9 11) = a (.virt 13245) - a (.virt 13190) := by
   have c483 := (privateBatchWrapper2_copies15 a h).2.2.2.1
   have c484 := (privateBatchWrapper2_copies15 a h).2.2.2.2.1
   have c485 := (privateBatchWrapper2_copies15 a h).2.2.2.2.2.1
@@ -2606,7 +2606,7 @@ theorem privateBatchWrapper2_f62 (a : Assignment p) (h : Satisfies (privateBatch
   rwa [c531] at hr
 
 theorem privateBatchWrapper2_f63 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 14 3) = a (.wire 6 19) * a (.virt 11891) := by
+    a (.wire 14 3) = a (.wire 6 19) * a (.virt 13245) := by
   have c532 := (privateBatchWrapper2_copies16 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c533 := (privateBatchWrapper2_copies16 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c534 := (privateBatchWrapper2_copies16 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -2704,7 +2704,7 @@ theorem privateBatchWrapper2_f69 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f70 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    IsEqual (a (.virt 5908)) (a (.virt 11826)) (a (.virt 11892)) (a (.virt 11893)) := by
+    IsEqual (a (.virt 6585)) (a (.virt 13180)) (a (.virt 13246)) (a (.virt 13247)) := by
   have c552 := (privateBatchWrapper2_copies17 a h).2.2.2.2.2.2.2.2.1
   have c553 := (privateBatchWrapper2_copies17 a h).2.2.2.2.2.2.2.2.2.1
   have c554 := (privateBatchWrapper2_copies17 a h).2.2.2.2.2.2.2.2.2.2.1
@@ -2747,7 +2747,7 @@ theorem privateBatchWrapper2_f70 (a : Assignment p) (h : Satisfies (privateBatch
     linear_combination c568.trans k1 - hc
 
 theorem privateBatchWrapper2_f71 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    IsEqual (a (.virt 5909)) (a (.virt 11827)) (a (.virt 11894)) (a (.virt 11895)) := by
+    IsEqual (a (.virt 6586)) (a (.virt 13181)) (a (.virt 13248)) (a (.virt 13249)) := by
   have c569 := (privateBatchWrapper2_copies17 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c570 := (privateBatchWrapper2_copies17 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c571 := (privateBatchWrapper2_copies17 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -2790,7 +2790,7 @@ theorem privateBatchWrapper2_f71 (a : Assignment p) (h : Satisfies (privateBatch
     linear_combination c585.trans k1 - hc
 
 theorem privateBatchWrapper2_f72 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    IsEqual (a (.virt 5910)) (a (.virt 11828)) (a (.virt 11896)) (a (.virt 11897)) := by
+    IsEqual (a (.virt 6587)) (a (.virt 13182)) (a (.virt 13250)) (a (.virt 13251)) := by
   have c586 := (privateBatchWrapper2_copies18 a h).2.2.2.2.2.2.2.2.2.2.1
   have c587 := (privateBatchWrapper2_copies18 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c588 := (privateBatchWrapper2_copies18 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -2833,7 +2833,7 @@ theorem privateBatchWrapper2_f72 (a : Assignment p) (h : Satisfies (privateBatch
     linear_combination c602.trans k1 - hc
 
 theorem privateBatchWrapper2_f73 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    IsEqual (a (.virt 5911)) (a (.virt 11829)) (a (.virt 11898)) (a (.virt 11899)) := by
+    IsEqual (a (.virt 6588)) (a (.virt 13183)) (a (.virt 13252)) (a (.virt 13253)) := by
   have c603 := (privateBatchWrapper2_copies18 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c604 := (privateBatchWrapper2_copies18 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c605 := (privateBatchWrapper2_copies18 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -2876,7 +2876,7 @@ theorem privateBatchWrapper2_f73 (a : Assignment p) (h : Satisfies (privateBatch
     linear_combination c619.trans k1 - hc
 
 theorem privateBatchWrapper2_f74 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 14 47) = band (a (.virt 11892)) (a (.virt 11894)) := by
+    a (.wire 14 47) = band (a (.virt 13246)) (a (.virt 13248)) := by
   have c620 := (privateBatchWrapper2_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c621 := (privateBatchWrapper2_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c622 := (privateBatchWrapper2_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -2888,7 +2888,7 @@ theorem privateBatchWrapper2_f74 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f75 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 14 51) = band (a (.virt 11896)) (a (.virt 11898)) := by
+    a (.wire 14 51) = band (a (.virt 13250)) (a (.virt 13252)) := by
   have c623 := (privateBatchWrapper2_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c624 := (privateBatchWrapper2_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c625 := (privateBatchWrapper2_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -2924,7 +2924,7 @@ theorem privateBatchWrapper2_f77 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f78 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 14 59) = a (.virt 11856) := by
+    a (.wire 14 59) = a (.virt 13210) := by
   have c632 := (privateBatchWrapper2_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   exact c632
 
@@ -2943,7 +2943,7 @@ theorem privateBatchWrapper2_f79 (a : Assignment p) (h : Satisfies (privateBatch
 
 theorem privateBatchWrapper2_f80 (perm : St p → St p) (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a)
     (hp : Poseidon2Rows perm (privateBatchWrapper2 p) a) :
-    (a (.wire 17 12) = spongeHash perm [a (.virt 11847), a (.virt 11848), a (.virt 11849), a (.virt 11850)] 0 ∧ a (.wire 17 13) = spongeHash perm [a (.virt 11847), a (.virt 11848), a (.virt 11849), a (.virt 11850)] 1 ∧ a (.wire 17 14) = spongeHash perm [a (.virt 11847), a (.virt 11848), a (.virt 11849), a (.virt 11850)] 2 ∧ a (.wire 17 15) = spongeHash perm [a (.virt 11847), a (.virt 11848), a (.virt 11849), a (.virt 11850)] 3) := by
+    (a (.wire 17 12) = spongeHash perm [a (.virt 13201), a (.virt 13202), a (.virt 13203), a (.virt 13204)] 0 ∧ a (.wire 17 13) = spongeHash perm [a (.virt 13201), a (.virt 13202), a (.virt 13203), a (.virt 13204)] 1 ∧ a (.wire 17 14) = spongeHash perm [a (.virt 13201), a (.virt 13202), a (.virt 13203), a (.virt 13204)] 2 ∧ a (.wire 17 15) = spongeHash perm [a (.virt 13201), a (.virt 13202), a (.virt 13203), a (.virt 13204)] 3) := by
   have c633 := (privateBatchWrapper2_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c634 := (privateBatchWrapper2_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c635 := (privateBatchWrapper2_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -2957,11 +2957,11 @@ theorem privateBatchWrapper2_f80 (perm : St p → St p) (a : Assignment p) (h : 
   have c643 := (privateBatchWrapper2_copies20 a h).2.2.2.1
   have c644 := (privateBatchWrapper2_copies20 a h).2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4⟩ := privateBatchWrapper2_consts a h
-  have hin0 : poseidon2In a 17 = addBlock (fun _ => 0) [a (.virt 11847), a (.virt 11848), a (.virt 11849), a (.virt 11850), 1, 0, 0, 0] :=
+  have hin0 : poseidon2In a 17 = addBlock (fun _ => 0) [a (.virt 13201), a (.virt 13202), a (.virt 13203), a (.virt 13204), 1, 0, 0, 0] :=
     poseidon2In_first c633.symm c634.symm c635.symm c636.symm (c637.symm.trans k0) (c638.symm.trans k1) (c639.symm.trans k1) (c640.symm.trans k1) (c641.symm.trans k1) (c642.symm.trans k1) (c643.symm.trans k1) (c644.symm.trans k1)
   have hout0 := poseidon2Row_absorb perm hp (row := 17) rfl rfl hin0
-  have hpad : pad10 [a (.virt 11847), a (.virt 11848), a (.virt 11849), a (.virt 11850)] =
-      [a (.virt 11847), a (.virt 11848), a (.virt 11849), a (.virt 11850), 1, 0, 0, 0] ++ [] := by
+  have hpad : pad10 [a (.virt 13201), a (.virt 13202), a (.virt 13203), a (.virt 13204)] =
+      [a (.virt 13201), a (.virt 13202), a (.virt 13203), a (.virt 13204), 1, 0, 0, 0] ++ [] := by
     simp [pad10, rate, List.replicate]
   rw [spongeHash, hpad, absorbMsg_block8, absorbMsg_nil, ← hout0]
   exact ⟨rfl, rfl, rfl, rfl⟩
@@ -2992,7 +2992,7 @@ theorem privateBatchWrapper2_f81 (perm : St p → St p) (a : Assignment p) (h : 
   exact ⟨rfl, rfl, rfl, rfl⟩
 
 theorem privateBatchWrapper2_f82 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 16 11) = bselect (a (.wire 1 43)) (a (.wire 18 12)) (a (.virt 5908)) := by
+    a (.wire 16 11) = bselect (a (.wire 1 43)) (a (.wire 18 12)) (a (.virt 6585)) := by
   have c657 := (privateBatchWrapper2_copies20 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c658 := (privateBatchWrapper2_copies20 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c659 := (privateBatchWrapper2_copies20 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -3011,7 +3011,7 @@ theorem privateBatchWrapper2_f82 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f83 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 16 19) = bselect (a (.wire 1 43)) (a (.wire 18 13)) (a (.virt 5909)) := by
+    a (.wire 16 19) = bselect (a (.wire 1 43)) (a (.wire 18 13)) (a (.virt 6586)) := by
   have c663 := (privateBatchWrapper2_copies20 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c664 := (privateBatchWrapper2_copies20 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c665 := (privateBatchWrapper2_copies20 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -3030,7 +3030,7 @@ theorem privateBatchWrapper2_f83 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f84 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 16 27) = bselect (a (.wire 1 43)) (a (.wire 18 14)) (a (.virt 5910)) := by
+    a (.wire 16 27) = bselect (a (.wire 1 43)) (a (.wire 18 14)) (a (.virt 6587)) := by
   have c669 := (privateBatchWrapper2_copies20 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c670 := (privateBatchWrapper2_copies20 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c671 := (privateBatchWrapper2_copies20 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
@@ -3049,7 +3049,7 @@ theorem privateBatchWrapper2_f84 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f85 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 16 35) = bselect (a (.wire 1 43)) (a (.wire 18 15)) (a (.virt 5911)) := by
+    a (.wire 16 35) = bselect (a (.wire 1 43)) (a (.wire 18 15)) (a (.virt 6588)) := by
   have c675 := (privateBatchWrapper2_copies21 a h).2.2.2.1
   have c676 := (privateBatchWrapper2_copies21 a h).2.2.2.2.1
   have c677 := (privateBatchWrapper2_copies21 a h).2.2.2.2.2.1
@@ -3069,7 +3069,7 @@ theorem privateBatchWrapper2_f85 (a : Assignment p) (h : Satisfies (privateBatch
 
 theorem privateBatchWrapper2_f86 (perm : St p → St p) (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a)
     (hp : Poseidon2Rows perm (privateBatchWrapper2 p) a) :
-    (a (.wire 19 12) = spongeHash perm [a (.virt 11851), a (.virt 11852), a (.virt 11853), a (.virt 11854)] 0 ∧ a (.wire 19 13) = spongeHash perm [a (.virt 11851), a (.virt 11852), a (.virt 11853), a (.virt 11854)] 1 ∧ a (.wire 19 14) = spongeHash perm [a (.virt 11851), a (.virt 11852), a (.virt 11853), a (.virt 11854)] 2 ∧ a (.wire 19 15) = spongeHash perm [a (.virt 11851), a (.virt 11852), a (.virt 11853), a (.virt 11854)] 3) := by
+    (a (.wire 19 12) = spongeHash perm [a (.virt 13205), a (.virt 13206), a (.virt 13207), a (.virt 13208)] 0 ∧ a (.wire 19 13) = spongeHash perm [a (.virt 13205), a (.virt 13206), a (.virt 13207), a (.virt 13208)] 1 ∧ a (.wire 19 14) = spongeHash perm [a (.virt 13205), a (.virt 13206), a (.virt 13207), a (.virt 13208)] 2 ∧ a (.wire 19 15) = spongeHash perm [a (.virt 13205), a (.virt 13206), a (.virt 13207), a (.virt 13208)] 3) := by
   have c681 := (privateBatchWrapper2_copies21 a h).2.2.2.2.2.2.2.2.2.1
   have c682 := (privateBatchWrapper2_copies21 a h).2.2.2.2.2.2.2.2.2.2.1
   have c683 := (privateBatchWrapper2_copies21 a h).2.2.2.2.2.2.2.2.2.2.2.1
@@ -3083,11 +3083,11 @@ theorem privateBatchWrapper2_f86 (perm : St p → St p) (a : Assignment p) (h : 
   have c691 := (privateBatchWrapper2_copies21 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c692 := (privateBatchWrapper2_copies21 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4⟩ := privateBatchWrapper2_consts a h
-  have hin0 : poseidon2In a 19 = addBlock (fun _ => 0) [a (.virt 11851), a (.virt 11852), a (.virt 11853), a (.virt 11854), 1, 0, 0, 0] :=
+  have hin0 : poseidon2In a 19 = addBlock (fun _ => 0) [a (.virt 13205), a (.virt 13206), a (.virt 13207), a (.virt 13208), 1, 0, 0, 0] :=
     poseidon2In_first c681.symm c682.symm c683.symm c684.symm (c685.symm.trans k0) (c686.symm.trans k1) (c687.symm.trans k1) (c688.symm.trans k1) (c689.symm.trans k1) (c690.symm.trans k1) (c691.symm.trans k1) (c692.symm.trans k1)
   have hout0 := poseidon2Row_absorb perm hp (row := 19) rfl rfl hin0
-  have hpad : pad10 [a (.virt 11851), a (.virt 11852), a (.virt 11853), a (.virt 11854)] =
-      [a (.virt 11851), a (.virt 11852), a (.virt 11853), a (.virt 11854), 1, 0, 0, 0] ++ [] := by
+  have hpad : pad10 [a (.virt 13205), a (.virt 13206), a (.virt 13207), a (.virt 13208)] =
+      [a (.virt 13205), a (.virt 13206), a (.virt 13207), a (.virt 13208), 1, 0, 0, 0] ++ [] := by
     simp [pad10, rate, List.replicate]
   rw [spongeHash, hpad, absorbMsg_block8, absorbMsg_nil, ← hout0]
   exact ⟨rfl, rfl, rfl, rfl⟩
@@ -3118,7 +3118,7 @@ theorem privateBatchWrapper2_f87 (perm : St p → St p) (a : Assignment p) (h : 
   exact ⟨rfl, rfl, rfl, rfl⟩
 
 theorem privateBatchWrapper2_f88 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 16 43) = bselect (a (.wire 2 27)) (a (.wire 20 12)) (a (.virt 11826)) := by
+    a (.wire 16 43) = bselect (a (.wire 2 27)) (a (.wire 20 12)) (a (.virt 13180)) := by
   have c705 := (privateBatchWrapper2_copies22 a h).2.1
   have c706 := (privateBatchWrapper2_copies22 a h).2.2.1
   have c707 := (privateBatchWrapper2_copies22 a h).2.2.2.1
@@ -3137,7 +3137,7 @@ theorem privateBatchWrapper2_f88 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f89 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 16 51) = bselect (a (.wire 2 27)) (a (.wire 20 13)) (a (.virt 11827)) := by
+    a (.wire 16 51) = bselect (a (.wire 2 27)) (a (.wire 20 13)) (a (.virt 13181)) := by
   have c711 := (privateBatchWrapper2_copies22 a h).2.2.2.2.2.2.2.1
   have c712 := (privateBatchWrapper2_copies22 a h).2.2.2.2.2.2.2.2.1
   have c713 := (privateBatchWrapper2_copies22 a h).2.2.2.2.2.2.2.2.2.1
@@ -3156,7 +3156,7 @@ theorem privateBatchWrapper2_f89 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f90 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 16 59) = bselect (a (.wire 2 27)) (a (.wire 20 14)) (a (.virt 11828)) := by
+    a (.wire 16 59) = bselect (a (.wire 2 27)) (a (.wire 20 14)) (a (.virt 13182)) := by
   have c717 := (privateBatchWrapper2_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c718 := (privateBatchWrapper2_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c719 := (privateBatchWrapper2_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -3175,7 +3175,7 @@ theorem privateBatchWrapper2_f90 (a : Assignment p) (h : Satisfies (privateBatch
   linear_combination hr
 
 theorem privateBatchWrapper2_f91 (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.wire 21 7) = bselect (a (.wire 2 27)) (a (.wire 20 15)) (a (.virt 11829)) := by
+    a (.wire 21 7) = bselect (a (.wire 2 27)) (a (.wire 20 15)) (a (.virt 13183)) := by
   have c723 := (privateBatchWrapper2_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c724 := (privateBatchWrapper2_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c725 := (privateBatchWrapper2_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -3197,98 +3197,98 @@ set_option maxHeartbeats 4000000 in
 /-- Every satisfying assignment of `privateBatchWrapper2` has the meaning of each recorded gadget call. Generated at gadget-call granularity; see `gadget.rs`. -/
 theorem privateBatchWrapper2_decode (perm : St p → St p) (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a)
     (hp : Poseidon2Rows perm (privateBatchWrapper2 p) a) :
-    (IsEqual (a (.virt 5912)) (a (.virt 11856)) (a (.virt 11858)) (a (.virt 11859)) ∧
-    IsEqual (a (.virt 5913)) (a (.virt 11856)) (a (.virt 11860)) (a (.virt 11861)) ∧
-    IsEqual (a (.virt 5914)) (a (.virt 11856)) (a (.virt 11862)) (a (.virt 11863)) ∧
-    IsEqual (a (.virt 5915)) (a (.virt 11856)) (a (.virt 11864)) (a (.virt 11865)) ∧
-    a (.wire 1 35) = band (a (.virt 11858)) (a (.virt 11860)) ∧
-    a (.wire 1 39) = band (a (.virt 11862)) (a (.virt 11864)) ∧
+    (IsEqual (a (.virt 6589)) (a (.virt 13210)) (a (.virt 13212)) (a (.virt 13213)) ∧
+    IsEqual (a (.virt 6590)) (a (.virt 13210)) (a (.virt 13214)) (a (.virt 13215)) ∧
+    IsEqual (a (.virt 6591)) (a (.virt 13210)) (a (.virt 13216)) (a (.virt 13217)) ∧
+    IsEqual (a (.virt 6592)) (a (.virt 13210)) (a (.virt 13218)) (a (.virt 13219)) ∧
+    a (.wire 1 35) = band (a (.virt 13212)) (a (.virt 13214)) ∧
+    a (.wire 1 39) = band (a (.virt 13216)) (a (.virt 13218)) ∧
     a (.wire 1 43) = band (a (.wire 1 35)) (a (.wire 1 39)) ∧
-    IsEqual (a (.virt 11830)) (a (.virt 11856)) (a (.virt 11866)) (a (.virt 11867)) ∧
-    IsEqual (a (.virt 11831)) (a (.virt 11856)) (a (.virt 11868)) (a (.virt 11869)) ∧
-    IsEqual (a (.virt 11832)) (a (.virt 11856)) (a (.virt 11870)) (a (.virt 11871)) ∧
-    IsEqual (a (.virt 11833)) (a (.virt 11856)) (a (.virt 11872)) (a (.virt 11873)) ∧
-    a (.wire 2 19) = band (a (.virt 11866)) (a (.virt 11868)) ∧
-    a (.wire 2 23) = band (a (.virt 11870)) (a (.virt 11872)) ∧
+    IsEqual (a (.virt 13184)) (a (.virt 13210)) (a (.virt 13220)) (a (.virt 13221)) ∧
+    IsEqual (a (.virt 13185)) (a (.virt 13210)) (a (.virt 13222)) (a (.virt 13223)) ∧
+    IsEqual (a (.virt 13186)) (a (.virt 13210)) (a (.virt 13224)) (a (.virt 13225)) ∧
+    IsEqual (a (.virt 13187)) (a (.virt 13210)) (a (.virt 13226)) (a (.virt 13227)) ∧
+    a (.wire 2 19) = band (a (.virt 13220)) (a (.virt 13222)) ∧
+    a (.wire 2 23) = band (a (.virt 13224)) (a (.virt 13226)) ∧
     a (.wire 2 27) = band (a (.wire 2 19)) (a (.wire 2 23)) ∧
     a (.wire 3 7) = bnot (a (.wire 1 43)) ∧
-    a (.virt 11855) = bnot (a (.virt 11856)) ∧
-    a (.wire 3 7) = band (a (.wire 3 7)) (a (.virt 11855)) ∧
-    a (.wire 3 11) = bselect (a (.wire 3 7)) (a (.virt 5912)) (a (.virt 11856)) ∧
-    a (.wire 3 15) = bselect (a (.wire 3 7)) (a (.virt 5913)) (a (.virt 11856)) ∧
-    a (.wire 3 19) = bselect (a (.wire 3 7)) (a (.virt 5914)) (a (.virt 11856)) ∧
-    a (.wire 3 23) = bselect (a (.wire 3 7)) (a (.virt 5915)) (a (.virt 11856)) ∧
-    a (.wire 3 27) = bselect (a (.wire 3 7)) (a (.virt 5916)) (a (.virt 11856)) ∧
-    a (.wire 3 7) = bor (a (.virt 11856)) (a (.wire 3 7)) ∧
+    a (.virt 13209) = bnot (a (.virt 13210)) ∧
+    a (.wire 3 7) = band (a (.wire 3 7)) (a (.virt 13209)) ∧
+    a (.wire 3 11) = bselect (a (.wire 3 7)) (a (.virt 6589)) (a (.virt 13210)) ∧
+    a (.wire 3 15) = bselect (a (.wire 3 7)) (a (.virt 6590)) (a (.virt 13210)) ∧
+    a (.wire 3 19) = bselect (a (.wire 3 7)) (a (.virt 6591)) (a (.virt 13210)) ∧
+    a (.wire 3 23) = bselect (a (.wire 3 7)) (a (.virt 6592)) (a (.virt 13210)) ∧
+    a (.wire 3 27) = bselect (a (.wire 3 7)) (a (.virt 6593)) (a (.virt 13210)) ∧
+    a (.wire 3 7) = bor (a (.virt 13210)) (a (.wire 3 7)) ∧
     a (.wire 3 31) = bnot (a (.wire 2 27)) ∧
     a (.wire 3 35) = bnot (a (.wire 3 7)) ∧
     a (.wire 2 31) = band (a (.wire 3 31)) (a (.wire 3 35)) ∧
-    a (.wire 3 43) = bselect (a (.wire 2 31)) (a (.virt 11830)) (a (.wire 3 11)) ∧
-    a (.wire 3 51) = bselect (a (.wire 2 31)) (a (.virt 11831)) (a (.wire 3 15)) ∧
-    a (.wire 3 59) = bselect (a (.wire 2 31)) (a (.virt 11832)) (a (.wire 3 19)) ∧
-    a (.wire 4 7) = bselect (a (.wire 2 31)) (a (.virt 11833)) (a (.wire 3 23)) ∧
-    a (.wire 4 15) = bselect (a (.wire 2 31)) (a (.virt 11834)) (a (.wire 3 27)) ∧
+    a (.wire 3 43) = bselect (a (.wire 2 31)) (a (.virt 13184)) (a (.wire 3 11)) ∧
+    a (.wire 3 51) = bselect (a (.wire 2 31)) (a (.virt 13185)) (a (.wire 3 15)) ∧
+    a (.wire 3 59) = bselect (a (.wire 2 31)) (a (.virt 13186)) (a (.wire 3 19)) ∧
+    a (.wire 4 7) = bselect (a (.wire 2 31)) (a (.virt 13187)) (a (.wire 3 23)) ∧
+    a (.wire 4 15) = bselect (a (.wire 2 31)) (a (.virt 13188)) (a (.wire 3 27)) ∧
     a (.wire 6 3) = bor (a (.wire 3 7)) (a (.wire 3 31))) ∧
-    (IsEqual (a (.virt 5912)) (a (.wire 3 43)) (a (.virt 11874)) (a (.virt 11875)) ∧
-    IsEqual (a (.virt 5913)) (a (.wire 3 51)) (a (.virt 11876)) (a (.virt 11877)) ∧
-    IsEqual (a (.virt 5914)) (a (.wire 3 59)) (a (.virt 11878)) (a (.virt 11879)) ∧
-    IsEqual (a (.virt 5915)) (a (.wire 4 7)) (a (.virt 11880)) (a (.virt 11881)) ∧
-    a (.wire 7 7) = band (a (.virt 11874)) (a (.virt 11876)) ∧
-    a (.wire 7 11) = band (a (.virt 11878)) (a (.virt 11880)) ∧
+    (IsEqual (a (.virt 6589)) (a (.wire 3 43)) (a (.virt 13228)) (a (.virt 13229)) ∧
+    IsEqual (a (.virt 6590)) (a (.wire 3 51)) (a (.virt 13230)) (a (.virt 13231)) ∧
+    IsEqual (a (.virt 6591)) (a (.wire 3 59)) (a (.virt 13232)) (a (.virt 13233)) ∧
+    IsEqual (a (.virt 6592)) (a (.wire 4 7)) (a (.virt 13234)) (a (.virt 13235)) ∧
+    a (.wire 7 7) = band (a (.virt 13228)) (a (.virt 13230)) ∧
+    a (.wire 7 11) = band (a (.virt 13232)) (a (.virt 13234)) ∧
     a (.wire 7 15) = band (a (.wire 7 7)) (a (.wire 7 11)) ∧
     a (.wire 6 7) = bor (a (.wire 1 43)) (a (.wire 7 15)) ∧
-    a (.wire 6 7) = a (.virt 11855) ∧
-    a (.virt 5907) = a (.virt 5907) ∧
-    IsEqual (a (.virt 11830)) (a (.wire 3 43)) (a (.virt 11882)) (a (.virt 11883)) ∧
-    IsEqual (a (.virt 11831)) (a (.wire 3 51)) (a (.virt 11884)) (a (.virt 11885)) ∧
-    IsEqual (a (.virt 11832)) (a (.wire 3 59)) (a (.virt 11886)) (a (.virt 11887)) ∧
-    IsEqual (a (.virt 11833)) (a (.wire 4 7)) (a (.virt 11888)) (a (.virt 11889)) ∧
-    a (.wire 7 51) = band (a (.virt 11882)) (a (.virt 11884)) ∧
-    a (.wire 7 55) = band (a (.virt 11886)) (a (.virt 11888)) ∧
+    a (.wire 6 7) = a (.virt 13209) ∧
+    a (.virt 6584) = a (.virt 6584) ∧
+    IsEqual (a (.virt 13184)) (a (.wire 3 43)) (a (.virt 13236)) (a (.virt 13237)) ∧
+    IsEqual (a (.virt 13185)) (a (.wire 3 51)) (a (.virt 13238)) (a (.virt 13239)) ∧
+    IsEqual (a (.virt 13186)) (a (.wire 3 59)) (a (.virt 13240)) (a (.virt 13241)) ∧
+    IsEqual (a (.virt 13187)) (a (.wire 4 7)) (a (.virt 13242)) (a (.virt 13243)) ∧
+    a (.wire 7 51) = band (a (.virt 13236)) (a (.virt 13238)) ∧
+    a (.wire 7 55) = band (a (.virt 13240)) (a (.virt 13242)) ∧
     a (.wire 7 59) = band (a (.wire 7 51)) (a (.wire 7 55)) ∧
     a (.wire 6 11) = bor (a (.wire 2 27)) (a (.wire 7 59)) ∧
-    a (.wire 6 11) = a (.virt 11855) ∧
-    a (.virt 11825) = a (.virt 5907) ∧
-    a (.wire 8 59) = bselect (a (.wire 1 43)) (a (.virt 11856)) (a (.virt 5917)) ∧
-    a (.wire 8 59) = a (.virt 11856) + a (.wire 8 59) ∧
-    a (.wire 9 7) = bselect (a (.wire 2 27)) (a (.virt 11856)) (a (.virt 11835)) ∧
+    a (.wire 6 11) = a (.virt 13209) ∧
+    a (.virt 13179) = a (.virt 6584) ∧
+    a (.wire 8 59) = bselect (a (.wire 1 43)) (a (.virt 13210)) (a (.virt 6594)) ∧
+    a (.wire 8 59) = a (.virt 13210) + a (.wire 8 59) ∧
+    a (.wire 9 7) = bselect (a (.wire 2 27)) (a (.virt 13210)) (a (.virt 13189)) ∧
     a (.wire 6 15) = a (.wire 8 59) + a (.wire 9 7) ∧
-    rangeCheck (a (.virt 11841)) 32 ∧
-    a (.virt 11841) = a (.virt 11856) + a (.virt 11841) ∧
-    rangeCheck (a (.virt 11846)) 32 ∧
-    a (.wire 6 19) = a (.virt 11841) + a (.virt 11846) ∧
-    rangeCheck (a (.virt 11836)) 14 ∧
-    a (.wire 9 11) = a (.virt 11891) - a (.virt 11836) ∧
+    rangeCheck (a (.virt 13195)) 32 ∧
+    a (.virt 13195) = a (.virt 13210) + a (.virt 13195) ∧
+    rangeCheck (a (.virt 13200)) 32 ∧
+    a (.wire 6 19) = a (.virt 13195) + a (.virt 13200) ∧
+    rangeCheck (a (.virt 13190)) 14 ∧
+    a (.wire 9 11) = a (.virt 13245) - a (.virt 13190) ∧
     rangeCheck (a (.wire 9 11)) 14 ∧
-    a (.wire 14 3) = a (.wire 6 19) * a (.virt 11891)) ∧
+    a (.wire 14 3) = a (.wire 6 19) * a (.virt 13245)) ∧
     (a (.wire 14 7) = a (.wire 6 15) * a (.wire 9 11) ∧
     a (.wire 9 15) = a (.wire 14 7) - a (.wire 14 3) ∧
     rangeCheck (a (.wire 9 15)) 52 ∧
     a (.wire 3 7) = bnot (a (.wire 1 43)) ∧
     a (.wire 3 31) = bnot (a (.wire 2 27)) ∧
     a (.wire 14 11) = band (a (.wire 3 7)) (a (.wire 3 31)) ∧
-    IsEqual (a (.virt 5908)) (a (.virt 11826)) (a (.virt 11892)) (a (.virt 11893)) ∧
-    IsEqual (a (.virt 5909)) (a (.virt 11827)) (a (.virt 11894)) (a (.virt 11895)) ∧
-    IsEqual (a (.virt 5910)) (a (.virt 11828)) (a (.virt 11896)) (a (.virt 11897)) ∧
-    IsEqual (a (.virt 5911)) (a (.virt 11829)) (a (.virt 11898)) (a (.virt 11899)) ∧
-    a (.wire 14 47) = band (a (.virt 11892)) (a (.virt 11894)) ∧
-    a (.wire 14 51) = band (a (.virt 11896)) (a (.virt 11898)) ∧
+    IsEqual (a (.virt 6585)) (a (.virt 13180)) (a (.virt 13246)) (a (.virt 13247)) ∧
+    IsEqual (a (.virt 6586)) (a (.virt 13181)) (a (.virt 13248)) (a (.virt 13249)) ∧
+    IsEqual (a (.virt 6587)) (a (.virt 13182)) (a (.virt 13250)) (a (.virt 13251)) ∧
+    IsEqual (a (.virt 6588)) (a (.virt 13183)) (a (.virt 13252)) (a (.virt 13253)) ∧
+    a (.wire 14 47) = band (a (.virt 13246)) (a (.virt 13248)) ∧
+    a (.wire 14 51) = band (a (.virt 13250)) (a (.virt 13252)) ∧
     a (.wire 14 55) = band (a (.wire 14 47)) (a (.wire 14 51)) ∧
     a (.wire 14 59) = band (a (.wire 14 11)) (a (.wire 14 55)) ∧
-    a (.wire 14 59) = a (.virt 11856) ∧
+    a (.wire 14 59) = a (.virt 13210) ∧
     a (.wire 3 31) = bnot (a (.wire 2 27)) ∧
-    (a (.wire 17 12) = spongeHash perm [a (.virt 11847), a (.virt 11848), a (.virt 11849), a (.virt 11850)] 0 ∧ a (.wire 17 13) = spongeHash perm [a (.virt 11847), a (.virt 11848), a (.virt 11849), a (.virt 11850)] 1 ∧ a (.wire 17 14) = spongeHash perm [a (.virt 11847), a (.virt 11848), a (.virt 11849), a (.virt 11850)] 2 ∧ a (.wire 17 15) = spongeHash perm [a (.virt 11847), a (.virt 11848), a (.virt 11849), a (.virt 11850)] 3) ∧
+    (a (.wire 17 12) = spongeHash perm [a (.virt 13201), a (.virt 13202), a (.virt 13203), a (.virt 13204)] 0 ∧ a (.wire 17 13) = spongeHash perm [a (.virt 13201), a (.virt 13202), a (.virt 13203), a (.virt 13204)] 1 ∧ a (.wire 17 14) = spongeHash perm [a (.virt 13201), a (.virt 13202), a (.virt 13203), a (.virt 13204)] 2 ∧ a (.wire 17 15) = spongeHash perm [a (.virt 13201), a (.virt 13202), a (.virt 13203), a (.virt 13204)] 3) ∧
     (a (.wire 18 12) = spongeHash perm [a (.wire 17 12), a (.wire 17 13), a (.wire 17 14), a (.wire 17 15)] 0 ∧ a (.wire 18 13) = spongeHash perm [a (.wire 17 12), a (.wire 17 13), a (.wire 17 14), a (.wire 17 15)] 1 ∧ a (.wire 18 14) = spongeHash perm [a (.wire 17 12), a (.wire 17 13), a (.wire 17 14), a (.wire 17 15)] 2 ∧ a (.wire 18 15) = spongeHash perm [a (.wire 17 12), a (.wire 17 13), a (.wire 17 14), a (.wire 17 15)] 3) ∧
-    a (.wire 16 11) = bselect (a (.wire 1 43)) (a (.wire 18 12)) (a (.virt 5908)) ∧
-    a (.wire 16 19) = bselect (a (.wire 1 43)) (a (.wire 18 13)) (a (.virt 5909)) ∧
-    a (.wire 16 27) = bselect (a (.wire 1 43)) (a (.wire 18 14)) (a (.virt 5910)) ∧
-    a (.wire 16 35) = bselect (a (.wire 1 43)) (a (.wire 18 15)) (a (.virt 5911)) ∧
-    (a (.wire 19 12) = spongeHash perm [a (.virt 11851), a (.virt 11852), a (.virt 11853), a (.virt 11854)] 0 ∧ a (.wire 19 13) = spongeHash perm [a (.virt 11851), a (.virt 11852), a (.virt 11853), a (.virt 11854)] 1 ∧ a (.wire 19 14) = spongeHash perm [a (.virt 11851), a (.virt 11852), a (.virt 11853), a (.virt 11854)] 2 ∧ a (.wire 19 15) = spongeHash perm [a (.virt 11851), a (.virt 11852), a (.virt 11853), a (.virt 11854)] 3) ∧
+    a (.wire 16 11) = bselect (a (.wire 1 43)) (a (.wire 18 12)) (a (.virt 6585)) ∧
+    a (.wire 16 19) = bselect (a (.wire 1 43)) (a (.wire 18 13)) (a (.virt 6586)) ∧
+    a (.wire 16 27) = bselect (a (.wire 1 43)) (a (.wire 18 14)) (a (.virt 6587)) ∧
+    a (.wire 16 35) = bselect (a (.wire 1 43)) (a (.wire 18 15)) (a (.virt 6588)) ∧
+    (a (.wire 19 12) = spongeHash perm [a (.virt 13205), a (.virt 13206), a (.virt 13207), a (.virt 13208)] 0 ∧ a (.wire 19 13) = spongeHash perm [a (.virt 13205), a (.virt 13206), a (.virt 13207), a (.virt 13208)] 1 ∧ a (.wire 19 14) = spongeHash perm [a (.virt 13205), a (.virt 13206), a (.virt 13207), a (.virt 13208)] 2 ∧ a (.wire 19 15) = spongeHash perm [a (.virt 13205), a (.virt 13206), a (.virt 13207), a (.virt 13208)] 3) ∧
     (a (.wire 20 12) = spongeHash perm [a (.wire 19 12), a (.wire 19 13), a (.wire 19 14), a (.wire 19 15)] 0 ∧ a (.wire 20 13) = spongeHash perm [a (.wire 19 12), a (.wire 19 13), a (.wire 19 14), a (.wire 19 15)] 1 ∧ a (.wire 20 14) = spongeHash perm [a (.wire 19 12), a (.wire 19 13), a (.wire 19 14), a (.wire 19 15)] 2 ∧ a (.wire 20 15) = spongeHash perm [a (.wire 19 12), a (.wire 19 13), a (.wire 19 14), a (.wire 19 15)] 3) ∧
-    a (.wire 16 43) = bselect (a (.wire 2 27)) (a (.wire 20 12)) (a (.virt 11826)) ∧
-    a (.wire 16 51) = bselect (a (.wire 2 27)) (a (.wire 20 13)) (a (.virt 11827)) ∧
-    a (.wire 16 59) = bselect (a (.wire 2 27)) (a (.wire 20 14)) (a (.virt 11828)) ∧
-    a (.wire 21 7) = bselect (a (.wire 2 27)) (a (.wire 20 15)) (a (.virt 11829))) :=
+    a (.wire 16 43) = bselect (a (.wire 2 27)) (a (.wire 20 12)) (a (.virt 13180)) ∧
+    a (.wire 16 51) = bselect (a (.wire 2 27)) (a (.wire 20 13)) (a (.virt 13181)) ∧
+    a (.wire 16 59) = bselect (a (.wire 2 27)) (a (.wire 20 14)) (a (.virt 13182)) ∧
+    a (.wire 21 7) = bselect (a (.wire 2 27)) (a (.wire 20 15)) (a (.virt 13183))) :=
   ⟨⟨privateBatchWrapper2_f0 a h, privateBatchWrapper2_f1 a h, privateBatchWrapper2_f2 a h, privateBatchWrapper2_f3 a h, privateBatchWrapper2_f4 a h, privateBatchWrapper2_f5 a h, privateBatchWrapper2_f6 a h, privateBatchWrapper2_f7 a h, privateBatchWrapper2_f8 a h, privateBatchWrapper2_f9 a h, privateBatchWrapper2_f10 a h, privateBatchWrapper2_f11 a h, privateBatchWrapper2_f12 a h, privateBatchWrapper2_f13 a h, privateBatchWrapper2_f14 a h, privateBatchWrapper2_f15 a h, privateBatchWrapper2_f16 a h, privateBatchWrapper2_f17 a h, privateBatchWrapper2_f18 a h, privateBatchWrapper2_f19 a h, privateBatchWrapper2_f20 a h, privateBatchWrapper2_f21 a h, privateBatchWrapper2_f22 a h, privateBatchWrapper2_f23 a h, privateBatchWrapper2_f24 a h, privateBatchWrapper2_f25 a h, privateBatchWrapper2_f26 a h, privateBatchWrapper2_f27 a h, privateBatchWrapper2_f28 a h, privateBatchWrapper2_f29 a h, privateBatchWrapper2_f30 a h, privateBatchWrapper2_f31 a h⟩, ⟨privateBatchWrapper2_f32 a h, privateBatchWrapper2_f33 a h, privateBatchWrapper2_f34 a h, privateBatchWrapper2_f35 a h, privateBatchWrapper2_f36 a h, privateBatchWrapper2_f37 a h, privateBatchWrapper2_f38 a h, privateBatchWrapper2_f39 a h, privateBatchWrapper2_f40 a h, privateBatchWrapper2_f41 a h, privateBatchWrapper2_f42 a h, privateBatchWrapper2_f43 a h, privateBatchWrapper2_f44 a h, privateBatchWrapper2_f45 a h, privateBatchWrapper2_f46 a h, privateBatchWrapper2_f47 a h, privateBatchWrapper2_f48 a h, privateBatchWrapper2_f49 a h, privateBatchWrapper2_f50 a h, privateBatchWrapper2_f51 a h, privateBatchWrapper2_f52 a h, privateBatchWrapper2_f53 a h, privateBatchWrapper2_f54 a h, privateBatchWrapper2_f55 a h, privateBatchWrapper2_f56 a h, privateBatchWrapper2_f57 a h, privateBatchWrapper2_f58 a h, privateBatchWrapper2_f59 a h, privateBatchWrapper2_f60 a h, privateBatchWrapper2_f61 a h, privateBatchWrapper2_f62 a h, privateBatchWrapper2_f63 a h⟩, ⟨privateBatchWrapper2_f64 a h, privateBatchWrapper2_f65 a h, privateBatchWrapper2_f66 a h, privateBatchWrapper2_f67 a h, privateBatchWrapper2_f68 a h, privateBatchWrapper2_f69 a h, privateBatchWrapper2_f70 a h, privateBatchWrapper2_f71 a h, privateBatchWrapper2_f72 a h, privateBatchWrapper2_f73 a h, privateBatchWrapper2_f74 a h, privateBatchWrapper2_f75 a h, privateBatchWrapper2_f76 a h, privateBatchWrapper2_f77 a h, privateBatchWrapper2_f78 a h, privateBatchWrapper2_f79 a h, privateBatchWrapper2_f80 perm a h hp, privateBatchWrapper2_f81 perm a h hp, privateBatchWrapper2_f82 a h, privateBatchWrapper2_f83 a h, privateBatchWrapper2_f84 a h, privateBatchWrapper2_f85 a h, privateBatchWrapper2_f86 perm a h hp, privateBatchWrapper2_f87 perm a h hp, privateBatchWrapper2_f88 a h, privateBatchWrapper2_f89 a h, privateBatchWrapper2_f90 a h, privateBatchWrapper2_f91 a h⟩⟩
 
 end Plonky2Spec.Generated

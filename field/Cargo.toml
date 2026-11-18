@@ -24,7 +24,7 @@ num = { workspace = true, features = ["alloc"] }
 rand = { workspace = true, features = ["thread_rng"], optional = true }
 serde = { workspace = true, features = ["alloc"] }
 static_assertions = { workspace = true }
-unroll = { workspace = true }
+unroll = { package = "qp-plonky2-unroll", version = "=1.6.0", path = "../unroll" }
 
 # Local dependencies
 plonky2_util = { version = "=1.0.0", path = "../util", default-features = false }
