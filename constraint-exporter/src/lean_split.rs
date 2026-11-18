@@ -271,6 +271,98 @@ fn render_barrel(module: &str, parts: &[String]) -> String {
     out
 }
 
+/// Name of the manifest written into a split output directory. It lists the
+/// basenames the generator owns. Regeneration deletes only names on the
+/// previous manifest that this run no longer emits.
+pub const GENERATED_MANIFEST: &str = ".generated-files";
+
+/// Byte length above which a production public-batch module (`n > 4`) is
+/// summarized on stdout. The recorded `n = 2` and `n = 4` modules stay printed
+/// in full, which is what the exporter did before the production split.
+pub const STDOUT_FULL_LIMIT: usize = 100_000;
+
+/// Whether `export-constraints` prints `contents` of a public wrapper of arity `n`.
+pub fn stdout_includes_source(wrapper_arity: usize, len: usize) -> bool {
+    wrapper_arity <= 4 || len <= STDOUT_FULL_LIMIT
+}
+
+fn owned_basename(name: &str) -> bool {
+    !name.is_empty()
+        && name != "."
+        && name != ".."
+        && name != GENERATED_MANIFEST
+        && !name.contains('/')
+        && !name.contains('\\')
+        && !name.contains('\0')
+}
+
+fn read_manifest(path: &std::path::Path) -> std::io::Result<std::collections::BTreeSet<String>> {
+    match std::fs::read_to_string(path) {
+        Ok(text) => Ok(text
+            .lines()
+            .map(str::trim)
+            .filter(|l| !l.is_empty())
+            .map(str::to_string)
+            .collect()),
+        Err(err) if err.kind() == std::io::ErrorKind::NotFound => {
+            Ok(std::collections::BTreeSet::new())
+        }
+        Err(err) => Err(err),
+    }
+}
+
+/// Write `files` into `dir` and delete generator-owned files this run no longer emits.
+///
+/// Ownership is the previous `.generated-files` manifest in `dir`. A name that is
+/// not on that manifest is left alone, including notes and anything that is not a
+/// regular file. A nested directory therefore neither disappears nor aborts the
+/// caller. The manifest is rewritten to the basenames in `files`.
+pub fn sync_owned_files(
+    dir: &std::path::Path,
+    files: &[(&str, &str)],
+) -> std::io::Result<Vec<String>> {
+    for (name, _) in files {
+        if !owned_basename(name) {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                format!("refusing generated path {name}"),
+            ));
+        }
+    }
+    std::fs::create_dir_all(dir)?;
+    let manifest_path = dir.join(GENERATED_MANIFEST);
+    let owned = read_manifest(&manifest_path)?;
+    let new_names: std::collections::BTreeSet<&str> = files.iter().map(|(name, _)| *name).collect();
+    let mut removed = Vec::new();
+    for entry in std::fs::read_dir(dir)? {
+        let entry = entry?;
+        let name = entry.file_name();
+        let Some(name) = name.to_str() else {
+            continue;
+        };
+        if name == GENERATED_MANIFEST || !entry.file_type()?.is_file() {
+            continue;
+        }
+        if owned.contains(name) && !new_names.contains(name) {
+            std::fs::remove_file(entry.path())?;
+            removed.push(name.to_string());
+        }
+    }
+    for (name, contents) in files {
+        std::fs::write(dir.join(name), contents)?;
+    }
+    let manifest = new_names
+        .iter()
+        .copied()
+        .fold(String::new(), |mut out, name| {
+            out.push_str(name);
+            out.push('\n');
+            out
+        });
+    std::fs::write(manifest_path, manifest)?;
+    Ok(removed)
+}
+
 fn render_root(module: &str, dep: &str) -> String {
     format!(
         "/-\n\
@@ -372,5 +464,89 @@ mod tests {
         assert!(decode.contents.contains("theorem demo_decode"));
         assert!(decode.contents.contains("set_option maxHeartbeats 20 in"));
         assert!(!decode.contents.contains("theorem demo_f0"));
+    }
+
+    #[test]
+    fn recorded_shapes_stay_on_stdout() {
+        assert!(stdout_includes_source(2, 205_239));
+        assert!(stdout_includes_source(4, 420_580));
+        assert!(stdout_includes_source(89, 367));
+        assert!(!stdout_includes_source(89, STDOUT_FULL_LIMIT + 1));
+    }
+
+    struct Tmp(std::path::PathBuf);
+    impl Drop for Tmp {
+        fn drop(&mut self) {
+            let _ = std::fs::remove_dir_all(&self.0);
+        }
+    }
+
+    fn tmp(label: &str) -> Tmp {
+        let dir = std::env::temp_dir().join(format!(
+            "qp-plonky2-sync-{label}-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        std::fs::create_dir_all(&dir).unwrap();
+        Tmp(dir)
+    }
+
+    #[test]
+    fn sync_keeps_unrelated_files_and_drops_only_owned_ones() {
+        let dir = tmp("owned");
+        std::fs::write(dir.0.join(GENERATED_MANIFEST), "Kept.lean\nStale.lean\n").unwrap();
+        std::fs::write(dir.0.join("Kept.lean"), "old").unwrap();
+        std::fs::write(dir.0.join("Stale.lean"), "stale").unwrap();
+        std::fs::write(dir.0.join("local-notes.txt"), "notes").unwrap();
+        std::fs::create_dir(dir.0.join("nested")).unwrap();
+        std::fs::write(dir.0.join("nested").join("extra.txt"), "x").unwrap();
+
+        let removed = sync_owned_files(&dir.0, &[("Kept.lean", "new")]).unwrap();
+        assert_eq!(removed, vec!["Stale.lean".to_string()]);
+        assert_eq!(
+            std::fs::read_to_string(dir.0.join("Kept.lean")).unwrap(),
+            "new"
+        );
+        assert!(!dir.0.join("Stale.lean").exists());
+        assert_eq!(
+            std::fs::read_to_string(dir.0.join("local-notes.txt")).unwrap(),
+            "notes"
+        );
+        assert_eq!(
+            std::fs::read_to_string(dir.0.join("nested").join("extra.txt")).unwrap(),
+            "x"
+        );
+        assert_eq!(
+            std::fs::read_to_string(dir.0.join(GENERATED_MANIFEST)).unwrap(),
+            "Kept.lean\n"
+        );
+    }
+
+    #[test]
+    fn sync_without_a_manifest_does_not_delete_or_abort() {
+        let dir = tmp("untracked");
+        std::fs::write(dir.0.join("local-notes.txt"), "notes").unwrap();
+        std::fs::write(dir.0.join("Old.lean"), "old").unwrap();
+        std::fs::create_dir(dir.0.join("nested")).unwrap();
+        std::fs::write(dir.0.join("nested").join("extra.txt"), "x").unwrap();
+
+        let removed = sync_owned_files(&dir.0, &[("New.lean", "new")]).unwrap();
+        assert!(removed.is_empty());
+        assert_eq!(
+            std::fs::read_to_string(dir.0.join("New.lean")).unwrap(),
+            "new"
+        );
+        assert_eq!(
+            std::fs::read_to_string(dir.0.join("local-notes.txt")).unwrap(),
+            "notes"
+        );
+        assert_eq!(
+            std::fs::read_to_string(dir.0.join("Old.lean")).unwrap(),
+            "old"
+        );
+        assert!(dir.0.join("nested").is_dir());
     }
 }

@@ -221,6 +221,16 @@ fn wrapper_lean_is_current() {
                 "run export-constraints ({decode_path})"
             );
         }
+        assert_split_manifest(
+            &format!(
+                "{}/../formal/Plonky2Spec/Generated",
+                env!("CARGO_MANIFEST_DIR")
+            ),
+            &generated_modules
+                .iter()
+                .map(|m| m.relative.clone())
+                .collect::<Vec<_>>(),
+        );
         assert!(generated.contains(&format!(
             "theorem publicBatchWrapper{n}_decode (a : Assignment p) \
              (h : Satisfies (publicBatchWrapper{n} p) a) :"
@@ -240,6 +250,16 @@ fn wrapper_lean_is_current() {
                 "run export-constraints ({bridge_path})"
             );
         }
+        assert_split_manifest(
+            &format!(
+                "{}/../formal/Plonky2Bridge/Generated",
+                env!("CARGO_MANIFEST_DIR")
+            ),
+            &bridge_modules
+                .iter()
+                .map(|m| m.relative.clone())
+                .collect::<Vec<_>>(),
+        );
         let generated = bridge_modules
             .iter()
             .map(|m| m.contents.as_str())
@@ -275,5 +295,31 @@ fn wrapper_lean_is_current() {
         )));
         assert!(!generated.contains("private_batch_proof_sound"));
         assert!(!generated.contains("PrivateBatchProofAccepted"));
+    }
+}
+
+/// A split wrapper's `.generated-files` manifest is exactly the basenames the
+/// generator owns in that directory. Regeneration deletes only those names.
+fn assert_split_manifest(root: &str, relatives: &[String]) {
+    let mut by_dir: std::collections::BTreeMap<String, std::collections::BTreeSet<String>> =
+        std::collections::BTreeMap::new();
+    for relative in relatives {
+        if let Some((dir, name)) = relative.split_once('/') {
+            assert!(!name.contains('/'), "{relative}");
+            by_dir
+                .entry(dir.to_string())
+                .or_default()
+                .insert(name.to_string());
+        }
+    }
+    for (dir, names) in by_dir {
+        let mut expected = names.into_iter().collect::<Vec<_>>().join("\n");
+        expected.push('\n');
+        let path = format!(
+            "{root}/{dir}/{}",
+            constraint_exporter::lean_split::GENERATED_MANIFEST
+        );
+        let on_disk = std::fs::read_to_string(&path).unwrap_or_default();
+        assert_eq!(on_disk, expected, "run export-constraints ({path})");
     }
 }

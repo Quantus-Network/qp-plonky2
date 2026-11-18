@@ -44,6 +44,48 @@ fn bridge_generated_dir() -> PathBuf {
     formal_dir().join("Plonky2Bridge").join("Generated")
 }
 
+/// Write modules for one public-batch wrapper.
+///
+/// A split wrapper has pieces under `{dir_name}/` plus a root file next to that
+/// directory. Pieces are owned through `{dir_name}/.generated-files`: only a
+/// basename on the previous manifest is eligible for deletion. Files outside
+/// the directory, such as `PublicBatchWrapper2.lean`, are written in place.
+fn write_split(parent: &Path, dir_name: &str, modules: &[(&str, &str)]) -> std::io::Result<()> {
+    let prefix = format!("{dir_name}/");
+    let mut inside = Vec::new();
+    for &(relative, contents) in modules {
+        if let Some(name) = relative.strip_prefix(&prefix) {
+            inside.push((name, contents));
+        } else {
+            write(parent, relative, contents)?;
+        }
+    }
+    if !inside.is_empty() {
+        let sub = parent.join(dir_name);
+        let removed = constraint_exporter::lean_split::sync_owned_files(&sub, &inside)?;
+        for name in removed {
+            eprintln!("removed {}", sub.join(name).display());
+        }
+        for (name, contents) in &inside {
+            eprintln!(
+                "wrote {} ({} bytes)",
+                sub.join(name).display(),
+                contents.len()
+            );
+        }
+    }
+    Ok(())
+}
+
+fn print_exported(wrapper_arity: usize, relative: &str, contents: &str) {
+    if constraint_exporter::lean_split::stdout_includes_source(wrapper_arity, contents.len()) {
+        println!("-- ===== {relative} =====");
+        print!("{contents}");
+    } else {
+        println!("-- {relative} ({} bytes)", contents.len());
+    }
+}
+
 fn write(dir: &Path, name: &str, contents: &str) -> std::io::Result<()> {
     let path = dir.join(name);
     if let Some(parent) = path.parent() {
@@ -98,36 +140,22 @@ fn main() -> std::io::Result<()> {
         write(&bridge_dir, &format!("Wrapper{n}.lean"), bridge)?;
     }
     for (n, modules, bridge) in &public_wrappers {
-        let sub = dir.join(format!("PublicBatchWrapper{n}"));
-        if sub.is_dir() {
-            for entry in fs::read_dir(&sub)? {
-                let entry = entry?;
-                let name = entry.file_name();
-                let name = name.to_string_lossy();
-                let relative = format!("PublicBatchWrapper{n}/{name}");
-                if !modules.iter().any(|m| m.relative == relative) {
-                    fs::remove_file(entry.path())?;
-                }
-            }
-        }
-        for module in modules {
-            write(&dir, &module.relative, &module.contents)?;
-        }
-        let bridge_sub = bridge_dir.join(format!("PublicWrapper{n}"));
-        if bridge_sub.is_dir() {
-            for entry in fs::read_dir(&bridge_sub)? {
-                let entry = entry?;
-                let name = entry.file_name();
-                let name = name.to_string_lossy();
-                let relative = format!("PublicWrapper{n}/{name}");
-                if !bridge.iter().any(|m| m.relative == relative) {
-                    fs::remove_file(entry.path())?;
-                }
-            }
-        }
-        for module in bridge {
-            write(&bridge_dir, &module.relative, &module.contents)?;
-        }
+        write_split(
+            &dir,
+            &format!("PublicBatchWrapper{n}"),
+            &modules
+                .iter()
+                .map(|m| (m.relative.as_str(), m.contents.as_str()))
+                .collect::<Vec<_>>(),
+        )?;
+        write_split(
+            &bridge_dir,
+            &format!("PublicWrapper{n}"),
+            &bridge
+                .iter()
+                .map(|m| (m.relative.as_str(), m.contents.as_str()))
+                .collect::<Vec<_>>(),
+        )?;
     }
     write(&dir, "LeafCircuit.lean", &leaf)?;
     write(&bridge_dir, "Leaf.lean", &leaf_bridge)?;
@@ -155,24 +183,14 @@ fn main() -> std::io::Result<()> {
             modules.len()
         );
         for module in modules {
-            if module.contents.len() > 100_000 {
-                println!("-- {} ({} bytes)", module.relative, module.contents.len());
-            } else {
-                println!("-- ===== {} =====", module.relative);
-                print!("{}", module.contents);
-            }
+            print_exported(*n, &module.relative, &module.contents);
         }
         println!(
             "\n-- ===== Plonky2Bridge/Generated/PublicWrapper{n} ({} files) =====",
             bridge.len()
         );
         for module in bridge {
-            if module.contents.len() > 100_000 {
-                println!("-- {} ({} bytes)", module.relative, module.contents.len());
-            } else {
-                println!("-- ===== {} =====", module.relative);
-                print!("{}", module.contents);
-            }
+            print_exported(*n, &module.relative, &module.contents);
         }
     }
     println!("\n-- ===== LeafCircuit.lean =====");
