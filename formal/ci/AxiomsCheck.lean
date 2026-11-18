@@ -4,18 +4,25 @@
   The shell step in `.github/workflows/ci.yml` runs this file and parses `#print axioms`
   output per theorem, asserting the complete allow-list
   `{propext, Classical.choice, Quot.sound}` plus, where a theorem consumes accepted proofs,
-  exactly the four declarations `proof_sound` composes
+  exactly the declarations `proof_sound` rests on: the three assumptions
   (`Plonky2Bridge.poseidon_transcript_oracle`, `Plonky2Bridge.fri_proximity_gap`,
-  `Plonky2Bridge.algebraic_sampling`, `Plonky2Bridge.verifier_algebra`).
-  `proof_sound` itself is a theorem.
+  `Plonky2Bridge.algebraic_sampling`) and the five obligations under `verifier_algebra`
+  (`Plonky2Bridge.build_refines_export`, `Plonky2Bridge.poseidon2_gate_rows`,
+  `Plonky2Bridge.public_input_wires`, `Plonky2Bridge.child_gadget_satisfied`,
+  `Plonky2Bridge.recursive_verifier_transcript`).
+  `proof_sound` and `verifier_algebra` are theorems.
 
+  * `verifier_algebra` is gated on the allow-list plus the five obligations,
+    `identical_constraints_satisfies` on the allow-list plus `build_refines_export`, and
+    `Built.Refines.satisfies`, the step from the domain identities to `Satisfies`, on the
+    bare allow-list.
   * `private_batch_end_to_end` / `public_batch_end_to_end` take the children's relations as
     hypotheses and are gated on the bare allow-list.
   * `private_batch_end_to_end_wired` / `_n4` and `public_batch_end_to_end_wired` / `_n4` — the
     capstones on the exporter-generated `n = 2` / `4` wrapper wiring, with `ProofAccepted`
     for the children — and `LeafCircuit.accepted_sound` / `Wrapper{2,4}.accepted_sound` — an
     accepted proof of the named tree attests its relation — are gated on the allow-list plus
-    those four declarations.
+    those eight declarations.
   * `Wrapper{2,4}.sound`, `PublicWrapper{2,4}.sound` and `leaf_wired` (`LeafCircuit.sound`),
     the wiring-to-relation steps underneath, use no trusted axiom.
   It is not part of `defaultTargets` or `Plonky2Bridge`; import-only.
@@ -27,6 +34,9 @@ import Plonky2Bridge.PublicWrapper
 import Plonky2Bridge.LeafWired
 
 #print axioms Plonky2Bridge.proof_sound
+#print axioms Plonky2Bridge.verifier_algebra
+#print axioms Plonky2Bridge.identical_constraints_satisfies
+#print axioms Plonky2Bridge.Built.Refines.satisfies
 #print axioms Plonky2Bridge.private_batch_end_to_end
 #print axioms Plonky2Bridge.public_batch_end_to_end
 #print axioms Plonky2Bridge.private_batch_end_to_end_wired
