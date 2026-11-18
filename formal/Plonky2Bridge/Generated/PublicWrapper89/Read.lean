@@ -9,8 +9,8 @@
   reads the inner outputs and the aggregated output off the named targets and public inputs
   and discharges every hypothesis of `public_batch_val` (`Plonky2Bridge/PublicBatch.lean`),
   so `public_batch_end_to_end` is restated on the wiring (`end_to_end_wired`), with each
-  inner's `RPrivateBatch` recovered from its accepted proof through the one trusted axiom
-  `proof_sound` and the private-batch wrapper bridge (Step 10).
+  inner's `RPrivateBatch` recovered from its accepted proof through `proof_sound`
+  and the private-batch wrapper bridge (Step 10).
 -/
 
 import Plonky2Bridge.PublicBatch

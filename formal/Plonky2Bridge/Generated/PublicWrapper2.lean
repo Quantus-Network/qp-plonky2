@@ -9,8 +9,8 @@
   reads the inner outputs and the aggregated output off the named targets and public inputs
   and discharges every hypothesis of `public_batch_val` (`Plonky2Bridge/PublicBatch.lean`),
   so `public_batch_end_to_end` is restated on the wiring (`end_to_end_wired`), with each
-  inner's `RPrivateBatch` recovered from its accepted proof through the one trusted axiom
-  `proof_sound` and the private-batch wrapper bridge (Step 10).
+  inner's `RPrivateBatch` recovered from its accepted proof through `proof_sound`
+  and the private-batch wrapper bridge (Step 10).
 -/
 import Plonky2Bridge.PublicBatch
 import Plonky2Bridge.Generated.Wrapper2
@@ -560,7 +560,7 @@ theorem inner_eq (a : Assignment p) (i : Fin 2) :
     public-batch wrapper whose recursion gadgets accepted every inner private-batch proof
     (i) satisfies `RPublicBatch`, (ii) has the slot-count header equal to the sum of the
     inners' slot counts and (iii) attests every inner's `RPrivateBatch` — through
-    `proof_sound`, the only axiom, and the wired wrapper bridges below it. -/
+    `proof_sound` and the wired wrapper bridges below it. -/
 theorem end_to_end_wired (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a)
     (hacc : ∀ i : Fin 2, ProofAccepted perm Wrapper2.tree ((List.ofFn (innerPis i)).map a)) :

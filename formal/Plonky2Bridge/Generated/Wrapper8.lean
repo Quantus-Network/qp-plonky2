@@ -10,7 +10,7 @@
   `leaves`, `us`, `slots`, `out`) and discharges every hypothesis of
   `private_batch_val_rows` (`Plonky2Bridge/PrivateBatch.lean`), so `private_batch_end_to_end`
   is restated on the wiring (`end_to_end_wired`), with the children's `Rleaf` recovered from
-  their accepted proofs through the one trusted axiom `proof_sound` and the leaf bridge
+  their accepted proofs through `proof_sound` and the leaf bridge
   (Step 10). `accepted_sound` is the wrapper's own `proof_sound` consequence, for the
   public-batch wrapper above it.
 -/
@@ -1349,7 +1349,7 @@ theorem row_leaf (a : Assignment p) (i : Fin 8) :
     wrapper whose recursion gadgets accepted every child leaf proof (i) satisfies
     `RPrivateBatch`, (ii) settles at most the masked input total, (iii) settles at most the
     real inputs with distinct spends and (iv) attests every child's `Rleaf` — through
-    `proof_sound`, the only axiom, and `leaf_wired`. -/
+    `proof_sound` and `leaf_wired`. -/
 theorem end_to_end_wired (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     (a : Assignment p) (h : Satisfies (privateBatchWrapper8 p) a)
     (hp : Poseidon2Rows perm (privateBatchWrapper8 p) a)

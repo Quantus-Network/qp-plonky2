@@ -72,7 +72,7 @@ theorem sound (ro : RandomOracle) (hpg : WormholeSpec.goldilocks ≤ p)
     public-batch wrapper whose recursion gadgets accepted every inner private-batch proof
     (i) satisfies `RPublicBatch`, (ii) has the slot-count header equal to the sum of the
     inners' slot counts and (iii) attests every inner's `RPrivateBatch` — through
-    `proof_sound`, the only axiom, and the wired wrapper bridges below it. -/
+    `proof_sound` and the wired wrapper bridges below it. -/
 theorem end_to_end_wired (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     (a : Assignment p) (h : Satisfies (publicBatchWrapper89 p) a)
     (hacc : ∀ i : Fin 89, ProofAccepted perm Wrapper8.tree ((List.ofFn (innerPis i)).map a)) :
