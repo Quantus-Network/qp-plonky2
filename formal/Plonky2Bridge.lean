@@ -44,7 +44,8 @@
   not restate or re-verify them. The trusted base of the whole stack, proof-system
   soundness on the exported recursion tree, lives in `Plonky2Bridge/Trusted.lean`
   (`poseidon_transcript_oracle`, `fri_proximity_gap`, `algebraic_sampling`, and the
-  obligations under `verifier_algebra`, composed as `proof_sound`). What
+  obligations and `public_input_binding` under `verifier_algebra`, composed as
+  `proof_sound`). What
   *is* here: `spongeRO`, the `.val` seam, and the gadget-level bridges (nullifier selection,
   uniqueness loop, fee comparator, public-batch forwarding masks) into
   `RPrivateBatch (spongeRO perm) …`.

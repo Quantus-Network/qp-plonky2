@@ -20,7 +20,9 @@
     `Built.Refines.satisfies` proves they give `Satisfies` for an export that system
     refines. Five obligations remain as declarations: `build_refines_export`,
     `poseidon2_gate_rows`, `public_input_wires`, `child_gadget_satisfied`, and
-    `recursive_verifier_transcript`.
+    `recursive_verifier_transcript`. They are deterministic. The public inputs
+    additionally need `public_input_binding`: the proof-system hash does not collide
+    them with the list the verifier was given.
 
   Poseidon2 collision resistance is not an assumption here. A forged proof need not
   exhibit a collision. The wormhole relations that do reduce to a collision are
@@ -92,6 +94,12 @@ structure Built (p : ℕ) where
   rows : List (Row p)
   /-- `num_routed_wires`: the columns the permutation argument covers. -/
   routed : ℕ
+  /-- `config.num_challenges`: the rounds of the permutation argument, each with its own
+      `β`, `γ` and grand product. -/
+  numChallenges : ℕ
+  /-- `num_public_inputs`: the length the verifier requires of the public-input list
+      (`validate_proof_with_pis_shape`). -/
+  numPublicInputs : ℕ
   /-- The wire permutation `σ` on positions `(row, column)`: `get_sigma_map` sends a routed
       wire to the next one of its copy class. -/
   sigma : ℕ × ℕ → ℕ × ℕ
@@ -115,8 +123,8 @@ structure GrandProduct (p : ℕ) where
   z : ℕ → ZMod p
 
 /-- The values on the domain of the polynomials a transcript opens: `wire i j` is wire
-    polynomial `j` at `g^i`, and `products` has one grand product per challenge round
-    (`num_challenges`). -/
+    polynomial `j` at `g^i`, and `products` has, for each challenge round in order, that
+    round's `β`, `γ` and grand product. -/
 structure Opened (p : ℕ) where
   wire : ℕ → ℕ → ZMod p
   products : List (GrandProduct p)
@@ -148,15 +156,22 @@ def Built.Chain (b : Built p) : ℕ × ℕ → ℕ × ℕ → Prop := Relation.R
 def CopyIdentities (b : Built p) (o : Opened p) : Prop :=
   ∀ u : ℕ × ℕ, u.1 < b.rows.length → u.2 < b.routed → o.val (b.sigma u) = o.val u
 
-/-- **Permutation identities.** Each grand product starts at `1` and steps by the ratio
-    of the row's `wire + β·id + γ` to its `wire + β·σ + γ`, on every row of the domain.
-    The verifier checks this through partial products (`check_partial_products`);
-    multiplying its chunk equations out gives the step stated here. -/
+/-- **Permutation identities.** There is one grand product per challenge round of the
+    built system. Each starts at `1` and steps by the ratio of the row's `wire + β·id + γ`
+    to its `wire + β·σ + γ`, on every row of the domain. The verifier checks this through
+    partial products (`check_partial_products`); multiplying its chunk equations out
+    gives the step stated here.
+
+    The `β`, `γ` of a round are not constrained here. For `β = 0` and `Z = 1` the step
+    holds of any wires, so the identities mean something only for the challenges a
+    transcript derived, which is what `TranscriptOpens` says of `o`. -/
 def PermutationIdentities (b : Built p) (o : Opened p) : Prop :=
-  ∀ g ∈ o.products, g.z 0 = 1 ∧ ∀ i < b.rows.length,
-    g.z i * ∏ j ∈ Finset.range b.routed, (o.wire i j + g.beta * b.label (i, j) + g.gamma) =
-      g.z ((i + 1) % b.rows.length) *
-        ∏ j ∈ Finset.range b.routed, (o.wire i j + g.beta * b.label (b.sigma (i, j)) + g.gamma)
+  o.products.length = b.numChallenges ∧
+    ∀ g ∈ o.products, g.z 0 = 1 ∧ ∀ i < b.rows.length,
+      g.z i * ∏ j ∈ Finset.range b.routed, (o.wire i j + g.beta * b.label (i, j) + g.gamma) =
+        g.z ((i + 1) % b.rows.length) *
+          ∏ j ∈ Finset.range b.routed,
+            (o.wire i j + g.beta * b.label (b.sigma (i, j)) + g.gamma)
 
 /-- The built system forces the export's targets `x` and `y` equal: both are unplaced, or
     `σ` leads from the wire of `x` to the wire of `y`. -/
@@ -177,33 +192,38 @@ def Built.HostsOp (b : Built p) (i k : ℕ) (c0 c1 : ZMod p) : Prop :=
     ∀ m < 4, b.loc (.wire i (4 * k + m)) = none
 
 /-- The export's row `i` is a row of the built system with the same gate, column for
-    column. -/
-def Built.RowAt (b : Built p) (i : ℕ) (kind : GateKind) : Prop :=
-  ∃ i' cs, b.rows[i']? = some ⟨kind, cs⟩ ∧ ∀ j, b.loc (.wire i j) = some (i', j)
+    column on its first `cols` columns. -/
+def Built.RowAt (b : Built p) (i : ℕ) (kind : GateKind) (cols : ℕ) : Prop :=
+  ∃ i' cs, b.rows[i']? = some ⟨kind, cs⟩ ∧ ∀ j < cols, b.loc (.wire i j) = some (i', j)
 
 /-- The built system carries the export's row `i`. Arithmetic rows are carried op by op,
     since the builder packs ops into whatever row has a free slot. Rows of the gates
     `rowConstraints` reads as `True` need not be carried, except `Poseidon2Gate` rows,
     which `Poseidon2Rows` reads. A `ConstantGate` row is read as pinned wires; the
-    exports here have none, since `build` is what adds them. -/
+    exports here have none, since `build` is what adds them.
+
+    A base-sum or Poseidon2 row is placed on the columns its constraints here read: the
+    sum and the `n` limbs, and the `12` inputs and `12` outputs. The other columns of the
+    row, and the columns past the circuit's width, have no place to be given. -/
 def Built.Hosts (b : Built p) (i : ℕ) (r : Row p) : Prop :=
   match r.kind with
   | .arithmetic n => ∀ k < n, b.HostsOp i k (r.consts.getD 0 0) (r.consts.getD 1 0)
   | .constant n => ∀ j < n, b.Pins (.wire i j) (r.consts.getD j 0)
-  | .baseSum2 n => b.RowAt i (.baseSum2 n)
-  | .poseidon2 => b.RowAt i .poseidon2
+  | .baseSum2 n => b.RowAt i (.baseSum2 n) (n + 1)
+  | .poseidon2 => b.RowAt i .poseidon2 24
   | .publicInput => True
   | .noop => True
   | .other _ => True
 
 /-- **The built system refines the export `c`.** Every row, copy and constant target of
-    `c` is carried by the built system, at the places `loc` gives. It is not an inclusion
-    of rows: the built system may hold the export's rows at other indices, between rows
-    of its own. -/
+    `c` is carried by the built system, at the places `loc` gives, and the two have the
+    same number of public inputs. It is not an inclusion of rows: the built system may
+    hold the export's rows at other indices, between rows of its own. -/
 structure Built.Refines (b : Built p) (c : Circuit p) : Prop where
   rows : ∀ i r, c.rows[i]? = some r → b.Hosts i r
   copies : ∀ xy ∈ c.copies, b.Linked xy.1 xy.2
   constants : ∀ tc ∈ c.constants, b.Pins tc.1 tc.2
+  publicInputs : b.numPublicInputs = c.publicInputs.length
 
 theorem Built.witness_of_loc {b : Built p} {t : Target} {u : ℕ × ℕ} (o : Opened p)
     (h : b.loc t = some u) : b.witness o t = o.val u := by
@@ -257,9 +277,30 @@ opaque LowDegreeOpenings (perm : St p → St p) (r : Recursive p) (pis : List (Z
     modelled, so only the obligations below read it. -/
 opaque BuildOf (r : Recursive p) (b : Built p) : Prop
 
+/-- `o` is what an accepting transcript for `r` on `pis` opens: `o.wire` is the values on
+    the domain of the low-degree wire polynomials of `LowDegreeOpenings`, and `o.products`
+    is, round by round, the `β`, `γ` the transcript derives for that round and the values
+    of that round's `Z`. `opaque`: the transcript is not modelled, so only
+    `algebraic_sampling` produces this. -/
+opaque TranscriptOpens (perm : St p → St p) (r : Recursive p) (pis : List (ZMod p))
+    (o : Opened p) : Prop
+
+/-- The proof-system hash of a public-input list: `InnerHasher::hash_no_pad`, which the
+    verifier computes of the list it is given (`get_public_inputs_hash`) and `build` lays
+    down in circuit on the public-input targets. It does not pad, so lists of different
+    lengths can share a digest: `[1]` and `[1, 0]` do. `opaque`: the proof-system
+    Poseidon is not modelled. -/
+opaque publicInputsHash (xs : List (ZMod p)) : Fin 4 → ZMod p
+
+/-- **The public-input binding good event.** The proof-system hash does not collide `xs`
+    with `pis`: with one length and one digest they are one list. The lengths are a
+    hypothesis because the hash does not pad. -/
+def PublicInputBinding (xs pis : List (ZMod p)) : Prop :=
+  xs.length = pis.length → publicInputsHash xs = publicInputsHash pis → xs = pis
+
 /-- What `rowConstraints` leaves out of a row's gate: the constraints of a `Poseidon2Gate`
     in a system where it computes `perm`, of the `PublicInputGate`, whose four hash wires
-    are the proof-system hash of `pis`, and of the `.other` gates. The arithmetic,
+    are `publicInputsHash pis`, and of the `.other` gates. The arithmetic,
     constant, base-sum and no-op gates have nothing left over. `opaque`: these gate
     polynomials are not modelled here. -/
 opaque UninterpretedRow (perm : St p → St p) (pis : List (ZMod p)) (r : Row p)
@@ -283,13 +324,16 @@ structure DomainIdentities (perm : St p → St p) (pis : List (ZMod p)) (b : Bui
 /-- The gate, copy, and permutation identities hold on the whole evaluation domain,
     not merely at the sampled challenges, and the opened values are the corresponding
     witness: the identities are those of the system `b` that `r`'s verifier key commits
-    to, they hold of the opened values `o`, and the witness is `b.witness o`.
+    to, they hold of the values `o` the transcript opens, under its own challenges
+    (`TranscriptOpens`), and the witness is `b.witness o`. `pis` has the length the
+    verifier checks before anything else (`validate_proof_with_pis_shape`).
 
     Both the copy and the permutation identities are stated. The transcript checks the
     second; it gives the first on the good event for `β`, `γ`, which is part of what
     `algebraic_sampling` conditions on. Only `algebraic_sampling` produces this. -/
 def IdenticalConstraints (perm : St p → St p) (r : Recursive p) (pis : List (ZMod p)) : Prop :=
-  ∃ (b : Built p) (o : Opened p), BuildOf r b ∧ DomainIdentities perm pis b o
+  ∃ (b : Built p) (o : Opened p), BuildOf r b ∧ TranscriptOpens perm r pis o ∧
+    pis.length = b.numPublicInputs ∧ DomainIdentities perm pis b o
 
 /-- **TRUSTED — random oracle.** Acceptance of a proof is an accepting interactive
     transcript (`TranscriptAccepted`) whose challenges are derived by the proof-system
@@ -413,10 +457,11 @@ theorem Built.Hosts.holds {perm : St p → St p} {pis : List (ZMod p)} {b : Buil
     have key : Plonky2Spec.BaseSum 2 (o.assignment (.wire i' 0))
         ((limbWires i' n).map o.assignment) := (hg.1 i' _ hrow).1
     have e0 : b.witness o (.wire i 0) = o.assignment (.wire i' 0) :=
-      Built.witness_of_loc o (hloc 0)
+      Built.witness_of_loc o (hloc 0 (by omega))
     have el : (limbWires i n).map (b.witness o) = (limbWires i' n).map o.assignment := by
       simp only [limbWires, List.map_map]
-      exact List.map_congr_left fun j _ => Built.witness_of_loc o (hloc (j + 1))
+      exact List.map_congr_left fun j hj =>
+        Built.witness_of_loc o (hloc (j + 1) (by have := List.mem_range.mp hj; omega))
     show Plonky2Spec.BaseSum 2 (b.witness o (.wire i 0)) ((limbWires i n).map (b.witness o))
     rw [e0, el]
     exact key
@@ -449,9 +494,10 @@ theorem Built.Refines.satisfies {perm : St p → St p} {pis : List (ZMod p)} {b 
 
 /-! ### The obligations that remain
 
-  `verifier_algebra` is these five and the theorem above. None is a proximity conjecture
-  or a sampling error. Four are deterministic. `public_input_wires` is not: it rests on
-  the binding of the proof-system hash, as its docstring says. -/
+  `verifier_algebra` is these five, `public_input_binding`, and the theorem above. None
+  is a proximity conjecture or a sampling error. The five are deterministic.
+  `public_input_binding` is not: it is the binding of the proof-system hash on the public
+  inputs. -/
 
 /-- **OBLIGATION — `build` versus the pre-`build` export.** The system a verifier key
     commits to refines the export of its circuit.
@@ -483,24 +529,56 @@ axiom poseidon2_gate_rows (perm : St p → St p) (pis : List (ZMod p))
     UninterpretedRow perm pis ⟨.poseidon2, consts⟩ wires →
       (fun i : Fin 12 => wires (12 + i)) = perm fun i : Fin 12 => wires i
 
-/-- **OBLIGATION — public-input wires.** The witness carries `pis` on the export's
-    public-input targets.
+/-- **OBLIGATION — public-input wires.** The public inputs the witness carries have the
+    digest of `pis`.
 
-    This does not follow from the identities alone. `build` hashes the public-input
-    targets in circuit and copies the digest to the `PublicInputGate`, whose constraint
-    is that those four wires are the hash of `pis` the verifier computes
-    (`get_public_inputs_hash`, the config's `InnerHasher`). The identities therefore give
-    equal digests. Equal lists follow only where that hash does not collide, which is a
-    property of the proof-system hash and not a field identity. The conclusion is kept
-    as `verifier_algebra` had it.
+    `build` hashes the public-input targets in circuit and copies the digest to the
+    `PublicInputGate`, whose constraint is that those four wires are the hash of `pis`
+    the verifier computes (`get_public_inputs_hash`, the config's `InnerHasher`). The
+    identities give equal digests and no more. That the lists are equal is
+    `public_input_binding`, at the length the verifier checks.
 
-    Discharging this needs the in-circuit hash rows to compute that hash, and its binding
-    on the public inputs, which is an assumption on the proof-system hash. -/
+    Discharging this needs the in-circuit hash rows to compute that hash. -/
 axiom public_input_wires (perm : St p → St p) (tag : String) (c : Circuit p)
     (children : List (Recursive p × List Target)) (pis : List (ZMod p)) (b : Built p)
     (o : Opened p) :
     BuildOf (.node tag c children) b → DomainIdentities perm pis b o →
-      c.publicInputs.map (b.witness o) = pis
+      publicInputsHash (c.publicInputs.map (b.witness o)) = publicInputsHash pis
+
+/-- **TRUSTED — public-input binding.** The public inputs the witness of identical
+    constraints carries do not collide with `pis` under the proof-system hash
+    (`PublicInputBinding`).
+
+    This is the good event for the binding of `InnerHasher`, `PoseidonHash` in
+    `PoseidonGoldilocksConfig`, on two lists of one length. It is computational, not
+    statistical: a list longer than a digest has collisions, and the assumption is that
+    the prover did not find one. In the random-oracle reading of
+    `poseidon_transcript_oracle` it is a corollary, as Merkle binding is. It is declared
+    because that implication does not carry it to the witness. It is not the wormhole
+    Poseidon2.
+
+    The length is not part of this event. `[1]` and `[1, 0]` have one digest, and the
+    verifier tells them apart by `num_public_inputs`, which `IdenticalConstraints`
+    carries.
+
+    Discharging this is collision resistance of that sponge at a fixed input length. -/
+axiom public_input_binding (perm : St p → St p) (tag : String) (c : Circuit p)
+    (children : List (Recursive p × List Target)) (pis : List (ZMod p)) (b : Built p)
+    (o : Opened p) :
+    BuildOf (.node tag c children) b → DomainIdentities perm pis b o →
+      PublicInputBinding (c.publicInputs.map (b.witness o)) pis
+
+/-- The witness carries `pis` on the export's public-input targets: the lists have one
+    digest (`public_input_wires`) and one length, and do not collide
+    (`public_input_binding`). -/
+theorem public_inputs_eq (perm : St p → St p) (tag : String) (c : Circuit p)
+    (children : List (Recursive p × List Target)) (pis : List (ZMod p)) (b : Built p)
+    (o : Opened p) (hb : BuildOf (.node tag c children) b)
+    (hlen : pis.length = b.numPublicInputs) (hid : DomainIdentities perm pis b o) :
+    c.publicInputs.map (b.witness o) = pis :=
+  public_input_binding perm tag c children pis b o hb hid
+    (by rw [List.length_map, hlen, (build_refines_export tag c children b hb).publicInputs])
+    (public_input_wires perm tag c children pis b o hb hid)
 
 /-- The rows a `verify_proof` gadget lays down under `r`'s verifier key hold, on targets
     whose public inputs carry `pis`. `opaque`: the gadget's rows are not modelled. -/
@@ -552,9 +630,9 @@ theorem Built.Refines.poseidon2Rows {perm : St p → St p} {pis : List (ZMod p)}
   obtain ⟨i', cs, hrow, hloc⟩ := h
   have key := poseidon2_gate_rows perm pis cs (o.wire i') (hg.1 i' _ hrow).2
   have hin : poseidon2In (b.witness o) i = fun j : Fin 12 => o.wire i' j :=
-    funext fun j => Built.witness_of_loc o (hloc j)
+    funext fun j => Built.witness_of_loc o (hloc j (by have := j.isLt; omega))
   have hout : poseidon2Out (b.witness o) i = fun j : Fin 12 => o.wire i' (12 + j) :=
-    funext fun j => Built.witness_of_loc o (hloc (12 + j))
+    funext fun j => Built.witness_of_loc o (hloc (12 + j) (by have := j.isLt; omega))
   rw [hin, hout]
   exact key
 
@@ -564,7 +642,7 @@ theorem identical_constraints_satisfies (perm : St p → St p) (tag : String) (c
     (children : List (Recursive p × List Target)) (pis : List (ZMod p)) :
     IdenticalConstraints perm (.node tag c children) pis →
       ∃ a : Assignment p, Satisfies c a := by
-  rintro ⟨b, o, hb, hid⟩
+  rintro ⟨b, o, hb, -, -, hid⟩
   exact ⟨b.witness o, (build_refines_export tag c children b hb).satisfies hid⟩
 
 /-- **Verifier algebra.** Identical constraints are a satisfying assignment of the
@@ -572,19 +650,20 @@ theorem identical_constraints_satisfies (perm : St p → St p) (tag : String) (c
     Poseidon2 rows compute `perm`, the public-input wires match `pis`, and each omitted
     `verify_proof` gadget is `ProofAccepted` on the child inputs it carries.
 
-    `Satisfies` is `Built.Refines.satisfies`. The rest is the five obligations above.
+    `Satisfies` is `Built.Refines.satisfies`. The rest is the five obligations above and
+    `public_input_binding`.
 
     A proof of `proof_sound` may use only `poseidon_transcript_oracle`,
-    `fri_proximity_gap`, `algebraic_sampling`, and those five. -/
+    `fri_proximity_gap`, `algebraic_sampling`, and those six. -/
 theorem verifier_algebra (perm : St p → St p) (tag : String) (c : Circuit p)
     (children : List (Recursive p × List Target)) (pis : List (ZMod p)) :
     IdenticalConstraints perm (.node tag c children) pis →
       ∃ a : Assignment p, Satisfies c a ∧ Poseidon2Rows perm c a ∧
         c.publicInputs.map a = pis ∧ ∀ v ∈ children, ProofAccepted perm v.1 (v.2.map a) := by
-  rintro ⟨b, o, hb, hid⟩
+  rintro ⟨b, o, hb, -, hlen, hid⟩
   have href := build_refines_export tag c children b hb
   exact ⟨b.witness o, href.satisfies hid, href.poseidon2Rows hid.gate,
-    public_input_wires perm tag c children pis b o hb hid, fun v hv =>
+    public_inputs_eq perm tag c children pis b o hb hlen hid, fun v hv =>
       recursive_verifier_transcript perm v.1 _
         (child_gadget_satisfied perm tag c children pis b o hb hid v hv)⟩
 
