@@ -385,7 +385,7 @@ fn main() -> Result<()> {
     let _rng = ChaCha8Rng::seed_from_u64(rng_seed);
     // TODO: Use `rng` to create deterministic runs
 
-    let num_cpus = num_cpus::get();
+    let num_cpus = std::thread::available_parallelism().map_or(1, |n| n.get());
     let threads = options.threads.unwrap_or(num_cpus..=num_cpus);
 
     let config = match options.zk_mode {

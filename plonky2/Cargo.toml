@@ -23,6 +23,7 @@ formal-export = []
 parallel = ["dep:crossbeam-deque", "hashbrown/rayon", "plonky2_maybe_rayon/parallel"]
 std = [
   "anyhow/std",
+  "critical-section/std",
   "rand/std",
   "itertools/use_std",
   "plonky2-verifier/std",
@@ -35,26 +36,23 @@ thread_rng = ["rand/thread_rng"]
 
 [dependencies]
 crossbeam-deque = { version = "=0.8.6", optional = true }
-ahash = { workspace = true }
 anyhow = { workspace = true }
-once_cell = { version = "=1.21.3", default-features = false, features = [
+once_cell = { version = "=1.21.4", default-features = false, features = [
   "alloc",
   "race",
   "critical-section",
 ] }
-critical-section = { version = "=1.2.0", default-features = false, features = [
-  "std",
-] }
+# `once_cell/critical-section` needs a `critical-section` implementation at link
+# time. The `std` feature supplies the std one; no_std consumers must provide
+# their own (see the critical-section docs).
+critical-section = { version = "=1.2.0", default-features = false }
 hashbrown = { workspace = true }
 itertools = { workspace = true }
-keccak-hash = { version = "=0.8.0", default-features = false }
 qp-poseidon-core = { version = "=3.1.0", default-features = false }
 rand = { workspace = true }
 log = { workspace = true }
-num = { workspace = true }
 serde = { workspace = true, features = ["rc"] }
-static_assertions = { workspace = true }
-unroll = { workspace = true }
+unroll = { package = "qp-plonky2-unroll", version = "=1.6.0", path = "../unroll" }
 web-time = { version = "=1.1.0", optional = true }
 
 # Local dependencies
@@ -64,26 +62,19 @@ plonky2_maybe_rayon = { version = "=1.0.0", path = "../maybe_rayon", default-fea
 plonky2_util = { version = "=1.0.0", path = "../util", default-features = false }
 qp-plonky2-core = { version = "=1.6.0", path = "../core", default-features = false }
 
-
-[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
-getrandom = { version = "=0.4.2", default-features = false, features = [
-  "wasm_js",
-], optional = true }
-
 [dev-dependencies]
 criterion = { version = "=0.8.2", default-features = false, features = [
   "cargo_bench_support",
 ] }
-env_logger = { version = "=0.9.3", default-features = false }
-num_cpus = { version = "=1.17.0", default-features = false }
-rand = { version = "=0.10.1", features = ["std_rng", "thread_rng"] }
+env_logger = { version = "=0.11.11", default-features = false }
+rand = { version = "=0.10.3", features = ["std_rng", "thread_rng"] }
 ciborium = { version = "=0.2.2" }
-serde_json = { version = "=1.0.145" }
-clap = { version = "=4.5.50", features = ["derive", "env"] }
-tynm = { version = "=0.1.10", default-features = false }
+serde_json = { version = "=1.0.154" }
+clap = { version = "=4.6.7", features = ["derive", "env"] }
+tynm = { version = "=0.2.0", default-features = false }
 
 [target.'cfg(not(target_env = "msvc"))'.dev-dependencies]
-jemallocator = "=0.5.4"
+tikv-jemallocator = "=0.7.0"
 
 [[bin]]
 name = "generate_constants"

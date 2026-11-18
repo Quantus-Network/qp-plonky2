@@ -26,8 +26,8 @@ impl<const D: usize> ExtensionTarget<D> {
     }
 
     pub fn from_range(row: usize, range: Range<usize>) -> Self {
-        debug_assert_eq!(range.end - range.start, D);
-        Target::wires_from_range(row, range).try_into().unwrap()
+        assert_eq!(range.len(), D);
+        Self(core::array::from_fn(|i| Target::wire(row, range.start + i)))
     }
 }
 

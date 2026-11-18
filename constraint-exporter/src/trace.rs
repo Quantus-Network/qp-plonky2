@@ -412,14 +412,26 @@ pub fn generate_public_batch_wrapper_lean(n: usize) -> Result<String, String> {
         ),
         &format!("publicBatchWrapper{n}"),
         &format!(
-            "The public-batch aggregation wrapper at `n_inner = {n}` over `2`-leaf private \
-             batches, without the inner verifiers \
+            "The public-batch aggregation wrapper at `n_inner = {n}` over the inner \
+             private-batch shape named by its recursion gadgets, without the inner verifiers \
              (`wormhole/aggregator/src/public_batch/circuit/circuit_logic.rs`): inner \
              public inputs `inner_pis_0..{}`, the `aggregator_address` witness, and the \
              aggregated public inputs.",
             n - 1
         ),
     )
+}
+
+/// The public-batch decode module, split into several Lean files when it is too large
+/// to elaborate at once. Each entry is a path relative to `Plonky2Spec/Generated/`.
+pub fn generate_public_batch_wrapper_modules(
+    n: usize,
+) -> Result<Vec<crate::lean_split::LeanModule>, String> {
+    let src = generate_public_batch_wrapper_lean(n)?;
+    Ok(crate::lean_split::split_module(
+        &format!("PublicBatchWrapper{n}"),
+        &src,
+    ))
 }
 
 /// Build `formal/Plonky2Spec/Generated/LeafCircuit.lean` from the recorded leaf circuit.

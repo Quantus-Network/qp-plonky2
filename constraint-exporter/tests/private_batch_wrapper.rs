@@ -15,7 +15,8 @@ use constraint_exporter::trace::{
 };
 use plonky2::iop::target::Target;
 
-const SIZES: [usize; 2] = [2, 4];
+/// Recorded `(leaves, exit slots)`. `n = 8` is the production private batch.
+const SIZES: [(usize, usize); 3] = [(2, 2), (4, 4), (8, 32)];
 
 fn trace_name(n: usize) -> String {
     format!("private_batch_wrapper_n{n}.json")
@@ -25,9 +26,12 @@ fn wrapper(n: usize) -> constraint_exporter::trace::LoadedTrace {
     load(&traces_dir().join(trace_name(n))).expect("vendored wrapper trace")
 }
 
-/// The exit-slot count `M` the vendored `n`-leaf traces were recorded with (`M = N`).
 fn slots(n: usize) -> usize {
-    n
+    SIZES
+        .iter()
+        .find(|(leaves, _)| *leaves == n)
+        .expect("recorded size")
+        .1
 }
 
 /// The gadget calls `build_private_batch_constraints` makes for `n` leaves and `m` exit
@@ -44,14 +48,14 @@ fn expected_calls(n: usize, m: usize) -> usize {
 /// `lake build`, where a missing or differing file fails.
 #[test]
 fn vendored_trace_matches_pinned_package() {
-    for n in SIZES {
+    for (n, _) in SIZES {
         assert_vendored_trace_matches_pinned(&trace_name(n));
     }
 }
 
 #[test]
 fn wrapper_trace_shape() {
-    for n in SIZES {
+    for (n, _) in SIZES {
         let m = slots(n);
         let t = wrapper(n);
         assert_eq!(t.circuit, format!("private_batch_wrapper_n{n}"));
@@ -238,7 +242,7 @@ fn shape_rejects_perturbed_traces() {
 
 #[test]
 fn wrapper_lean_is_current() {
-    for n in SIZES {
+    for (n, _) in SIZES {
         let decode_path = format!(
             "{}/../formal/Plonky2Spec/Generated/PrivateBatchWrapper{n}.lean",
             env!("CARGO_MANIFEST_DIR")
