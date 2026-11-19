@@ -1287,13 +1287,13 @@ pub fn render(shape: &Shape, t: &LoadedTrace) -> String {
     w!("theorem tree_verifiers : (tree (p := p)).verifiers = leafCircuit.verifiers := rfl");
     w!("");
     w!("/-- **An accepted leaf proof attests `Rleaf`.** Through `proof_sound`");
-    w!("    (`poseidon_transcript_oracle`, `fri_proximity_gap`, `algebraic_sampling`, `verifier_algebra`): the accepted public inputs are those of an assignment satisfying the");
+    w!("    (`poseidon_transcript_oracle`, `fri_proximity_gap`, `algebraic_sampling`, `verifier_algebra`), on the good events `hg` for the leaf's proofs: the accepted public inputs are those of an assignment satisfying the");
     w!("    leaf's exported wiring, hence (`sound`) an `Rleaf` instance. This is what");
     w!("    `WormholeSpec.leaf_proof_sound` used to assume. -/");
-    w!("theorem accepted_sound (perm : St p → St p) (hpg : goldilocks ≤ p) {{ts : Fin {} → Target}}", layout::LEAF_PI_LEN);
-    w!("    {{a : Assignment p}} (h : ProofAccepted perm tree ((List.ofFn ts).map a)) :");
+    w!("theorem accepted_sound (perm : St p → St p) (hpg : goldilocks ≤ p) (hg : GoodEvents perm tree)");
+    w!("    {{ts : Fin {} → Target}} {{a : Assignment p}} (h : ProofAccepted perm tree ((List.ofFn ts).map a)) :", layout::LEAF_PI_LEN);
     w!("    ∃ w : LeafWitness, Rleaf (spongeRO perm) (pubOf (a ∘ ts)) w := by");
-    w!("  obtain ⟨a', h', hp', hpis, -⟩ := proof_sound perm _ _ _ _ h");
+    w!("  obtain ⟨a', h', hp', hpis, -⟩ := proof_sound perm _ _ _ _ hg h");
     w!("  rw [publicInputs_eq] at hpis");
     w!("  have hR := sound perm hpg a' h' hp'");
     w!("  rw [pub_eq, pis_eq hpis] at hR");

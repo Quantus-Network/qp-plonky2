@@ -309,7 +309,7 @@ fn wrapper_lean_is_current() {
         assert!(
             generated.contains("RPrivateBatch (spongeRO perm) leaves us (outOf (a ∘ ts)) := by")
         );
-        assert!(generated.contains("proof_sound perm _ _ _ _ h"));
+        assert!(generated.contains("proof_sound perm _ _ _ _ hg h"));
         assert!(!generated.contains("leaf_proof_sound"));
         assert!(!generated.contains("LeafProofAccepted"));
     }

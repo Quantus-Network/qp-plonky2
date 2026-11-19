@@ -1,9 +1,11 @@
 /-
-  The trusted base (PLAN.md §7, Steps 12 and 13).
+  The trusted base (PLAN.md §7, Steps 12 to 15).
 
   `proof_sound` is a theorem. It is the composition of three assumptions and
   `verifier_algebra`, and the capstones depend on nothing else outside the standard Lean
-  axioms:
+  axioms. Each assumption is an implication on a good event of the execution
+  (`GoodEvents`, Step 15): the statements are not true of every proof, and the events
+  are where their probabilities live.
 
   * `poseidon_transcript_oracle` — the proof-system Poseidon is a random oracle on
     the verifier transcript (QROM for the post-quantum reading). Merkle binding is a
@@ -22,8 +24,8 @@
     `Poseidon2.gate_sound_complete`. Four obligations remain as declarations:
     `build_refines_export`, `public_input_wires`, `child_gadget_satisfied`, and
     `recursive_verifier_transcript`. They are deterministic. The public inputs
-    additionally need `public_input_binding`: the proof-system hash does not collide
-    them with the list the verifier was given.
+    additionally need `public_input_binding`: on its good event, the proof-system hash
+    does not collide them with the list the verifier was given.
 
   Poseidon2 collision resistance is not an assumption here. A forged proof need not
   exhibit a collision. The wormhole relations that do reduce to a collision are
@@ -391,10 +393,47 @@ def IdenticalConstraints (perm : St p → St p) (r : Recursive p) (pis : List (Z
   ∃ (b : Built p) (o : Opened p), BuildOf r b ∧ TranscriptOpens perm r pis o ∧
     pis.length = b.numPublicInputs ∧ DomainIdentities perm pis b o
 
-/-- **TRUSTED — random oracle.** Acceptance of a proof is an accepting interactive
-    transcript (`TranscriptAccepted`) whose challenges are derived by the proof-system
-    Poseidon (`PoseidonHash` in `PoseidonGoldilocksConfig`: Merkle caps and the
-    Fiat–Shamir challenger). The post-quantum reading is the quantum random oracle.
+/-! ### The good events
+
+  Each trusted implication below is false of some proof: a prover may find a Merkle or
+  public-input collision, a FRI query may miss a far word, a challenge may land on a
+  root. The implications hold on the good events of the execution, and those events are
+  what carry the probabilities. They are stated per verifier key: `OracleGood perm r`
+  is the event for the proofs of `r` the adversary produced, not for one of them, since
+  the children's proofs are only named after extraction. `opaque`: the execution is not
+  modelled. The capstones take `GoodEvents` as a hypothesis, and nothing produces it. -/
+
+/-- The random-oracle good event for the proofs of `r`: the Fiat–Shamir extractor
+    succeeds and no Merkle opening collides. Probability `1 − negl` against a bounded
+    adversary in the (quantum) random-oracle model. -/
+opaque OracleGood (perm : St p → St p) (r : Recursive p) : Prop
+
+/-- The proximity good event for the proofs of `r`: every FRI query of an accepting
+    transcript sees a word within the proximity radius. Probability
+    `1 − 2^{-friQueryBits}` under the proximity-gap conjecture. -/
+opaque ProximityGood (perm : St p → St p) (r : Recursive p) : Prop
+
+/-- The sampling good event for the proofs of `r`: the base-field challenges `α`, `β`,
+    `γ` and the opening point `ζ` miss the roots of the nonzero discrepancies.
+    Probability `1 − ε`, as `algebraic_sampling` describes. -/
+opaque SamplingGood (perm : St p → St p) (r : Recursive p) : Prop
+
+/-- The binding good event for the proofs of `r`: the prover did not find two
+    public-input lists of one length with one `InnerHasher` digest. Computational. -/
+opaque BindingGood (perm : St p → St p) (r : Recursive p) : Prop
+
+/-- All four good events for the proofs of `r`. The hypothesis of `proof_sound` and of
+    every capstone that consumes an accepted proof, once per tree whose proofs it reads. -/
+structure GoodEvents (perm : St p → St p) (r : Recursive p) : Prop where
+  oracle : OracleGood perm r
+  proximity : ProximityGood perm r
+  sampling : SamplingGood perm r
+  binding : BindingGood perm r
+
+/-- **TRUSTED — random oracle.** On `OracleGood`, acceptance of a proof is an accepting
+    interactive transcript (`TranscriptAccepted`) whose challenges are derived by the
+    proof-system Poseidon (`PoseidonHash` in `PoseidonGoldilocksConfig`: Merkle caps and
+    the Fiat–Shamir challenger). The post-quantum reading is the quantum random oracle.
 
     Collision resistance of that Poseidon is not this assumption. Collision resistance
     binds a Merkle opening; it does not make the challenges unpredictable, and the
@@ -405,11 +444,12 @@ def IdenticalConstraints (perm : St p → St p) (r : Recursive p) (pis : List (Z
     oracle model, instantiated by this Poseidon. -/
 axiom poseidon_transcript_oracle (perm : St p → St p) (tag : String) (c : Circuit p)
     (children : List (Recursive p × List Target)) (pis : List (ZMod p)) :
-    ProofAccepted perm (.node tag c children) pis →
-      TranscriptAccepted perm (.node tag c children) pis
+    OracleGood perm (.node tag c children) →
+      ProofAccepted perm (.node tag c children) pis →
+        TranscriptAccepted perm (.node tag c children) pis
 
-/-- **TRUSTED — FRI proximity gaps.** An accepting transcript means the opened
-    polynomials are low degree in the sense of `LowDegreeOpenings`.
+/-- **TRUSTED — FRI proximity gaps.** On `ProximityGood`, an accepting transcript means
+    the opened polynomials are low degree in the sense of `LowDegreeOpenings`.
 
     This is the ethSTARK proximity-gap conjecture at the FRI parameters of the circuit
     whose verifier accepted, not a property of either hash. For `standardRecursionFri`
@@ -424,10 +464,11 @@ axiom poseidon_transcript_oracle (perm : St p → St p) (tag : String) (c : Circ
     this blowup uses. The unique-decoding regime is proved in the literature; the
     parameters above sit past it. -/
 axiom fri_proximity_gap (perm : St p → St p) (r : Recursive p) (pis : List (ZMod p)) :
-    TranscriptAccepted perm r pis → LowDegreeOpenings perm r pis
+    ProximityGood perm r → TranscriptAccepted perm r pis → LowDegreeOpenings perm r pis
 
-/-- **TRUSTED — algebraic sampling.** Low-degree openings whose vanishing, quotient,
-    and permutation checks hold at the Fiat–Shamir challenges are identical constraints.
+/-- **TRUSTED — algebraic sampling.** On `SamplingGood`, low-degree openings whose
+    vanishing, quotient, and permutation checks hold at the Fiat–Shamir challenges are
+    identical constraints.
 
     Two different fields are sampled (`core/src/proof.rs`, `get_challenges` in
     `plonky2/src/plonk/get_challenges.rs`). The permutation challenges `β`, `γ` and
@@ -449,7 +490,7 @@ axiom fri_proximity_gap (perm : St p → St p) (r : Recursive p) (pis : List (ZM
     and Related SNARKs* keeps the repeated base-field terms apart from that
     extension-field evaluation.
 
-    This implication is the conjunction of those good events. Write `ε` for its
+    `SamplingGood` is the conjunction of those good events. Write `ε` for its
     failure probability, the sum of the base-field terms and the extension-field
     term. The good-event probability is `1 − ε`. No closed form is stated: a single
     factor `(degree · number of checks) / |F^D|` drops the base-field terms and
@@ -459,7 +500,7 @@ axiom fri_proximity_gap (perm : St p → St p) (r : Recursive p) (pis : List (ZM
     Discharging this is a concrete bound that states the base-field terms and the
     extension-field term separately. -/
 axiom algebraic_sampling (perm : St p → St p) (r : Recursive p) (pis : List (ZMod p)) :
-    LowDegreeOpenings perm r pis → IdenticalConstraints perm r pis
+    SamplingGood perm r → LowDegreeOpenings perm r pis → IdenticalConstraints perm r pis
 
 /-! ### Identical constraints satisfy the export
 
@@ -601,9 +642,9 @@ axiom public_input_wires (perm : St p → St p) (tag : String) (c : Circuit p)
     BuildOf (.node tag c children) b → DomainIdentities perm pis b o →
       publicInputsHash (c.publicInputs.map (b.witness o)) = publicInputsHash pis
 
-/-- **TRUSTED — public-input binding.** The public inputs carried by the values a
-    transcript for `pis` opens do not collide with `pis` under the proof-system hash
-    (`PublicInputBinding`).
+/-- **TRUSTED — public-input binding.** On `BindingGood`, the public inputs carried by
+    the values a transcript for `pis` opens do not collide with `pis` under the
+    proof-system hash (`PublicInputBinding`).
 
     This is the good event for the binding of `InnerHasher`, `PoseidonHash` in
     `PoseidonGoldilocksConfig`, on two lists of one length. It is computational, not
@@ -613,10 +654,9 @@ axiom public_input_wires (perm : St p → St p) (tag : String) (c : Circuit p)
     because that implication does not carry it to the witness. It is not the wormhole
     Poseidon2.
 
-    `TranscriptOpens` is a premise so that the event is about a proof, as the other good
-    events are: without it the statement would quantify over every witness of the built
-    system, and a colliding pair of lists exists for any hash into four elements. With
-    it the event is unrefutable while the transcript is opaque.
+    `TranscriptOpens` is a premise so that the statement is about a proof: without it it
+    would quantify over every witness of the built system, and a colliding pair of lists
+    exists for any hash into four elements.
 
     The length is not part of this event. `[1]` and `[1, 0]` have one digest, and the
     verifier tells them apart by `num_public_inputs`, which `IdenticalConstraints`
@@ -626,8 +666,8 @@ axiom public_input_wires (perm : St p → St p) (tag : String) (c : Circuit p)
 axiom public_input_binding (perm : St p → St p) (tag : String) (c : Circuit p)
     (children : List (Recursive p × List Target)) (pis : List (ZMod p)) (b : Built p)
     (o : Opened p) :
-    BuildOf (.node tag c children) b → TranscriptOpens perm (.node tag c children) pis o →
-      DomainIdentities perm pis b o →
+    BindingGood perm (.node tag c children) → BuildOf (.node tag c children) b →
+      TranscriptOpens perm (.node tag c children) pis o → DomainIdentities perm pis b o →
         PublicInputBinding (c.publicInputs.map (b.witness o)) pis
 
 /-- The witness carries `pis` on the export's public-input targets: the lists have one
@@ -635,11 +675,12 @@ axiom public_input_binding (perm : St p → St p) (tag : String) (c : Circuit p)
     (`public_input_binding`). -/
 theorem public_inputs_eq (perm : St p → St p) (tag : String) (c : Circuit p)
     (children : List (Recursive p × List Target)) (pis : List (ZMod p)) (b : Built p)
-    (o : Opened p) (hb : BuildOf (.node tag c children) b)
+    (o : Opened p) (hev : BindingGood perm (.node tag c children))
+    (hb : BuildOf (.node tag c children) b)
     (hto : TranscriptOpens perm (.node tag c children) pis o)
     (hlen : pis.length = b.numPublicInputs) (hid : DomainIdentities perm pis b o) :
     c.publicInputs.map (b.witness o) = pis :=
-  public_input_binding perm tag c children pis b o hb hto hid
+  public_input_binding perm tag c children pis b o hev hb hto hid
     (by rw [List.length_map, hlen, (build_refines_export tag c children b hb).publicInputs])
     (public_input_wires perm tag c children pis b o hb hid)
 
@@ -715,47 +756,51 @@ theorem identical_constraints_satisfies (perm : St p → St p) (tag : String) (c
 
     `Satisfies` is `Built.Refines.satisfies` and the Poseidon2 rows are
     `poseidon2_gate_rows`. The rest is the four obligations above and
-    `public_input_binding`.
+    `public_input_binding`, on its good event.
 
     A proof of `proof_sound` may use only `poseidon_transcript_oracle`,
     `fri_proximity_gap`, `algebraic_sampling`, and those five. -/
 theorem verifier_algebra (perm : St p → St p) (tag : String) (c : Circuit p)
-    (children : List (Recursive p × List Target)) (pis : List (ZMod p)) :
+    (children : List (Recursive p × List Target)) (pis : List (ZMod p))
+    (hev : BindingGood perm (.node tag c children)) :
     IdenticalConstraints perm (.node tag c children) pis →
       ∃ a : Assignment p, Satisfies c a ∧ Poseidon2Rows perm c a ∧
         c.publicInputs.map a = pis ∧ ∀ v ∈ children, ProofAccepted perm v.1 (v.2.map a) := by
   rintro ⟨b, o, hb, hto, hlen, hid⟩
   have href := build_refines_export tag c children b hb
   exact ⟨b.witness o, href.satisfies hid, href.poseidon2Rows hid.gate,
-    public_inputs_eq perm tag c children pis b o hb hto hlen hid, fun v hv =>
+    public_inputs_eq perm tag c children pis b o hev hb hto hlen hid, fun v hv =>
       recursive_verifier_transcript perm v.1 _
         (child_gadget_satisfied perm tag c children pis b o hb hid v hv)⟩
 
-/-- **Proof-system soundness, composed.** An accepted proof of `node tag c children`
-    comes from an assignment that satisfies `c`'s exported wiring, computes `perm` on
-    its Poseidon2 rows, carries `pis` on `c`'s public inputs, and — for every
-    `verify_proof` gadget `(child, targets)` of `c` — had the child's proof accepted
-    on the values those targets carry.
+/-- **Proof-system soundness, composed.** On the good events for `node tag c children`,
+    an accepted proof of it comes from an assignment that satisfies `c`'s exported
+    wiring, computes `perm` on its Poseidon2 rows, carries `pis` on `c`'s public inputs,
+    and — for every `verify_proof` gadget `(child, targets)` of `c` — had the child's
+    proof accepted on the values those targets carry.
 
     This is `verifier_algebra` after `algebraic_sampling` after `fri_proximity_gap`
-    after `poseidon_transcript_oracle`, and nothing else. -/
+    after `poseidon_transcript_oracle`, and nothing else. The children's `ProofAccepted`
+    is unconditional; reading it through `proof_sound` again needs the children's
+    good events, which is how the wrapper capstones take one `GoodEvents` per tree. -/
 theorem proof_sound (perm : St p → St p) (tag : String) (c : Circuit p)
     (children : List (Recursive p × List Target)) (pis : List (ZMod p))
+    (hg : GoodEvents perm (.node tag c children))
     (h : ProofAccepted perm (.node tag c children) pis) :
     ∃ a : Assignment p, Satisfies c a ∧ Poseidon2Rows perm c a ∧
       c.publicInputs.map a = pis ∧ ∀ v ∈ children, ProofAccepted perm v.1 (v.2.map a) :=
-  verifier_algebra perm tag c children pis
-    (algebraic_sampling perm (.node tag c children) pis
-      (fri_proximity_gap perm (.node tag c children) pis
-        (poseidon_transcript_oracle perm tag c children pis h)))
+  verifier_algebra perm tag c children pis hg.binding
+    (algebraic_sampling perm (.node tag c children) pis hg.sampling
+      (fri_proximity_gap perm (.node tag c children) pis hg.proximity
+        (poseidon_transcript_oracle perm tag c children pis hg.oracle h)))
 
 /-- `proof_sound` on a tree given by its projections. -/
 theorem proof_sound' (perm : St p → St p) (r : Recursive p) (pis : List (ZMod p))
-    (h : ProofAccepted perm r pis) :
+    (hg : GoodEvents perm r) (h : ProofAccepted perm r pis) :
     ∃ a : Assignment p, Satisfies r.circuit a ∧ Poseidon2Rows perm r.circuit a ∧
       r.circuit.publicInputs.map a = pis ∧ ∀ v ∈ r.children, ProofAccepted perm v.1 (v.2.map a) := by
   obtain ⟨tag, c, children⟩ := r
-  exact proof_sound perm tag c children pis h
+  exact proof_sound perm tag c children pis hg h
 
 omit [Fact p.Prime] in
 /-- Two lists of public-input targets read the same values: componentwise. -/

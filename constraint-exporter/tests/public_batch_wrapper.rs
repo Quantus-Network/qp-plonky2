@@ -291,7 +291,7 @@ fn wrapper_lean_is_current() {
             n
         );
         assert!(generated.contains(&format!(
-            "exact Wrapper{leaves}.accepted_sound perm hpg (hacc i)"
+            "exact Wrapper{leaves}.accepted_sound perm hpg hgw hgl (hacc i)"
         )));
         assert!(!generated.contains("private_batch_proof_sound"));
         assert!(!generated.contains("PrivateBatchProofAccepted"));

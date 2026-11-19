@@ -1340,8 +1340,9 @@ pub fn render(shape: &Shape) -> String {
     w!("    wrapper whose recursion gadgets accepted every child leaf proof (i) satisfies");
     w!("    `RPrivateBatch`, (ii) settles at most the masked input total, (iii) settles at most the");
     w!("    real inputs with distinct spends and (iv) attests every child's `Rleaf` — through");
-    w!("    `proof_sound` and `leaf_wired`. -/");
+    w!("    `proof_sound` on the good events `hgl` for the leaf proofs, and `leaf_wired`. -/");
     w!("theorem end_to_end_wired (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)");
+    w!("    (hgl : GoodEvents perm LeafCircuit.tree)");
     w!("    (a : Assignment p) (h : Satisfies ({circuit} p) a)");
     w!("    (hp : Poseidon2Rows perm ({circuit} p) a)");
     w!("    (hacc : ∀ i : Fin {n}, ProofAccepted perm LeafCircuit.tree ((List.ofFn (leafPis i)).map a)) :");
@@ -1356,7 +1357,7 @@ pub fn render(shape: &Shape) -> String {
     let alts: Vec<&str> = (0..n).map(|_| "rfl").collect();
     w!("    rcases hq with {}", alts.join(" | "));
     for i in 0..n {
-        w!("    · rw [row_leaf]; exact LeafCircuit.accepted_sound perm hpg (hacc {i})");
+        w!("    · rw [row_leaf]; exact LeafCircuit.accepted_sound perm hpg hgl (hacc {i})");
     }
     w!("  have hR := sound perm hpg a h hp fun q hq =>");
     w!("    let ⟨_, hw⟩ := hleaf q hq");
@@ -1419,16 +1420,18 @@ pub fn render(shape: &Shape) -> String {
     w!("set_option maxRecDepth 8192 in");
     w!("theorem out_eq (a : Assignment p) : out a = outOf (a ∘ pi) := rfl");
     w!("");
-    w!("/-- **An accepted private-batch proof attests `RPrivateBatch`.** Through `proof_sound`: the");
+    w!("/-- **An accepted private-batch proof attests `RPrivateBatch`.** Through `proof_sound` on");
+    w!("    the good events `hg` for the wrapper's proofs and `hgl` for the leaf proofs: the");
     w!("    accepted public inputs are those of an assignment satisfying the wrapper's exported");
     w!("    wiring whose own recursion gadgets accepted every leaf proof, hence (`end_to_end_wired`)");
     w!("    an `RPrivateBatch` instance. This is what `WormholeSpec.private_batch_proof_sound` used");
     w!("    to assume. -/");
     w!("theorem accepted_sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)");
+    w!("    (hg : GoodEvents perm tree) (hgl : GoodEvents perm LeafCircuit.tree)");
     w!("    {{ts : Fin {pi_total} → Target}} {{a : Assignment p}}");
     w!("    (h : ProofAccepted perm tree ((List.ofFn ts).map a)) :");
     w!("    ∃ leaves us, RPrivateBatch (spongeRO perm) leaves us (outOf (a ∘ ts)) := by");
-    w!("  obtain ⟨a', h', hp', hpis, hch⟩ := proof_sound perm _ _ _ _ h");
+    w!("  obtain ⟨a', h', hp', hpis, hch⟩ := proof_sound perm _ _ _ _ hg h");
     w!("  rw [publicInputs_eq] at hpis");
     w!("  have hacc : ∀ i : Fin {n}, ProofAccepted perm LeafCircuit.tree ((List.ofFn (leafPis i)).map a') := by");
     w!("    intro i");
@@ -1436,7 +1439,7 @@ pub fn render(shape: &Shape) -> String {
     for i in 0..n {
         w!("    · exact hch (LeafCircuit.tree, List.ofFn (leafPis {i})) (by simp)");
     }
-    w!("  have hR := (end_to_end_wired perm hpg a' h' hp' hacc).1");
+    w!("  have hR := (end_to_end_wired perm hpg hgl a' h' hp' hacc).1");
     w!("  rw [out_eq, pis_eq hpis] at hR");
     w!("  exact ⟨_, _, hR⟩");
     w!("");

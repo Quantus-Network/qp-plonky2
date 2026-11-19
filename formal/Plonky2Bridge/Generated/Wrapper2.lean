@@ -354,8 +354,9 @@ theorem row_leaf (a : Assignment p) (i : Fin 2) :
     wrapper whose recursion gadgets accepted every child leaf proof (i) satisfies
     `RPrivateBatch`, (ii) settles at most the masked input total, (iii) settles at most the
     real inputs with distinct spends and (iv) attests every child's `Rleaf` — through
-    `proof_sound` and `leaf_wired`. -/
+    `proof_sound` on the good events `hgl` for the leaf proofs, and `leaf_wired`. -/
 theorem end_to_end_wired (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
+    (hgl : GoodEvents perm LeafCircuit.tree)
     (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a)
     (hp : Poseidon2Rows perm (privateBatchWrapper2 p) a)
     (hacc : ∀ i : Fin 2, ProofAccepted perm LeafCircuit.tree ((List.ofFn (leafPis i)).map a)) :
@@ -368,8 +369,8 @@ theorem end_to_end_wired (perm : St p → St p) (hpg : WormholeSpec.goldilocks �
     intro pub hq
     simp only [leaves, List.mem_cons, List.mem_nil_iff, or_false] at hq
     rcases hq with rfl | rfl
-    · rw [row_leaf]; exact LeafCircuit.accepted_sound perm hpg (hacc 0)
-    · rw [row_leaf]; exact LeafCircuit.accepted_sound perm hpg (hacc 1)
+    · rw [row_leaf]; exact LeafCircuit.accepted_sound perm hpg hgl (hacc 0)
+    · rw [row_leaf]; exact LeafCircuit.accepted_sound perm hpg hgl (hacc 1)
   have hR := sound perm hpg a h hp fun q hq =>
     let ⟨_, hw⟩ := hleaf q hq
     Rleaf_ranges hw
@@ -396,23 +397,25 @@ omit [Fact p.Prime] in
 set_option maxRecDepth 8192 in
 theorem out_eq (a : Assignment p) : out a = outOf (a ∘ pi) := rfl
 
-/-- **An accepted private-batch proof attests `RPrivateBatch`.** Through `proof_sound`: the
+/-- **An accepted private-batch proof attests `RPrivateBatch`.** Through `proof_sound` on
+    the good events `hg` for the wrapper's proofs and `hgl` for the leaf proofs: the
     accepted public inputs are those of an assignment satisfying the wrapper's exported
     wiring whose own recursion gadgets accepted every leaf proof, hence (`end_to_end_wired`)
     an `RPrivateBatch` instance. This is what `WormholeSpec.private_batch_proof_sound` used
     to assume. -/
 theorem accepted_sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
+    (hg : GoodEvents perm tree) (hgl : GoodEvents perm LeafCircuit.tree)
     {ts : Fin 26 → Target} {a : Assignment p}
     (h : ProofAccepted perm tree ((List.ofFn ts).map a)) :
     ∃ leaves us, RPrivateBatch (spongeRO perm) leaves us (outOf (a ∘ ts)) := by
-  obtain ⟨a', h', hp', hpis, hch⟩ := proof_sound perm _ _ _ _ h
+  obtain ⟨a', h', hp', hpis, hch⟩ := proof_sound perm _ _ _ _ hg h
   rw [publicInputs_eq] at hpis
   have hacc : ∀ i : Fin 2, ProofAccepted perm LeafCircuit.tree ((List.ofFn (leafPis i)).map a') := by
     intro i
     fin_cases i
     · exact hch (LeafCircuit.tree, List.ofFn (leafPis 0)) (by simp)
     · exact hch (LeafCircuit.tree, List.ofFn (leafPis 1)) (by simp)
-  have hR := (end_to_end_wired perm hpg a' h' hp' hacc).1
+  have hR := (end_to_end_wired perm hpg hgl a' h' hp' hacc).1
   rw [out_eq, pis_eq hpis] at hR
   exact ⟨_, _, hR⟩
 
