@@ -149,9 +149,9 @@ jobs:
   # `formal-spec` job above never compiles them. This job builds the cross-package bridge
   # (wormholeSpec pinned in lake-manifest.json) and asserts each capstone's axiom footprint
   # is exactly the standard Lean axioms plus, where the theorem consumes an accepted proof,
-  # the four declarations composed by `proof_sound` (none for the leaf wiring capstone,
-  # the base of the recursion) — not e.g. `sorryAx`, `Lean.ofReduceBool`, or a silent
-  # compile failure.
+  # the three assumptions and the six declarations under `verifier_algebra` that
+  # `proof_sound` rests on (none for the leaf wiring capstone, the base of the recursion)
+  # — not e.g. `sorryAx`, `Lean.ofReduceBool`, or a silent compile failure.
   formal-bridge:
     name: 📐 Formal Bridge (Lean)
     runs-on: ubuntu-latest
@@ -187,8 +187,9 @@ jobs:
           printf '%s\n' "$output"
           # expect <theorem> <axiom...>: the footprint must be exactly the named axioms.
           # `proof_sound` is a theorem. Its footprint is the standard propositional axioms
-          # plus the four declarations it composes; capstones that consume an accepted
-          # proof have that same footprint.
+          # plus the three assumptions and what is left of `verifier_algebra`: the five
+          # obligations and the public-input binding assumption. Capstones that consume an
+          # accepted proof have that same footprint.
           expect() {
             local thm="$1"
             shift
@@ -211,13 +212,24 @@ jobs:
             fi
           }
           base=(propext Classical.choice Quot.sound)
-          trusted=(
+          assumptions=(
             Plonky2Bridge.poseidon_transcript_oracle
             Plonky2Bridge.fri_proximity_gap
             Plonky2Bridge.algebraic_sampling
-            Plonky2Bridge.verifier_algebra
           )
+          obligations=(
+            Plonky2Bridge.build_refines_export
+            Plonky2Bridge.poseidon2_gate_rows
+            Plonky2Bridge.public_input_wires
+            Plonky2Bridge.child_gadget_satisfied
+            Plonky2Bridge.recursive_verifier_transcript
+          )
+          algebra=("${obligations[@]}" Plonky2Bridge.public_input_binding)
+          trusted=("${assumptions[@]}" "${algebra[@]}")
           expect Plonky2Bridge.proof_sound "${base[@]}" "${trusted[@]}"
+          expect Plonky2Bridge.verifier_algebra "${base[@]}" "${algebra[@]}"
+          expect Plonky2Bridge.identical_constraints_satisfies "${base[@]}" Plonky2Bridge.build_refines_export
+          expect Plonky2Bridge.Built.Refines.satisfies "${base[@]}"
           expect Plonky2Bridge.private_batch_end_to_end "${base[@]}"
           expect Plonky2Bridge.public_batch_end_to_end "${base[@]}"
           expect Plonky2Bridge.private_batch_end_to_end_wired "${base[@]}" "${trusted[@]}"
