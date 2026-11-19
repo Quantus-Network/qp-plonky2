@@ -1,17 +1,20 @@
 #[cfg(not(feature = "std"))]
 use alloc::{vec, vec::Vec};
 use core::iter::zip;
+#[cfg(target_has_atomic = "64")]
+use core::sync::atomic::{AtomicU64, AtomicU8};
 
 use anyhow::{anyhow, Result};
 use hashbrown::HashMap;
 use itertools::{zip_eq, Itertools};
 
 use crate::field::extension::{Extendable, FieldExtension};
-use crate::field::types::Field;
+use crate::field::types::{Field, PrimeField64};
 use crate::fri::structure::{FriOpenings, FriOpeningsTarget};
 use crate::fri::witness_util::set_fri_proof_target;
 use crate::hash::hash_types::{HashOut, HashOutTarget, MerkleCapTarget, RichField};
 use crate::hash::merkle_tree::MerkleCap;
+use crate::iop::dense_storage::DenseStorage;
 use crate::iop::ext_target::ExtensionTarget;
 use crate::iop::target::{BoolTarget, Target};
 use crate::iop::wire::Wire;
@@ -333,12 +336,14 @@ impl<F: Field> Witness<F> for PartialWitness<F> {
 
 /// `PartitionWitness` holds a disjoint-set forest of the targets respecting a circuit's copy constraints.
 /// The value of a target is defined to be the value of its root in the forest.
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct PartitionWitness<'a, F: Field> {
+    /// Optional target values. Dense witnesses keep this vector empty.
     pub values: Vec<Option<F>>,
     pub representative_map: &'a [usize],
     pub num_wires: usize,
     pub degree: usize,
+    dense: Option<DenseStorage<F>>,
 }
 
 impl<'a, F: Field> PartitionWitness<'a, F> {
@@ -348,13 +353,82 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
             representative_map,
             num_wires,
             degree,
+            dense: None,
         }
+    }
+
+    /// Constructs a witness backed by dense values and assignment bytes.
+    pub(super) fn new_dense(
+        num_wires: usize,
+        degree: usize,
+        representative_map: &'a [usize],
+    ) -> Self
+    where
+        F: PrimeField64,
+    {
+        Self {
+            values: Vec::new(),
+            representative_map,
+            num_wires,
+            degree,
+            dense: Some(DenseStorage::new(representative_map.len())),
+        }
+    }
+
+    /// Clears all assignments while preserving storage allocations and layout.
+    /// Dense storage retains its values but marks them all unassigned.
+    pub fn clear(&mut self) {
+        match &mut self.dense {
+            Some(dense) => dense.clear(),
+            None => self.values.fill(None),
+        }
+    }
+
+    /// Borrows dense values and assignment flags.
+    /// Use representative indices from `representative_map` to access both slices.
+    /// Values are stored as noncanonical `u64`s (`F::from_noncanonical_u64`) and are
+    /// meaningful only where the assignment flag is nonzero. Both slices are
+    /// atomics so they can be shared without copying; with exclusive access,
+    /// `Ordering::Relaxed` loads suffice.
+    /// Returns an error for witnesses using optional-value storage.
+    #[cfg(target_has_atomic = "64")]
+    pub fn dense_values_and_assignment_flags(&self) -> Result<(&[AtomicU64], &[AtomicU8])> {
+        let dense = self
+            .dense
+            .as_ref()
+            .ok_or_else(|| anyhow!("dense witness storage is required"))?;
+        Ok(dense.values_and_assignment_flags())
     }
 
     /// Set a `Target`. On success, returns the representative index of the newly-set target. If the
     /// target was already set, returns `None`.
     pub fn set_target_returning_rep(&mut self, target: Target, value: F) -> Result<Option<usize>> {
-        let rep_index = self.representative_map[self.target_index(target)];
+        let rep_index = self.rep_index(target);
+        if let Some(dense) = &mut self.dense {
+            let was_assigned = dense.is_assigned(rep_index);
+            dense.set(rep_index, value)?;
+            return Ok((!was_assigned).then_some(rep_index));
+        }
+        self.set_optional_rep(target, rep_index, value)
+    }
+
+    /// Sets a resolved representative, encoding dense values inline.
+    pub(super) fn set_rep(&mut self, target: Target, rep_index: usize, value: F) -> Result<()>
+    where
+        F: PrimeField64,
+    {
+        if let Some(dense) = &mut self.dense {
+            return dense.set_encoded(rep_index, value, value.to_noncanonical_u64());
+        }
+        self.set_optional_rep(target, rep_index, value).map(|_| ())
+    }
+
+    fn set_optional_rep(
+        &mut self,
+        target: Target,
+        rep_index: usize,
+        value: F,
+    ) -> Result<Option<usize>> {
         let rep_value = &mut self.values[rep_index];
         if let Some(old_value) = *rep_value {
             if value != old_value {
@@ -390,6 +464,61 @@ impl<'a, F: Field> PartitionWitness<'a, F> {
 
         MatrixWitness { wire_values }
     }
+
+    /// Resolves a target to its representative index.
+    pub(super) fn rep_index(&self, target: Target) -> usize {
+        self.representative_map[self.target_index(target)]
+    }
+
+    pub(super) fn contains_rep(&self, rep_index: usize) -> bool {
+        match &self.dense {
+            Some(dense) => dense.is_assigned(rep_index),
+            None => self.values[rep_index].is_some(),
+        }
+    }
+
+    /// Borrows mutable dense storage.
+    pub(super) fn dense_mut(&mut self) -> &mut DenseStorage<F> {
+        self.dense
+            .as_mut()
+            .expect("dense witness storage is required")
+    }
+}
+
+#[cfg(all(feature = "std", feature = "parallel"))]
+impl<F: Field> PartitionWitness<'_, F> {
+    pub(super) fn require_dense(&self) -> Result<()> {
+        anyhow::ensure!(self.dense.is_some(), "dense witness storage is required");
+        Ok(())
+    }
+
+    /// Sets a representative through shared access during scheduled dense generation.
+    pub(super) fn set_rep_shared(&self, rep_index: usize, value: F) -> Result<()>
+    where
+        F: PrimeField64,
+    {
+        self.dense
+            .as_ref()
+            .expect("dense witness storage is required")
+            .set_shared_encoded(rep_index, value, value.to_noncanonical_u64())
+    }
+}
+
+impl<F: Field> Clone for PartitionWitness<'_, F> {
+    /// Clones a non-dense witness, retaining its borrowed representative map.
+    ///
+    /// # Panics
+    /// Panics if the witness uses dense storage.
+    fn clone(&self) -> Self {
+        assert!(self.dense.is_none(), "cannot clone a dense witness");
+        Self {
+            values: self.values.clone(),
+            representative_map: self.representative_map,
+            num_wires: self.num_wires,
+            degree: self.degree,
+            dense: None,
+        }
+    }
 }
 
 impl<F: Field> WitnessWrite<F> for PartitionWitness<'_, F> {
@@ -401,7 +530,10 @@ impl<F: Field> WitnessWrite<F> for PartitionWitness<'_, F> {
 impl<F: Field> Witness<F> for PartitionWitness<'_, F> {
     fn try_get_target(&self, target: Target) -> Option<F> {
         let rep_index = self.representative_map[self.target_index(target)];
-        self.values[rep_index]
+        match &self.dense {
+            Some(dense) => dense.try_get(rep_index),
+            None => self.values[rep_index],
+        }
     }
 }
 
@@ -419,6 +551,18 @@ mod tests {
     type F = GoldilocksField;
     type C = PoseidonGoldilocksConfig;
     const D: usize = 2;
+
+    #[test]
+    fn partition_witness_is_usable_under_a_field_bound() {
+        fn round_trip<F: Field>(w: &mut PartitionWitness<'_, F>, t: Target, v: F) -> F {
+            w.set_target(t, v).unwrap();
+            w.clone().get_target(t)
+        }
+        let representative_map = [0, 1, 2];
+        let mut witness = PartitionWitness::<F>::new(2, 1, &representative_map);
+        let target = Target::VirtualTarget { index: 0 };
+        assert_eq!(round_trip(&mut witness, target, F::TWO), F::TWO);
+    }
 
     #[test]
     fn test_get_bool_target_valid_values() {
@@ -469,5 +613,31 @@ mod tests {
         let result = partition_witness.get_bool_target(bool_target);
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("non-boolean"));
+    }
+
+    #[test]
+    fn non_dense_clone_preserves_aliases_and_has_independent_values() {
+        let representatives = [0, 0, 2];
+        let mut witness = PartitionWitness::<F>::new(3, 1, &representatives);
+        witness.set_target(Target::wire(0, 0), F::ONE).unwrap();
+        let mut cloned = witness.clone();
+        assert!(core::ptr::eq(
+            cloned.representative_map,
+            witness.representative_map
+        ));
+        assert_eq!(cloned.num_wires, witness.num_wires);
+        assert_eq!(cloned.degree, witness.degree);
+        assert_eq!(cloned.values, witness.values);
+        assert_eq!(cloned.get_target(Target::wire(0, 1)), F::ONE);
+        cloned.set_target(Target::wire(0, 2), F::TWO).unwrap();
+        assert!(!witness.contains(Target::wire(0, 2)));
+    }
+
+    #[test]
+    #[should_panic(expected = "cannot clone a dense witness")]
+    fn dense_witness_clone_is_rejected() {
+        let representatives = [0];
+        let witness = PartitionWitness::<F>::new_dense(1, 1, &representatives);
+        let _ = witness.clone();
     }
 }

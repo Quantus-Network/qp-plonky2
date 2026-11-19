@@ -8,7 +8,7 @@ use alloc::{
 use core::fmt::Debug;
 use core::marker::PhantomData;
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, ensure, Result};
 
 use crate::field::extension::Extendable;
 use crate::field::types::Field;
@@ -113,10 +113,27 @@ pub trait WitnessGenerator<F: RichField + Extendable<D>, const D: usize>:
     /// the generator will be queued to run.
     fn watch_list(&self) -> Vec<Target>;
 
+    /// Returns every target the generator may read, including checks whether a
+    /// target is assigned. `None` represents an unknown read list; an empty vector
+    /// declares zero reads.
+    fn reads(&self) -> Option<Vec<Target>> {
+        None
+    }
+
     /// Run this generator, returning a flag indicating whether the generator is finished. If the
     /// flag is true, the generator will never be run again, otherwise it will be queued for another
     /// run next time a target in its watch list is populated.
     fn run(&self, witness: &PartitionWitness<F>, out_buffer: &mut GeneratedValues<F>) -> bool;
+
+    /// Runs the generator with all declared read targets assigned.
+    fn run_ready(
+        &self,
+        witness: &PartitionWitness<F>,
+        out_buffer: &mut GeneratedValues<F>,
+    ) -> Result<()> {
+        ensure!(self.run(witness, out_buffer), "generator did not finish");
+        Ok(())
+    }
 
     fn serialize(&self, dst: &mut Vec<u8>, common_data: &CommonCircuitData<F, D>) -> IoResult<()>;
 
@@ -208,6 +225,8 @@ pub trait SimpleGenerator<F: RichField + Extendable<D>, const D: usize>:
 {
     fn id(&self) -> String;
 
+    /// Every target read by `run_once`, including presence queries such as
+    /// `contains` and `try_get_target`. All dependencies must be available to run.
     fn dependencies(&self) -> Vec<Target>;
 
     fn run_once(
@@ -254,12 +273,24 @@ impl<F: RichField + Extendable<D>, SG: SimpleGenerator<F, D>, const D: usize> Wi
         self.inner.dependencies()
     }
 
+    fn reads(&self) -> Option<Vec<Target>> {
+        Some(self.inner.dependencies())
+    }
+
     fn run(&self, witness: &PartitionWitness<F>, out_buffer: &mut GeneratedValues<F>) -> bool {
         if witness.contains_all(&self.inner.dependencies()) {
             self.inner.run_once(witness, out_buffer).is_ok()
         } else {
             false
         }
+    }
+
+    fn run_ready(
+        &self,
+        witness: &PartitionWitness<F>,
+        out_buffer: &mut GeneratedValues<F>,
+    ) -> Result<()> {
+        self.inner.run_once(witness, out_buffer)
     }
 
     fn serialize(&self, dst: &mut Vec<u8>, common_data: &CommonCircuitData<F, D>) -> IoResult<()> {
