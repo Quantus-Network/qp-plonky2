@@ -20,14 +20,22 @@
     `Built.Refines.satisfies`, the step from the domain identities to `Satisfies`, and
     `poseidon2_gate_rows`, the Poseidon2 rows from `gate_sound_complete`, on the bare
     allow-list.
+  * The leaf's build is certified (Step 16). `proof_sound_leaf` is gated on the allow-list
+    plus the three assumptions, `public_input_wires` and `public_input_binding`: neither
+    `build_refines_export` nor the two child obligations. `Built.Agrees.refines` and the
+    generated `LeafCircuit.build_refines_of_agrees` (the certificate checks, kernel
+    evaluations) are gated on the bare allow-list, and `LeafCircuit.build_refines` on the
+    allow-list plus the one trusted declaration `Plonky2Bridge.LeafCircuit.build_agrees`.
   * `private_batch_end_to_end` / `public_batch_end_to_end` take the children's relations as
     hypotheses and are gated on the bare allow-list.
+  * `LeafCircuit.accepted_sound` — an accepted leaf proof attests `Rleaf` — is gated on the
+    footprint of `proof_sound_leaf` plus `LeafCircuit.build_agrees`.
   * `private_batch_end_to_end_wired` / `_n4` / `_production` and
     `public_batch_end_to_end_wired` / `_n4` / `_production` — the capstones on the
     exporter-generated wrapper wiring (`n = 2` / `4` / `8` and `n_inner = 2` / `4` / `89`),
-    with `ProofAccepted` for the children — and `LeafCircuit.accepted_sound` /
-    `Wrapper{2,4,8}.accepted_sound` — an accepted proof of the named tree attests its
-    relation — are gated on the allow-list plus those eight declarations.
+    with `ProofAccepted` for the children — and `Wrapper{2,4,8}.accepted_sound` — an
+    accepted proof of the named tree attests its relation — are gated on the allow-list
+    plus those eight declarations and, through the leaf, `LeafCircuit.build_agrees`.
   * `Wrapper{2,4,8}.sound`, `PublicWrapper{2,4,89}.sound` and `leaf_wired`
     (`LeafCircuit.sound`), the wiring-to-relation steps underneath, use no trusted axiom.
   It is not part of `defaultTargets` or `Plonky2Bridge`; import-only.
@@ -43,6 +51,10 @@ import Plonky2Bridge.LeafWired
 #print axioms Plonky2Bridge.identical_constraints_satisfies
 #print axioms Plonky2Bridge.Built.Refines.satisfies
 #print axioms Plonky2Bridge.poseidon2_gate_rows
+#print axioms Plonky2Bridge.proof_sound_leaf
+#print axioms Plonky2Bridge.Built.Agrees.refines
+#print axioms Plonky2Bridge.LeafCircuit.build_refines_of_agrees
+#print axioms Plonky2Bridge.LeafCircuit.build_refines
 #print axioms Plonky2Bridge.private_batch_end_to_end
 #print axioms Plonky2Bridge.public_batch_end_to_end
 #print axioms Plonky2Bridge.private_batch_end_to_end_wired

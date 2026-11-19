@@ -155,7 +155,9 @@ Poseidon2 instantiates `RandomOracle.H` (its felt outputs are `digest.val`s).
 
 ## 7. Trusted assumptions (the seam to layer 1)
 
-`Plonky2Bridge/Trusted.lean` is the only place an `axiom` is declared. `proof_sound`
+`Plonky2Bridge/Trusted.lean` declares the generic assumptions and obligations;
+`Plonky2Bridge/LeafBuild.lean` declares the one per-circuit fact of the leaf's certified
+build (Step 16). No other file declares an `axiom`. `proof_sound`
 is a theorem, the composition of three assumptions and `verifier_algebra` (Steps 12, 13).
 Each assumption is an implication on its good event (Step 15): an opaque per-tree
 predicate (`OracleGood`, `ProximityGood`, `SamplingGood`, `BindingGood`), bundled as
@@ -185,7 +187,13 @@ unconditional on them.
   (`poseidon2_gate_rows`, Step 14), and four deterministic obligations remain as
   declarations:
   - **`build_refines_export`** — the system the verifier key commits to refines the
-    pre-`build` export.
+    pre-`build` export. Replaced for the leaf by a certified build (Step 16):
+    `Built.Agrees.refines` proves `Refines` from the exporter's certificate of
+    `CircuitBuilder::build`, kernel-checked against the export, and what is declared
+    instead is **`LeafCircuit.build_agrees`** — the deployed leaf build is the one the
+    certificate describes — checked in Rust against the build whose digest is the
+    deployed leaf's. The wrappers keep this declaration: their traces are not the
+    deployed builder's state (no `verify_proof` rows).
   - **`public_input_wires`** — the public inputs the witness carries have the digest of
     `pis` under the proof-system hash (`publicInputsHash`, opaque).
   - **`child_gadget_satisfied`** — the built system holds each child's `verify_proof`
@@ -207,11 +215,14 @@ Poseidon2 collision resistance is not one of these. It stays the `*_or_collision
 reduction against `spongeRO`. A break of `verify` does not produce a collision, so
 `proof_sound` is not `Satisfies ∨ Collision`.
 
-Each declaration says what would discharge it. Capstones still call `proof_sound`;
-their axiom footprint is exactly the three assumptions, `public_input_binding`, and the
-four obligations. Their statements carry one `GoodEvents` per tree whose proofs they
-read: `GoodEvents perm tree` for the proofs they take, and the children's trees for
-the proofs `proof_sound` extracts.
+Each declaration says what would discharge it. The wrapper capstones call
+`proof_sound`; their axiom footprint is exactly the three assumptions,
+`public_input_binding`, the four obligations and, through the leaf proofs they read,
+`LeafCircuit.build_agrees`. The leaf capstone calls `proof_sound_leaf`; its footprint is
+the three assumptions, `public_input_binding`, `public_input_wires` and
+`LeafCircuit.build_agrees`. Their statements carry one `GoodEvents` per tree whose
+proofs they read: `GoodEvents perm tree` for the proofs they take, and the children's
+trees for the proofs `proof_sound` extracts.
 
 ## 8. Execution plan (commit checkpoint between each step)
 
@@ -1198,6 +1209,61 @@ implication on its good event, and the events carry the probabilities.
   `*_end_to_end` theorems on relations, `sound`, `leaf_wired` and
   `Built.Refines.satisfies` do not mention it.
 - **Axiom gate.** Unchanged: the footprints are the same eight declarations.
+
+### Step 16 — The leaf's build certified  ✅ DONE
+`build_refines_export` asserted, for every circuit, that the system a verifier key
+commits to refines the pre-`build` export. For the leaf it is now proved from a
+certificate of the build, and what is left to trust is that the deployed build is the
+certified one.
+- **Export of the built system.** `CircuitBuilder::try_build_with_formal_view`
+  (`plonky2`, behind `formal-export`) returns `FormalBuiltView` next to `CircuitData`:
+  the gate instances, `num_routed_wires`, `num_public_inputs`, `σ` on the routed
+  domain, the copy-class representative of every target, and the wires `build` fixed to
+  constants. Nothing of `build` changes; the view is read off the same `Forest` and
+  `WirePartition` the sigma polynomials come from.
+- **Replay.** `built::replay` plays `leaf_circuit.json` into a `CircuitBuilder` with
+  `wormhole_leaf_circuit_config()`, gate by gate, virtual target by virtual target, and
+  checks the result re-exports to the trace. The trace is the deployed pre-`build`
+  state (`WormholeCircuit::new_internal` is `CircuitTargets::new` then
+  `build_leaf_constraints`, the steps the trace test runs), so `build` of the replay is
+  the deployed build: `leaf_build_matches_deployed_digest` pins its circuit digest to
+  the one `WormholeCircuit::build_circuit()` gives on `qp-plonky2 = "=1.6.0"`.
+- **Certificate.** `BuildCert` (`Trusted.lean`): the export's row count, `routed`,
+  `numPublicInputs`, the `σ`-cycles the export's copies and constants run along, a
+  routed wire for each virtual target, and the wires pinned to the export's constants.
+  Natural numbers only; cycles and virtual targets as balanced tables (`Tbl`) so the
+  kernel looks them up in `log` steps. `Built.Agrees b c k` says the built system `b`
+  has what `k` lists: the export's rows at their indices, `σ` along the cycles, the pins
+  in `b.fixed`, `b.loc = k.loc`.
+- **Proof.** `Built.Agrees.refines`: from `Agrees` and four Bool checks of the
+  certificate against the export — no `ConstantGate` row, every copy linked on a cycle
+  (`copiesOk`, one witness per copy), every constant target on a cycle with a pinned
+  wire (`constsOk`), the public-input count — `b.Refines c`. The generated
+  `Plonky2Bridge/Generated/LeafBuilt.lean` carries the leaf's certificate and witnesses
+  and proves the checks by `decide +kernel` (8392 copies, 2717 cycles, 10701 positions,
+  434 virtual targets, 9 constants; about twenty seconds, under 6 GB), then
+  `build_refines_of_agrees`. Its footprint is the bare allow-list.
+- **Trusted.** `LeafCircuit.build_agrees` (`Plonky2Bridge/LeafBuild.lean`): `BuildOf
+  tree b → b.Agrees (leafCircuit p) buildCert`. Checked in Rust by `built::verify_agrees`
+  on the `FormalBuiltView` of the build with the deployed digest. `build_refines` is
+  its composition with the certified proof.
+- **Composition.** `verifier_algebra_of` / `proof_sound_of` take the refinement and the
+  children's acceptance as hypotheses; `verifier_algebra` / `proof_sound` are their
+  instances on the declarations. `proof_sound_leaf` is `proof_sound_of` on a circuit
+  with a certified build and no children: its footprint has neither
+  `build_refines_export` nor `child_gadget_satisfied` nor
+  `recursive_verifier_transcript`. `LeafCircuit.accepted_sound` goes through it.
+- **Axiom gate.** `proof_sound_leaf`: the three assumptions, `public_input_wires`,
+  `public_input_binding`. `Built.Agrees.refines`, `build_refines_of_agrees`: bare.
+  `build_refines`: bare plus `build_agrees`. `LeafCircuit.accepted_sound`: the
+  `proof_sound_leaf` footprint plus `build_agrees`. Wrapper capstones: the old eight
+  plus `build_agrees`.
+- **Not certified: the wrappers.** Their traces are recorded on a fresh builder whose
+  `verify_proof` lays down no rows (`TracingBuilder` in qp-zk-circuits), and production
+  runs `add_recursive_verifiers` first; the deployed wrapper rows are not the export's.
+  Certifying them needs the trace recorded on the production builder, in lockstep with
+  the gadgets, in qp-zk-circuits; then the same `BuildCert` machinery applies with
+  `exportRows` and `loc` doing the work `Refines` is stated up to.
 
 ## 9. Definition of done
 
