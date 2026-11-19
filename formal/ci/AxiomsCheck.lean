@@ -28,14 +28,16 @@
     allow-list plus the one trusted declaration `Plonky2Bridge.LeafCircuit.build_agrees`.
   * `private_batch_end_to_end` / `public_batch_end_to_end` take the children's relations as
     hypotheses and are gated on the bare allow-list.
-  * `LeafCircuit.accepted_sound` — an accepted leaf proof attests `Rleaf` — is gated on the
-    footprint of `proof_sound_leaf` plus `LeafCircuit.build_agrees`.
-  * `private_batch_end_to_end_wired` / `_n4` / `_production` and
-    `public_batch_end_to_end_wired` / `_n4` / `_production` — the capstones on the
-    exporter-generated wrapper wiring (`n = 2` / `4` / `8` and `n_inner = 2` / `4` / `89`),
-    with `ProofAccepted` for the children — and `Wrapper{2,4,8}.accepted_sound` — an
-    accepted proof of the named tree attests its relation — are gated on the allow-list
-    plus those eight declarations and, through the leaf, `LeafCircuit.build_agrees`.
+  * `LeafCircuit.accepted_sound` — an accepted leaf proof attests `Rleaf` — and
+    `private_batch_end_to_end_wired` / `_n4` / `_production` — the capstones on the
+    exporter-generated private-wrapper wiring (`n = 2` / `4` / `8`), which read only leaf
+    proofs — are gated on the footprint of `proof_sound_leaf` plus
+    `LeafCircuit.build_agrees`.
+  * `Wrapper{2,4,8}.accepted_sound` — an accepted proof of the named tree attests its
+    relation — and `public_batch_end_to_end_wired` / `_n4` / `_production` — the capstones
+    on the public-wrapper wiring (`n_inner = 2` / `4` / `89`), which read wrapper proofs —
+    are gated on the allow-list plus those eight declarations and, through the leaf,
+    `LeafCircuit.build_agrees`.
   * `Wrapper{2,4,8}.sound`, `PublicWrapper{2,4,89}.sound` and `leaf_wired`
     (`LeafCircuit.sound`), the wiring-to-relation steps underneath, use no trusted axiom.
   It is not part of `defaultTargets` or `Plonky2Bridge`; import-only.

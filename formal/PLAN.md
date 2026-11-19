@@ -215,14 +215,15 @@ Poseidon2 collision resistance is not one of these. It stays the `*_or_collision
 reduction against `spongeRO`. A break of `verify` does not produce a collision, so
 `proof_sound` is not `Satisfies ∨ Collision`.
 
-Each declaration says what would discharge it. The wrapper capstones call
-`proof_sound`; their axiom footprint is exactly the three assumptions,
-`public_input_binding`, the four obligations and, through the leaf proofs they read,
-`LeafCircuit.build_agrees`. The leaf capstone calls `proof_sound_leaf`; its footprint is
-the three assumptions, `public_input_binding`, `public_input_wires` and
-`LeafCircuit.build_agrees`. Their statements carry one `GoodEvents` per tree whose
-proofs they read: `GoodEvents perm tree` for the proofs they take, and the children's
-trees for the proofs `proof_sound` extracts.
+Each declaration says what would discharge it. A capstone that reads a wrapper proof
+calls `proof_sound`; its axiom footprint is exactly the three assumptions,
+`public_input_binding`, the four obligations and, through the leaf proofs under it,
+`LeafCircuit.build_agrees`. A capstone that reads only leaf proofs
+(`LeafCircuit.accepted_sound`, `private_batch_end_to_end_wired*`) calls
+`proof_sound_leaf`; its footprint is the three assumptions, `public_input_binding`,
+`public_input_wires` and `LeafCircuit.build_agrees`. Their statements carry one
+`GoodEvents` per tree whose proofs they read: `GoodEvents perm tree` for the proofs
+they take, and the children's trees for the proofs `proof_sound` extracts.
 
 ## 8. Execution plan (commit checkpoint between each step)
 
@@ -1255,9 +1256,12 @@ certified one.
   `recursive_verifier_transcript`. `LeafCircuit.accepted_sound` goes through it.
 - **Axiom gate.** `proof_sound_leaf`: the three assumptions, `public_input_wires`,
   `public_input_binding`. `Built.Agrees.refines`, `build_refines_of_agrees`: bare.
-  `build_refines`: bare plus `build_agrees`. `LeafCircuit.accepted_sound`: the
-  `proof_sound_leaf` footprint plus `build_agrees`. Wrapper capstones: the old eight
-  plus `build_agrees`.
+  `build_refines`: bare plus `build_agrees`. `LeafCircuit.accepted_sound` and the
+  private-wrapper capstones on wiring (`private_batch_end_to_end_wired*`, which take
+  the wrapper's `Satisfies` and read only leaf proofs): the `proof_sound_leaf`
+  footprint plus `build_agrees`. Everything that reads a wrapper proof
+  (`Wrapper{n}.accepted_sound`, `public_batch_end_to_end_wired*`): the old eight plus
+  `build_agrees`.
 - **Not certified: the wrappers.** Their traces are recorded on a fresh builder whose
   `verify_proof` lays down no rows (`TracingBuilder` in qp-zk-circuits), and production
   runs `add_recursive_verifiers` first; the deployed wrapper rows are not the export's.
