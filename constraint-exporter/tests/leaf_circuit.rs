@@ -309,7 +309,7 @@ fn leaf_bridge_lean_is_current() {
     );
     assert!(generated.contains("theorem accepted_sound"));
     assert!(generated.contains("∃ w : LeafWitness, Rleaf (spongeRO perm) (pubOf (a ∘ ts)) w := by"));
-    assert!(generated.contains("proof_sound perm _ _ _ _ h"));
+    assert!(generated.contains("proof_sound perm _ _ _ _ hg h"));
 }
 
 #[test]

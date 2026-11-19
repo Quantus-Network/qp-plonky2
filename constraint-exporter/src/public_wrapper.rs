@@ -1429,8 +1429,10 @@ pub fn render(shape: &Shape) -> String {
     w!("    public-batch wrapper whose recursion gadgets accepted every inner private-batch proof");
     w!("    (i) satisfies `RPublicBatch`, (ii) has the slot-count header equal to the sum of the");
     w!("    inners' slot counts and (iii) attests every inner's `RPrivateBatch` — through");
-    w!("    `proof_sound` and the wired wrapper bridges below it. -/");
+    w!("    `proof_sound` on the good events `hgw` for the inner wrapper's proofs and `hgl` for the");
+    w!("    leaf proofs, and the wired wrapper bridges below it. -/");
     w!("theorem end_to_end_wired (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)");
+    w!("    (hgw : GoodEvents perm Wrapper{leaves}.tree) (hgl : GoodEvents perm LeafCircuit.tree)");
     w!("    (a : Assignment p) (h : Satisfies ({circuit} p) a)");
     w!("    (hacc : ∀ i : Fin {n}, ProofAccepted perm Wrapper{leaves}.tree ((List.ofFn (innerPis i)).map a)) :");
     w!("    RPublicBatch (spongeRO perm) (inners a) (addr a) (out a)");
@@ -1442,7 +1444,7 @@ pub fn render(shape: &Shape) -> String {
     w!("  rw [show inners a = List.ofFn (inner a) from rfl] at ho");
     w!("  obtain ⟨i, rfl⟩ := List.mem_ofFn.mp ho");
     w!("  rw [inner_eq]");
-    w!("  exact Wrapper{leaves}.accepted_sound perm hpg (hacc i)");
+    w!("  exact Wrapper{leaves}.accepted_sound perm hpg hgw hgl (hacc i)");
     w!("");
     w!("end Plonky2Bridge.PublicWrapper{n}");
     o

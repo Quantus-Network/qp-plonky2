@@ -72,8 +72,10 @@ theorem sound (ro : RandomOracle) (hpg : WormholeSpec.goldilocks ≤ p)
     public-batch wrapper whose recursion gadgets accepted every inner private-batch proof
     (i) satisfies `RPublicBatch`, (ii) has the slot-count header equal to the sum of the
     inners' slot counts and (iii) attests every inner's `RPrivateBatch` — through
-    `proof_sound` and the wired wrapper bridges below it. -/
+    `proof_sound` on the good events `hgw` for the inner wrapper's proofs and `hgl` for the
+    leaf proofs, and the wired wrapper bridges below it. -/
 theorem end_to_end_wired (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
+    (hgw : GoodEvents perm Wrapper8.tree) (hgl : GoodEvents perm LeafCircuit.tree)
     (a : Assignment p) (h : Satisfies (publicBatchWrapper89 p) a)
     (hacc : ∀ i : Fin 89, ProofAccepted perm Wrapper8.tree ((List.ofFn (innerPis i)).map a)) :
     RPublicBatch (spongeRO perm) (inners a) (addr a) (out a)
@@ -85,5 +87,5 @@ theorem end_to_end_wired (perm : St p → St p) (hpg : WormholeSpec.goldilocks �
   rw [show inners a = List.ofFn (inner a) from rfl] at ho
   obtain ⟨i, rfl⟩ := List.mem_ofFn.mp ho
   rw [inner_eq]
-  exact Wrapper8.accepted_sound perm hpg (hacc i)
+  exact Wrapper8.accepted_sound perm hpg hgw hgl (hacc i)
 end Plonky2Bridge.PublicWrapper89

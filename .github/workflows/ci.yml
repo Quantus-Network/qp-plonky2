@@ -189,7 +189,8 @@ jobs:
           # `proof_sound` is a theorem. Its footprint is the standard propositional axioms
           # plus the three assumptions and what is left of `verifier_algebra`: the four
           # obligations and the public-input binding assumption. Capstones that consume an
-          # accepted proof have that same footprint.
+          # accepted proof have that same footprint. The assumptions are implications on
+          # their good events (`GoodEvents`), taken as hypotheses, not axioms.
           expect() {
             local thm="$1"
             shift

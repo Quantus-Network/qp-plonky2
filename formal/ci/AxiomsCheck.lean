@@ -11,7 +11,9 @@
   `Plonky2Bridge.public_input_wires`, `Plonky2Bridge.child_gadget_satisfied`,
   `Plonky2Bridge.recursive_verifier_transcript`) and the binding assumption
   `Plonky2Bridge.public_input_binding`.
-  `proof_sound`, `verifier_algebra` and `poseidon2_gate_rows` are theorems.
+  `proof_sound`, `verifier_algebra` and `poseidon2_gate_rows` are theorems. The
+  assumptions are implications on their good events (`GoodEvents`, opaque), which the
+  capstones take as hypotheses; that changes no footprint.
 
   * `verifier_algebra` is gated on the allow-list plus those five,
     `identical_constraints_satisfies` on the allow-list plus `build_refines_export`, and

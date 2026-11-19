@@ -156,7 +156,12 @@ Poseidon2 instantiates `RandomOracle.H` (its felt outputs are `digest.val`s).
 ## 7. Trusted assumptions (the seam to layer 1)
 
 `Plonky2Bridge/Trusted.lean` is the only place an `axiom` is declared. `proof_sound`
-is a theorem, the composition of three assumptions and `verifier_algebra` (Steps 12, 13):
+is a theorem, the composition of three assumptions and `verifier_algebra` (Steps 12, 13).
+Each assumption is an implication on its good event (Step 15): an opaque per-tree
+predicate (`OracleGood`, `ProximityGood`, `SamplingGood`, `BindingGood`), bundled as
+`GoodEvents perm r`, which `proof_sound` and every accepted-proof capstone take as a
+hypothesis. The probabilities below are of those events; the implications are
+unconditional on them.
 
 - **`poseidon_transcript_oracle`** — the proof-system Poseidon
   (`PoseidonGoldilocksConfig`) is a random oracle on the verifier transcript
@@ -204,7 +209,9 @@ reduction against `spongeRO`. A break of `verify` does not produce a collision, 
 
 Each declaration says what would discharge it. Capstones still call `proof_sound`;
 their axiom footprint is exactly the three assumptions, `public_input_binding`, and the
-four obligations.
+four obligations. Their statements carry one `GoodEvents` per tree whose proofs they
+read: `GoodEvents perm tree` for the proofs they take, and the children's trees for
+the proofs `proof_sound` extracts.
 
 ## 8. Execution plan (commit checkpoint between each step)
 
@@ -1165,6 +1172,32 @@ constants, and the place `loc` of each export target. The witness is `b.witness 
   are consistent with `gateConstraints`.
 - **Axiom gate.** The obligations are four; `poseidon2_gate_rows` is gated on the bare
   allow-list.
+
+### Step 15 — `proof_sound` conditioned on its good events  ✅ DONE
+The three assumptions and `public_input_binding` were stated as implications on every
+proof. They are false of some: a prover may find a Merkle or public-input collision, a
+FRI query may miss a far word, a challenge may land on a root. Each is now an
+implication on its good event, and the events carry the probabilities.
+- **Events.** `OracleGood`, `ProximityGood`, `SamplingGood`, `BindingGood :
+  (St p → St p) → Recursive p → Prop`, `opaque`: the execution is not modelled. Bundled
+  as `structure GoodEvents perm r : Prop`. Stated per verifier key, not per public-input
+  list, because the children's `pis` are only named after `proof_sound` extracts the
+  parent's witness; a per-`pis` event could not be supplied for them.
+- **Premises.** `poseidon_transcript_oracle` takes `OracleGood`, `fri_proximity_gap`
+  `ProximityGood`, `algebraic_sampling` `SamplingGood`, `public_input_binding`
+  `BindingGood`. `verifier_algebra` takes `BindingGood`; `proof_sound` and `proof_sound'`
+  take `GoodEvents`. Names unchanged.
+- **Capstones.** `LeafCircuit.accepted_sound` takes `hg : GoodEvents perm tree`.
+  `Wrapper{n}.end_to_end_wired` takes `hgl : GoodEvents perm LeafCircuit.tree` for the
+  leaf proofs it reads; `Wrapper{n}.accepted_sound` takes `hg` for its own tree and
+  `hgl`. `PublicWrapper{n}.end_to_end_wired` takes `hgw : GoodEvents perm
+  Wrapper{leaves}.tree` and `hgl`. Generated from the exporter templates (`leaf.rs`,
+  `private_wrapper.rs`, `public_wrapper.rs`).
+- **Nothing produces `GoodEvents`.** It is the hypothesis under which the proof-system
+  reading holds, with probability the sum of the four events' failure terms. The
+  `*_end_to_end` theorems on relations, `sound`, `leaf_wired` and
+  `Built.Refines.satisfies` do not mention it.
+- **Axiom gate.** Unchanged: the footprints are the same eight declarations.
 
 ## 9. Definition of done
 
