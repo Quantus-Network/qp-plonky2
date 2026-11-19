@@ -176,10 +176,11 @@ is a theorem, the composition of three assumptions and `verifier_algebra` (Steps
   proximity is perfect.
 - **`verifier_algebra`** — identical constraints are a satisfying assignment of the
   exported circuit. A theorem since Step 13: `Satisfies` is proved
-  (`Built.Refines.satisfies`), and five deterministic obligations remain as declarations:
+  (`Built.Refines.satisfies`), the Poseidon2 rows are proved to compute `perm`
+  (`poseidon2_gate_rows`, Step 14), and four deterministic obligations remain as
+  declarations:
   - **`build_refines_export`** — the system the verifier key commits to refines the
     pre-`build` export.
-  - **`poseidon2_gate_rows`** — a `Poseidon2Gate` row computes `perm`.
   - **`public_input_wires`** — the public inputs the witness carries have the digest of
     `pis` under the proof-system hash (`publicInputsHash`, opaque).
   - **`child_gadget_satisfied`** — the built system holds each child's `verify_proof`
@@ -203,7 +204,7 @@ reduction against `spongeRO`. A break of `verify` does not produce a collision, 
 
 Each declaration says what would discharge it. Capstones still call `proof_sound`;
 their axiom footprint is exactly the three assumptions, `public_input_binding`, and the
-five obligations.
+four obligations.
 
 ## 8. Execution plan (commit checkpoint between each step)
 
@@ -1144,6 +1145,27 @@ constants, and the place `loc` of each export target. The witness is `b.witness 
   the last six, `identical_constraints_satisfies` is `build_refines_export` alone, and
   `Built.Refines.satisfies` is bare.
 
+### Step 14 — `poseidon2_gate_rows` proved  ✅ DONE
+`UninterpretedRow` is no longer `opaque`. It is defined by gate: `Poseidon2Row perm` on
+`Poseidon2Gate` rows, the opaque `PublicInputRow pis` on the `PublicInputGate`, the opaque
+`OtherRow id consts` on gates the export names only by id, and `True` elsewhere.
+- **`Poseidon2Row perm wires`.** There are round constants `k : Poseidon2Consts`
+  (`eInit`, `eTerm`, `iRc`, `diag`, the Rust `Poseidon2Params`) whose `permState` is `perm`
+  and whose `gateConstraints` hold on the row's wires, with the checkpoints read at the
+  gate's layout: inputs `0..12`, outputs `12..24`, external checkpoints
+  `24 + (round − 1)·12 + lane` for rounds `1..3` (`ckInit`) and `4..7` (`ckTerm`), internal
+  checkpoints `108 + round` (`ckI`); `130` wires, as `Poseidon2Gate::end()`.
+- **Proved.** `poseidon2_gate_rows` is the soundness half of `gate_sound_complete` on
+  those wires. Standard axioms only; so is `Built.Refines.poseidon2Rows`.
+- **`perm` stays general.** The capstones are stated for any `perm`, and `Poseidon2Row`
+  ties it to `permState` of the row's constants. Pinning `perm` to the Goldilocks
+  constants would change every capstone statement and is not done.
+- **Checked, not committed.** The honest row is a `Poseidon2Row`: from the completeness
+  half of `gate_sound_complete`, wires laid out as above satisfy it, so the layout readers
+  are consistent with `gateConstraints`.
+- **Axiom gate.** The obligations are four; `poseidon2_gate_rows` is gated on the bare
+  allow-list.
+
 ## 9. Definition of done
 
 `R_leaf` fully bridged (T0–T3), `R_L0`/`R_L1` bridged modulo the enumerated
@@ -1165,5 +1187,5 @@ and `n_inner = 2, 4, 89`, bridges generated from the traces; 8 leaves / 32 slots
 capstones stated on the exported wiring, with no decode hypotheses; Step 9 closes it for
 the leaf: `leaf_wired` is `Rleaf` on the exported leaf wiring, standard-axioms-only)
 and (b) the layer-1 assumptions (§7) — `poseidon_transcript_oracle`, `fri_proximity_gap`,
-`algebraic_sampling`, and under `verifier_algebra` the five obligations and
+`algebraic_sampling`, and under `verifier_algebra` the four obligations and
 `public_input_binding`, composed as `proof_sound`.

@@ -18,8 +18,9 @@
     assignment of the exported circuit. It is a theorem. `IdenticalConstraints` is the
     gate, copy, and permutation identities of the built system on its whole domain, and
     `Built.Refines.satisfies` proves they give `Satisfies` for an export that system
-    refines. Five obligations remain as declarations: `build_refines_export`,
-    `poseidon2_gate_rows`, `public_input_wires`, `child_gadget_satisfied`, and
+    refines, and `poseidon2_gate_rows` proves the Poseidon2 rows compute `perm` from
+    `Poseidon2.gate_sound_complete`. Four obligations remain as declarations:
+    `build_refines_export`, `public_input_wires`, `child_gadget_satisfied`, and
     `recursive_verifier_transcript`. They are deterministic. The public inputs
     additionally need `public_input_binding`: the proof-system hash does not collide
     them with the list the verifier was given.
@@ -298,13 +299,68 @@ opaque publicInputsHash (xs : List (ZMod p)) : Fin 4 → ZMod p
 def PublicInputBinding (xs pis : List (ZMod p)) : Prop :=
   xs.length = pis.length → publicInputsHash xs = publicInputsHash pis → xs = pis
 
+/-! ### The Poseidon2 gate's rows
+
+  `Poseidon2Gate<WIDTH=12>` (`plonky2/src/gates/poseidon2.rs`) lays its wires out as the
+  `12` inputs, the `12` outputs, the S-box checkpoints of external rounds `1..8`
+  (`wire_ext_sbox`, round `0` elided, `12` lanes each) and the `22` internal checkpoints
+  (`wire_int_sbox`): `130` wires. Its constraints are `Poseidon2.gateConstraints`, pinned
+  to `eval_unfiltered` by the exporter's differential tests. -/
+
+/-- The round constants of a `Poseidon2Gate`: `Poseidon2Params` in the Rust gate. -/
+structure Poseidon2Consts (p : ℕ) where
+  eInit : Fin 4 → St p
+  eTerm : Fin 4 → St p
+  iRc : Fin 22 → ZMod p
+  diag : St p
+
+/-- The permutation the gate with constants `k` computes. -/
+def Poseidon2Consts.perm (k : Poseidon2Consts p) : St p → St p :=
+  Plonky2Spec.Poseidon2.permState k.eInit k.eTerm k.iRc k.diag
+
+/-- Wire `W_EXT_SBOX + (round − 1) · 12 + lane`: the checkpoint of external round
+    `round ≥ 1`. Rounds `1..3` are the initial rounds after the elided round `0`, rounds
+    `4..7` the terminal ones. -/
+def poseidon2ExtCk (wires : ℕ → ZMod p) (round : ℕ) : St p :=
+  fun lane => wires (24 + (round - 1) * 12 + lane)
+
+/-- Wire `W_INT_SBOX + round`: the lane-`0` checkpoint of internal round `round`. -/
+def poseidon2IntCk (wires : ℕ → ZMod p) (round : ℕ) : ZMod p := wires (108 + round)
+
+/-- The gate's constraints with constants `k`, read off a row's wires. -/
+def Poseidon2Consts.rowHolds (k : Poseidon2Consts p) (wires : ℕ → ZMod p) : Prop :=
+  ∀ c ∈ Plonky2Spec.Poseidon2.gateConstraints k.eInit k.eTerm k.iRc k.diag
+      (fun i : Fin 12 => wires i) (fun i : Fin 12 => wires (12 + i))
+      ((List.range 3).map fun r => poseidon2ExtCk wires (1 + r))
+      ((List.range 4).map fun r => poseidon2ExtCk wires (4 + r))
+      ((List.range 22).map fun r => poseidon2IntCk wires r), c = 0
+
+/-- A `Poseidon2Gate` row in a system whose gate computes `perm`: the constraints of the
+    gate hold on its wires, for the round constants whose permutation is `perm`. -/
+def Poseidon2Row (perm : St p → St p) (wires : ℕ → ZMod p) : Prop :=
+  ∃ k : Poseidon2Consts p, k.perm = perm ∧ k.rowHolds wires
+
+/-- The `PublicInputGate`: its four hash wires are `publicInputsHash pis`. `opaque`: the
+    proof-system hash is not modelled, and the gate's four wires are not placed. -/
+opaque PublicInputRow (pis : List (ZMod p)) (wires : ℕ → ZMod p) : Prop
+
+/-- The constraints of a gate the export names only by `id`. `opaque`: not modelled. -/
+opaque OtherRow (id : String) (consts : List (ZMod p)) (wires : ℕ → ZMod p) : Prop
+
 /-- What `rowConstraints` leaves out of a row's gate: the constraints of a `Poseidon2Gate`
-    in a system where it computes `perm`, of the `PublicInputGate`, whose four hash wires
-    are `publicInputsHash pis`, and of the `.other` gates. The arithmetic,
-    constant, base-sum and no-op gates have nothing left over. `opaque`: these gate
-    polynomials are not modelled here. -/
-opaque UninterpretedRow (perm : St p → St p) (pis : List (ZMod p)) (r : Row p)
-    (wires : ℕ → ZMod p) : Prop
+    in a system where it computes `perm` (`Poseidon2Row`), of the `PublicInputGate`
+    (`PublicInputRow`), and of the `.other` gates (`OtherRow`). The arithmetic, constant,
+    base-sum and no-op gates have nothing left over. -/
+def UninterpretedRow (perm : St p → St p) (pis : List (ZMod p)) (r : Row p)
+    (wires : ℕ → ZMod p) : Prop :=
+  match r.kind with
+  | .poseidon2 => Poseidon2Row perm wires
+  | .publicInput => PublicInputRow pis wires
+  | .other id => OtherRow id r.consts wires
+  | .arithmetic _ => True
+  | .constant _ => True
+  | .baseSum2 _ => True
+  | .noop => True
 
 /-- **Gate identities.** Every row of the domain satisfies its gate, and every routed
     constant holds its constant. -/
@@ -494,10 +550,10 @@ theorem Built.Refines.satisfies {perm : St p → St p} {pis : List (ZMod p)} {b 
 
 /-! ### The obligations that remain
 
-  `verifier_algebra` is these five, `public_input_binding`, and the theorem above. None
-  is a proximity conjecture or a sampling error. The five are deterministic.
-  `public_input_binding` is not: it is the binding of the proof-system hash on the public
-  inputs. -/
+  `verifier_algebra` is these four, `public_input_binding`, and the theorems
+  `Built.Refines.satisfies` and `poseidon2_gate_rows`. None is a proximity conjecture or
+  a sampling error. The four are deterministic. `public_input_binding` is not: it is the
+  binding of the proof-system hash on the public inputs. -/
 
 /-- **OBLIGATION — `build` versus the pre-`build` export.** The system a verifier key
     commits to refines the export of its circuit.
@@ -518,16 +574,16 @@ axiom build_refines_export (tag : String) (c : Circuit p)
     (children : List (Recursive p × List Target)) (b : Built p) :
     BuildOf (.node tag c children) b → b.Refines c
 
-/-- **OBLIGATION — Poseidon2 rows.** The constraints of a `Poseidon2Gate` row make its
-    output wires `12..24` the image under `perm` of its input wires `0..12`.
-
-    `Poseidon2.gate_sound_complete` proves this of the extracted gate constraints, for
-    the permutation they define. Discharging this is stating `UninterpretedRow` on these
-    rows as those constraints, with `perm` that permutation. -/
-axiom poseidon2_gate_rows (perm : St p → St p) (pis : List (ZMod p))
+/-- **Poseidon2 rows.** The constraints of a `Poseidon2Gate` row make its output wires
+    `12..24` the image under `perm` of its input wires `0..12`. This is the soundness
+    half of `Poseidon2.gate_sound_complete` on the row's checkpoint wires. -/
+theorem poseidon2_gate_rows (perm : St p → St p) (pis : List (ZMod p))
     (consts : List (ZMod p)) (wires : ℕ → ZMod p) :
     UninterpretedRow perm pis ⟨.poseidon2, consts⟩ wires →
-      (fun i : Fin 12 => wires (12 + i)) = perm fun i : Fin 12 => wires i
+      (fun i : Fin 12 => wires (12 + i)) = perm fun i : Fin 12 => wires i := by
+  rintro ⟨k, rfl, h⟩
+  exact (Plonky2Spec.Poseidon2.gate_sound_complete _ _).mp
+    ⟨_, _, _, by simp, by simp, by simp, h⟩
 
 /-- **OBLIGATION — public-input wires.** The public inputs the witness carries have the
     digest of `pis`.
@@ -657,11 +713,12 @@ theorem identical_constraints_satisfies (perm : St p → St p) (tag : String) (c
     Poseidon2 rows compute `perm`, the public-input wires match `pis`, and each omitted
     `verify_proof` gadget is `ProofAccepted` on the child inputs it carries.
 
-    `Satisfies` is `Built.Refines.satisfies`. The rest is the five obligations above and
+    `Satisfies` is `Built.Refines.satisfies` and the Poseidon2 rows are
+    `poseidon2_gate_rows`. The rest is the four obligations above and
     `public_input_binding`.
 
     A proof of `proof_sound` may use only `poseidon_transcript_oracle`,
-    `fri_proximity_gap`, `algebraic_sampling`, and those six. -/
+    `fri_proximity_gap`, `algebraic_sampling`, and those five. -/
 theorem verifier_algebra (perm : St p → St p) (tag : String) (c : Circuit p)
     (children : List (Recursive p × List Target)) (pis : List (ZMod p)) :
     IdenticalConstraints perm (.node tag c children) pis →
