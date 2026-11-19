@@ -1,6 +1,7 @@
 #[cfg(not(feature = "std"))]
 use alloc::{vec, vec::Vec};
 use core::iter::zip;
+#[cfg(target_has_atomic = "64")]
 use core::sync::atomic::{AtomicU64, AtomicU8};
 
 use anyhow::{anyhow, Result};
@@ -387,6 +388,7 @@ impl<'a, F: PrimeField64> PartitionWitness<'a, F> {
     /// atomics so they can be shared without copying; with exclusive access,
     /// `Ordering::Relaxed` loads suffice.
     /// Returns an error for witnesses using optional-value storage.
+    #[cfg(target_has_atomic = "64")]
     pub fn dense_values_and_assignment_flags(&self) -> Result<(&[AtomicU64], &[AtomicU8])> {
         let dense = self
             .dense
