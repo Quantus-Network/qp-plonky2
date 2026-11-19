@@ -4,6 +4,7 @@
 //! the resulting constraint polynomials as Lean definitions, for the formal
 //! spec under `../formal`. See `../formal/PLAN.md` Step 2b and `symbolic.rs`.
 
+pub mod built;
 pub mod circuit;
 pub mod extract;
 pub mod gadget;

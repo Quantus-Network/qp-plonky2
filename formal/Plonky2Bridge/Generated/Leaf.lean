@@ -14,7 +14,7 @@
   spec's `wormholeSalt` / `nullifierSalt` encodings, which the hash lemmas are stated on.
 -/
 import Plonky2Bridge.Leaf
-import Plonky2Bridge.Trusted
+import Plonky2Bridge.LeafBuild
 import Plonky2Spec.Generated.LeafCircuit
 
 namespace Plonky2Bridge.LeafCircuit
@@ -2502,14 +2502,16 @@ def tree : Recursive p := .node "leaf_circuit" (leafCircuit p) []
 omit [Fact p.Prime] in
 theorem tree_verifiers : (tree (p := p)).verifiers = leafCircuit.verifiers := rfl
 
-/-- **An accepted leaf proof attests `Rleaf`.** Through `proof_sound`
-    (`poseidon_transcript_oracle`, `fri_proximity_gap`, `algebraic_sampling`, `verifier_algebra`), on the good events `hg` for the leaf's proofs: the accepted public inputs are those of an assignment satisfying the
-    leaf's exported wiring, hence (`sound`) an `Rleaf` instance. This is what
-    `WormholeSpec.leaf_proof_sound` used to assume. -/
+/-- **An accepted leaf proof attests `Rleaf`.** Through `proof_sound_leaf`
+    (`poseidon_transcript_oracle`, `fri_proximity_gap`, `algebraic_sampling`, `verifier_algebra_of`
+    on the certified `build_refines`), on the good events `hg` for the leaf's proofs: the
+    accepted public inputs are those of an assignment satisfying the leaf's exported wiring,
+    hence (`sound`) an `Rleaf` instance. This is what `WormholeSpec.leaf_proof_sound` used to
+    assume. -/
 theorem accepted_sound (perm : St p → St p) (hpg : goldilocks ≤ p) (hg : GoodEvents perm tree)
     {ts : Fin 11 → Target} {a : Assignment p} (h : ProofAccepted perm tree ((List.ofFn ts).map a)) :
     ∃ w : LeafWitness, Rleaf (spongeRO perm) (pubOf (a ∘ ts)) w := by
-  obtain ⟨a', h', hp', hpis, -⟩ := proof_sound perm _ _ _ _ hg h
+  obtain ⟨a', h', hp', hpis⟩ := proof_sound_leaf perm _ _ _ hg build_refines h
   rw [publicInputs_eq] at hpis
   have hR := sound perm hpg a' h' hp'
   rw [pub_eq, pis_eq hpis] at hR

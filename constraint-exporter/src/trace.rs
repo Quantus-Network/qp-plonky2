@@ -41,6 +41,12 @@ struct TraceCall {
 #[derive(Deserialize)]
 struct Trace {
     circuit: String,
+    /// `config.num_routed_wires` and the builder's virtual-target count at the snapshot;
+    /// older traces omit them. `built::replay` needs both.
+    #[serde(default)]
+    num_routed_wires: Option<usize>,
+    #[serde(default)]
+    num_virtual_targets: Option<usize>,
     rows: Vec<TraceRow>,
     copies: Vec<[String; 2]>,
     constants: Vec<(String, String)>,
@@ -245,6 +251,10 @@ pub struct LoadedTrace {
     pub circuit: String,
     pub ex: CircuitExport,
     pub calls: Vec<Call>,
+    /// `num_routed_wires` of the recording builder's config, when the trace records it.
+    pub num_routed_wires: Option<usize>,
+    /// The recording builder's virtual-target count, when the trace records it.
+    pub num_virtual_targets: Option<usize>,
 }
 
 pub fn parse(json: &str) -> Result<LoadedTrace, String> {
@@ -300,6 +310,8 @@ pub fn parse(json: &str) -> Result<LoadedTrace, String> {
         circuit: t.circuit,
         ex,
         calls,
+        num_routed_wires: t.num_routed_wires,
+        num_virtual_targets: t.num_virtual_targets,
     })
 }
 
