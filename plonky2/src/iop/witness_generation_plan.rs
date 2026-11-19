@@ -5,12 +5,12 @@ use alloc::{sync::Arc, vec::Vec};
 #[cfg(feature = "std")]
 use std::sync::Arc;
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, ensure, Result};
 
 use crate::field::extension::Extendable;
 use crate::hash::hash_types::RichField;
 use crate::iop::target::Target;
-use crate::iop::witness_generation_planner::WitnessGenerationPlanner;
+use crate::iop::witness_generation_planner::{generator_digest, WitnessGenerationPlanner};
 use crate::iop::witness_generation_schedule::{
     make_schedule, WitnessGenerationSchedule, WitnessGenerationState,
 };
@@ -67,15 +67,39 @@ impl WitnessGenerationPlan {
         &self.stages
     }
 
-    pub(super) fn matches_circuit<
+    /// Checks the circuit's shape and constraint digest against the plan.
+    pub(super) fn check_shape<
         F: RichField + Extendable<D>,
         C: GenericConfig<D, F = F>,
         const D: usize,
     >(
         &self,
         circuit: &CircuitData<F, C, D>,
-    ) -> bool {
-        self.circuit_fingerprint == CircuitFingerprint::from_circuit(circuit)
+    ) -> Result<()> {
+        ensure!(
+            self.circuit_fingerprint
+                .shape_matches(&CircuitFingerprint::from_circuit(circuit, 0)),
+            "circuit does not match witness generation plan"
+        );
+        Ok(())
+    }
+
+    /// Checks the circuit's generators and their dependencies against the plan.
+    /// The constraint digest does not cover generators, so two circuits can pass
+    /// [`Self::check_shape`] while needing different schedules.
+    pub(super) fn check_generators<
+        F: RichField + Extendable<D>,
+        C: GenericConfig<D, F = F>,
+        const D: usize,
+    >(
+        &self,
+        circuit: &CircuitData<F, C, D>,
+    ) -> Result<()> {
+        ensure!(
+            self.circuit_fingerprint.generator_digest == generator_digest(circuit)?,
+            "circuit generators do not match witness generation plan"
+        );
+        Ok(())
     }
 
     /// Planned output representative indices of a generator, in emission order.
@@ -100,7 +124,6 @@ impl core::fmt::Debug for WitnessGenerationPlan {
     }
 }
 
-#[derive(PartialEq, Eq)]
 struct CircuitFingerprint {
     circuit_digest: Vec<u8>,
     num_generators: usize,
@@ -108,11 +131,13 @@ struct CircuitFingerprint {
     num_wires: usize,
     degree: usize,
     extension_degree: usize,
+    generator_digest: u64,
 }
 
 impl CircuitFingerprint {
     fn from_circuit<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>(
         circuit: &CircuitData<F, C, D>,
+        generator_digest: u64,
     ) -> Self {
         Self {
             circuit_digest: circuit.verifier_only.circuit_digest.to_bytes(),
@@ -121,7 +146,17 @@ impl CircuitFingerprint {
             num_wires: circuit.common.config.num_wires,
             degree: circuit.common.degree(),
             extension_degree: D,
+            generator_digest,
         }
+    }
+
+    fn shape_matches(&self, other: &Self) -> bool {
+        self.circuit_digest == other.circuit_digest
+            && self.num_generators == other.num_generators
+            && self.representative_map_len == other.representative_map_len
+            && self.num_wires == other.num_wires
+            && self.degree == other.degree
+            && self.extension_degree == other.extension_degree
     }
 }
 
@@ -178,7 +213,10 @@ impl<'p, 'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: 
                 planner.dependencies().reads().len(),
             ),
             plan: WitnessGenerationPlan {
-                circuit_fingerprint: CircuitFingerprint::from_circuit(circuit),
+                circuit_fingerprint: CircuitFingerprint::from_circuit(
+                    circuit,
+                    planner.generator_digest(),
+                ),
                 stages: Vec::new(),
                 expected_outputs: Arc::clone(planner.expected_outputs()),
             },
@@ -255,7 +293,9 @@ mod tests {
 
     use super::*;
     use crate::field::types::Field;
-    use crate::iop::generator::{GeneratedValues, SimpleGenerator, WitnessGeneratorRef};
+    use crate::iop::generator::{
+        CopyGenerator, GeneratedValues, SimpleGenerator, WitnessGeneratorRef,
+    };
     use crate::iop::witness::{PartitionWitness, Witness, WitnessWrite};
     use crate::iop::witness_generation_executor::{
         WitnessGenerationExecution, WitnessGenerationExecutor,
@@ -316,6 +356,58 @@ mod tests {
     }
 
     #[test]
+    fn binding_rejects_matching_circuit_with_different_generator_dependencies() -> Result<()> {
+        let build = |copies: &[(usize, usize)]| {
+            let mut builder =
+                CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+            let targets = builder.add_virtual_targets(3);
+            let mut data = builder.build::<C>();
+            data.prover_only.generators = copies
+                .iter()
+                .map(|&(src, dst)| {
+                    WitnessGeneratorRef::new(
+                        CopyGenerator {
+                            src: targets[src],
+                            dst: targets[dst],
+                        }
+                        .adapter(),
+                    )
+                })
+                .collect();
+            (data, targets[0])
+        };
+        // input -> x, input -> y
+        let (first, input) = build(&[(0, 1), (0, 2)]);
+        // y -> x, input -> y
+        let (second, _) = build(&[(2, 1), (0, 2)]);
+        assert_eq!(
+            first.verifier_only.circuit_digest,
+            second.verifier_only.circuit_digest
+        );
+        assert_eq!(
+            first.prover_only.representative_map,
+            second.prover_only.representative_map
+        );
+
+        let mut executor = WitnessGenerationExecutor::new_with_inputs(&first, [input])?;
+        let mut witness = executor.new_witness(&first);
+        witness.set_target(input, F::TWO)?;
+        executor.execute(&first, &mut witness)?;
+
+        let mut witness = executor.new_witness(&second);
+        let error = executor.bind(&second, &mut witness).unwrap_err();
+        assert_eq!(
+            error.to_string(),
+            "circuit generators do not match witness generation plan"
+        );
+
+        let mut executor = WitnessGenerationExecutor::new_with_inputs(&second, [input])?;
+        witness.set_target(input, F::TWO)?;
+        executor.execute(&second, &mut witness)?;
+        Ok(())
+    }
+
+    #[test]
     fn execution_recovers_from_errors_and_panics() -> Result<()> {
         let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
         let input = builder.add_virtual_target();
@@ -340,7 +432,7 @@ mod tests {
         )?;
         let (schedule, _) = make_schedule(&dependencies, &state);
         let plan = Arc::new(WitnessGenerationPlan {
-            circuit_fingerprint: CircuitFingerprint::from_circuit(&data),
+            circuit_fingerprint: CircuitFingerprint::from_circuit(&data, generator_digest(&data)?),
             stages: vec![WitnessGenerationStage {
                 promised_rep_indices: vec![input_rep],
                 schedule,

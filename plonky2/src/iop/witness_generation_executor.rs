@@ -37,16 +37,38 @@ use crate::{
 /// Executes a witness generation plan with reusable worker allocations.
 pub struct WitnessGenerationExecutor<F: RichField> {
     plan: Arc<WitnessGenerationPlan>,
+    verified_circuit: Option<CircuitIdentity>,
     #[cfg(all(feature = "std", feature = "parallel"))]
     scratch: GenerationScratch<F>,
     #[cfg(not(all(feature = "std", feature = "parallel")))]
     _phantom: PhantomData<F>,
 }
 
+/// Addresses identifying a circuit object and the allocations its plan depends on.
+#[derive(Clone, Copy, PartialEq, Eq)]
+struct CircuitIdentity {
+    circuit: usize,
+    generators: usize,
+    representative_map: usize,
+}
+
+impl CircuitIdentity {
+    fn of<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>(
+        circuit: &CircuitData<F, C, D>,
+    ) -> Self {
+        Self {
+            circuit: circuit as *const _ as usize,
+            generators: circuit.prover_only.generators.as_ptr() as usize,
+            representative_map: circuit.prover_only.representative_map.as_ptr() as usize,
+        }
+    }
+}
+
 impl<F: RichField> WitnessGenerationExecutor<F> {
     pub fn new(plan: Arc<WitnessGenerationPlan>) -> Self {
         Self {
             plan,
+            verified_circuit: None,
             #[cfg(all(feature = "std", feature = "parallel"))]
             scratch: GenerationScratch::new(),
             #[cfg(not(all(feature = "std", feature = "parallel")))]
@@ -64,7 +86,9 @@ impl<F: RichField> WitnessGenerationExecutor<F> {
     {
         let planner = WitnessGenerationPlanner::new(circuit)?;
         let plan = planner.input_plan(input_targets)?;
-        Ok(Self::new(plan))
+        let mut executor = Self::new(plan);
+        executor.verified_circuit = Some(CircuitIdentity::of(circuit));
+        Ok(executor)
     }
 
     /// Creates an empty dense witness for the supplied circuit. Its public `values`
@@ -85,6 +109,10 @@ impl<F: RichField> WitnessGenerationExecutor<F> {
 
     /// Borrows the circuit, executor and witness for execution starting at the first stage.
     /// Use the unchanged circuit from which the plan was prepared.
+    ///
+    /// The circuit's shape is checked on every call. Its generators and their
+    /// dependencies are checked the first time this executor sees a circuit
+    /// object, which costs one pass over the generators' read declarations.
     pub fn bind<'b, 'a, C: GenericConfig<D, F = F>, const D: usize>(
         &'b mut self,
         circuit: &'a CircuitData<F, C, D>,
@@ -93,10 +121,12 @@ impl<F: RichField> WitnessGenerationExecutor<F> {
     where
         F: Extendable<D>,
     {
-        ensure!(
-            self.plan.matches_circuit(circuit),
-            "circuit does not match witness generation plan"
-        );
+        self.plan.check_shape(circuit)?;
+        let identity = CircuitIdentity::of(circuit);
+        if self.verified_circuit != Some(identity) {
+            self.plan.check_generators(circuit)?;
+            self.verified_circuit = Some(identity);
+        }
         ensure!(
             core::ptr::eq(
                 witness.representative_map,

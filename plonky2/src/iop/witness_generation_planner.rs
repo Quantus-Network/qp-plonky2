@@ -35,6 +35,7 @@ pub struct WitnessGenerationPlanner<
     circuit: &'a CircuitData<F, C, D>,
     dependencies: GeneratorDependencies,
     expected_outputs: Arc<ExpectedOutputs>,
+    generator_digest: u64,
 }
 
 impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
@@ -53,19 +54,18 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
         );
         let mut reads = Vec::with_capacity(generators.len());
         let mut writes = Vec::with_capacity(generators.len());
+        let mut digest = GeneratorDigest::default();
         for (generator_index, generator) in generators.iter().enumerate() {
+            let id = generator.0.id();
             let targets = generator.0.reads().ok_or_else(|| {
-                anyhow!(
-                    "generator {generator_index} ({}) does not declare its reads",
-                    generator.0.id()
-                )
+                anyhow!("generator {generator_index} ({id}) does not declare its reads")
             })?;
-            reads.push(
-                targets
-                    .into_iter()
-                    .map(&resolve)
-                    .collect::<Result<Vec<_>>>()?,
-            );
+            let resolved = targets
+                .into_iter()
+                .map(&resolve)
+                .collect::<Result<Vec<_>>>()?;
+            digest.push_generator(&id, &resolved);
+            reads.push(resolved);
             let discovered =
                 discover_outputs(generator.0.as_ref(), common, &mut probe).map_err(|error| {
                     anyhow!(
@@ -88,6 +88,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
             circuit,
             expected_outputs,
             dependencies,
+            generator_digest: digest.finish(),
         })
     }
 
@@ -128,6 +129,66 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
     pub(super) fn expected_outputs(&self) -> &Arc<ExpectedOutputs> {
         &self.expected_outputs
     }
+
+    pub(super) fn generator_digest(&self) -> u64 {
+        self.generator_digest
+    }
+}
+
+/// Digest of generator identities and resolved read representatives, in
+/// generator order. Together with the circuit digest this identifies the
+/// dependency graph a plan was built from; the circuit digest alone does not
+/// cover generators.
+#[derive(Default)]
+struct GeneratorDigest(u64);
+
+impl GeneratorDigest {
+    #[inline]
+    fn push(&mut self, word: u64) {
+        self.0 = (self.0 ^ word)
+            .wrapping_mul(0x9E37_79B9_7F4A_7C15)
+            .rotate_left(29);
+    }
+
+    fn push_generator(&mut self, id: &str, read_rep_indices: &[usize]) {
+        let bytes = id.as_bytes();
+        self.push(bytes.len() as u64);
+        for chunk in bytes.chunks(8) {
+            let mut word = [0u8; 8];
+            word[..chunk.len()].copy_from_slice(chunk);
+            self.push(u64::from_le_bytes(word));
+        }
+        self.push(read_rep_indices.len() as u64);
+        for &rep_index in read_rep_indices {
+            self.push(rep_index as u64);
+        }
+    }
+
+    fn finish(self) -> u64 {
+        self.0
+    }
+}
+
+/// Computes the generator digest of a circuit, as recorded by the planner.
+pub(super) fn generator_digest<F, C, const D: usize>(circuit: &CircuitData<F, C, D>) -> Result<u64>
+where
+    F: RichField + Extendable<D>,
+    C: GenericConfig<D, F = F>,
+{
+    let mut digest = GeneratorDigest::default();
+    let mut resolved = Vec::new();
+    for (generator_index, generator) in circuit.prover_only.generators.iter().enumerate() {
+        let id = generator.0.id();
+        let targets = generator.0.reads().ok_or_else(|| {
+            anyhow!("generator {generator_index} ({id}) does not declare its reads")
+        })?;
+        resolved.clear();
+        for target in targets {
+            resolved.push(resolve_target(circuit, target)?);
+        }
+        digest.push_generator(&id, &resolved);
+    }
+    Ok(digest.finish())
 }
 
 impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize> core::fmt::Debug
