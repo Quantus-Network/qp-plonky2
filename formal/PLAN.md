@@ -188,9 +188,11 @@ is a theorem, the composition of three assumptions and `verifier_algebra` (Steps
     recursive verifier implements the `TranscriptAccepted` the native one does.
 
   and one assumption on the proof-system hash:
-  - **`public_input_binding`** — the witness's public inputs do not collide with `pis`:
-    one length and one digest give one list (`PublicInputBinding`). Computational, not
-    statistical. A corollary of the random oracle in the reading of
+  - **`public_input_binding`** — the public inputs carried by what a transcript for
+    `pis` opens do not collide with `pis`: one length and one digest give one list
+    (`PublicInputBinding`). Stated of `TranscriptOpens`, so it is an event about a
+    proof, like the other good events, and not about every witness of the built
+    system. Computational, not statistical. A corollary of the random oracle in the reading of
     `poseidon_transcript_oracle`, declared because that implication does not carry it to
     the witness. The length comes from `IdenticalConstraints`, which carries the arity
     the verifier checks: the hash does not pad, so `[1]` and `[1, 0]` share a digest.

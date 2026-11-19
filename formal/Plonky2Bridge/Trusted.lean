@@ -545,8 +545,8 @@ axiom public_input_wires (perm : St p → St p) (tag : String) (c : Circuit p)
     BuildOf (.node tag c children) b → DomainIdentities perm pis b o →
       publicInputsHash (c.publicInputs.map (b.witness o)) = publicInputsHash pis
 
-/-- **TRUSTED — public-input binding.** The public inputs the witness of identical
-    constraints carries do not collide with `pis` under the proof-system hash
+/-- **TRUSTED — public-input binding.** The public inputs carried by the values a
+    transcript for `pis` opens do not collide with `pis` under the proof-system hash
     (`PublicInputBinding`).
 
     This is the good event for the binding of `InnerHasher`, `PoseidonHash` in
@@ -557,6 +557,11 @@ axiom public_input_wires (perm : St p → St p) (tag : String) (c : Circuit p)
     because that implication does not carry it to the witness. It is not the wormhole
     Poseidon2.
 
+    `TranscriptOpens` is a premise so that the event is about a proof, as the other good
+    events are: without it the statement would quantify over every witness of the built
+    system, and a colliding pair of lists exists for any hash into four elements. With
+    it the event is unrefutable while the transcript is opaque.
+
     The length is not part of this event. `[1]` and `[1, 0]` have one digest, and the
     verifier tells them apart by `num_public_inputs`, which `IdenticalConstraints`
     carries.
@@ -565,8 +570,9 @@ axiom public_input_wires (perm : St p → St p) (tag : String) (c : Circuit p)
 axiom public_input_binding (perm : St p → St p) (tag : String) (c : Circuit p)
     (children : List (Recursive p × List Target)) (pis : List (ZMod p)) (b : Built p)
     (o : Opened p) :
-    BuildOf (.node tag c children) b → DomainIdentities perm pis b o →
-      PublicInputBinding (c.publicInputs.map (b.witness o)) pis
+    BuildOf (.node tag c children) b → TranscriptOpens perm (.node tag c children) pis o →
+      DomainIdentities perm pis b o →
+        PublicInputBinding (c.publicInputs.map (b.witness o)) pis
 
 /-- The witness carries `pis` on the export's public-input targets: the lists have one
     digest (`public_input_wires`) and one length, and do not collide
@@ -574,9 +580,10 @@ axiom public_input_binding (perm : St p → St p) (tag : String) (c : Circuit p)
 theorem public_inputs_eq (perm : St p → St p) (tag : String) (c : Circuit p)
     (children : List (Recursive p × List Target)) (pis : List (ZMod p)) (b : Built p)
     (o : Opened p) (hb : BuildOf (.node tag c children) b)
+    (hto : TranscriptOpens perm (.node tag c children) pis o)
     (hlen : pis.length = b.numPublicInputs) (hid : DomainIdentities perm pis b o) :
     c.publicInputs.map (b.witness o) = pis :=
-  public_input_binding perm tag c children pis b o hb hid
+  public_input_binding perm tag c children pis b o hb hto hid
     (by rw [List.length_map, hlen, (build_refines_export tag c children b hb).publicInputs])
     (public_input_wires perm tag c children pis b o hb hid)
 
@@ -660,10 +667,10 @@ theorem verifier_algebra (perm : St p → St p) (tag : String) (c : Circuit p)
     IdenticalConstraints perm (.node tag c children) pis →
       ∃ a : Assignment p, Satisfies c a ∧ Poseidon2Rows perm c a ∧
         c.publicInputs.map a = pis ∧ ∀ v ∈ children, ProofAccepted perm v.1 (v.2.map a) := by
-  rintro ⟨b, o, hb, -, hlen, hid⟩
+  rintro ⟨b, o, hb, hto, hlen, hid⟩
   have href := build_refines_export tag c children b hb
   exact ⟨b.witness o, href.satisfies hid, href.poseidon2Rows hid.gate,
-    public_inputs_eq perm tag c children pis b o hb hlen hid, fun v hv =>
+    public_inputs_eq perm tag c children pis b o hb hto hlen hid, fun v hv =>
       recursive_verifier_transcript perm v.1 _
         (child_gadget_satisfied perm tag c children pis b o hb hid v hv)⟩
 
