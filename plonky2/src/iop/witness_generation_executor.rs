@@ -178,13 +178,9 @@ impl<F: RichField> WitnessGenerationExecutor<F> {
         Self::run_generator_outputs(circuit, plan, generator_index, witness, output_buffer)?;
         let planned = plan.expected_output_reps(generator_index);
         for ((target, value), &planned_rep) in output_buffer.target_values.drain(..).zip(planned) {
-            Self::check_output(
-                circuit,
-                generator_index,
-                witness.rep_index(target),
-                planned_rep,
-            )?;
-            witness.set_target(target, value).map_err(|error| {
+            let rep_index = witness.rep_index(target);
+            Self::check_output(circuit, generator_index, rep_index, planned_rep)?;
+            witness.set_rep(target, rep_index, value).map_err(|error| {
                 anyhow!(
                     "generator {generator_index} ({}): {error}",
                     circuit.prover_only.generators[generator_index].0.id()

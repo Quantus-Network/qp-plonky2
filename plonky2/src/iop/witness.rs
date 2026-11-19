@@ -346,7 +346,7 @@ pub struct PartitionWitness<'a, F: Field> {
     dense: Option<DenseStorage<F>>,
 }
 
-impl<'a, F: PrimeField64> PartitionWitness<'a, F> {
+impl<'a, F: Field> PartitionWitness<'a, F> {
     pub fn new(num_wires: usize, degree: usize, representative_map: &'a [usize]) -> Self {
         Self {
             values: vec![None; representative_map.len()],
@@ -362,7 +362,10 @@ impl<'a, F: PrimeField64> PartitionWitness<'a, F> {
         num_wires: usize,
         degree: usize,
         representative_map: &'a [usize],
-    ) -> Self {
+    ) -> Self
+    where
+        F: PrimeField64,
+    {
         Self {
             values: Vec::new(),
             representative_map,
@@ -400,12 +403,32 @@ impl<'a, F: PrimeField64> PartitionWitness<'a, F> {
     /// Set a `Target`. On success, returns the representative index of the newly-set target. If the
     /// target was already set, returns `None`.
     pub fn set_target_returning_rep(&mut self, target: Target, value: F) -> Result<Option<usize>> {
-        let rep_index = self.representative_map[self.target_index(target)];
+        let rep_index = self.rep_index(target);
         if let Some(dense) = &mut self.dense {
             let was_assigned = dense.is_assigned(rep_index);
             dense.set(rep_index, value)?;
             return Ok((!was_assigned).then_some(rep_index));
         }
+        self.set_optional_rep(target, rep_index, value)
+    }
+
+    /// Sets a resolved representative, encoding dense values inline.
+    pub(super) fn set_rep(&mut self, target: Target, rep_index: usize, value: F) -> Result<()>
+    where
+        F: PrimeField64,
+    {
+        if let Some(dense) = &mut self.dense {
+            return dense.set_encoded(rep_index, value, value.to_noncanonical_u64());
+        }
+        self.set_optional_rep(target, rep_index, value).map(|_| ())
+    }
+
+    fn set_optional_rep(
+        &mut self,
+        target: Target,
+        rep_index: usize,
+        value: F,
+    ) -> Result<Option<usize>> {
         let rep_value = &mut self.values[rep_index];
         if let Some(old_value) = *rep_value {
             if value != old_value {
@@ -463,22 +486,25 @@ impl<'a, F: PrimeField64> PartitionWitness<'a, F> {
 }
 
 #[cfg(all(feature = "std", feature = "parallel"))]
-impl<F: PrimeField64> PartitionWitness<'_, F> {
+impl<F: Field> PartitionWitness<'_, F> {
     pub(super) fn require_dense(&self) -> Result<()> {
         anyhow::ensure!(self.dense.is_some(), "dense witness storage is required");
         Ok(())
     }
 
     /// Sets a representative through shared access during scheduled dense generation.
-    pub(super) fn set_rep_shared(&self, rep_index: usize, value: F) -> Result<()> {
+    pub(super) fn set_rep_shared(&self, rep_index: usize, value: F) -> Result<()>
+    where
+        F: PrimeField64,
+    {
         self.dense
             .as_ref()
             .expect("dense witness storage is required")
-            .set_shared(rep_index, value)
+            .set_shared_encoded(rep_index, value, value.to_noncanonical_u64())
     }
 }
 
-impl<F: PrimeField64> Clone for PartitionWitness<'_, F> {
+impl<F: Field> Clone for PartitionWitness<'_, F> {
     /// Clones a non-dense witness, retaining its borrowed representative map.
     ///
     /// # Panics
@@ -495,13 +521,13 @@ impl<F: PrimeField64> Clone for PartitionWitness<'_, F> {
     }
 }
 
-impl<F: PrimeField64> WitnessWrite<F> for PartitionWitness<'_, F> {
+impl<F: Field> WitnessWrite<F> for PartitionWitness<'_, F> {
     fn set_target(&mut self, target: Target, value: F) -> Result<()> {
         self.set_target_returning_rep(target, value).map(|_| ())
     }
 }
 
-impl<F: PrimeField64> Witness<F> for PartitionWitness<'_, F> {
+impl<F: Field> Witness<F> for PartitionWitness<'_, F> {
     fn try_get_target(&self, target: Target) -> Option<F> {
         let rep_index = self.representative_map[self.target_index(target)];
         match &self.dense {
@@ -525,6 +551,18 @@ mod tests {
     type F = GoldilocksField;
     type C = PoseidonGoldilocksConfig;
     const D: usize = 2;
+
+    #[test]
+    fn partition_witness_is_usable_under_a_field_bound() {
+        fn round_trip<F: Field>(w: &mut PartitionWitness<'_, F>, t: Target, v: F) -> F {
+            w.set_target(t, v).unwrap();
+            w.clone().get_target(t)
+        }
+        let representative_map = [0, 1, 2];
+        let mut witness = PartitionWitness::<F>::new(2, 1, &representative_map);
+        let target = Target::VirtualTarget { index: 0 };
+        assert_eq!(round_trip(&mut witness, target, F::TWO), F::TWO);
+    }
 
     #[test]
     fn test_get_bool_target_valid_values() {
