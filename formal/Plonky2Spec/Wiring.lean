@@ -48,6 +48,10 @@ inductive GateKind
   | baseSum2 (numLimbs : ℕ)
   /-- `Poseidon2Gate<WIDTH=12>`. -/
   | poseidon2
+  /-- `PoseidonGate<WIDTH=12>`: the proof-system hash's gate, which `build` lays down
+      for the public-input hash and the recursive verifier uses. Not a wormhole gate;
+      the exports have none. -/
+  | poseidon
   | other (id : String)
   deriving DecidableEq, Repr
 
@@ -97,6 +101,7 @@ def rowConstraints (a : Assignment p) (row : ℕ) (r : Row p) : Prop :=
   | .noop => True
   | .baseSum2 n => BaseSum 2 (a (.wire row 0)) ((limbWires row n).map a)
   | .poseidon2 => True
+  | .poseidon => True
   | .other _ => True
 
 /-- Rows `row, row+1, …` all satisfied. -/

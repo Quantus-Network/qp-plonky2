@@ -653,4 +653,60 @@ mod tests {
             }
         }
     }
+
+    /// Differential test of the Step-17 model of the proof-system public-input hash
+    /// (`Plonky2Bridge.publicInputsHash` in `formal/Plonky2Bridge/Trusted.lean`) against
+    /// the real `PoseidonHash::hash_no_pad`, which `get_public_inputs_hash` computes and
+    /// `CircuitBuilder::build` lays down in circuit.
+    ///
+    /// `lean_no_pad` is a transliteration of the Lean `setBlock` / `absorbNoPad` /
+    /// `squeeze4`, run over the same width-12 permutation the real hash uses
+    /// (`<GoldilocksField as Permuter>::permute`, the proof-system Poseidon that
+    /// `poseidonPerm` names). Agreement at random inputs of every length around the rate
+    /// boundary pins the model's structure — no padding, overwrite absorption on the 8
+    /// rate lanes (capacity untouched), the per-block permute, and the 4-lane squeeze with
+    /// no trailing permute — to the live Rust; in particular the empty input is hashed
+    /// with no permutation at all, and `[x]` and `[x, 0]` collide.
+    #[test]
+    fn public_inputs_hash_matches_lean_model() {
+        use plonky2::hash::poseidon::{Permuter, PoseidonHash};
+        use plonky2::plonk::config::Hasher;
+
+        const WIDTH: usize = 12;
+        const RATE: usize = 8; // Sponge.lean `rate`
+
+        // `setBlock`: overwrite the first `block.len()` lanes.
+        fn set_block(state: &mut [GF; WIDTH], block: &[GF]) {
+            for (i, &x) in block.iter().enumerate() {
+                state[i] = x;
+            }
+        }
+
+        // `publicInputsHash`: zero state, `absorbNoPad` (a rate block overwrites the
+        // rate lanes, then the permutation, until the input is consumed), `squeeze4`.
+        fn lean_no_pad(inputs: &[GF]) -> [GF; 4] {
+            let mut state = [GF::ZERO; WIDTH];
+            for block in inputs.chunks(RATE) {
+                set_block(&mut state, block);
+                state = <GF as Permuter>::permute(state);
+            }
+            [state[0], state[1], state[2], state[3]]
+        }
+
+        let mut rng = Lcg(0x5a5a_a5a5_4321_dcba);
+        for len in 0..=20usize {
+            for _ in 0..20 {
+                let inputs: Vec<GF> = (0..len).map(|_| rng.next()).collect();
+                let lean = lean_no_pad(&inputs);
+                let real = PoseidonHash::hash_no_pad(&inputs).elements;
+                assert_eq!(lean, real, "no-pad sponge structure mismatch at len {len}");
+            }
+        }
+        // No padding: a trailing zero in a partial block does not change the digest.
+        let x = rng.next();
+        assert_eq!(
+            PoseidonHash::hash_no_pad(&[x]),
+            PoseidonHash::hash_no_pad(&[x, GF::ZERO])
+        );
+    }
 }
