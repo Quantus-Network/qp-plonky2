@@ -1,5 +1,5 @@
 /-
-  The trusted base (PLAN.md §7, Steps 12 to 15).
+  The trusted base (PLAN.md §7, Steps 12 to 16).
 
   `proof_sound` is a theorem. It is the composition of three assumptions and
   `verifier_algebra`, and the capstones depend on nothing else outside the standard Lean
@@ -26,6 +26,13 @@
     `recursive_verifier_transcript`. They are deterministic. The public inputs
     additionally need `public_input_binding`: on its good event, the proof-system hash
     does not collide them with the list the verifier was given.
+  * Certified builds (Step 16). `BuildCert` is what the exporter reads off
+    `CircuitBuilder::build`, `Built.Agrees` says a built system has it, and
+    `Built.Agrees.refines` proves `Built.Refines` from it and kernel-evaluated checks of
+    the certificate against the export. `verifier_algebra_of` and `proof_sound_of` take
+    the refinement as a hypothesis; `proof_sound_leaf` is their instance for a certified
+    circuit with no children, with neither `build_refines_export` nor the two child
+    obligations in its footprint. The leaf is certified in `Plonky2Bridge/LeafBuild.lean`.
 
   Poseidon2 collision resistance is not an assumption here. A forged proof need not
   exhibit a collision. The wormhole relations that do reduce to a collision are
@@ -251,6 +258,303 @@ theorem Built.Linked.witness_eq {b : Built p} {o : Opened p} (hc : CopyIdentitie
   rcases h with h | ⟨u, v, hx, hy, huv⟩
   · simp only [Built.witness, h]
   · rw [Built.witness_of_loc o hx, Built.witness_of_loc o hy, huv.val_eq hc]
+
+/-! ### Certified builds
+
+  `Built.Refines` is about the whole built system. What the exporter reads off
+  `CircuitBuilder::build`, and what a proof of `Refines` needs, is less: the export's rows
+  at their indices, the `σ`-cycles the export's copies and constants run along, the place
+  of each virtual target, and the wires `build` fixes to the export's constants.
+  `BuildCert` is that data, `Built.Agrees` says a built system has it, and
+  `Built.Agrees.refines` proves `Refines` from it and from checks of the certificate
+  against the export that the kernel evaluates. What is left to trust of a certified
+  circuit is `Agrees`: that the exporter read the deployed build correctly. -/
+
+/-- A list as a balanced binary tree, for lookups the kernel evaluates cheaply: `get? i`
+    walks `log` nodes where a list walks `i` cells. `node n l r` carries `n`, the size
+    of `l`; the lemmas below do not depend on it being right. -/
+inductive Tbl (α : Type) where
+  | nil
+  | leaf (a : α)
+  | node (n : ℕ) (l r : Tbl α)
+
+/-- The list a table stands for. -/
+def Tbl.toList {α : Type} : Tbl α → List α
+  | .nil => []
+  | .leaf a => [a]
+  | .node _ l r => l.toList ++ r.toList
+
+/-- Lookup by index in the list a table stands for. -/
+def Tbl.get? {α : Type} : Tbl α → ℕ → Option α
+  | .nil, _ => none
+  | .leaf a, i => if i = 0 then some a else none
+  | .node n l r, i => if i < n then l.get? i else r.get? (i - n)
+
+theorem Tbl.get?_mem {α : Type} {t : Tbl α} {i : ℕ} {a : α} (h : t.get? i = some a) :
+    a ∈ t.toList := by
+  induction t generalizing i with
+  | nil => exact nomatch h
+  | leaf b =>
+    simp only [Tbl.get?] at h
+    split at h
+    · exact (Option.some.inj h) ▸ List.mem_singleton_self _
+    · exact nomatch h
+  | node n l r ihl ihr =>
+    simp only [Tbl.get?] at h
+    split at h
+    · exact List.mem_append_left _ (ihl h)
+    · exact List.mem_append_right _ (ihr h)
+
+/-- The parts of a built system that `Built.Refines` reads, as the exporter reads them
+    off `build`. Natural numbers only: a constant is named by its index in the export's
+    constant list, so the certificate does not depend on the field. The cycles and the
+    virtual targets are tables (`Tbl`) so that the checks against the export, which look
+    them up once per copy, are cheap for the kernel. -/
+structure BuildCert where
+  /-- The export's rows are rows `0..exportRows` of the built system, and the export's
+      wire targets sit at themselves. -/
+  exportRows : ℕ
+  routed : ℕ
+  numPublicInputs : ℕ
+  /-- Cycles of `σ`, each in `σ` order: the copy classes the export's copies and
+      constants use. -/
+  cycles : Tbl (Tbl (ℕ × ℕ))
+  /-- A routed wire of each virtual target's copy class, by index; `none` when the class
+      has none. -/
+  virt : Tbl (Option (ℕ × ℕ))
+  /-- `(m, v)`: wire `v` is fixed to the constant of the export's constant target `m`. -/
+  pins : List (ℕ × (ℕ × ℕ))
+
+/-- The certificate's cycles, as lists. -/
+def BuildCert.cycleList (k : BuildCert) : List (List (ℕ × ℕ)) :=
+  k.cycles.toList.map Tbl.toList
+
+/-- Where the certificate places a target of the export. -/
+def BuildCert.loc (k : BuildCert) : Target → Option (ℕ × ℕ)
+  | .wire i j => if i < k.exportRows then some (i, j) else none
+  | .virt n => (k.virt.get? n).join
+
+/-- Cycle `ci` of the certificate, looked up and listed, is one of its cycles. -/
+theorem BuildCert.mem_cycleList {k : BuildCert} {ci : ℕ} {C : Tbl (ℕ × ℕ)}
+    (h : k.cycles.get? ci = some C) : C.toList ∈ k.cycleList :=
+  List.mem_map_of_mem (Tbl.get?_mem h)
+
+/-- The built system `b` is as the certificate `k` describes it, against the export `c`:
+    the export's rows at their indices, `σ` along the listed cycles, which lie in the
+    domain, the listed wires fixed to the export's constants, and the targets `k.loc`
+    places, where it places them. Nothing is said of targets it does not place. -/
+structure Built.Agrees (b : Built p) (c : Circuit p) (k : BuildCert) : Prop where
+  rows : ∀ (i : ℕ) (r : Row p), c.rows[i]? = some r → b.rows[i]? = some r
+  routed : b.routed = k.routed
+  numPublicInputs : b.numPublicInputs = k.numPublicInputs
+  domain : ∀ L ∈ k.cycleList, ∀ u ∈ L, u.1 < b.rows.length ∧ u.2 < b.routed
+  sigma : ∀ L ∈ k.cycleList, ∀ i < L.length,
+    b.sigma (L.getD i (0, 0)) = L.getD ((i + 1) % L.length) (0, 0)
+  fixed : ∀ mv ∈ k.pins, ∀ tc, c.constants[mv.1]? = some tc → (mv.2, tc.2) ∈ b.fixed
+  loc : ∀ t u, k.loc t = some u → b.loc t = some u
+
+private theorem getD_eq_getElem {L : List (ℕ × ℕ)} {i : ℕ} (hi : i < L.length) :
+    L.getD i (0, 0) = L[i] := by
+  rw [List.getD_eq_getElem?_getD, List.getElem?_eq_getElem hi, Option.getD_some]
+
+/-- Along a listed cycle, `σ` leads from any member to any member. -/
+theorem Built.Agrees.chain {b : Built p} {c : Circuit p} {k : BuildCert} (h : b.Agrees c k)
+    {L : List (ℕ × ℕ)} (hL : L ∈ k.cycleList) {u v : ℕ × ℕ} (hu : u ∈ L) (hv : v ∈ L) :
+    b.Chain u v := by
+  obtain ⟨i, hi, rfl⟩ := List.getElem_of_mem hu
+  obtain ⟨j, hj, rfl⟩ := List.getElem_of_mem hv
+  rw [← getD_eq_getElem hi, ← getD_eq_getElem hj]
+  have hn : 0 < L.length := Nat.zero_lt_of_lt hi
+  have step : ∀ i < L.length,
+      b.Step (L.getD i (0, 0)) (L.getD ((i + 1) % L.length) (0, 0)) := fun i hi => by
+    have hm : L.getD i (0, 0) ∈ L := by
+      rw [getD_eq_getElem hi]; exact List.getElem_mem hi
+    exact ⟨(h.domain L hL _ hm).1, (h.domain L hL _ hm).2, h.sigma L hL i hi⟩
+  have walk : ∀ m i, i < L.length →
+      b.Chain (L.getD i (0, 0)) (L.getD ((i + m) % L.length) (0, 0)) := by
+    intro m
+    induction m with
+    | zero =>
+      intro i hi
+      rw [Nat.add_zero, Nat.mod_eq_of_lt hi]
+      exact Relation.ReflTransGen.refl
+    | succ m ih =>
+      intro i hi
+      refine (ih i hi).tail ?_
+      rw [← Nat.add_assoc, Nat.add_mod (i + m) 1, Nat.add_mod_mod]
+      exact step _ (Nat.mod_lt _ hn)
+  have e : (i + (L.length + j - i)) % L.length = j := by
+    rw [show i + (L.length + j - i) = L.length + j by omega, Nat.add_mod_left,
+      Nat.mod_eq_of_lt hj]
+  have := walk (L.length + j - i) i hi
+  rwa [e] at this
+
+/-- Check a copy against its witness `(ci, iu, iv)`: cycle `ci` carries the two targets
+    at `iu` and `iv`. -/
+def BuildCert.copyOk (k : BuildCert) (xy : Target × Target) : ℕ × ℕ × ℕ → Bool
+  | (ci, iu, iv) =>
+    match k.cycles.get? ci with
+    | some C =>
+      match C.get? iu, C.get? iv with
+      | some u, some v => k.loc xy.1 == some u && k.loc xy.2 == some v
+      | _, _ => false
+    | none => false
+
+/-- Check a copy list against its witnesses, one each. -/
+def BuildCert.copiesOk (k : BuildCert) : List (Target × Target) → List (ℕ × ℕ × ℕ) → Bool
+  | [], [] => true
+  | xy :: xys, w :: ws => k.copyOk xy w && k.copiesOk xys ws
+  | _, _ => false
+
+/-- What `copyOk` certifies: the targets are placed on one listed cycle. -/
+def BuildCert.Links (k : BuildCert) (x y : Target) : Prop :=
+  ∃ L ∈ k.cycleList, ∃ u v, k.loc x = some u ∧ k.loc y = some v ∧ u ∈ L ∧ v ∈ L
+
+theorem BuildCert.copyOk_sound {k : BuildCert} {xy : Target × Target} {w : ℕ × ℕ × ℕ}
+    (h : k.copyOk xy w = true) : k.Links xy.1 xy.2 := by
+  obtain ⟨ci, iu, iv⟩ := w
+  simp only [copyOk] at h
+  split at h
+  · rename_i C hC
+    split at h
+    · rename_i u v hu hv
+      simp only [Bool.and_eq_true, beq_iff_eq] at h
+      exact ⟨C.toList, BuildCert.mem_cycleList hC, u, v, h.1, h.2,
+        Tbl.get?_mem hu, Tbl.get?_mem hv⟩
+    · exact absurd h Bool.false_ne_true
+  · exact absurd h Bool.false_ne_true
+
+theorem BuildCert.copiesOk_sound {k : BuildCert} :
+    ∀ {xys : List (Target × Target)} {ws : List (ℕ × ℕ × ℕ)}, k.copiesOk xys ws = true →
+      ∀ xy ∈ xys, k.Links xy.1 xy.2
+  | [], _, _, _, h => nomatch h
+  | _ :: _, [], h, _, _ => absurd h Bool.false_ne_true
+  | xy :: xys, w :: ws, h, z, hz => by
+    simp only [copiesOk, Bool.and_eq_true] at h
+    rcases List.mem_cons.mp hz with rfl | hz
+    · exact copyOk_sound h.1
+    · exact copiesOk_sound h.2 z hz
+
+/-- Check the export's constant target number `m`, `t`, against its witness: cycle `ci`
+    carries `t` at `iu` and, at `iv`, a wire pinned to constant `m`. -/
+def BuildCert.constOk (k : BuildCert) (m : ℕ) (t : Target) : ℕ × ℕ × ℕ → Bool
+  | (ci, iu, iv) =>
+    match k.cycles.get? ci with
+    | some C =>
+      match C.get? iu, C.get? iv with
+      | some u, some v => k.loc t == some u && decide ((m, v) ∈ k.pins)
+      | _, _ => false
+    | none => false
+
+/-- Check the constant targets from number `m` on against their witnesses, one each. -/
+def BuildCert.constsOk (k : BuildCert) (m : ℕ) : List Target → List (ℕ × ℕ × ℕ) → Bool
+  | [], [] => true
+  | t :: ts, w :: ws => k.constOk m t w && k.constsOk (m + 1) ts ws
+  | _, _ => false
+
+/-- What `constOk` certifies of constant target `m`, `t`. -/
+def BuildCert.PinsAt (k : BuildCert) (m : ℕ) (t : Target) : Prop :=
+  ∃ L ∈ k.cycleList, ∃ u v, k.loc t = some u ∧ u ∈ L ∧ v ∈ L ∧ (m, v) ∈ k.pins
+
+theorem BuildCert.constOk_sound {k : BuildCert} {m : ℕ} {t : Target} {w : ℕ × ℕ × ℕ}
+    (h : k.constOk m t w = true) : k.PinsAt m t := by
+  obtain ⟨ci, iu, iv⟩ := w
+  simp only [constOk] at h
+  split at h
+  · rename_i C hC
+    split at h
+    · rename_i u v hu hv
+      simp only [Bool.and_eq_true, beq_iff_eq, decide_eq_true_eq] at h
+      exact ⟨C.toList, BuildCert.mem_cycleList hC, u, v, h.1, Tbl.get?_mem hu,
+        Tbl.get?_mem hv, h.2⟩
+    · exact absurd h Bool.false_ne_true
+  · exact absurd h Bool.false_ne_true
+
+theorem BuildCert.constsOk_sound {k : BuildCert} :
+    ∀ {m : ℕ} {ts : List Target} {ws : List (ℕ × ℕ × ℕ)}, k.constsOk m ts ws = true →
+      ∀ i t, ts[i]? = some t → k.PinsAt (m + i) t
+  | _, [], _, _, _, _, h => by simp at h
+  | _, _ :: _, [], h, _, _, _ => absurd h Bool.false_ne_true
+  | m, t :: ts, w :: ws, h, i, t', ht => by
+    simp only [constsOk, Bool.and_eq_true] at h
+    cases i with
+    | zero =>
+      simp only [List.getElem?_cons_zero, Option.some.injEq] at ht
+      subst ht
+      exact h.1 |> constOk_sound
+    | succ i =>
+      simp only [List.getElem?_cons_succ] at ht
+      have := constsOk_sound h.2 i t' ht
+      rwa [Nat.add_assoc, Nat.add_comm 1 i] at this
+
+/-- Exports have no `ConstantGate` rows: `build` is what adds them. -/
+def noConstantRow : GateKind → Bool
+  | .constant _ => false
+  | _ => true
+
+/-- The export's wire targets are placed at themselves. -/
+theorem Built.Agrees.loc_wire {b : Built p} {c : Circuit p} {k : BuildCert}
+    (h : b.Agrees c k) {i : ℕ} (hi : i < k.exportRows) (j : ℕ) :
+    b.loc (.wire i j) = some (i, j) :=
+  h.loc _ _ (by simp [BuildCert.loc, hi])
+
+/-- Each export row is hosted at its own index. -/
+theorem Built.Agrees.hosts {b : Built p} {c : Circuit p} {k : BuildCert} (h : b.Agrees c k)
+    (hlen : c.rows.length ≤ k.exportRows) {i : ℕ} {r : Row p} (hi : c.rows[i]? = some r)
+    (hnc : noConstantRow r.kind = true) : b.Hosts i r := by
+  have hlt : i < k.exportRows :=
+    lt_of_lt_of_le (List.getElem?_eq_some_iff.mp hi).1 hlen
+  have hb : b.rows[i]? = some ⟨r.kind, r.consts⟩ := h.rows i r hi
+  unfold Built.Hosts
+  split
+  · rename_i n hk
+    intro k' hk'
+    exact Or.inl ⟨i, n, r.consts, k', hk ▸ hb, hk', rfl, rfl, fun m _ => h.loc_wire hlt _⟩
+  · rename_i n hk
+    exact absurd hnc (by simp [hk, noConstantRow])
+  · rename_i n hk
+    exact ⟨i, r.consts, hk ▸ hb, fun j _ => h.loc_wire hlt j⟩
+  · rename_i hk
+    exact ⟨i, r.consts, hk ▸ hb, fun j _ => h.loc_wire hlt j⟩
+  · trivial
+  · trivial
+  · trivial
+
+/-- A certified link is a `Linked` pair of the built system. -/
+theorem Built.Agrees.linked {b : Built p} {c : Circuit p} {k : BuildCert} (h : b.Agrees c k)
+    {x y : Target} (hl : k.Links x y) : b.Linked x y :=
+  let ⟨_, hL, u, v, hx, hy, hu, hv⟩ := hl
+  Or.inr ⟨u, v, h.loc x u hx, h.loc y v hy, h.chain hL hu hv⟩
+
+/-- A certified pin of constant target `m` pins the export's constant `m`. -/
+theorem Built.Agrees.pins {b : Built p} {c : Circuit p} {k : BuildCert} (h : b.Agrees c k)
+    {m : ℕ} {tc : Target × ZMod p} (hm : c.constants[m]? = some tc)
+    (hp : k.PinsAt m tc.1) : b.Pins tc.1 tc.2 := by
+  obtain ⟨L, hL, u, v, hx, hu, hv, hmv⟩ := hp
+  exact ⟨u, v, h.loc _ _ hx, h.chain hL hu hv, h.fixed (m, v) hmv tc hm⟩
+
+/-- **A certified build refines its export.** From `Agrees` and the checks of the
+    certificate against the export, which the kernel evaluates: no `ConstantGate` rows,
+    every copy linked, every constant pinned, the public-input count. -/
+theorem Built.Agrees.refines {b : Built p} {c : Circuit p} {k : BuildCert} (h : b.Agrees c k)
+    {ws cws : List (ℕ × ℕ × ℕ)}
+    (hlen : c.rows.length ≤ k.exportRows)
+    (hnc : (c.rows.map Row.kind).all noConstantRow = true)
+    (hcopies : k.copiesOk c.copies ws = true)
+    (hconsts : k.constsOk 0 (c.constants.map Prod.fst) cws = true)
+    (hpi : k.numPublicInputs = c.publicInputs.length) : b.Refines c where
+  rows i r hi := h.hosts hlen hi (by
+    have := List.all_eq_true.mp hnc r.kind
+    exact this (List.mem_map_of_mem (List.mem_of_getElem? hi)))
+  copies xy hxy := h.linked (BuildCert.copiesOk_sound hcopies xy hxy)
+  constants tc htc := by
+    obtain ⟨m, hm, rfl⟩ := List.getElem_of_mem htc
+    have hm' : c.constants[m]? = some c.constants[m] := List.getElem?_eq_getElem hm
+    have := BuildCert.constsOk_sound hconsts m c.constants[m].1
+      (by rw [List.getElem?_map, hm']; rfl)
+    rw [Nat.zero_add] at this
+    exact h.pins hm' this
+  publicInputs := h.numPublicInputs.trans hpi
 
 end Built
 
@@ -610,7 +914,11 @@ theorem Built.Refines.satisfies {perm : St p → St p} {pis : List (ZMod p)} {b 
     wires. `Built.Refines` is stated up to `loc` for that reason.
 
     Discharging this is a model of `build` on the deployed builder, or a check of
-    `Built.Refines` against an export of the built system. -/
+    `Built.Refines` against an export of the built system. The second is
+    `Built.Agrees.refines`: a circuit whose built system is certified (`BuildCert`) proves
+    its refinement from `Agrees`, and `proof_sound_of` takes that proof instead of this
+    declaration. The leaf is certified (`Plonky2Bridge.LeafBuild`); the wrappers are not,
+    since their traces are not the deployed builder's, and use this declaration. -/
 axiom build_refines_export (tag : String) (c : Circuit p)
     (children : List (Recursive p × List Target)) (b : Built p) :
     BuildOf (.node tag c children) b → b.Refines c
@@ -671,17 +979,17 @@ axiom public_input_binding (perm : St p → St p) (tag : String) (c : Circuit p)
         PublicInputBinding (c.publicInputs.map (b.witness o)) pis
 
 /-- The witness carries `pis` on the export's public-input targets: the lists have one
-    digest (`public_input_wires`) and one length, and do not collide
+    digest (`public_input_wires`) and one length (`href`), and do not collide
     (`public_input_binding`). -/
 theorem public_inputs_eq (perm : St p → St p) (tag : String) (c : Circuit p)
     (children : List (Recursive p × List Target)) (pis : List (ZMod p)) (b : Built p)
     (o : Opened p) (hev : BindingGood perm (.node tag c children))
-    (hb : BuildOf (.node tag c children) b)
+    (hb : BuildOf (.node tag c children) b) (href : b.Refines c)
     (hto : TranscriptOpens perm (.node tag c children) pis o)
     (hlen : pis.length = b.numPublicInputs) (hid : DomainIdentities perm pis b o) :
     c.publicInputs.map (b.witness o) = pis :=
   public_input_binding perm tag c children pis b o hev hb hto hid
-    (by rw [List.length_map, hlen, (build_refines_export tag c children b hb).publicInputs])
+    (by rw [List.length_map, hlen, href.publicInputs])
     (public_input_wires perm tag c children pis b o hb hid)
 
 /-- The rows a `verify_proof` gadget lays down under `r`'s verifier key hold, on targets
@@ -755,23 +1063,52 @@ theorem identical_constraints_satisfies (perm : St p → St p) (tag : String) (c
     `verify_proof` gadget is `ProofAccepted` on the child inputs it carries.
 
     `Satisfies` is `Built.Refines.satisfies` and the Poseidon2 rows are
-    `poseidon2_gate_rows`. The rest is the four obligations above and
-    `public_input_binding`, on its good event.
+    `poseidon2_gate_rows`. The rest is `public_input_wires`, `public_input_binding` on
+    its good event, and two hypotheses about the deployed builder: `href`, that the
+    system the verifier key commits to refines the export, and `hch`, that the children's
+    proofs were accepted on the targets the tree names. `verifier_algebra` supplies them
+    from `build_refines_export` and from `child_gadget_satisfied` with
+    `recursive_verifier_transcript`; a circuit with a certified build supplies `href`
+    from `Built.Agrees.refines`, and a circuit without children supplies `hch`
+    vacuously. -/
+theorem verifier_algebra_of (perm : St p → St p) (tag : String) (c : Circuit p)
+    (children : List (Recursive p × List Target)) (pis : List (ZMod p))
+    (hev : BindingGood perm (.node tag c children))
+    (href : ∀ b : Built p, BuildOf (.node tag c children) b → b.Refines c)
+    (hch : ∀ (b : Built p) (o : Opened p), BuildOf (.node tag c children) b →
+      DomainIdentities perm pis b o →
+        ∀ v ∈ children, ProofAccepted perm v.1 (v.2.map (b.witness o))) :
+    IdenticalConstraints perm (.node tag c children) pis →
+      ∃ a : Assignment p, Satisfies c a ∧ Poseidon2Rows perm c a ∧
+        c.publicInputs.map a = pis ∧ ∀ v ∈ children, ProofAccepted perm v.1 (v.2.map a) := by
+  rintro ⟨b, o, hb, hto, hlen, hid⟩
+  have href := href b hb
+  exact ⟨b.witness o, href.satisfies hid, href.poseidon2Rows hid.gate,
+    public_inputs_eq perm tag c children pis b o hev hb href hto hlen hid, hch b o hb hid⟩
+
+/-- The children's `ProofAccepted` from the two declarations: the built system holds
+    each child's gadget (`child_gadget_satisfied`), and a held gadget is an accepted proof
+    (`recursive_verifier_transcript`). -/
+theorem children_accepted (perm : St p → St p) (tag : String) (c : Circuit p)
+    (children : List (Recursive p × List Target)) (pis : List (ZMod p)) (b : Built p)
+    (o : Opened p) (hb : BuildOf (.node tag c children) b)
+    (hid : DomainIdentities perm pis b o) :
+    ∀ v ∈ children, ProofAccepted perm v.1 (v.2.map (b.witness o)) := fun v hv =>
+  recursive_verifier_transcript perm v.1 _
+    (child_gadget_satisfied perm tag c children pis b o hb hid v hv)
+
+/-- `verifier_algebra_of` with the two builder hypotheses supplied by the declarations.
 
     A proof of `proof_sound` may use only `poseidon_transcript_oracle`,
-    `fri_proximity_gap`, `algebraic_sampling`, and those five. -/
+    `fri_proximity_gap`, `algebraic_sampling`, and the five declarations above. -/
 theorem verifier_algebra (perm : St p → St p) (tag : String) (c : Circuit p)
     (children : List (Recursive p × List Target)) (pis : List (ZMod p))
     (hev : BindingGood perm (.node tag c children)) :
     IdenticalConstraints perm (.node tag c children) pis →
       ∃ a : Assignment p, Satisfies c a ∧ Poseidon2Rows perm c a ∧
-        c.publicInputs.map a = pis ∧ ∀ v ∈ children, ProofAccepted perm v.1 (v.2.map a) := by
-  rintro ⟨b, o, hb, hto, hlen, hid⟩
-  have href := build_refines_export tag c children b hb
-  exact ⟨b.witness o, href.satisfies hid, href.poseidon2Rows hid.gate,
-    public_inputs_eq perm tag c children pis b o hev hb hto hlen hid, fun v hv =>
-      recursive_verifier_transcript perm v.1 _
-        (child_gadget_satisfied perm tag c children pis b o hb hid v hv)⟩
+        c.publicInputs.map a = pis ∧ ∀ v ∈ children, ProofAccepted perm v.1 (v.2.map a) :=
+  verifier_algebra_of perm tag c children pis hev (build_refines_export tag c children)
+    (children_accepted perm tag c children pis)
 
 /-- **Proof-system soundness, composed.** On the good events for `node tag c children`,
     an accepted proof of it comes from an assignment that satisfies `c`'s exported
@@ -779,20 +1116,50 @@ theorem verifier_algebra (perm : St p → St p) (tag : String) (c : Circuit p)
     and — for every `verify_proof` gadget `(child, targets)` of `c` — had the child's
     proof accepted on the values those targets carry.
 
-    This is `verifier_algebra` after `algebraic_sampling` after `fri_proximity_gap`
-    after `poseidon_transcript_oracle`, and nothing else. The children's `ProofAccepted`
-    is unconditional; reading it through `proof_sound` again needs the children's
-    good events, which is how the wrapper capstones take one `GoodEvents` per tree. -/
+    This is `verifier_algebra_of` after `algebraic_sampling` after `fri_proximity_gap`
+    after `poseidon_transcript_oracle`, and nothing else, with the two builder
+    obligations `href` and `hch` as in `verifier_algebra_of`. The children's
+    `ProofAccepted` is unconditional; reading it through `proof_sound` again needs the
+    children's good events, which is how the wrapper capstones take one `GoodEvents` per
+    tree. -/
+theorem proof_sound_of (perm : St p → St p) (tag : String) (c : Circuit p)
+    (children : List (Recursive p × List Target)) (pis : List (ZMod p))
+    (hg : GoodEvents perm (.node tag c children))
+    (href : ∀ b : Built p, BuildOf (.node tag c children) b → b.Refines c)
+    (hch : ∀ (b : Built p) (o : Opened p), BuildOf (.node tag c children) b →
+      DomainIdentities perm pis b o →
+        ∀ v ∈ children, ProofAccepted perm v.1 (v.2.map (b.witness o)))
+    (h : ProofAccepted perm (.node tag c children) pis) :
+    ∃ a : Assignment p, Satisfies c a ∧ Poseidon2Rows perm c a ∧
+      c.publicInputs.map a = pis ∧ ∀ v ∈ children, ProofAccepted perm v.1 (v.2.map a) :=
+  verifier_algebra_of perm tag c children pis hg.binding href hch
+    (algebraic_sampling perm (.node tag c children) pis hg.sampling
+      (fri_proximity_gap perm (.node tag c children) pis hg.proximity
+        (poseidon_transcript_oracle perm tag c children pis hg.oracle h)))
+
+/-- `proof_sound_of` with the builder obligations supplied by `build_refines_export` and
+    `child_gadget_satisfied`: the reading for a circuit whose build is not certified. -/
 theorem proof_sound (perm : St p → St p) (tag : String) (c : Circuit p)
     (children : List (Recursive p × List Target)) (pis : List (ZMod p))
     (hg : GoodEvents perm (.node tag c children))
     (h : ProofAccepted perm (.node tag c children) pis) :
     ∃ a : Assignment p, Satisfies c a ∧ Poseidon2Rows perm c a ∧
       c.publicInputs.map a = pis ∧ ∀ v ∈ children, ProofAccepted perm v.1 (v.2.map a) :=
-  verifier_algebra perm tag c children pis hg.binding
-    (algebraic_sampling perm (.node tag c children) pis hg.sampling
-      (fri_proximity_gap perm (.node tag c children) pis hg.proximity
-        (poseidon_transcript_oracle perm tag c children pis hg.oracle h)))
+  proof_sound_of perm tag c children pis hg (build_refines_export tag c children)
+    (children_accepted perm tag c children pis) h
+
+/-- `proof_sound_of` for a circuit with a certified build and no children: `href` from
+    `Built.Agrees.refines`, and nothing to say of children. Its footprint has neither
+    `build_refines_export` nor `child_gadget_satisfied` nor
+    `recursive_verifier_transcript`. -/
+theorem proof_sound_leaf (perm : St p → St p) (tag : String) (c : Circuit p)
+    (pis : List (ZMod p)) (hg : GoodEvents perm (.node tag c []))
+    (href : ∀ b : Built p, BuildOf (.node tag c []) b → b.Refines c)
+    (h : ProofAccepted perm (.node tag c []) pis) :
+    ∃ a : Assignment p, Satisfies c a ∧ Poseidon2Rows perm c a ∧ c.publicInputs.map a = pis :=
+  let ⟨a, hs, hp, hpis, _⟩ :=
+    proof_sound_of perm tag c [] pis hg href (fun _ _ _ _ _ hv => nomatch hv) h
+  ⟨a, hs, hp, hpis⟩
 
 /-- `proof_sound` on a tree given by its projections. -/
 theorem proof_sound' (perm : St p → St p) (r : Recursive p) (pis : List (ZMod p))

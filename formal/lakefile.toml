@@ -49,4 +49,4 @@ name = "Plonky2Spec"
 name = "Plonky2Bridge"
 roots = ["Plonky2Bridge", "Plonky2Bridge.PublicBatch", "Plonky2Bridge.Complete", "Plonky2Bridge.Wiring",
   "Plonky2Bridge.PrivateBatch", "Plonky2Bridge.PrivateWrapper", "Plonky2Bridge.PublicWrapper",
-  "Plonky2Bridge.Leaf", "Plonky2Bridge.LeafWired", "Plonky2Bridge.Trusted"]
+  "Plonky2Bridge.Leaf", "Plonky2Bridge.LeafWired", "Plonky2Bridge.Trusted", "Plonky2Bridge.LeafBuild"]

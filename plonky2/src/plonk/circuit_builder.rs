@@ -49,7 +49,7 @@ use crate::plonk::circuit_data::{
 };
 use crate::plonk::config::{AlgebraicHasher, GenericConfig, GenericHashOut, Hasher};
 use crate::plonk::copy_constraint::CopyConstraint;
-use crate::plonk::permutation_argument::Forest;
+use crate::plonk::permutation_argument::{Forest, WirePartition};
 use crate::plonk::plonk_common::PlonkOracle;
 use crate::timed;
 use crate::util::context_tree::ContextTree;
@@ -91,6 +91,35 @@ pub struct FormalExportView<'a, F: RichField + Extendable<D>, const D: usize> {
     pub lookups: &'a [Lookup],
     /// Number of virtual targets allocated so far (`add_virtual_target` indices are `0..n`).
     pub num_virtual_targets: usize,
+}
+
+/// The built constraint system as the verifier's identities read it, for the
+/// formal-verification constraint exporter (`constraint-exporter/`, `formal/PLAN.md`
+/// Step 16): the rows of the padded domain, the wire permutation `σ` the permutation
+/// argument commits to, the copy-class representative of every target, and the routed
+/// constant wires. Returned by `CircuitBuilder::try_build_with_formal_view` (feature
+/// `formal-export`); `build` itself never fills it.
+#[doc(hidden)]
+#[derive(Clone, Debug)]
+pub struct FormalBuiltView<F: RichField + Extendable<D>, const D: usize> {
+    /// The gate instances of the padded domain, row by row: the pre-`build` rows, then
+    /// the `PublicInputGate`, lookup gates, `ConstantGate`s, blinding and padding rows.
+    pub gate_instances: Vec<GateInstance<F, D>>,
+    pub num_wires: usize,
+    pub num_routed_wires: usize,
+    pub num_challenges: usize,
+    pub num_public_inputs: usize,
+    /// `σ` on routed positions: entry `row * num_routed_wires + column` is the
+    /// `(row, column)` that follows `(row, column)` in its copy class, in the row-major
+    /// order `WirePartition::get_sigma_map` uses; a wire alone in its class maps to itself.
+    pub sigma: Vec<(usize, usize)>,
+    /// The copy-class representative of every target, indexed by
+    /// `Target::index(num_wires, degree)`: all wires of the domain, then the virtual
+    /// targets. Two targets are in one class iff they have one representative.
+    pub representatives: Vec<usize>,
+    /// The routed constant wires `build` assigns: `(row, column, constant)` for each
+    /// constant target, on a `ConstantGate` wire or a spare constant wire of a gate.
+    pub fixed: Vec<(usize, usize, F)>,
 }
 
 /// Structure containing, for each lookup table, the indices of the last lookup row,
@@ -1056,7 +1085,11 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         .collect()
     }
 
-    fn sigma_vecs(&self, k_is: &[F], subgroup: &[F]) -> (Vec<PolynomialValues<F>>, Forest) {
+    fn sigma_vecs(
+        &self,
+        k_is: &[F],
+        subgroup: &[F],
+    ) -> (Vec<PolynomialValues<F>>, Forest, WirePartition) {
         let degree = self.gate_instances.len();
         let degree_log = log2_strict(degree);
         let config = &self.config;
@@ -1090,6 +1123,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         (
             wire_partition.get_sigma_polys(degree_log, k_is, subgroup),
             forest,
+            wire_partition,
         )
     }
 
@@ -1140,9 +1174,38 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     }
 
     pub fn try_build_with_options<C: GenericConfig<D, F = F>>(
-        mut self,
+        self,
         commit_to_sigma: bool,
     ) -> (CircuitData<F, C, D>, bool)
+    where
+        C::InnerHasher: AlgebraicHasher<F>,
+    {
+        let (circuit_data, success, _) = self.build_inner(commit_to_sigma, false);
+        (circuit_data, success)
+    }
+
+    /// `try_build_with_options`, also returning the built constraint system as the
+    /// verifier's identities read it, for the formal-verification constraint exporter.
+    #[cfg(feature = "formal-export")]
+    #[doc(hidden)]
+    pub fn try_build_with_formal_view<C: GenericConfig<D, F = F>>(
+        self,
+        commit_to_sigma: bool,
+    ) -> (CircuitData<F, C, D>, bool, FormalBuiltView<F, D>)
+    where
+        C::InnerHasher: AlgebraicHasher<F>,
+    {
+        let (circuit_data, success, view) = self.build_inner(commit_to_sigma, true);
+        (circuit_data, success, view.expect("formal view requested"))
+    }
+
+    /// The body of `build`. With `formal_view`, also records the built system
+    /// (`FormalBuiltView`); without it, that costs nothing.
+    fn build_inner<C: GenericConfig<D, F = F>>(
+        mut self,
+        commit_to_sigma: bool,
+        formal_view: bool,
+    ) -> (CircuitData<F, C, D>, bool, Option<FormalBuiltView<F, D>>)
     where
         C::InnerHasher: AlgebraicHasher<F>,
     {
@@ -1185,6 +1248,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         }
 
         // For each constant-target pair used in the circuit, use a constant generator to fill this target.
+        let mut fixed = Vec::new();
         for ((c, t), mut const_gen) in self
             .constants_to_targets
             .clone()
@@ -1196,6 +1260,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         {
             // Set the constant in the constant polynomial.
             self.gate_instances[const_gen.row].constants[const_gen.constant_index] = c;
+            fixed.push((const_gen.row, const_gen.wire_index, c));
             // Generate a copy between the target and the routable wire.
             self.connect(Target::wire(const_gen.row, const_gen.wire_index), t);
             // Set the constant in the generator (it's initially set with a dummy value).
@@ -1236,11 +1301,23 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         let subgroup = F::two_adic_subgroup(degree_bits);
 
         let k_is = get_unique_coset_shifts(degree, self.config.num_routed_wires);
-        let (sigma_vecs, forest) = timed!(
+        let (sigma_vecs, forest, wire_partition) = timed!(
             timing,
             "generate sigma polynomials",
             self.sigma_vecs(&k_is, &subgroup)
         );
+        let formal = formal_view.then(|| {
+            let routed = self.config.num_routed_wires;
+            let by_column = wire_partition.get_sigma_map(degree, routed);
+            let mut sigma = vec![(0, 0); degree * routed];
+            for column in 0..routed {
+                for row in 0..degree {
+                    let next = by_column[column * degree + row];
+                    sigma[row * routed + column] = (next % degree, next / degree);
+                }
+            }
+            (sigma, forest.parents.clone(), fixed)
+        });
 
         let constants_sigmas_commitment = if commit_to_sigma {
             let constants_sigmas_vecs = [constant_vecs, sigma_vecs.clone()].concat();
@@ -1394,6 +1471,17 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             circuit_digest,
         };
 
+        let formal = formal.map(|(sigma, representatives, fixed)| FormalBuiltView {
+            gate_instances: self.gate_instances,
+            num_wires: common.config.num_wires,
+            num_routed_wires: common.config.num_routed_wires,
+            num_challenges: common.config.num_challenges,
+            num_public_inputs,
+            sigma,
+            representatives,
+            fixed,
+        });
+
         timing.print();
         #[cfg(feature = "timing")]
         debug!("Building circuit took {}s", start.elapsed().as_secs_f32());
@@ -1404,6 +1492,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
                 common,
             },
             success,
+            formal,
         )
     }
 

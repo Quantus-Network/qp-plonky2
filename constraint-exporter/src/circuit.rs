@@ -199,7 +199,7 @@ pub fn chunks(len: usize) -> Option<Vec<Range<usize>>> {
 }
 
 /// The `++` tree over chunk definitions `prefix{k}` for `k` in `lo..hi`.
-fn chunk_tree(prefix: &str, lo: usize, hi: usize) -> String {
+pub(crate) fn chunk_tree(prefix: &str, lo: usize, hi: usize) -> String {
     if hi - lo == 1 {
         format!("{prefix}{lo}")
     } else {

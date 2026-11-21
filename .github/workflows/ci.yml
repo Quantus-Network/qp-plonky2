@@ -226,23 +226,36 @@ jobs:
           )
           algebra=("${obligations[@]}" Plonky2Bridge.public_input_binding)
           trusted=("${assumptions[@]}" "${algebra[@]}")
+          # The leaf's build is certified (Step 16): its path through `proof_sound_leaf` has
+          # neither `build_refines_export` nor the two child obligations, and rests on the
+          # one per-circuit trusted declaration `LeafCircuit.build_agrees` instead. The
+          # private-wrapper capstones on wiring read only leaf proofs, so they have the
+          # leaf's footprint too; anything that reads a wrapper proof (`Wrapper{n}.
+          # accepted_sound`, the public-wrapper capstones) is `trusted` plus that one.
+          leaf_algebra=(Plonky2Bridge.public_input_wires Plonky2Bridge.public_input_binding)
+          leaf_trusted=("${assumptions[@]}" "${leaf_algebra[@]}")
+          leaf_cert=(Plonky2Bridge.LeafCircuit.build_agrees)
           expect Plonky2Bridge.proof_sound "${base[@]}" "${trusted[@]}"
           expect Plonky2Bridge.verifier_algebra "${base[@]}" "${algebra[@]}"
           expect Plonky2Bridge.identical_constraints_satisfies "${base[@]}" Plonky2Bridge.build_refines_export
           expect Plonky2Bridge.Built.Refines.satisfies "${base[@]}"
           expect Plonky2Bridge.poseidon2_gate_rows "${base[@]}"
+          expect Plonky2Bridge.proof_sound_leaf "${base[@]}" "${leaf_trusted[@]}"
+          expect Plonky2Bridge.Built.Agrees.refines propext Quot.sound
+          expect Plonky2Bridge.LeafCircuit.build_refines_of_agrees propext Quot.sound
+          expect Plonky2Bridge.LeafCircuit.build_refines propext Quot.sound "${leaf_cert[@]}"
           expect Plonky2Bridge.private_batch_end_to_end "${base[@]}"
           expect Plonky2Bridge.public_batch_end_to_end "${base[@]}"
-          expect Plonky2Bridge.private_batch_end_to_end_wired "${base[@]}" "${trusted[@]}"
-          expect Plonky2Bridge.private_batch_end_to_end_wired_n4 "${base[@]}" "${trusted[@]}"
-          expect Plonky2Bridge.private_batch_end_to_end_wired_production "${base[@]}" "${trusted[@]}"
-          expect Plonky2Bridge.public_batch_end_to_end_wired "${base[@]}" "${trusted[@]}"
-          expect Plonky2Bridge.public_batch_end_to_end_wired_n4 "${base[@]}" "${trusted[@]}"
-          expect Plonky2Bridge.public_batch_end_to_end_wired_production "${base[@]}" "${trusted[@]}"
-          expect Plonky2Bridge.LeafCircuit.accepted_sound "${base[@]}" "${trusted[@]}"
-          expect Plonky2Bridge.Wrapper2.accepted_sound "${base[@]}" "${trusted[@]}"
-          expect Plonky2Bridge.Wrapper4.accepted_sound "${base[@]}" "${trusted[@]}"
-          expect Plonky2Bridge.Wrapper8.accepted_sound "${base[@]}" "${trusted[@]}"
+          expect Plonky2Bridge.private_batch_end_to_end_wired "${base[@]}" "${leaf_trusted[@]}" "${leaf_cert[@]}"
+          expect Plonky2Bridge.private_batch_end_to_end_wired_n4 "${base[@]}" "${leaf_trusted[@]}" "${leaf_cert[@]}"
+          expect Plonky2Bridge.private_batch_end_to_end_wired_production "${base[@]}" "${leaf_trusted[@]}" "${leaf_cert[@]}"
+          expect Plonky2Bridge.public_batch_end_to_end_wired "${base[@]}" "${trusted[@]}" "${leaf_cert[@]}"
+          expect Plonky2Bridge.public_batch_end_to_end_wired_n4 "${base[@]}" "${trusted[@]}" "${leaf_cert[@]}"
+          expect Plonky2Bridge.public_batch_end_to_end_wired_production "${base[@]}" "${trusted[@]}" "${leaf_cert[@]}"
+          expect Plonky2Bridge.LeafCircuit.accepted_sound "${base[@]}" "${leaf_trusted[@]}" "${leaf_cert[@]}"
+          expect Plonky2Bridge.Wrapper2.accepted_sound "${base[@]}" "${trusted[@]}" "${leaf_cert[@]}"
+          expect Plonky2Bridge.Wrapper4.accepted_sound "${base[@]}" "${trusted[@]}" "${leaf_cert[@]}"
+          expect Plonky2Bridge.Wrapper8.accepted_sound "${base[@]}" "${trusted[@]}" "${leaf_cert[@]}"
           expect Plonky2Bridge.Wrapper2.sound "${base[@]}"
           expect Plonky2Bridge.Wrapper4.sound "${base[@]}"
           expect Plonky2Bridge.Wrapper8.sound "${base[@]}"
