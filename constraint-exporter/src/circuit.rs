@@ -15,6 +15,7 @@ use core::ops::Range;
 
 use plonky2::field::goldilocks_field::GoldilocksField;
 use plonky2::field::types::{Field, PrimeField64};
+use plonky2::hash::poseidon::Permuter;
 use plonky2::hash::poseidon2::P2Permuter;
 use plonky2::iop::target::Target;
 use plonky2::plonk::circuit_builder::CircuitBuilder;
@@ -41,6 +42,9 @@ pub enum GateKind {
     },
     /// `Poseidon2Gate<WIDTH=12>`.
     Poseidon2,
+    /// `PoseidonGate<WIDTH=12>`: the proof-system hash's gate, which `build` lays down for
+    /// the public-input hash. Not a wormhole gate; the exports have none.
+    Poseidon,
     Other(String),
 }
 
@@ -93,6 +97,9 @@ pub(crate) fn classify(id: &str) -> GateKind {
     }
     if id == "Poseidon2Gate<WIDTH=12>" {
         return GateKind::Poseidon2;
+    }
+    if id.starts_with("PoseidonGate") && id.ends_with("<WIDTH=12>") {
+        return GateKind::Poseidon;
     }
     GateKind::Other(id.to_string())
 }
@@ -177,6 +184,7 @@ fn lean_kind(k: &GateKind) -> String {
         GateKind::Noop => ".noop".to_string(),
         GateKind::BaseSum2 { num_limbs } => format!(".baseSum2 {num_limbs}"),
         GateKind::Poseidon2 => ".poseidon2".to_string(),
+        GateKind::Poseidon => ".poseidon".to_string(),
         GateKind::Other(id) => format!(".other {id:?}"),
     }
 }
@@ -394,6 +402,16 @@ pub fn check_satisfied(ex: &CircuitExport, a: impl Fn(Target) -> F) -> Result<()
                     }
                 }
             }
+            GateKind::Poseidon => {
+                let input: [F; 12] = core::array::from_fn(|i| w(row, i));
+                let output: [F; 12] = core::array::from_fn(|i| w(row, 12 + i));
+                if w(row, 24) != F::ZERO {
+                    return Err(format!("poseidon row {row} has its swap wire set"));
+                }
+                if output != <F as Permuter>::permute(input) {
+                    return Err(format!("poseidon row {row} output is not the permutation"));
+                }
+            }
             GateKind::PublicInput | GateKind::Noop | GateKind::Other(_) => {}
         }
     }
@@ -537,8 +555,12 @@ mod tests {
             GateKind::Other(_)
         ));
         assert_eq!(classify("Poseidon2Gate<WIDTH=12>"), GateKind::Poseidon2);
+        assert_eq!(
+            classify("PoseidonGate(PhantomData<GoldilocksField>)<WIDTH=12>"),
+            GateKind::Poseidon
+        );
         assert!(matches!(
-            classify("PoseidonGate(..)<WIDTH=12>"),
+            classify("PoseidonGate(..)<WIDTH=8>"),
             GateKind::Other(_)
         ));
     }

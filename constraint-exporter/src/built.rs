@@ -655,6 +655,7 @@ def {name} : Tbl (ℕ × ℕ) := {expr}
             GateKind::Noop => ".noop".into(),
             GateKind::BaseSum2 { num_limbs } => format!(".baseSum2 {num_limbs}"),
             GateKind::Poseidon2 => ".poseidon2".into(),
+            GateKind::Poseidon => ".poseidon".into(),
             GateKind::Other(id) => format!(".other {id:?}"),
         })
         .collect();
