@@ -1,0 +1,202 @@
+---
+# The Lean side of CI, one job: the gadget→constraint model (`Plonky2Spec`, the default
+# target), the cross-package bridge (`Plonky2Bridge`, wormholeSpec pinned in
+# lake-manifest.json), the vendored-trace check, and the axiom-footprint gate. The bridge
+# build reuses the spec's `.olean`s, so one job is half the CPU of two.
+#
+# The package's own `.lake/build` is cached between runs (mathlib's comes from
+# `lake exe cache get`). Lake rebuilds by content hash, so a restored cache skips every
+# module whose sources are unchanged; the key is exact on the sources, with a fallback to
+# the most recent cache for the same toolchain and manifest — on a pull request, `main`'s.
+# A change to a module everything imports (`Plonky2Spec/Wiring.lean`) still pays a cold
+# build, once.
+#
+# The production public wrapper (`Plonky2BridgeProduction`, `n_inner = 89`) is most of a
+# cold build — some 20,000 generated gadget-fact theorems and 89 forwarding modules — and
+# is built only with `full`: `ci.yml` sets it on pushes to `main` and on pull requests
+# carrying `release-proposal` or `formal-full`; `formal-full.yml` sets it when one of
+# those labels is added to an open pull request. Every pull request builds the
+# `n_inner = 2` and `4` shapes of the same capstone.
+name: Formal
+
+on:
+  workflow_call:
+    inputs:
+      full:
+        description: Also build and gate the production public wrapper (n_inner = 89).
+        required: true
+        type: boolean
+
+jobs:
+  formal:
+    name: Lean
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      FORMAL_FULL: ${{ inputs.full }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore Lean build cache
+        id: lean-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            formal/.lake/build
+            formal/.lake/packages/wormholeSpec/formal/.lake/build
+          key: lean-${{ runner.os }}-${{ hashFiles('formal/lean-toolchain', 'formal/lake-manifest.json') }}-${{ hashFiles('formal/**/*.lean') }}
+          restore-keys: |
+            lean-${{ runner.os }}-${{ hashFiles('formal/lean-toolchain', 'formal/lake-manifest.json') }}-
+      # Builds the Lean 4 gadget→constraint model under `formal/` (see formal/PLAN.md).
+      # `lake build` type-checks every proof in the kernel, so a later edit that
+      # breaks a proof fails CI instead of rotting silently. elan/lake come from
+      # `formal/lean-toolchain` (Lean v4.30). `leanchecker` re-checks the compiled
+      # environment with an independent kernel checker (bundled on v4.30).
+      #
+      # The package depends on mathlib (pinned to v4.30.0) for the `ZMod p` field
+      # model, so `use-mathlib-cache: true` makes the action fetch the prebuilt
+      # `.olean` cache instead of compiling mathlib from source.
+      - name: Build formal spec (lake build)
+        # Pinned to a full commit SHA (supply-chain hardening). 38fbc41 == v1.5.0.
+        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1.5.0
+        with:
+          lake-package-directory: "formal"
+          use-mathlib-cache: "true"
+          leanchecker: "true"
+      # No-`sorry` gate: the model must stay gap-free. Fail if any proof term uses a
+      # `sorry`/`admit`/`sorryAx` placeholder. Exclude `.lake/` — after `lake build`
+      # mathlib (and other deps) live there and legitimately contain `sorry` in tactic
+      # docs/examples. (Keep those literal words out of comments/strings in our sources
+      # under `formal/` so this stays a clean signal.)
+      - name: Assert the spec contains no sorry/admit
+        run: |
+          if grep -rEn '\b(sorry|admit|sorryAx)\b' --include='*.lean' formal --exclude-dir=.lake; then
+            echo "::error::formal spec contains a sorry/admit placeholder"
+            exit 1
+          fi
+
+      # The headline deliverables (`Plonky2Bridge.private_batch_end_to_end` and
+      # `Plonky2Bridge.public_batch_end_to_end`) live outside `defaultTargets`. Build the
+      # cross-package bridge, and the production wrapper on full runs; the gate below
+      # asserts each capstone's axiom footprint is exactly the standard Lean axioms plus,
+      # where the theorem consumes an accepted proof, the declarations `proof_sound`
+      # rests on (none for the leaf wiring capstone, the base of the recursion) — not
+      # e.g. `sorryAx`, `Lean.ofReduceBool`, or a silent compile failure.
+      - name: Build Plonky2Bridge (cross-package capstone)
+        run: cd formal && lake build Plonky2Bridge
+      - name: Build Plonky2BridgeProduction (n_inner = 89)
+        if: env.FORMAL_FULL == 'true'
+        run: cd formal && lake build Plonky2BridgeProduction
+      # Save whatever was built, even after a failure, so the next run resumes from it.
+      # An exact hit needs no save; a save on an existing key is a no-op with a warning.
+      - name: Save Lean build cache
+        if: always() && steps.lean-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            formal/.lake/build
+            formal/.lake/packages/wormholeSpec/formal/.lake/build
+          key: ${{ steps.lean-cache.outputs.cache-primary-key }}
+      # The exporter's `Generated/*Wrapper*.lean` are produced from the vendored copies of
+      # the qp-zk-circuits gadget-call traces in `constraint-exporter/traces/`. The only job
+      # with the pinned `wormholeSpec` package on disk is this one (after `lake build`), so
+      # this is where vendored == pinned is enforced; `FORMAL_TRACES_STRICT` turns the
+      # tests' "package not fetched" skip into a failure.
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@nightly
+      - name: Assert vendored traces match the pinned wormholeSpec package
+        env:
+          FORMAL_TRACES_STRICT: "1"
+        run: |
+          cargo test -p qp-plonky2-constraint-exporter \
+            --test private_batch_wrapper --test public_batch_wrapper --test leaf_circuit \
+            vendored_trace_matches_pinned_package -- --nocapture
+      - name: Assert capstone axiom footprints
+        run: |
+          set -euo pipefail
+          cd formal
+          output=$(lake env lean ci/AxiomsCheck.lean 2>&1)
+          if [ "$FORMAL_FULL" = true ]; then
+            output+=$'\n'$(lake env lean ci/AxiomsCheckProduction.lean 2>&1)
+          fi
+          printf '%s\n' "$output"
+          # expect <theorem> <axiom...>: the footprint must be exactly the named axioms.
+          # `proof_sound` is a theorem. Its footprint is the standard propositional axioms
+          # plus the three assumptions and what is left of `verifier_algebra`: the four
+          # obligations and the public-input binding assumption. Capstones that consume an
+          # accepted proof have that same footprint. The assumptions are implications on
+          # their good events (`GoodEvents`), taken as hypotheses, not axioms.
+          expect() {
+            local thm="$1"
+            shift
+            local block axioms expected
+            block=$(awk -v pat="'$thm' depends on axioms:" \
+              'index($0, pat) { f = 1 } f { printf "%s", $0; if (index($0, "]")) exit }' <<< "$output")
+            if [ -z "$block" ]; then
+              echo "::error::could not read #print axioms for $thm"
+              exit 1
+            fi
+            axioms=$(sed 's/.*\[\(.*\)\].*/\1/' <<< "$block" | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | grep -v '^$' | sort)
+            expected=$(printf '%s\n' "$@" | sort)
+            if [ "$axioms" != "$expected" ]; then
+              echo "::error::$thm axiom footprint mismatch"
+              echo "expected exactly:"
+              printf '  %s\n' "$expected"
+              echo "got:"
+              printf '  %s\n' "$axioms"
+              exit 1
+            fi
+          }
+          base=(propext Classical.choice Quot.sound)
+          assumptions=(
+            Plonky2Bridge.poseidon_transcript_oracle
+            Plonky2Bridge.fri_proximity_gap
+            Plonky2Bridge.algebraic_sampling
+          )
+          obligations=(
+            Plonky2Bridge.build_refines_export
+            Plonky2Bridge.public_input_wires
+            Plonky2Bridge.child_gadget_satisfied
+            Plonky2Bridge.recursive_verifier_transcript
+          )
+          algebra=("${obligations[@]}" Plonky2Bridge.public_input_binding)
+          trusted=("${assumptions[@]}" "${algebra[@]}")
+          # The leaf's build is certified (Step 16): its path through `proof_sound_leaf` has
+          # neither `build_refines_export` nor the two child obligations, and rests on the
+          # one per-circuit trusted declaration `LeafCircuit.build_agrees` instead. The
+          # private-wrapper capstones on wiring read only leaf proofs, so they have the
+          # leaf's footprint too; anything that reads a wrapper proof (`Wrapper{n}.
+          # accepted_sound`, the public-wrapper capstones) is `trusted` plus that one.
+          leaf_algebra=(Plonky2Bridge.public_input_wires Plonky2Bridge.public_input_binding)
+          leaf_trusted=("${assumptions[@]}" "${leaf_algebra[@]}")
+          leaf_cert=(Plonky2Bridge.LeafCircuit.build_agrees)
+          expect Plonky2Bridge.proof_sound "${base[@]}" "${trusted[@]}"
+          expect Plonky2Bridge.verifier_algebra "${base[@]}" "${algebra[@]}"
+          expect Plonky2Bridge.identical_constraints_satisfies "${base[@]}" Plonky2Bridge.build_refines_export
+          expect Plonky2Bridge.Built.Refines.satisfies "${base[@]}"
+          expect Plonky2Bridge.poseidon2_gate_rows "${base[@]}"
+          expect Plonky2Bridge.proof_sound_leaf "${base[@]}" "${leaf_trusted[@]}"
+          expect Plonky2Bridge.Built.Agrees.refines propext Quot.sound
+          expect Plonky2Bridge.LeafCircuit.build_refines_of_agrees propext Quot.sound
+          expect Plonky2Bridge.LeafCircuit.build_refines propext Quot.sound "${leaf_cert[@]}"
+          expect Plonky2Bridge.private_batch_end_to_end "${base[@]}"
+          expect Plonky2Bridge.public_batch_end_to_end "${base[@]}"
+          expect Plonky2Bridge.private_batch_end_to_end_wired "${base[@]}" "${leaf_trusted[@]}" "${leaf_cert[@]}"
+          expect Plonky2Bridge.private_batch_end_to_end_wired_n4 "${base[@]}" "${leaf_trusted[@]}" "${leaf_cert[@]}"
+          expect Plonky2Bridge.private_batch_end_to_end_wired_production "${base[@]}" "${leaf_trusted[@]}" "${leaf_cert[@]}"
+          expect Plonky2Bridge.public_batch_end_to_end_wired "${base[@]}" "${trusted[@]}" "${leaf_cert[@]}"
+          expect Plonky2Bridge.public_batch_end_to_end_wired_n4 "${base[@]}" "${trusted[@]}" "${leaf_cert[@]}"
+          expect Plonky2Bridge.LeafCircuit.accepted_sound "${base[@]}" "${leaf_trusted[@]}" "${leaf_cert[@]}"
+          expect Plonky2Bridge.Wrapper2.accepted_sound "${base[@]}" "${trusted[@]}" "${leaf_cert[@]}"
+          expect Plonky2Bridge.Wrapper4.accepted_sound "${base[@]}" "${trusted[@]}" "${leaf_cert[@]}"
+          expect Plonky2Bridge.Wrapper8.accepted_sound "${base[@]}" "${trusted[@]}" "${leaf_cert[@]}"
+          expect Plonky2Bridge.Wrapper2.sound "${base[@]}"
+          expect Plonky2Bridge.Wrapper4.sound "${base[@]}"
+          expect Plonky2Bridge.Wrapper8.sound "${base[@]}"
+          expect Plonky2Bridge.PublicWrapper2.sound "${base[@]}"
+          expect Plonky2Bridge.PublicWrapper4.sound "${base[@]}"
+          expect Plonky2Bridge.leaf_wired "${base[@]}"
+          expect Plonky2Bridge.LeafCircuit.sound "${base[@]}"
+          if [ "$FORMAL_FULL" = true ]; then
+            expect Plonky2Bridge.public_batch_end_to_end_wired_production "${base[@]}" "${trusted[@]}" "${leaf_cert[@]}"
+            expect Plonky2Bridge.PublicWrapper89.sound "${base[@]}"
+          fi
