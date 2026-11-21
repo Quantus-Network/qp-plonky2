@@ -110,12 +110,41 @@ jobs:
       - name: Run doc
         run: cargo doc --no-deps
 
-  formal-spec:
-    name: 📐 Formal Spec (Lean)
+  # The Lean side, one job: the gadget→constraint model (`Plonky2Spec`, the default
+  # target), the cross-package bridge (`Plonky2Bridge`, wormholeSpec pinned in
+  # lake-manifest.json), the vendored-trace check, and the axiom-footprint gate. The
+  # bridge build reuses the spec's `.olean`s, so one job is half the CPU of two.
+  #
+  # The package's own `.lake/build` is cached between runs (mathlib's comes from
+  # `lake exe cache get`). Lake rebuilds by content hash, so a restored cache skips every
+  # module whose sources are unchanged; the key is exact on the sources, with a fallback
+  # to the most recent cache for the same toolchain and manifest — on a pull request,
+  # `main`'s. A change to a module everything imports (`Plonky2Spec/Wiring.lean`) still
+  # pays a cold build, once.
+  #
+  # The production public wrapper (`Plonky2BridgeProduction`, `n_inner = 89`) is most of
+  # a cold build — some 20,000 generated gadget-fact theorems and 89 forwarding modules —
+  # and is built only when `full` is set: on pushes to `main`, on release pull requests
+  # (label `release-proposal`), and on pull requests labelled `formal-full`. Every pull
+  # request builds the `n_inner = 2` and `4` shapes of the same capstone.
+  formal:
+    name: 📐 Formal (Lean)
     runs-on: ubuntu-latest
     timeout-minutes: 240
+    env:
+      FORMAL_FULL: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'release-proposal') || contains(github.event.pull_request.labels.*.name, 'formal-full') }}
     steps:
       - uses: actions/checkout@v4
+      - name: Restore Lean build cache
+        id: lean-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            formal/.lake/build
+            formal/.lake/packages/wormholeSpec/formal/.lake/build
+          key: lean-${{ runner.os }}-${{ hashFiles('formal/lean-toolchain', 'formal/lake-manifest.json') }}-${{ hashFiles('formal/**/*.lean') }}
+          restore-keys: |
+            lean-${{ runner.os }}-${{ hashFiles('formal/lean-toolchain', 'formal/lake-manifest.json') }}-
       # Builds the Lean 4 gadget→constraint model under `formal/` (see formal/PLAN.md).
       # `lake build` type-checks every proof in the kernel, so a later edit that
       # breaks a proof fails CI instead of rotting silently. elan/lake come from
@@ -144,27 +173,28 @@ jobs:
             exit 1
           fi
 
-  # The headline deliverables (`Plonky2Bridge.private_batch_end_to_end` and
-  # `Plonky2Bridge.public_batch_end_to_end`) live outside `defaultTargets`, so the
-  # `formal-spec` job above never compiles them. This job builds the cross-package bridge
-  # (wormholeSpec pinned in lake-manifest.json) and asserts each capstone's axiom footprint
-  # is exactly the standard Lean axioms plus, where the theorem consumes an accepted proof,
-  # the three assumptions and the five declarations under `verifier_algebra` that
-  # `proof_sound` rests on (none for the leaf wiring capstone, the base of the recursion)
-  # — not e.g. `sorryAx`, `Lean.ofReduceBool`, or a silent compile failure.
-  formal-bridge:
-    name: 📐 Formal Bridge (Lean)
-    runs-on: ubuntu-latest
-    timeout-minutes: 240
-    steps:
-      - uses: actions/checkout@v4
-      - name: Prepare Lean toolchain + mathlib cache
-        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1.5.0
-        with:
-          lake-package-directory: "formal"
-          use-mathlib-cache: "true"
+      # The headline deliverables (`Plonky2Bridge.private_batch_end_to_end` and
+      # `Plonky2Bridge.public_batch_end_to_end`) live outside `defaultTargets`. Build the
+      # cross-package bridge, and the production wrapper on full runs; the gate below
+      # asserts each capstone's axiom footprint is exactly the standard Lean axioms plus,
+      # where the theorem consumes an accepted proof, the declarations `proof_sound`
+      # rests on (none for the leaf wiring capstone, the base of the recursion) — not
+      # e.g. `sorryAx`, `Lean.ofReduceBool`, or a silent compile failure.
       - name: Build Plonky2Bridge (cross-package capstone)
         run: cd formal && lake build Plonky2Bridge
+      - name: Build Plonky2BridgeProduction (n_inner = 89)
+        if: env.FORMAL_FULL == 'true'
+        run: cd formal && lake build Plonky2BridgeProduction
+      # Save whatever was built, even after a failure, so the next run resumes from it.
+      # An exact hit needs no save; a save on an existing key is a no-op with a warning.
+      - name: Save Lean build cache
+        if: always() && steps.lean-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            formal/.lake/build
+            formal/.lake/packages/wormholeSpec/formal/.lake/build
+          key: ${{ steps.lean-cache.outputs.cache-primary-key }}
       # The exporter's `Generated/*Wrapper*.lean` are produced from the vendored copies of
       # the qp-zk-circuits gadget-call traces in `constraint-exporter/traces/`. The only job
       # with the pinned `wormholeSpec` package on disk is this one (after `lake build`), so
@@ -184,6 +214,9 @@ jobs:
           set -euo pipefail
           cd formal
           output=$(lake env lean ci/AxiomsCheck.lean 2>&1)
+          if [ "$FORMAL_FULL" = true ]; then
+            output+=$'\n'$(lake env lean ci/AxiomsCheckProduction.lean 2>&1)
+          fi
           printf '%s\n' "$output"
           # expect <theorem> <axiom...>: the footprint must be exactly the named axioms.
           # `proof_sound` is a theorem. Its footprint is the standard propositional axioms
@@ -251,7 +284,6 @@ jobs:
           expect Plonky2Bridge.private_batch_end_to_end_wired_production "${base[@]}" "${leaf_trusted[@]}" "${leaf_cert[@]}"
           expect Plonky2Bridge.public_batch_end_to_end_wired "${base[@]}" "${trusted[@]}" "${leaf_cert[@]}"
           expect Plonky2Bridge.public_batch_end_to_end_wired_n4 "${base[@]}" "${trusted[@]}" "${leaf_cert[@]}"
-          expect Plonky2Bridge.public_batch_end_to_end_wired_production "${base[@]}" "${trusted[@]}" "${leaf_cert[@]}"
           expect Plonky2Bridge.LeafCircuit.accepted_sound "${base[@]}" "${leaf_trusted[@]}" "${leaf_cert[@]}"
           expect Plonky2Bridge.Wrapper2.accepted_sound "${base[@]}" "${trusted[@]}" "${leaf_cert[@]}"
           expect Plonky2Bridge.Wrapper4.accepted_sound "${base[@]}" "${trusted[@]}" "${leaf_cert[@]}"
@@ -261,9 +293,12 @@ jobs:
           expect Plonky2Bridge.Wrapper8.sound "${base[@]}"
           expect Plonky2Bridge.PublicWrapper2.sound "${base[@]}"
           expect Plonky2Bridge.PublicWrapper4.sound "${base[@]}"
-          expect Plonky2Bridge.PublicWrapper89.sound "${base[@]}"
           expect Plonky2Bridge.leaf_wired "${base[@]}"
           expect Plonky2Bridge.LeafCircuit.sound "${base[@]}"
+          if [ "$FORMAL_FULL" = true ]; then
+            expect Plonky2Bridge.public_batch_end_to_end_wired_production "${base[@]}" "${trusted[@]}" "${leaf_cert[@]}"
+            expect Plonky2Bridge.PublicWrapper89.sound "${base[@]}"
+          fi
 
   security-audit:
     name: 🔒 Security Audit

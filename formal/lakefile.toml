@@ -12,12 +12,13 @@
 #     lake update mathlib      # resolves mathlib + transitive deps (writes the manifest)
 #     lake exe cache get        # downloads prebuilt .olean cache (run BEFORE `lake build`)
 #     lake build
-# CI: flip the `formal-spec` job to `use-mathlib-cache: "true"` so the runner
-# fetches the cache instead of compiling mathlib from source.
-# `defaultTargets` is *only* `Plonky2Spec`: the hermetic `lake build` (and the
-# `formal-spec` CI job) build the mathlib gadget model alone, with no dependency on
-# the `qp-zk-circuits` spec package. The cross-package bridge below is an explicit,
-# opt-in target (`lake build Plonky2Bridge`) that pulls the spec from GitHub.
+# CI (the `formal` job) uses `use-mathlib-cache: "true"` so the runner fetches the
+# cache instead of compiling mathlib from source, and caches this package's own
+# `.lake/build` between runs.
+# `defaultTargets` is *only* `Plonky2Spec`: the hermetic `lake build` builds the
+# mathlib gadget model alone, with no dependency on the `qp-zk-circuits` spec package.
+# The cross-package bridge below is an explicit, opt-in target
+# (`lake build Plonky2Bridge`) that pulls the spec from GitHub.
 defaultTargets = ["Plonky2Spec"]
 name = "plonky2Spec"
 
@@ -50,3 +51,11 @@ name = "Plonky2Bridge"
 roots = ["Plonky2Bridge", "Plonky2Bridge.PublicBatch", "Plonky2Bridge.Complete", "Plonky2Bridge.Wiring",
   "Plonky2Bridge.PrivateBatch", "Plonky2Bridge.PrivateWrapper", "Plonky2Bridge.PublicWrapper",
   "Plonky2Bridge.Leaf", "Plonky2Bridge.LeafWired", "Plonky2Bridge.Trusted", "Plonky2Bridge.LeafBuild"]
+
+# The production public-batch wrapper (`n_inner = 89`): the generated modules behind it
+# are most of a cold Lean build, so it is its own target. CI builds it on `main` and on
+# release pull requests (`lake build Plonky2BridgeProduction`); every pull request builds
+# `Plonky2Bridge`, which has the `n_inner = 2` and `4` shapes of the same capstone.
+[[lean_lib]]
+name = "Plonky2BridgeProduction"
+roots = ["Plonky2Bridge.PublicWrapperProduction"]

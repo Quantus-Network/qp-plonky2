@@ -32,7 +32,7 @@ fn wrapper(n: usize) -> constraint_exporter::trace::LoadedTrace {
 
 /// The vendored copies must be the files at the pinned `wormholeSpec` revision. The lake
 /// package only exists after `lake build`/`lake update` in `formal/`, so this skips on the
-/// Rust CI runners; the `formal-bridge` job runs it with `FORMAL_TRACES_STRICT=1` after
+/// Rust CI runners; the `formal` job runs it with `FORMAL_TRACES_STRICT=1` after
 /// `lake build`, where a missing or differing file fails.
 #[test]
 fn vendored_trace_matches_pinned_package() {

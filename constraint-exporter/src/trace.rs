@@ -368,7 +368,7 @@ pub fn pinned_package_traces_dir() -> PathBuf {
 /// Assert the vendored `constraint-exporter/traces/{name}` is byte-identical to the copy in
 /// the pinned `wormholeSpec` package. When the package has not been fetched this skips,
 /// unless `FORMAL_TRACES_STRICT` is set, in which case a missing file is a failure (the
-/// `formal-bridge` CI job, which has run `lake build`, sets it).
+/// `formal` CI job, which has run `lake build`, sets it).
 pub fn assert_vendored_trace_matches_pinned(name: &str) {
     let strict = std::env::var_os("FORMAL_TRACES_STRICT").is_some();
     let pinned = pinned_package_traces_dir().join(name);
