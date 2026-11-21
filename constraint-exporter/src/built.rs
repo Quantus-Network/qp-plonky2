@@ -375,32 +375,33 @@ pub fn certify(ex: &CircuitExport, view: &FormalBuiltView<F, D>) -> Result<Cert,
         rep(Target::wire(r, c))
     };
     // A witness that `src` feeds the routed wire `u`: a cycle carrying both.
-    let mut feed = |src: Result<Target, Lane>, u: (usize, usize)| -> Result<(usize, usize, usize), String> {
-        let (from, r) = match src {
-            Ok(t) => (
-                loc(export_rows, &virt, t).ok_or_else(|| format!("{t:?} is unplaced"))?,
-                rep(t),
-            ),
-            Err(Lane::Wire(r, c)) => ((r, c), rep(Target::wire(r, c))),
-            Err(Lane::Zero) => ((0, 0), zero_rep),
-        };
-        if r != rep(Target::wire(u.0, u.1)) {
-            return Err(format!("{src:?} is not copied to {u:?}"));
-        }
-        let ci = cycle_of(&mut cycle_index, &mut cycles, &classes, r);
-        let cyc = &cycles[ci];
-        let iu = position(cyc, u)?;
-        match src {
-            Err(Lane::Zero) => {
-                let iv = cyc
-                    .iter()
-                    .position(|w| zeros.contains(w))
-                    .ok_or_else(|| format!("no wire of {u:?}'s class is fixed to 0"))?;
-                Ok((ci, iu, iv))
+    let mut feed =
+        |src: Result<Target, Lane>, u: (usize, usize)| -> Result<(usize, usize, usize), String> {
+            let (from, r) = match src {
+                Ok(t) => (
+                    loc(export_rows, &virt, t).ok_or_else(|| format!("{t:?} is unplaced"))?,
+                    rep(t),
+                ),
+                Err(Lane::Wire(r, c)) => ((r, c), rep(Target::wire(r, c))),
+                Err(Lane::Zero) => ((0, 0), zero_rep),
+            };
+            if r != rep(Target::wire(u.0, u.1)) {
+                return Err(format!("{src:?} is not copied to {u:?}"));
             }
-            _ => Ok((ci, position(cyc, from)?, iu)),
-        }
-    };
+            let ci = cycle_of(&mut cycle_index, &mut cycles, &classes, r);
+            let cyc = &cycles[ci];
+            let iu = position(cyc, u)?;
+            match src {
+                Err(Lane::Zero) => {
+                    let iv = cyc
+                        .iter()
+                        .position(|w| zeros.contains(w))
+                        .ok_or_else(|| format!("no wire of {u:?}'s class is fixed to 0"))?;
+                    Ok((ci, iu, iv))
+                }
+                _ => Ok((ci, position(cyc, from)?, iu)),
+            }
+        };
     let mut state = [Lane::Zero; WIDTH];
     let mut hash_wits = Vec::with_capacity(blocks);
     for (g, block) in hash_rows.iter().zip(ex.public_inputs.chunks(RATE)) {
