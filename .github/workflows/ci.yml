@@ -3,6 +3,11 @@ name: Continuous Integration
 
 on:
   pull_request:
+    # `labeled` so that adding `formal-full` or `release-proposal` to an open pull request
+    # starts a run that builds the production target. Runs for any other label are
+    # no-ops: every job is guarded below, and they get their own concurrency group so
+    # they neither cancel nor queue behind the real run.
+    types: [opened, synchronize, reopened, labeled]
     paths-ignore:
       - "docs/**"
       - "*.md"
@@ -16,15 +21,18 @@ on:
       - "LICENSE"
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}${{ (github.event.action == 'labeled' && github.event.label.name != 'formal-full' && github.event.label.name != 'release-proposal') && '-ignored-label' || '' }}
   cancel-in-progress: true
 
 env:
   CARGO_INCREMENTAL: 0
   CARGO_TERM_COLOR: always
 
+# A `labeled` run proceeds only for the two full-build labels (see `on.pull_request`).
+# Only `fast-checks` and `formal` need the guard: every other job `needs: fast-checks`.
 jobs:
   fast-checks:
+    if: github.event.action != 'labeled' || github.event.label.name == 'formal-full' || github.event.label.name == 'release-proposal'
     name: 🏁 Fast Checks (Format)
     runs-on: ubuntu-latest
     steps:
@@ -129,6 +137,7 @@ jobs:
   # request builds the `n_inner = 2` and `4` shapes of the same capstone.
   formal:
     name: 📐 Formal (Lean)
+    if: github.event.action != 'labeled' || github.event.label.name == 'formal-full' || github.event.label.name == 'release-proposal'
     runs-on: ubuntu-latest
     timeout-minutes: 240
     env:
