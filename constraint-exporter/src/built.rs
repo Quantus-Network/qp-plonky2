@@ -877,7 +877,7 @@ def {name} : Tbl (ℕ × ℕ) := {expr}
     );
     let _ = writeln!(
         o,
-        "theorem publicInputs_eq : ({circuit_name} p).publicInputs = piTargets := rfl\n"
+        "theorem publicInputs_targets : ({circuit_name} p).publicInputs = piTargets := rfl\n"
     );
     let _ = writeln!(
         o,
@@ -917,7 +917,7 @@ def {name} : Tbl (ℕ × ℕ) := {expr}
          `Built.Agrees.hashesPublicInputs` on `checks_pi`. -/\n\
          theorem build_hashes_of_agrees (b : Built p) (h : b.Agrees ({circuit_name} p) buildCert) :\n    \
          b.HashesPublicInputs ({circuit_name} p) :=\n  \
-         h.hashesPublicInputs (by rw [publicInputs_eq]; exact checks_pi)\n"
+         h.hashesPublicInputs (by rw [publicInputs_targets]; exact checks_pi)\n"
     );
     let _ = writeln!(o, "end {namespace}");
     o

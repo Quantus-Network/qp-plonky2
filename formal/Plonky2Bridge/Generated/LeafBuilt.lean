@@ -1550,7 +1550,7 @@ theorem constants_fst : (leafCircuit p).constants.map Prod.fst = constTargets :=
 
 theorem publicInputs_length : (leafCircuit p).publicInputs.length = 11 := rfl
 
-theorem publicInputs_eq : (leafCircuit p).publicInputs = piTargets := rfl
+theorem publicInputs_targets : (leafCircuit p).publicInputs = piTargets := rfl
 
 /-- The export has no `ConstantGate` row. -/
 theorem checks_rows : rowKinds.all noConstantRow = true := by decide +kernel
@@ -1580,6 +1580,6 @@ theorem checks_pi : buildCert.piOk piTargets buildCert.hashRows hashWits outWits
     `Built.Agrees.hashesPublicInputs` on `checks_pi`. -/
 theorem build_hashes_of_agrees (b : Built p) (h : b.Agrees (leafCircuit p) buildCert) :
     b.HashesPublicInputs (leafCircuit p) :=
-  h.hashesPublicInputs (by rw [publicInputs_eq]; exact checks_pi)
+  h.hashesPublicInputs (by rw [publicInputs_targets]; exact checks_pi)
 
 end Plonky2Bridge.LeafCircuit
