@@ -13,19 +13,22 @@
 //! From the view, `certify` writes the `BuildCert` the Lean side consumes
 //! (`Plonky2Bridge.BuildCert`): the `σ`-cycles the export's copies and constants run
 //! along, the place of every virtual target, the wires pinned to the export's constants,
-//! and per-copy witnesses. `Built.Agrees.refines` then proves `Built.Refines` from the
-//! certificate, with the checks of certificate against export evaluated by the kernel.
-//! What is trusted of a certified circuit is `Built.Agrees`: that the deployed build has
-//! the rows, `σ`-cycles, fixed wires and placements the certificate lists. `verify_agrees`
-//! is that statement checked in Rust against the built view, and the test
-//! `leaf_build_matches_deployed_digest` ties the replayed build to the deployed one by
-//! `circuit_digest`.
+//! and per-copy witnesses; and (Step 17) the public-input hash `build` laid down — the
+//! `PublicInputGate` row, the `PoseidonGate` rows of `hash_n_to_m_no_pad`, the wires
+//! fixed to `0` — with a witness per copy into those rows. `Built.Agrees.refines` then
+//! proves `Built.Refines`, and `Built.Agrees.hashesPublicInputs` proves
+//! `Built.HashesPublicInputs`, from the certificate, with the checks of certificate
+//! against export evaluated by the kernel. What is trusted of a certified circuit is
+//! `Built.Agrees`: that the deployed build has the rows, `σ`-cycles, fixed wires and
+//! placements the certificate lists. `verify_agrees` is that statement checked in Rust
+//! against the built view, and the test `leaf_build_matches_deployed_digest` ties the
+//! replayed build to the deployed one by `circuit_digest`.
 
 use core::fmt::Write as _;
 use std::collections::HashMap;
 
 use plonky2::field::goldilocks_field::GoldilocksField;
-use plonky2::field::types::PrimeField64;
+use plonky2::field::types::{Field, PrimeField64};
 use plonky2::fri::{FriConfig, FriReductionStrategy};
 use plonky2::gates::arithmetic_base::ArithmeticGate;
 use plonky2::gates::base_sum::BaseSumGate;
@@ -186,6 +189,42 @@ pub struct Cert {
     /// One `(ci, iu, iv)` per export constant: cycle `ci` carries the constant target at
     /// `iu` and a wire pinned to it at `iv`.
     pub const_wits: Vec<(usize, usize, usize)>,
+    /// The wires `build` fixed to `0`: the `zero` target's class.
+    pub zeros: Vec<(usize, usize)>,
+    /// The `PublicInputGate` row.
+    pub pi_row: usize,
+    /// The `PoseidonGate` rows of the public-input hash, in absorb order.
+    pub hash_rows: Vec<usize>,
+    /// Per hash row, its witnesses (`Plonky2Bridge.GateWit`): the swap wire's `zero`, then
+    /// its twelve input lanes.
+    pub hash_wits: Vec<GateWit>,
+    /// The four end-state lanes into the `PublicInputGate`'s wires `0..4`.
+    pub out_wits: Vec<(usize, usize, usize)>,
+}
+
+/// The witnesses of one sponge gate. Each is `(ci, iu, iv)` as `BuildCert.feedOk` reads
+/// it: for a wire or export target feeding a position, cycle `ci` carries the source at
+/// `iu` and the position at `iv`; for `zero`, the position at `iu` and a wire fixed to
+/// `0` at `iv`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct GateWit {
+    pub swap: (usize, usize, usize),
+    pub lanes: Vec<(usize, usize, usize)>,
+}
+
+/// `SPONGE_WIDTH`, `SPONGE_RATE`, `NUM_HASH_OUT_ELTS` of the proof-system Poseidon.
+const WIDTH: usize = 12;
+const RATE: usize = 8;
+const HASH_OUT: usize = 4;
+
+/// `PoseidonGate::WIRE_SWAP`; its inputs are wires `0..12` and its outputs `12..24`.
+const WIRE_SWAP: usize = 24;
+
+/// A lane of the in-circuit sponge's state, as `Plonky2Bridge.Lane`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Lane {
+    Zero,
+    Wire(usize, usize),
 }
 
 /// `Target::index` with the view's dimensions.
@@ -311,6 +350,73 @@ pub fn certify(ex: &CircuitExport, view: &FormalBuiltView<F, D>) -> Result<Cert,
         const_wits.push((ci, iu, iv));
     }
 
+    // The public-input hash. `build` lays down `hash_n_to_m_no_pad` on the public inputs
+    // right after the export's rows — one `PoseidonGate` per rate block — then the
+    // `PublicInputGate`; so the rows between the export and the gate are the hash rows.
+    let pi_row = (export_rows..degree)
+        .find(|&i| classify(&view.gate_instances[i].gate_ref.0.id()) == GateKind::PublicInput)
+        .ok_or("build has no PublicInputGate row")?;
+    let hash_rows: Vec<usize> = (export_rows..pi_row).collect();
+    let blocks = ex.public_inputs.len().div_ceil(RATE);
+    if hash_rows.len() != blocks {
+        return Err(format!(
+            "{} rows between the export and the PublicInputGate, {blocks} rate blocks",
+            hash_rows.len()
+        ));
+    }
+    let zeros: Vec<(usize, usize)> = view
+        .fixed
+        .iter()
+        .filter(|&&(_, _, c)| c == F::ZERO)
+        .map(|&(r, c, _)| (r, c))
+        .collect();
+    let zero_rep = {
+        let &(r, c) = zeros.first().ok_or("build fixes no wire to 0")?;
+        rep(Target::wire(r, c))
+    };
+    // A witness that `src` feeds the routed wire `u`: a cycle carrying both.
+    let mut feed = |src: Result<Target, Lane>, u: (usize, usize)| -> Result<(usize, usize, usize), String> {
+        let (from, r) = match src {
+            Ok(t) => (
+                loc(export_rows, &virt, t).ok_or_else(|| format!("{t:?} is unplaced"))?,
+                rep(t),
+            ),
+            Err(Lane::Wire(r, c)) => ((r, c), rep(Target::wire(r, c))),
+            Err(Lane::Zero) => ((0, 0), zero_rep),
+        };
+        if r != rep(Target::wire(u.0, u.1)) {
+            return Err(format!("{src:?} is not copied to {u:?}"));
+        }
+        let ci = cycle_of(&mut cycle_index, &mut cycles, &classes, r);
+        let cyc = &cycles[ci];
+        let iu = position(cyc, u)?;
+        match src {
+            Err(Lane::Zero) => {
+                let iv = cyc
+                    .iter()
+                    .position(|w| zeros.contains(w))
+                    .ok_or_else(|| format!("no wire of {u:?}'s class is fixed to 0"))?;
+                Ok((ci, iu, iv))
+            }
+            _ => Ok((ci, position(cyc, from)?, iu)),
+        }
+    };
+    let mut state = [Lane::Zero; WIDTH];
+    let mut hash_wits = Vec::with_capacity(blocks);
+    for (g, block) in hash_rows.iter().zip(ex.public_inputs.chunks(RATE)) {
+        let swap = feed(Err(Lane::Zero), (*g, WIRE_SWAP))?;
+        let mut lanes = Vec::with_capacity(WIDTH);
+        for (i, &lane) in state.iter().enumerate() {
+            let src = block.get(i).copied().ok_or(lane);
+            lanes.push(feed(src, (*g, i))?);
+        }
+        hash_wits.push(GateWit { swap, lanes });
+        state = core::array::from_fn(|i| Lane::Wire(*g, WIDTH + i));
+    }
+    let out_wits = (0..HASH_OUT)
+        .map(|i| feed(Err(state[i]), (pi_row, i)))
+        .collect::<Result<Vec<_>, _>>()?;
+
     let cert = Cert {
         export_rows,
         routed,
@@ -320,6 +426,11 @@ pub fn certify(ex: &CircuitExport, view: &FormalBuiltView<F, D>) -> Result<Cert,
         pins,
         copy_wits,
         const_wits,
+        zeros,
+        pi_row,
+        hash_rows,
+        hash_wits,
+        out_wits,
     };
     verify_agrees(&cert, ex, view)?;
     Ok(cert)
@@ -331,7 +442,8 @@ pub fn certify(ex: &CircuitExport, view: &FormalBuiltView<F, D>) -> Result<Cert,
 /// listed cycle lies in the domain and is a cycle of `σ`; every pin is a fixed wire of
 /// the build with the export's constant; and every target is placed where `loc` says:
 /// virtual target `n` at a routed wire of its copy class, or nowhere when the class has
-/// none.
+/// none; every listed zero is a wire fixed to `0`; and the `PublicInputGate` row and the
+/// `PoseidonGate` rows are where the certificate names them.
 pub fn verify_agrees(
     cert: &Cert,
     ex: &CircuitExport,
@@ -398,6 +510,28 @@ pub fn verify_agrees(
                 }
             }
             _ => return Err(format!("Agrees.loc: virtual target {n}")),
+        }
+    }
+    for &(row, column) in &cert.zeros {
+        if !view
+            .fixed
+            .iter()
+            .any(|&(fr, fc, fv)| (fr, fc) == (row, column) && fv == F::ZERO)
+        {
+            return Err(format!("Agrees.zeros: ({row}, {column}) is not fixed to 0"));
+        }
+    }
+    let kind_at = |i: usize| -> Option<GateKind> {
+        view.gate_instances
+            .get(i)
+            .map(|gi| classify(&gi.gate_ref.0.id()))
+    };
+    if kind_at(cert.pi_row) != Some(GateKind::PublicInput) {
+        return Err("Agrees.piRow".into());
+    }
+    for &g in &cert.hash_rows {
+        if kind_at(g) != Some(GateKind::Poseidon) {
+            return Err(format!("Agrees.hashRows: row {g}"));
         }
     }
     Ok(())
@@ -552,11 +686,14 @@ pub fn render_lean(
         "/-\n  GENERATED by `constraint-exporter` (`built.rs`) — do not edit.\n\n  {doc}\n\n  \
          `buildCert` is what the exporter read off `CircuitBuilder::build` of the replayed trace:\n  \
          the export's {} rows at their indices, {} positions on {} `σ`-cycles the export's {} copies\n  \
-         and {} constants run along, over {} routed columns, and the place of {} virtual targets.\n  \
+         and {} constants run along, over {} routed columns, the place of {} virtual targets, and\n  \
+         the public-input hash: `PoseidonGate` rows {:?} absorbing the {} public inputs into the\n  \
+         `PublicInputGate` at row {}.\n  \
          The checks of the certificate against the export are kernel evaluations\n  \
-         (`decide +kernel`); `build_refines_of_agrees` is `Built.Agrees.refines` on them. Nothing\n  \
-         here is assumed: that the deployed build `Agrees` with this certificate is\n  \
-         `{namespace}.build_agrees` in `Plonky2Bridge/{module}.lean`.\n-/",
+         (`decide +kernel`); `build_refines_of_agrees` is `Built.Agrees.refines` on them and\n  \
+         `build_hashes_of_agrees` is `Built.Agrees.hashesPublicInputs`. Nothing here is assumed:\n  \
+         that the deployed build `Agrees` with this certificate is `{namespace}.build_agrees` in\n  \
+         `Plonky2Bridge/{module}.lean`.\n-/",
         cert.export_rows,
         positions,
         cert.cycles.len(),
@@ -564,6 +701,9 @@ pub fn render_lean(
         ex.constants.len(),
         cert.routed,
         cert.virt.len(),
+        cert.hash_rows,
+        ex.public_inputs.len(),
+        cert.pi_row,
     );
     let _ = writeln!(o, "import Plonky2Bridge.Trusted");
     let _ = writeln!(o, "import {spec_module}\n");
@@ -629,12 +769,21 @@ def {name} : Tbl (ℕ × ℕ) := {expr}
     let const_wits = render_list(&mut defs, "constWits", "ℕ × ℕ × ℕ", &const_wits);
     o.push_str(&defs);
 
+    let wit = |(ci, iu, iv): &(usize, usize, usize)| format!("({ci}, {iu}, {iv})");
+    let zeros: Vec<String> = cert.zeros.iter().map(|&u| pos(u)).collect();
+    let hash_rows: Vec<String> = cert.hash_rows.iter().map(usize::to_string).collect();
     let _ = writeln!(
         o,
         "/-- The certificate of the deployed build against `{circuit_name}`. -/\n\
          def buildCert : BuildCert where\n  exportRows := {}\n  routed := {}\n  numPublicInputs := {}\n  \
-         cycles := {cycles}\n  virt := {virt}\n  pins := {pins}\n",
-        cert.export_rows, cert.routed, cert.num_public_inputs
+         cycles := {cycles}\n  virt := {virt}\n  pins := {pins}\n  zeros := [{}]\n  piRow := {}\n  \
+         hashRows := [{}]\n",
+        cert.export_rows,
+        cert.routed,
+        cert.num_public_inputs,
+        zeros.join(", "),
+        cert.pi_row,
+        hash_rows.join(", "),
     );
     let _ = writeln!(
         o,
@@ -643,6 +792,29 @@ def {name} : Tbl (ℕ × ℕ) := {expr}
     let _ = writeln!(
         o,
         "/-- One witness per constant target of the export. -/\ndef constWits : List (ℕ × ℕ × ℕ) := {const_wits}\n"
+    );
+    let hash_wits: Vec<String> = cert
+        .hash_wits
+        .iter()
+        .map(|w| {
+            format!(
+                "⟨{}, [{}]⟩",
+                wit(&w.swap),
+                w.lanes.iter().map(wit).collect::<Vec<_>>().join(", ")
+            )
+        })
+        .collect();
+    let _ = writeln!(
+        o,
+        "/-- The witnesses of the hash rows: the swap wire's `zero` and the twelve input lanes\n    \
+         of each. -/\ndef hashWits : List GateWit :=\n  [{}]\n",
+        hash_wits.join(",\n   ")
+    );
+    let _ = writeln!(
+        o,
+        "/-- The end state's four lanes into the `PublicInputGate`. -/\n\
+         def outWits : List (ℕ × ℕ × ℕ) := [{}]\n",
+        cert.out_wits.iter().map(wit).collect::<Vec<_>>().join(", ")
     );
 
     let kinds: Vec<String> = ex
@@ -672,6 +844,12 @@ def {name} : Tbl (ℕ × ℕ) := {expr}
         "/-- The export's constant targets, in its order. -/\ndef constTargets : List Target := [{}]\n",
         const_targets.join(", ")
     );
+    let pi_targets: Vec<String> = ex.public_inputs.iter().map(|&t| lean_target(t)).collect();
+    let _ = writeln!(
+        o,
+        "/-- The export's public-input targets, in its order. -/\ndef piTargets : List Target := [{}]\n",
+        pi_targets.join(", ")
+    );
     let copies_expr = export_copies_expr(circuit_name, ex.copies.len());
 
     let _ = writeln!(
@@ -698,6 +876,10 @@ def {name} : Tbl (ℕ × ℕ) := {expr}
     );
     let _ = writeln!(
         o,
+        "theorem publicInputs_eq : ({circuit_name} p).publicInputs = piTargets := rfl\n"
+    );
+    let _ = writeln!(
+        o,
         "/-- The export has no `ConstantGate` row. -/\n\
          theorem checks_rows : rowKinds.all noConstantRow = true := by decide +kernel\n"
     );
@@ -720,6 +902,21 @@ def {name} : Tbl (ℕ × ℕ) := {expr}
          h.refines (le_of_eq rows_length) (by rw [rowKinds_eq]; exact checks_rows)\n    \
          (by rw [copies_eq]; exact checks_copies) (by rw [constants_fst]; exact checks_constants)\n    \
          publicInputs_length.symm\n"
+    );
+    let _ = writeln!(
+        o,
+        "/-- The public-input hash is wired in the certificate: the sponge over the export's\n    \
+         public inputs through the hash rows into the `PublicInputGate`. -/\n\
+         theorem checks_pi : buildCert.piOk piTargets buildCert.hashRows hashWits outWits = true := by\n  \
+         decide +kernel\n"
+    );
+    let _ = writeln!(
+        o,
+        "/-- **A build the certificate describes hashes the export's public inputs.**\n    \
+         `Built.Agrees.hashesPublicInputs` on `checks_pi`. -/\n\
+         theorem build_hashes_of_agrees (b : Built p) (h : b.Agrees ({circuit_name} p) buildCert) :\n    \
+         b.HashesPublicInputs ({circuit_name} p) :=\n  \
+         h.hashesPublicInputs (by rw [publicInputs_eq]; exact checks_pi)\n"
     );
     let _ = writeln!(o, "end {namespace}");
     o
