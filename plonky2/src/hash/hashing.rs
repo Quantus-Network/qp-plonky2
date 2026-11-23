@@ -14,18 +14,22 @@ pub use qp_plonky2_core::hashing::{
 use crate::field::extension::Extendable;
 use crate::gates::poseidon2::SPONGE_RATE;
 use crate::hash::hash_types::{HashOutTarget, RichField, NUM_HASH_OUT_ELTS};
-use crate::iop::target::Target;
+use crate::iop::target::{BoolTarget, Target};
 use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::config::AlgebraicHasher;
 
 impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
+    /// In-circuit `H::hash_no_pad`; dispatches to the hasher so the digest matches native.
     pub fn hash_n_to_hash_no_pad<H: AlgebraicHasher<F>>(
         &mut self,
         inputs: Vec<Target>,
     ) -> HashOutTarget {
-        HashOutTarget::from_vec(self.hash_n_to_m_no_pad::<H>(inputs, NUM_HASH_OUT_ELTS))
+        H::hash_no_pad_circuit(self, inputs)
     }
 
+    /// The overwrite-mode sponge with `num_outputs` squeezed elements. This is the native sponge
+    /// of `PoseidonHash`; hashers with a different native sponge override `hash_no_pad_circuit`
+    /// instead of using this.
     pub fn hash_n_to_m_no_pad<H: AlgebraicHasher<F>>(
         &mut self,
         inputs: Vec<Target>,
@@ -117,29 +121,20 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         HashOutTarget::from_vec(outs)
     }
 
-    /// Domain-separated leaf hash for Merkle trees (in-circuit version).
-    ///
-    /// This sets `capacity[RATE] = 1` before hashing to distinguish leaf hashes from
-    /// internal node hashes (two_to_one), preventing second-preimage attacks.
-    /// The capacity-region placement is critical: two_to_one/compress always has
-    /// zero capacity, so no grind on rate-region values can produce a collision.
+    /// In-circuit `H::hash_leaf`: the domain-separated Merkle leaf hash, dispatched to the
+    /// hasher so the digest matches native.
     pub fn hash_leaf<H: AlgebraicHasher<F>>(&mut self, inputs: Vec<Target>) -> HashOutTarget {
-        let zero = self.zero();
+        H::hash_leaf_circuit(self, inputs)
+    }
 
-        // Place `len + 1` in the capacity region (index = RATE): the non-zero value
-        // domain-separates leaves from internal nodes, and encoding the length makes the digest
-        // injective in length so zero-suffixed leaves cannot collide. Mirrors native `hash_leaf`.
-        let len_tag = self.constant(F::from_canonical_usize(inputs.len() + 1));
-        let mut state = H::AlgebraicPermutation::new(core::iter::repeat(zero));
-        state.set_elt(len_tag, H::AlgebraicPermutation::RATE);
-
-        // Absorb all input chunks (overwrite mode, same as hash_n_to_m_no_pad)
-        for input_chunk in inputs.chunks(H::AlgebraicPermutation::RATE) {
-            state.set_from_slice(input_chunk, 0);
-            state = self.permute::<H>(state);
-        }
-
-        HashOutTarget::from_vec(state.squeeze()[..NUM_HASH_OUT_ELTS].to_vec())
+    /// In-circuit `H::two_to_one(left, right)`, or of `(right, left)` when `swap` is set.
+    pub fn two_to_one_swapped<H: AlgebraicHasher<F>>(
+        &mut self,
+        left: HashOutTarget,
+        right: HashOutTarget,
+        swap: BoolTarget,
+    ) -> HashOutTarget {
+        H::two_to_one_swapped_circuit(self, left, right, swap)
     }
 
     /// Domain-separated leaf hash for Merkle trees (in-circuit Poseidon2 version).

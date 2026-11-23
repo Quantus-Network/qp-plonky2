@@ -15,7 +15,7 @@ use qp_poseidon_core::{Goldilocks as QpG, Poseidon2, SPONGE_RATE, SPONGE_WIDTH};
 
 use crate::field::types::{Field, PrimeField64};
 use crate::gates::poseidon2::Poseidon2Gate;
-use crate::hash::hash_types::{HashOut, RichField, NUM_HASH_OUT_ELTS};
+use crate::hash::hash_types::{HashOut, HashOutTarget, RichField, NUM_HASH_OUT_ELTS};
 use crate::hash::hashing::{hash_leaf_p2, hash_n_to_hash_no_pad_p2, PlonkyPermutation};
 use crate::iop::target::{BoolTarget, Target};
 use crate::plonk::circuit_builder::CircuitBuilder;
@@ -162,12 +162,27 @@ pub fn hash_no_pad_bytes(input: &[GL]) -> [u8; 32] {
 }
 
 // ---------- AlgebraicHasher (in-circuit) ----------
+
+/// Swaps the first two `NUM_HASH_OUT_ELTS`-lane chunks of `lanes` when `swap` is set. The
+/// `Poseidon2Gate` has no swap wire, so the direction bit is bound with `select`s instead.
+fn swap_hash_chunks<F: RichField + Extendable<D>, const D: usize>(
+    builder: &mut CircuitBuilder<F, D>,
+    swap: BoolTarget,
+    lanes: &mut [Target],
+) {
+    for i in 0..NUM_HASH_OUT_ELTS {
+        let (left, right) = (lanes[i], lanes[NUM_HASH_OUT_ELTS + i]);
+        lanes[i] = builder.select(swap, right, left);
+        lanes[NUM_HASH_OUT_ELTS + i] = builder.select(swap, left, right);
+    }
+}
+
 impl<F: RichField + P2Permuter> AlgebraicHasher<F> for Poseidon2Hash {
     type AlgebraicPermutation = Poseidon2Permutation<Target>;
 
     fn permute_swapped<const D: usize>(
         inputs: Self::AlgebraicPermutation,
-        _swap: BoolTarget, // still ignored (semantics unchanged)
+        swap: BoolTarget,
         b: &mut CircuitBuilder<F, D>,
     ) -> Self::AlgebraicPermutation
     where
@@ -176,22 +191,54 @@ impl<F: RichField + P2Permuter> AlgebraicHasher<F> for Poseidon2Hash {
         let gate_type = Poseidon2Gate::<F, D>::new();
         let row = b.add_gate(gate_type, vec![]);
 
-        let inp = inputs.as_ref();
-        assert_eq!(inp.len(), SPONGE_WIDTH);
-
-        // connect inputs
-        for i in 0..SPONGE_WIDTH {
+        let mut state = inputs.state;
+        swap_hash_chunks(b, swap, &mut state);
+        for (i, lane) in state.into_iter().enumerate() {
             b.connect(
-                inp[i],
+                lane,
                 Target::wire(row, Poseidon2Gate::<F, D>::wire_input(i)),
             );
         }
 
-        // collect outputs
         let state: [Target; SPONGE_WIDTH] =
             core::array::from_fn(|i| Target::wire(row, Poseidon2Gate::<F, D>::wire_output(i)));
 
         Poseidon2Permutation { state }
+    }
+
+    fn hash_no_pad_circuit<const D: usize>(
+        builder: &mut CircuitBuilder<F, D>,
+        inputs: Vec<Target>,
+    ) -> HashOutTarget
+    where
+        F: RichField + Extendable<D>,
+    {
+        builder.hash_n_to_hash_no_pad_p2::<Self>(inputs)
+    }
+
+    fn hash_leaf_circuit<const D: usize>(
+        builder: &mut CircuitBuilder<F, D>,
+        inputs: Vec<Target>,
+    ) -> HashOutTarget
+    where
+        F: RichField + Extendable<D>,
+    {
+        builder.hash_leaf_p2::<Self>(inputs)
+    }
+
+    /// Mirrors the native `two_to_one`: the padded sponge over the eight concatenated lanes.
+    fn two_to_one_swapped_circuit<const D: usize>(
+        builder: &mut CircuitBuilder<F, D>,
+        left: HashOutTarget,
+        right: HashOutTarget,
+        swap: BoolTarget,
+    ) -> HashOutTarget
+    where
+        F: RichField + Extendable<D>,
+    {
+        let mut lanes = [left.elements, right.elements].concat();
+        swap_hash_chunks(builder, swap, &mut lanes);
+        builder.hash_n_to_hash_no_pad_p2::<Self>(lanes)
     }
 }
 
@@ -244,6 +291,90 @@ mod tests {
         }
         let proof = data.prove(pw).unwrap();
         data.verify(proof).unwrap();
+    }
+
+    /// The generic `AlgebraicHasher` entry points must agree with the native `Hasher` ones, so
+    /// that Merkle and public-input gadgets parameterised by `Poseidon2Hash` verify native data.
+    #[test]
+    fn generic_circuit_hashing_matches_native() {
+        let mut rng = ChaCha8Rng::seed_from_u64(0xBEEF);
+        for len in [0usize, 1, 4, 7, 8, 9, 16, 17] {
+            let inputs: Vec<F> = (0..len)
+                .map(|_| F::from_canonical_u64(rng.random()))
+                .collect();
+            let no_pad = Poseidon2Hash::hash_no_pad(&inputs);
+            let leaf = Poseidon2Hash::hash_leaf(&inputs);
+
+            let mut builder =
+                CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+            let targets: Vec<Target> = inputs.iter().map(|&x| builder.constant(x)).collect();
+            let no_pad_t = builder.hash_n_to_hash_no_pad::<Poseidon2Hash>(targets.clone());
+            let leaf_t = builder.hash_leaf::<Poseidon2Hash>(targets);
+            for i in 0..NUM_HASH_OUT_ELTS {
+                let expected = builder.constant(no_pad.elements[i]);
+                builder.connect(no_pad_t.elements[i], expected);
+                let expected = builder.constant(leaf.elements[i]);
+                builder.connect(leaf_t.elements[i], expected);
+            }
+            let data = builder.build::<C>();
+            data.verify(data.prove(PartialWitness::new()).unwrap())
+                .unwrap_or_else(|e| panic!("len {len}: {e}"));
+        }
+    }
+
+    fn poseidon2_merkle_proof_circuit(
+        leaf_index: usize,
+        claimed_index: usize,
+    ) -> anyhow::Result<()> {
+        use plonky2_field::types::Sample;
+
+        use crate::hash::merkle_proofs::MerkleProofTarget;
+        use crate::hash::merkle_tree::MerkleTree;
+
+        let log_n = 4;
+        let leaves: Vec<Vec<F>> = (0..1 << log_n).map(|_| F::rand_vec(5)).collect();
+        let tree = MerkleTree::<F, Poseidon2Hash>::new(leaves.clone(), 0);
+        let proof = tree.prove(leaf_index);
+
+        let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+        let proof_t = MerkleProofTarget {
+            siblings: proof
+                .siblings
+                .iter()
+                .map(|sibling| builder.constant_hash(*sibling))
+                .collect(),
+        };
+        let root_t = builder.constant_hash(tree.cap.0[0]);
+        let index_t = builder.constant(F::from_canonical_usize(claimed_index));
+        let index_bits = builder.split_le(index_t, log_n);
+        let leaf_t = leaves[leaf_index]
+            .iter()
+            .map(|&x| builder.constant(x))
+            .collect();
+        builder.verify_merkle_proof::<Poseidon2Hash>(leaf_t, &index_bits, root_t, &proof_t);
+
+        let data = builder.build::<C>();
+        data.verify(data.prove(PartialWitness::new())?)
+    }
+
+    /// Honest Poseidon2 Merkle proofs verify through the generic gadget (every direction bit
+    /// pattern), and a proof presented at the mirrored index does not.
+    #[test]
+    fn generic_merkle_gadget_binds_poseidon2_direction_bits() {
+        for leaf_index in 0..16 {
+            poseidon2_merkle_proof_circuit(leaf_index, leaf_index)
+                .unwrap_or_else(|e| panic!("leaf {leaf_index}: {e}"));
+        }
+        for forged_index in [5 ^ 1, 5 ^ 0b1000] {
+            let rejected = std::panic::catch_unwind(|| {
+                poseidon2_merkle_proof_circuit(5, forged_index).is_err()
+            })
+            .unwrap_or(true);
+            assert!(
+                rejected,
+                "index {forged_index} must not verify leaf 5's proof"
+            );
+        }
     }
 
     #[test]
