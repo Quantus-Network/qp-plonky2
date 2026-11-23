@@ -6,17 +6,19 @@
   `{propext, Classical.choice, Quot.sound}` plus, where a theorem consumes accepted proofs,
   exactly the declarations `proof_sound` rests on: the three assumptions
   (`Plonky2Bridge.poseidon_transcript_oracle`, `Plonky2Bridge.fri_proximity_gap`,
-  `Plonky2Bridge.algebraic_sampling`) and the five declarations under `verifier_algebra`:
-  the four obligations (`Plonky2Bridge.build_refines_export`,
-  `Plonky2Bridge.public_inputs_wired`, `Plonky2Bridge.child_gadget_satisfied`,
+  `Plonky2Bridge.algebraic_sampling`) and the three declarations under `verifier_algebra`:
+  the two child obligations (`Plonky2Bridge.child_gadget_satisfied`,
   `Plonky2Bridge.recursive_verifier_transcript`) and the binding assumption
   `Plonky2Bridge.public_input_binding`. `proof_sound`, `verifier_algebra`,
   `poseidon2_gate_rows` and `poseidon_gate_rows` are theorems. The assumptions are
   implications on their good events (`GoodEvents`, opaque), which the capstones take as
-  hypotheses; that changes no footprint.
+  hypotheses; that changes no footprint. Nothing is declared of `build` for every circuit
+  (Step 20): `proof_sound` and `verifier_algebra` take the refinement and the public-input
+  hashing of the built system as hypotheses, and each certified circuit's `build_agrees`
+  is what supplies them.
 
-  * `verifier_algebra` is gated on the allow-list plus those five,
-    `identical_constraints_satisfies` on the allow-list plus `build_refines_export`, and
+  * `verifier_algebra` is gated on the allow-list plus those three,
+    `identical_constraints_satisfies` and
     `Built.Refines.satisfies`, the step from the domain identities to `Satisfies`,
     `poseidon2_gate_rows`, the Poseidon2 rows from `Poseidon2.gate_sound_complete`, and
     `poseidon_gate_rows`, the `PoseidonGate` rows from `Poseidon.gate_sound_complete`
@@ -25,8 +27,8 @@
     model's permutation to the native one, and `publicInputsHash_test`, the one that pins
     the model of the public-input hash to `PoseidonHash::hash_no_pad` (Step 19).
   * The leaf's build is certified (Steps 16 and 17). `proof_sound_leaf` is gated on the
-    allow-list plus the three assumptions and `public_input_binding`: neither
-    `build_refines_export` nor `public_inputs_wired` nor the two child obligations.
+    allow-list plus the three assumptions and `public_input_binding`: without the two
+    child obligations.
     `Built.Agrees.refines`, `Built.Agrees.hashesPublicInputs` and the generated
     `LeafCircuit.build_refines_of_agrees` / `build_hashes_of_agrees` (the certificate
     checks, kernel evaluations) are gated on the bare allow-list;
@@ -49,8 +51,7 @@
     public-wrapper wiring (`n_inner = 2` / `4`), which read 2-leaf wrapper proofs — are
     gated on the footprint of `proof_sound_leaf` plus the two child obligations
     (`child_gadget_satisfied`, `recursive_verifier_transcript`), `LeafCircuit.build_agrees`
-    and the named wrapper's `build_agrees`: neither `build_refines_export` nor
-    `public_inputs_wired`, which no capstone takes.
+    and the named wrapper's `build_agrees`.
   * `Wrapper{2,4,8}.sound`, `PublicWrapper{2,4}.sound` and `leaf_wired`
     (`LeafCircuit.sound`), the wiring-to-relation steps underneath, use no trusted axiom.
   The production public wrapper (`n_inner = 89`, `Plonky2BridgeProduction`) is gated the

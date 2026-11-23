@@ -121,10 +121,12 @@ jobs:
           printf '%s\n' "$output"
           # expect <theorem> <axiom...>: the footprint must be exactly the named axioms.
           # `proof_sound` is a theorem. Its footprint is the standard propositional axioms
-          # plus the three assumptions and what is left of `verifier_algebra`: the four
-          # obligations and the public-input binding assumption. Capstones that consume an
-          # accepted proof have that same footprint. The assumptions are implications on
-          # their good events (`GoodEvents`), taken as hypotheses, not axioms.
+          # plus the three assumptions and what is left of `verifier_algebra`: the two
+          # child obligations and the public-input binding assumption. Nothing is declared
+          # of `build` for every circuit (Step 20): `proof_sound` takes the built system's
+          # refinement and public-input hashing as hypotheses, which a certified circuit
+          # supplies from its `build_agrees`. The assumptions are implications on their
+          # good events (`GoodEvents`), taken as hypotheses, not axioms.
           expect() {
             local thm="$1"
             shift
@@ -156,30 +158,24 @@ jobs:
             Plonky2Bridge.child_gadget_satisfied
             Plonky2Bridge.recursive_verifier_transcript
           )
-          obligations=(
-            Plonky2Bridge.build_refines_export
-            Plonky2Bridge.public_inputs_wired
-            "${children[@]}"
-          )
           binding=(Plonky2Bridge.public_input_binding)
-          algebra=("${obligations[@]}" "${binding[@]}")
+          algebra=("${children[@]}" "${binding[@]}")
           trusted=("${assumptions[@]}" "${algebra[@]}")
           # The leaf's and the private wrappers' builds are certified (Steps 16, 17 and
-          # 19): their paths through `proof_sound_leaf` / `proof_sound_of` have neither
-          # `build_refines_export` nor `public_inputs_wired`, and rest on one per-circuit
-          # trusted declaration (`LeafCircuit.build_agrees`, `Wrapper{n}.build_agrees`)
-          # instead. The leaf has no children, so its path has neither child obligation
-          # either; the private-wrapper capstones on wiring read only leaf proofs, so they
-          # have the leaf's footprint too. Anything that reads an `n`-leaf wrapper proof
-          # (`Wrapper{n}.accepted_sound`, the public-wrapper capstones) is the assumptions,
-          # the binding, the two child obligations, and the leaf's and that wrapper's
-          # certificates.
+          # 19), each resting on one per-circuit trusted declaration
+          # (`LeafCircuit.build_agrees`, `Wrapper{n}.build_agrees`). The leaf has no
+          # children, so its path through `proof_sound_leaf` has neither child obligation;
+          # the private-wrapper capstones on wiring read only leaf proofs, so they have the
+          # leaf's footprint too. Anything that reads an `n`-leaf wrapper proof
+          # (`Wrapper{n}.accepted_sound`, the public-wrapper capstones) goes through
+          # `proof_sound` and is the assumptions, the binding, the two child obligations,
+          # and the leaf's and that wrapper's certificates.
           leaf_trusted=("${assumptions[@]}" "${binding[@]}")
           leaf_cert=(Plonky2Bridge.LeafCircuit.build_agrees)
           wrapper_trusted=("${leaf_trusted[@]}" "${children[@]}" "${leaf_cert[@]}")
           expect Plonky2Bridge.proof_sound "${base[@]}" "${trusted[@]}"
           expect Plonky2Bridge.verifier_algebra "${base[@]}" "${algebra[@]}"
-          expect Plonky2Bridge.identical_constraints_satisfies "${base[@]}" Plonky2Bridge.build_refines_export
+          expect Plonky2Bridge.identical_constraints_satisfies "${base[@]}"
           expect Plonky2Bridge.Built.Refines.satisfies "${base[@]}"
           expect Plonky2Bridge.poseidon2_gate_rows "${base[@]}"
           expect Plonky2Bridge.poseidon_gate_rows "${base[@]}"

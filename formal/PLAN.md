@@ -164,8 +164,8 @@ Poseidon2 instantiates `RandomOracle.H` (its felt outputs are `digest.val`s).
 ## 7. Trusted assumptions (the seam to layer 1)
 
 `Plonky2Bridge/Trusted.lean` declares the generic assumptions and obligations;
-`Plonky2Bridge/LeafBuild.lean` declares the one per-circuit fact of the leaf's certified
-build (Steps 16, 17). No other file declares an `axiom`. `proof_sound`
+`Plonky2Bridge/LeafBuild.lean` and `PrivateWrapperBuild.lean` declare the one per-circuit
+fact of each certified build (Steps 16, 17, 19). No other file declares an `axiom`. `proof_sound`
 is a theorem, the composition of three assumptions and `verifier_algebra` (Steps 12, 13).
 Each assumption is an implication on its good event (Step 15): an opaque per-tree
 predicate (`OracleGood`, `ProximityGood`, `SamplingGood`, `BindingGood`), bundled as
@@ -194,23 +194,19 @@ unconditional on them.
   (`Built.Refines.satisfies`), the Poseidon2 rows are proved to compute `perm`
   (`poseidon2_gate_rows`, Step 14), the public-input digest is read off the in-circuit
   hash (`Built.HashesPublicInputs.hash_eq`, Step 17) whose `PoseidonGate` rows are
-  proved to compute the proof-system permutation (`poseidon_gate_rows`, Step 18), and
-  four deterministic obligations remain as declarations:
-  - **`build_refines_export`** — the system the verifier key commits to refines the
-    pre-`build` export. Replaced by a certified build for the leaf (Step 16) and the
-    private-batch wrappers (Step 19): `Built.Agrees.refines` proves `Refines` from the
-    exporter's certificate of `CircuitBuilder::build`, kernel-checked against the
-    export, and what is declared instead is one **`build_agrees`** per circuit
-    (`LeafCircuit.build_agrees`, `Wrapper{2,4,8}.build_agrees`) — the deployed build is
-    the one the certificate describes — checked in Rust against the build of the
-    production builder's state (the leaf's by its circuit digest, the wrappers' by the
-    pre-`build` state digest their traces record). No capstone takes this declaration.
-  - **`public_inputs_wired`** — the system the verifier key commits to hashes the
-    export's public inputs into its `PublicInputGate` (`Built.HashesPublicInputs`: the
-    `PoseidonGate` rows of `hash_n_to_m_no_pad` and the copies into them). Replaced by
-    the certified builds (Steps 17 and 19): `Built.Agrees.hashesPublicInputs` proves it
-    from the certificate, under the same `build_agrees`. No capstone takes this
-    declaration.
+  proved to compute the proof-system permutation (`poseidon_gate_rows`, Step 18). Two
+  facts about the deployed builder are hypotheses of `proof_sound`, not declarations
+  (Step 20): that the system the verifier key commits to refines the pre-`build` export
+  (`Built.Refines`) and that it hashes the export's public inputs into its
+  `PublicInputGate` (`Built.HashesPublicInputs`: the `PoseidonGate` rows of
+  `hash_n_to_m_no_pad` and the copies into them). Each certified circuit proves both
+  from the exporter's certificate of `CircuitBuilder::build`, kernel-checked against
+  the export (`Built.Agrees.refines`, `Built.Agrees.hashesPublicInputs`, Steps 16, 17,
+  19), under one **`build_agrees`** per circuit (`LeafCircuit.build_agrees`,
+  `Wrapper{2,4,8}.build_agrees`) — the deployed build is the one the certificate
+  describes — checked in Rust against the build of the production builder's state (the
+  leaf's by its circuit digest, the wrappers' by the pre-`build` state digest their
+  traces record). Two deterministic obligations remain as declarations:
   - **`child_gadget_satisfied`** — the built system holds each child's `verify_proof`
     gadget, on the targets the tree names.
   - **`recursive_verifier_transcript`** — a satisfied gadget is `ProofAccepted`: the
@@ -232,7 +228,7 @@ reduction against `spongeRO`. A break of `verify` does not produce a collision, 
 
 Each declaration says what would discharge it. A capstone that reads an `n`-leaf wrapper
 proof (`Wrapper{n}.accepted_sound`, `public_batch_end_to_end_wired*`) calls
-`proof_sound_of` on the wrapper's certified build; its axiom footprint is exactly the
+`proof_sound` on the wrapper's certified build; its axiom footprint is exactly the
 three assumptions, `public_input_binding`, the two child obligations,
 `Wrapper{n}.build_agrees` and, through the leaf proofs under it,
 `LeafCircuit.build_agrees`. A capstone that reads only leaf proofs
@@ -1453,6 +1449,26 @@ builder's, and the private-batch wrappers are certified as the leaf is.
   `recursive_verifier_transcript`, `LeafCircuit.build_agrees`, `Wrapper{n}.build_agrees`.
   `build_refines_export` and `public_inputs_wired` are in no capstone's footprint;
   `proof_sound` keeps them as the reading for an uncertified circuit.
+
+### Step 20 — Nothing declared of `build` for every circuit  ✅ DONE
+`build_refines_export` and `public_inputs_wired` asserted, of every circuit, that the
+system a verifier key commits to refines the pre-`build` export and hashes its public
+inputs into the `PublicInputGate`. Since Step 19 every traced circuit proves both from
+its certificate and no capstone took either; they were the reading of `proof_sound` for a
+circuit that is not certified, of which there are none. They are deleted.
+- `proof_sound` and `verifier_algebra` take `href` (`∀ b, BuildOf tree b → b.Refines c`)
+  and `hpi` (`… → b.HashesPublicInputs c`) as hypotheses, as `proof_sound_of` did, and
+  supply the children's `ProofAccepted` from the two child obligations;
+  `identical_constraints_satisfies` takes `href` and is bare. The private-wrapper
+  bridges' `accepted_sound` call `proof_sound` with `build_refines` and `build_hashes`;
+  the leaf's calls `proof_sound_leaf`, as before. `proof_sound_of`, with `hch` also a
+  hypothesis, remains the form both are instances of.
+- The generic trusted base is six declarations: the three layer-1 assumptions,
+  `public_input_binding`, `child_gadget_satisfied` and `recursive_verifier_transcript`.
+  What stands in for the two deleted ones is one `build_agrees` per certified circuit.
+- **Axiom gate.** `proof_sound`: the assumptions, the binding and the two child
+  obligations. `verifier_algebra`: the binding and the two child obligations.
+  `identical_constraints_satisfies`: bare. No capstone footprint changed.
 
 ## 9. Definition of done
 

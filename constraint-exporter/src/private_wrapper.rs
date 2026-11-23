@@ -774,8 +774,8 @@ pub fn render(shape: &Shape) -> String {
     w!("  `leaves`, `us`, `slots`, `out`) and discharges every hypothesis of");
     w!("  `private_batch_val_rows` (`Plonky2Bridge/PrivateBatch.lean`), so `private_batch_end_to_end`");
     w!("  is restated on the wiring (`end_to_end_wired`), with the children's `Rleaf` recovered from");
-    w!("  their accepted proofs through `proof_sound_of` and the leaf bridge");
-    w!("  (Step 10). `accepted_sound` is the wrapper's own `proof_sound_of` consequence, on its");
+    w!("  their accepted proofs through `proof_sound` and the leaf bridge");
+    w!("  (Step 10). `accepted_sound` is the wrapper's own `proof_sound` consequence, on its");
     w!("  certified build (`Plonky2Bridge/PrivateWrapperBuild.lean`), for the public-batch");
     w!("  wrapper above it.");
     w!("-/");
@@ -1395,7 +1395,7 @@ pub fn render(shape: &Shape) -> String {
     w!("set_option maxRecDepth 8192 in");
     w!("theorem out_eq (a : Assignment p) : out a = outOf (a ∘ pi) := rfl");
     w!("");
-    w!("/-- **An accepted private-batch proof attests `RPrivateBatch`.** Through `proof_sound_of`");
+    w!("/-- **An accepted private-batch proof attests `RPrivateBatch`.** Through `proof_sound`");
     w!("    on the certified `build_refines` and `build_hashes`, the good events `hg` for the");
     w!("    wrapper's proofs and `hgl` for the leaf proofs: the accepted public inputs are those of");
     w!("    an assignment satisfying the wrapper's exported wiring whose own recursion gadgets");
@@ -1406,8 +1406,7 @@ pub fn render(shape: &Shape) -> String {
     w!("    {{ts : Fin {pi_total} → Target}} {{a : Assignment p}}");
     w!("    (h : ProofAccepted perm tree ((List.ofFn ts).map a)) :");
     w!("    ∃ leaves us, RPrivateBatch (spongeRO perm) leaves us (outOf (a ∘ ts)) := by");
-    w!("  obtain ⟨a', h', hp', hpis, hch⟩ :=");
-    w!("    proof_sound_of perm _ _ _ _ hg build_refines build_hashes (children_accepted perm _ _ _ _) h");
+    w!("  obtain ⟨a', h', hp', hpis, hch⟩ := proof_sound perm _ _ _ _ hg build_refines build_hashes h");
     w!("  rw [publicInputs_eq] at hpis");
     w!("  have hacc : ∀ i : Fin {n}, ProofAccepted perm LeafCircuit.tree ((List.ofFn (leafPis i)).map a') := by");
     w!("    intro i");

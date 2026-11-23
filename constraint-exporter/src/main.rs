@@ -33,9 +33,9 @@ const PRIVATE_WRAPPER_SIZES: [usize; 3] = [2, 4, 8];
 /// 2-leaf private batches; `n = 89` is the production arity over the `n = 8` one.
 const PUBLIC_WRAPPER_SIZES: [usize; 3] = [2, 4, 89];
 /// The circuits whose builds are certified (`Plonky2Bridge/Generated/*Built.lean`, Steps 16
-/// and 19): those whose proofs a bridge consumes through `proof_sound_of`. The public-batch
-/// wrappers' capstones take their inner proofs as hypotheses, and the production one is a
-/// 2^19-row build, so they are not.
+/// and 19): those whose proofs a bridge consumes through `proof_sound` or
+/// `proof_sound_leaf`. The public-batch wrappers' capstones take their inner proofs as
+/// hypotheses, and the production one is a 2^19-row build, so they are not.
 const CERTIFIED_CIRCUITS: [&str; 4] = [
     "leaf_circuit",
     "private_batch_wrapper_n2",
