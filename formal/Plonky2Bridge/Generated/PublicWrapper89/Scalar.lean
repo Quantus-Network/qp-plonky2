@@ -17,7 +17,7 @@ set_option maxHeartbeats 0
 
 theorem scan_sn (a : Assignment p) (h : Satisfies (publicBatchWrapper89 p) a) :
     a (.wire 170 15) = scanRef (rows a) fun t => t.1.blockNumber := by
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
+  obtain ⟨kslots, ktot, kzero, kone⟩ := consts a h
   rw [(publicBatchWrapper89_f1687 a h)]
   rw [(publicBatchWrapper89_f1676 a h)]
   rw [(publicBatchWrapper89_f1665 a h)]
@@ -114,7 +114,7 @@ theorem scan_sn (a : Assignment p) (h : Satisfies (publicBatchWrapper89 p) a) :
 
 theorem scan_sa (a : Assignment p) (h : Satisfies (publicBatchWrapper89 p) a) :
     a (.wire 170 23) = scanRef (rows a) fun t => t.1.assetId := by
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
+  obtain ⟨kslots, ktot, kzero, kone⟩ := consts a h
   rw [(publicBatchWrapper89_f1688 a h)]
   rw [(publicBatchWrapper89_f1677 a h)]
   rw [(publicBatchWrapper89_f1666 a h)]
@@ -211,7 +211,7 @@ theorem scan_sa (a : Assignment p) (h : Satisfies (publicBatchWrapper89 p) a) :
 
 theorem scan_sf (a : Assignment p) (h : Satisfies (publicBatchWrapper89 p) a) :
     a (.wire 170 31) = scanRef (rows a) fun t => t.1.fee := by
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
+  obtain ⟨kslots, ktot, kzero, kone⟩ := consts a h
   rw [(publicBatchWrapper89_f1689 a h)]
   rw [(publicBatchWrapper89_f1678 a h)]
   rw [(publicBatchWrapper89_f1667 a h)]

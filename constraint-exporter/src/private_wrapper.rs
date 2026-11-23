@@ -386,10 +386,9 @@ impl Shape {
         let total_value = m as u64;
         let total = const_target(total_value)?;
         let ten_thousand = const_target(layout::FEE_DENOMINATOR)?;
-        let _two_pow_59 = const_target(1 << 59)?;
-        if constants.len() != 5 {
+        if constants.len() != 4 {
             return Err(format!(
-                "expected constants {{1, 0, {total_value}, 10000, 2^59}}, found {constants:?}"
+                "expected constants {{1, 0, {total_value}, 10000}}, found {constants:?}"
             ));
         }
 
@@ -775,11 +774,13 @@ pub fn render(shape: &Shape) -> String {
     w!("  `leaves`, `us`, `slots`, `out`) and discharges every hypothesis of");
     w!("  `private_batch_val_rows` (`Plonky2Bridge/PrivateBatch.lean`), so `private_batch_end_to_end`");
     w!("  is restated on the wiring (`end_to_end_wired`), with the children's `Rleaf` recovered from");
-    w!("  their accepted proofs through `proof_sound` and the leaf bridge");
-    w!("  (Step 10). `accepted_sound` is the wrapper's own `proof_sound` consequence, for the");
-    w!("  public-batch wrapper above it.");
+    w!("  their accepted proofs through `proof_sound_of` and the leaf bridge");
+    w!("  (Step 10). `accepted_sound` is the wrapper's own `proof_sound_of` consequence, on its");
+    w!("  certified build (`Plonky2Bridge/PrivateWrapperBuild.lean`), for the public-batch");
+    w!("  wrapper above it.");
     w!("-/");
     w!("import Plonky2Bridge.PrivateBatch");
+    w!("import Plonky2Bridge.PrivateWrapperBuild");
     w!("import Plonky2Bridge.Generated.Leaf");
     w!("import Plonky2Spec.Generated.PrivateBatchWrapper{n}");
     w!("");
@@ -799,18 +800,6 @@ pub fn render(shape: &Shape) -> String {
     w!("set_option linter.unusedSimpArgs false");
     w!("");
     w!("/-! ### Reading the spec objects off the wiring -/");
-    w!("");
-    w!(
-        "/-- The {} leaf public inputs of leaf `i` (`leaf_pis_i`). -/",
-        layout::LEAF_PI_LEN
-    );
-    w!(
-        "def leafPis : Fin {n} → Fin {} → Target",
-        layout::LEAF_PI_LEN
-    );
-    for i in 0..n {
-        w!("  | {i} => {circuit}.leaf_pis_{i}");
-    }
     w!("");
     w!("/-- The 4-felt dummy-nullifier preimage of leaf `i` (`dummy_pre_image_i`). -/");
     w!("def preimage : Fin {n} → Fin 4 → Target");
@@ -1315,20 +1304,6 @@ pub fn render(shape: &Shape) -> String {
     w!("");
     w!("/-! ### The wrapper as a recursion tree (PLAN.md Step 10) -/");
     w!("");
-    w!("/-- The wrapper with its recursion gadgets: `verify_proof` under the leaf verifier key on");
-    w!("    each `leaf_pis_i`. -/");
-    w!("def tree : Recursive p :=");
-    w!("  .node \"private_batch_wrapper_n{n}\" ({circuit} p)");
-    let children: Vec<String> = (0..n)
-        .map(|i| format!("(LeafCircuit.tree, List.ofFn (leafPis {i}))"))
-        .collect();
-    w!("    [{}]", children.join(",\n     "));
-    w!("");
-    w!("omit [Fact p.Prime] in");
-    w!("set_option maxRecDepth 8192 in");
-    w!("/-- The tree's gadgets are the recorded ones. -/");
-    w!("theorem tree_verifiers : (tree (p := p)).verifiers = {circuit}.verifiers := rfl");
-    w!("");
     w!("omit [Fact p.Prime] in");
     w!("/-- Child `i`'s public inputs, as the wrapper reads them, are the leaf's `pubOf`. -/");
     w!("theorem row_leaf (a : Assignment p) (i : Fin {n}) :");
@@ -1420,18 +1395,19 @@ pub fn render(shape: &Shape) -> String {
     w!("set_option maxRecDepth 8192 in");
     w!("theorem out_eq (a : Assignment p) : out a = outOf (a ∘ pi) := rfl");
     w!("");
-    w!("/-- **An accepted private-batch proof attests `RPrivateBatch`.** Through `proof_sound` on");
-    w!("    the good events `hg` for the wrapper's proofs and `hgl` for the leaf proofs: the");
-    w!("    accepted public inputs are those of an assignment satisfying the wrapper's exported");
-    w!("    wiring whose own recursion gadgets accepted every leaf proof, hence (`end_to_end_wired`)");
-    w!("    an `RPrivateBatch` instance. This is what `WormholeSpec.private_batch_proof_sound` used");
-    w!("    to assume. -/");
+    w!("/-- **An accepted private-batch proof attests `RPrivateBatch`.** Through `proof_sound_of`");
+    w!("    on the certified `build_refines` and `build_hashes`, the good events `hg` for the");
+    w!("    wrapper's proofs and `hgl` for the leaf proofs: the accepted public inputs are those of");
+    w!("    an assignment satisfying the wrapper's exported wiring whose own recursion gadgets");
+    w!("    accepted every leaf proof, hence (`end_to_end_wired`) an `RPrivateBatch` instance. This");
+    w!("    is what `WormholeSpec.private_batch_proof_sound` used to assume. -/");
     w!("theorem accepted_sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)");
     w!("    (hg : GoodEvents perm tree) (hgl : GoodEvents perm LeafCircuit.tree)");
     w!("    {{ts : Fin {pi_total} → Target}} {{a : Assignment p}}");
     w!("    (h : ProofAccepted perm tree ((List.ofFn ts).map a)) :");
     w!("    ∃ leaves us, RPrivateBatch (spongeRO perm) leaves us (outOf (a ∘ ts)) := by");
-    w!("  obtain ⟨a', h', hp', hpis, hch⟩ := proof_sound perm _ _ _ _ hg h");
+    w!("  obtain ⟨a', h', hp', hpis, hch⟩ :=");
+    w!("    proof_sound_of perm _ _ _ _ hg build_refines build_hashes (children_accepted perm _ _ _ _) h");
     w!("  rw [publicInputs_eq] at hpis");
     w!("  have hacc : ∀ i : Fin {n}, ProofAccepted perm LeafCircuit.tree ((List.ofFn (leafPis i)).map a') := by");
     w!("    intro i");

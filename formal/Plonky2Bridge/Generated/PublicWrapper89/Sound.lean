@@ -30,7 +30,7 @@ set_option maxHeartbeats 20000000 in
 theorem sound (ro : RandomOracle) (hpg : WormholeSpec.goldilocks ≤ p)
     (a : Assignment p) (h : Satisfies (publicBatchWrapper89 p) a) :
     RPublicBatch ro (inners a) (addr a) (out a) := by
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
+  obtain ⟨kslots, ktot, kzero, kone⟩ := consts a h
   have hblk : ∀ j, a (![.wire 169 63, .wire 169 71, .wire 169 79, .wire 170 7] j) = blockRef (rows a) j := by
     intro j
     fin_cases j
@@ -61,7 +61,7 @@ theorem sound (ro : RandomOracle) (hpg : WormholeSpec.goldilocks ≤ p)
     rw [hsaR]
   · show (a (.wire 170 31)).val = _
     rw [hsfR]
-  · show (a (.virt 606542)).val = 89 * 32
+  · show (a (.virt 19587)).val = 89 * 32
     rw [ktot]
     have hc : (2848 : ℕ) < p := lt_of_lt_of_le (by decide) hpg
     rw [← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]

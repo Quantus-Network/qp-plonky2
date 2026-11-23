@@ -302,11 +302,9 @@ fn leaf_bridge_lean_is_current() {
         })
         .collect();
     assert_eq!(used.len(), 1561 - 16 * 3);
-    // The recursion base: a leaf tree with no children, and an accepted proof of it attests
-    // `Rleaf` through `proof_sound`.
-    assert!(
-        generated.contains("def tree : Recursive p := .node \"leaf_circuit\" (leafCircuit p) []")
-    );
+    // The recursion base: an accepted proof of the leaf's tree (`LeafBuilt.lean`) attests
+    // `Rleaf` through `proof_sound_leaf` on the certified build.
+    assert!(generated.contains("import Plonky2Bridge.LeafBuild"));
     assert!(generated.contains("theorem accepted_sound"));
     assert!(generated.contains("∃ w : LeafWitness, Rleaf (spongeRO perm) (pubOf (a ∘ ts)) w := by"));
     assert!(generated.contains("proof_sound_leaf perm _ _ _ hg build_refines build_hashes h"));
