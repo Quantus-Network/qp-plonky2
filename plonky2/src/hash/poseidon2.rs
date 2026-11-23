@@ -164,16 +164,24 @@ pub fn hash_no_pad_bytes(input: &[GL]) -> [u8; 32] {
 // ---------- AlgebraicHasher (in-circuit) ----------
 
 /// Swaps the first two `NUM_HASH_OUT_ELTS`-lane chunks of `lanes` when `swap` is set. The
-/// `Poseidon2Gate` has no swap wire, so the direction bit is bound with `select`s instead.
+/// `Poseidon2Gate` has no swap wire, so the direction bit is bound with `select`s instead; a
+/// constant bit (as passed by `permute`) costs no gates.
 fn swap_hash_chunks<F: RichField + Extendable<D>, const D: usize>(
     builder: &mut CircuitBuilder<F, D>,
     swap: BoolTarget,
     lanes: &mut [Target],
 ) {
-    for i in 0..NUM_HASH_OUT_ELTS {
-        let (left, right) = (lanes[i], lanes[NUM_HASH_OUT_ELTS + i]);
-        lanes[i] = builder.select(swap, right, left);
-        lanes[NUM_HASH_OUT_ELTS + i] = builder.select(swap, left, right);
+    let (left, right) = lanes.split_at_mut(NUM_HASH_OUT_ELTS);
+    match builder.target_as_constant(swap.target) {
+        Some(bit) if bit == F::ZERO => {}
+        Some(_) => left.swap_with_slice(&mut right[..NUM_HASH_OUT_ELTS]),
+        None => {
+            for (left, right) in left.iter_mut().zip(right) {
+                let (unswapped_left, unswapped_right) = (*left, *right);
+                *left = builder.select(swap, unswapped_right, unswapped_left);
+                *right = builder.select(swap, unswapped_left, unswapped_right);
+            }
+        }
     }
 }
 
