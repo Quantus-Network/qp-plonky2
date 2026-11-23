@@ -28,7 +28,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         x: Target,
         num_limbs: usize,
     ) -> Result<Vec<Target>> {
-        let max_limbs = log_floor(F::ORDER - 1, B as u64);
+        let max_limbs = BaseSumGate::<B>::max_limbs::<F>();
         ensure!(
             num_limbs <= max_limbs,
             "num_limbs ({}) exceeds maximum ({}) for base {} decomposition; \

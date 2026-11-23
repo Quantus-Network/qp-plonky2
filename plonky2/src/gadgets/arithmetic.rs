@@ -18,6 +18,7 @@ use crate::iop::target::{BoolTarget, Target};
 use crate::iop::witness::{PartitionWitness, Witness, WitnessWrite};
 use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::circuit_data::CommonCircuitData;
+use crate::util::log_floor;
 use crate::util::serialization::{Buffer, IoResult, Read, Write};
 
 impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
@@ -274,9 +275,15 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         Target::wire(row, gate.wire_output())
     }
 
-    // TODO: Test
     /// Exponentiates `base` to the power of `exponent`, where `exponent < 2^num_bits`.
+    ///
+    /// `2^num_bits` must not exceed the field order: otherwise `exponent` and
+    /// `exponent + F::ORDER` share the target and the prover could pick either power.
     pub fn exp(&mut self, base: Target, exponent: Target, num_bits: usize) -> Target {
+        assert!(
+            num_bits <= log_floor(F::ORDER - 1, 2),
+            "a {num_bits}-bit exponent is not uniquely determined by a field element"
+        );
         let exponent_bits = self.split_le(exponent, num_bits);
 
         self.exp_from_bits(base, exponent_bits.iter())

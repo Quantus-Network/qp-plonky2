@@ -2,6 +2,7 @@ use std::panic::{catch_unwind, AssertUnwindSafe};
 
 use plonky2::field::types::Field;
 use plonky2::field::zero_poly_coset::ZeroPolyOnCoset;
+use plonky2::gates::base_sum::BaseSumGate;
 use plonky2::gates::coset_interpolation::CosetInterpolationGate;
 use plonky2::gates::exponentiation::ExponentiationGate;
 use plonky2::gates::gate::Gate;
@@ -86,6 +87,100 @@ fn nonzero_denominator_extension_division_still_proves() -> anyhow::Result<()> {
 
     let proof = data.prove(pw)?;
     data.verify(proof)
+}
+
+/// `range_check(x, 0)` used to add no constraint at all; it must pin `x` to zero.
+#[test]
+fn zero_width_range_check_binds_value_to_zero() -> anyhow::Result<()> {
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let x = builder.add_virtual_target();
+    builder.range_check(x, 0);
+    let data = builder.build::<C>();
+
+    let mut honest = PartialWitness::new();
+    honest.set_target(x, F::ZERO)?;
+    data.verify(data.prove(honest)?)?;
+
+    let mut forged = PartialWitness::new();
+    forged.set_target(x, F::ONE)?;
+    let result = catch_unwind(AssertUnwindSafe(|| data.prove(forged)));
+    assert!(result.map_or(true, |proof| proof.is_err()));
+    Ok(())
+}
+
+/// A 64-bit exponent target does not determine the power (`e` and `e + ORDER` both fit), so
+/// `exp` must refuse the width at build time.
+#[test]
+fn field_width_exp_rejected() {
+    let result = catch_unwind(AssertUnwindSafe(|| {
+        let config = CircuitConfig::standard_recursion_config();
+        let mut builder = CircuitBuilder::<F, D>::new(config);
+        let base = builder.constant(F::TWO);
+        let exponent = builder.add_virtual_target();
+        let _ = builder.exp(base, exponent, F::BITS);
+    }));
+    assert!(result.is_err());
+}
+
+#[test]
+fn below_field_width_exp_still_proves() -> anyhow::Result<()> {
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let base = builder.constant(F::TWO);
+    let exponent = builder.add_virtual_target();
+    let power = builder.exp(base, exponent, F::BITS - 1);
+    let expected = builder.constant(F::from_canonical_u64(1 << 20));
+    builder.connect(power, expected);
+    let data = builder.build::<C>();
+
+    let mut pw = PartialWitness::new();
+    pw.set_target(exponent, F::from_canonical_u64(20))?;
+    data.verify(data.prove(pw)?)
+}
+
+/// Indexing a one-element vector skipped the gate entirely, leaving the index unconstrained.
+#[test]
+fn singleton_random_access_binds_index_to_zero() -> anyhow::Result<()> {
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let index = builder.add_virtual_target();
+    let element = builder.constant(F::from_canonical_u64(7));
+    let selected = builder.random_access(index, vec![element]);
+    builder.connect(selected, element);
+    let data = builder.build::<C>();
+
+    let mut honest = PartialWitness::new();
+    honest.set_target(index, F::ZERO)?;
+    data.verify(data.prove(honest)?)?;
+
+    let mut forged = PartialWitness::new();
+    forged.set_target(index, F::ONE)?;
+    let result = catch_unwind(AssertUnwindSafe(|| data.prove(forged)));
+    assert!(result.map_or(true, |proof| proof.is_err()));
+    Ok(())
+}
+
+/// A `BaseSumGate` wider than the field admits two limb vectors per sum, so circuit data
+/// declaring one must be rejected on deserialization.
+#[test]
+fn overwide_base_sum_gate_deserialization_rejected() {
+    let data = simple_circuit_data();
+    let max_limbs = BaseSumGate::<2>::max_limbs::<F>();
+
+    let mut buffer = Vec::new();
+    buffer.write_usize(max_limbs + 1).unwrap();
+    assert!(
+        <BaseSumGate<2> as Gate<F, D>>::deserialize(&mut Buffer::new(&buffer), &data.common)
+            .is_err()
+    );
+
+    let mut buffer = Vec::new();
+    buffer.write_usize(max_limbs).unwrap();
+    assert!(
+        <BaseSumGate<2> as Gate<F, D>>::deserialize(&mut Buffer::new(&buffer), &data.common)
+            .is_ok()
+    );
 }
 
 #[test]
