@@ -3,11 +3,14 @@ use alloc::{format, vec::Vec};
 
 use itertools::Itertools;
 
+use crate::batch_fri::{openings_at_leaf_positions, BatchLeafLayout};
 use crate::field::extension::Extendable;
 use crate::fri::proof::{
     FriChallengesTarget, FriInitialTreeProofTarget, FriProofTarget, FriQueryRoundTarget,
 };
-use crate::fri::recursive_verifier::PrecomputedReducedOpeningsTarget;
+use crate::fri::recursive_verifier::{
+    assert_fri_verifier_target_shape, PrecomputedReducedOpeningsTarget,
+};
 use crate::fri::structure::{FriBatchInfoTarget, FriInstanceInfoTarget, FriOpeningsTarget};
 use crate::fri::FriParams;
 use crate::hash::hash_types::{MerkleCapTarget, RichField};
@@ -35,10 +38,23 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             self.check_recursion_config(max_arity_bits);
         }
 
-        debug_assert_eq!(
+        assert_eq!(
             params.final_poly_len(),
             proof.final_poly.len(),
             "Final polynomial has wrong coefficient count."
+        );
+        assert_fri_verifier_target_shape(
+            instance,
+            openings,
+            challenges,
+            initial_merkle_caps,
+            proof,
+            params,
+        );
+        assert_eq!(
+            degree_bits.len(),
+            instance.len(),
+            "Number of degree bits does not match the instance count."
         );
 
         with_context!(
@@ -47,12 +63,26 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             self.fri_verify_proof_of_work(challenges.fri_pow_response, &params.config)
         );
 
-        // Check that parameters are coherent.
-        debug_assert_eq!(
-            params.config.num_query_rounds,
-            proof.query_round_proofs.len(),
-            "Number of query rounds does not match config."
-        );
+        let oracles_per_instance = instance
+            .iter()
+            .map(|inst| inst.oracles.as_slice())
+            .collect_vec();
+        let layouts = BatchLeafLayout::per_oracle(&oracles_per_instance, params.leaf_hiding);
+        let instance = instance
+            .iter()
+            .map(|inst| FriInstanceInfoTarget {
+                oracles: inst.oracles.clone(),
+                batches: inst
+                    .batches
+                    .iter()
+                    .map(|batch| FriBatchInfoTarget {
+                        point: batch.point,
+                        openings: openings_at_leaf_positions(&batch.openings, &layouts),
+                    })
+                    .collect(),
+            })
+            .collect_vec();
+        let instance = &instance;
 
         let mut precomputed_reduced_evals = Vec::with_capacity(openings.len());
         for opn in openings {
@@ -90,6 +120,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
                 self.batch_fri_verifier_query_round::<C>(
                     &degree_bits,
                     instance,
+                    &layouts,
                     challenges,
                     &precomputed_reduced_evals,
                     initial_merkle_caps,
@@ -106,28 +137,22 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     fn batch_fri_verify_initial_proof<H: AlgebraicHasher<F>>(
         &mut self,
         degree_bits: &[usize],
-        instances: &[FriInstanceInfoTarget<F, D>],
+        layouts: &[BatchLeafLayout],
         x_index_bits: &[BoolTarget],
         proof: &FriInitialTreeProofTarget,
         initial_merkle_caps: &[MerkleCapTarget],
         cap_index: Target,
     ) {
-        for (i, ((evals, merkle_proof), cap)) in proof
+        for (i, (((evals, merkle_proof), cap), layout)) in proof
             .evals_proofs
             .iter()
             .zip(initial_merkle_caps)
+            .zip(layouts)
             .enumerate()
         {
-            let leaves = instances
-                .iter()
-                .scan(0, |leaf_index, inst| {
-                    let num_polys = inst.oracles[i].num_polys;
-                    let leaves = (*leaf_index..*leaf_index + num_polys)
-                        .map(|idx| evals[idx])
-                        .collect::<Vec<_>>();
-                    *leaf_index += num_polys;
-                    Some(leaves)
-                })
+            let leaves = layout
+                .group_ranges()
+                .map(|range| evals[range].to_vec())
                 .collect::<Vec<_>>();
 
             with_context!(
@@ -198,6 +223,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         &mut self,
         degree_bits: &[usize],
         instance: &[FriInstanceInfoTarget<F, D>],
+        layouts: &[BatchLeafLayout],
         challenges: &FriChallengesTarget<D>,
         precomputed_reduced_evals: &[PrecomputedReducedOpeningsTarget<D>],
         initial_merkle_caps: &[MerkleCapTarget],
@@ -223,7 +249,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             "check FRI initial proof",
             self.batch_fri_verify_initial_proof::<C::Hasher>(
                 degree_bits,
-                instance,
+                layouts,
                 &x_index_bits,
                 &round_proof.initial_trees_proof,
                 initial_merkle_caps,

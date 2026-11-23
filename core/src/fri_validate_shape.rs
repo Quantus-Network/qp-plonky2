@@ -9,8 +9,9 @@ use crate::config::{GenericConfig, Hasher};
 use crate::field::extension::Extendable;
 use crate::fri::FriParams;
 use crate::fri_proof::{FriInitialTreeProof, FriProof, FriQueryRound, FriQueryStep};
-use crate::fri_structure::FriInstanceInfo;
+use crate::fri_structure::{FriChallenges, FriInstanceInfo, FriOpenings};
 use crate::hash_types::RichField;
+use crate::merkle_tree::MerkleCap;
 use crate::plonk_common::salt_size;
 
 pub fn validate_fri_proof_shape<F, C, const D: usize>(
@@ -119,11 +120,21 @@ where
 
     let leaf_len = checked_leaf_lengths(instances, params.leaf_hiding)?;
 
+    // Every commit-phase cap is absorbed into the transcript; a cap without a matching reduction
+    // step would be unbound by any query, handing the prover free Fiat–Shamir grinding.
+    ensure!(
+        commit_phase_merkle_caps.len() == params.reduction_arity_bits.len(),
+        "Number of commit-phase caps does not match the reduction schedule."
+    );
     let cap_height = params.config.cap_height;
     for cap in commit_phase_merkle_caps {
         ensure!(cap.height() == cap_height);
     }
 
+    ensure!(
+        query_round_proofs.len() == params.config.num_query_rounds,
+        "Number of query rounds does not match config."
+    );
     for query_round in query_round_proofs {
         let FriQueryRound {
             initial_trees_proof,
@@ -153,6 +164,66 @@ where
     }
 
     ensure!(final_poly.coeffs.len() == params.final_poly_len());
+
+    Ok(())
+}
+
+/// Validates the caller-supplied verifier inputs that `verify_fri_proof` zips against the proof:
+/// one initial cap per oracle, one beta per reduction step, one in-domain query index per round,
+/// and one claimed opening per opening expression. A short list would otherwise silently leave
+/// part of the proof unchecked.
+pub fn validate_fri_verifier_inputs<F, H, const D: usize>(
+    instances: &[FriInstanceInfo<F, D>],
+    openings: &[FriOpenings<F, D>],
+    challenges: &FriChallenges<F, D>,
+    initial_merkle_caps: &[MerkleCap<F, H>],
+    params: &FriParams,
+) -> anyhow::Result<()>
+where
+    F: RichField + Extendable<D>,
+    H: Hasher<F>,
+{
+    let oracle_count = instances.first().map_or(0, |inst| inst.oracles.len());
+    ensure!(
+        initial_merkle_caps.len() == oracle_count,
+        "Number of initial Merkle caps does not match the oracle count."
+    );
+    for cap in initial_merkle_caps {
+        ensure!(cap.height() == params.config.cap_height);
+    }
+
+    ensure!(
+        challenges.fri_betas.len() == params.reduction_arity_bits.len(),
+        "Number of FRI betas does not match the reduction schedule."
+    );
+    ensure!(
+        challenges.fri_query_indices.len() == params.config.num_query_rounds,
+        "Number of FRI query indices does not match config."
+    );
+    ensure!(
+        challenges
+            .fri_query_indices
+            .iter()
+            .all(|&index| index < params.lde_size()),
+        "FRI query index outside the LDE domain."
+    );
+
+    ensure!(
+        openings.len() == instances.len(),
+        "Number of FRI openings does not match the instance count."
+    );
+    for (instance, opening) in instances.iter().zip(openings) {
+        ensure!(
+            instance.batches.len() == opening.batches.len(),
+            "Number of opening batches does not match the instance."
+        );
+        for (batch, values) in instance.batches.iter().zip(&opening.batches) {
+            ensure!(
+                batch.openings.len() == values.values.len(),
+                "Number of claimed openings does not match the batch."
+            );
+        }
+    }
 
     Ok(())
 }

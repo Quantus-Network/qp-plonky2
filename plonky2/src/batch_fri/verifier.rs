@@ -6,9 +6,10 @@ use itertools::Itertools;
 use plonky2_field::extension::{flatten, Extendable, FieldExtension};
 use plonky2_field::types::Field;
 
+use crate::batch_fri::{openings_at_leaf_positions, BatchLeafLayout};
 use crate::fri::proof::{FriChallenges, FriInitialTreeProof, FriProof, FriQueryRound};
 use crate::fri::structure::{FriBatchInfo, FriInstanceInfo, FriOpenings};
-use crate::fri::validate_shape::validate_batch_fri_proof_shape;
+use crate::fri::validate_shape::{validate_batch_fri_proof_shape, validate_fri_verifier_inputs};
 use crate::fri::verifier::{
     compute_evaluation, eval_opening_expression, fri_verify_proof_of_work,
     PrecomputedReducedOpenings,
@@ -35,15 +36,34 @@ pub fn verify_batch_fri_proof<
     params: &FriParams,
 ) -> anyhow::Result<()> {
     validate_batch_fri_proof_shape::<F, C, D>(proof, instances, params)?;
+    validate_fri_verifier_inputs(instances, openings, challenges, initial_merkle_cap, params)?;
+    ensure!(
+        degree_bits.len() == instances.len(),
+        "Number of degree bits does not match the instance count."
+    );
 
     // Check PoW.
     fri_verify_proof_of_work(challenges.fri_pow_response, &params.config)?;
 
-    // Check that parameters are coherent.
-    ensure!(
-        params.config.num_query_rounds == proof.query_round_proofs.len(),
-        "Number of query rounds does not match config."
-    );
+    let oracles_per_instance = instances
+        .iter()
+        .map(|inst| inst.oracles.as_slice())
+        .collect_vec();
+    let layouts = BatchLeafLayout::per_oracle(&oracles_per_instance, params.leaf_hiding);
+    let instances = instances
+        .iter()
+        .map(|inst| FriInstanceInfo {
+            oracles: inst.oracles.clone(),
+            batches: inst
+                .batches
+                .iter()
+                .map(|batch| FriBatchInfo {
+                    point: batch.point,
+                    openings: openings_at_leaf_positions(&batch.openings, &layouts),
+                })
+                .collect(),
+        })
+        .collect_vec();
 
     let mut precomputed_reduced_evals = Vec::with_capacity(openings.len());
     for opn in openings {
@@ -61,7 +81,8 @@ pub fn verify_batch_fri_proof<
     {
         batch_fri_verifier_query_round::<F, C, D>(
             &degree_bits,
-            instances,
+            &instances,
+            &layouts,
             challenges,
             &precomputed_reduced_evals,
             initial_merkle_cap,
@@ -77,27 +98,20 @@ pub fn verify_batch_fri_proof<
 
 fn batch_fri_verify_initial_proof<F: RichField + Extendable<D>, H: Hasher<F>, const D: usize>(
     degree_bits: &[usize],
-    instances: &[FriInstanceInfo<F, D>],
+    layouts: &[BatchLeafLayout],
     x_index: usize,
     proof: &FriInitialTreeProof<F, H>,
     initial_merkle_caps: &[MerkleCap<F, H>],
 ) -> anyhow::Result<()> {
-    for (oracle_index, ((evals, merkle_proof), cap)) in proof
+    for (((evals, merkle_proof), cap), layout) in proof
         .evals_proofs
         .iter()
         .zip(initial_merkle_caps)
-        .enumerate()
+        .zip(layouts)
     {
-        let leaves = instances
-            .iter()
-            .scan(0, |leaf_index, inst| {
-                let num_polys = inst.oracles[oracle_index].num_polys;
-                let leaves = (*leaf_index..*leaf_index + num_polys)
-                    .map(|idx| evals[idx])
-                    .collect::<Vec<_>>();
-                *leaf_index += num_polys;
-                Some(leaves)
-            })
+        let leaves = layout
+            .group_ranges()
+            .map(|range| evals[range].to_vec())
             .collect::<Vec<_>>();
 
         verify_batch_merkle_proof_to_cap::<F, H>(&leaves, degree_bits, x_index, cap, merkle_proof)?;
@@ -150,6 +164,7 @@ fn batch_fri_verifier_query_round<
 >(
     degree_bits: &[usize],
     instances: &[FriInstanceInfo<F, D>],
+    layouts: &[BatchLeafLayout],
     challenges: &FriChallenges<F, D>,
     precomputed_reduced_evals: &[PrecomputedReducedOpenings<F, D>],
     initial_merkle_caps: &[MerkleCap<F, C::Hasher>],
@@ -160,7 +175,7 @@ fn batch_fri_verifier_query_round<
 ) -> anyhow::Result<()> {
     batch_fri_verify_initial_proof::<F, C::Hasher, D>(
         degree_bits,
-        instances,
+        layouts,
         x_index,
         &round_proof.initial_trees_proof,
         initial_merkle_caps,
@@ -230,9 +245,8 @@ fn batch_fri_verifier_query_round<
             batch_index += 1;
         }
     }
-    assert_eq!(
-        batch_index,
-        instances.len(),
+    ensure!(
+        batch_index == instances.len(),
         "Wrong number of folded instances."
     );
 

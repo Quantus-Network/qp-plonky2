@@ -26,6 +26,64 @@ use crate::util::reducing::ReducingFactorTarget;
 use crate::util::{log2_strict, reverse_index_bits_in_place};
 use crate::with_context;
 
+/// Circuit-side twin of `validate_fri_verifier_inputs`: the recursive verifier zips these lists
+/// together, so a short one would silently leave part of the inner proof unverified. Shapes are
+/// fixed at build time, so a mismatch is a construction error.
+pub(crate) fn assert_fri_verifier_target_shape<F: RichField + Extendable<D>, const D: usize>(
+    instances: &[FriInstanceInfoTarget<F, D>],
+    openings: &[FriOpeningsTarget<D>],
+    challenges: &FriChallengesTarget<D>,
+    initial_merkle_caps: &[MerkleCapTarget],
+    proof: &FriProofTarget<D>,
+    params: &FriParams,
+) {
+    let oracle_count = instances.first().map_or(0, |inst| inst.oracles.len());
+    assert_eq!(
+        initial_merkle_caps.len(),
+        oracle_count,
+        "Number of initial Merkle caps does not match the oracle count."
+    );
+    assert_eq!(
+        proof.commit_phase_merkle_caps.len(),
+        params.reduction_arity_bits.len(),
+        "Number of commit-phase caps does not match the reduction schedule."
+    );
+    assert_eq!(
+        challenges.fri_betas.len(),
+        params.reduction_arity_bits.len(),
+        "Number of FRI betas does not match the reduction schedule."
+    );
+    assert_eq!(
+        proof.query_round_proofs.len(),
+        params.config.num_query_rounds,
+        "Number of query rounds does not match config."
+    );
+    assert_eq!(
+        challenges.fri_query_indices.len(),
+        params.config.num_query_rounds,
+        "Number of FRI query indices does not match config."
+    );
+    assert_eq!(
+        openings.len(),
+        instances.len(),
+        "Number of FRI openings does not match the instance count."
+    );
+    for (instance, opening) in instances.iter().zip(openings) {
+        assert_eq!(
+            instance.batches.len(),
+            opening.batches.len(),
+            "Number of opening batches does not match the instance."
+        );
+        for (batch, values) in instance.batches.iter().zip(&opening.batches) {
+            assert_eq!(
+                batch.openings.len(),
+                values.values.len(),
+                "Number of claimed openings does not match the batch."
+            );
+        }
+    }
+}
+
 impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     /// Computes P'(x^arity) from {P(x*g^i)}_(i=0..arity), where g is a `arity`-th root of unity
     /// and P' is the FRI reduced polynomial.
@@ -124,10 +182,18 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             self.check_recursion_config(max_arity_bits);
         }
 
-        debug_assert_eq!(
+        assert_eq!(
             params.final_poly_len(),
             proof.final_poly.0.len(),
             "Final polynomial has wrong length."
+        );
+        assert_fri_verifier_target_shape(
+            core::slice::from_ref(instance),
+            core::slice::from_ref(openings),
+            challenges,
+            initial_merkle_caps,
+            proof,
+            params,
         );
 
         // Size of the LDE domain.
@@ -137,13 +203,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             self,
             "check PoW",
             self.fri_verify_proof_of_work(challenges.fri_pow_response, &params.config)
-        );
-
-        // Check that parameters are coherent.
-        debug_assert_eq!(
-            params.config.num_query_rounds,
-            proof.query_round_proofs.len(),
-            "Number of query rounds does not match config."
         );
 
         let precomputed_reduced_evals = with_context!(

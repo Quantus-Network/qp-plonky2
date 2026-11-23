@@ -63,6 +63,7 @@ pub use fri_structure::{
 };
 pub use fri_validate_shape::{
     validate_batch_fri_proof_shape, validate_fri_initial_proof_shape, validate_fri_proof_shape,
+    validate_fri_verifier_inputs,
 };
 pub use fri_verifier::{
     compute_evaluation, fri_combine_initial, fri_verify_proof_of_work, verify_fri_proof,

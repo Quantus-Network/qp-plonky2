@@ -310,6 +310,7 @@ mod test {
     use crate::plonk::circuit_builder::CircuitBuilder;
     use crate::plonk::circuit_data::CircuitConfig;
     use crate::plonk::config::PoseidonGoldilocksConfig;
+    use crate::plonk::plonk_common::salt_size;
     use crate::plonk::prover::prove;
 
     const D: usize = 2;
@@ -320,6 +321,17 @@ mod test {
 
     #[test]
     fn batch_prove_openings() -> anyhow::Result<()> {
+        batch_prove_openings_with(false)
+    }
+
+    /// Salted groups put a salt column after each instance's polynomials, so the leaf layout no
+    /// longer matches the global polynomial numbering; both verifiers must account for that.
+    #[test]
+    fn batch_prove_openings_salted() -> anyhow::Result<()> {
+        batch_prove_openings_with(true)
+    }
+
+    fn batch_prove_openings_with(leaf_hiding: bool) -> anyhow::Result<()> {
         let mut timing = TimingTree::default();
 
         let k0 = 9;
@@ -334,7 +346,7 @@ mod test {
                 reduction_strategy: FriReductionStrategy::Fixed(reduction_arity_bits.clone()),
                 num_query_rounds: 10,
             },
-            leaf_hiding: false,
+            leaf_hiding,
             degree_bits: k0,
             reduction_arity_bits,
         };
@@ -376,7 +388,7 @@ mod test {
         let fri_instance_0 = FriInstanceInfo {
             oracles: vec![FriOracleInfo {
                 num_polys: 1,
-                blinding: false,
+                blinding: leaf_hiding,
             }],
             batches: vec![
                 FriBatchInfo {
@@ -398,7 +410,7 @@ mod test {
         let fri_instance_1 = FriInstanceInfo {
             oracles: vec![FriOracleInfo {
                 num_polys: 2,
-                blinding: false,
+                blinding: leaf_hiding,
             }],
             batches: vec![
                 FriBatchInfo {
@@ -426,7 +438,7 @@ mod test {
         let fri_instance_2 = FriInstanceInfo {
             oracles: vec![FriOracleInfo {
                 num_polys: 1,
-                blinding: false,
+                blinding: leaf_hiding,
             }],
             batches: vec![FriBatchInfo {
                 point: zeta,
@@ -507,14 +519,14 @@ mod test {
         // Test recursive verifier
         let config = CircuitConfig::standard_recursion_config();
         let mut builder = CircuitBuilder::<F, D>::new(config.clone());
-        let num_leaves_per_oracle = vec![4];
+        let num_leaves_per_oracle = vec![4 + 3 * salt_size(leaf_hiding)];
         let fri_proof_target = builder.add_virtual_fri_proof(&num_leaves_per_oracle, &fri_params);
         let zeta_target = builder.constant_extension(zeta);
         let eta_target = builder.constant_extension(eta);
         let fri_instance_info_target_0 = FriInstanceInfoTarget {
             oracles: vec![FriOracleInfo {
                 num_polys: 1,
-                blinding: false,
+                blinding: leaf_hiding,
             }],
             batches: vec![
                 FriBatchInfoTarget {
@@ -536,7 +548,7 @@ mod test {
         let fri_instance_info_target_1 = FriInstanceInfoTarget {
             oracles: vec![FriOracleInfo {
                 num_polys: 2,
-                blinding: false,
+                blinding: leaf_hiding,
             }],
             batches: vec![
                 FriBatchInfoTarget {
@@ -564,7 +576,7 @@ mod test {
         let fri_instance_info_target_2 = FriInstanceInfoTarget {
             oracles: vec![FriOracleInfo {
                 num_polys: 1,
-                blinding: false,
+                blinding: leaf_hiding,
             }],
             batches: vec![FriBatchInfoTarget {
                 point: zeta_target,
