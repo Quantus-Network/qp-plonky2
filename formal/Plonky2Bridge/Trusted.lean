@@ -1,5 +1,5 @@
 /-
-  The trusted base (PLAN.md §7, Steps 12 to 16).
+  The trusted base (PLAN.md §7, Steps 12 to 17).
 
   `proof_sound` is a theorem. It is the composition of three assumptions and
   `verifier_algebra`, and the capstones depend on nothing else outside the standard Lean
@@ -22,7 +22,7 @@
     `Built.Refines.satisfies` proves they give `Satisfies` for an export that system
     refines, and `poseidon2_gate_rows` proves the Poseidon2 rows compute `perm` from
     `Poseidon2.gate_sound_complete`. Four obligations remain as declarations:
-    `build_refines_export`, `public_input_wires`, `child_gadget_satisfied`, and
+    `build_refines_export`, `public_inputs_wired`, `child_gadget_satisfied`, and
     `recursive_verifier_transcript`. They are deterministic. The public inputs
     additionally need `public_input_binding`: on its good event, the proof-system hash
     does not collide them with the list the verifier was given.
@@ -33,6 +33,13 @@
     the refinement as a hypothesis; `proof_sound_leaf` is their instance for a certified
     circuit with no children, with neither `build_refines_export` nor the two child
     obligations in its footprint. The leaf is certified in `Plonky2Bridge/LeafBuild.lean`.
+  * The public-input hash (Step 17). `Built.HashesPublicInputs` is the in-circuit
+    sponge `build` lays down over `PoseidonGate` rows and copies into the
+    `PublicInputGate`, `Built.HashesPublicInputs.hash_eq` proves the carried public
+    inputs hash to `pis` from it, and `Built.Agrees.hashesPublicInputs` proves it from a
+    certificate. What remains trusted of the hash is `poseidon_gate_rows`: a
+    `PoseidonGate` row computes `poseidonPerm`, the proof-system permutation, which
+    stays opaque. `public_inputs_wired` is the obligation for an uncertified build.
 
   Poseidon2 collision resistance is not an assumption here. A forged proof need not
   exhibit a collision. The wormhole relations that do reduce to a collision are
@@ -40,11 +47,13 @@
 -/
 import Plonky2Spec.Wiring
 import Plonky2Spec.Poseidon2
+import Plonky2Spec.Sponge
 
 namespace Plonky2Bridge
 
 open Plonky2Spec.Wiring
 open Plonky2Spec.Poseidon2 (St)
+open Plonky2Spec.Sponge (rate squeeze4)
 
 /-! ### FRI parameters the in-repo default config is chosen against
 
@@ -221,6 +230,7 @@ def Built.Hosts (b : Built p) (i : ℕ) (r : Row p) : Prop :=
   | .constant n => ∀ j < n, b.Pins (.wire i j) (r.consts.getD j 0)
   | .baseSum2 n => b.RowAt i (.baseSum2 n) (n + 1)
   | .poseidon2 => b.RowAt i .poseidon2 24
+  | .poseidon => True
   | .publicInput => True
   | .noop => True
   | .other _ => True
@@ -324,6 +334,12 @@ structure BuildCert where
   virt : Tbl (Option (ℕ × ℕ))
   /-- `(m, v)`: wire `v` is fixed to the constant of the export's constant target `m`. -/
   pins : List (ℕ × (ℕ × ℕ))
+  /-- Wires fixed to `0`: the `zero` target's class after `build`. -/
+  zeros : List (ℕ × ℕ)
+  /-- The `PublicInputGate` row. -/
+  piRow : ℕ
+  /-- The `PoseidonGate` rows of the public-input hash, in absorb order. -/
+  hashRows : List ℕ
 
 /-- The certificate's cycles, as lists. -/
 def BuildCert.cycleList (k : BuildCert) : List (List (ℕ × ℕ)) :=
@@ -341,8 +357,10 @@ theorem BuildCert.mem_cycleList {k : BuildCert} {ci : ℕ} {C : Tbl (ℕ × ℕ)
 
 /-- The built system `b` is as the certificate `k` describes it, against the export `c`:
     the export's rows at their indices, `σ` along the listed cycles, which lie in the
-    domain, the listed wires fixed to the export's constants, and the targets `k.loc`
-    places, where it places them. Nothing is said of targets it does not place. -/
+    domain, the listed wires fixed to the export's constants, the targets `k.loc`
+    places, where it places them, the listed wires fixed to `0`, and the
+    `PublicInputGate` and `PoseidonGate` rows it names. Nothing is said of targets it
+    does not place. -/
 structure Built.Agrees (b : Built p) (c : Circuit p) (k : BuildCert) : Prop where
   rows : ∀ (i : ℕ) (r : Row p), c.rows[i]? = some r → b.rows[i]? = some r
   routed : b.routed = k.routed
@@ -352,6 +370,9 @@ structure Built.Agrees (b : Built p) (c : Circuit p) (k : BuildCert) : Prop wher
     b.sigma (L.getD i (0, 0)) = L.getD ((i + 1) % L.length) (0, 0)
   fixed : ∀ mv ∈ k.pins, ∀ tc, c.constants[mv.1]? = some tc → (mv.2, tc.2) ∈ b.fixed
   loc : ∀ t u, k.loc t = some u → b.loc t = some u
+  zeros : ∀ v ∈ k.zeros, (v, 0) ∈ b.fixed
+  piRow : ∃ cs, b.rows[k.piRow]? = some ⟨.publicInput, cs⟩
+  hashRows : ∀ g ∈ k.hashRows, ∃ cs, b.rows[g]? = some ⟨.poseidon, cs⟩
 
 private theorem getD_eq_getElem {L : List (ℕ × ℕ)} {i : ℕ} (hi : i < L.length) :
     L.getD i (0, 0) = L[i] := by
@@ -519,6 +540,7 @@ theorem Built.Agrees.hosts {b : Built p} {c : Circuit p} {k : BuildCert} (h : b.
   · trivial
   · trivial
   · trivial
+  · trivial
 
 /-- A certified link is a `Linked` pair of the built system. -/
 theorem Built.Agrees.linked {b : Built p} {c : Circuit p} {k : BuildCert} (h : b.Agrees c k)
@@ -556,6 +578,263 @@ theorem Built.Agrees.refines {b : Built p} {c : Circuit p} {k : BuildCert} (h : 
     exact h.pins hm' this
   publicInputs := h.numPublicInputs.trans hpi
 
+/-! ### The public-input hash
+
+  `build` hashes the public-input targets in circuit with the proof-system hash
+  (`hash_n_to_hash_no_pad::<C::InnerHasher>`; `PoseidonHash` in
+  `PoseidonGoldilocksConfig`) and copies the digest to the `PublicInputGate`, whose
+  constraint is that its four wires are the digest the verifier computes of `pis`
+  (`get_public_inputs_hash`). The sponge is `hash_n_to_m_no_pad`: the all-zero state,
+  each rate block *overwriting* the rate lanes, a permutation per block, the first four
+  lanes squeezed. No padding, so `[1]` and `[1, 0]` share a digest. The permutation is
+  the proof-system Poseidon, not the wormhole Poseidon2, and it is not modelled:
+  `poseidonPerm` is opaque, and `poseidon_gate_rows` is the one thing trusted of it. -/
+
+/-- The proof-system Poseidon permutation (`Poseidon::poseidon`, width `12`). `opaque`:
+    not modelled. What is said of it is `poseidon_gate_rows`. -/
+opaque poseidonPerm : St p → St p
+
+/-- Overwrite the first `block.length` lanes with the block (`set_from_slice(block, 0)`). -/
+def setBlock (s : St p) (block : List (ZMod p)) : St p :=
+  fun i => if h : i.val < block.length then block[i.val] else s i
+
+/-- The absorb loop of `hash_n_to_m_no_pad`: a rate block overwrites the rate lanes, then
+    the permutation, until the input is consumed. -/
+def absorbNoPad (perm : St p → St p) (s : St p) : List (ZMod p) → St p
+  | [] => s
+  | hd :: tl =>
+    absorbNoPad perm (perm (setBlock s ((hd :: tl).take rate)))
+      ((hd :: tl).drop rate)
+  termination_by xs => xs.length
+  decreasing_by
+    simp only [List.length_drop, List.length_cons, rate]
+    omega
+
+/-- `InnerHasher::hash_no_pad`, the proof-system hash of a public-input list: the verifier
+    computes it of the list it is given (`get_public_inputs_hash`) and `build` lays it
+    down in circuit on the public-input targets. `absorbNoPad` from the all-zero state,
+    the first four lanes squeezed (`NUM_HASH_OUT_ELTS = 4 ≤ RATE`, so one squeeze). -/
+def publicInputsHash (xs : List (ZMod p)) : Fin 4 → ZMod p :=
+  squeeze4 (absorbNoPad poseidonPerm (fun _ => 0) xs)
+
+/-! ### The public-input hash in circuit
+
+  `CircuitBuilder::hash_n_to_m_no_pad` runs the same loop on targets: the state starts
+  as twelve copies of the `zero` target, each block's targets overwrite its lanes, and
+  `PoseidonHash::permute_swapped` lays down a `PoseidonGate` row, copies the state to its
+  input wires and `zero` to its swap wire, and takes its output wires as the new state.
+  `build` then copies the first four lanes to the `PublicInputGate`. `Built.Sponge`
+  states that layout of a built system; `Built.Sponge.val` reads the hash off it. -/
+
+/-- A lane of the in-circuit sponge's state: the `zero` target, or a wire of the built
+    system. -/
+inductive Lane
+  | zero
+  | wire (u : ℕ × ℕ)
+
+/-- Position `u` holds the constant `k`: `σ` leads from it to a wire fixed to `k`. -/
+def Built.Holds (b : Built p) (u : ℕ × ℕ) (k : ZMod p) : Prop :=
+  ∃ v, b.Chain u v ∧ (v, k) ∈ b.fixed
+
+/-- The lane feeds position `u`: `u` holds `0`, or `σ` leads from the lane's wire to `u`. -/
+def Built.Feeds (b : Built p) : Lane → ℕ × ℕ → Prop
+  | .zero, u => b.Holds u 0
+  | .wire w, u => b.Chain w u
+
+/-- The export's target `t` feeds position `u`: `σ` leads from its wire to `u`. -/
+def Built.FeedsTarget (b : Built p) (t : Target) (u : ℕ × ℕ) : Prop :=
+  ∃ w, b.loc t = some w ∧ b.Chain w u
+
+/-- What feeds input lane `i` of the gate absorbing `block` on the state `s`: the block's
+    target on the lanes it overwrites, the state's lane on the rest. -/
+def spongeInput (s : Fin 12 → Lane) (block : List Target) (i : Fin 12) : Target ⊕ Lane :=
+  match block[i.val]? with
+  | some t => .inl t
+  | none => .inr (s i)
+
+/-- A target or a lane feeds position `u`. -/
+def Built.FeedsInput (b : Built p) : Target ⊕ Lane → ℕ × ℕ → Prop
+  | .inl t, u => b.FeedsTarget t u
+  | .inr l, u => b.Feeds l u
+
+/-- The output wires `12..24` of the `PoseidonGate` row `g`, as the state they become. -/
+def outLanes (g : ℕ) : Fin 12 → Lane := fun i => .wire (g, 12 + i)
+
+/-- **The in-circuit sponge.** From the state `s`, the targets `ts` go through the
+    `PoseidonGate` rows `gs`, a rate block each: the block's targets feed the lanes it
+    overwrites, the state the rest, `zero` the swap wire `24`; the row's outputs are the
+    next state. The state ends as `s'`. -/
+inductive Built.Sponge (b : Built p) :
+    (Fin 12 → Lane) → List Target → List ℕ → (Fin 12 → Lane) → Prop
+  | nil (s : Fin 12 → Lane) : b.Sponge s [] [] s
+  | cons (s : Fin 12 → Lane) (t : Target) (ts : List Target) (g : ℕ) (gs : List ℕ)
+      (s' : Fin 12 → Lane) (cs : List (ZMod p)) :
+      b.rows[g]? = some ⟨.poseidon, cs⟩ → b.Holds (g, 24) 0 →
+      (∀ i : Fin 12, b.FeedsInput (spongeInput s ((t :: ts).take rate) i) (g, i)) →
+      b.Sponge (outLanes g) ((t :: ts).drop rate) gs s' →
+      b.Sponge s (t :: ts) (g :: gs) s'
+
+/-- **The built system hashes `c`'s public inputs into its `PublicInputGate`.** The
+    sponge over `c.publicInputs` from the all-`zero` state, and its end state's first
+    four lanes feeding the gate's wires `0..4`. -/
+def Built.HashesPublicInputs (b : Built p) (c : Circuit p) : Prop :=
+  ∃ (r : ℕ) (cs : List (ZMod p)) (gs : List ℕ) (s : Fin 12 → Lane),
+    b.rows[r]? = some ⟨.publicInput, cs⟩ ∧ b.Sponge (fun _ => .zero) c.publicInputs gs s ∧
+      ∀ i : Fin 4, b.Feeds (s ⟨i.val, by have := i.isLt; omega⟩) (r, i)
+
+/-! #### Certifying the sponge
+
+  The checks below, on a certificate and the export's public-input targets, are what the
+  kernel evaluates for a certified circuit; `Built.Agrees.hashesPublicInputs` proves
+  `HashesPublicInputs` from them. -/
+
+/-- Check that `src` feeds position `u`, by the witness `(ci, iu, iv)`: cycle `ci`
+    carries the source's wire at `iu` — the export target's place, or the lane's wire —
+    and `u` at `iv`; for the `zero` lane, `u` at `iu` and a wire fixed to `0` at `iv`. -/
+def BuildCert.feedOk (k : BuildCert) (src : Target ⊕ Lane) (u : ℕ × ℕ) : ℕ × ℕ × ℕ → Bool
+  | (ci, iu, iv) =>
+    match k.cycles.get? ci with
+    | some C =>
+      match C.get? iu, C.get? iv with
+      | some x, some y =>
+        match src with
+        | .inl t => k.loc t == some x && y == u
+        | .inr .zero => x == u && decide (y ∈ k.zeros)
+        | .inr (.wire w) => x == w && y == u
+      | _, _ => false
+    | none => false
+
+theorem BuildCert.feedOk_sound {b : Built p} {c : Circuit p} {k : BuildCert}
+    (h : b.Agrees c k) {src : Target ⊕ Lane} {u : ℕ × ℕ} {w : ℕ × ℕ × ℕ}
+    (hw : k.feedOk src u w = true) : b.FeedsInput src u := by
+  obtain ⟨ci, iu, iv⟩ := w
+  simp only [feedOk] at hw
+  split at hw
+  · rename_i C hC
+    split at hw
+    · rename_i x y hx hy
+      have chain : b.Chain x y :=
+        h.chain (BuildCert.mem_cycleList hC) (Tbl.get?_mem hx) (Tbl.get?_mem hy)
+      rcases src with t | l
+      · simp only [Bool.and_eq_true, beq_iff_eq] at hw
+        exact ⟨x, h.loc t x hw.1, hw.2 ▸ chain⟩
+      · cases l with
+        | zero =>
+          simp only [Bool.and_eq_true, beq_iff_eq, decide_eq_true_eq] at hw
+          exact ⟨y, hw.1 ▸ chain, h.zeros y hw.2⟩
+        | wire v =>
+          simp only [Bool.and_eq_true, beq_iff_eq] at hw
+          exact hw.1 ▸ hw.2 ▸ chain
+    · exact absurd hw Bool.false_ne_true
+  · exact absurd hw Bool.false_ne_true
+
+/-- Check the inputs of one sponge gate from lane `i` on, one witness each. -/
+def BuildCert.lanesOk (k : BuildCert) (s : Fin 12 → Lane) (block : List Target) (g : ℕ) :
+    List (ℕ × ℕ × ℕ) → ℕ → Bool
+  | [], i => i == 12
+  | w :: ws, i =>
+    if h : i < 12 then
+      k.feedOk (spongeInput s block ⟨i, h⟩) (g, i) w && k.lanesOk s block g ws (i + 1)
+    else false
+
+theorem BuildCert.lanesOk_sound {b : Built p} {c : Circuit p} {k : BuildCert}
+    (h : b.Agrees c k) {s : Fin 12 → Lane} {block : List Target} {g : ℕ} :
+    ∀ {ws : List (ℕ × ℕ × ℕ)} {i : ℕ}, k.lanesOk s block g ws i = true →
+      ∀ j : Fin 12, i ≤ j.val → b.FeedsInput (spongeInput s block j) (g, j)
+  | [], i, hok, j, hij => by
+    simp only [lanesOk, beq_iff_eq] at hok
+    exact absurd (hok ▸ hij) (by have := j.isLt; omega)
+  | w :: ws, i, hok, j, hij => by
+    simp only [lanesOk] at hok
+    split at hok
+    · rename_i hi
+      simp only [Bool.and_eq_true] at hok
+      rcases Nat.eq_or_lt_of_le hij with hji | hlt
+      · have : j = ⟨i, hi⟩ := Fin.ext hji.symm
+        subst this
+        exact feedOk_sound h hok.1
+      · exact lanesOk_sound h hok.2 j hlt
+    · exact absurd hok Bool.false_ne_true
+
+/-- The state a sponge run ends in: the last listed row's outputs, or `s` with no row. -/
+def spongeEnd (s : Fin 12 → Lane) : List ℕ → Fin 12 → Lane
+  | [] => s
+  | g :: gs => spongeEnd (outLanes g) gs
+
+/-- The witnesses of one sponge gate: its swap wire's `zero`, and its twelve inputs. -/
+structure GateWit where
+  swap : ℕ × ℕ × ℕ
+  lanes : List (ℕ × ℕ × ℕ)
+
+/-- Check a sponge run: for each block, a listed `PoseidonGate` row, its swap wire fed
+    by `zero`, its inputs fed (`lanesOk`), and the run on from its outputs. -/
+def BuildCert.spongeOk (k : BuildCert) (s : Fin 12 → Lane) :
+    List Target → List ℕ → List GateWit → Bool
+  | [], [], [] => true
+  | t :: ts, g :: gs, w :: ws =>
+    decide (g ∈ k.hashRows) && k.feedOk (.inr .zero) (g, 24) w.swap &&
+      k.lanesOk s ((t :: ts).take rate) g w.lanes 0 &&
+      k.spongeOk (outLanes g) ((t :: ts).drop rate) gs ws
+  | _, _, _ => false
+
+theorem BuildCert.spongeOk_sound {b : Built p} {c : Circuit p} {k : BuildCert}
+    (h : b.Agrees c k) :
+    ∀ {gs : List ℕ} {ts : List Target} {ws : List GateWit} {s : Fin 12 → Lane},
+      k.spongeOk s ts gs ws = true → b.Sponge s ts gs (spongeEnd s gs)
+  | [], [], [], s, _ => .nil s
+  | [], _ :: _, _, _, hok => absurd hok Bool.false_ne_true
+  | _ :: _, [], _, _, hok => absurd hok Bool.false_ne_true
+  | _ :: _, _ :: _, [], _, hok => absurd hok Bool.false_ne_true
+  | g :: gs, t :: ts, w :: ws, s, hok => by
+    simp only [spongeOk, Bool.and_eq_true, decide_eq_true_eq] at hok
+    obtain ⟨⟨⟨hg, hsw⟩, hl⟩, hrest⟩ := hok
+    obtain ⟨cs, hrow⟩ := h.hashRows g hg
+    exact .cons s t ts g gs _ cs hrow (feedOk_sound h hsw)
+      (fun i => lanesOk_sound h hl i (Nat.zero_le _)) (spongeOk_sound h hrest)
+
+/-- Check the end state's lanes from `i` on feeding the `PublicInputGate`'s wires. -/
+def BuildCert.outsOk (k : BuildCert) (s : Fin 12 → Lane) : List (ℕ × ℕ × ℕ) → ℕ → Bool
+  | [], i => i == 4
+  | w :: ws, i =>
+    if h : i < 4 then
+      k.feedOk (.inr (s ⟨i, by omega⟩)) (k.piRow, i) w && k.outsOk s ws (i + 1)
+    else false
+
+theorem BuildCert.outsOk_sound {b : Built p} {c : Circuit p} {k : BuildCert}
+    (h : b.Agrees c k) {s : Fin 12 → Lane} :
+    ∀ {ws : List (ℕ × ℕ × ℕ)} {i : ℕ}, k.outsOk s ws i = true →
+      ∀ j : Fin 4, i ≤ j.val → b.Feeds (s ⟨j.val, by have := j.isLt; omega⟩) (k.piRow, j)
+  | [], i, hok, j, hij => by
+    simp only [outsOk, beq_iff_eq] at hok
+    exact absurd (hok ▸ hij) (by have := j.isLt; omega)
+  | w :: ws, i, hok, j, hij => by
+    simp only [outsOk] at hok
+    split at hok
+    · rename_i hi
+      simp only [Bool.and_eq_true] at hok
+      rcases Nat.eq_or_lt_of_le hij with hji | hlt
+      · have : j = ⟨i, hi⟩ := Fin.ext hji.symm
+        subst this
+        exact feedOk_sound h hok.1
+      · exact outsOk_sound h hok.2 j hlt
+    · exact absurd hok Bool.false_ne_true
+
+/-- Check the public-input hash: the sponge over `ts` from the all-`zero` state through
+    the rows `gs`, and its end state feeding the `PublicInputGate`. -/
+def BuildCert.piOk (k : BuildCert) (ts : List Target) (gs : List ℕ) (ws : List GateWit)
+    (outs : List (ℕ × ℕ × ℕ)) : Bool :=
+  k.spongeOk (fun _ => .zero) ts gs ws && k.outsOk (spongeEnd (fun _ => .zero) gs) outs 0
+
+/-- **A certified build hashes its export's public inputs.** From `Agrees` and the check
+    of the certificate against the export's public-input targets. -/
+theorem Built.Agrees.hashesPublicInputs {b : Built p} {c : Circuit p} {k : BuildCert}
+    (h : b.Agrees c k) {gs : List ℕ} {ws : List GateWit} {outs : List (ℕ × ℕ × ℕ)}
+    (hok : k.piOk c.publicInputs gs ws outs = true) : b.HashesPublicInputs c := by
+  simp only [BuildCert.piOk, Bool.and_eq_true] at hok
+  obtain ⟨cs, hrow⟩ := h.piRow
+  exact ⟨k.piRow, cs, gs, _, hrow, BuildCert.spongeOk_sound h hok.1,
+    fun j => BuildCert.outsOk_sound h hok.2 j (Nat.zero_le _)⟩
+
 end Built
 
 variable {p : ℕ} [Fact p.Prime]
@@ -591,13 +870,6 @@ opaque BuildOf (r : Recursive p) (b : Built p) : Prop
     `algebraic_sampling` produces this. -/
 opaque TranscriptOpens (perm : St p → St p) (r : Recursive p) (pis : List (ZMod p))
     (o : Opened p) : Prop
-
-/-- The proof-system hash of a public-input list: `InnerHasher::hash_no_pad`, which the
-    verifier computes of the list it is given (`get_public_inputs_hash`) and `build` lays
-    down in circuit on the public-input targets. It does not pad, so lists of different
-    lengths can share a digest: `[1]` and `[1, 0]` do. `opaque`: the proof-system
-    Poseidon is not modelled. -/
-opaque publicInputsHash (xs : List (ZMod p)) : Fin 4 → ZMod p
 
 /-- **The public-input binding good event.** The proof-system hash does not collide `xs`
     with `pis`: with one length and one digest they are one list. The lengths are a
@@ -646,21 +918,47 @@ def Poseidon2Consts.rowHolds (k : Poseidon2Consts p) (wires : ℕ → ZMod p) : 
 def Poseidon2Row (perm : St p → St p) (wires : ℕ → ZMod p) : Prop :=
   ∃ k : Poseidon2Consts p, k.perm = perm ∧ k.rowHolds wires
 
-/-- The `PublicInputGate`: its four hash wires are `publicInputsHash pis`. `opaque`: the
-    proof-system hash is not modelled, and the gate's four wires are not placed. -/
-opaque PublicInputRow (pis : List (ZMod p)) (wires : ℕ → ZMod p) : Prop
+/-- The `PublicInputGate`: its constraints are `wires[i] - public_inputs_hash[i]` for
+    `i < 4` (`eval_unfiltered` in `plonky2/src/gates/public_input.rs`), where
+    `public_inputs_hash` is the verifier's `get_public_inputs_hash` of `pis`. -/
+def PublicInputRow (pis : List (ZMod p)) (wires : ℕ → ZMod p) : Prop :=
+  ∀ i : Fin 4, wires i = publicInputsHash pis i
+
+/-- The constraints of a `PoseidonGate` row. `opaque`: the proof-system Poseidon gate is
+    not modelled; what is trusted of it is `poseidon_gate_rows`. -/
+opaque PoseidonRow (wires : ℕ → ZMod p) : Prop
+
+/-- **TRUSTED — Poseidon rows.** The constraints of a `PoseidonGate` row whose swap wire
+    `24` is `0` make its output wires `12..24` the proof-system permutation of its input
+    wires `0..12`.
+
+    This is for `PoseidonGate` what `poseidon2_gate_rows` proves of `Poseidon2Gate` from
+    its extracted constraints (`Poseidon2.gate_sound_complete`). With the swap wire at
+    `0` the gate's deltas vanish and its rounds are those of `Poseidon::poseidon`: the
+    four initial full rounds with S-box checkpoints, the `22` partial rounds in the fast
+    form the native permutation also computes, the four terminal full rounds. The gate
+    and the native hash are one algorithm over one table of constants
+    (`qp_plonky2_core::poseidon`), which is why one `poseidonPerm` names both.
+
+    Discharging this is that extraction and proof for `PoseidonGate`
+    (`plonky2/src/gates/poseidon.rs`), with `poseidonPerm` made a definition. -/
+axiom poseidon_gate_rows (wires : ℕ → ZMod p) :
+    PoseidonRow wires → wires 24 = 0 →
+      (fun i : Fin 12 => wires (12 + i)) = poseidonPerm fun i : Fin 12 => wires i
 
 /-- The constraints of a gate the export names only by `id`. `opaque`: not modelled. -/
 opaque OtherRow (id : String) (consts : List (ZMod p)) (wires : ℕ → ZMod p) : Prop
 
 /-- What `rowConstraints` leaves out of a row's gate: the constraints of a `Poseidon2Gate`
-    in a system where it computes `perm` (`Poseidon2Row`), of the `PublicInputGate`
-    (`PublicInputRow`), and of the `.other` gates (`OtherRow`). The arithmetic, constant,
-    base-sum and no-op gates have nothing left over. -/
+    in a system where it computes `perm` (`Poseidon2Row`), of a `PoseidonGate`
+    (`PoseidonRow`), of the `PublicInputGate` (`PublicInputRow`), and of the `.other`
+    gates (`OtherRow`). The arithmetic, constant, base-sum and no-op gates have nothing
+    left over. -/
 def UninterpretedRow (perm : St p → St p) (pis : List (ZMod p)) (r : Row p)
     (wires : ℕ → ZMod p) : Prop :=
   match r.kind with
   | .poseidon2 => Poseidon2Row perm wires
+  | .poseidon => PoseidonRow wires
   | .publicInput => PublicInputRow pis wires
   | .other id => OtherRow id r.consts wires
   | .arithmetic _ => True
@@ -819,6 +1117,97 @@ theorem Built.Pins.witness_eq {perm : St p → St p} {pis : List (ZMod p)} {b : 
   rw [Built.witness_of_loc o ht, ← huv.val_eq hc]
   exact hg.2 _ hk
 
+/-- The value of a lane: `0` for `zero`, the wire's value for a wire. -/
+def Lane.val (o : Opened p) : Lane → ZMod p
+  | .zero => 0
+  | .wire u => o.val u
+
+/-- Under the gate and copy identities a position that holds `k` reads `k`. -/
+theorem Built.Holds.val_eq {perm : St p → St p} {pis : List (ZMod p)} {b : Built p}
+    {o : Opened p} (hg : GateIdentities perm pis b o) (hc : CopyIdentities b o)
+    {u : ℕ × ℕ} {k : ZMod p} (h : b.Holds u k) : o.val u = k := by
+  obtain ⟨v, huv, hk⟩ := h
+  rw [← huv.val_eq hc]
+  exact hg.2 _ hk
+
+/-- Under the identities a fed position reads its lane. -/
+theorem Built.Feeds.val_eq {perm : St p → St p} {pis : List (ZMod p)} {b : Built p}
+    {o : Opened p} (hg : GateIdentities perm pis b o) (hc : CopyIdentities b o)
+    {l : Lane} {u : ℕ × ℕ} (h : b.Feeds l u) : o.val u = l.val o := by
+  cases l with
+  | zero => exact Built.Holds.val_eq hg hc h
+  | wire w => exact Built.Chain.val_eq hc h
+
+omit [Fact p.Prime] in
+/-- Under the copy identities a position fed by a target reads the witness on it. -/
+theorem Built.FeedsTarget.val_eq {b : Built p} {o : Opened p} (hc : CopyIdentities b o)
+    {t : Target} {u : ℕ × ℕ} (h : b.FeedsTarget t u) : o.val u = b.witness o t := by
+  obtain ⟨w, hw, hwu⟩ := h
+  rw [hwu.val_eq hc, Built.witness_of_loc o hw]
+
+/-- Under the identities the input lanes of a sponge gate read the block written over
+    the state: `setBlock` of the state's values and the witness on the block. -/
+theorem Built.FeedsInput.val_eq {perm : St p → St p} {pis : List (ZMod p)} {b : Built p}
+    {o : Opened p} (hg : GateIdentities perm pis b o) (hc : CopyIdentities b o)
+    {s : Fin 12 → Lane} {block : List Target} {i : Fin 12} {u : ℕ × ℕ}
+    (h : b.FeedsInput (spongeInput s block i) u) :
+    o.val u = setBlock (fun j => (s j).val o) (block.map (b.witness o)) i := by
+  unfold spongeInput at h
+  unfold setBlock
+  split
+  · rename_i hlt
+    rw [List.length_map] at hlt
+    rw [List.getElem?_eq_getElem hlt] at h
+    rw [List.getElem_map]
+    exact Built.FeedsTarget.val_eq hc h
+  · rename_i hge
+    rw [List.length_map] at hge
+    rw [List.getElem?_eq_none (by omega)] at h
+    exact Built.Feeds.val_eq hg hc h
+
+/-- **The in-circuit sponge computes `absorbNoPad`.** Under the domain identities, the
+    end state of a sponge run reads `absorbNoPad poseidonPerm` of the start state's
+    values on the witness of the absorbed targets: block by block, the gate's inputs read
+    the block over the state (`FeedsInput.val_eq`), its swap wire reads `0`, and its
+    outputs are then the permutation of its inputs (`poseidon_gate_rows`). -/
+theorem Built.Sponge.val {perm : St p → St p} {pis : List (ZMod p)} {b : Built p}
+    {o : Opened p} (hid : DomainIdentities perm pis b o) {s : Fin 12 → Lane}
+    {ts : List Target} {gs : List ℕ} {s' : Fin 12 → Lane} (h : b.Sponge s ts gs s') :
+    (fun i => (s' i).val o) =
+      absorbNoPad poseidonPerm (fun i => (s i).val o) (ts.map (b.witness o)) := by
+  induction h with
+  | nil s => rw [List.map_nil, absorbNoPad]
+  | cons s t ts g gs s' cs hrow hswap hin _ ih =>
+    rw [List.map_cons, absorbNoPad, ← List.map_cons, ← List.map_take, ← List.map_drop, ih]
+    congr 1
+    have hsw : o.wire g 24 = 0 := hswap.val_eq hid.gate hid.copy
+    have key := poseidon_gate_rows (o.wire g) (hid.gate.1 g _ hrow).2 hsw
+    show (fun i : Fin 12 => o.wire g (12 + i)) = _
+    rw [key]
+    congr 1
+    funext i
+    exact (hin i).val_eq hid.gate hid.copy
+
+/-- **The hash of the carried public inputs is the hash of `pis`.** The sponge rows
+    compute the hash of the witness on the public-input targets (`Sponge.val`), the
+    `PublicInputGate` reads it (`Feeds.val_eq`), and the gate's constraint makes it the
+    hash of `pis` (`PublicInputRow`). This was the obligation `public_input_wires`. -/
+theorem Built.HashesPublicInputs.hash_eq {perm : St p → St p} {pis : List (ZMod p)}
+    {b : Built p} {o : Opened p} {c : Circuit p} (h : b.HashesPublicInputs c)
+    (hid : DomainIdentities perm pis b o) :
+    publicInputsHash (c.publicInputs.map (b.witness o)) = publicInputsHash pis := by
+  obtain ⟨r, cs, gs, s, hrow, hsp, hout⟩ := h
+  have hpi : PublicInputRow pis (o.wire r) := (hid.gate.1 r _ hrow).2
+  have hval : (fun i => (s i).val o) =
+      absorbNoPad poseidonPerm (fun _ => 0) (c.publicInputs.map (b.witness o)) :=
+    hsp.val hid
+  funext i
+  rw [← hpi i]
+  show squeeze4 _ i = o.val (r, i)
+  rw [(hout i).val_eq hid.gate hid.copy]
+  unfold squeeze4
+  rw [← hval]
+
 /-- Under the gate and copy identities a carried row holds on the witness. -/
 theorem Built.Hosts.holds {perm : St p → St p} {pis : List (ZMod p)} {b : Built p}
     {o : Opened p} (hg : GateIdentities perm pis b o) (hc : CopyIdentities b o)
@@ -869,6 +1258,7 @@ theorem Built.Hosts.holds {perm : St p → St p} {pis : List (ZMod p)} {b : Buil
   | publicInput => trivial
   | noop => trivial
   | poseidon2 => trivial
+  | poseidon => trivial
   | other _ => trivial
 
 theorem rowsSatisfied_of_forall {a : Assignment p} :
@@ -934,21 +1324,19 @@ theorem poseidon2_gate_rows (perm : St p → St p) (pis : List (ZMod p))
   exact (Plonky2Spec.Poseidon2.gate_sound_complete _ _).mp
     ⟨_, _, _, by simp, by simp, by simp, h⟩
 
-/-- **OBLIGATION — public-input wires.** The public inputs the witness carries have the
-    digest of `pis`.
+/-- **OBLIGATION — the public-input hash wiring.** The system a verifier key commits to
+    hashes its circuit's public inputs into its `PublicInputGate`
+    (`Built.HashesPublicInputs`): the `hash_n_to_hash_no_pad` rows `build` lays down and
+    the copies from their outputs to the gate.
 
-    `build` hashes the public-input targets in circuit and copies the digest to the
-    `PublicInputGate`, whose constraint is that those four wires are the hash of `pis`
-    the verifier computes (`get_public_inputs_hash`, the config's `InnerHasher`). The
-    identities give equal digests and no more. That the lists are equal is
-    `public_input_binding`, at the length the verifier checks.
-
-    Discharging this needs the in-circuit hash rows to compute that hash. -/
-axiom public_input_wires (perm : St p → St p) (tag : String) (c : Circuit p)
-    (children : List (Recursive p × List Target)) (pis : List (ZMod p)) (b : Built p)
-    (o : Opened p) :
-    BuildOf (.node tag c children) b → DomainIdentities perm pis b o →
-      publicInputsHash (c.publicInputs.map (b.witness o)) = publicInputsHash pis
+    The same kind of fact as `build_refines_export`, about the part of `build` that is
+    not the export. A circuit with a certified build proves it from `Agrees`
+    (`Built.Agrees.hashesPublicInputs`), and `proof_sound_of` takes that proof instead of
+    this declaration. The leaf is certified (`Plonky2Bridge.LeafBuild`); the wrappers use
+    this declaration. -/
+axiom public_inputs_wired (tag : String) (c : Circuit p)
+    (children : List (Recursive p × List Target)) (b : Built p) :
+    BuildOf (.node tag c children) b → b.HashesPublicInputs c
 
 /-- **TRUSTED — public-input binding.** On `BindingGood`, the public inputs carried by
     the values a transcript for `pis` opens do not collide with `pis` under the
@@ -979,18 +1367,18 @@ axiom public_input_binding (perm : St p → St p) (tag : String) (c : Circuit p)
         PublicInputBinding (c.publicInputs.map (b.witness o)) pis
 
 /-- The witness carries `pis` on the export's public-input targets: the lists have one
-    digest (`public_input_wires`) and one length (`href`), and do not collide
-    (`public_input_binding`). -/
+    digest (`Built.HashesPublicInputs.hash_eq`) and one length (`href`), and do not
+    collide (`public_input_binding`). -/
 theorem public_inputs_eq (perm : St p → St p) (tag : String) (c : Circuit p)
     (children : List (Recursive p × List Target)) (pis : List (ZMod p)) (b : Built p)
     (o : Opened p) (hev : BindingGood perm (.node tag c children))
     (hb : BuildOf (.node tag c children) b) (href : b.Refines c)
+    (hpi : b.HashesPublicInputs c)
     (hto : TranscriptOpens perm (.node tag c children) pis o)
     (hlen : pis.length = b.numPublicInputs) (hid : DomainIdentities perm pis b o) :
     c.publicInputs.map (b.witness o) = pis :=
   public_input_binding perm tag c children pis b o hev hb hto hid
-    (by rw [List.length_map, hlen, href.publicInputs])
-    (public_input_wires perm tag c children pis b o hb hid)
+    (by rw [List.length_map, hlen, href.publicInputs]) (hpi.hash_eq hid)
 
 /-- The rows a `verify_proof` gadget lays down under `r`'s verifier key hold, on targets
     whose public inputs carry `pis`. `opaque`: the gadget's rows are not modelled. -/
@@ -1062,19 +1450,22 @@ theorem identical_constraints_satisfies (perm : St p → St p) (tag : String) (c
     Poseidon2 rows compute `perm`, the public-input wires match `pis`, and each omitted
     `verify_proof` gadget is `ProofAccepted` on the child inputs it carries.
 
-    `Satisfies` is `Built.Refines.satisfies` and the Poseidon2 rows are
-    `poseidon2_gate_rows`. The rest is `public_input_wires`, `public_input_binding` on
-    its good event, and two hypotheses about the deployed builder: `href`, that the
-    system the verifier key commits to refines the export, and `hch`, that the children's
-    proofs were accepted on the targets the tree names. `verifier_algebra` supplies them
-    from `build_refines_export` and from `child_gadget_satisfied` with
-    `recursive_verifier_transcript`; a circuit with a certified build supplies `href`
-    from `Built.Agrees.refines`, and a circuit without children supplies `hch`
-    vacuously. -/
+    `Satisfies` is `Built.Refines.satisfies`, the Poseidon2 rows are
+    `poseidon2_gate_rows`, and the public inputs are `Built.HashesPublicInputs.hash_eq`
+    (on `poseidon_gate_rows`) with `public_input_binding` on its good event. Three
+    hypotheses are about the deployed builder: `href`, that the system the verifier key
+    commits to refines the export; `hpi`, that it hashes the export's public inputs into
+    its `PublicInputGate`; and `hch`, that the children's proofs were accepted on the
+    targets the tree names. `verifier_algebra` supplies them from
+    `build_refines_export`, `public_inputs_wired`, and `child_gadget_satisfied` with
+    `recursive_verifier_transcript`; a circuit with a certified build supplies `href` and
+    `hpi` from `Built.Agrees.refines` and `Built.Agrees.hashesPublicInputs`, and a circuit
+    without children supplies `hch` vacuously. -/
 theorem verifier_algebra_of (perm : St p → St p) (tag : String) (c : Circuit p)
     (children : List (Recursive p × List Target)) (pis : List (ZMod p))
     (hev : BindingGood perm (.node tag c children))
     (href : ∀ b : Built p, BuildOf (.node tag c children) b → b.Refines c)
+    (hpi : ∀ b : Built p, BuildOf (.node tag c children) b → b.HashesPublicInputs c)
     (hch : ∀ (b : Built p) (o : Opened p), BuildOf (.node tag c children) b →
       DomainIdentities perm pis b o →
         ∀ v ∈ children, ProofAccepted perm v.1 (v.2.map (b.witness o))) :
@@ -1084,7 +1475,8 @@ theorem verifier_algebra_of (perm : St p → St p) (tag : String) (c : Circuit p
   rintro ⟨b, o, hb, hto, hlen, hid⟩
   have href := href b hb
   exact ⟨b.witness o, href.satisfies hid, href.poseidon2Rows hid.gate,
-    public_inputs_eq perm tag c children pis b o hev hb href hto hlen hid, hch b o hb hid⟩
+    public_inputs_eq perm tag c children pis b o hev hb href (hpi b hb) hto hlen hid,
+    hch b o hb hid⟩
 
 /-- The children's `ProofAccepted` from the two declarations: the built system holds
     each child's gadget (`child_gadget_satisfied`), and a held gadget is an accepted proof
@@ -1097,10 +1489,10 @@ theorem children_accepted (perm : St p → St p) (tag : String) (c : Circuit p)
   recursive_verifier_transcript perm v.1 _
     (child_gadget_satisfied perm tag c children pis b o hb hid v hv)
 
-/-- `verifier_algebra_of` with the two builder hypotheses supplied by the declarations.
+/-- `verifier_algebra_of` with the three builder hypotheses supplied by the declarations.
 
     A proof of `proof_sound` may use only `poseidon_transcript_oracle`,
-    `fri_proximity_gap`, `algebraic_sampling`, and the five declarations above. -/
+    `fri_proximity_gap`, `algebraic_sampling`, and the declarations above. -/
 theorem verifier_algebra (perm : St p → St p) (tag : String) (c : Circuit p)
     (children : List (Recursive p × List Target)) (pis : List (ZMod p))
     (hev : BindingGood perm (.node tag c children)) :
@@ -1108,7 +1500,7 @@ theorem verifier_algebra (perm : St p → St p) (tag : String) (c : Circuit p)
       ∃ a : Assignment p, Satisfies c a ∧ Poseidon2Rows perm c a ∧
         c.publicInputs.map a = pis ∧ ∀ v ∈ children, ProofAccepted perm v.1 (v.2.map a) :=
   verifier_algebra_of perm tag c children pis hev (build_refines_export tag c children)
-    (children_accepted perm tag c children pis)
+    (public_inputs_wired tag c children) (children_accepted perm tag c children pis)
 
 /-- **Proof-system soundness, composed.** On the good events for `node tag c children`,
     an accepted proof of it comes from an assignment that satisfies `c`'s exported
@@ -1117,8 +1509,8 @@ theorem verifier_algebra (perm : St p → St p) (tag : String) (c : Circuit p)
     proof accepted on the values those targets carry.
 
     This is `verifier_algebra_of` after `algebraic_sampling` after `fri_proximity_gap`
-    after `poseidon_transcript_oracle`, and nothing else, with the two builder
-    obligations `href` and `hch` as in `verifier_algebra_of`. The children's
+    after `poseidon_transcript_oracle`, and nothing else, with the three builder
+    obligations `href`, `hpi` and `hch` as in `verifier_algebra_of`. The children's
     `ProofAccepted` is unconditional; reading it through `proof_sound` again needs the
     children's good events, which is how the wrapper capstones take one `GoodEvents` per
     tree. -/
@@ -1126,19 +1518,21 @@ theorem proof_sound_of (perm : St p → St p) (tag : String) (c : Circuit p)
     (children : List (Recursive p × List Target)) (pis : List (ZMod p))
     (hg : GoodEvents perm (.node tag c children))
     (href : ∀ b : Built p, BuildOf (.node tag c children) b → b.Refines c)
+    (hpi : ∀ b : Built p, BuildOf (.node tag c children) b → b.HashesPublicInputs c)
     (hch : ∀ (b : Built p) (o : Opened p), BuildOf (.node tag c children) b →
       DomainIdentities perm pis b o →
         ∀ v ∈ children, ProofAccepted perm v.1 (v.2.map (b.witness o)))
     (h : ProofAccepted perm (.node tag c children) pis) :
     ∃ a : Assignment p, Satisfies c a ∧ Poseidon2Rows perm c a ∧
       c.publicInputs.map a = pis ∧ ∀ v ∈ children, ProofAccepted perm v.1 (v.2.map a) :=
-  verifier_algebra_of perm tag c children pis hg.binding href hch
+  verifier_algebra_of perm tag c children pis hg.binding href hpi hch
     (algebraic_sampling perm (.node tag c children) pis hg.sampling
       (fri_proximity_gap perm (.node tag c children) pis hg.proximity
         (poseidon_transcript_oracle perm tag c children pis hg.oracle h)))
 
-/-- `proof_sound_of` with the builder obligations supplied by `build_refines_export` and
-    `child_gadget_satisfied`: the reading for a circuit whose build is not certified. -/
+/-- `proof_sound_of` with the builder obligations supplied by `build_refines_export`,
+    `public_inputs_wired` and `child_gadget_satisfied`: the reading for a circuit whose
+    build is not certified. -/
 theorem proof_sound (perm : St p → St p) (tag : String) (c : Circuit p)
     (children : List (Recursive p × List Target)) (pis : List (ZMod p))
     (hg : GoodEvents perm (.node tag c children))
@@ -1146,19 +1540,21 @@ theorem proof_sound (perm : St p → St p) (tag : String) (c : Circuit p)
     ∃ a : Assignment p, Satisfies c a ∧ Poseidon2Rows perm c a ∧
       c.publicInputs.map a = pis ∧ ∀ v ∈ children, ProofAccepted perm v.1 (v.2.map a) :=
   proof_sound_of perm tag c children pis hg (build_refines_export tag c children)
-    (children_accepted perm tag c children pis) h
+    (public_inputs_wired tag c children) (children_accepted perm tag c children pis) h
 
-/-- `proof_sound_of` for a circuit with a certified build and no children: `href` from
-    `Built.Agrees.refines`, and nothing to say of children. Its footprint has neither
-    `build_refines_export` nor `child_gadget_satisfied` nor
+/-- `proof_sound_of` for a circuit with a certified build and no children: `href` and
+    `hpi` from `Built.Agrees.refines` and `Built.Agrees.hashesPublicInputs`, and nothing
+    to say of children. Its footprint has neither `build_refines_export` nor
+    `public_inputs_wired` nor `child_gadget_satisfied` nor
     `recursive_verifier_transcript`. -/
 theorem proof_sound_leaf (perm : St p → St p) (tag : String) (c : Circuit p)
     (pis : List (ZMod p)) (hg : GoodEvents perm (.node tag c []))
     (href : ∀ b : Built p, BuildOf (.node tag c []) b → b.Refines c)
+    (hpi : ∀ b : Built p, BuildOf (.node tag c []) b → b.HashesPublicInputs c)
     (h : ProofAccepted perm (.node tag c []) pis) :
     ∃ a : Assignment p, Satisfies c a ∧ Poseidon2Rows perm c a ∧ c.publicInputs.map a = pis :=
   let ⟨a, hs, hp, hpis, _⟩ :=
-    proof_sound_of perm tag c [] pis hg href (fun _ _ _ _ _ hv => nomatch hv) h
+    proof_sound_of perm tag c [] pis hg href hpi (fun _ _ _ _ _ hv => nomatch hv) h
   ⟨a, hs, hp, hpis⟩
 
 /-- `proof_sound` on a tree given by its projections. -/

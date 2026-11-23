@@ -2504,14 +2504,15 @@ theorem tree_verifiers : (tree (p := p)).verifiers = leafCircuit.verifiers := rf
 
 /-- **An accepted leaf proof attests `Rleaf`.** Through `proof_sound_leaf`
     (`poseidon_transcript_oracle`, `fri_proximity_gap`, `algebraic_sampling`, `verifier_algebra_of`
-    on the certified `build_refines`), on the good events `hg` for the leaf's proofs: the
+    on the certified `build_refines` and `build_hashes`), on the good events `hg` for the leaf's
+    proofs: the
     accepted public inputs are those of an assignment satisfying the leaf's exported wiring,
     hence (`sound`) an `Rleaf` instance. This is what `WormholeSpec.leaf_proof_sound` used to
     assume. -/
 theorem accepted_sound (perm : St p → St p) (hpg : goldilocks ≤ p) (hg : GoodEvents perm tree)
     {ts : Fin 11 → Target} {a : Assignment p} (h : ProofAccepted perm tree ((List.ofFn ts).map a)) :
     ∃ w : LeafWitness, Rleaf (spongeRO perm) (pubOf (a ∘ ts)) w := by
-  obtain ⟨a', h', hp', hpis⟩ := proof_sound_leaf perm _ _ _ hg build_refines h
+  obtain ⟨a', h', hp', hpis⟩ := proof_sound_leaf perm _ _ _ hg build_refines build_hashes h
   rw [publicInputs_eq] at hpis
   have hR := sound perm hpg a' h' hp'
   rw [pub_eq, pis_eq hpis] at hR

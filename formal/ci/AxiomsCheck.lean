@@ -6,26 +6,31 @@
   `{propext, Classical.choice, Quot.sound}` plus, where a theorem consumes accepted proofs,
   exactly the declarations `proof_sound` rests on: the three assumptions
   (`Plonky2Bridge.poseidon_transcript_oracle`, `Plonky2Bridge.fri_proximity_gap`,
-  `Plonky2Bridge.algebraic_sampling`) and the five declarations under `verifier_algebra`:
+  `Plonky2Bridge.algebraic_sampling`) and the six declarations under `verifier_algebra`:
   the four obligations (`Plonky2Bridge.build_refines_export`,
-  `Plonky2Bridge.public_input_wires`, `Plonky2Bridge.child_gadget_satisfied`,
-  `Plonky2Bridge.recursive_verifier_transcript`) and the binding assumption
-  `Plonky2Bridge.public_input_binding`.
+  `Plonky2Bridge.public_inputs_wired`, `Plonky2Bridge.child_gadget_satisfied`,
+  `Plonky2Bridge.recursive_verifier_transcript`), the binding assumption
+  `Plonky2Bridge.public_input_binding`, and the trusted `Plonky2Bridge.poseidon_gate_rows`
+  (a `PoseidonGate` row computes the proof-system permutation).
   `proof_sound`, `verifier_algebra` and `poseidon2_gate_rows` are theorems. The
   assumptions are implications on their good events (`GoodEvents`, opaque), which the
   capstones take as hypotheses; that changes no footprint.
 
-  * `verifier_algebra` is gated on the allow-list plus those five,
+  * `verifier_algebra` is gated on the allow-list plus those six,
     `identical_constraints_satisfies` on the allow-list plus `build_refines_export`, and
     `Built.Refines.satisfies`, the step from the domain identities to `Satisfies`, and
     `poseidon2_gate_rows`, the Poseidon2 rows from `gate_sound_complete`, on the bare
     allow-list.
-  * The leaf's build is certified (Step 16). `proof_sound_leaf` is gated on the allow-list
-    plus the three assumptions, `public_input_wires` and `public_input_binding`: neither
-    `build_refines_export` nor the two child obligations. `Built.Agrees.refines` and the
-    generated `LeafCircuit.build_refines_of_agrees` (the certificate checks, kernel
-    evaluations) are gated on the bare allow-list, and `LeafCircuit.build_refines` on the
-    allow-list plus the one trusted declaration `Plonky2Bridge.LeafCircuit.build_agrees`.
+  * The leaf's build is certified (Steps 16 and 17). `proof_sound_leaf` is gated on the
+    allow-list plus the three assumptions, `public_input_binding` and
+    `poseidon_gate_rows`: neither `build_refines_export` nor `public_inputs_wired` nor the
+    two child obligations. `Built.Agrees.refines`, `Built.Agrees.hashesPublicInputs` and
+    the generated `LeafCircuit.build_refines_of_agrees` / `build_hashes_of_agrees` (the
+    certificate checks, kernel evaluations) are gated on the bare allow-list;
+    `Built.HashesPublicInputs.hash_eq`, the hash read off the certified wiring, on the
+    allow-list plus `poseidon_gate_rows`; and `LeafCircuit.build_refines` /
+    `build_hashes` on the allow-list plus the one trusted declaration
+    `Plonky2Bridge.LeafCircuit.build_agrees`.
   * `private_batch_end_to_end` / `public_batch_end_to_end` take the children's relations as
     hypotheses and are gated on the bare allow-list.
   * `LeafCircuit.accepted_sound` — an accepted leaf proof attests `Rleaf` — and
@@ -59,6 +64,10 @@ import Plonky2Bridge.LeafWired
 #print axioms Plonky2Bridge.Built.Agrees.refines
 #print axioms Plonky2Bridge.LeafCircuit.build_refines_of_agrees
 #print axioms Plonky2Bridge.LeafCircuit.build_refines
+#print axioms Plonky2Bridge.Built.HashesPublicInputs.hash_eq
+#print axioms Plonky2Bridge.Built.Agrees.hashesPublicInputs
+#print axioms Plonky2Bridge.LeafCircuit.build_hashes_of_agrees
+#print axioms Plonky2Bridge.LeafCircuit.build_hashes
 #print axioms Plonky2Bridge.private_batch_end_to_end
 #print axioms Plonky2Bridge.public_batch_end_to_end
 #print axioms Plonky2Bridge.private_batch_end_to_end_wired

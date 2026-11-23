@@ -165,7 +165,7 @@ Poseidon2 instantiates `RandomOracle.H` (its felt outputs are `digest.val`s).
 
 `Plonky2Bridge/Trusted.lean` declares the generic assumptions and obligations;
 `Plonky2Bridge/LeafBuild.lean` declares the one per-circuit fact of the leaf's certified
-build (Step 16). No other file declares an `axiom`. `proof_sound`
+build (Steps 16, 17). No other file declares an `axiom`. `proof_sound`
 is a theorem, the composition of three assumptions and `verifier_algebra` (Steps 12, 13).
 Each assumption is an implication on its good event (Step 15): an opaque per-tree
 predicate (`OracleGood`, `ProximityGood`, `SamplingGood`, `BindingGood`), bundled as
@@ -192,8 +192,9 @@ unconditional on them.
 - **`verifier_algebra`** — identical constraints are a satisfying assignment of the
   exported circuit. A theorem since Step 13: `Satisfies` is proved
   (`Built.Refines.satisfies`), the Poseidon2 rows are proved to compute `perm`
-  (`poseidon2_gate_rows`, Step 14), and four deterministic obligations remain as
-  declarations:
+  (`poseidon2_gate_rows`, Step 14), the public-input digest is read off the in-circuit
+  hash (`Built.HashesPublicInputs.hash_eq`, Step 17), and four deterministic
+  obligations remain as declarations:
   - **`build_refines_export`** — the system the verifier key commits to refines the
     pre-`build` export. Replaced for the leaf by a certified build (Step 16):
     `Built.Agrees.refines` proves `Refines` from the exporter's certificate of
@@ -202,14 +203,23 @@ unconditional on them.
     certificate describes — checked in Rust against the build whose digest is the
     deployed leaf's. The wrappers keep this declaration: their traces are not the
     deployed builder's state (no `verify_proof` rows).
-  - **`public_input_wires`** — the public inputs the witness carries have the digest of
-    `pis` under the proof-system hash (`publicInputsHash`, opaque).
+  - **`public_inputs_wired`** — the system the verifier key commits to hashes the
+    export's public inputs into its `PublicInputGate` (`Built.HashesPublicInputs`: the
+    `PoseidonGate` rows of `hash_n_to_m_no_pad` and the copies into them). Replaced for
+    the leaf by the certified build (Step 17): `Built.Agrees.hashesPublicInputs` proves
+    it from the certificate, under the same `LeafCircuit.build_agrees`. The wrappers keep
+    this declaration, as they keep `build_refines_export`.
   - **`child_gadget_satisfied`** — the built system holds each child's `verify_proof`
     gadget, on the targets the tree names.
   - **`recursive_verifier_transcript`** — a satisfied gadget is `ProofAccepted`: the
     recursive verifier implements the `TranscriptAccepted` the native one does.
 
-  and one assumption on the proof-system hash:
+  and two on the proof-system hash:
+  - **`poseidon_gate_rows`** — a `PoseidonGate` row whose swap wire is `0` computes the
+    proof-system permutation `poseidonPerm` (opaque, width 12) from its input wires to
+    its output wires. Deterministic, like `poseidon2_gate_rows` before Step 14; what
+    discharges it is the same extraction and proof for `PoseidonGate`, with
+    `poseidonPerm` made a definition.
   - **`public_input_binding`** — the public inputs carried by what a transcript for
     `pis` opens do not collide with `pis`: one length and one digest give one list
     (`PublicInputBinding`). Stated of `TranscriptOpens`, so it is an event about a
@@ -225,11 +235,11 @@ reduction against `spongeRO`. A break of `verify` does not produce a collision, 
 
 Each declaration says what would discharge it. A capstone that reads a wrapper proof
 calls `proof_sound`; its axiom footprint is exactly the three assumptions,
-`public_input_binding`, the four obligations and, through the leaf proofs under it,
-`LeafCircuit.build_agrees`. A capstone that reads only leaf proofs
+`public_input_binding`, `poseidon_gate_rows`, the four obligations and, through the leaf
+proofs under it, `LeafCircuit.build_agrees`. A capstone that reads only leaf proofs
 (`LeafCircuit.accepted_sound`, `private_batch_end_to_end_wired*`) calls
 `proof_sound_leaf`; its footprint is the three assumptions, `public_input_binding`,
-`public_input_wires` and `LeafCircuit.build_agrees`. Their statements carry one
+`poseidon_gate_rows` and `LeafCircuit.build_agrees`. Their statements carry one
 `GoodEvents` per tree whose proofs they read: `GoodEvents perm tree` for the proofs
 they take, and the children's trees for the proofs `proof_sound` extracts.
 
@@ -1276,6 +1286,61 @@ certified one.
   Certifying them needs the trace recorded on the production builder, in lockstep with
   the gadgets, in qp-zk-circuits; then the same `BuildCert` machinery applies with
   `exportRows` and `loc` doing the work `Refines` is stated up to.
+
+### Step 17 — `public_input_wires` discharged  ✅ DONE
+`public_input_wires` asserted that the public inputs the witness carries have the digest
+of `pis`. It is now a theorem of the built system's wiring and one fact about the
+`PoseidonGate`, and the wiring is certified for the leaf.
+- **The hash, modelled.** `poseidonPerm : St p → St p` is the proof-system Poseidon
+  permutation, `opaque`. `absorbNoPad` is the loop of `hash_n_to_m_no_pad`: a rate block
+  overwrites the rate lanes (`setBlock`, `set_from_slice`), then the permutation, until
+  the input is consumed; `publicInputsHash xs = squeeze4 (absorbNoPad poseidonPerm 0 xs)`,
+  the digest the verifier computes (`get_public_inputs_hash`). No padding. A
+  differential test (`public_inputs_hash_matches_lean_model`) runs the transliteration
+  against `PoseidonHash::hash_no_pad` at lengths `0..=20`. `PublicInputRow pis wires`
+  is now defined: `wires i = publicInputsHash pis i` for `i < 4`.
+- **The hash in circuit.** `GateKind.poseidon` is `PoseidonGate<WIDTH=12>` (inputs
+  `0..12`, outputs `12..24`, swap `24`); the exporter classifies and checks it
+  (`Permuter::permute`). `Built.Sponge b s ts gs s'` says the targets `ts` go through the
+  `PoseidonGate` rows `gs` from the lane state `s` — each block's targets feed the lanes
+  it overwrites, the state the rest, the `zero` target the swap wire, the row's outputs
+  are the next state — and `Built.HashesPublicInputs b c` that the sponge over
+  `c.publicInputs` from the all-`zero` state ends feeding the `PublicInputGate`'s wires
+  `0..4`. Lanes are `Lane.zero` (a wire fixed to `0` down `σ`, `Built.Holds`) or
+  `Lane.wire u`.
+- **Proof.** `Built.Sponge.val`: under the domain identities the end state reads
+  `absorbNoPad poseidonPerm` of the start state on the witness of the targets, by
+  induction on the sponge; per row, `FeedsInput.val_eq` gives the inputs as `setBlock`,
+  `Holds.val_eq` the swap wire as `0`, and `poseidon_gate_rows` the outputs.
+  `Built.HashesPublicInputs.hash_eq` then reads the gate's constraint: the carried public
+  inputs hash to `publicInputsHash pis`. `public_inputs_eq` takes it where it took
+  `public_input_wires`.
+- **Trusted.** `poseidon_gate_rows wires : PoseidonRow wires → wires 24 = 0 → (fun i =>
+  wires (12 + i)) = poseidonPerm (fun i => wires i)`, with `PoseidonRow` opaque and
+  `UninterpretedRow` on `.poseidon` rows. Discharged like `poseidon2_gate_rows` was
+  (Step 14): export the gate's constraints, prove `gate_sound_complete`, define
+  `poseidonPerm`.
+- **Certified for the leaf.** `BuildCert` gains `zeros` (the wires fixed to `0`),
+  `piRow` and `hashRows`; `Built.Agrees` says they are what the built system has.
+  `BuildCert.piOk` checks a sponge run on a certificate, one `(ci, iu, iv)` witness per
+  copy (`feedOk`): per row the swap wire's `zero`, twelve input lanes (`lanesOk`); then
+  the four end-state lanes into the gate (`outsOk`). `Built.Agrees.hashesPublicInputs`
+  proves `HashesPublicInputs` from `Agrees` and `piOk`. `built::certify` finds the rows
+  `build` added between the export and the `PublicInputGate` (two `PoseidonGate` rows
+  for 11 public inputs), writes the witnesses and checks them (`verify_agrees`); the
+  generated `LeafBuilt.lean` proves `checks_pi` by `decide +kernel` and
+  `build_hashes_of_agrees`; `LeafCircuit.build_hashes` composes it with `build_agrees`.
+  Build of the generated module stays about thirty seconds, under 7 GB.
+- **Composition.** `verifier_algebra_of` / `proof_sound_of` / `proof_sound_leaf` take
+  `hpi : ∀ b, BuildOf tree b → b.HashesPublicInputs c` next to `href`;
+  `verifier_algebra` / `proof_sound` pass `public_inputs_wired`, the leaf passes
+  `build_hashes`.
+- **Axiom gate.** `proof_sound_leaf`: the three assumptions, `public_input_binding`,
+  `poseidon_gate_rows`. `proof_sound` / `verifier_algebra`: the former eight with
+  `public_inputs_wired` for `public_input_wires`, plus `poseidon_gate_rows`.
+  `Built.HashesPublicInputs.hash_eq`: bare plus `poseidon_gate_rows`.
+  `Built.Agrees.hashesPublicInputs`, `build_hashes_of_agrees`: bare. `build_hashes`: bare
+  plus `build_agrees`. The leaf capstones: `proof_sound_leaf` plus `build_agrees`.
 
 ## 9. Definition of done
 
