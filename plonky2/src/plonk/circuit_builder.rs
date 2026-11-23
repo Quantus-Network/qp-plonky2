@@ -895,6 +895,11 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     ) -> (usize, usize) {
         let num_gates = self.num_gates();
         let num_ops = gate.num_ops();
+        assert!(
+            num_ops > 0,
+            "gate {} has no operation slots under this circuit config",
+            gate.id()
+        );
         let gate_ref = GateRef::new(gate.clone());
         let gate_slot = self.current_slots.entry(gate_ref.clone()).or_default();
         let slot = gate_slot.current_slot.get(params);

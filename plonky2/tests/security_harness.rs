@@ -366,6 +366,56 @@ fn zero_poly_on_coset_valid_domain_works() {
 /// #64700: deserialization must reject a `CommonCircuitData` whose `public_initial_degree_bits`
 /// (which seeds FRI query sampling) disagrees with the transcript-bound `fri_params.degree_bits`,
 /// otherwise a malicious blob could shrink the sampled query domain.
+/// A FRI rate of 1 or zero query rounds leaves FRI with nothing to test; the builder must refuse
+/// such a config even when `security_bits` is set low enough to pass the security-level check.
+#[test]
+fn degenerate_fri_config_rejected_at_build() {
+    for (rate_bits, num_query_rounds) in [(0, 28), (3, 0)] {
+        let result = catch_unwind(AssertUnwindSafe(|| {
+            let mut config = CircuitConfig::standard_recursion_config();
+            config.security_bits = 0;
+            config.fri_config.rate_bits = rate_bits;
+            config.fri_config.num_query_rounds = num_query_rounds;
+            CircuitBuilder::<F, D>::new(config)
+        }));
+        assert!(result.is_err());
+    }
+}
+
+/// The verifier takes its query count and cap height from `fri_params.config`, which is
+/// serialized separately from `config.fri_config`; the two must agree on deserialization.
+#[test]
+fn divergent_fri_params_common_data_deserialization_rejected() {
+    let data = simple_circuit_data();
+    let gate_serializer = DefaultGateSerializer;
+    let mut common = data.common.clone();
+    common.fri_params.config.num_query_rounds = 1;
+    let bytes = common.to_bytes(&gate_serializer).unwrap();
+    assert!(CommonCircuitData::<F, D>::from_bytes(bytes, &gate_serializer).is_err());
+}
+
+/// A config too narrow for a gate to hold a single operation must fail loudly when that gate
+/// is first needed, not misbehave in slot bookkeeping.
+#[test]
+fn zero_slot_gate_rejected() {
+    let result = catch_unwind(AssertUnwindSafe(|| {
+        let config = CircuitConfig {
+            num_routed_wires: 3,
+            ..CircuitConfig::standard_recursion_config()
+        };
+        let mut builder = CircuitBuilder::<F, D>::new(config);
+        let x = builder.add_virtual_target();
+        builder.add(x, x)
+    }));
+    let message = result.unwrap_err();
+    let message = message
+        .downcast_ref::<String>()
+        .cloned()
+        .or_else(|| message.downcast_ref::<&str>().map(|s| s.to_string()))
+        .unwrap_or_default();
+    assert!(message.contains("no operation slots"), "{message}");
+}
+
 #[test]
 fn mismatched_degree_bits_common_data_deserialization_rejected() {
     let mut data = simple_circuit_data();

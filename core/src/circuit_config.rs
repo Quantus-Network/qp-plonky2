@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::fri::{FriConfig, FriReductionStrategy};
+use crate::fri::{FriConfig, FriParams, FriReductionStrategy};
 
 /// Configuration to be used when building a circuit. This defines the shape of the circuit
 /// as well as its targeted security level and sub-protocol (e.g. FRI) parameters.
@@ -109,6 +109,15 @@ impl CircuitConfig {
             return Err("num_routed_wires must be >= 3 (required for lookup gates)");
         }
 
+        // A rate of 1 makes every codeword low-degree, and zero queries test nothing; either
+        // leaves FRI with no soundness regardless of the other parameters.
+        if self.fri_config.rate_bits == 0 {
+            return Err("fri_config.rate_bits must not be 0 (FRI has no redundancy to test)");
+        }
+        if self.fri_config.num_query_rounds == 0 {
+            return Err("fri_config.num_query_rounds must not be 0 (FRI is never queried)");
+        }
+
         Ok(())
     }
 
@@ -123,7 +132,10 @@ impl CircuitConfig {
 
 #[cfg(test)]
 mod tests {
-    use super::CircuitConfig;
+    #[cfg(not(feature = "std"))]
+    use alloc::vec;
+
+    use super::{CircuitConfig, FriParams};
 
     #[test]
     fn standard_helpers_select_expected_zk_modes() {
@@ -160,20 +172,103 @@ mod tests {
         config.validate();
     }
 
+    fn fri_params_for(config: &CircuitConfig, degree_bits: usize) -> FriParams {
+        config
+            .fri_config
+            .fri_params(degree_bits, config.zero_knowledge)
+    }
+
+    fn check(
+        config: &CircuitConfig,
+        fri_params: &FriParams,
+        public_initial_degree_bits: usize,
+    ) -> Result<(), &'static str> {
+        super::check_common_data_valid(
+            config,
+            1,
+            fri_params,
+            public_initial_degree_bits,
+            public_initial_degree_bits,
+            32,
+            || false,
+        )
+    }
+
     /// #64700: FRI query indices are sampled from `public_initial_degree_bits`, so it must equal the
     /// transcript-bound FRI `degree_bits`; otherwise queries are drawn from a smaller domain than
     /// the proof is checked against, weakening soundness.
     #[test]
     fn check_common_data_rejects_mismatched_degree_bits() {
         let config = CircuitConfig::standard_recursion_config();
-        let rate_bits = config.fri_config.rate_bits;
-        assert!(
-            super::check_common_data_valid(&config, 1, rate_bits, 10, 10, 10, || false).is_ok()
-        );
+        let fri_params = fri_params_for(&config, 10);
+        assert!(check(&config, &fri_params, 10).is_ok());
         assert_eq!(
-            super::check_common_data_valid(&config, 1, rate_bits, 9, 9, 10, || false),
+            check(&config, &fri_params, 9),
             Err("public_initial_degree_bits must match FRI degree_bits")
         );
+    }
+
+    /// The verifier runs with `fri_params.config`, so it must be the validated `config.fri_config`
+    /// and not a separately supplied copy with, say, zero query rounds.
+    #[test]
+    fn check_common_data_rejects_divergent_fri_params() {
+        let config = CircuitConfig::standard_recursion_config();
+        let mut fri_params = fri_params_for(&config, 10);
+        fri_params.config.num_query_rounds = 0;
+        assert_eq!(
+            check(&config, &fri_params, 10),
+            Err("fri_params.config must match config.fri_config")
+        );
+
+        let mut fri_params = fri_params_for(&config, 10);
+        fri_params.leaf_hiding = true;
+        assert_eq!(
+            check(&config, &fri_params, 10),
+            Err("fri_params.leaf_hiding must match config.zero_knowledge")
+        );
+    }
+
+    #[test]
+    fn check_common_data_rejects_unfittable_reduction_schedules() {
+        let config = CircuitConfig::standard_recursion_config();
+
+        let mut fri_params = fri_params_for(&config, 10);
+        fri_params.reduction_arity_bits.push(0);
+        assert_eq!(
+            check(&config, &fri_params, 10),
+            Err("FRI reduction arity bits must be non-zero")
+        );
+
+        let mut fri_params = fri_params_for(&config, 10);
+        fri_params.reduction_arity_bits = vec![6, 5];
+        assert_eq!(
+            check(&config, &fri_params, 10),
+            Err("FRI reductions exceed the degree")
+        );
+
+        let mut fri_params = fri_params_for(&config, 10);
+        fri_params.reduction_arity_bits = vec![5, 5];
+        assert_eq!(
+            check(&config, &fri_params, 10),
+            Err("FRI cap height plus reductions exceed the LDE size")
+        );
+
+        let fri_params = fri_params_for(&config, 30);
+        assert_eq!(
+            check(&config, &fri_params, 30),
+            Err("FRI LDE domain exceeds the field's two-adicity")
+        );
+    }
+
+    #[test]
+    fn circuit_config_rejects_degenerate_fri() {
+        let mut config = CircuitConfig::standard_recursion_config();
+        config.fri_config.rate_bits = 0;
+        assert!(config.check_valid().is_err());
+
+        let mut config = CircuitConfig::standard_recursion_config();
+        config.fri_config.num_query_rounds = 0;
+        assert!(config.check_valid().is_err());
     }
 }
 
@@ -185,28 +280,37 @@ mod tests {
 /// # Arguments
 /// * `config` - The circuit configuration
 /// * `quotient_degree_factor` - The quotient polynomial degree factor
-/// * `rate_bits` - FRI rate bits from config
+/// * `fri_params` - The instance-specific FRI parameters the verifier runs with
 /// * `public_initial_degree_bits` - Public initial FRI degree bits
 /// * `trace_degree_bits` - Trace polynomial degree bits
-/// * `fri_degree_bits` - Degree bits bound into the FRI transcript via `FriParams`
-/// * `luts` - Lookup tables (as slice of slices for flexibility)
+/// * `two_adicity` - The field's two-adicity, bounding the LDE domain size
+/// * `luts_empty_check` - Whether any lookup table is empty
 ///
 /// # Returns
 /// `Ok(())` if valid, or an error message describing the validation failure.
 pub fn check_common_data_valid(
     config: &CircuitConfig,
     quotient_degree_factor: usize,
-    rate_bits: usize,
+    fri_params: &FriParams,
     public_initial_degree_bits: usize,
     trace_degree_bits: usize,
-    fri_degree_bits: usize,
+    two_adicity: usize,
     luts_empty_check: impl Fn() -> bool,
 ) -> Result<(), &'static str> {
     config.check_valid()?;
 
+    // The verifier reads its FRI parameters from `fri_params`, so the validated `config` must be
+    // what it actually runs with; the builder derives one from the other.
+    if fri_params.config != config.fri_config {
+        return Err("fri_params.config must match config.fri_config");
+    }
+    if fri_params.leaf_hiding != config.zero_knowledge {
+        return Err("fri_params.leaf_hiding must match config.zero_knowledge");
+    }
+
     // Quotient degree must fit within FRI rate.
     let quotient_degree_bits = crate::util::log2_ceil(quotient_degree_factor);
-    if quotient_degree_bits > rate_bits {
+    if quotient_degree_bits > config.fri_config.rate_bits {
         return Err("quotient_degree_factor exceeds FRI rate_bits");
     }
 
@@ -218,8 +322,24 @@ pub fn check_common_data_valid(
     // The query domain is sampled from `public_initial_degree_bits` while FRI is verified over the
     // transcript-bound `fri_params.degree_bits`; they must match or queries could be drawn from a
     // smaller domain than the proof is checked against.
-    if public_initial_degree_bits != fri_degree_bits {
+    if public_initial_degree_bits != fri_params.degree_bits {
         return Err("public_initial_degree_bits must match FRI degree_bits");
+    }
+
+    // The LDE domain must exist in the field, and the reduction schedule must fit inside it:
+    // every step folds, the folds do not exceed the degree, and the cap still fits beneath them.
+    if fri_params.lde_bits() > two_adicity {
+        return Err("FRI LDE domain exceeds the field's two-adicity");
+    }
+    if fri_params.reduction_arity_bits.contains(&0) {
+        return Err("FRI reduction arity bits must be non-zero");
+    }
+    let total_arities = fri_params.total_arities();
+    if total_arities > fri_params.degree_bits {
+        return Err("FRI reductions exceed the degree");
+    }
+    if fri_params.config.cap_height + total_arities > fri_params.lde_bits() {
+        return Err("FRI cap height plus reductions exceed the LDE size");
     }
 
     // All lookup tables must be non-empty.
