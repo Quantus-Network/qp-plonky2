@@ -34,12 +34,14 @@
     proofs — are gated on the footprint of `proof_sound_leaf` plus
     `LeafCircuit.build_agrees`.
   * `Wrapper{2,4,8}.accepted_sound` — an accepted proof of the named tree attests its
-    relation — and `public_batch_end_to_end_wired` / `_n4` / `_production` — the capstones
-    on the public-wrapper wiring (`n_inner = 2` / `4` / `89`), which read wrapper proofs —
-    are gated on the allow-list plus those eight declarations and, through the leaf,
+    relation — and `public_batch_end_to_end_wired` / `_n4` — the capstones on the
+    public-wrapper wiring (`n_inner = 2` / `4`), which read wrapper proofs — are gated on
+    the allow-list plus those eight declarations and, through the leaf,
     `LeafCircuit.build_agrees`.
-  * `Wrapper{2,4,8}.sound`, `PublicWrapper{2,4,89}.sound` and `leaf_wired`
+  * `Wrapper{2,4,8}.sound`, `PublicWrapper{2,4}.sound` and `leaf_wired`
     (`LeafCircuit.sound`), the wiring-to-relation steps underneath, use no trusted axiom.
+  The production public wrapper (`n_inner = 89`, `Plonky2BridgeProduction`) is gated the
+  same way by `ci/AxiomsCheckProduction.lean`, on the runs that build it.
   It is not part of `defaultTargets` or `Plonky2Bridge`; import-only.
 -/
 import Plonky2Bridge
@@ -69,8 +71,6 @@ import Plonky2Bridge.LeafWired
 #print axioms Plonky2Bridge.PublicWrapper2.sound
 #print axioms Plonky2Bridge.public_batch_end_to_end_wired_n4
 #print axioms Plonky2Bridge.PublicWrapper4.sound
-#print axioms Plonky2Bridge.public_batch_end_to_end_wired_production
-#print axioms Plonky2Bridge.PublicWrapper89.sound
 #print axioms Plonky2Bridge.leaf_wired
 #print axioms Plonky2Bridge.LeafCircuit.sound
 #print axioms Plonky2Bridge.LeafCircuit.accepted_sound
