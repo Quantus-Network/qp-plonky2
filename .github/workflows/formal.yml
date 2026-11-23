@@ -122,11 +122,9 @@ jobs:
           # expect <theorem> <axiom...>: the footprint must be exactly the named axioms.
           # `proof_sound` is a theorem. Its footprint is the standard propositional axioms
           # plus the three assumptions and what is left of `verifier_algebra`: the four
-          # obligations, the public-input binding assumption, and the trusted
-          # `poseidon_gate_rows` (Step 17: a `PoseidonGate` row computes the proof-system
-          # permutation). Capstones that consume an accepted proof have that same
-          # footprint. The assumptions are implications on their good events
-          # (`GoodEvents`), taken as hypotheses, not axioms.
+          # obligations and the public-input binding assumption. Capstones that consume an
+          # accepted proof have that same footprint. The assumptions are implications on
+          # their good events (`GoodEvents`), taken as hypotheses, not axioms.
           expect() {
             local thm="$1"
             shift
@@ -160,8 +158,8 @@ jobs:
             Plonky2Bridge.child_gadget_satisfied
             Plonky2Bridge.recursive_verifier_transcript
           )
-          hash=(Plonky2Bridge.public_input_binding Plonky2Bridge.poseidon_gate_rows)
-          algebra=("${obligations[@]}" "${hash[@]}")
+          binding=(Plonky2Bridge.public_input_binding)
+          algebra=("${obligations[@]}" "${binding[@]}")
           trusted=("${assumptions[@]}" "${algebra[@]}")
           # The leaf's build is certified (Steps 16 and 17): its path through
           # `proof_sound_leaf` has neither `build_refines_export` nor `public_inputs_wired`
@@ -170,18 +168,21 @@ jobs:
           # wiring read only leaf proofs, so they have the leaf's footprint too; anything
           # that reads a wrapper proof (`Wrapper{n}.accepted_sound`, the public-wrapper
           # capstones) is `trusted` plus that one.
-          leaf_trusted=("${assumptions[@]}" "${hash[@]}")
+          leaf_trusted=("${assumptions[@]}" "${binding[@]}")
           leaf_cert=(Plonky2Bridge.LeafCircuit.build_agrees)
           expect Plonky2Bridge.proof_sound "${base[@]}" "${trusted[@]}"
           expect Plonky2Bridge.verifier_algebra "${base[@]}" "${algebra[@]}"
           expect Plonky2Bridge.identical_constraints_satisfies "${base[@]}" Plonky2Bridge.build_refines_export
           expect Plonky2Bridge.Built.Refines.satisfies "${base[@]}"
           expect Plonky2Bridge.poseidon2_gate_rows "${base[@]}"
+          expect Plonky2Bridge.poseidon_gate_rows "${base[@]}"
+          expect Plonky2Spec.Poseidon.gate_sound_complete "${base[@]}"
+          expect Plonky2Spec.Poseidon.goldilocks_perm_test "${base[@]}"
           expect Plonky2Bridge.proof_sound_leaf "${base[@]}" "${leaf_trusted[@]}"
           expect Plonky2Bridge.Built.Agrees.refines propext Quot.sound
           expect Plonky2Bridge.LeafCircuit.build_refines_of_agrees propext Quot.sound
           expect Plonky2Bridge.LeafCircuit.build_refines propext Quot.sound "${leaf_cert[@]}"
-          expect Plonky2Bridge.Built.HashesPublicInputs.hash_eq "${base[@]}" Plonky2Bridge.poseidon_gate_rows
+          expect Plonky2Bridge.Built.HashesPublicInputs.hash_eq "${base[@]}"
           expect Plonky2Bridge.Built.Agrees.hashesPublicInputs propext Quot.sound
           expect Plonky2Bridge.LeafCircuit.build_hashes_of_agrees propext Quot.sound
           expect Plonky2Bridge.LeafCircuit.build_hashes propext Quot.sound "${leaf_cert[@]}"
