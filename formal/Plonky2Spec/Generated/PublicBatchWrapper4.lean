@@ -25,1643 +25,1644 @@ variable {p : ℕ} [Fact p.Prime]
 
 /-- `publicBatchWrapper4.copies`, items `0..32`. -/
 def publicBatchWrapper4.copies0 : List (Target × Target) := [
-    (.virt 6595, .virt 26490),
-    (.virt 13216, .virt 26490),
-    (.virt 19837, .virt 26490),
-    (.virt 26458, .virt 26490),
-    (.virt 26488, .wire 0 0),
-    (.virt 26488, .wire 0 1),
-    (.virt 26491, .wire 0 2),
-    (.virt 26491, .wire 1 0),
-    (.virt 6598, .wire 1 1),
-    (.virt 26491, .wire 1 2),
-    (.virt 6598, .wire 1 4),
-    (.virt 26492, .wire 1 5),
-    (.virt 6598, .wire 1 6),
-    (.wire 1 7, .wire 0 4),
-    (.virt 26488, .wire 0 5),
-    (.wire 0 3, .wire 0 6),
-    (.wire 1 3, .virt 26489),
-    (.wire 0 7, .virt 26489),
-    (.virt 26488, .wire 0 8),
-    (.virt 26488, .wire 0 9),
-    (.virt 26493, .wire 0 10),
-    (.virt 26493, .wire 1 8),
-    (.virt 6599, .wire 1 9),
-    (.virt 26493, .wire 1 10),
-    (.virt 6599, .wire 1 12),
-    (.virt 26494, .wire 1 13),
-    (.virt 6599, .wire 1 14),
-    (.wire 1 15, .wire 0 12),
-    (.virt 26488, .wire 0 13),
-    (.wire 0 11, .wire 0 14),
-    (.wire 1 11, .virt 26489),
-    (.wire 0 15, .virt 26489)
+    (.virt 0, .virt 28),
+    (.virt 30, .virt 28),
+    (.virt 56, .virt 28),
+    (.virt 82, .virt 28),
+    (.virt 27, .wire 2 0),
+    (.virt 27, .wire 2 1),
+    (.virt 112, .wire 2 2),
+    (.virt 112, .wire 1 16),
+    (.virt 3, .wire 1 17),
+    (.virt 112, .wire 1 18),
+    (.virt 3, .wire 1 20),
+    (.virt 113, .wire 1 21),
+    (.virt 3, .wire 1 22),
+    (.wire 1 23, .wire 2 4),
+    (.virt 27, .wire 2 5),
+    (.wire 2 3, .wire 2 6),
+    (.wire 1 19, .virt 26),
+    (.wire 2 7, .virt 26),
+    (.virt 27, .wire 2 8),
+    (.virt 27, .wire 2 9),
+    (.virt 114, .wire 2 10),
+    (.virt 114, .wire 1 24),
+    (.virt 4, .wire 1 25),
+    (.virt 114, .wire 1 26),
+    (.virt 4, .wire 1 28),
+    (.virt 115, .wire 1 29),
+    (.virt 4, .wire 1 30),
+    (.wire 1 31, .wire 2 12),
+    (.virt 27, .wire 2 13),
+    (.wire 2 11, .wire 2 14),
+    (.wire 1 27, .virt 26),
+    (.wire 2 15, .virt 26)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `32..64`. -/
 def publicBatchWrapper4.copies1 : List (Target × Target) := [
-    (.virt 26488, .wire 0 16),
-    (.virt 26488, .wire 0 17),
-    (.virt 26495, .wire 0 18),
-    (.virt 26495, .wire 1 16),
-    (.virt 6600, .wire 1 17),
-    (.virt 26495, .wire 1 18),
-    (.virt 6600, .wire 1 20),
-    (.virt 26496, .wire 1 21),
-    (.virt 6600, .wire 1 22),
-    (.wire 1 23, .wire 0 20),
-    (.virt 26488, .wire 0 21),
-    (.wire 0 19, .wire 0 22),
-    (.wire 1 19, .virt 26489),
-    (.wire 0 23, .virt 26489),
-    (.virt 26488, .wire 0 24),
-    (.virt 26488, .wire 0 25),
-    (.virt 26497, .wire 0 26),
-    (.virt 26497, .wire 1 24),
-    (.virt 6601, .wire 1 25),
-    (.virt 26497, .wire 1 26),
-    (.virt 6601, .wire 1 28),
-    (.virt 26498, .wire 1 29),
-    (.virt 6601, .wire 1 30),
-    (.wire 1 31, .wire 0 28),
-    (.virt 26488, .wire 0 29),
-    (.wire 0 27, .wire 0 30),
-    (.wire 1 27, .virt 26489),
-    (.wire 0 31, .virt 26489),
-    (.virt 26491, .wire 1 32),
-    (.virt 26493, .wire 1 33),
-    (.virt 26491, .wire 1 34),
-    (.virt 26495, .wire 1 36)
+    (.virt 27, .wire 2 16),
+    (.virt 27, .wire 2 17),
+    (.virt 116, .wire 2 18),
+    (.virt 116, .wire 1 32),
+    (.virt 5, .wire 1 33),
+    (.virt 116, .wire 1 34),
+    (.virt 5, .wire 1 36),
+    (.virt 117, .wire 1 37),
+    (.virt 5, .wire 1 38),
+    (.wire 1 39, .wire 2 20),
+    (.virt 27, .wire 2 21),
+    (.wire 2 19, .wire 2 22),
+    (.wire 1 35, .virt 26),
+    (.wire 2 23, .virt 26),
+    (.virt 27, .wire 2 24),
+    (.virt 27, .wire 2 25),
+    (.virt 118, .wire 2 26),
+    (.virt 118, .wire 1 40),
+    (.virt 6, .wire 1 41),
+    (.virt 118, .wire 1 42),
+    (.virt 6, .wire 1 44),
+    (.virt 119, .wire 1 45),
+    (.virt 6, .wire 1 46),
+    (.wire 1 47, .wire 2 28),
+    (.virt 27, .wire 2 29),
+    (.wire 2 27, .wire 2 30),
+    (.wire 1 43, .virt 26),
+    (.wire 2 31, .virt 26),
+    (.virt 112, .wire 1 48),
+    (.virt 114, .wire 1 49),
+    (.virt 112, .wire 1 50),
+    (.virt 116, .wire 1 52)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `64..96`. -/
 def publicBatchWrapper4.copies2 : List (Target × Target) := [
-    (.virt 26497, .wire 1 37),
-    (.virt 26495, .wire 1 38),
-    (.wire 1 35, .wire 1 40),
-    (.wire 1 39, .wire 1 41),
-    (.wire 1 35, .wire 1 42),
-    (.virt 26488, .wire 0 32),
-    (.virt 26488, .wire 0 33),
-    (.virt 26499, .wire 0 34),
-    (.virt 26499, .wire 1 44),
-    (.virt 13219, .wire 1 45),
-    (.virt 26499, .wire 1 46),
-    (.virt 13219, .wire 1 48),
-    (.virt 26500, .wire 1 49),
-    (.virt 13219, .wire 1 50),
-    (.wire 1 51, .wire 0 36),
-    (.virt 26488, .wire 0 37),
-    (.wire 0 35, .wire 0 38),
-    (.wire 1 47, .virt 26489),
-    (.wire 0 39, .virt 26489),
-    (.virt 26488, .wire 0 40),
-    (.virt 26488, .wire 0 41),
-    (.virt 26501, .wire 0 42),
-    (.virt 26501, .wire 1 52),
-    (.virt 13220, .wire 1 53),
-    (.virt 26501, .wire 1 54),
-    (.virt 13220, .wire 1 56),
-    (.virt 26502, .wire 1 57),
-    (.virt 13220, .wire 1 58),
-    (.wire 1 59, .wire 0 44),
-    (.virt 26488, .wire 0 45),
-    (.wire 0 43, .wire 0 46),
-    (.wire 1 55, .virt 26489)
+    (.virt 118, .wire 1 53),
+    (.virt 116, .wire 1 54),
+    (.wire 1 51, .wire 1 56),
+    (.wire 1 55, .wire 1 57),
+    (.wire 1 51, .wire 1 58),
+    (.virt 27, .wire 2 32),
+    (.virt 27, .wire 2 33),
+    (.virt 120, .wire 2 34),
+    (.virt 120, .wire 1 60),
+    (.virt 33, .wire 1 61),
+    (.virt 120, .wire 1 62),
+    (.virt 33, .wire 1 64),
+    (.virt 121, .wire 1 65),
+    (.virt 33, .wire 1 66),
+    (.wire 1 67, .wire 2 36),
+    (.virt 27, .wire 2 37),
+    (.wire 2 35, .wire 2 38),
+    (.wire 1 63, .virt 26),
+    (.wire 2 39, .virt 26),
+    (.virt 27, .wire 2 40),
+    (.virt 27, .wire 2 41),
+    (.virt 122, .wire 2 42),
+    (.virt 122, .wire 1 68),
+    (.virt 34, .wire 1 69),
+    (.virt 122, .wire 1 70),
+    (.virt 34, .wire 1 72),
+    (.virt 123, .wire 1 73),
+    (.virt 34, .wire 1 74),
+    (.wire 1 75, .wire 2 44),
+    (.virt 27, .wire 2 45),
+    (.wire 2 43, .wire 2 46),
+    (.wire 1 71, .virt 26)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `96..128`. -/
 def publicBatchWrapper4.copies3 : List (Target × Target) := [
-    (.wire 0 47, .virt 26489),
-    (.virt 26488, .wire 0 48),
-    (.virt 26488, .wire 0 49),
-    (.virt 26503, .wire 0 50),
-    (.virt 26503, .wire 1 60),
-    (.virt 13221, .wire 1 61),
-    (.virt 26503, .wire 1 62),
-    (.virt 13221, .wire 1 64),
-    (.virt 26504, .wire 1 65),
-    (.virt 13221, .wire 1 66),
-    (.wire 1 67, .wire 0 52),
-    (.virt 26488, .wire 0 53),
-    (.wire 0 51, .wire 0 54),
-    (.wire 1 63, .virt 26489),
-    (.wire 0 55, .virt 26489),
-    (.virt 26488, .wire 0 56),
-    (.virt 26488, .wire 0 57),
-    (.virt 26505, .wire 0 58),
-    (.virt 26505, .wire 1 68),
-    (.virt 13222, .wire 1 69),
-    (.virt 26505, .wire 1 70),
-    (.virt 13222, .wire 1 72),
-    (.virt 26506, .wire 1 73),
-    (.virt 13222, .wire 1 74),
-    (.wire 1 75, .wire 0 60),
-    (.virt 26488, .wire 0 61),
-    (.wire 0 59, .wire 0 62),
-    (.wire 1 71, .virt 26489),
-    (.wire 0 63, .virt 26489),
-    (.virt 26499, .wire 1 76),
-    (.virt 26501, .wire 1 77),
-    (.virt 26499, .wire 1 78)
+    (.wire 2 47, .virt 26),
+    (.virt 27, .wire 2 48),
+    (.virt 27, .wire 2 49),
+    (.virt 124, .wire 2 50),
+    (.virt 124, .wire 1 76),
+    (.virt 35, .wire 1 77),
+    (.virt 124, .wire 1 78),
+    (.virt 35, .wire 3 0),
+    (.virt 125, .wire 3 1),
+    (.virt 35, .wire 3 2),
+    (.wire 3 3, .wire 2 52),
+    (.virt 27, .wire 2 53),
+    (.wire 2 51, .wire 2 54),
+    (.wire 1 79, .virt 26),
+    (.wire 2 55, .virt 26),
+    (.virt 27, .wire 2 56),
+    (.virt 27, .wire 2 57),
+    (.virt 126, .wire 2 58),
+    (.virt 126, .wire 3 4),
+    (.virt 36, .wire 3 5),
+    (.virt 126, .wire 3 6),
+    (.virt 36, .wire 3 8),
+    (.virt 127, .wire 3 9),
+    (.virt 36, .wire 3 10),
+    (.wire 3 11, .wire 2 60),
+    (.virt 27, .wire 2 61),
+    (.wire 2 59, .wire 2 62),
+    (.wire 3 7, .virt 26),
+    (.wire 2 63, .virt 26),
+    (.virt 120, .wire 3 12),
+    (.virt 122, .wire 3 13),
+    (.virt 120, .wire 3 14)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `128..160`. -/
 def publicBatchWrapper4.copies4 : List (Target × Target) := [
-    (.virt 26503, .wire 2 0),
-    (.virt 26505, .wire 2 1),
-    (.virt 26503, .wire 2 2),
-    (.wire 1 79, .wire 2 4),
-    (.wire 2 3, .wire 2 5),
-    (.wire 1 79, .wire 2 6),
-    (.virt 26488, .wire 0 64),
-    (.virt 26488, .wire 0 65),
-    (.virt 26507, .wire 0 66),
-    (.virt 26507, .wire 2 8),
-    (.virt 19840, .wire 2 9),
-    (.virt 26507, .wire 2 10),
-    (.virt 19840, .wire 2 12),
-    (.virt 26508, .wire 2 13),
-    (.virt 19840, .wire 2 14),
-    (.wire 2 15, .wire 0 68),
-    (.virt 26488, .wire 0 69),
-    (.wire 0 67, .wire 0 70),
-    (.wire 2 11, .virt 26489),
-    (.wire 0 71, .virt 26489),
-    (.virt 26488, .wire 0 72),
-    (.virt 26488, .wire 0 73),
-    (.virt 26509, .wire 0 74),
-    (.virt 26509, .wire 2 16),
-    (.virt 19841, .wire 2 17),
-    (.virt 26509, .wire 2 18),
-    (.virt 19841, .wire 2 20),
-    (.virt 26510, .wire 2 21),
-    (.virt 19841, .wire 2 22),
-    (.wire 2 23, .wire 0 76),
-    (.virt 26488, .wire 0 77),
-    (.wire 0 75, .wire 0 78)
+    (.virt 124, .wire 3 16),
+    (.virt 126, .wire 3 17),
+    (.virt 124, .wire 3 18),
+    (.wire 3 15, .wire 3 20),
+    (.wire 3 19, .wire 3 21),
+    (.wire 3 15, .wire 3 22),
+    (.virt 27, .wire 2 64),
+    (.virt 27, .wire 2 65),
+    (.virt 128, .wire 2 66),
+    (.virt 128, .wire 3 24),
+    (.virt 59, .wire 3 25),
+    (.virt 128, .wire 3 26),
+    (.virt 59, .wire 3 28),
+    (.virt 129, .wire 3 29),
+    (.virt 59, .wire 3 30),
+    (.wire 3 31, .wire 2 68),
+    (.virt 27, .wire 2 69),
+    (.wire 2 67, .wire 2 70),
+    (.wire 3 27, .virt 26),
+    (.wire 2 71, .virt 26),
+    (.virt 27, .wire 2 72),
+    (.virt 27, .wire 2 73),
+    (.virt 130, .wire 2 74),
+    (.virt 130, .wire 3 32),
+    (.virt 60, .wire 3 33),
+    (.virt 130, .wire 3 34),
+    (.virt 60, .wire 3 36),
+    (.virt 131, .wire 3 37),
+    (.virt 60, .wire 3 38),
+    (.wire 3 39, .wire 2 76),
+    (.virt 27, .wire 2 77),
+    (.wire 2 75, .wire 2 78)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `160..192`. -/
 def publicBatchWrapper4.copies5 : List (Target × Target) := [
-    (.wire 2 19, .virt 26489),
-    (.wire 0 79, .virt 26489),
-    (.virt 26488, .wire 3 0),
-    (.virt 26488, .wire 3 1),
-    (.virt 26511, .wire 3 2),
-    (.virt 26511, .wire 2 24),
-    (.virt 19842, .wire 2 25),
-    (.virt 26511, .wire 2 26),
-    (.virt 19842, .wire 2 28),
-    (.virt 26512, .wire 2 29),
-    (.virt 19842, .wire 2 30),
-    (.wire 2 31, .wire 3 4),
-    (.virt 26488, .wire 3 5),
-    (.wire 3 3, .wire 3 6),
-    (.wire 2 27, .virt 26489),
-    (.wire 3 7, .virt 26489),
-    (.virt 26488, .wire 3 8),
-    (.virt 26488, .wire 3 9),
-    (.virt 26513, .wire 3 10),
-    (.virt 26513, .wire 2 32),
-    (.virt 19843, .wire 2 33),
-    (.virt 26513, .wire 2 34),
-    (.virt 19843, .wire 2 36),
-    (.virt 26514, .wire 2 37),
-    (.virt 19843, .wire 2 38),
-    (.wire 2 39, .wire 3 12),
-    (.virt 26488, .wire 3 13),
-    (.wire 3 11, .wire 3 14),
-    (.wire 2 35, .virt 26489),
-    (.wire 3 15, .virt 26489),
-    (.virt 26507, .wire 2 40),
-    (.virt 26509, .wire 2 41)
+    (.wire 3 35, .virt 26),
+    (.wire 2 79, .virt 26),
+    (.virt 27, .wire 4 0),
+    (.virt 27, .wire 4 1),
+    (.virt 132, .wire 4 2),
+    (.virt 132, .wire 3 40),
+    (.virt 61, .wire 3 41),
+    (.virt 132, .wire 3 42),
+    (.virt 61, .wire 3 44),
+    (.virt 133, .wire 3 45),
+    (.virt 61, .wire 3 46),
+    (.wire 3 47, .wire 4 4),
+    (.virt 27, .wire 4 5),
+    (.wire 4 3, .wire 4 6),
+    (.wire 3 43, .virt 26),
+    (.wire 4 7, .virt 26),
+    (.virt 27, .wire 4 8),
+    (.virt 27, .wire 4 9),
+    (.virt 134, .wire 4 10),
+    (.virt 134, .wire 3 48),
+    (.virt 62, .wire 3 49),
+    (.virt 134, .wire 3 50),
+    (.virt 62, .wire 3 52),
+    (.virt 135, .wire 3 53),
+    (.virt 62, .wire 3 54),
+    (.wire 3 55, .wire 4 12),
+    (.virt 27, .wire 4 13),
+    (.wire 4 11, .wire 4 14),
+    (.wire 3 51, .virt 26),
+    (.wire 4 15, .virt 26),
+    (.virt 128, .wire 3 56),
+    (.virt 130, .wire 3 57)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `192..224`. -/
 def publicBatchWrapper4.copies6 : List (Target × Target) := [
-    (.virt 26507, .wire 2 42),
-    (.virt 26511, .wire 2 44),
-    (.virt 26513, .wire 2 45),
-    (.virt 26511, .wire 2 46),
-    (.wire 2 43, .wire 2 48),
-    (.wire 2 47, .wire 2 49),
-    (.wire 2 43, .wire 2 50),
-    (.virt 26488, .wire 3 16),
-    (.virt 26488, .wire 3 17),
-    (.virt 26515, .wire 3 18),
-    (.virt 26515, .wire 2 52),
-    (.virt 26461, .wire 2 53),
-    (.virt 26515, .wire 2 54),
-    (.virt 26461, .wire 2 56),
-    (.virt 26516, .wire 2 57),
-    (.virt 26461, .wire 2 58),
-    (.wire 2 59, .wire 3 20),
-    (.virt 26488, .wire 3 21),
-    (.wire 3 19, .wire 3 22),
-    (.wire 2 55, .virt 26489),
-    (.wire 3 23, .virt 26489),
-    (.virt 26488, .wire 3 24),
-    (.virt 26488, .wire 3 25),
-    (.virt 26517, .wire 3 26),
-    (.virt 26517, .wire 2 60),
-    (.virt 26462, .wire 2 61),
-    (.virt 26517, .wire 2 62),
-    (.virt 26462, .wire 2 64),
-    (.virt 26518, .wire 2 65),
-    (.virt 26462, .wire 2 66),
-    (.wire 2 67, .wire 3 28),
-    (.virt 26488, .wire 3 29)
+    (.virt 128, .wire 3 58),
+    (.virt 132, .wire 3 60),
+    (.virt 134, .wire 3 61),
+    (.virt 132, .wire 3 62),
+    (.wire 3 59, .wire 3 64),
+    (.wire 3 63, .wire 3 65),
+    (.wire 3 59, .wire 3 66),
+    (.virt 27, .wire 4 16),
+    (.virt 27, .wire 4 17),
+    (.virt 136, .wire 4 18),
+    (.virt 136, .wire 3 68),
+    (.virt 85, .wire 3 69),
+    (.virt 136, .wire 3 70),
+    (.virt 85, .wire 3 72),
+    (.virt 137, .wire 3 73),
+    (.virt 85, .wire 3 74),
+    (.wire 3 75, .wire 4 20),
+    (.virt 27, .wire 4 21),
+    (.wire 4 19, .wire 4 22),
+    (.wire 3 71, .virt 26),
+    (.wire 4 23, .virt 26),
+    (.virt 27, .wire 4 24),
+    (.virt 27, .wire 4 25),
+    (.virt 138, .wire 4 26),
+    (.virt 138, .wire 3 76),
+    (.virt 86, .wire 3 77),
+    (.virt 138, .wire 3 78),
+    (.virt 86, .wire 5 0),
+    (.virt 139, .wire 5 1),
+    (.virt 86, .wire 5 2),
+    (.wire 5 3, .wire 4 28),
+    (.virt 27, .wire 4 29)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `224..256`. -/
 def publicBatchWrapper4.copies7 : List (Target × Target) := [
-    (.wire 3 27, .wire 3 30),
-    (.wire 2 63, .virt 26489),
-    (.wire 3 31, .virt 26489),
-    (.virt 26488, .wire 3 32),
-    (.virt 26488, .wire 3 33),
-    (.virt 26519, .wire 3 34),
-    (.virt 26519, .wire 2 68),
-    (.virt 26463, .wire 2 69),
-    (.virt 26519, .wire 2 70),
-    (.virt 26463, .wire 2 72),
-    (.virt 26520, .wire 2 73),
-    (.virt 26463, .wire 2 74),
-    (.wire 2 75, .wire 3 36),
-    (.virt 26488, .wire 3 37),
-    (.wire 3 35, .wire 3 38),
-    (.wire 2 71, .virt 26489),
-    (.wire 3 39, .virt 26489),
-    (.virt 26488, .wire 3 40),
-    (.virt 26488, .wire 3 41),
-    (.virt 26521, .wire 3 42),
-    (.virt 26521, .wire 2 76),
-    (.virt 26464, .wire 2 77),
-    (.virt 26521, .wire 2 78),
-    (.virt 26464, .wire 4 0),
-    (.virt 26522, .wire 4 1),
-    (.virt 26464, .wire 4 2),
-    (.wire 4 3, .wire 3 44),
-    (.virt 26488, .wire 3 45),
-    (.wire 3 43, .wire 3 46),
-    (.wire 2 79, .virt 26489),
-    (.wire 3 47, .virt 26489),
-    (.virt 26515, .wire 4 4)
+    (.wire 4 27, .wire 4 30),
+    (.wire 3 79, .virt 26),
+    (.wire 4 31, .virt 26),
+    (.virt 27, .wire 4 32),
+    (.virt 27, .wire 4 33),
+    (.virt 140, .wire 4 34),
+    (.virt 140, .wire 5 4),
+    (.virt 87, .wire 5 5),
+    (.virt 140, .wire 5 6),
+    (.virt 87, .wire 5 8),
+    (.virt 141, .wire 5 9),
+    (.virt 87, .wire 5 10),
+    (.wire 5 11, .wire 4 36),
+    (.virt 27, .wire 4 37),
+    (.wire 4 35, .wire 4 38),
+    (.wire 5 7, .virt 26),
+    (.wire 4 39, .virt 26),
+    (.virt 27, .wire 4 40),
+    (.virt 27, .wire 4 41),
+    (.virt 142, .wire 4 42),
+    (.virt 142, .wire 5 12),
+    (.virt 88, .wire 5 13),
+    (.virt 142, .wire 5 14),
+    (.virt 88, .wire 5 16),
+    (.virt 143, .wire 5 17),
+    (.virt 88, .wire 5 18),
+    (.wire 5 19, .wire 4 44),
+    (.virt 27, .wire 4 45),
+    (.wire 4 43, .wire 4 46),
+    (.wire 5 15, .virt 26),
+    (.wire 4 47, .virt 26),
+    (.virt 136, .wire 5 20)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `256..288`. -/
 def publicBatchWrapper4.copies8 : List (Target × Target) := [
-    (.virt 26517, .wire 4 5),
-    (.virt 26515, .wire 4 6),
-    (.virt 26519, .wire 4 8),
-    (.virt 26521, .wire 4 9),
-    (.virt 26519, .wire 4 10),
-    (.wire 4 7, .wire 4 12),
-    (.wire 4 11, .wire 4 13),
-    (.wire 4 7, .wire 4 14),
-    (.virt 26488, .wire 3 48),
-    (.virt 26488, .wire 3 49),
-    (.wire 1 43, .wire 3 50),
-    (.wire 3 51, .wire 3 52),
-    (.virt 6598, .wire 3 53),
-    (.virt 26489, .wire 3 54),
-    (.wire 3 51, .wire 3 56),
-    (.virt 6599, .wire 3 57),
-    (.virt 26489, .wire 3 58),
-    (.wire 3 51, .wire 3 60),
-    (.virt 6600, .wire 3 61),
-    (.virt 26489, .wire 3 62),
-    (.wire 3 51, .wire 3 64),
-    (.virt 6601, .wire 3 65),
-    (.virt 26489, .wire 3 66),
-    (.wire 3 51, .wire 3 68),
-    (.virt 6602, .wire 3 69),
-    (.virt 26489, .wire 3 70),
-    (.wire 3 51, .wire 3 72),
-    (.virt 6596, .wire 3 73),
-    (.virt 26489, .wire 3 74),
-    (.wire 3 51, .wire 3 76),
-    (.virt 6597, .wire 3 77),
-    (.virt 26489, .wire 3 78)
+    (.virt 138, .wire 5 21),
+    (.virt 136, .wire 5 22),
+    (.virt 140, .wire 5 24),
+    (.virt 142, .wire 5 25),
+    (.virt 140, .wire 5 26),
+    (.wire 5 23, .wire 5 28),
+    (.wire 5 27, .wire 5 29),
+    (.wire 5 23, .wire 5 30),
+    (.virt 27, .wire 4 48),
+    (.virt 27, .wire 4 49),
+    (.wire 1 59, .wire 4 50),
+    (.wire 4 51, .wire 4 52),
+    (.virt 3, .wire 4 53),
+    (.virt 26, .wire 4 54),
+    (.wire 4 51, .wire 4 56),
+    (.virt 4, .wire 4 57),
+    (.virt 26, .wire 4 58),
+    (.wire 4 51, .wire 4 60),
+    (.virt 5, .wire 4 61),
+    (.virt 26, .wire 4 62),
+    (.wire 4 51, .wire 4 64),
+    (.virt 6, .wire 4 65),
+    (.virt 26, .wire 4 66),
+    (.wire 4 51, .wire 4 68),
+    (.virt 7, .wire 4 69),
+    (.virt 26, .wire 4 70),
+    (.wire 4 51, .wire 4 72),
+    (.virt 1, .wire 4 73),
+    (.virt 26, .wire 4 74),
+    (.wire 4 51, .wire 4 76),
+    (.virt 2, .wire 4 77),
+    (.virt 26, .wire 4 78)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `288..320`. -/
 def publicBatchWrapper4.copies9 : List (Target × Target) := [
-    (.virt 26488, .wire 5 0),
-    (.virt 26488, .wire 5 1),
-    (.wire 2 7, .wire 5 2),
-    (.virt 26488, .wire 5 4),
-    (.virt 26488, .wire 5 5),
-    (.wire 3 51, .wire 5 6),
-    (.wire 5 3, .wire 4 16),
-    (.wire 5 7, .wire 4 17),
-    (.wire 5 3, .wire 4 18),
-    (.wire 4 19, .wire 5 8),
-    (.wire 3 55, .wire 5 9),
-    (.wire 3 55, .wire 5 10),
-    (.wire 4 19, .wire 5 12),
-    (.virt 13219, .wire 5 13),
-    (.wire 5 11, .wire 5 14),
-    (.wire 4 19, .wire 5 16),
-    (.wire 3 59, .wire 5 17),
-    (.wire 3 59, .wire 5 18),
-    (.wire 4 19, .wire 5 20),
-    (.virt 13220, .wire 5 21),
-    (.wire 5 19, .wire 5 22),
-    (.wire 4 19, .wire 5 24),
-    (.wire 3 63, .wire 5 25),
-    (.wire 3 63, .wire 5 26),
-    (.wire 4 19, .wire 5 28),
-    (.virt 13221, .wire 5 29),
-    (.wire 5 27, .wire 5 30),
-    (.wire 4 19, .wire 5 32),
-    (.wire 3 67, .wire 5 33),
-    (.wire 3 67, .wire 5 34),
-    (.wire 4 19, .wire 5 36),
-    (.virt 13222, .wire 5 37)
+    (.virt 27, .wire 6 0),
+    (.virt 27, .wire 6 1),
+    (.wire 3 23, .wire 6 2),
+    (.virt 27, .wire 6 4),
+    (.virt 27, .wire 6 5),
+    (.wire 4 51, .wire 6 6),
+    (.wire 6 3, .wire 5 32),
+    (.wire 6 7, .wire 5 33),
+    (.wire 6 3, .wire 5 34),
+    (.wire 5 35, .wire 6 8),
+    (.wire 4 55, .wire 6 9),
+    (.wire 4 55, .wire 6 10),
+    (.wire 5 35, .wire 6 12),
+    (.virt 33, .wire 6 13),
+    (.wire 6 11, .wire 6 14),
+    (.wire 5 35, .wire 6 16),
+    (.wire 4 59, .wire 6 17),
+    (.wire 4 59, .wire 6 18),
+    (.wire 5 35, .wire 6 20),
+    (.virt 34, .wire 6 21),
+    (.wire 6 19, .wire 6 22),
+    (.wire 5 35, .wire 6 24),
+    (.wire 4 63, .wire 6 25),
+    (.wire 4 63, .wire 6 26),
+    (.wire 5 35, .wire 6 28),
+    (.virt 35, .wire 6 29),
+    (.wire 6 27, .wire 6 30),
+    (.wire 5 35, .wire 6 32),
+    (.wire 4 67, .wire 6 33),
+    (.wire 4 67, .wire 6 34),
+    (.wire 5 35, .wire 6 36),
+    (.virt 36, .wire 6 37)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `320..352`. -/
 def publicBatchWrapper4.copies10 : List (Target × Target) := [
-    (.wire 5 35, .wire 5 38),
-    (.wire 4 19, .wire 5 40),
-    (.wire 3 71, .wire 5 41),
-    (.wire 3 71, .wire 5 42),
-    (.wire 4 19, .wire 5 44),
-    (.virt 13223, .wire 5 45),
-    (.wire 5 43, .wire 5 46),
-    (.wire 4 19, .wire 5 48),
-    (.wire 3 75, .wire 5 49),
-    (.wire 3 75, .wire 5 50),
-    (.wire 4 19, .wire 5 52),
-    (.virt 13217, .wire 5 53),
-    (.wire 5 51, .wire 5 54),
-    (.wire 4 19, .wire 5 56),
-    (.wire 3 79, .wire 5 57),
-    (.wire 3 79, .wire 5 58),
-    (.wire 4 19, .wire 5 60),
-    (.virt 13218, .wire 5 61),
-    (.wire 5 59, .wire 5 62),
-    (.wire 3 51, .wire 6 0),
-    (.wire 5 3, .wire 6 1),
-    (.wire 3 51, .wire 6 2),
-    (.wire 6 3, .wire 7 0),
-    (.virt 26488, .wire 7 1),
-    (.wire 5 3, .wire 7 2),
-    (.virt 26488, .wire 5 64),
-    (.virt 26488, .wire 5 65),
-    (.wire 2 51, .wire 5 66),
-    (.virt 26488, .wire 5 68),
-    (.virt 26488, .wire 5 69),
-    (.wire 7 3, .wire 5 70),
-    (.wire 5 67, .wire 4 20)
+    (.wire 6 35, .wire 6 38),
+    (.wire 5 35, .wire 6 40),
+    (.wire 4 71, .wire 6 41),
+    (.wire 4 71, .wire 6 42),
+    (.wire 5 35, .wire 6 44),
+    (.virt 37, .wire 6 45),
+    (.wire 6 43, .wire 6 46),
+    (.wire 5 35, .wire 6 48),
+    (.wire 4 75, .wire 6 49),
+    (.wire 4 75, .wire 6 50),
+    (.wire 5 35, .wire 6 52),
+    (.virt 31, .wire 6 53),
+    (.wire 6 51, .wire 6 54),
+    (.wire 5 35, .wire 6 56),
+    (.wire 4 79, .wire 6 57),
+    (.wire 4 79, .wire 6 58),
+    (.wire 5 35, .wire 6 60),
+    (.virt 32, .wire 6 61),
+    (.wire 6 59, .wire 6 62),
+    (.wire 4 51, .wire 7 0),
+    (.wire 6 3, .wire 7 1),
+    (.wire 4 51, .wire 7 2),
+    (.wire 7 3, .wire 0 48),
+    (.virt 27, .wire 0 49),
+    (.wire 6 3, .wire 0 50),
+    (.virt 27, .wire 6 64),
+    (.virt 27, .wire 6 65),
+    (.wire 3 67, .wire 6 66),
+    (.virt 27, .wire 6 68),
+    (.virt 27, .wire 6 69),
+    (.wire 0 51, .wire 6 70),
+    (.wire 6 67, .wire 5 36)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `352..384`. -/
 def publicBatchWrapper4.copies11 : List (Target × Target) := [
-    (.wire 5 71, .wire 4 21),
-    (.wire 5 67, .wire 4 22),
-    (.wire 4 23, .wire 5 72),
-    (.wire 5 15, .wire 5 73),
-    (.wire 5 15, .wire 5 74),
-    (.wire 4 23, .wire 5 76),
-    (.virt 19840, .wire 5 77),
-    (.wire 5 75, .wire 5 78),
-    (.wire 4 23, .wire 8 0),
-    (.wire 5 23, .wire 8 1),
-    (.wire 5 23, .wire 8 2),
-    (.wire 4 23, .wire 8 4),
-    (.virt 19841, .wire 8 5),
+    (.wire 6 71, .wire 5 37),
+    (.wire 6 67, .wire 5 38),
+    (.wire 5 39, .wire 6 72),
+    (.wire 6 15, .wire 6 73),
+    (.wire 6 15, .wire 6 74),
+    (.wire 5 39, .wire 6 76),
+    (.virt 59, .wire 6 77),
+    (.wire 6 75, .wire 6 78),
+    (.wire 5 39, .wire 8 0),
+    (.wire 6 23, .wire 8 1),
+    (.wire 6 23, .wire 8 2),
+    (.wire 5 39, .wire 8 4),
+    (.virt 60, .wire 8 5),
     (.wire 8 3, .wire 8 6),
-    (.wire 4 23, .wire 8 8),
-    (.wire 5 31, .wire 8 9),
-    (.wire 5 31, .wire 8 10),
-    (.wire 4 23, .wire 8 12),
-    (.virt 19842, .wire 8 13),
+    (.wire 5 39, .wire 8 8),
+    (.wire 6 31, .wire 8 9),
+    (.wire 6 31, .wire 8 10),
+    (.wire 5 39, .wire 8 12),
+    (.virt 61, .wire 8 13),
     (.wire 8 11, .wire 8 14),
-    (.wire 4 23, .wire 8 16),
-    (.wire 5 39, .wire 8 17),
-    (.wire 5 39, .wire 8 18),
-    (.wire 4 23, .wire 8 20),
-    (.virt 19843, .wire 8 21),
+    (.wire 5 39, .wire 8 16),
+    (.wire 6 39, .wire 8 17),
+    (.wire 6 39, .wire 8 18),
+    (.wire 5 39, .wire 8 20),
+    (.virt 62, .wire 8 21),
     (.wire 8 19, .wire 8 22),
-    (.wire 4 23, .wire 8 24),
-    (.wire 5 47, .wire 8 25),
-    (.wire 5 47, .wire 8 26),
-    (.wire 4 23, .wire 8 28),
-    (.virt 19844, .wire 8 29),
+    (.wire 5 39, .wire 8 24),
+    (.wire 6 47, .wire 8 25),
+    (.wire 6 47, .wire 8 26),
+    (.wire 5 39, .wire 8 28),
+    (.virt 63, .wire 8 29),
     (.wire 8 27, .wire 8 30)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `384..416`. -/
 def publicBatchWrapper4.copies12 : List (Target × Target) := [
-    (.wire 4 23, .wire 8 32),
-    (.wire 5 55, .wire 8 33),
-    (.wire 5 55, .wire 8 34),
-    (.wire 4 23, .wire 8 36),
-    (.virt 19838, .wire 8 37),
+    (.wire 5 39, .wire 8 32),
+    (.wire 6 55, .wire 8 33),
+    (.wire 6 55, .wire 8 34),
+    (.wire 5 39, .wire 8 36),
+    (.virt 57, .wire 8 37),
     (.wire 8 35, .wire 8 38),
-    (.wire 4 23, .wire 8 40),
-    (.wire 5 63, .wire 8 41),
-    (.wire 5 63, .wire 8 42),
-    (.wire 4 23, .wire 8 44),
-    (.virt 19839, .wire 8 45),
+    (.wire 5 39, .wire 8 40),
+    (.wire 6 63, .wire 8 41),
+    (.wire 6 63, .wire 8 42),
+    (.wire 5 39, .wire 8 44),
+    (.virt 58, .wire 8 45),
     (.wire 8 43, .wire 8 46),
-    (.wire 7 3, .wire 6 4),
-    (.wire 5 67, .wire 6 5),
-    (.wire 7 3, .wire 6 6),
-    (.wire 6 7, .wire 7 4),
-    (.virt 26488, .wire 7 5),
-    (.wire 5 67, .wire 7 6),
-    (.virt 26488, .wire 8 48),
-    (.virt 26488, .wire 8 49),
-    (.wire 4 15, .wire 8 50),
-    (.virt 26488, .wire 8 52),
-    (.virt 26488, .wire 8 53),
-    (.wire 7 7, .wire 8 54),
-    (.wire 8 51, .wire 4 24),
-    (.wire 8 55, .wire 4 25),
-    (.wire 8 51, .wire 4 26),
-    (.wire 4 27, .wire 8 56),
-    (.wire 5 79, .wire 8 57),
-    (.wire 5 79, .wire 8 58),
-    (.wire 4 27, .wire 8 60),
-    (.virt 26461, .wire 8 61)
+    (.wire 0 51, .wire 7 4),
+    (.wire 6 67, .wire 7 5),
+    (.wire 0 51, .wire 7 6),
+    (.wire 7 7, .wire 0 52),
+    (.virt 27, .wire 0 53),
+    (.wire 6 67, .wire 0 54),
+    (.virt 27, .wire 8 48),
+    (.virt 27, .wire 8 49),
+    (.wire 5 31, .wire 8 50),
+    (.virt 27, .wire 8 52),
+    (.virt 27, .wire 8 53),
+    (.wire 0 55, .wire 8 54),
+    (.wire 8 51, .wire 5 40),
+    (.wire 8 55, .wire 5 41),
+    (.wire 8 51, .wire 5 42),
+    (.wire 5 43, .wire 8 56),
+    (.wire 6 79, .wire 8 57),
+    (.wire 6 79, .wire 8 58),
+    (.wire 5 43, .wire 8 60),
+    (.virt 85, .wire 8 61)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `416..448`. -/
 def publicBatchWrapper4.copies13 : List (Target × Target) := [
     (.wire 8 59, .wire 8 62),
-    (.wire 4 27, .wire 8 64),
+    (.wire 5 43, .wire 8 64),
     (.wire 8 7, .wire 8 65),
     (.wire 8 7, .wire 8 66),
-    (.wire 4 27, .wire 8 68),
-    (.virt 26462, .wire 8 69),
+    (.wire 5 43, .wire 8 68),
+    (.virt 86, .wire 8 69),
     (.wire 8 67, .wire 8 70),
-    (.wire 4 27, .wire 8 72),
+    (.wire 5 43, .wire 8 72),
     (.wire 8 15, .wire 8 73),
     (.wire 8 15, .wire 8 74),
-    (.wire 4 27, .wire 8 76),
-    (.virt 26463, .wire 8 77),
+    (.wire 5 43, .wire 8 76),
+    (.virt 87, .wire 8 77),
     (.wire 8 75, .wire 8 78),
-    (.wire 4 27, .wire 9 0),
+    (.wire 5 43, .wire 9 0),
     (.wire 8 23, .wire 9 1),
     (.wire 8 23, .wire 9 2),
-    (.wire 4 27, .wire 9 4),
-    (.virt 26464, .wire 9 5),
+    (.wire 5 43, .wire 9 4),
+    (.virt 88, .wire 9 5),
     (.wire 9 3, .wire 9 6),
-    (.wire 4 27, .wire 9 8),
+    (.wire 5 43, .wire 9 8),
     (.wire 8 31, .wire 9 9),
     (.wire 8 31, .wire 9 10),
-    (.wire 4 27, .wire 9 12),
-    (.virt 26465, .wire 9 13),
+    (.wire 5 43, .wire 9 12),
+    (.virt 89, .wire 9 13),
     (.wire 9 11, .wire 9 14),
-    (.wire 4 27, .wire 9 16),
+    (.wire 5 43, .wire 9 16),
     (.wire 8 39, .wire 9 17),
     (.wire 8 39, .wire 9 18),
-    (.wire 4 27, .wire 9 20),
-    (.virt 26459, .wire 9 21),
+    (.wire 5 43, .wire 9 20),
+    (.virt 83, .wire 9 21),
     (.wire 9 19, .wire 9 22),
-    (.wire 4 27, .wire 9 24)
+    (.wire 5 43, .wire 9 24)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `448..480`. -/
 def publicBatchWrapper4.copies14 : List (Target × Target) := [
     (.wire 8 47, .wire 9 25),
     (.wire 8 47, .wire 9 26),
-    (.wire 4 27, .wire 9 28),
-    (.virt 26460, .wire 9 29),
+    (.wire 5 43, .wire 9 28),
+    (.virt 84, .wire 9 29),
     (.wire 9 27, .wire 9 30),
-    (.wire 7 7, .wire 6 8),
-    (.wire 8 51, .wire 6 9),
-    (.wire 7 7, .wire 6 10),
-    (.wire 6 11, .wire 7 8),
-    (.virt 26488, .wire 7 9),
-    (.wire 8 51, .wire 7 10),
-    (.virt 26488, .wire 9 32),
-    (.virt 26488, .wire 9 33),
-    (.virt 26523, .wire 9 34),
-    (.virt 6596, .wire 9 36),
-    (.virt 26488, .wire 9 37),
+    (.wire 0 55, .wire 7 8),
+    (.wire 8 51, .wire 7 9),
+    (.wire 0 55, .wire 7 10),
+    (.wire 7 11, .wire 0 56),
+    (.virt 27, .wire 0 57),
+    (.wire 8 51, .wire 0 58),
+    (.virt 27, .wire 9 32),
+    (.virt 27, .wire 9 33),
+    (.virt 144, .wire 9 34),
+    (.virt 1, .wire 9 36),
+    (.virt 27, .wire 9 37),
     (.wire 9 23, .wire 9 38),
-    (.virt 26523, .wire 4 28),
-    (.wire 9 39, .wire 4 29),
-    (.virt 26523, .wire 4 30),
-    (.wire 9 39, .wire 4 32),
-    (.virt 26524, .wire 4 33),
-    (.wire 9 39, .wire 4 34),
-    (.wire 4 35, .wire 9 40),
-    (.virt 26488, .wire 9 41),
+    (.virt 144, .wire 5 44),
+    (.wire 9 39, .wire 5 45),
+    (.virt 144, .wire 5 46),
+    (.wire 9 39, .wire 5 48),
+    (.virt 145, .wire 5 49),
+    (.wire 9 39, .wire 5 50),
+    (.wire 5 51, .wire 9 40),
+    (.virt 27, .wire 9 41),
     (.wire 9 35, .wire 9 42),
-    (.wire 4 31, .virt 26489),
-    (.wire 9 43, .virt 26489),
-    (.wire 1 43, .wire 6 12),
-    (.virt 26523, .wire 6 13),
-    (.wire 1 43, .wire 6 14),
-    (.wire 6 15, .wire 7 12)
+    (.wire 5 47, .virt 26),
+    (.wire 9 43, .virt 26),
+    (.wire 1 59, .wire 7 12),
+    (.virt 144, .wire 7 13),
+    (.wire 1 59, .wire 7 14),
+    (.wire 7 15, .wire 0 60)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `480..512`. -/
 def publicBatchWrapper4.copies15 : List (Target × Target) := [
-    (.virt 26488, .wire 7 13),
-    (.virt 26523, .wire 7 14),
-    (.wire 7 15, .virt 26488),
-    (.virt 26488, .wire 9 44),
-    (.virt 26488, .wire 9 45),
-    (.virt 26525, .wire 9 46),
-    (.virt 6597, .wire 9 48),
-    (.virt 26488, .wire 9 49),
+    (.virt 27, .wire 0 61),
+    (.virt 144, .wire 0 62),
+    (.wire 0 63, .virt 27),
+    (.virt 27, .wire 9 44),
+    (.virt 27, .wire 9 45),
+    (.virt 146, .wire 9 46),
+    (.virt 2, .wire 9 48),
+    (.virt 27, .wire 9 49),
     (.wire 9 31, .wire 9 50),
-    (.virt 26525, .wire 4 36),
-    (.wire 9 51, .wire 4 37),
-    (.virt 26525, .wire 4 38),
-    (.wire 9 51, .wire 4 40),
-    (.virt 26526, .wire 4 41),
-    (.wire 9 51, .wire 4 42),
-    (.wire 4 43, .wire 9 52),
-    (.virt 26488, .wire 9 53),
+    (.virt 146, .wire 5 52),
+    (.wire 9 51, .wire 5 53),
+    (.virt 146, .wire 5 54),
+    (.wire 9 51, .wire 5 56),
+    (.virt 147, .wire 5 57),
+    (.wire 9 51, .wire 5 58),
+    (.wire 5 59, .wire 9 52),
+    (.virt 27, .wire 9 53),
     (.wire 9 47, .wire 9 54),
-    (.wire 4 39, .virt 26489),
-    (.wire 9 55, .virt 26489),
-    (.wire 1 43, .wire 6 16),
-    (.virt 26525, .wire 6 17),
-    (.wire 1 43, .wire 6 18),
-    (.wire 6 19, .wire 7 16),
-    (.virt 26488, .wire 7 17),
-    (.virt 26525, .wire 7 18),
-    (.wire 7 19, .virt 26488),
-    (.virt 26488, .wire 9 56),
-    (.virt 26488, .wire 9 57),
-    (.virt 26527, .wire 9 58),
-    (.virt 6598, .wire 9 60),
-    (.virt 26488, .wire 9 61)
+    (.wire 5 55, .virt 26),
+    (.wire 9 55, .virt 26),
+    (.wire 1 59, .wire 7 16),
+    (.virt 146, .wire 7 17),
+    (.wire 1 59, .wire 7 18),
+    (.wire 7 19, .wire 0 64),
+    (.virt 27, .wire 0 65),
+    (.virt 146, .wire 0 66),
+    (.wire 0 67, .virt 27),
+    (.virt 27, .wire 9 56),
+    (.virt 27, .wire 9 57),
+    (.virt 148, .wire 9 58),
+    (.virt 3, .wire 9 60),
+    (.virt 27, .wire 9 61)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `512..544`. -/
 def publicBatchWrapper4.copies16 : List (Target × Target) := [
     (.wire 8 63, .wire 9 62),
-    (.virt 26527, .wire 4 44),
-    (.wire 9 63, .wire 4 45),
-    (.virt 26527, .wire 4 46),
-    (.wire 9 63, .wire 4 48),
-    (.virt 26528, .wire 4 49),
-    (.wire 9 63, .wire 4 50),
-    (.wire 4 51, .wire 9 64),
-    (.virt 26488, .wire 9 65),
+    (.virt 148, .wire 5 60),
+    (.wire 9 63, .wire 5 61),
+    (.virt 148, .wire 5 62),
+    (.wire 9 63, .wire 5 64),
+    (.virt 149, .wire 5 65),
+    (.wire 9 63, .wire 5 66),
+    (.wire 5 67, .wire 9 64),
+    (.virt 27, .wire 9 65),
     (.wire 9 59, .wire 9 66),
-    (.wire 4 47, .virt 26489),
-    (.wire 9 67, .virt 26489),
-    (.virt 26488, .wire 9 68),
-    (.virt 26488, .wire 9 69),
-    (.virt 26529, .wire 9 70),
-    (.virt 6599, .wire 9 72),
-    (.virt 26488, .wire 9 73),
+    (.wire 5 63, .virt 26),
+    (.wire 9 67, .virt 26),
+    (.virt 27, .wire 9 68),
+    (.virt 27, .wire 9 69),
+    (.virt 150, .wire 9 70),
+    (.virt 4, .wire 9 72),
+    (.virt 27, .wire 9 73),
     (.wire 8 71, .wire 9 74),
-    (.virt 26529, .wire 4 52),
-    (.wire 9 75, .wire 4 53),
-    (.virt 26529, .wire 4 54),
-    (.wire 9 75, .wire 4 56),
-    (.virt 26530, .wire 4 57),
-    (.wire 9 75, .wire 4 58),
-    (.wire 4 59, .wire 9 76),
-    (.virt 26488, .wire 9 77),
+    (.virt 150, .wire 5 68),
+    (.wire 9 75, .wire 5 69),
+    (.virt 150, .wire 5 70),
+    (.wire 9 75, .wire 5 72),
+    (.virt 151, .wire 5 73),
+    (.wire 9 75, .wire 5 74),
+    (.wire 5 75, .wire 9 76),
+    (.virt 27, .wire 9 77),
     (.wire 9 71, .wire 9 78),
-    (.wire 4 55, .virt 26489),
-    (.wire 9 79, .virt 26489),
-    (.virt 26488, .wire 10 0),
-    (.virt 26488, .wire 10 1),
-    (.virt 26531, .wire 10 2)
+    (.wire 5 71, .virt 26),
+    (.wire 9 79, .virt 26),
+    (.virt 27, .wire 10 0),
+    (.virt 27, .wire 10 1),
+    (.virt 152, .wire 10 2)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `544..576`. -/
 def publicBatchWrapper4.copies17 : List (Target × Target) := [
-    (.virt 6600, .wire 10 4),
-    (.virt 26488, .wire 10 5),
+    (.virt 5, .wire 10 4),
+    (.virt 27, .wire 10 5),
     (.wire 8 79, .wire 10 6),
-    (.virt 26531, .wire 4 60),
-    (.wire 10 7, .wire 4 61),
-    (.virt 26531, .wire 4 62),
-    (.wire 10 7, .wire 4 64),
-    (.virt 26532, .wire 4 65),
-    (.wire 10 7, .wire 4 66),
-    (.wire 4 67, .wire 10 8),
-    (.virt 26488, .wire 10 9),
+    (.virt 152, .wire 5 76),
+    (.wire 10 7, .wire 5 77),
+    (.virt 152, .wire 5 78),
+    (.wire 10 7, .wire 11 0),
+    (.virt 153, .wire 11 1),
+    (.wire 10 7, .wire 11 2),
+    (.wire 11 3, .wire 10 8),
+    (.virt 27, .wire 10 9),
     (.wire 10 3, .wire 10 10),
-    (.wire 4 63, .virt 26489),
-    (.wire 10 11, .virt 26489),
-    (.virt 26488, .wire 10 12),
-    (.virt 26488, .wire 10 13),
-    (.virt 26533, .wire 10 14),
-    (.virt 6601, .wire 10 16),
-    (.virt 26488, .wire 10 17),
+    (.wire 5 79, .virt 26),
+    (.wire 10 11, .virt 26),
+    (.virt 27, .wire 10 12),
+    (.virt 27, .wire 10 13),
+    (.virt 154, .wire 10 14),
+    (.virt 6, .wire 10 16),
+    (.virt 27, .wire 10 17),
     (.wire 9 7, .wire 10 18),
-    (.virt 26533, .wire 4 68),
-    (.wire 10 19, .wire 4 69),
-    (.virt 26533, .wire 4 70),
-    (.wire 10 19, .wire 4 72),
-    (.virt 26534, .wire 4 73),
-    (.wire 10 19, .wire 4 74),
-    (.wire 4 75, .wire 10 20),
-    (.virt 26488, .wire 10 21),
+    (.virt 154, .wire 11 4),
+    (.wire 10 19, .wire 11 5),
+    (.virt 154, .wire 11 6),
+    (.wire 10 19, .wire 11 8),
+    (.virt 155, .wire 11 9),
+    (.wire 10 19, .wire 11 10),
+    (.wire 11 11, .wire 10 20),
+    (.virt 27, .wire 10 21),
     (.wire 10 15, .wire 10 22),
-    (.wire 4 71, .virt 26489),
-    (.wire 10 23, .virt 26489),
-    (.virt 26527, .wire 4 76)
+    (.wire 11 7, .virt 26),
+    (.wire 10 23, .virt 26),
+    (.virt 148, .wire 11 12)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `576..608`. -/
 def publicBatchWrapper4.copies18 : List (Target × Target) := [
-    (.virt 26529, .wire 4 77),
-    (.virt 26527, .wire 4 78),
-    (.virt 26531, .wire 11 0),
-    (.virt 26533, .wire 11 1),
-    (.virt 26531, .wire 11 2),
-    (.wire 4 79, .wire 11 4),
-    (.wire 11 3, .wire 11 5),
-    (.wire 4 79, .wire 11 6),
-    (.wire 1 43, .wire 6 20),
-    (.wire 11 7, .wire 6 21),
-    (.wire 1 43, .wire 6 22),
-    (.wire 6 23, .wire 7 20),
-    (.virt 26488, .wire 7 21),
-    (.wire 11 7, .wire 7 22),
-    (.wire 7 23, .virt 26488),
-    (.virt 26488, .wire 10 24),
-    (.virt 26488, .wire 10 25),
-    (.virt 26535, .wire 10 26),
-    (.virt 13217, .wire 10 28),
-    (.virt 26488, .wire 10 29),
+    (.virt 150, .wire 11 13),
+    (.virt 148, .wire 11 14),
+    (.virt 152, .wire 11 16),
+    (.virt 154, .wire 11 17),
+    (.virt 152, .wire 11 18),
+    (.wire 11 15, .wire 11 20),
+    (.wire 11 19, .wire 11 21),
+    (.wire 11 15, .wire 11 22),
+    (.wire 1 59, .wire 7 20),
+    (.wire 11 23, .wire 7 21),
+    (.wire 1 59, .wire 7 22),
+    (.wire 7 23, .wire 0 68),
+    (.virt 27, .wire 0 69),
+    (.wire 11 23, .wire 0 70),
+    (.wire 0 71, .virt 27),
+    (.virt 27, .wire 10 24),
+    (.virt 27, .wire 10 25),
+    (.virt 156, .wire 10 26),
+    (.virt 31, .wire 10 28),
+    (.virt 27, .wire 10 29),
     (.wire 9 23, .wire 10 30),
-    (.virt 26535, .wire 11 8),
-    (.wire 10 31, .wire 11 9),
-    (.virt 26535, .wire 11 10),
-    (.wire 10 31, .wire 11 12),
-    (.virt 26536, .wire 11 13),
-    (.wire 10 31, .wire 11 14),
-    (.wire 11 15, .wire 10 32),
-    (.virt 26488, .wire 10 33),
+    (.virt 156, .wire 11 24),
+    (.wire 10 31, .wire 11 25),
+    (.virt 156, .wire 11 26),
+    (.wire 10 31, .wire 11 28),
+    (.virt 157, .wire 11 29),
+    (.wire 10 31, .wire 11 30),
+    (.wire 11 31, .wire 10 32),
+    (.virt 27, .wire 10 33),
     (.wire 10 27, .wire 10 34),
-    (.wire 11 11, .virt 26489),
-    (.wire 10 35, .virt 26489)
+    (.wire 11 27, .virt 26),
+    (.wire 10 35, .virt 26)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `608..640`. -/
 def publicBatchWrapper4.copies19 : List (Target × Target) := [
-    (.wire 2 7, .wire 6 24),
-    (.virt 26535, .wire 6 25),
-    (.wire 2 7, .wire 6 26),
-    (.wire 6 27, .wire 7 24),
-    (.virt 26488, .wire 7 25),
-    (.virt 26535, .wire 7 26),
-    (.wire 7 27, .virt 26488),
-    (.virt 26488, .wire 10 36),
-    (.virt 26488, .wire 10 37),
-    (.virt 26537, .wire 10 38),
-    (.virt 13218, .wire 10 40),
-    (.virt 26488, .wire 10 41),
+    (.wire 3 23, .wire 7 24),
+    (.virt 156, .wire 7 25),
+    (.wire 3 23, .wire 7 26),
+    (.wire 7 27, .wire 0 72),
+    (.virt 27, .wire 0 73),
+    (.virt 156, .wire 0 74),
+    (.wire 0 75, .virt 27),
+    (.virt 27, .wire 10 36),
+    (.virt 27, .wire 10 37),
+    (.virt 158, .wire 10 38),
+    (.virt 32, .wire 10 40),
+    (.virt 27, .wire 10 41),
     (.wire 9 31, .wire 10 42),
-    (.virt 26537, .wire 11 16),
-    (.wire 10 43, .wire 11 17),
-    (.virt 26537, .wire 11 18),
-    (.wire 10 43, .wire 11 20),
-    (.virt 26538, .wire 11 21),
-    (.wire 10 43, .wire 11 22),
-    (.wire 11 23, .wire 10 44),
-    (.virt 26488, .wire 10 45),
+    (.virt 158, .wire 11 32),
+    (.wire 10 43, .wire 11 33),
+    (.virt 158, .wire 11 34),
+    (.wire 10 43, .wire 11 36),
+    (.virt 159, .wire 11 37),
+    (.wire 10 43, .wire 11 38),
+    (.wire 11 39, .wire 10 44),
+    (.virt 27, .wire 10 45),
     (.wire 10 39, .wire 10 46),
-    (.wire 11 19, .virt 26489),
-    (.wire 10 47, .virt 26489),
-    (.wire 2 7, .wire 6 28),
-    (.virt 26537, .wire 6 29),
-    (.wire 2 7, .wire 6 30),
-    (.wire 6 31, .wire 7 28),
-    (.virt 26488, .wire 7 29),
-    (.virt 26537, .wire 7 30),
-    (.wire 7 31, .virt 26488),
-    (.virt 26488, .wire 10 48)
+    (.wire 11 35, .virt 26),
+    (.wire 10 47, .virt 26),
+    (.wire 3 23, .wire 7 28),
+    (.virt 158, .wire 7 29),
+    (.wire 3 23, .wire 7 30),
+    (.wire 7 31, .wire 0 76),
+    (.virt 27, .wire 0 77),
+    (.virt 158, .wire 0 78),
+    (.wire 0 79, .virt 27),
+    (.virt 27, .wire 10 48)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `640..672`. -/
 def publicBatchWrapper4.copies20 : List (Target × Target) := [
-    (.virt 26488, .wire 10 49),
-    (.virt 26539, .wire 10 50),
-    (.virt 13219, .wire 10 52),
-    (.virt 26488, .wire 10 53),
+    (.virt 27, .wire 10 49),
+    (.virt 160, .wire 10 50),
+    (.virt 33, .wire 10 52),
+    (.virt 27, .wire 10 53),
     (.wire 8 63, .wire 10 54),
-    (.virt 26539, .wire 11 24),
-    (.wire 10 55, .wire 11 25),
-    (.virt 26539, .wire 11 26),
-    (.wire 10 55, .wire 11 28),
-    (.virt 26540, .wire 11 29),
-    (.wire 10 55, .wire 11 30),
-    (.wire 11 31, .wire 10 56),
-    (.virt 26488, .wire 10 57),
+    (.virt 160, .wire 11 40),
+    (.wire 10 55, .wire 11 41),
+    (.virt 160, .wire 11 42),
+    (.wire 10 55, .wire 11 44),
+    (.virt 161, .wire 11 45),
+    (.wire 10 55, .wire 11 46),
+    (.wire 11 47, .wire 10 56),
+    (.virt 27, .wire 10 57),
     (.wire 10 51, .wire 10 58),
-    (.wire 11 27, .virt 26489),
-    (.wire 10 59, .virt 26489),
-    (.virt 26488, .wire 10 60),
-    (.virt 26488, .wire 10 61),
-    (.virt 26541, .wire 10 62),
-    (.virt 13220, .wire 10 64),
-    (.virt 26488, .wire 10 65),
+    (.wire 11 43, .virt 26),
+    (.wire 10 59, .virt 26),
+    (.virt 27, .wire 10 60),
+    (.virt 27, .wire 10 61),
+    (.virt 162, .wire 10 62),
+    (.virt 34, .wire 10 64),
+    (.virt 27, .wire 10 65),
     (.wire 8 71, .wire 10 66),
-    (.virt 26541, .wire 11 32),
-    (.wire 10 67, .wire 11 33),
-    (.virt 26541, .wire 11 34),
-    (.wire 10 67, .wire 11 36),
-    (.virt 26542, .wire 11 37),
-    (.wire 10 67, .wire 11 38),
-    (.wire 11 39, .wire 10 68),
-    (.virt 26488, .wire 10 69),
+    (.virt 162, .wire 11 48),
+    (.wire 10 67, .wire 11 49),
+    (.virt 162, .wire 11 50),
+    (.wire 10 67, .wire 11 52),
+    (.virt 163, .wire 11 53),
+    (.wire 10 67, .wire 11 54),
+    (.wire 11 55, .wire 10 68),
+    (.virt 27, .wire 10 69),
     (.wire 10 63, .wire 10 70),
-    (.wire 11 35, .virt 26489)
+    (.wire 11 51, .virt 26)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `672..704`. -/
 def publicBatchWrapper4.copies21 : List (Target × Target) := [
-    (.wire 10 71, .virt 26489),
-    (.virt 26488, .wire 10 72),
-    (.virt 26488, .wire 10 73),
-    (.virt 26543, .wire 10 74),
-    (.virt 13221, .wire 10 76),
-    (.virt 26488, .wire 10 77),
+    (.wire 10 71, .virt 26),
+    (.virt 27, .wire 10 72),
+    (.virt 27, .wire 10 73),
+    (.virt 164, .wire 10 74),
+    (.virt 35, .wire 10 76),
+    (.virt 27, .wire 10 77),
     (.wire 8 79, .wire 10 78),
-    (.virt 26543, .wire 11 40),
-    (.wire 10 79, .wire 11 41),
-    (.virt 26543, .wire 11 42),
-    (.wire 10 79, .wire 11 44),
-    (.virt 26544, .wire 11 45),
-    (.wire 10 79, .wire 11 46),
-    (.wire 11 47, .wire 12 0),
-    (.virt 26488, .wire 12 1),
+    (.virt 164, .wire 11 56),
+    (.wire 10 79, .wire 11 57),
+    (.virt 164, .wire 11 58),
+    (.wire 10 79, .wire 11 60),
+    (.virt 165, .wire 11 61),
+    (.wire 10 79, .wire 11 62),
+    (.wire 11 63, .wire 12 0),
+    (.virt 27, .wire 12 1),
     (.wire 10 75, .wire 12 2),
-    (.wire 11 43, .virt 26489),
-    (.wire 12 3, .virt 26489),
-    (.virt 26488, .wire 12 4),
-    (.virt 26488, .wire 12 5),
-    (.virt 26545, .wire 12 6),
-    (.virt 13222, .wire 12 8),
-    (.virt 26488, .wire 12 9),
+    (.wire 11 59, .virt 26),
+    (.wire 12 3, .virt 26),
+    (.virt 27, .wire 12 4),
+    (.virt 27, .wire 12 5),
+    (.virt 166, .wire 12 6),
+    (.virt 36, .wire 12 8),
+    (.virt 27, .wire 12 9),
     (.wire 9 7, .wire 12 10),
-    (.virt 26545, .wire 11 48),
-    (.wire 12 11, .wire 11 49),
-    (.virt 26545, .wire 11 50),
-    (.wire 12 11, .wire 11 52),
-    (.virt 26546, .wire 11 53),
-    (.wire 12 11, .wire 11 54),
-    (.wire 11 55, .wire 12 12),
-    (.virt 26488, .wire 12 13)
+    (.virt 166, .wire 11 64),
+    (.wire 12 11, .wire 11 65),
+    (.virt 166, .wire 11 66),
+    (.wire 12 11, .wire 11 68),
+    (.virt 167, .wire 11 69),
+    (.wire 12 11, .wire 11 70),
+    (.wire 11 71, .wire 12 12),
+    (.virt 27, .wire 12 13)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `704..736`. -/
 def publicBatchWrapper4.copies22 : List (Target × Target) := [
     (.wire 12 7, .wire 12 14),
-    (.wire 11 51, .virt 26489),
-    (.wire 12 15, .virt 26489),
-    (.virt 26539, .wire 11 56),
-    (.virt 26541, .wire 11 57),
-    (.virt 26539, .wire 11 58),
-    (.virt 26543, .wire 11 60),
-    (.virt 26545, .wire 11 61),
-    (.virt 26543, .wire 11 62),
-    (.wire 11 59, .wire 11 64),
-    (.wire 11 63, .wire 11 65),
-    (.wire 11 59, .wire 11 66),
-    (.wire 2 7, .wire 6 32),
-    (.wire 11 67, .wire 6 33),
-    (.wire 2 7, .wire 6 34),
-    (.wire 6 35, .wire 7 32),
-    (.virt 26488, .wire 7 33),
-    (.wire 11 67, .wire 7 34),
-    (.wire 7 35, .virt 26488),
-    (.virt 26488, .wire 12 16),
-    (.virt 26488, .wire 12 17),
-    (.virt 26547, .wire 12 18),
-    (.virt 19838, .wire 12 20),
-    (.virt 26488, .wire 12 21),
+    (.wire 11 67, .virt 26),
+    (.wire 12 15, .virt 26),
+    (.virt 160, .wire 11 72),
+    (.virt 162, .wire 11 73),
+    (.virt 160, .wire 11 74),
+    (.virt 164, .wire 11 76),
+    (.virt 166, .wire 11 77),
+    (.virt 164, .wire 11 78),
+    (.wire 11 75, .wire 13 0),
+    (.wire 11 79, .wire 13 1),
+    (.wire 11 75, .wire 13 2),
+    (.wire 3 23, .wire 7 32),
+    (.wire 13 3, .wire 7 33),
+    (.wire 3 23, .wire 7 34),
+    (.wire 7 35, .wire 14 0),
+    (.virt 27, .wire 14 1),
+    (.wire 13 3, .wire 14 2),
+    (.wire 14 3, .virt 27),
+    (.virt 27, .wire 12 16),
+    (.virt 27, .wire 12 17),
+    (.virt 168, .wire 12 18),
+    (.virt 57, .wire 12 20),
+    (.virt 27, .wire 12 21),
     (.wire 9 23, .wire 12 22),
-    (.virt 26547, .wire 11 68),
-    (.wire 12 23, .wire 11 69),
-    (.virt 26547, .wire 11 70),
-    (.wire 12 23, .wire 11 72),
-    (.virt 26548, .wire 11 73),
-    (.wire 12 23, .wire 11 74),
-    (.wire 11 75, .wire 12 24)
+    (.virt 168, .wire 13 4),
+    (.wire 12 23, .wire 13 5),
+    (.virt 168, .wire 13 6),
+    (.wire 12 23, .wire 13 8),
+    (.virt 169, .wire 13 9),
+    (.wire 12 23, .wire 13 10),
+    (.wire 13 11, .wire 12 24)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `736..768`. -/
 def publicBatchWrapper4.copies23 : List (Target × Target) := [
-    (.virt 26488, .wire 12 25),
+    (.virt 27, .wire 12 25),
     (.wire 12 19, .wire 12 26),
-    (.wire 11 71, .virt 26489),
-    (.wire 12 27, .virt 26489),
-    (.wire 2 51, .wire 6 36),
-    (.virt 26547, .wire 6 37),
-    (.wire 2 51, .wire 6 38),
-    (.wire 6 39, .wire 7 36),
-    (.virt 26488, .wire 7 37),
-    (.virt 26547, .wire 7 38),
-    (.wire 7 39, .virt 26488),
-    (.virt 26488, .wire 12 28),
-    (.virt 26488, .wire 12 29),
-    (.virt 26549, .wire 12 30),
-    (.virt 19839, .wire 12 32),
-    (.virt 26488, .wire 12 33),
+    (.wire 13 7, .virt 26),
+    (.wire 12 27, .virt 26),
+    (.wire 3 67, .wire 7 36),
+    (.virt 168, .wire 7 37),
+    (.wire 3 67, .wire 7 38),
+    (.wire 7 39, .wire 14 4),
+    (.virt 27, .wire 14 5),
+    (.virt 168, .wire 14 6),
+    (.wire 14 7, .virt 27),
+    (.virt 27, .wire 12 28),
+    (.virt 27, .wire 12 29),
+    (.virt 170, .wire 12 30),
+    (.virt 58, .wire 12 32),
+    (.virt 27, .wire 12 33),
     (.wire 9 31, .wire 12 34),
-    (.virt 26549, .wire 11 76),
-    (.wire 12 35, .wire 11 77),
-    (.virt 26549, .wire 11 78),
-    (.wire 12 35, .wire 13 0),
-    (.virt 26550, .wire 13 1),
-    (.wire 12 35, .wire 13 2),
-    (.wire 13 3, .wire 12 36),
-    (.virt 26488, .wire 12 37),
+    (.virt 170, .wire 13 12),
+    (.wire 12 35, .wire 13 13),
+    (.virt 170, .wire 13 14),
+    (.wire 12 35, .wire 13 16),
+    (.virt 171, .wire 13 17),
+    (.wire 12 35, .wire 13 18),
+    (.wire 13 19, .wire 12 36),
+    (.virt 27, .wire 12 37),
     (.wire 12 31, .wire 12 38),
-    (.wire 11 79, .virt 26489),
-    (.wire 12 39, .virt 26489),
-    (.wire 2 51, .wire 6 40),
-    (.virt 26549, .wire 6 41),
-    (.wire 2 51, .wire 6 42),
-    (.wire 6 43, .wire 7 40)
+    (.wire 13 15, .virt 26),
+    (.wire 12 39, .virt 26),
+    (.wire 3 67, .wire 7 40),
+    (.virt 170, .wire 7 41),
+    (.wire 3 67, .wire 7 42),
+    (.wire 7 43, .wire 14 8)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `768..800`. -/
 def publicBatchWrapper4.copies24 : List (Target × Target) := [
-    (.virt 26488, .wire 7 41),
-    (.virt 26549, .wire 7 42),
-    (.wire 7 43, .virt 26488),
-    (.virt 26488, .wire 12 40),
-    (.virt 26488, .wire 12 41),
-    (.virt 26551, .wire 12 42),
-    (.virt 19840, .wire 12 44),
-    (.virt 26488, .wire 12 45),
+    (.virt 27, .wire 14 9),
+    (.virt 170, .wire 14 10),
+    (.wire 14 11, .virt 27),
+    (.virt 27, .wire 12 40),
+    (.virt 27, .wire 12 41),
+    (.virt 172, .wire 12 42),
+    (.virt 59, .wire 12 44),
+    (.virt 27, .wire 12 45),
     (.wire 8 63, .wire 12 46),
-    (.virt 26551, .wire 13 4),
-    (.wire 12 47, .wire 13 5),
-    (.virt 26551, .wire 13 6),
-    (.wire 12 47, .wire 13 8),
-    (.virt 26552, .wire 13 9),
-    (.wire 12 47, .wire 13 10),
-    (.wire 13 11, .wire 12 48),
-    (.virt 26488, .wire 12 49),
+    (.virt 172, .wire 13 20),
+    (.wire 12 47, .wire 13 21),
+    (.virt 172, .wire 13 22),
+    (.wire 12 47, .wire 13 24),
+    (.virt 173, .wire 13 25),
+    (.wire 12 47, .wire 13 26),
+    (.wire 13 27, .wire 12 48),
+    (.virt 27, .wire 12 49),
     (.wire 12 43, .wire 12 50),
-    (.wire 13 7, .virt 26489),
-    (.wire 12 51, .virt 26489),
-    (.virt 26488, .wire 12 52),
-    (.virt 26488, .wire 12 53),
-    (.virt 26553, .wire 12 54),
-    (.virt 19841, .wire 12 56),
-    (.virt 26488, .wire 12 57),
+    (.wire 13 23, .virt 26),
+    (.wire 12 51, .virt 26),
+    (.virt 27, .wire 12 52),
+    (.virt 27, .wire 12 53),
+    (.virt 174, .wire 12 54),
+    (.virt 60, .wire 12 56),
+    (.virt 27, .wire 12 57),
     (.wire 8 71, .wire 12 58),
-    (.virt 26553, .wire 13 12),
-    (.wire 12 59, .wire 13 13),
-    (.virt 26553, .wire 13 14),
-    (.wire 12 59, .wire 13 16),
-    (.virt 26554, .wire 13 17),
-    (.wire 12 59, .wire 13 18)
+    (.virt 174, .wire 13 28),
+    (.wire 12 59, .wire 13 29),
+    (.virt 174, .wire 13 30),
+    (.wire 12 59, .wire 13 32),
+    (.virt 175, .wire 13 33),
+    (.wire 12 59, .wire 13 34)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `800..832`. -/
 def publicBatchWrapper4.copies25 : List (Target × Target) := [
-    (.wire 13 19, .wire 12 60),
-    (.virt 26488, .wire 12 61),
+    (.wire 13 35, .wire 12 60),
+    (.virt 27, .wire 12 61),
     (.wire 12 55, .wire 12 62),
-    (.wire 13 15, .virt 26489),
-    (.wire 12 63, .virt 26489),
-    (.virt 26488, .wire 12 64),
-    (.virt 26488, .wire 12 65),
-    (.virt 26555, .wire 12 66),
-    (.virt 19842, .wire 12 68),
-    (.virt 26488, .wire 12 69),
+    (.wire 13 31, .virt 26),
+    (.wire 12 63, .virt 26),
+    (.virt 27, .wire 12 64),
+    (.virt 27, .wire 12 65),
+    (.virt 176, .wire 12 66),
+    (.virt 61, .wire 12 68),
+    (.virt 27, .wire 12 69),
     (.wire 8 79, .wire 12 70),
-    (.virt 26555, .wire 13 20),
-    (.wire 12 71, .wire 13 21),
-    (.virt 26555, .wire 13 22),
-    (.wire 12 71, .wire 13 24),
-    (.virt 26556, .wire 13 25),
-    (.wire 12 71, .wire 13 26),
-    (.wire 13 27, .wire 12 72),
-    (.virt 26488, .wire 12 73),
+    (.virt 176, .wire 13 36),
+    (.wire 12 71, .wire 13 37),
+    (.virt 176, .wire 13 38),
+    (.wire 12 71, .wire 13 40),
+    (.virt 177, .wire 13 41),
+    (.wire 12 71, .wire 13 42),
+    (.wire 13 43, .wire 12 72),
+    (.virt 27, .wire 12 73),
     (.wire 12 67, .wire 12 74),
-    (.wire 13 23, .virt 26489),
-    (.wire 12 75, .virt 26489),
-    (.virt 26488, .wire 12 76),
-    (.virt 26488, .wire 12 77),
-    (.virt 26557, .wire 12 78),
-    (.virt 19843, .wire 14 0),
-    (.virt 26488, .wire 14 1),
-    (.wire 9 7, .wire 14 2),
-    (.virt 26557, .wire 13 28),
-    (.wire 14 3, .wire 13 29),
-    (.virt 26557, .wire 13 30),
-    (.wire 14 3, .wire 13 32)
+    (.wire 13 39, .virt 26),
+    (.wire 12 75, .virt 26),
+    (.virt 27, .wire 12 76),
+    (.virt 27, .wire 12 77),
+    (.virt 178, .wire 12 78),
+    (.virt 62, .wire 15 0),
+    (.virt 27, .wire 15 1),
+    (.wire 9 7, .wire 15 2),
+    (.virt 178, .wire 13 44),
+    (.wire 15 3, .wire 13 45),
+    (.virt 178, .wire 13 46),
+    (.wire 15 3, .wire 13 48)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `832..864`. -/
 def publicBatchWrapper4.copies26 : List (Target × Target) := [
-    (.virt 26558, .wire 13 33),
-    (.wire 14 3, .wire 13 34),
-    (.wire 13 35, .wire 14 4),
-    (.virt 26488, .wire 14 5),
-    (.wire 12 79, .wire 14 6),
-    (.wire 13 31, .virt 26489),
-    (.wire 14 7, .virt 26489),
-    (.virt 26551, .wire 13 36),
-    (.virt 26553, .wire 13 37),
-    (.virt 26551, .wire 13 38),
-    (.virt 26555, .wire 13 40),
-    (.virt 26557, .wire 13 41),
-    (.virt 26555, .wire 13 42),
-    (.wire 13 39, .wire 13 44),
-    (.wire 13 43, .wire 13 45),
-    (.wire 13 39, .wire 13 46),
-    (.wire 2 51, .wire 6 44),
-    (.wire 13 47, .wire 6 45),
-    (.wire 2 51, .wire 6 46),
-    (.wire 6 47, .wire 7 44),
-    (.virt 26488, .wire 7 45),
-    (.wire 13 47, .wire 7 46),
-    (.wire 7 47, .virt 26488),
-    (.virt 26488, .wire 14 8),
-    (.virt 26488, .wire 14 9),
-    (.virt 26559, .wire 14 10),
-    (.virt 26459, .wire 14 12),
-    (.virt 26488, .wire 14 13),
-    (.wire 9 23, .wire 14 14),
-    (.virt 26559, .wire 13 48),
-    (.wire 14 15, .wire 13 49),
-    (.virt 26559, .wire 13 50)
+    (.virt 179, .wire 13 49),
+    (.wire 15 3, .wire 13 50),
+    (.wire 13 51, .wire 15 4),
+    (.virt 27, .wire 15 5),
+    (.wire 12 79, .wire 15 6),
+    (.wire 13 47, .virt 26),
+    (.wire 15 7, .virt 26),
+    (.virt 172, .wire 13 52),
+    (.virt 174, .wire 13 53),
+    (.virt 172, .wire 13 54),
+    (.virt 176, .wire 13 56),
+    (.virt 178, .wire 13 57),
+    (.virt 176, .wire 13 58),
+    (.wire 13 55, .wire 13 60),
+    (.wire 13 59, .wire 13 61),
+    (.wire 13 55, .wire 13 62),
+    (.wire 3 67, .wire 7 44),
+    (.wire 13 63, .wire 7 45),
+    (.wire 3 67, .wire 7 46),
+    (.wire 7 47, .wire 14 12),
+    (.virt 27, .wire 14 13),
+    (.wire 13 63, .wire 14 14),
+    (.wire 14 15, .virt 27),
+    (.virt 27, .wire 15 8),
+    (.virt 27, .wire 15 9),
+    (.virt 180, .wire 15 10),
+    (.virt 83, .wire 15 12),
+    (.virt 27, .wire 15 13),
+    (.wire 9 23, .wire 15 14),
+    (.virt 180, .wire 13 64),
+    (.wire 15 15, .wire 13 65),
+    (.virt 180, .wire 13 66)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `864..896`. -/
 def publicBatchWrapper4.copies27 : List (Target × Target) := [
-    (.wire 14 15, .wire 13 52),
-    (.virt 26560, .wire 13 53),
-    (.wire 14 15, .wire 13 54),
-    (.wire 13 55, .wire 14 16),
-    (.virt 26488, .wire 14 17),
-    (.wire 14 11, .wire 14 18),
-    (.wire 13 51, .virt 26489),
-    (.wire 14 19, .virt 26489),
-    (.wire 4 15, .wire 6 48),
-    (.virt 26559, .wire 6 49),
-    (.wire 4 15, .wire 6 50),
-    (.wire 6 51, .wire 7 48),
-    (.virt 26488, .wire 7 49),
-    (.virt 26559, .wire 7 50),
-    (.wire 7 51, .virt 26488),
-    (.virt 26488, .wire 14 20),
-    (.virt 26488, .wire 14 21),
-    (.virt 26561, .wire 14 22),
-    (.virt 26460, .wire 14 24),
-    (.virt 26488, .wire 14 25),
-    (.wire 9 31, .wire 14 26),
-    (.virt 26561, .wire 13 56),
-    (.wire 14 27, .wire 13 57),
-    (.virt 26561, .wire 13 58),
-    (.wire 14 27, .wire 13 60),
-    (.virt 26562, .wire 13 61),
-    (.wire 14 27, .wire 13 62),
-    (.wire 13 63, .wire 14 28),
-    (.virt 26488, .wire 14 29),
-    (.wire 14 23, .wire 14 30),
-    (.wire 13 59, .virt 26489),
-    (.wire 14 31, .virt 26489)
+    (.wire 15 15, .wire 13 68),
+    (.virt 181, .wire 13 69),
+    (.wire 15 15, .wire 13 70),
+    (.wire 13 71, .wire 15 16),
+    (.virt 27, .wire 15 17),
+    (.wire 15 11, .wire 15 18),
+    (.wire 13 67, .virt 26),
+    (.wire 15 19, .virt 26),
+    (.wire 5 31, .wire 7 48),
+    (.virt 180, .wire 7 49),
+    (.wire 5 31, .wire 7 50),
+    (.wire 7 51, .wire 14 16),
+    (.virt 27, .wire 14 17),
+    (.virt 180, .wire 14 18),
+    (.wire 14 19, .virt 27),
+    (.virt 27, .wire 15 20),
+    (.virt 27, .wire 15 21),
+    (.virt 182, .wire 15 22),
+    (.virt 84, .wire 15 24),
+    (.virt 27, .wire 15 25),
+    (.wire 9 31, .wire 15 26),
+    (.virt 182, .wire 13 72),
+    (.wire 15 27, .wire 13 73),
+    (.virt 182, .wire 13 74),
+    (.wire 15 27, .wire 13 76),
+    (.virt 183, .wire 13 77),
+    (.wire 15 27, .wire 13 78),
+    (.wire 13 79, .wire 15 28),
+    (.virt 27, .wire 15 29),
+    (.wire 15 23, .wire 15 30),
+    (.wire 13 75, .virt 26),
+    (.wire 15 31, .virt 26)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `896..928`. -/
 def publicBatchWrapper4.copies28 : List (Target × Target) := [
-    (.wire 4 15, .wire 6 52),
-    (.virt 26561, .wire 6 53),
-    (.wire 4 15, .wire 6 54),
-    (.wire 6 55, .wire 7 52),
-    (.virt 26488, .wire 7 53),
-    (.virt 26561, .wire 7 54),
-    (.wire 7 55, .virt 26488),
-    (.virt 26488, .wire 14 32),
-    (.virt 26488, .wire 14 33),
-    (.virt 26563, .wire 14 34),
-    (.virt 26461, .wire 14 36),
-    (.virt 26488, .wire 14 37),
-    (.wire 8 63, .wire 14 38),
-    (.virt 26563, .wire 13 64),
-    (.wire 14 39, .wire 13 65),
-    (.virt 26563, .wire 13 66),
-    (.wire 14 39, .wire 13 68),
-    (.virt 26564, .wire 13 69),
-    (.wire 14 39, .wire 13 70),
-    (.wire 13 71, .wire 14 40),
-    (.virt 26488, .wire 14 41),
-    (.wire 14 35, .wire 14 42),
-    (.wire 13 67, .virt 26489),
-    (.wire 14 43, .virt 26489),
-    (.virt 26488, .wire 14 44),
-    (.virt 26488, .wire 14 45),
-    (.virt 26565, .wire 14 46),
-    (.virt 26462, .wire 14 48),
-    (.virt 26488, .wire 14 49),
-    (.wire 8 71, .wire 14 50),
-    (.virt 26565, .wire 13 72),
-    (.wire 14 51, .wire 13 73)
+    (.wire 5 31, .wire 7 52),
+    (.virt 182, .wire 7 53),
+    (.wire 5 31, .wire 7 54),
+    (.wire 7 55, .wire 14 20),
+    (.virt 27, .wire 14 21),
+    (.virt 182, .wire 14 22),
+    (.wire 14 23, .virt 27),
+    (.virt 27, .wire 15 32),
+    (.virt 27, .wire 15 33),
+    (.virt 184, .wire 15 34),
+    (.virt 85, .wire 15 36),
+    (.virt 27, .wire 15 37),
+    (.wire 8 63, .wire 15 38),
+    (.virt 184, .wire 16 0),
+    (.wire 15 39, .wire 16 1),
+    (.virt 184, .wire 16 2),
+    (.wire 15 39, .wire 16 4),
+    (.virt 185, .wire 16 5),
+    (.wire 15 39, .wire 16 6),
+    (.wire 16 7, .wire 15 40),
+    (.virt 27, .wire 15 41),
+    (.wire 15 35, .wire 15 42),
+    (.wire 16 3, .virt 26),
+    (.wire 15 43, .virt 26),
+    (.virt 27, .wire 15 44),
+    (.virt 27, .wire 15 45),
+    (.virt 186, .wire 15 46),
+    (.virt 86, .wire 15 48),
+    (.virt 27, .wire 15 49),
+    (.wire 8 71, .wire 15 50),
+    (.virt 186, .wire 16 8),
+    (.wire 15 51, .wire 16 9)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `928..960`. -/
 def publicBatchWrapper4.copies29 : List (Target × Target) := [
-    (.virt 26565, .wire 13 74),
-    (.wire 14 51, .wire 13 76),
-    (.virt 26566, .wire 13 77),
-    (.wire 14 51, .wire 13 78),
-    (.wire 13 79, .wire 14 52),
-    (.virt 26488, .wire 14 53),
-    (.wire 14 47, .wire 14 54),
-    (.wire 13 75, .virt 26489),
-    (.wire 14 55, .virt 26489),
-    (.virt 26488, .wire 14 56),
-    (.virt 26488, .wire 14 57),
-    (.virt 26567, .wire 14 58),
-    (.virt 26463, .wire 14 60),
-    (.virt 26488, .wire 14 61),
-    (.wire 8 79, .wire 14 62),
-    (.virt 26567, .wire 15 0),
-    (.wire 14 63, .wire 15 1),
-    (.virt 26567, .wire 15 2),
-    (.wire 14 63, .wire 15 4),
-    (.virt 26568, .wire 15 5),
-    (.wire 14 63, .wire 15 6),
-    (.wire 15 7, .wire 14 64),
-    (.virt 26488, .wire 14 65),
-    (.wire 14 59, .wire 14 66),
-    (.wire 15 3, .virt 26489),
-    (.wire 14 67, .virt 26489),
-    (.virt 26488, .wire 14 68),
-    (.virt 26488, .wire 14 69),
-    (.virt 26569, .wire 14 70),
-    (.virt 26464, .wire 14 72),
-    (.virt 26488, .wire 14 73),
-    (.wire 9 7, .wire 14 74)
+    (.virt 186, .wire 16 10),
+    (.wire 15 51, .wire 16 12),
+    (.virt 187, .wire 16 13),
+    (.wire 15 51, .wire 16 14),
+    (.wire 16 15, .wire 15 52),
+    (.virt 27, .wire 15 53),
+    (.wire 15 47, .wire 15 54),
+    (.wire 16 11, .virt 26),
+    (.wire 15 55, .virt 26),
+    (.virt 27, .wire 15 56),
+    (.virt 27, .wire 15 57),
+    (.virt 188, .wire 15 58),
+    (.virt 87, .wire 15 60),
+    (.virt 27, .wire 15 61),
+    (.wire 8 79, .wire 15 62),
+    (.virt 188, .wire 16 16),
+    (.wire 15 63, .wire 16 17),
+    (.virt 188, .wire 16 18),
+    (.wire 15 63, .wire 16 20),
+    (.virt 189, .wire 16 21),
+    (.wire 15 63, .wire 16 22),
+    (.wire 16 23, .wire 15 64),
+    (.virt 27, .wire 15 65),
+    (.wire 15 59, .wire 15 66),
+    (.wire 16 19, .virt 26),
+    (.wire 15 67, .virt 26),
+    (.virt 27, .wire 15 68),
+    (.virt 27, .wire 15 69),
+    (.virt 190, .wire 15 70),
+    (.virt 88, .wire 15 72),
+    (.virt 27, .wire 15 73),
+    (.wire 9 7, .wire 15 74)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `960..992`. -/
 def publicBatchWrapper4.copies30 : List (Target × Target) := [
-    (.virt 26569, .wire 15 8),
-    (.wire 14 75, .wire 15 9),
-    (.virt 26569, .wire 15 10),
-    (.wire 14 75, .wire 15 12),
-    (.virt 26570, .wire 15 13),
-    (.wire 14 75, .wire 15 14),
-    (.wire 15 15, .wire 14 76),
-    (.virt 26488, .wire 14 77),
-    (.wire 14 71, .wire 14 78),
-    (.wire 15 11, .virt 26489),
-    (.wire 14 79, .virt 26489),
-    (.virt 26563, .wire 15 16),
-    (.virt 26565, .wire 15 17),
-    (.virt 26563, .wire 15 18),
-    (.virt 26567, .wire 15 20),
-    (.virt 26569, .wire 15 21),
-    (.virt 26567, .wire 15 22),
-    (.wire 15 19, .wire 15 24),
-    (.wire 15 23, .wire 15 25),
-    (.wire 15 19, .wire 15 26),
-    (.wire 4 15, .wire 6 56),
-    (.wire 15 27, .wire 6 57),
-    (.wire 4 15, .wire 6 58),
-    (.wire 6 59, .wire 7 56),
-    (.virt 26488, .wire 7 57),
-    (.wire 15 27, .wire 7 58),
-    (.wire 7 59, .virt 26488),
-    (.wire 1 43, .wire 16 0),
-    (.virt 6603, .wire 16 1),
-    (.virt 6603, .wire 16 2),
-    (.wire 1 43, .wire 16 4),
-    (.virt 26489, .wire 16 5)
+    (.virt 190, .wire 16 24),
+    (.wire 15 75, .wire 16 25),
+    (.virt 190, .wire 16 26),
+    (.wire 15 75, .wire 16 28),
+    (.virt 191, .wire 16 29),
+    (.wire 15 75, .wire 16 30),
+    (.wire 16 31, .wire 15 76),
+    (.virt 27, .wire 15 77),
+    (.wire 15 71, .wire 15 78),
+    (.wire 16 27, .virt 26),
+    (.wire 15 79, .virt 26),
+    (.virt 184, .wire 16 32),
+    (.virt 186, .wire 16 33),
+    (.virt 184, .wire 16 34),
+    (.virt 188, .wire 16 36),
+    (.virt 190, .wire 16 37),
+    (.virt 188, .wire 16 38),
+    (.wire 16 35, .wire 16 40),
+    (.wire 16 39, .wire 16 41),
+    (.wire 16 35, .wire 16 42),
+    (.wire 5 31, .wire 7 56),
+    (.wire 16 43, .wire 7 57),
+    (.wire 5 31, .wire 7 58),
+    (.wire 7 59, .wire 14 24),
+    (.virt 27, .wire 14 25),
+    (.wire 16 43, .wire 14 26),
+    (.wire 14 27, .virt 27),
+    (.wire 1 59, .wire 17 0),
+    (.virt 8, .wire 17 1),
+    (.virt 8, .wire 17 2),
+    (.wire 1 59, .wire 17 4),
+    (.virt 26, .wire 17 5)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `992..1024`. -/
 def publicBatchWrapper4.copies31 : List (Target × Target) := [
-    (.wire 16 3, .wire 16 6),
-    (.wire 1 43, .wire 16 8),
-    (.virt 6604, .wire 16 9),
-    (.virt 6604, .wire 16 10),
-    (.wire 1 43, .wire 16 12),
-    (.virt 26489, .wire 16 13),
-    (.wire 16 11, .wire 16 14),
-    (.wire 1 43, .wire 16 16),
-    (.virt 6605, .wire 16 17),
-    (.virt 6605, .wire 16 18),
-    (.wire 1 43, .wire 16 20),
-    (.virt 26489, .wire 16 21),
-    (.wire 16 19, .wire 16 22),
-    (.wire 1 43, .wire 16 24),
-    (.virt 6606, .wire 16 25),
-    (.virt 6606, .wire 16 26),
-    (.wire 1 43, .wire 16 28),
-    (.virt 26489, .wire 16 29),
-    (.wire 16 27, .wire 16 30),
-    (.wire 1 43, .wire 16 32),
-    (.virt 6607, .wire 16 33),
-    (.virt 6607, .wire 16 34),
-    (.wire 1 43, .wire 16 36),
-    (.virt 26489, .wire 16 37),
-    (.wire 16 35, .wire 16 38),
-    (.wire 1 43, .wire 16 40),
-    (.virt 6608, .wire 16 41),
-    (.virt 6608, .wire 16 42),
-    (.wire 1 43, .wire 16 44),
-    (.virt 26489, .wire 16 45),
-    (.wire 16 43, .wire 16 46),
-    (.wire 1 43, .wire 16 48)
+    (.wire 17 3, .wire 17 6),
+    (.wire 1 59, .wire 17 8),
+    (.virt 9, .wire 17 9),
+    (.virt 9, .wire 17 10),
+    (.wire 1 59, .wire 17 12),
+    (.virt 26, .wire 17 13),
+    (.wire 17 11, .wire 17 14),
+    (.wire 1 59, .wire 17 16),
+    (.virt 10, .wire 17 17),
+    (.virt 10, .wire 17 18),
+    (.wire 1 59, .wire 17 20),
+    (.virt 26, .wire 17 21),
+    (.wire 17 19, .wire 17 22),
+    (.wire 1 59, .wire 17 24),
+    (.virt 11, .wire 17 25),
+    (.virt 11, .wire 17 26),
+    (.wire 1 59, .wire 17 28),
+    (.virt 26, .wire 17 29),
+    (.wire 17 27, .wire 17 30),
+    (.wire 1 59, .wire 17 32),
+    (.virt 12, .wire 17 33),
+    (.virt 12, .wire 17 34),
+    (.wire 1 59, .wire 17 36),
+    (.virt 26, .wire 17 37),
+    (.wire 17 35, .wire 17 38),
+    (.wire 1 59, .wire 17 40),
+    (.virt 13, .wire 17 41),
+    (.virt 13, .wire 17 42),
+    (.wire 1 59, .wire 17 44),
+    (.virt 26, .wire 17 45),
+    (.wire 17 43, .wire 17 46),
+    (.wire 1 59, .wire 17 48)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `1024..1056`. -/
 def publicBatchWrapper4.copies32 : List (Target × Target) := [
-    (.virt 6609, .wire 16 49),
-    (.virt 6609, .wire 16 50),
-    (.wire 1 43, .wire 16 52),
-    (.virt 26489, .wire 16 53),
-    (.wire 16 51, .wire 16 54),
-    (.wire 1 43, .wire 16 56),
-    (.virt 6610, .wire 16 57),
-    (.virt 6610, .wire 16 58),
-    (.wire 1 43, .wire 16 60),
-    (.virt 26489, .wire 16 61),
-    (.wire 16 59, .wire 16 62),
-    (.wire 1 43, .wire 16 64),
-    (.virt 6611, .wire 16 65),
-    (.virt 6611, .wire 16 66),
-    (.wire 1 43, .wire 16 68),
-    (.virt 26489, .wire 16 69),
-    (.wire 16 67, .wire 16 70),
-    (.wire 1 43, .wire 16 72),
-    (.virt 6612, .wire 16 73),
-    (.virt 6612, .wire 16 74),
-    (.wire 1 43, .wire 16 76),
-    (.virt 26489, .wire 16 77),
-    (.wire 16 75, .wire 16 78),
-    (.wire 2 7, .wire 17 0),
-    (.virt 13224, .wire 17 1),
-    (.virt 13224, .wire 17 2),
-    (.wire 2 7, .wire 17 4),
-    (.virt 26489, .wire 17 5),
-    (.wire 17 3, .wire 17 6),
-    (.wire 2 7, .wire 17 8),
-    (.virt 13225, .wire 17 9),
-    (.virt 13225, .wire 17 10)
+    (.virt 14, .wire 17 49),
+    (.virt 14, .wire 17 50),
+    (.wire 1 59, .wire 17 52),
+    (.virt 26, .wire 17 53),
+    (.wire 17 51, .wire 17 54),
+    (.wire 1 59, .wire 17 56),
+    (.virt 15, .wire 17 57),
+    (.virt 15, .wire 17 58),
+    (.wire 1 59, .wire 17 60),
+    (.virt 26, .wire 17 61),
+    (.wire 17 59, .wire 17 62),
+    (.wire 1 59, .wire 17 64),
+    (.virt 16, .wire 17 65),
+    (.virt 16, .wire 17 66),
+    (.wire 1 59, .wire 17 68),
+    (.virt 26, .wire 17 69),
+    (.wire 17 67, .wire 17 70),
+    (.wire 1 59, .wire 17 72),
+    (.virt 17, .wire 17 73),
+    (.virt 17, .wire 17 74),
+    (.wire 1 59, .wire 17 76),
+    (.virt 26, .wire 17 77),
+    (.wire 17 75, .wire 17 78),
+    (.wire 3 23, .wire 18 0),
+    (.virt 38, .wire 18 1),
+    (.virt 38, .wire 18 2),
+    (.wire 3 23, .wire 18 4),
+    (.virt 26, .wire 18 5),
+    (.wire 18 3, .wire 18 6),
+    (.wire 3 23, .wire 18 8),
+    (.virt 39, .wire 18 9),
+    (.virt 39, .wire 18 10)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `1056..1088`. -/
 def publicBatchWrapper4.copies33 : List (Target × Target) := [
-    (.wire 2 7, .wire 17 12),
-    (.virt 26489, .wire 17 13),
-    (.wire 17 11, .wire 17 14),
-    (.wire 2 7, .wire 17 16),
-    (.virt 13226, .wire 17 17),
-    (.virt 13226, .wire 17 18),
-    (.wire 2 7, .wire 17 20),
-    (.virt 26489, .wire 17 21),
-    (.wire 17 19, .wire 17 22),
-    (.wire 2 7, .wire 17 24),
-    (.virt 13227, .wire 17 25),
-    (.virt 13227, .wire 17 26),
-    (.wire 2 7, .wire 17 28),
-    (.virt 26489, .wire 17 29),
-    (.wire 17 27, .wire 17 30),
-    (.wire 2 7, .wire 17 32),
-    (.virt 13228, .wire 17 33),
-    (.virt 13228, .wire 17 34),
-    (.wire 2 7, .wire 17 36),
-    (.virt 26489, .wire 17 37),
-    (.wire 17 35, .wire 17 38),
-    (.wire 2 7, .wire 17 40),
-    (.virt 13229, .wire 17 41),
-    (.virt 13229, .wire 17 42),
-    (.wire 2 7, .wire 17 44),
-    (.virt 26489, .wire 17 45),
-    (.wire 17 43, .wire 17 46),
-    (.wire 2 7, .wire 17 48),
-    (.virt 13230, .wire 17 49),
-    (.virt 13230, .wire 17 50),
-    (.wire 2 7, .wire 17 52),
-    (.virt 26489, .wire 17 53)
+    (.wire 3 23, .wire 18 12),
+    (.virt 26, .wire 18 13),
+    (.wire 18 11, .wire 18 14),
+    (.wire 3 23, .wire 18 16),
+    (.virt 40, .wire 18 17),
+    (.virt 40, .wire 18 18),
+    (.wire 3 23, .wire 18 20),
+    (.virt 26, .wire 18 21),
+    (.wire 18 19, .wire 18 22),
+    (.wire 3 23, .wire 18 24),
+    (.virt 41, .wire 18 25),
+    (.virt 41, .wire 18 26),
+    (.wire 3 23, .wire 18 28),
+    (.virt 26, .wire 18 29),
+    (.wire 18 27, .wire 18 30),
+    (.wire 3 23, .wire 18 32),
+    (.virt 42, .wire 18 33),
+    (.virt 42, .wire 18 34),
+    (.wire 3 23, .wire 18 36),
+    (.virt 26, .wire 18 37),
+    (.wire 18 35, .wire 18 38),
+    (.wire 3 23, .wire 18 40),
+    (.virt 43, .wire 18 41),
+    (.virt 43, .wire 18 42),
+    (.wire 3 23, .wire 18 44),
+    (.virt 26, .wire 18 45),
+    (.wire 18 43, .wire 18 46),
+    (.wire 3 23, .wire 18 48),
+    (.virt 44, .wire 18 49),
+    (.virt 44, .wire 18 50),
+    (.wire 3 23, .wire 18 52),
+    (.virt 26, .wire 18 53)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `1088..1120`. -/
 def publicBatchWrapper4.copies34 : List (Target × Target) := [
-    (.wire 17 51, .wire 17 54),
-    (.wire 2 7, .wire 17 56),
-    (.virt 13231, .wire 17 57),
-    (.virt 13231, .wire 17 58),
-    (.wire 2 7, .wire 17 60),
-    (.virt 26489, .wire 17 61),
-    (.wire 17 59, .wire 17 62),
-    (.wire 2 7, .wire 17 64),
-    (.virt 13232, .wire 17 65),
-    (.virt 13232, .wire 17 66),
-    (.wire 2 7, .wire 17 68),
-    (.virt 26489, .wire 17 69),
-    (.wire 17 67, .wire 17 70),
-    (.wire 2 7, .wire 17 72),
-    (.virt 13233, .wire 17 73),
-    (.virt 13233, .wire 17 74),
-    (.wire 2 7, .wire 17 76),
-    (.virt 26489, .wire 17 77),
-    (.wire 17 75, .wire 17 78),
-    (.wire 2 51, .wire 18 0),
-    (.virt 19845, .wire 18 1),
-    (.virt 19845, .wire 18 2),
-    (.wire 2 51, .wire 18 4),
-    (.virt 26489, .wire 18 5),
-    (.wire 18 3, .wire 18 6),
-    (.wire 2 51, .wire 18 8),
-    (.virt 19846, .wire 18 9),
-    (.virt 19846, .wire 18 10),
-    (.wire 2 51, .wire 18 12),
-    (.virt 26489, .wire 18 13),
-    (.wire 18 11, .wire 18 14),
-    (.wire 2 51, .wire 18 16)
+    (.wire 18 51, .wire 18 54),
+    (.wire 3 23, .wire 18 56),
+    (.virt 45, .wire 18 57),
+    (.virt 45, .wire 18 58),
+    (.wire 3 23, .wire 18 60),
+    (.virt 26, .wire 18 61),
+    (.wire 18 59, .wire 18 62),
+    (.wire 3 23, .wire 18 64),
+    (.virt 46, .wire 18 65),
+    (.virt 46, .wire 18 66),
+    (.wire 3 23, .wire 18 68),
+    (.virt 26, .wire 18 69),
+    (.wire 18 67, .wire 18 70),
+    (.wire 3 23, .wire 18 72),
+    (.virt 47, .wire 18 73),
+    (.virt 47, .wire 18 74),
+    (.wire 3 23, .wire 18 76),
+    (.virt 26, .wire 18 77),
+    (.wire 18 75, .wire 18 78),
+    (.wire 3 67, .wire 19 0),
+    (.virt 64, .wire 19 1),
+    (.virt 64, .wire 19 2),
+    (.wire 3 67, .wire 19 4),
+    (.virt 26, .wire 19 5),
+    (.wire 19 3, .wire 19 6),
+    (.wire 3 67, .wire 19 8),
+    (.virt 65, .wire 19 9),
+    (.virt 65, .wire 19 10),
+    (.wire 3 67, .wire 19 12),
+    (.virt 26, .wire 19 13),
+    (.wire 19 11, .wire 19 14),
+    (.wire 3 67, .wire 19 16)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `1120..1152`. -/
 def publicBatchWrapper4.copies35 : List (Target × Target) := [
-    (.virt 19847, .wire 18 17),
-    (.virt 19847, .wire 18 18),
-    (.wire 2 51, .wire 18 20),
-    (.virt 26489, .wire 18 21),
-    (.wire 18 19, .wire 18 22),
-    (.wire 2 51, .wire 18 24),
-    (.virt 19848, .wire 18 25),
-    (.virt 19848, .wire 18 26),
-    (.wire 2 51, .wire 18 28),
-    (.virt 26489, .wire 18 29),
-    (.wire 18 27, .wire 18 30),
-    (.wire 2 51, .wire 18 32),
-    (.virt 19849, .wire 18 33),
-    (.virt 19849, .wire 18 34),
-    (.wire 2 51, .wire 18 36),
-    (.virt 26489, .wire 18 37),
-    (.wire 18 35, .wire 18 38),
-    (.wire 2 51, .wire 18 40),
-    (.virt 19850, .wire 18 41),
-    (.virt 19850, .wire 18 42),
-    (.wire 2 51, .wire 18 44),
-    (.virt 26489, .wire 18 45),
-    (.wire 18 43, .wire 18 46),
-    (.wire 2 51, .wire 18 48),
-    (.virt 19851, .wire 18 49),
-    (.virt 19851, .wire 18 50),
-    (.wire 2 51, .wire 18 52),
-    (.virt 26489, .wire 18 53),
-    (.wire 18 51, .wire 18 54),
-    (.wire 2 51, .wire 18 56),
-    (.virt 19852, .wire 18 57),
-    (.virt 19852, .wire 18 58)
+    (.virt 66, .wire 19 17),
+    (.virt 66, .wire 19 18),
+    (.wire 3 67, .wire 19 20),
+    (.virt 26, .wire 19 21),
+    (.wire 19 19, .wire 19 22),
+    (.wire 3 67, .wire 19 24),
+    (.virt 67, .wire 19 25),
+    (.virt 67, .wire 19 26),
+    (.wire 3 67, .wire 19 28),
+    (.virt 26, .wire 19 29),
+    (.wire 19 27, .wire 19 30),
+    (.wire 3 67, .wire 19 32),
+    (.virt 68, .wire 19 33),
+    (.virt 68, .wire 19 34),
+    (.wire 3 67, .wire 19 36),
+    (.virt 26, .wire 19 37),
+    (.wire 19 35, .wire 19 38),
+    (.wire 3 67, .wire 19 40),
+    (.virt 69, .wire 19 41),
+    (.virt 69, .wire 19 42),
+    (.wire 3 67, .wire 19 44),
+    (.virt 26, .wire 19 45),
+    (.wire 19 43, .wire 19 46),
+    (.wire 3 67, .wire 19 48),
+    (.virt 70, .wire 19 49),
+    (.virt 70, .wire 19 50),
+    (.wire 3 67, .wire 19 52),
+    (.virt 26, .wire 19 53),
+    (.wire 19 51, .wire 19 54),
+    (.wire 3 67, .wire 19 56),
+    (.virt 71, .wire 19 57),
+    (.virt 71, .wire 19 58)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `1152..1184`. -/
 def publicBatchWrapper4.copies36 : List (Target × Target) := [
-    (.wire 2 51, .wire 18 60),
-    (.virt 26489, .wire 18 61),
-    (.wire 18 59, .wire 18 62),
-    (.wire 2 51, .wire 18 64),
-    (.virt 19853, .wire 18 65),
-    (.virt 19853, .wire 18 66),
-    (.wire 2 51, .wire 18 68),
-    (.virt 26489, .wire 18 69),
-    (.wire 18 67, .wire 18 70),
-    (.wire 2 51, .wire 18 72),
-    (.virt 19854, .wire 18 73),
-    (.virt 19854, .wire 18 74),
-    (.wire 2 51, .wire 18 76),
-    (.virt 26489, .wire 18 77),
-    (.wire 18 75, .wire 18 78),
-    (.wire 4 15, .wire 19 0),
-    (.virt 26466, .wire 19 1),
-    (.virt 26466, .wire 19 2),
-    (.wire 4 15, .wire 19 4),
-    (.virt 26489, .wire 19 5),
-    (.wire 19 3, .wire 19 6),
-    (.wire 4 15, .wire 19 8),
-    (.virt 26467, .wire 19 9),
-    (.virt 26467, .wire 19 10),
-    (.wire 4 15, .wire 19 12),
-    (.virt 26489, .wire 19 13),
-    (.wire 19 11, .wire 19 14),
-    (.wire 4 15, .wire 19 16),
-    (.virt 26468, .wire 19 17),
-    (.virt 26468, .wire 19 18),
-    (.wire 4 15, .wire 19 20),
-    (.virt 26489, .wire 19 21)
+    (.wire 3 67, .wire 19 60),
+    (.virt 26, .wire 19 61),
+    (.wire 19 59, .wire 19 62),
+    (.wire 3 67, .wire 19 64),
+    (.virt 72, .wire 19 65),
+    (.virt 72, .wire 19 66),
+    (.wire 3 67, .wire 19 68),
+    (.virt 26, .wire 19 69),
+    (.wire 19 67, .wire 19 70),
+    (.wire 3 67, .wire 19 72),
+    (.virt 73, .wire 19 73),
+    (.virt 73, .wire 19 74),
+    (.wire 3 67, .wire 19 76),
+    (.virt 26, .wire 19 77),
+    (.wire 19 75, .wire 19 78),
+    (.wire 5 31, .wire 20 0),
+    (.virt 90, .wire 20 1),
+    (.virt 90, .wire 20 2),
+    (.wire 5 31, .wire 20 4),
+    (.virt 26, .wire 20 5),
+    (.wire 20 3, .wire 20 6),
+    (.wire 5 31, .wire 20 8),
+    (.virt 91, .wire 20 9),
+    (.virt 91, .wire 20 10),
+    (.wire 5 31, .wire 20 12),
+    (.virt 26, .wire 20 13),
+    (.wire 20 11, .wire 20 14),
+    (.wire 5 31, .wire 20 16),
+    (.virt 92, .wire 20 17),
+    (.virt 92, .wire 20 18),
+    (.wire 5 31, .wire 20 20),
+    (.virt 26, .wire 20 21)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `1184..1216`. -/
 def publicBatchWrapper4.copies37 : List (Target × Target) := [
-    (.wire 19 19, .wire 19 22),
-    (.wire 4 15, .wire 19 24),
-    (.virt 26469, .wire 19 25),
-    (.virt 26469, .wire 19 26),
-    (.wire 4 15, .wire 19 28),
-    (.virt 26489, .wire 19 29),
-    (.wire 19 27, .wire 19 30),
-    (.wire 4 15, .wire 19 32),
-    (.virt 26470, .wire 19 33),
-    (.virt 26470, .wire 19 34),
-    (.wire 4 15, .wire 19 36),
-    (.virt 26489, .wire 19 37),
-    (.wire 19 35, .wire 19 38),
-    (.wire 4 15, .wire 19 40),
-    (.virt 26471, .wire 19 41),
-    (.virt 26471, .wire 19 42),
-    (.wire 4 15, .wire 19 44),
-    (.virt 26489, .wire 19 45),
-    (.wire 19 43, .wire 19 46),
-    (.wire 4 15, .wire 19 48),
-    (.virt 26472, .wire 19 49),
-    (.virt 26472, .wire 19 50),
-    (.wire 4 15, .wire 19 52),
-    (.virt 26489, .wire 19 53),
-    (.wire 19 51, .wire 19 54),
-    (.wire 4 15, .wire 19 56),
-    (.virt 26473, .wire 19 57),
-    (.virt 26473, .wire 19 58),
-    (.wire 4 15, .wire 19 60),
-    (.virt 26489, .wire 19 61),
-    (.wire 19 59, .wire 19 62),
-    (.wire 4 15, .wire 19 64)
+    (.wire 20 19, .wire 20 22),
+    (.wire 5 31, .wire 20 24),
+    (.virt 93, .wire 20 25),
+    (.virt 93, .wire 20 26),
+    (.wire 5 31, .wire 20 28),
+    (.virt 26, .wire 20 29),
+    (.wire 20 27, .wire 20 30),
+    (.wire 5 31, .wire 20 32),
+    (.virt 94, .wire 20 33),
+    (.virt 94, .wire 20 34),
+    (.wire 5 31, .wire 20 36),
+    (.virt 26, .wire 20 37),
+    (.wire 20 35, .wire 20 38),
+    (.wire 5 31, .wire 20 40),
+    (.virt 95, .wire 20 41),
+    (.virt 95, .wire 20 42),
+    (.wire 5 31, .wire 20 44),
+    (.virt 26, .wire 20 45),
+    (.wire 20 43, .wire 20 46),
+    (.wire 5 31, .wire 20 48),
+    (.virt 96, .wire 20 49),
+    (.virt 96, .wire 20 50),
+    (.wire 5 31, .wire 20 52),
+    (.virt 26, .wire 20 53),
+    (.wire 20 51, .wire 20 54),
+    (.wire 5 31, .wire 20 56),
+    (.virt 97, .wire 20 57),
+    (.virt 97, .wire 20 58),
+    (.wire 5 31, .wire 20 60),
+    (.virt 26, .wire 20 61),
+    (.wire 20 59, .wire 20 62),
+    (.wire 5 31, .wire 20 64)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `1216..1248`. -/
 def publicBatchWrapper4.copies38 : List (Target × Target) := [
-    (.virt 26474, .wire 19 65),
-    (.virt 26474, .wire 19 66),
-    (.wire 4 15, .wire 19 68),
-    (.virt 26489, .wire 19 69),
-    (.wire 19 67, .wire 19 70),
-    (.wire 4 15, .wire 19 72),
-    (.virt 26475, .wire 19 73),
-    (.virt 26475, .wire 19 74),
-    (.wire 4 15, .wire 19 76),
-    (.virt 26489, .wire 19 77),
-    (.wire 19 75, .wire 19 78),
-    (.wire 1 43, .wire 20 0),
-    (.virt 6613, .wire 20 1),
-    (.virt 6613, .wire 20 2),
-    (.wire 1 43, .wire 20 4),
-    (.virt 26489, .wire 20 5),
-    (.wire 20 3, .wire 20 6),
-    (.wire 1 43, .wire 20 8),
-    (.virt 6614, .wire 20 9),
-    (.virt 6614, .wire 20 10),
-    (.wire 1 43, .wire 20 12),
-    (.virt 26489, .wire 20 13),
-    (.wire 20 11, .wire 20 14),
-    (.wire 1 43, .wire 20 16),
-    (.virt 6615, .wire 20 17),
-    (.virt 6615, .wire 20 18),
-    (.wire 1 43, .wire 20 20),
-    (.virt 26489, .wire 20 21),
-    (.wire 20 19, .wire 20 22),
-    (.wire 1 43, .wire 20 24),
-    (.virt 6616, .wire 20 25),
-    (.virt 6616, .wire 20 26)
+    (.virt 98, .wire 20 65),
+    (.virt 98, .wire 20 66),
+    (.wire 5 31, .wire 20 68),
+    (.virt 26, .wire 20 69),
+    (.wire 20 67, .wire 20 70),
+    (.wire 5 31, .wire 20 72),
+    (.virt 99, .wire 20 73),
+    (.virt 99, .wire 20 74),
+    (.wire 5 31, .wire 20 76),
+    (.virt 26, .wire 20 77),
+    (.wire 20 75, .wire 20 78),
+    (.wire 1 59, .wire 21 0),
+    (.virt 18, .wire 21 1),
+    (.virt 18, .wire 21 2),
+    (.wire 1 59, .wire 21 4),
+    (.virt 26, .wire 21 5),
+    (.wire 21 3, .wire 21 6),
+    (.wire 1 59, .wire 21 8),
+    (.virt 19, .wire 21 9),
+    (.virt 19, .wire 21 10),
+    (.wire 1 59, .wire 21 12),
+    (.virt 26, .wire 21 13),
+    (.wire 21 11, .wire 21 14),
+    (.wire 1 59, .wire 21 16),
+    (.virt 20, .wire 21 17),
+    (.virt 20, .wire 21 18),
+    (.wire 1 59, .wire 21 20),
+    (.virt 26, .wire 21 21),
+    (.wire 21 19, .wire 21 22),
+    (.wire 1 59, .wire 21 24),
+    (.virt 21, .wire 21 25),
+    (.virt 21, .wire 21 26)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `1248..1280`. -/
 def publicBatchWrapper4.copies39 : List (Target × Target) := [
-    (.wire 1 43, .wire 20 28),
-    (.virt 26489, .wire 20 29),
-    (.wire 20 27, .wire 20 30),
-    (.wire 1 43, .wire 20 32),
-    (.virt 6617, .wire 20 33),
-    (.virt 6617, .wire 20 34),
-    (.wire 1 43, .wire 20 36),
-    (.virt 26489, .wire 20 37),
-    (.wire 20 35, .wire 20 38),
-    (.wire 1 43, .wire 20 40),
-    (.virt 6618, .wire 20 41),
-    (.virt 6618, .wire 20 42),
-    (.wire 1 43, .wire 20 44),
-    (.virt 26489, .wire 20 45),
-    (.wire 20 43, .wire 20 46),
-    (.wire 1 43, .wire 20 48),
-    (.virt 6619, .wire 20 49),
-    (.virt 6619, .wire 20 50),
-    (.wire 1 43, .wire 20 52),
-    (.virt 26489, .wire 20 53),
-    (.wire 20 51, .wire 20 54),
-    (.wire 1 43, .wire 20 56),
-    (.virt 6620, .wire 20 57),
-    (.virt 6620, .wire 20 58),
-    (.wire 1 43, .wire 20 60),
-    (.virt 26489, .wire 20 61),
-    (.wire 20 59, .wire 20 62),
-    (.wire 2 7, .wire 20 64),
-    (.virt 13234, .wire 20 65),
-    (.virt 13234, .wire 20 66),
-    (.wire 2 7, .wire 20 68),
-    (.virt 26489, .wire 20 69)
+    (.wire 1 59, .wire 21 28),
+    (.virt 26, .wire 21 29),
+    (.wire 21 27, .wire 21 30),
+    (.wire 1 59, .wire 21 32),
+    (.virt 22, .wire 21 33),
+    (.virt 22, .wire 21 34),
+    (.wire 1 59, .wire 21 36),
+    (.virt 26, .wire 21 37),
+    (.wire 21 35, .wire 21 38),
+    (.wire 1 59, .wire 21 40),
+    (.virt 23, .wire 21 41),
+    (.virt 23, .wire 21 42),
+    (.wire 1 59, .wire 21 44),
+    (.virt 26, .wire 21 45),
+    (.wire 21 43, .wire 21 46),
+    (.wire 1 59, .wire 21 48),
+    (.virt 24, .wire 21 49),
+    (.virt 24, .wire 21 50),
+    (.wire 1 59, .wire 21 52),
+    (.virt 26, .wire 21 53),
+    (.wire 21 51, .wire 21 54),
+    (.wire 1 59, .wire 21 56),
+    (.virt 25, .wire 21 57),
+    (.virt 25, .wire 21 58),
+    (.wire 1 59, .wire 21 60),
+    (.virt 26, .wire 21 61),
+    (.wire 21 59, .wire 21 62),
+    (.wire 3 23, .wire 21 64),
+    (.virt 48, .wire 21 65),
+    (.virt 48, .wire 21 66),
+    (.wire 3 23, .wire 21 68),
+    (.virt 26, .wire 21 69)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `1280..1312`. -/
 def publicBatchWrapper4.copies40 : List (Target × Target) := [
-    (.wire 20 67, .wire 20 70),
-    (.wire 2 7, .wire 20 72),
-    (.virt 13235, .wire 20 73),
-    (.virt 13235, .wire 20 74),
-    (.wire 2 7, .wire 20 76),
-    (.virt 26489, .wire 20 77),
-    (.wire 20 75, .wire 20 78),
-    (.wire 2 7, .wire 21 0),
-    (.virt 13236, .wire 21 1),
-    (.virt 13236, .wire 21 2),
-    (.wire 2 7, .wire 21 4),
-    (.virt 26489, .wire 21 5),
-    (.wire 21 3, .wire 21 6),
-    (.wire 2 7, .wire 21 8),
-    (.virt 13237, .wire 21 9),
-    (.virt 13237, .wire 21 10),
-    (.wire 2 7, .wire 21 12),
-    (.virt 26489, .wire 21 13),
-    (.wire 21 11, .wire 21 14),
-    (.wire 2 7, .wire 21 16),
-    (.virt 13238, .wire 21 17),
-    (.virt 13238, .wire 21 18),
-    (.wire 2 7, .wire 21 20),
-    (.virt 26489, .wire 21 21),
-    (.wire 21 19, .wire 21 22),
-    (.wire 2 7, .wire 21 24),
-    (.virt 13239, .wire 21 25),
-    (.virt 13239, .wire 21 26),
-    (.wire 2 7, .wire 21 28),
-    (.virt 26489, .wire 21 29),
-    (.wire 21 27, .wire 21 30),
-    (.wire 2 7, .wire 21 32)
+    (.wire 21 67, .wire 21 70),
+    (.wire 3 23, .wire 21 72),
+    (.virt 49, .wire 21 73),
+    (.virt 49, .wire 21 74),
+    (.wire 3 23, .wire 21 76),
+    (.virt 26, .wire 21 77),
+    (.wire 21 75, .wire 21 78),
+    (.wire 3 23, .wire 22 0),
+    (.virt 50, .wire 22 1),
+    (.virt 50, .wire 22 2),
+    (.wire 3 23, .wire 22 4),
+    (.virt 26, .wire 22 5),
+    (.wire 22 3, .wire 22 6),
+    (.wire 3 23, .wire 22 8),
+    (.virt 51, .wire 22 9),
+    (.virt 51, .wire 22 10),
+    (.wire 3 23, .wire 22 12),
+    (.virt 26, .wire 22 13),
+    (.wire 22 11, .wire 22 14),
+    (.wire 3 23, .wire 22 16),
+    (.virt 52, .wire 22 17),
+    (.virt 52, .wire 22 18),
+    (.wire 3 23, .wire 22 20),
+    (.virt 26, .wire 22 21),
+    (.wire 22 19, .wire 22 22),
+    (.wire 3 23, .wire 22 24),
+    (.virt 53, .wire 22 25),
+    (.virt 53, .wire 22 26),
+    (.wire 3 23, .wire 22 28),
+    (.virt 26, .wire 22 29),
+    (.wire 22 27, .wire 22 30),
+    (.wire 3 23, .wire 22 32)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `1312..1344`. -/
 def publicBatchWrapper4.copies41 : List (Target × Target) := [
-    (.virt 13240, .wire 21 33),
-    (.virt 13240, .wire 21 34),
-    (.wire 2 7, .wire 21 36),
-    (.virt 26489, .wire 21 37),
-    (.wire 21 35, .wire 21 38),
-    (.wire 2 7, .wire 21 40),
-    (.virt 13241, .wire 21 41),
-    (.virt 13241, .wire 21 42),
-    (.wire 2 7, .wire 21 44),
-    (.virt 26489, .wire 21 45),
-    (.wire 21 43, .wire 21 46),
-    (.wire 2 51, .wire 21 48),
-    (.virt 19855, .wire 21 49),
-    (.virt 19855, .wire 21 50),
-    (.wire 2 51, .wire 21 52),
-    (.virt 26489, .wire 21 53),
-    (.wire 21 51, .wire 21 54),
-    (.wire 2 51, .wire 21 56),
-    (.virt 19856, .wire 21 57),
-    (.virt 19856, .wire 21 58),
-    (.wire 2 51, .wire 21 60),
-    (.virt 26489, .wire 21 61),
-    (.wire 21 59, .wire 21 62),
-    (.wire 2 51, .wire 21 64),
-    (.virt 19857, .wire 21 65),
-    (.virt 19857, .wire 21 66),
-    (.wire 2 51, .wire 21 68),
-    (.virt 26489, .wire 21 69),
-    (.wire 21 67, .wire 21 70),
-    (.wire 2 51, .wire 21 72),
-    (.virt 19858, .wire 21 73),
-    (.virt 19858, .wire 21 74)
+    (.virt 54, .wire 22 33),
+    (.virt 54, .wire 22 34),
+    (.wire 3 23, .wire 22 36),
+    (.virt 26, .wire 22 37),
+    (.wire 22 35, .wire 22 38),
+    (.wire 3 23, .wire 22 40),
+    (.virt 55, .wire 22 41),
+    (.virt 55, .wire 22 42),
+    (.wire 3 23, .wire 22 44),
+    (.virt 26, .wire 22 45),
+    (.wire 22 43, .wire 22 46),
+    (.wire 3 67, .wire 22 48),
+    (.virt 74, .wire 22 49),
+    (.virt 74, .wire 22 50),
+    (.wire 3 67, .wire 22 52),
+    (.virt 26, .wire 22 53),
+    (.wire 22 51, .wire 22 54),
+    (.wire 3 67, .wire 22 56),
+    (.virt 75, .wire 22 57),
+    (.virt 75, .wire 22 58),
+    (.wire 3 67, .wire 22 60),
+    (.virt 26, .wire 22 61),
+    (.wire 22 59, .wire 22 62),
+    (.wire 3 67, .wire 22 64),
+    (.virt 76, .wire 22 65),
+    (.virt 76, .wire 22 66),
+    (.wire 3 67, .wire 22 68),
+    (.virt 26, .wire 22 69),
+    (.wire 22 67, .wire 22 70),
+    (.wire 3 67, .wire 22 72),
+    (.virt 77, .wire 22 73),
+    (.virt 77, .wire 22 74)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `1344..1376`. -/
 def publicBatchWrapper4.copies42 : List (Target × Target) := [
-    (.wire 2 51, .wire 21 76),
-    (.virt 26489, .wire 21 77),
-    (.wire 21 75, .wire 21 78),
-    (.wire 2 51, .wire 22 0),
-    (.virt 19859, .wire 22 1),
-    (.virt 19859, .wire 22 2),
-    (.wire 2 51, .wire 22 4),
-    (.virt 26489, .wire 22 5),
-    (.wire 22 3, .wire 22 6),
-    (.wire 2 51, .wire 22 8),
-    (.virt 19860, .wire 22 9),
-    (.virt 19860, .wire 22 10),
-    (.wire 2 51, .wire 22 12),
-    (.virt 26489, .wire 22 13),
-    (.wire 22 11, .wire 22 14),
-    (.wire 2 51, .wire 22 16),
-    (.virt 19861, .wire 22 17),
-    (.virt 19861, .wire 22 18),
-    (.wire 2 51, .wire 22 20),
-    (.virt 26489, .wire 22 21),
-    (.wire 22 19, .wire 22 22),
-    (.wire 2 51, .wire 22 24),
-    (.virt 19862, .wire 22 25),
-    (.virt 19862, .wire 22 26),
-    (.wire 2 51, .wire 22 28),
-    (.virt 26489, .wire 22 29),
-    (.wire 22 27, .wire 22 30),
-    (.wire 4 15, .wire 22 32),
-    (.virt 26476, .wire 22 33),
-    (.virt 26476, .wire 22 34),
-    (.wire 4 15, .wire 22 36),
-    (.virt 26489, .wire 22 37)
+    (.wire 3 67, .wire 22 76),
+    (.virt 26, .wire 22 77),
+    (.wire 22 75, .wire 22 78),
+    (.wire 3 67, .wire 23 0),
+    (.virt 78, .wire 23 1),
+    (.virt 78, .wire 23 2),
+    (.wire 3 67, .wire 23 4),
+    (.virt 26, .wire 23 5),
+    (.wire 23 3, .wire 23 6),
+    (.wire 3 67, .wire 23 8),
+    (.virt 79, .wire 23 9),
+    (.virt 79, .wire 23 10),
+    (.wire 3 67, .wire 23 12),
+    (.virt 26, .wire 23 13),
+    (.wire 23 11, .wire 23 14),
+    (.wire 3 67, .wire 23 16),
+    (.virt 80, .wire 23 17),
+    (.virt 80, .wire 23 18),
+    (.wire 3 67, .wire 23 20),
+    (.virt 26, .wire 23 21),
+    (.wire 23 19, .wire 23 22),
+    (.wire 3 67, .wire 23 24),
+    (.virt 81, .wire 23 25),
+    (.virt 81, .wire 23 26),
+    (.wire 3 67, .wire 23 28),
+    (.virt 26, .wire 23 29),
+    (.wire 23 27, .wire 23 30),
+    (.wire 5 31, .wire 23 32),
+    (.virt 100, .wire 23 33),
+    (.virt 100, .wire 23 34),
+    (.wire 5 31, .wire 23 36),
+    (.virt 26, .wire 23 37)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `1376..1408`. -/
 def publicBatchWrapper4.copies43 : List (Target × Target) := [
-    (.wire 22 35, .wire 22 38),
-    (.wire 4 15, .wire 22 40),
-    (.virt 26477, .wire 22 41),
-    (.virt 26477, .wire 22 42),
-    (.wire 4 15, .wire 22 44),
-    (.virt 26489, .wire 22 45),
-    (.wire 22 43, .wire 22 46),
-    (.wire 4 15, .wire 22 48),
-    (.virt 26478, .wire 22 49),
-    (.virt 26478, .wire 22 50),
-    (.wire 4 15, .wire 22 52),
-    (.virt 26489, .wire 22 53),
-    (.wire 22 51, .wire 22 54),
-    (.wire 4 15, .wire 22 56),
-    (.virt 26479, .wire 22 57),
-    (.virt 26479, .wire 22 58),
-    (.wire 4 15, .wire 22 60),
-    (.virt 26489, .wire 22 61),
-    (.wire 22 59, .wire 22 62),
-    (.wire 4 15, .wire 22 64),
-    (.virt 26480, .wire 22 65),
-    (.virt 26480, .wire 22 66),
-    (.wire 4 15, .wire 22 68),
-    (.virt 26489, .wire 22 69),
-    (.wire 22 67, .wire 22 70),
-    (.wire 4 15, .wire 22 72),
-    (.virt 26481, .wire 22 73),
-    (.virt 26481, .wire 22 74),
-    (.wire 4 15, .wire 22 76),
-    (.virt 26489, .wire 22 77),
-    (.wire 22 75, .wire 22 78),
-    (.wire 4 15, .wire 23 0)
+    (.wire 23 35, .wire 23 38),
+    (.wire 5 31, .wire 23 40),
+    (.virt 101, .wire 23 41),
+    (.virt 101, .wire 23 42),
+    (.wire 5 31, .wire 23 44),
+    (.virt 26, .wire 23 45),
+    (.wire 23 43, .wire 23 46),
+    (.wire 5 31, .wire 23 48),
+    (.virt 102, .wire 23 49),
+    (.virt 102, .wire 23 50),
+    (.wire 5 31, .wire 23 52),
+    (.virt 26, .wire 23 53),
+    (.wire 23 51, .wire 23 54),
+    (.wire 5 31, .wire 23 56),
+    (.virt 103, .wire 23 57),
+    (.virt 103, .wire 23 58),
+    (.wire 5 31, .wire 23 60),
+    (.virt 26, .wire 23 61),
+    (.wire 23 59, .wire 23 62),
+    (.wire 5 31, .wire 23 64),
+    (.virt 104, .wire 23 65),
+    (.virt 104, .wire 23 66),
+    (.wire 5 31, .wire 23 68),
+    (.virt 26, .wire 23 69),
+    (.wire 23 67, .wire 23 70),
+    (.wire 5 31, .wire 23 72),
+    (.virt 105, .wire 23 73),
+    (.virt 105, .wire 23 74),
+    (.wire 5 31, .wire 23 76),
+    (.virt 26, .wire 23 77),
+    (.wire 23 75, .wire 23 78),
+    (.wire 5 31, .wire 24 0)
   ]
 
 /-- `publicBatchWrapper4.copies`, items `1408..1419`. -/
 def publicBatchWrapper4.copies44 : List (Target × Target) := [
-    (.virt 26482, .wire 23 1),
-    (.virt 26482, .wire 23 2),
-    (.wire 4 15, .wire 23 4),
-    (.virt 26489, .wire 23 5),
-    (.wire 23 3, .wire 23 6),
-    (.wire 4 15, .wire 23 8),
-    (.virt 26483, .wire 23 9),
-    (.virt 26483, .wire 23 10),
-    (.wire 4 15, .wire 23 12),
-    (.virt 26489, .wire 23 13),
-    (.wire 23 11, .wire 23 14)
+    (.virt 106, .wire 24 1),
+    (.virt 106, .wire 24 2),
+    (.wire 5 31, .wire 24 4),
+    (.virt 26, .wire 24 5),
+    (.wire 24 3, .wire 24 6),
+    (.wire 5 31, .wire 24 8),
+    (.virt 107, .wire 24 9),
+    (.virt 107, .wire 24 10),
+    (.wire 5 31, .wire 24 12),
+    (.virt 26, .wire 24 13),
+    (.wire 24 11, .wire 24 14)
   ]
 
 /-- The public-batch aggregation wrapper at `n_inner = 4` over the inner private-batch shape named by its recursion gadgets, without the inner verifiers (`wormhole/aggregator/src/public_batch/circuit/circuit_logic.rs`): inner public inputs `inner_pis_0..3`, the `aggregator_address` witness, and the aggregated public inputs. -/
 def publicBatchWrapper4 (p : ℕ) : Circuit p where
   rows := [
-    ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 0
+    ⟨.arithmetic 20, [1, 1]⟩,  -- row 0
     ⟨.arithmetic 20, [1, 0]⟩,  -- row 1
-    ⟨.arithmetic 20, [1, 0]⟩,  -- row 2
-    ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 3
-    ⟨.arithmetic 20, [1, 0]⟩,  -- row 4
-    ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 5
-    ⟨.arithmetic 20, [(-1), 1]⟩,  -- row 6
-    ⟨.arithmetic 20, [1, 1]⟩,  -- row 7
+    ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 2
+    ⟨.arithmetic 20, [1, 0]⟩,  -- row 3
+    ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 4
+    ⟨.arithmetic 20, [1, 0]⟩,  -- row 5
+    ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 6
+    ⟨.arithmetic 20, [(-1), 1]⟩,  -- row 7
     ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 8
     ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 9
     ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 10
     ⟨.arithmetic 20, [1, 0]⟩,  -- row 11
     ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 12
     ⟨.arithmetic 20, [1, 0]⟩,  -- row 13
-    ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 14
-    ⟨.arithmetic 20, [1, 0]⟩,  -- row 15
-    ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 16
+    ⟨.arithmetic 20, [1, 1]⟩,  -- row 14
+    ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 15
+    ⟨.arithmetic 20, [1, 0]⟩,  -- row 16
     ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 17
     ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 18
     ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 19
     ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 20
     ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 21
     ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 22
-    ⟨.arithmetic 20, [1, (-1)]⟩  -- row 23
+    ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 23
+    ⟨.arithmetic 20, [1, (-1)]⟩  -- row 24
   ]
   copies := (((((publicBatchWrapper4.copies0 ++ publicBatchWrapper4.copies1) ++ (publicBatchWrapper4.copies2 ++ (publicBatchWrapper4.copies3 ++ publicBatchWrapper4.copies4))) ++ ((publicBatchWrapper4.copies5 ++ (publicBatchWrapper4.copies6 ++ publicBatchWrapper4.copies7)) ++ (publicBatchWrapper4.copies8 ++ (publicBatchWrapper4.copies9 ++ publicBatchWrapper4.copies10)))) ++ (((publicBatchWrapper4.copies11 ++ publicBatchWrapper4.copies12) ++ (publicBatchWrapper4.copies13 ++ (publicBatchWrapper4.copies14 ++ publicBatchWrapper4.copies15))) ++ ((publicBatchWrapper4.copies16 ++ (publicBatchWrapper4.copies17 ++ publicBatchWrapper4.copies18)) ++ (publicBatchWrapper4.copies19 ++ (publicBatchWrapper4.copies20 ++ publicBatchWrapper4.copies21))))) ++ ((((publicBatchWrapper4.copies22 ++ publicBatchWrapper4.copies23) ++ (publicBatchWrapper4.copies24 ++ (publicBatchWrapper4.copies25 ++ publicBatchWrapper4.copies26))) ++ ((publicBatchWrapper4.copies27 ++ (publicBatchWrapper4.copies28 ++ publicBatchWrapper4.copies29)) ++ (publicBatchWrapper4.copies30 ++ (publicBatchWrapper4.copies31 ++ publicBatchWrapper4.copies32)))) ++ (((publicBatchWrapper4.copies33 ++ (publicBatchWrapper4.copies34 ++ publicBatchWrapper4.copies35)) ++ (publicBatchWrapper4.copies36 ++ (publicBatchWrapper4.copies37 ++ publicBatchWrapper4.copies38))) ++ ((publicBatchWrapper4.copies39 ++ (publicBatchWrapper4.copies40 ++ publicBatchWrapper4.copies41)) ++ (publicBatchWrapper4.copies42 ++ (publicBatchWrapper4.copies43 ++ publicBatchWrapper4.copies44))))))
   constants := [
-    (.virt 26488, 1),
-    (.virt 26489, 0),
-    (.virt 26490, 2),
-    (.virt 26571, 8)
+    (.virt 26, 0),
+    (.virt 27, 1),
+    (.virt 28, 2),
+    (.virt 29, 8)
   ]
   publicInputs := [
-    .virt 26484,
-    .virt 26485,
-    .virt 26486,
-    .virt 26487,
+    .virt 108,
+    .virt 109,
+    .virt 110,
+    .virt 111,
     .wire 9 23,
     .wire 9 31,
     .wire 8 63,
@@ -1669,17 +1670,7 @@ def publicBatchWrapper4 (p : ℕ) : Circuit p where
     .wire 8 79,
     .wire 9 7,
     .wire 9 15,
-    .virt 26571,
-    .wire 16 7,
-    .wire 16 15,
-    .wire 16 23,
-    .wire 16 31,
-    .wire 16 39,
-    .wire 16 47,
-    .wire 16 55,
-    .wire 16 63,
-    .wire 16 71,
-    .wire 16 79,
+    .virt 29,
     .wire 17 7,
     .wire 17 15,
     .wire 17 23,
@@ -1741,338 +1732,348 @@ def publicBatchWrapper4 (p : ℕ) : Circuit p where
     .wire 22 71,
     .wire 22 79,
     .wire 23 7,
-    .wire 23 15
+    .wire 23 15,
+    .wire 23 23,
+    .wire 23 31,
+    .wire 23 39,
+    .wire 23 47,
+    .wire 23 55,
+    .wire 23 63,
+    .wire 23 71,
+    .wire 23 79,
+    .wire 24 7,
+    .wire 24 15
   ]
 
 /-- Named targets `inner_pis_0`. -/
 def publicBatchWrapper4.inner_pis_0 : Fin 26 → Target :=
-  ![.virt 6595, .virt 6596, .virt 6597, .virt 6598, .virt 6599, .virt 6600, .virt 6601, .virt 6602, .virt 6603, .virt 6604, .virt 6605, .virt 6606, .virt 6607, .virt 6608, .virt 6609, .virt 6610, .virt 6611, .virt 6612, .virt 6613, .virt 6614, .virt 6615, .virt 6616, .virt 6617, .virt 6618, .virt 6619, .virt 6620]
+  ![.virt 0, .virt 1, .virt 2, .virt 3, .virt 4, .virt 5, .virt 6, .virt 7, .virt 8, .virt 9, .virt 10, .virt 11, .virt 12, .virt 13, .virt 14, .virt 15, .virt 16, .virt 17, .virt 18, .virt 19, .virt 20, .virt 21, .virt 22, .virt 23, .virt 24, .virt 25]
 
 /-- Named targets `inner_pis_1`. -/
 def publicBatchWrapper4.inner_pis_1 : Fin 26 → Target :=
-  ![.virt 13216, .virt 13217, .virt 13218, .virt 13219, .virt 13220, .virt 13221, .virt 13222, .virt 13223, .virt 13224, .virt 13225, .virt 13226, .virt 13227, .virt 13228, .virt 13229, .virt 13230, .virt 13231, .virt 13232, .virt 13233, .virt 13234, .virt 13235, .virt 13236, .virt 13237, .virt 13238, .virt 13239, .virt 13240, .virt 13241]
+  ![.virt 30, .virt 31, .virt 32, .virt 33, .virt 34, .virt 35, .virt 36, .virt 37, .virt 38, .virt 39, .virt 40, .virt 41, .virt 42, .virt 43, .virt 44, .virt 45, .virt 46, .virt 47, .virt 48, .virt 49, .virt 50, .virt 51, .virt 52, .virt 53, .virt 54, .virt 55]
 
 /-- Named targets `inner_pis_2`. -/
 def publicBatchWrapper4.inner_pis_2 : Fin 26 → Target :=
-  ![.virt 19837, .virt 19838, .virt 19839, .virt 19840, .virt 19841, .virt 19842, .virt 19843, .virt 19844, .virt 19845, .virt 19846, .virt 19847, .virt 19848, .virt 19849, .virt 19850, .virt 19851, .virt 19852, .virt 19853, .virt 19854, .virt 19855, .virt 19856, .virt 19857, .virt 19858, .virt 19859, .virt 19860, .virt 19861, .virt 19862]
+  ![.virt 56, .virt 57, .virt 58, .virt 59, .virt 60, .virt 61, .virt 62, .virt 63, .virt 64, .virt 65, .virt 66, .virt 67, .virt 68, .virt 69, .virt 70, .virt 71, .virt 72, .virt 73, .virt 74, .virt 75, .virt 76, .virt 77, .virt 78, .virt 79, .virt 80, .virt 81]
 
 /-- Named targets `inner_pis_3`. -/
 def publicBatchWrapper4.inner_pis_3 : Fin 26 → Target :=
-  ![.virt 26458, .virt 26459, .virt 26460, .virt 26461, .virt 26462, .virt 26463, .virt 26464, .virt 26465, .virt 26466, .virt 26467, .virt 26468, .virt 26469, .virt 26470, .virt 26471, .virt 26472, .virt 26473, .virt 26474, .virt 26475, .virt 26476, .virt 26477, .virt 26478, .virt 26479, .virt 26480, .virt 26481, .virt 26482, .virt 26483]
+  ![.virt 82, .virt 83, .virt 84, .virt 85, .virt 86, .virt 87, .virt 88, .virt 89, .virt 90, .virt 91, .virt 92, .virt 93, .virt 94, .virt 95, .virt 96, .virt 97, .virt 98, .virt 99, .virt 100, .virt 101, .virt 102, .virt 103, .virt 104, .virt 105, .virt 106, .virt 107]
 
 /-- Named targets `aggregator_address`. -/
 def publicBatchWrapper4.aggregator_address : Fin 4 → Target :=
-  ![.virt 26484, .virt 26485, .virt 26486, .virt 26487]
+  ![.virt 108, .virt 109, .virt 110, .virt 111]
 
 /-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
     name and the targets carrying its public inputs (`Recursive.children`). -/
 def publicBatchWrapper4.verifiers : List (String × List Target) :=
   [
-    ("private_batch_wrapper_n2", [.virt 6595, .virt 6596, .virt 6597, .virt 6598, .virt 6599, .virt 6600, .virt 6601, .virt 6602, .virt 6603, .virt 6604, .virt 6605, .virt 6606, .virt 6607, .virt 6608, .virt 6609, .virt 6610, .virt 6611, .virt 6612, .virt 6613, .virt 6614, .virt 6615, .virt 6616, .virt 6617, .virt 6618, .virt 6619, .virt 6620]),
-    ("private_batch_wrapper_n2", [.virt 13216, .virt 13217, .virt 13218, .virt 13219, .virt 13220, .virt 13221, .virt 13222, .virt 13223, .virt 13224, .virt 13225, .virt 13226, .virt 13227, .virt 13228, .virt 13229, .virt 13230, .virt 13231, .virt 13232, .virt 13233, .virt 13234, .virt 13235, .virt 13236, .virt 13237, .virt 13238, .virt 13239, .virt 13240, .virt 13241]),
-    ("private_batch_wrapper_n2", [.virt 19837, .virt 19838, .virt 19839, .virt 19840, .virt 19841, .virt 19842, .virt 19843, .virt 19844, .virt 19845, .virt 19846, .virt 19847, .virt 19848, .virt 19849, .virt 19850, .virt 19851, .virt 19852, .virt 19853, .virt 19854, .virt 19855, .virt 19856, .virt 19857, .virt 19858, .virt 19859, .virt 19860, .virt 19861, .virt 19862]),
-    ("private_batch_wrapper_n2", [.virt 26458, .virt 26459, .virt 26460, .virt 26461, .virt 26462, .virt 26463, .virt 26464, .virt 26465, .virt 26466, .virt 26467, .virt 26468, .virt 26469, .virt 26470, .virt 26471, .virt 26472, .virt 26473, .virt 26474, .virt 26475, .virt 26476, .virt 26477, .virt 26478, .virt 26479, .virt 26480, .virt 26481, .virt 26482, .virt 26483])
+    ("private_batch_wrapper_n2", [.virt 0, .virt 1, .virt 2, .virt 3, .virt 4, .virt 5, .virt 6, .virt 7, .virt 8, .virt 9, .virt 10, .virt 11, .virt 12, .virt 13, .virt 14, .virt 15, .virt 16, .virt 17, .virt 18, .virt 19, .virt 20, .virt 21, .virt 22, .virt 23, .virt 24, .virt 25]),
+    ("private_batch_wrapper_n2", [.virt 30, .virt 31, .virt 32, .virt 33, .virt 34, .virt 35, .virt 36, .virt 37, .virt 38, .virt 39, .virt 40, .virt 41, .virt 42, .virt 43, .virt 44, .virt 45, .virt 46, .virt 47, .virt 48, .virt 49, .virt 50, .virt 51, .virt 52, .virt 53, .virt 54, .virt 55]),
+    ("private_batch_wrapper_n2", [.virt 56, .virt 57, .virt 58, .virt 59, .virt 60, .virt 61, .virt 62, .virt 63, .virt 64, .virt 65, .virt 66, .virt 67, .virt 68, .virt 69, .virt 70, .virt 71, .virt 72, .virt 73, .virt 74, .virt 75, .virt 76, .virt 77, .virt 78, .virt 79, .virt 80, .virt 81]),
+    ("private_batch_wrapper_n2", [.virt 82, .virt 83, .virt 84, .virt 85, .virt 86, .virt 87, .virt 88, .virt 89, .virt 90, .virt 91, .virt 92, .virt 93, .virt 94, .virt 95, .virt 96, .virt 97, .virt 98, .virt 99, .virt 100, .virt 101, .virt 102, .virt 103, .virt 104, .virt 105, .virt 106, .virt 107])
   ]
 
 theorem publicBatchWrapper4_copies0 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 6595) = a (.virt 26490) ∧ a (.virt 13216) = a (.virt 26490) ∧ a (.virt 19837) = a (.virt 26490) ∧ a (.virt 26458) = a (.virt 26490) ∧ a (.virt 26488) = a (.wire 0 0) ∧ a (.virt 26488) = a (.wire 0 1) ∧ a (.virt 26491) = a (.wire 0 2) ∧ a (.virt 26491) = a (.wire 1 0) ∧ a (.virt 6598) = a (.wire 1 1) ∧ a (.virt 26491) = a (.wire 1 2) ∧ a (.virt 6598) = a (.wire 1 4) ∧ a (.virt 26492) = a (.wire 1 5) ∧ a (.virt 6598) = a (.wire 1 6) ∧ a (.wire 1 7) = a (.wire 0 4) ∧ a (.virt 26488) = a (.wire 0 5) ∧ a (.wire 0 3) = a (.wire 0 6) ∧ a (.wire 1 3) = a (.virt 26489) ∧ a (.wire 0 7) = a (.virt 26489) ∧ a (.virt 26488) = a (.wire 0 8) ∧ a (.virt 26488) = a (.wire 0 9) ∧ a (.virt 26493) = a (.wire 0 10) ∧ a (.virt 26493) = a (.wire 1 8) ∧ a (.virt 6599) = a (.wire 1 9) ∧ a (.virt 26493) = a (.wire 1 10) ∧ a (.virt 6599) = a (.wire 1 12) ∧ a (.virt 26494) = a (.wire 1 13) ∧ a (.virt 6599) = a (.wire 1 14) ∧ a (.wire 1 15) = a (.wire 0 12) ∧ a (.virt 26488) = a (.wire 0 13) ∧ a (.wire 0 11) = a (.wire 0 14) ∧ a (.wire 1 11) = a (.virt 26489) ∧ a (.wire 0 15) = a (.virt 26489) := by
+    a (.virt 0) = a (.virt 28) ∧ a (.virt 30) = a (.virt 28) ∧ a (.virt 56) = a (.virt 28) ∧ a (.virt 82) = a (.virt 28) ∧ a (.virt 27) = a (.wire 2 0) ∧ a (.virt 27) = a (.wire 2 1) ∧ a (.virt 112) = a (.wire 2 2) ∧ a (.virt 112) = a (.wire 1 16) ∧ a (.virt 3) = a (.wire 1 17) ∧ a (.virt 112) = a (.wire 1 18) ∧ a (.virt 3) = a (.wire 1 20) ∧ a (.virt 113) = a (.wire 1 21) ∧ a (.virt 3) = a (.wire 1 22) ∧ a (.wire 1 23) = a (.wire 2 4) ∧ a (.virt 27) = a (.wire 2 5) ∧ a (.wire 2 3) = a (.wire 2 6) ∧ a (.wire 1 19) = a (.virt 26) ∧ a (.wire 2 7) = a (.virt 26) ∧ a (.virt 27) = a (.wire 2 8) ∧ a (.virt 27) = a (.wire 2 9) ∧ a (.virt 114) = a (.wire 2 10) ∧ a (.virt 114) = a (.wire 1 24) ∧ a (.virt 4) = a (.wire 1 25) ∧ a (.virt 114) = a (.wire 1 26) ∧ a (.virt 4) = a (.wire 1 28) ∧ a (.virt 115) = a (.wire 1 29) ∧ a (.virt 4) = a (.wire 1 30) ∧ a (.wire 1 31) = a (.wire 2 12) ∧ a (.virt 27) = a (.wire 2 13) ∧ a (.wire 2 11) = a (.wire 2 14) ∧ a (.wire 1 27) = a (.virt 26) ∧ a (.wire 2 15) = a (.virt 26) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies0, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ hq)))))
   simp only [publicBatchWrapper4.copies0, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies1 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 26488) = a (.wire 0 16) ∧ a (.virt 26488) = a (.wire 0 17) ∧ a (.virt 26495) = a (.wire 0 18) ∧ a (.virt 26495) = a (.wire 1 16) ∧ a (.virt 6600) = a (.wire 1 17) ∧ a (.virt 26495) = a (.wire 1 18) ∧ a (.virt 6600) = a (.wire 1 20) ∧ a (.virt 26496) = a (.wire 1 21) ∧ a (.virt 6600) = a (.wire 1 22) ∧ a (.wire 1 23) = a (.wire 0 20) ∧ a (.virt 26488) = a (.wire 0 21) ∧ a (.wire 0 19) = a (.wire 0 22) ∧ a (.wire 1 19) = a (.virt 26489) ∧ a (.wire 0 23) = a (.virt 26489) ∧ a (.virt 26488) = a (.wire 0 24) ∧ a (.virt 26488) = a (.wire 0 25) ∧ a (.virt 26497) = a (.wire 0 26) ∧ a (.virt 26497) = a (.wire 1 24) ∧ a (.virt 6601) = a (.wire 1 25) ∧ a (.virt 26497) = a (.wire 1 26) ∧ a (.virt 6601) = a (.wire 1 28) ∧ a (.virt 26498) = a (.wire 1 29) ∧ a (.virt 6601) = a (.wire 1 30) ∧ a (.wire 1 31) = a (.wire 0 28) ∧ a (.virt 26488) = a (.wire 0 29) ∧ a (.wire 0 27) = a (.wire 0 30) ∧ a (.wire 1 27) = a (.virt 26489) ∧ a (.wire 0 31) = a (.virt 26489) ∧ a (.virt 26491) = a (.wire 1 32) ∧ a (.virt 26493) = a (.wire 1 33) ∧ a (.virt 26491) = a (.wire 1 34) ∧ a (.virt 26495) = a (.wire 1 36) := by
+    a (.virt 27) = a (.wire 2 16) ∧ a (.virt 27) = a (.wire 2 17) ∧ a (.virt 116) = a (.wire 2 18) ∧ a (.virt 116) = a (.wire 1 32) ∧ a (.virt 5) = a (.wire 1 33) ∧ a (.virt 116) = a (.wire 1 34) ∧ a (.virt 5) = a (.wire 1 36) ∧ a (.virt 117) = a (.wire 1 37) ∧ a (.virt 5) = a (.wire 1 38) ∧ a (.wire 1 39) = a (.wire 2 20) ∧ a (.virt 27) = a (.wire 2 21) ∧ a (.wire 2 19) = a (.wire 2 22) ∧ a (.wire 1 35) = a (.virt 26) ∧ a (.wire 2 23) = a (.virt 26) ∧ a (.virt 27) = a (.wire 2 24) ∧ a (.virt 27) = a (.wire 2 25) ∧ a (.virt 118) = a (.wire 2 26) ∧ a (.virt 118) = a (.wire 1 40) ∧ a (.virt 6) = a (.wire 1 41) ∧ a (.virt 118) = a (.wire 1 42) ∧ a (.virt 6) = a (.wire 1 44) ∧ a (.virt 119) = a (.wire 1 45) ∧ a (.virt 6) = a (.wire 1 46) ∧ a (.wire 1 47) = a (.wire 2 28) ∧ a (.virt 27) = a (.wire 2 29) ∧ a (.wire 2 27) = a (.wire 2 30) ∧ a (.wire 1 43) = a (.virt 26) ∧ a (.wire 2 31) = a (.virt 26) ∧ a (.virt 112) = a (.wire 1 48) ∧ a (.virt 114) = a (.wire 1 49) ∧ a (.virt 112) = a (.wire 1 50) ∧ a (.virt 116) = a (.wire 1 52) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies1, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ hq)))))
   simp only [publicBatchWrapper4.copies1, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies2 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 26497) = a (.wire 1 37) ∧ a (.virt 26495) = a (.wire 1 38) ∧ a (.wire 1 35) = a (.wire 1 40) ∧ a (.wire 1 39) = a (.wire 1 41) ∧ a (.wire 1 35) = a (.wire 1 42) ∧ a (.virt 26488) = a (.wire 0 32) ∧ a (.virt 26488) = a (.wire 0 33) ∧ a (.virt 26499) = a (.wire 0 34) ∧ a (.virt 26499) = a (.wire 1 44) ∧ a (.virt 13219) = a (.wire 1 45) ∧ a (.virt 26499) = a (.wire 1 46) ∧ a (.virt 13219) = a (.wire 1 48) ∧ a (.virt 26500) = a (.wire 1 49) ∧ a (.virt 13219) = a (.wire 1 50) ∧ a (.wire 1 51) = a (.wire 0 36) ∧ a (.virt 26488) = a (.wire 0 37) ∧ a (.wire 0 35) = a (.wire 0 38) ∧ a (.wire 1 47) = a (.virt 26489) ∧ a (.wire 0 39) = a (.virt 26489) ∧ a (.virt 26488) = a (.wire 0 40) ∧ a (.virt 26488) = a (.wire 0 41) ∧ a (.virt 26501) = a (.wire 0 42) ∧ a (.virt 26501) = a (.wire 1 52) ∧ a (.virt 13220) = a (.wire 1 53) ∧ a (.virt 26501) = a (.wire 1 54) ∧ a (.virt 13220) = a (.wire 1 56) ∧ a (.virt 26502) = a (.wire 1 57) ∧ a (.virt 13220) = a (.wire 1 58) ∧ a (.wire 1 59) = a (.wire 0 44) ∧ a (.virt 26488) = a (.wire 0 45) ∧ a (.wire 0 43) = a (.wire 0 46) ∧ a (.wire 1 55) = a (.virt 26489) := by
+    a (.virt 118) = a (.wire 1 53) ∧ a (.virt 116) = a (.wire 1 54) ∧ a (.wire 1 51) = a (.wire 1 56) ∧ a (.wire 1 55) = a (.wire 1 57) ∧ a (.wire 1 51) = a (.wire 1 58) ∧ a (.virt 27) = a (.wire 2 32) ∧ a (.virt 27) = a (.wire 2 33) ∧ a (.virt 120) = a (.wire 2 34) ∧ a (.virt 120) = a (.wire 1 60) ∧ a (.virt 33) = a (.wire 1 61) ∧ a (.virt 120) = a (.wire 1 62) ∧ a (.virt 33) = a (.wire 1 64) ∧ a (.virt 121) = a (.wire 1 65) ∧ a (.virt 33) = a (.wire 1 66) ∧ a (.wire 1 67) = a (.wire 2 36) ∧ a (.virt 27) = a (.wire 2 37) ∧ a (.wire 2 35) = a (.wire 2 38) ∧ a (.wire 1 63) = a (.virt 26) ∧ a (.wire 2 39) = a (.virt 26) ∧ a (.virt 27) = a (.wire 2 40) ∧ a (.virt 27) = a (.wire 2 41) ∧ a (.virt 122) = a (.wire 2 42) ∧ a (.virt 122) = a (.wire 1 68) ∧ a (.virt 34) = a (.wire 1 69) ∧ a (.virt 122) = a (.wire 1 70) ∧ a (.virt 34) = a (.wire 1 72) ∧ a (.virt 123) = a (.wire 1 73) ∧ a (.virt 34) = a (.wire 1 74) ∧ a (.wire 1 75) = a (.wire 2 44) ∧ a (.virt 27) = a (.wire 2 45) ∧ a (.wire 2 43) = a (.wire 2 46) ∧ a (.wire 1 71) = a (.virt 26) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies2, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ hq)))))
   simp only [publicBatchWrapper4.copies2, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies3 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 0 47) = a (.virt 26489) ∧ a (.virt 26488) = a (.wire 0 48) ∧ a (.virt 26488) = a (.wire 0 49) ∧ a (.virt 26503) = a (.wire 0 50) ∧ a (.virt 26503) = a (.wire 1 60) ∧ a (.virt 13221) = a (.wire 1 61) ∧ a (.virt 26503) = a (.wire 1 62) ∧ a (.virt 13221) = a (.wire 1 64) ∧ a (.virt 26504) = a (.wire 1 65) ∧ a (.virt 13221) = a (.wire 1 66) ∧ a (.wire 1 67) = a (.wire 0 52) ∧ a (.virt 26488) = a (.wire 0 53) ∧ a (.wire 0 51) = a (.wire 0 54) ∧ a (.wire 1 63) = a (.virt 26489) ∧ a (.wire 0 55) = a (.virt 26489) ∧ a (.virt 26488) = a (.wire 0 56) ∧ a (.virt 26488) = a (.wire 0 57) ∧ a (.virt 26505) = a (.wire 0 58) ∧ a (.virt 26505) = a (.wire 1 68) ∧ a (.virt 13222) = a (.wire 1 69) ∧ a (.virt 26505) = a (.wire 1 70) ∧ a (.virt 13222) = a (.wire 1 72) ∧ a (.virt 26506) = a (.wire 1 73) ∧ a (.virt 13222) = a (.wire 1 74) ∧ a (.wire 1 75) = a (.wire 0 60) ∧ a (.virt 26488) = a (.wire 0 61) ∧ a (.wire 0 59) = a (.wire 0 62) ∧ a (.wire 1 71) = a (.virt 26489) ∧ a (.wire 0 63) = a (.virt 26489) ∧ a (.virt 26499) = a (.wire 1 76) ∧ a (.virt 26501) = a (.wire 1 77) ∧ a (.virt 26499) = a (.wire 1 78) := by
+    a (.wire 2 47) = a (.virt 26) ∧ a (.virt 27) = a (.wire 2 48) ∧ a (.virt 27) = a (.wire 2 49) ∧ a (.virt 124) = a (.wire 2 50) ∧ a (.virt 124) = a (.wire 1 76) ∧ a (.virt 35) = a (.wire 1 77) ∧ a (.virt 124) = a (.wire 1 78) ∧ a (.virt 35) = a (.wire 3 0) ∧ a (.virt 125) = a (.wire 3 1) ∧ a (.virt 35) = a (.wire 3 2) ∧ a (.wire 3 3) = a (.wire 2 52) ∧ a (.virt 27) = a (.wire 2 53) ∧ a (.wire 2 51) = a (.wire 2 54) ∧ a (.wire 1 79) = a (.virt 26) ∧ a (.wire 2 55) = a (.virt 26) ∧ a (.virt 27) = a (.wire 2 56) ∧ a (.virt 27) = a (.wire 2 57) ∧ a (.virt 126) = a (.wire 2 58) ∧ a (.virt 126) = a (.wire 3 4) ∧ a (.virt 36) = a (.wire 3 5) ∧ a (.virt 126) = a (.wire 3 6) ∧ a (.virt 36) = a (.wire 3 8) ∧ a (.virt 127) = a (.wire 3 9) ∧ a (.virt 36) = a (.wire 3 10) ∧ a (.wire 3 11) = a (.wire 2 60) ∧ a (.virt 27) = a (.wire 2 61) ∧ a (.wire 2 59) = a (.wire 2 62) ∧ a (.wire 3 7) = a (.virt 26) ∧ a (.wire 2 63) = a (.virt 26) ∧ a (.virt 120) = a (.wire 3 12) ∧ a (.virt 122) = a (.wire 3 13) ∧ a (.virt 120) = a (.wire 3 14) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies3, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ hq))))))
   simp only [publicBatchWrapper4.copies3, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies4 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 26503) = a (.wire 2 0) ∧ a (.virt 26505) = a (.wire 2 1) ∧ a (.virt 26503) = a (.wire 2 2) ∧ a (.wire 1 79) = a (.wire 2 4) ∧ a (.wire 2 3) = a (.wire 2 5) ∧ a (.wire 1 79) = a (.wire 2 6) ∧ a (.virt 26488) = a (.wire 0 64) ∧ a (.virt 26488) = a (.wire 0 65) ∧ a (.virt 26507) = a (.wire 0 66) ∧ a (.virt 26507) = a (.wire 2 8) ∧ a (.virt 19840) = a (.wire 2 9) ∧ a (.virt 26507) = a (.wire 2 10) ∧ a (.virt 19840) = a (.wire 2 12) ∧ a (.virt 26508) = a (.wire 2 13) ∧ a (.virt 19840) = a (.wire 2 14) ∧ a (.wire 2 15) = a (.wire 0 68) ∧ a (.virt 26488) = a (.wire 0 69) ∧ a (.wire 0 67) = a (.wire 0 70) ∧ a (.wire 2 11) = a (.virt 26489) ∧ a (.wire 0 71) = a (.virt 26489) ∧ a (.virt 26488) = a (.wire 0 72) ∧ a (.virt 26488) = a (.wire 0 73) ∧ a (.virt 26509) = a (.wire 0 74) ∧ a (.virt 26509) = a (.wire 2 16) ∧ a (.virt 19841) = a (.wire 2 17) ∧ a (.virt 26509) = a (.wire 2 18) ∧ a (.virt 19841) = a (.wire 2 20) ∧ a (.virt 26510) = a (.wire 2 21) ∧ a (.virt 19841) = a (.wire 2 22) ∧ a (.wire 2 23) = a (.wire 0 76) ∧ a (.virt 26488) = a (.wire 0 77) ∧ a (.wire 0 75) = a (.wire 0 78) := by
+    a (.virt 124) = a (.wire 3 16) ∧ a (.virt 126) = a (.wire 3 17) ∧ a (.virt 124) = a (.wire 3 18) ∧ a (.wire 3 15) = a (.wire 3 20) ∧ a (.wire 3 19) = a (.wire 3 21) ∧ a (.wire 3 15) = a (.wire 3 22) ∧ a (.virt 27) = a (.wire 2 64) ∧ a (.virt 27) = a (.wire 2 65) ∧ a (.virt 128) = a (.wire 2 66) ∧ a (.virt 128) = a (.wire 3 24) ∧ a (.virt 59) = a (.wire 3 25) ∧ a (.virt 128) = a (.wire 3 26) ∧ a (.virt 59) = a (.wire 3 28) ∧ a (.virt 129) = a (.wire 3 29) ∧ a (.virt 59) = a (.wire 3 30) ∧ a (.wire 3 31) = a (.wire 2 68) ∧ a (.virt 27) = a (.wire 2 69) ∧ a (.wire 2 67) = a (.wire 2 70) ∧ a (.wire 3 27) = a (.virt 26) ∧ a (.wire 2 71) = a (.virt 26) ∧ a (.virt 27) = a (.wire 2 72) ∧ a (.virt 27) = a (.wire 2 73) ∧ a (.virt 130) = a (.wire 2 74) ∧ a (.virt 130) = a (.wire 3 32) ∧ a (.virt 60) = a (.wire 3 33) ∧ a (.virt 130) = a (.wire 3 34) ∧ a (.virt 60) = a (.wire 3 36) ∧ a (.virt 131) = a (.wire 3 37) ∧ a (.virt 60) = a (.wire 3 38) ∧ a (.wire 3 39) = a (.wire 2 76) ∧ a (.virt 27) = a (.wire 2 77) ∧ a (.wire 2 75) = a (.wire 2 78) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies4, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ hq))))))
   simp only [publicBatchWrapper4.copies4, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies5 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 2 19) = a (.virt 26489) ∧ a (.wire 0 79) = a (.virt 26489) ∧ a (.virt 26488) = a (.wire 3 0) ∧ a (.virt 26488) = a (.wire 3 1) ∧ a (.virt 26511) = a (.wire 3 2) ∧ a (.virt 26511) = a (.wire 2 24) ∧ a (.virt 19842) = a (.wire 2 25) ∧ a (.virt 26511) = a (.wire 2 26) ∧ a (.virt 19842) = a (.wire 2 28) ∧ a (.virt 26512) = a (.wire 2 29) ∧ a (.virt 19842) = a (.wire 2 30) ∧ a (.wire 2 31) = a (.wire 3 4) ∧ a (.virt 26488) = a (.wire 3 5) ∧ a (.wire 3 3) = a (.wire 3 6) ∧ a (.wire 2 27) = a (.virt 26489) ∧ a (.wire 3 7) = a (.virt 26489) ∧ a (.virt 26488) = a (.wire 3 8) ∧ a (.virt 26488) = a (.wire 3 9) ∧ a (.virt 26513) = a (.wire 3 10) ∧ a (.virt 26513) = a (.wire 2 32) ∧ a (.virt 19843) = a (.wire 2 33) ∧ a (.virt 26513) = a (.wire 2 34) ∧ a (.virt 19843) = a (.wire 2 36) ∧ a (.virt 26514) = a (.wire 2 37) ∧ a (.virt 19843) = a (.wire 2 38) ∧ a (.wire 2 39) = a (.wire 3 12) ∧ a (.virt 26488) = a (.wire 3 13) ∧ a (.wire 3 11) = a (.wire 3 14) ∧ a (.wire 2 35) = a (.virt 26489) ∧ a (.wire 3 15) = a (.virt 26489) ∧ a (.virt 26507) = a (.wire 2 40) ∧ a (.virt 26509) = a (.wire 2 41) := by
+    a (.wire 3 35) = a (.virt 26) ∧ a (.wire 2 79) = a (.virt 26) ∧ a (.virt 27) = a (.wire 4 0) ∧ a (.virt 27) = a (.wire 4 1) ∧ a (.virt 132) = a (.wire 4 2) ∧ a (.virt 132) = a (.wire 3 40) ∧ a (.virt 61) = a (.wire 3 41) ∧ a (.virt 132) = a (.wire 3 42) ∧ a (.virt 61) = a (.wire 3 44) ∧ a (.virt 133) = a (.wire 3 45) ∧ a (.virt 61) = a (.wire 3 46) ∧ a (.wire 3 47) = a (.wire 4 4) ∧ a (.virt 27) = a (.wire 4 5) ∧ a (.wire 4 3) = a (.wire 4 6) ∧ a (.wire 3 43) = a (.virt 26) ∧ a (.wire 4 7) = a (.virt 26) ∧ a (.virt 27) = a (.wire 4 8) ∧ a (.virt 27) = a (.wire 4 9) ∧ a (.virt 134) = a (.wire 4 10) ∧ a (.virt 134) = a (.wire 3 48) ∧ a (.virt 62) = a (.wire 3 49) ∧ a (.virt 134) = a (.wire 3 50) ∧ a (.virt 62) = a (.wire 3 52) ∧ a (.virt 135) = a (.wire 3 53) ∧ a (.virt 62) = a (.wire 3 54) ∧ a (.wire 3 55) = a (.wire 4 12) ∧ a (.virt 27) = a (.wire 4 13) ∧ a (.wire 4 11) = a (.wire 4 14) ∧ a (.wire 3 51) = a (.virt 26) ∧ a (.wire 4 15) = a (.virt 26) ∧ a (.virt 128) = a (.wire 3 56) ∧ a (.virt 130) = a (.wire 3 57) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies5, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_left _ hq)))))
   simp only [publicBatchWrapper4.copies5, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies6 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 26507) = a (.wire 2 42) ∧ a (.virt 26511) = a (.wire 2 44) ∧ a (.virt 26513) = a (.wire 2 45) ∧ a (.virt 26511) = a (.wire 2 46) ∧ a (.wire 2 43) = a (.wire 2 48) ∧ a (.wire 2 47) = a (.wire 2 49) ∧ a (.wire 2 43) = a (.wire 2 50) ∧ a (.virt 26488) = a (.wire 3 16) ∧ a (.virt 26488) = a (.wire 3 17) ∧ a (.virt 26515) = a (.wire 3 18) ∧ a (.virt 26515) = a (.wire 2 52) ∧ a (.virt 26461) = a (.wire 2 53) ∧ a (.virt 26515) = a (.wire 2 54) ∧ a (.virt 26461) = a (.wire 2 56) ∧ a (.virt 26516) = a (.wire 2 57) ∧ a (.virt 26461) = a (.wire 2 58) ∧ a (.wire 2 59) = a (.wire 3 20) ∧ a (.virt 26488) = a (.wire 3 21) ∧ a (.wire 3 19) = a (.wire 3 22) ∧ a (.wire 2 55) = a (.virt 26489) ∧ a (.wire 3 23) = a (.virt 26489) ∧ a (.virt 26488) = a (.wire 3 24) ∧ a (.virt 26488) = a (.wire 3 25) ∧ a (.virt 26517) = a (.wire 3 26) ∧ a (.virt 26517) = a (.wire 2 60) ∧ a (.virt 26462) = a (.wire 2 61) ∧ a (.virt 26517) = a (.wire 2 62) ∧ a (.virt 26462) = a (.wire 2 64) ∧ a (.virt 26518) = a (.wire 2 65) ∧ a (.virt 26462) = a (.wire 2 66) ∧ a (.wire 2 67) = a (.wire 3 28) ∧ a (.virt 26488) = a (.wire 3 29) := by
+    a (.virt 128) = a (.wire 3 58) ∧ a (.virt 132) = a (.wire 3 60) ∧ a (.virt 134) = a (.wire 3 61) ∧ a (.virt 132) = a (.wire 3 62) ∧ a (.wire 3 59) = a (.wire 3 64) ∧ a (.wire 3 63) = a (.wire 3 65) ∧ a (.wire 3 59) = a (.wire 3 66) ∧ a (.virt 27) = a (.wire 4 16) ∧ a (.virt 27) = a (.wire 4 17) ∧ a (.virt 136) = a (.wire 4 18) ∧ a (.virt 136) = a (.wire 3 68) ∧ a (.virt 85) = a (.wire 3 69) ∧ a (.virt 136) = a (.wire 3 70) ∧ a (.virt 85) = a (.wire 3 72) ∧ a (.virt 137) = a (.wire 3 73) ∧ a (.virt 85) = a (.wire 3 74) ∧ a (.wire 3 75) = a (.wire 4 20) ∧ a (.virt 27) = a (.wire 4 21) ∧ a (.wire 4 19) = a (.wire 4 22) ∧ a (.wire 3 71) = a (.virt 26) ∧ a (.wire 4 23) = a (.virt 26) ∧ a (.virt 27) = a (.wire 4 24) ∧ a (.virt 27) = a (.wire 4 25) ∧ a (.virt 138) = a (.wire 4 26) ∧ a (.virt 138) = a (.wire 3 76) ∧ a (.virt 86) = a (.wire 3 77) ∧ a (.virt 138) = a (.wire 3 78) ∧ a (.virt 86) = a (.wire 5 0) ∧ a (.virt 139) = a (.wire 5 1) ∧ a (.virt 86) = a (.wire 5 2) ∧ a (.wire 5 3) = a (.wire 4 28) ∧ a (.virt 27) = a (.wire 4 29) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies6, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ hq))))))
   simp only [publicBatchWrapper4.copies6, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies7 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 3 27) = a (.wire 3 30) ∧ a (.wire 2 63) = a (.virt 26489) ∧ a (.wire 3 31) = a (.virt 26489) ∧ a (.virt 26488) = a (.wire 3 32) ∧ a (.virt 26488) = a (.wire 3 33) ∧ a (.virt 26519) = a (.wire 3 34) ∧ a (.virt 26519) = a (.wire 2 68) ∧ a (.virt 26463) = a (.wire 2 69) ∧ a (.virt 26519) = a (.wire 2 70) ∧ a (.virt 26463) = a (.wire 2 72) ∧ a (.virt 26520) = a (.wire 2 73) ∧ a (.virt 26463) = a (.wire 2 74) ∧ a (.wire 2 75) = a (.wire 3 36) ∧ a (.virt 26488) = a (.wire 3 37) ∧ a (.wire 3 35) = a (.wire 3 38) ∧ a (.wire 2 71) = a (.virt 26489) ∧ a (.wire 3 39) = a (.virt 26489) ∧ a (.virt 26488) = a (.wire 3 40) ∧ a (.virt 26488) = a (.wire 3 41) ∧ a (.virt 26521) = a (.wire 3 42) ∧ a (.virt 26521) = a (.wire 2 76) ∧ a (.virt 26464) = a (.wire 2 77) ∧ a (.virt 26521) = a (.wire 2 78) ∧ a (.virt 26464) = a (.wire 4 0) ∧ a (.virt 26522) = a (.wire 4 1) ∧ a (.virt 26464) = a (.wire 4 2) ∧ a (.wire 4 3) = a (.wire 3 44) ∧ a (.virt 26488) = a (.wire 3 45) ∧ a (.wire 3 43) = a (.wire 3 46) ∧ a (.wire 2 79) = a (.virt 26489) ∧ a (.wire 3 47) = a (.virt 26489) ∧ a (.virt 26515) = a (.wire 4 4) := by
+    a (.wire 4 27) = a (.wire 4 30) ∧ a (.wire 3 79) = a (.virt 26) ∧ a (.wire 4 31) = a (.virt 26) ∧ a (.virt 27) = a (.wire 4 32) ∧ a (.virt 27) = a (.wire 4 33) ∧ a (.virt 140) = a (.wire 4 34) ∧ a (.virt 140) = a (.wire 5 4) ∧ a (.virt 87) = a (.wire 5 5) ∧ a (.virt 140) = a (.wire 5 6) ∧ a (.virt 87) = a (.wire 5 8) ∧ a (.virt 141) = a (.wire 5 9) ∧ a (.virt 87) = a (.wire 5 10) ∧ a (.wire 5 11) = a (.wire 4 36) ∧ a (.virt 27) = a (.wire 4 37) ∧ a (.wire 4 35) = a (.wire 4 38) ∧ a (.wire 5 7) = a (.virt 26) ∧ a (.wire 4 39) = a (.virt 26) ∧ a (.virt 27) = a (.wire 4 40) ∧ a (.virt 27) = a (.wire 4 41) ∧ a (.virt 142) = a (.wire 4 42) ∧ a (.virt 142) = a (.wire 5 12) ∧ a (.virt 88) = a (.wire 5 13) ∧ a (.virt 142) = a (.wire 5 14) ∧ a (.virt 88) = a (.wire 5 16) ∧ a (.virt 143) = a (.wire 5 17) ∧ a (.virt 88) = a (.wire 5 18) ∧ a (.wire 5 19) = a (.wire 4 44) ∧ a (.virt 27) = a (.wire 4 45) ∧ a (.wire 4 43) = a (.wire 4 46) ∧ a (.wire 5 15) = a (.virt 26) ∧ a (.wire 4 47) = a (.virt 26) ∧ a (.virt 136) = a (.wire 5 20) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies7, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ hq))))))
   simp only [publicBatchWrapper4.copies7, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies8 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 26517) = a (.wire 4 5) ∧ a (.virt 26515) = a (.wire 4 6) ∧ a (.virt 26519) = a (.wire 4 8) ∧ a (.virt 26521) = a (.wire 4 9) ∧ a (.virt 26519) = a (.wire 4 10) ∧ a (.wire 4 7) = a (.wire 4 12) ∧ a (.wire 4 11) = a (.wire 4 13) ∧ a (.wire 4 7) = a (.wire 4 14) ∧ a (.virt 26488) = a (.wire 3 48) ∧ a (.virt 26488) = a (.wire 3 49) ∧ a (.wire 1 43) = a (.wire 3 50) ∧ a (.wire 3 51) = a (.wire 3 52) ∧ a (.virt 6598) = a (.wire 3 53) ∧ a (.virt 26489) = a (.wire 3 54) ∧ a (.wire 3 51) = a (.wire 3 56) ∧ a (.virt 6599) = a (.wire 3 57) ∧ a (.virt 26489) = a (.wire 3 58) ∧ a (.wire 3 51) = a (.wire 3 60) ∧ a (.virt 6600) = a (.wire 3 61) ∧ a (.virt 26489) = a (.wire 3 62) ∧ a (.wire 3 51) = a (.wire 3 64) ∧ a (.virt 6601) = a (.wire 3 65) ∧ a (.virt 26489) = a (.wire 3 66) ∧ a (.wire 3 51) = a (.wire 3 68) ∧ a (.virt 6602) = a (.wire 3 69) ∧ a (.virt 26489) = a (.wire 3 70) ∧ a (.wire 3 51) = a (.wire 3 72) ∧ a (.virt 6596) = a (.wire 3 73) ∧ a (.virt 26489) = a (.wire 3 74) ∧ a (.wire 3 51) = a (.wire 3 76) ∧ a (.virt 6597) = a (.wire 3 77) ∧ a (.virt 26489) = a (.wire 3 78) := by
+    a (.virt 138) = a (.wire 5 21) ∧ a (.virt 136) = a (.wire 5 22) ∧ a (.virt 140) = a (.wire 5 24) ∧ a (.virt 142) = a (.wire 5 25) ∧ a (.virt 140) = a (.wire 5 26) ∧ a (.wire 5 23) = a (.wire 5 28) ∧ a (.wire 5 27) = a (.wire 5 29) ∧ a (.wire 5 23) = a (.wire 5 30) ∧ a (.virt 27) = a (.wire 4 48) ∧ a (.virt 27) = a (.wire 4 49) ∧ a (.wire 1 59) = a (.wire 4 50) ∧ a (.wire 4 51) = a (.wire 4 52) ∧ a (.virt 3) = a (.wire 4 53) ∧ a (.virt 26) = a (.wire 4 54) ∧ a (.wire 4 51) = a (.wire 4 56) ∧ a (.virt 4) = a (.wire 4 57) ∧ a (.virt 26) = a (.wire 4 58) ∧ a (.wire 4 51) = a (.wire 4 60) ∧ a (.virt 5) = a (.wire 4 61) ∧ a (.virt 26) = a (.wire 4 62) ∧ a (.wire 4 51) = a (.wire 4 64) ∧ a (.virt 6) = a (.wire 4 65) ∧ a (.virt 26) = a (.wire 4 66) ∧ a (.wire 4 51) = a (.wire 4 68) ∧ a (.virt 7) = a (.wire 4 69) ∧ a (.virt 26) = a (.wire 4 70) ∧ a (.wire 4 51) = a (.wire 4 72) ∧ a (.virt 1) = a (.wire 4 73) ∧ a (.virt 26) = a (.wire 4 74) ∧ a (.wire 4 51) = a (.wire 4 76) ∧ a (.virt 2) = a (.wire 4 77) ∧ a (.virt 26) = a (.wire 4 78) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies8, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ hq)))))
   simp only [publicBatchWrapper4.copies8, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies9 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 26488) = a (.wire 5 0) ∧ a (.virt 26488) = a (.wire 5 1) ∧ a (.wire 2 7) = a (.wire 5 2) ∧ a (.virt 26488) = a (.wire 5 4) ∧ a (.virt 26488) = a (.wire 5 5) ∧ a (.wire 3 51) = a (.wire 5 6) ∧ a (.wire 5 3) = a (.wire 4 16) ∧ a (.wire 5 7) = a (.wire 4 17) ∧ a (.wire 5 3) = a (.wire 4 18) ∧ a (.wire 4 19) = a (.wire 5 8) ∧ a (.wire 3 55) = a (.wire 5 9) ∧ a (.wire 3 55) = a (.wire 5 10) ∧ a (.wire 4 19) = a (.wire 5 12) ∧ a (.virt 13219) = a (.wire 5 13) ∧ a (.wire 5 11) = a (.wire 5 14) ∧ a (.wire 4 19) = a (.wire 5 16) ∧ a (.wire 3 59) = a (.wire 5 17) ∧ a (.wire 3 59) = a (.wire 5 18) ∧ a (.wire 4 19) = a (.wire 5 20) ∧ a (.virt 13220) = a (.wire 5 21) ∧ a (.wire 5 19) = a (.wire 5 22) ∧ a (.wire 4 19) = a (.wire 5 24) ∧ a (.wire 3 63) = a (.wire 5 25) ∧ a (.wire 3 63) = a (.wire 5 26) ∧ a (.wire 4 19) = a (.wire 5 28) ∧ a (.virt 13221) = a (.wire 5 29) ∧ a (.wire 5 27) = a (.wire 5 30) ∧ a (.wire 4 19) = a (.wire 5 32) ∧ a (.wire 3 67) = a (.wire 5 33) ∧ a (.wire 3 67) = a (.wire 5 34) ∧ a (.wire 4 19) = a (.wire 5 36) ∧ a (.virt 13222) = a (.wire 5 37) := by
+    a (.virt 27) = a (.wire 6 0) ∧ a (.virt 27) = a (.wire 6 1) ∧ a (.wire 3 23) = a (.wire 6 2) ∧ a (.virt 27) = a (.wire 6 4) ∧ a (.virt 27) = a (.wire 6 5) ∧ a (.wire 4 51) = a (.wire 6 6) ∧ a (.wire 6 3) = a (.wire 5 32) ∧ a (.wire 6 7) = a (.wire 5 33) ∧ a (.wire 6 3) = a (.wire 5 34) ∧ a (.wire 5 35) = a (.wire 6 8) ∧ a (.wire 4 55) = a (.wire 6 9) ∧ a (.wire 4 55) = a (.wire 6 10) ∧ a (.wire 5 35) = a (.wire 6 12) ∧ a (.virt 33) = a (.wire 6 13) ∧ a (.wire 6 11) = a (.wire 6 14) ∧ a (.wire 5 35) = a (.wire 6 16) ∧ a (.wire 4 59) = a (.wire 6 17) ∧ a (.wire 4 59) = a (.wire 6 18) ∧ a (.wire 5 35) = a (.wire 6 20) ∧ a (.virt 34) = a (.wire 6 21) ∧ a (.wire 6 19) = a (.wire 6 22) ∧ a (.wire 5 35) = a (.wire 6 24) ∧ a (.wire 4 63) = a (.wire 6 25) ∧ a (.wire 4 63) = a (.wire 6 26) ∧ a (.wire 5 35) = a (.wire 6 28) ∧ a (.virt 35) = a (.wire 6 29) ∧ a (.wire 6 27) = a (.wire 6 30) ∧ a (.wire 5 35) = a (.wire 6 32) ∧ a (.wire 4 67) = a (.wire 6 33) ∧ a (.wire 4 67) = a (.wire 6 34) ∧ a (.wire 5 35) = a (.wire 6 36) ∧ a (.virt 36) = a (.wire 6 37) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies9, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ hq))))))
   simp only [publicBatchWrapper4.copies9, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies10 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 5 35) = a (.wire 5 38) ∧ a (.wire 4 19) = a (.wire 5 40) ∧ a (.wire 3 71) = a (.wire 5 41) ∧ a (.wire 3 71) = a (.wire 5 42) ∧ a (.wire 4 19) = a (.wire 5 44) ∧ a (.virt 13223) = a (.wire 5 45) ∧ a (.wire 5 43) = a (.wire 5 46) ∧ a (.wire 4 19) = a (.wire 5 48) ∧ a (.wire 3 75) = a (.wire 5 49) ∧ a (.wire 3 75) = a (.wire 5 50) ∧ a (.wire 4 19) = a (.wire 5 52) ∧ a (.virt 13217) = a (.wire 5 53) ∧ a (.wire 5 51) = a (.wire 5 54) ∧ a (.wire 4 19) = a (.wire 5 56) ∧ a (.wire 3 79) = a (.wire 5 57) ∧ a (.wire 3 79) = a (.wire 5 58) ∧ a (.wire 4 19) = a (.wire 5 60) ∧ a (.virt 13218) = a (.wire 5 61) ∧ a (.wire 5 59) = a (.wire 5 62) ∧ a (.wire 3 51) = a (.wire 6 0) ∧ a (.wire 5 3) = a (.wire 6 1) ∧ a (.wire 3 51) = a (.wire 6 2) ∧ a (.wire 6 3) = a (.wire 7 0) ∧ a (.virt 26488) = a (.wire 7 1) ∧ a (.wire 5 3) = a (.wire 7 2) ∧ a (.virt 26488) = a (.wire 5 64) ∧ a (.virt 26488) = a (.wire 5 65) ∧ a (.wire 2 51) = a (.wire 5 66) ∧ a (.virt 26488) = a (.wire 5 68) ∧ a (.virt 26488) = a (.wire 5 69) ∧ a (.wire 7 3) = a (.wire 5 70) ∧ a (.wire 5 67) = a (.wire 4 20) := by
+    a (.wire 6 35) = a (.wire 6 38) ∧ a (.wire 5 35) = a (.wire 6 40) ∧ a (.wire 4 71) = a (.wire 6 41) ∧ a (.wire 4 71) = a (.wire 6 42) ∧ a (.wire 5 35) = a (.wire 6 44) ∧ a (.virt 37) = a (.wire 6 45) ∧ a (.wire 6 43) = a (.wire 6 46) ∧ a (.wire 5 35) = a (.wire 6 48) ∧ a (.wire 4 75) = a (.wire 6 49) ∧ a (.wire 4 75) = a (.wire 6 50) ∧ a (.wire 5 35) = a (.wire 6 52) ∧ a (.virt 31) = a (.wire 6 53) ∧ a (.wire 6 51) = a (.wire 6 54) ∧ a (.wire 5 35) = a (.wire 6 56) ∧ a (.wire 4 79) = a (.wire 6 57) ∧ a (.wire 4 79) = a (.wire 6 58) ∧ a (.wire 5 35) = a (.wire 6 60) ∧ a (.virt 32) = a (.wire 6 61) ∧ a (.wire 6 59) = a (.wire 6 62) ∧ a (.wire 4 51) = a (.wire 7 0) ∧ a (.wire 6 3) = a (.wire 7 1) ∧ a (.wire 4 51) = a (.wire 7 2) ∧ a (.wire 7 3) = a (.wire 0 48) ∧ a (.virt 27) = a (.wire 0 49) ∧ a (.wire 6 3) = a (.wire 0 50) ∧ a (.virt 27) = a (.wire 6 64) ∧ a (.virt 27) = a (.wire 6 65) ∧ a (.wire 3 67) = a (.wire 6 66) ∧ a (.virt 27) = a (.wire 6 68) ∧ a (.virt 27) = a (.wire 6 69) ∧ a (.wire 0 51) = a (.wire 6 70) ∧ a (.wire 6 67) = a (.wire 5 36) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies10, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ hq))))))
   simp only [publicBatchWrapper4.copies10, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies11 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 5 71) = a (.wire 4 21) ∧ a (.wire 5 67) = a (.wire 4 22) ∧ a (.wire 4 23) = a (.wire 5 72) ∧ a (.wire 5 15) = a (.wire 5 73) ∧ a (.wire 5 15) = a (.wire 5 74) ∧ a (.wire 4 23) = a (.wire 5 76) ∧ a (.virt 19840) = a (.wire 5 77) ∧ a (.wire 5 75) = a (.wire 5 78) ∧ a (.wire 4 23) = a (.wire 8 0) ∧ a (.wire 5 23) = a (.wire 8 1) ∧ a (.wire 5 23) = a (.wire 8 2) ∧ a (.wire 4 23) = a (.wire 8 4) ∧ a (.virt 19841) = a (.wire 8 5) ∧ a (.wire 8 3) = a (.wire 8 6) ∧ a (.wire 4 23) = a (.wire 8 8) ∧ a (.wire 5 31) = a (.wire 8 9) ∧ a (.wire 5 31) = a (.wire 8 10) ∧ a (.wire 4 23) = a (.wire 8 12) ∧ a (.virt 19842) = a (.wire 8 13) ∧ a (.wire 8 11) = a (.wire 8 14) ∧ a (.wire 4 23) = a (.wire 8 16) ∧ a (.wire 5 39) = a (.wire 8 17) ∧ a (.wire 5 39) = a (.wire 8 18) ∧ a (.wire 4 23) = a (.wire 8 20) ∧ a (.virt 19843) = a (.wire 8 21) ∧ a (.wire 8 19) = a (.wire 8 22) ∧ a (.wire 4 23) = a (.wire 8 24) ∧ a (.wire 5 47) = a (.wire 8 25) ∧ a (.wire 5 47) = a (.wire 8 26) ∧ a (.wire 4 23) = a (.wire 8 28) ∧ a (.virt 19844) = a (.wire 8 29) ∧ a (.wire 8 27) = a (.wire 8 30) := by
+    a (.wire 6 71) = a (.wire 5 37) ∧ a (.wire 6 67) = a (.wire 5 38) ∧ a (.wire 5 39) = a (.wire 6 72) ∧ a (.wire 6 15) = a (.wire 6 73) ∧ a (.wire 6 15) = a (.wire 6 74) ∧ a (.wire 5 39) = a (.wire 6 76) ∧ a (.virt 59) = a (.wire 6 77) ∧ a (.wire 6 75) = a (.wire 6 78) ∧ a (.wire 5 39) = a (.wire 8 0) ∧ a (.wire 6 23) = a (.wire 8 1) ∧ a (.wire 6 23) = a (.wire 8 2) ∧ a (.wire 5 39) = a (.wire 8 4) ∧ a (.virt 60) = a (.wire 8 5) ∧ a (.wire 8 3) = a (.wire 8 6) ∧ a (.wire 5 39) = a (.wire 8 8) ∧ a (.wire 6 31) = a (.wire 8 9) ∧ a (.wire 6 31) = a (.wire 8 10) ∧ a (.wire 5 39) = a (.wire 8 12) ∧ a (.virt 61) = a (.wire 8 13) ∧ a (.wire 8 11) = a (.wire 8 14) ∧ a (.wire 5 39) = a (.wire 8 16) ∧ a (.wire 6 39) = a (.wire 8 17) ∧ a (.wire 6 39) = a (.wire 8 18) ∧ a (.wire 5 39) = a (.wire 8 20) ∧ a (.virt 62) = a (.wire 8 21) ∧ a (.wire 8 19) = a (.wire 8 22) ∧ a (.wire 5 39) = a (.wire 8 24) ∧ a (.wire 6 47) = a (.wire 8 25) ∧ a (.wire 6 47) = a (.wire 8 26) ∧ a (.wire 5 39) = a (.wire 8 28) ∧ a (.virt 63) = a (.wire 8 29) ∧ a (.wire 8 27) = a (.wire 8 30) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies11, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ hq)))))
   simp only [publicBatchWrapper4.copies11, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies12 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 4 23) = a (.wire 8 32) ∧ a (.wire 5 55) = a (.wire 8 33) ∧ a (.wire 5 55) = a (.wire 8 34) ∧ a (.wire 4 23) = a (.wire 8 36) ∧ a (.virt 19838) = a (.wire 8 37) ∧ a (.wire 8 35) = a (.wire 8 38) ∧ a (.wire 4 23) = a (.wire 8 40) ∧ a (.wire 5 63) = a (.wire 8 41) ∧ a (.wire 5 63) = a (.wire 8 42) ∧ a (.wire 4 23) = a (.wire 8 44) ∧ a (.virt 19839) = a (.wire 8 45) ∧ a (.wire 8 43) = a (.wire 8 46) ∧ a (.wire 7 3) = a (.wire 6 4) ∧ a (.wire 5 67) = a (.wire 6 5) ∧ a (.wire 7 3) = a (.wire 6 6) ∧ a (.wire 6 7) = a (.wire 7 4) ∧ a (.virt 26488) = a (.wire 7 5) ∧ a (.wire 5 67) = a (.wire 7 6) ∧ a (.virt 26488) = a (.wire 8 48) ∧ a (.virt 26488) = a (.wire 8 49) ∧ a (.wire 4 15) = a (.wire 8 50) ∧ a (.virt 26488) = a (.wire 8 52) ∧ a (.virt 26488) = a (.wire 8 53) ∧ a (.wire 7 7) = a (.wire 8 54) ∧ a (.wire 8 51) = a (.wire 4 24) ∧ a (.wire 8 55) = a (.wire 4 25) ∧ a (.wire 8 51) = a (.wire 4 26) ∧ a (.wire 4 27) = a (.wire 8 56) ∧ a (.wire 5 79) = a (.wire 8 57) ∧ a (.wire 5 79) = a (.wire 8 58) ∧ a (.wire 4 27) = a (.wire 8 60) ∧ a (.virt 26461) = a (.wire 8 61) := by
+    a (.wire 5 39) = a (.wire 8 32) ∧ a (.wire 6 55) = a (.wire 8 33) ∧ a (.wire 6 55) = a (.wire 8 34) ∧ a (.wire 5 39) = a (.wire 8 36) ∧ a (.virt 57) = a (.wire 8 37) ∧ a (.wire 8 35) = a (.wire 8 38) ∧ a (.wire 5 39) = a (.wire 8 40) ∧ a (.wire 6 63) = a (.wire 8 41) ∧ a (.wire 6 63) = a (.wire 8 42) ∧ a (.wire 5 39) = a (.wire 8 44) ∧ a (.virt 58) = a (.wire 8 45) ∧ a (.wire 8 43) = a (.wire 8 46) ∧ a (.wire 0 51) = a (.wire 7 4) ∧ a (.wire 6 67) = a (.wire 7 5) ∧ a (.wire 0 51) = a (.wire 7 6) ∧ a (.wire 7 7) = a (.wire 0 52) ∧ a (.virt 27) = a (.wire 0 53) ∧ a (.wire 6 67) = a (.wire 0 54) ∧ a (.virt 27) = a (.wire 8 48) ∧ a (.virt 27) = a (.wire 8 49) ∧ a (.wire 5 31) = a (.wire 8 50) ∧ a (.virt 27) = a (.wire 8 52) ∧ a (.virt 27) = a (.wire 8 53) ∧ a (.wire 0 55) = a (.wire 8 54) ∧ a (.wire 8 51) = a (.wire 5 40) ∧ a (.wire 8 55) = a (.wire 5 41) ∧ a (.wire 8 51) = a (.wire 5 42) ∧ a (.wire 5 43) = a (.wire 8 56) ∧ a (.wire 6 79) = a (.wire 8 57) ∧ a (.wire 6 79) = a (.wire 8 58) ∧ a (.wire 5 43) = a (.wire 8 60) ∧ a (.virt 85) = a (.wire 8 61) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies12, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ hq)))))
   simp only [publicBatchWrapper4.copies12, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies13 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 8 59) = a (.wire 8 62) ∧ a (.wire 4 27) = a (.wire 8 64) ∧ a (.wire 8 7) = a (.wire 8 65) ∧ a (.wire 8 7) = a (.wire 8 66) ∧ a (.wire 4 27) = a (.wire 8 68) ∧ a (.virt 26462) = a (.wire 8 69) ∧ a (.wire 8 67) = a (.wire 8 70) ∧ a (.wire 4 27) = a (.wire 8 72) ∧ a (.wire 8 15) = a (.wire 8 73) ∧ a (.wire 8 15) = a (.wire 8 74) ∧ a (.wire 4 27) = a (.wire 8 76) ∧ a (.virt 26463) = a (.wire 8 77) ∧ a (.wire 8 75) = a (.wire 8 78) ∧ a (.wire 4 27) = a (.wire 9 0) ∧ a (.wire 8 23) = a (.wire 9 1) ∧ a (.wire 8 23) = a (.wire 9 2) ∧ a (.wire 4 27) = a (.wire 9 4) ∧ a (.virt 26464) = a (.wire 9 5) ∧ a (.wire 9 3) = a (.wire 9 6) ∧ a (.wire 4 27) = a (.wire 9 8) ∧ a (.wire 8 31) = a (.wire 9 9) ∧ a (.wire 8 31) = a (.wire 9 10) ∧ a (.wire 4 27) = a (.wire 9 12) ∧ a (.virt 26465) = a (.wire 9 13) ∧ a (.wire 9 11) = a (.wire 9 14) ∧ a (.wire 4 27) = a (.wire 9 16) ∧ a (.wire 8 39) = a (.wire 9 17) ∧ a (.wire 8 39) = a (.wire 9 18) ∧ a (.wire 4 27) = a (.wire 9 20) ∧ a (.virt 26459) = a (.wire 9 21) ∧ a (.wire 9 19) = a (.wire 9 22) ∧ a (.wire 4 27) = a (.wire 9 24) := by
+    a (.wire 8 59) = a (.wire 8 62) ∧ a (.wire 5 43) = a (.wire 8 64) ∧ a (.wire 8 7) = a (.wire 8 65) ∧ a (.wire 8 7) = a (.wire 8 66) ∧ a (.wire 5 43) = a (.wire 8 68) ∧ a (.virt 86) = a (.wire 8 69) ∧ a (.wire 8 67) = a (.wire 8 70) ∧ a (.wire 5 43) = a (.wire 8 72) ∧ a (.wire 8 15) = a (.wire 8 73) ∧ a (.wire 8 15) = a (.wire 8 74) ∧ a (.wire 5 43) = a (.wire 8 76) ∧ a (.virt 87) = a (.wire 8 77) ∧ a (.wire 8 75) = a (.wire 8 78) ∧ a (.wire 5 43) = a (.wire 9 0) ∧ a (.wire 8 23) = a (.wire 9 1) ∧ a (.wire 8 23) = a (.wire 9 2) ∧ a (.wire 5 43) = a (.wire 9 4) ∧ a (.virt 88) = a (.wire 9 5) ∧ a (.wire 9 3) = a (.wire 9 6) ∧ a (.wire 5 43) = a (.wire 9 8) ∧ a (.wire 8 31) = a (.wire 9 9) ∧ a (.wire 8 31) = a (.wire 9 10) ∧ a (.wire 5 43) = a (.wire 9 12) ∧ a (.virt 89) = a (.wire 9 13) ∧ a (.wire 9 11) = a (.wire 9 14) ∧ a (.wire 5 43) = a (.wire 9 16) ∧ a (.wire 8 39) = a (.wire 9 17) ∧ a (.wire 8 39) = a (.wire 9 18) ∧ a (.wire 5 43) = a (.wire 9 20) ∧ a (.virt 83) = a (.wire 9 21) ∧ a (.wire 9 19) = a (.wire 9 22) ∧ a (.wire 5 43) = a (.wire 9 24) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies13, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ hq)))))
   simp only [publicBatchWrapper4.copies13, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies14 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 8 47) = a (.wire 9 25) ∧ a (.wire 8 47) = a (.wire 9 26) ∧ a (.wire 4 27) = a (.wire 9 28) ∧ a (.virt 26460) = a (.wire 9 29) ∧ a (.wire 9 27) = a (.wire 9 30) ∧ a (.wire 7 7) = a (.wire 6 8) ∧ a (.wire 8 51) = a (.wire 6 9) ∧ a (.wire 7 7) = a (.wire 6 10) ∧ a (.wire 6 11) = a (.wire 7 8) ∧ a (.virt 26488) = a (.wire 7 9) ∧ a (.wire 8 51) = a (.wire 7 10) ∧ a (.virt 26488) = a (.wire 9 32) ∧ a (.virt 26488) = a (.wire 9 33) ∧ a (.virt 26523) = a (.wire 9 34) ∧ a (.virt 6596) = a (.wire 9 36) ∧ a (.virt 26488) = a (.wire 9 37) ∧ a (.wire 9 23) = a (.wire 9 38) ∧ a (.virt 26523) = a (.wire 4 28) ∧ a (.wire 9 39) = a (.wire 4 29) ∧ a (.virt 26523) = a (.wire 4 30) ∧ a (.wire 9 39) = a (.wire 4 32) ∧ a (.virt 26524) = a (.wire 4 33) ∧ a (.wire 9 39) = a (.wire 4 34) ∧ a (.wire 4 35) = a (.wire 9 40) ∧ a (.virt 26488) = a (.wire 9 41) ∧ a (.wire 9 35) = a (.wire 9 42) ∧ a (.wire 4 31) = a (.virt 26489) ∧ a (.wire 9 43) = a (.virt 26489) ∧ a (.wire 1 43) = a (.wire 6 12) ∧ a (.virt 26523) = a (.wire 6 13) ∧ a (.wire 1 43) = a (.wire 6 14) ∧ a (.wire 6 15) = a (.wire 7 12) := by
+    a (.wire 8 47) = a (.wire 9 25) ∧ a (.wire 8 47) = a (.wire 9 26) ∧ a (.wire 5 43) = a (.wire 9 28) ∧ a (.virt 84) = a (.wire 9 29) ∧ a (.wire 9 27) = a (.wire 9 30) ∧ a (.wire 0 55) = a (.wire 7 8) ∧ a (.wire 8 51) = a (.wire 7 9) ∧ a (.wire 0 55) = a (.wire 7 10) ∧ a (.wire 7 11) = a (.wire 0 56) ∧ a (.virt 27) = a (.wire 0 57) ∧ a (.wire 8 51) = a (.wire 0 58) ∧ a (.virt 27) = a (.wire 9 32) ∧ a (.virt 27) = a (.wire 9 33) ∧ a (.virt 144) = a (.wire 9 34) ∧ a (.virt 1) = a (.wire 9 36) ∧ a (.virt 27) = a (.wire 9 37) ∧ a (.wire 9 23) = a (.wire 9 38) ∧ a (.virt 144) = a (.wire 5 44) ∧ a (.wire 9 39) = a (.wire 5 45) ∧ a (.virt 144) = a (.wire 5 46) ∧ a (.wire 9 39) = a (.wire 5 48) ∧ a (.virt 145) = a (.wire 5 49) ∧ a (.wire 9 39) = a (.wire 5 50) ∧ a (.wire 5 51) = a (.wire 9 40) ∧ a (.virt 27) = a (.wire 9 41) ∧ a (.wire 9 35) = a (.wire 9 42) ∧ a (.wire 5 47) = a (.virt 26) ∧ a (.wire 9 43) = a (.virt 26) ∧ a (.wire 1 59) = a (.wire 7 12) ∧ a (.virt 144) = a (.wire 7 13) ∧ a (.wire 1 59) = a (.wire 7 14) ∧ a (.wire 7 15) = a (.wire 0 60) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies14, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ hq))))))
   simp only [publicBatchWrapper4.copies14, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies15 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 26488) = a (.wire 7 13) ∧ a (.virt 26523) = a (.wire 7 14) ∧ a (.wire 7 15) = a (.virt 26488) ∧ a (.virt 26488) = a (.wire 9 44) ∧ a (.virt 26488) = a (.wire 9 45) ∧ a (.virt 26525) = a (.wire 9 46) ∧ a (.virt 6597) = a (.wire 9 48) ∧ a (.virt 26488) = a (.wire 9 49) ∧ a (.wire 9 31) = a (.wire 9 50) ∧ a (.virt 26525) = a (.wire 4 36) ∧ a (.wire 9 51) = a (.wire 4 37) ∧ a (.virt 26525) = a (.wire 4 38) ∧ a (.wire 9 51) = a (.wire 4 40) ∧ a (.virt 26526) = a (.wire 4 41) ∧ a (.wire 9 51) = a (.wire 4 42) ∧ a (.wire 4 43) = a (.wire 9 52) ∧ a (.virt 26488) = a (.wire 9 53) ∧ a (.wire 9 47) = a (.wire 9 54) ∧ a (.wire 4 39) = a (.virt 26489) ∧ a (.wire 9 55) = a (.virt 26489) ∧ a (.wire 1 43) = a (.wire 6 16) ∧ a (.virt 26525) = a (.wire 6 17) ∧ a (.wire 1 43) = a (.wire 6 18) ∧ a (.wire 6 19) = a (.wire 7 16) ∧ a (.virt 26488) = a (.wire 7 17) ∧ a (.virt 26525) = a (.wire 7 18) ∧ a (.wire 7 19) = a (.virt 26488) ∧ a (.virt 26488) = a (.wire 9 56) ∧ a (.virt 26488) = a (.wire 9 57) ∧ a (.virt 26527) = a (.wire 9 58) ∧ a (.virt 6598) = a (.wire 9 60) ∧ a (.virt 26488) = a (.wire 9 61) := by
+    a (.virt 27) = a (.wire 0 61) ∧ a (.virt 144) = a (.wire 0 62) ∧ a (.wire 0 63) = a (.virt 27) ∧ a (.virt 27) = a (.wire 9 44) ∧ a (.virt 27) = a (.wire 9 45) ∧ a (.virt 146) = a (.wire 9 46) ∧ a (.virt 2) = a (.wire 9 48) ∧ a (.virt 27) = a (.wire 9 49) ∧ a (.wire 9 31) = a (.wire 9 50) ∧ a (.virt 146) = a (.wire 5 52) ∧ a (.wire 9 51) = a (.wire 5 53) ∧ a (.virt 146) = a (.wire 5 54) ∧ a (.wire 9 51) = a (.wire 5 56) ∧ a (.virt 147) = a (.wire 5 57) ∧ a (.wire 9 51) = a (.wire 5 58) ∧ a (.wire 5 59) = a (.wire 9 52) ∧ a (.virt 27) = a (.wire 9 53) ∧ a (.wire 9 47) = a (.wire 9 54) ∧ a (.wire 5 55) = a (.virt 26) ∧ a (.wire 9 55) = a (.virt 26) ∧ a (.wire 1 59) = a (.wire 7 16) ∧ a (.virt 146) = a (.wire 7 17) ∧ a (.wire 1 59) = a (.wire 7 18) ∧ a (.wire 7 19) = a (.wire 0 64) ∧ a (.virt 27) = a (.wire 0 65) ∧ a (.virt 146) = a (.wire 0 66) ∧ a (.wire 0 67) = a (.virt 27) ∧ a (.virt 27) = a (.wire 9 56) ∧ a (.virt 27) = a (.wire 9 57) ∧ a (.virt 148) = a (.wire 9 58) ∧ a (.virt 3) = a (.wire 9 60) ∧ a (.virt 27) = a (.wire 9 61) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies15, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ hq))))))
   simp only [publicBatchWrapper4.copies15, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies16 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 8 63) = a (.wire 9 62) ∧ a (.virt 26527) = a (.wire 4 44) ∧ a (.wire 9 63) = a (.wire 4 45) ∧ a (.virt 26527) = a (.wire 4 46) ∧ a (.wire 9 63) = a (.wire 4 48) ∧ a (.virt 26528) = a (.wire 4 49) ∧ a (.wire 9 63) = a (.wire 4 50) ∧ a (.wire 4 51) = a (.wire 9 64) ∧ a (.virt 26488) = a (.wire 9 65) ∧ a (.wire 9 59) = a (.wire 9 66) ∧ a (.wire 4 47) = a (.virt 26489) ∧ a (.wire 9 67) = a (.virt 26489) ∧ a (.virt 26488) = a (.wire 9 68) ∧ a (.virt 26488) = a (.wire 9 69) ∧ a (.virt 26529) = a (.wire 9 70) ∧ a (.virt 6599) = a (.wire 9 72) ∧ a (.virt 26488) = a (.wire 9 73) ∧ a (.wire 8 71) = a (.wire 9 74) ∧ a (.virt 26529) = a (.wire 4 52) ∧ a (.wire 9 75) = a (.wire 4 53) ∧ a (.virt 26529) = a (.wire 4 54) ∧ a (.wire 9 75) = a (.wire 4 56) ∧ a (.virt 26530) = a (.wire 4 57) ∧ a (.wire 9 75) = a (.wire 4 58) ∧ a (.wire 4 59) = a (.wire 9 76) ∧ a (.virt 26488) = a (.wire 9 77) ∧ a (.wire 9 71) = a (.wire 9 78) ∧ a (.wire 4 55) = a (.virt 26489) ∧ a (.wire 9 79) = a (.virt 26489) ∧ a (.virt 26488) = a (.wire 10 0) ∧ a (.virt 26488) = a (.wire 10 1) ∧ a (.virt 26531) = a (.wire 10 2) := by
+    a (.wire 8 63) = a (.wire 9 62) ∧ a (.virt 148) = a (.wire 5 60) ∧ a (.wire 9 63) = a (.wire 5 61) ∧ a (.virt 148) = a (.wire 5 62) ∧ a (.wire 9 63) = a (.wire 5 64) ∧ a (.virt 149) = a (.wire 5 65) ∧ a (.wire 9 63) = a (.wire 5 66) ∧ a (.wire 5 67) = a (.wire 9 64) ∧ a (.virt 27) = a (.wire 9 65) ∧ a (.wire 9 59) = a (.wire 9 66) ∧ a (.wire 5 63) = a (.virt 26) ∧ a (.wire 9 67) = a (.virt 26) ∧ a (.virt 27) = a (.wire 9 68) ∧ a (.virt 27) = a (.wire 9 69) ∧ a (.virt 150) = a (.wire 9 70) ∧ a (.virt 4) = a (.wire 9 72) ∧ a (.virt 27) = a (.wire 9 73) ∧ a (.wire 8 71) = a (.wire 9 74) ∧ a (.virt 150) = a (.wire 5 68) ∧ a (.wire 9 75) = a (.wire 5 69) ∧ a (.virt 150) = a (.wire 5 70) ∧ a (.wire 9 75) = a (.wire 5 72) ∧ a (.virt 151) = a (.wire 5 73) ∧ a (.wire 9 75) = a (.wire 5 74) ∧ a (.wire 5 75) = a (.wire 9 76) ∧ a (.virt 27) = a (.wire 9 77) ∧ a (.wire 9 71) = a (.wire 9 78) ∧ a (.wire 5 71) = a (.virt 26) ∧ a (.wire 9 79) = a (.virt 26) ∧ a (.virt 27) = a (.wire 10 0) ∧ a (.virt 27) = a (.wire 10 1) ∧ a (.virt 152) = a (.wire 10 2) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies16, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_left _ hq)))))
   simp only [publicBatchWrapper4.copies16, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies17 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 6600) = a (.wire 10 4) ∧ a (.virt 26488) = a (.wire 10 5) ∧ a (.wire 8 79) = a (.wire 10 6) ∧ a (.virt 26531) = a (.wire 4 60) ∧ a (.wire 10 7) = a (.wire 4 61) ∧ a (.virt 26531) = a (.wire 4 62) ∧ a (.wire 10 7) = a (.wire 4 64) ∧ a (.virt 26532) = a (.wire 4 65) ∧ a (.wire 10 7) = a (.wire 4 66) ∧ a (.wire 4 67) = a (.wire 10 8) ∧ a (.virt 26488) = a (.wire 10 9) ∧ a (.wire 10 3) = a (.wire 10 10) ∧ a (.wire 4 63) = a (.virt 26489) ∧ a (.wire 10 11) = a (.virt 26489) ∧ a (.virt 26488) = a (.wire 10 12) ∧ a (.virt 26488) = a (.wire 10 13) ∧ a (.virt 26533) = a (.wire 10 14) ∧ a (.virt 6601) = a (.wire 10 16) ∧ a (.virt 26488) = a (.wire 10 17) ∧ a (.wire 9 7) = a (.wire 10 18) ∧ a (.virt 26533) = a (.wire 4 68) ∧ a (.wire 10 19) = a (.wire 4 69) ∧ a (.virt 26533) = a (.wire 4 70) ∧ a (.wire 10 19) = a (.wire 4 72) ∧ a (.virt 26534) = a (.wire 4 73) ∧ a (.wire 10 19) = a (.wire 4 74) ∧ a (.wire 4 75) = a (.wire 10 20) ∧ a (.virt 26488) = a (.wire 10 21) ∧ a (.wire 10 15) = a (.wire 10 22) ∧ a (.wire 4 71) = a (.virt 26489) ∧ a (.wire 10 23) = a (.virt 26489) ∧ a (.virt 26527) = a (.wire 4 76) := by
+    a (.virt 5) = a (.wire 10 4) ∧ a (.virt 27) = a (.wire 10 5) ∧ a (.wire 8 79) = a (.wire 10 6) ∧ a (.virt 152) = a (.wire 5 76) ∧ a (.wire 10 7) = a (.wire 5 77) ∧ a (.virt 152) = a (.wire 5 78) ∧ a (.wire 10 7) = a (.wire 11 0) ∧ a (.virt 153) = a (.wire 11 1) ∧ a (.wire 10 7) = a (.wire 11 2) ∧ a (.wire 11 3) = a (.wire 10 8) ∧ a (.virt 27) = a (.wire 10 9) ∧ a (.wire 10 3) = a (.wire 10 10) ∧ a (.wire 5 79) = a (.virt 26) ∧ a (.wire 10 11) = a (.virt 26) ∧ a (.virt 27) = a (.wire 10 12) ∧ a (.virt 27) = a (.wire 10 13) ∧ a (.virt 154) = a (.wire 10 14) ∧ a (.virt 6) = a (.wire 10 16) ∧ a (.virt 27) = a (.wire 10 17) ∧ a (.wire 9 7) = a (.wire 10 18) ∧ a (.virt 154) = a (.wire 11 4) ∧ a (.wire 10 19) = a (.wire 11 5) ∧ a (.virt 154) = a (.wire 11 6) ∧ a (.wire 10 19) = a (.wire 11 8) ∧ a (.virt 155) = a (.wire 11 9) ∧ a (.wire 10 19) = a (.wire 11 10) ∧ a (.wire 11 11) = a (.wire 10 20) ∧ a (.virt 27) = a (.wire 10 21) ∧ a (.wire 10 15) = a (.wire 10 22) ∧ a (.wire 11 7) = a (.virt 26) ∧ a (.wire 10 23) = a (.virt 26) ∧ a (.virt 148) = a (.wire 11 12) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies17, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ hq))))))
   simp only [publicBatchWrapper4.copies17, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies18 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 26529) = a (.wire 4 77) ∧ a (.virt 26527) = a (.wire 4 78) ∧ a (.virt 26531) = a (.wire 11 0) ∧ a (.virt 26533) = a (.wire 11 1) ∧ a (.virt 26531) = a (.wire 11 2) ∧ a (.wire 4 79) = a (.wire 11 4) ∧ a (.wire 11 3) = a (.wire 11 5) ∧ a (.wire 4 79) = a (.wire 11 6) ∧ a (.wire 1 43) = a (.wire 6 20) ∧ a (.wire 11 7) = a (.wire 6 21) ∧ a (.wire 1 43) = a (.wire 6 22) ∧ a (.wire 6 23) = a (.wire 7 20) ∧ a (.virt 26488) = a (.wire 7 21) ∧ a (.wire 11 7) = a (.wire 7 22) ∧ a (.wire 7 23) = a (.virt 26488) ∧ a (.virt 26488) = a (.wire 10 24) ∧ a (.virt 26488) = a (.wire 10 25) ∧ a (.virt 26535) = a (.wire 10 26) ∧ a (.virt 13217) = a (.wire 10 28) ∧ a (.virt 26488) = a (.wire 10 29) ∧ a (.wire 9 23) = a (.wire 10 30) ∧ a (.virt 26535) = a (.wire 11 8) ∧ a (.wire 10 31) = a (.wire 11 9) ∧ a (.virt 26535) = a (.wire 11 10) ∧ a (.wire 10 31) = a (.wire 11 12) ∧ a (.virt 26536) = a (.wire 11 13) ∧ a (.wire 10 31) = a (.wire 11 14) ∧ a (.wire 11 15) = a (.wire 10 32) ∧ a (.virt 26488) = a (.wire 10 33) ∧ a (.wire 10 27) = a (.wire 10 34) ∧ a (.wire 11 11) = a (.virt 26489) ∧ a (.wire 10 35) = a (.virt 26489) := by
+    a (.virt 150) = a (.wire 11 13) ∧ a (.virt 148) = a (.wire 11 14) ∧ a (.virt 152) = a (.wire 11 16) ∧ a (.virt 154) = a (.wire 11 17) ∧ a (.virt 152) = a (.wire 11 18) ∧ a (.wire 11 15) = a (.wire 11 20) ∧ a (.wire 11 19) = a (.wire 11 21) ∧ a (.wire 11 15) = a (.wire 11 22) ∧ a (.wire 1 59) = a (.wire 7 20) ∧ a (.wire 11 23) = a (.wire 7 21) ∧ a (.wire 1 59) = a (.wire 7 22) ∧ a (.wire 7 23) = a (.wire 0 68) ∧ a (.virt 27) = a (.wire 0 69) ∧ a (.wire 11 23) = a (.wire 0 70) ∧ a (.wire 0 71) = a (.virt 27) ∧ a (.virt 27) = a (.wire 10 24) ∧ a (.virt 27) = a (.wire 10 25) ∧ a (.virt 156) = a (.wire 10 26) ∧ a (.virt 31) = a (.wire 10 28) ∧ a (.virt 27) = a (.wire 10 29) ∧ a (.wire 9 23) = a (.wire 10 30) ∧ a (.virt 156) = a (.wire 11 24) ∧ a (.wire 10 31) = a (.wire 11 25) ∧ a (.virt 156) = a (.wire 11 26) ∧ a (.wire 10 31) = a (.wire 11 28) ∧ a (.virt 157) = a (.wire 11 29) ∧ a (.wire 10 31) = a (.wire 11 30) ∧ a (.wire 11 31) = a (.wire 10 32) ∧ a (.virt 27) = a (.wire 10 33) ∧ a (.wire 10 27) = a (.wire 10 34) ∧ a (.wire 11 27) = a (.virt 26) ∧ a (.wire 10 35) = a (.virt 26) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies18, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ hq))))))
   simp only [publicBatchWrapper4.copies18, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies19 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 2 7) = a (.wire 6 24) ∧ a (.virt 26535) = a (.wire 6 25) ∧ a (.wire 2 7) = a (.wire 6 26) ∧ a (.wire 6 27) = a (.wire 7 24) ∧ a (.virt 26488) = a (.wire 7 25) ∧ a (.virt 26535) = a (.wire 7 26) ∧ a (.wire 7 27) = a (.virt 26488) ∧ a (.virt 26488) = a (.wire 10 36) ∧ a (.virt 26488) = a (.wire 10 37) ∧ a (.virt 26537) = a (.wire 10 38) ∧ a (.virt 13218) = a (.wire 10 40) ∧ a (.virt 26488) = a (.wire 10 41) ∧ a (.wire 9 31) = a (.wire 10 42) ∧ a (.virt 26537) = a (.wire 11 16) ∧ a (.wire 10 43) = a (.wire 11 17) ∧ a (.virt 26537) = a (.wire 11 18) ∧ a (.wire 10 43) = a (.wire 11 20) ∧ a (.virt 26538) = a (.wire 11 21) ∧ a (.wire 10 43) = a (.wire 11 22) ∧ a (.wire 11 23) = a (.wire 10 44) ∧ a (.virt 26488) = a (.wire 10 45) ∧ a (.wire 10 39) = a (.wire 10 46) ∧ a (.wire 11 19) = a (.virt 26489) ∧ a (.wire 10 47) = a (.virt 26489) ∧ a (.wire 2 7) = a (.wire 6 28) ∧ a (.virt 26537) = a (.wire 6 29) ∧ a (.wire 2 7) = a (.wire 6 30) ∧ a (.wire 6 31) = a (.wire 7 28) ∧ a (.virt 26488) = a (.wire 7 29) ∧ a (.virt 26537) = a (.wire 7 30) ∧ a (.wire 7 31) = a (.virt 26488) ∧ a (.virt 26488) = a (.wire 10 48) := by
+    a (.wire 3 23) = a (.wire 7 24) ∧ a (.virt 156) = a (.wire 7 25) ∧ a (.wire 3 23) = a (.wire 7 26) ∧ a (.wire 7 27) = a (.wire 0 72) ∧ a (.virt 27) = a (.wire 0 73) ∧ a (.virt 156) = a (.wire 0 74) ∧ a (.wire 0 75) = a (.virt 27) ∧ a (.virt 27) = a (.wire 10 36) ∧ a (.virt 27) = a (.wire 10 37) ∧ a (.virt 158) = a (.wire 10 38) ∧ a (.virt 32) = a (.wire 10 40) ∧ a (.virt 27) = a (.wire 10 41) ∧ a (.wire 9 31) = a (.wire 10 42) ∧ a (.virt 158) = a (.wire 11 32) ∧ a (.wire 10 43) = a (.wire 11 33) ∧ a (.virt 158) = a (.wire 11 34) ∧ a (.wire 10 43) = a (.wire 11 36) ∧ a (.virt 159) = a (.wire 11 37) ∧ a (.wire 10 43) = a (.wire 11 38) ∧ a (.wire 11 39) = a (.wire 10 44) ∧ a (.virt 27) = a (.wire 10 45) ∧ a (.wire 10 39) = a (.wire 10 46) ∧ a (.wire 11 35) = a (.virt 26) ∧ a (.wire 10 47) = a (.virt 26) ∧ a (.wire 3 23) = a (.wire 7 28) ∧ a (.virt 158) = a (.wire 7 29) ∧ a (.wire 3 23) = a (.wire 7 30) ∧ a (.wire 7 31) = a (.wire 0 76) ∧ a (.virt 27) = a (.wire 0 77) ∧ a (.virt 158) = a (.wire 0 78) ∧ a (.wire 0 79) = a (.virt 27) ∧ a (.virt 27) = a (.wire 10 48) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies19, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ hq)))))
   simp only [publicBatchWrapper4.copies19, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies20 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 26488) = a (.wire 10 49) ∧ a (.virt 26539) = a (.wire 10 50) ∧ a (.virt 13219) = a (.wire 10 52) ∧ a (.virt 26488) = a (.wire 10 53) ∧ a (.wire 8 63) = a (.wire 10 54) ∧ a (.virt 26539) = a (.wire 11 24) ∧ a (.wire 10 55) = a (.wire 11 25) ∧ a (.virt 26539) = a (.wire 11 26) ∧ a (.wire 10 55) = a (.wire 11 28) ∧ a (.virt 26540) = a (.wire 11 29) ∧ a (.wire 10 55) = a (.wire 11 30) ∧ a (.wire 11 31) = a (.wire 10 56) ∧ a (.virt 26488) = a (.wire 10 57) ∧ a (.wire 10 51) = a (.wire 10 58) ∧ a (.wire 11 27) = a (.virt 26489) ∧ a (.wire 10 59) = a (.virt 26489) ∧ a (.virt 26488) = a (.wire 10 60) ∧ a (.virt 26488) = a (.wire 10 61) ∧ a (.virt 26541) = a (.wire 10 62) ∧ a (.virt 13220) = a (.wire 10 64) ∧ a (.virt 26488) = a (.wire 10 65) ∧ a (.wire 8 71) = a (.wire 10 66) ∧ a (.virt 26541) = a (.wire 11 32) ∧ a (.wire 10 67) = a (.wire 11 33) ∧ a (.virt 26541) = a (.wire 11 34) ∧ a (.wire 10 67) = a (.wire 11 36) ∧ a (.virt 26542) = a (.wire 11 37) ∧ a (.wire 10 67) = a (.wire 11 38) ∧ a (.wire 11 39) = a (.wire 10 68) ∧ a (.virt 26488) = a (.wire 10 69) ∧ a (.wire 10 63) = a (.wire 10 70) ∧ a (.wire 11 35) = a (.virt 26489) := by
+    a (.virt 27) = a (.wire 10 49) ∧ a (.virt 160) = a (.wire 10 50) ∧ a (.virt 33) = a (.wire 10 52) ∧ a (.virt 27) = a (.wire 10 53) ∧ a (.wire 8 63) = a (.wire 10 54) ∧ a (.virt 160) = a (.wire 11 40) ∧ a (.wire 10 55) = a (.wire 11 41) ∧ a (.virt 160) = a (.wire 11 42) ∧ a (.wire 10 55) = a (.wire 11 44) ∧ a (.virt 161) = a (.wire 11 45) ∧ a (.wire 10 55) = a (.wire 11 46) ∧ a (.wire 11 47) = a (.wire 10 56) ∧ a (.virt 27) = a (.wire 10 57) ∧ a (.wire 10 51) = a (.wire 10 58) ∧ a (.wire 11 43) = a (.virt 26) ∧ a (.wire 10 59) = a (.virt 26) ∧ a (.virt 27) = a (.wire 10 60) ∧ a (.virt 27) = a (.wire 10 61) ∧ a (.virt 162) = a (.wire 10 62) ∧ a (.virt 34) = a (.wire 10 64) ∧ a (.virt 27) = a (.wire 10 65) ∧ a (.wire 8 71) = a (.wire 10 66) ∧ a (.virt 162) = a (.wire 11 48) ∧ a (.wire 10 67) = a (.wire 11 49) ∧ a (.virt 162) = a (.wire 11 50) ∧ a (.wire 10 67) = a (.wire 11 52) ∧ a (.virt 163) = a (.wire 11 53) ∧ a (.wire 10 67) = a (.wire 11 54) ∧ a (.wire 11 55) = a (.wire 10 68) ∧ a (.virt 27) = a (.wire 10 69) ∧ a (.wire 10 63) = a (.wire 10 70) ∧ a (.wire 11 51) = a (.virt 26) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies20, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ hq))))))
   simp only [publicBatchWrapper4.copies20, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies21 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 10 71) = a (.virt 26489) ∧ a (.virt 26488) = a (.wire 10 72) ∧ a (.virt 26488) = a (.wire 10 73) ∧ a (.virt 26543) = a (.wire 10 74) ∧ a (.virt 13221) = a (.wire 10 76) ∧ a (.virt 26488) = a (.wire 10 77) ∧ a (.wire 8 79) = a (.wire 10 78) ∧ a (.virt 26543) = a (.wire 11 40) ∧ a (.wire 10 79) = a (.wire 11 41) ∧ a (.virt 26543) = a (.wire 11 42) ∧ a (.wire 10 79) = a (.wire 11 44) ∧ a (.virt 26544) = a (.wire 11 45) ∧ a (.wire 10 79) = a (.wire 11 46) ∧ a (.wire 11 47) = a (.wire 12 0) ∧ a (.virt 26488) = a (.wire 12 1) ∧ a (.wire 10 75) = a (.wire 12 2) ∧ a (.wire 11 43) = a (.virt 26489) ∧ a (.wire 12 3) = a (.virt 26489) ∧ a (.virt 26488) = a (.wire 12 4) ∧ a (.virt 26488) = a (.wire 12 5) ∧ a (.virt 26545) = a (.wire 12 6) ∧ a (.virt 13222) = a (.wire 12 8) ∧ a (.virt 26488) = a (.wire 12 9) ∧ a (.wire 9 7) = a (.wire 12 10) ∧ a (.virt 26545) = a (.wire 11 48) ∧ a (.wire 12 11) = a (.wire 11 49) ∧ a (.virt 26545) = a (.wire 11 50) ∧ a (.wire 12 11) = a (.wire 11 52) ∧ a (.virt 26546) = a (.wire 11 53) ∧ a (.wire 12 11) = a (.wire 11 54) ∧ a (.wire 11 55) = a (.wire 12 12) ∧ a (.virt 26488) = a (.wire 12 13) := by
+    a (.wire 10 71) = a (.virt 26) ∧ a (.virt 27) = a (.wire 10 72) ∧ a (.virt 27) = a (.wire 10 73) ∧ a (.virt 164) = a (.wire 10 74) ∧ a (.virt 35) = a (.wire 10 76) ∧ a (.virt 27) = a (.wire 10 77) ∧ a (.wire 8 79) = a (.wire 10 78) ∧ a (.virt 164) = a (.wire 11 56) ∧ a (.wire 10 79) = a (.wire 11 57) ∧ a (.virt 164) = a (.wire 11 58) ∧ a (.wire 10 79) = a (.wire 11 60) ∧ a (.virt 165) = a (.wire 11 61) ∧ a (.wire 10 79) = a (.wire 11 62) ∧ a (.wire 11 63) = a (.wire 12 0) ∧ a (.virt 27) = a (.wire 12 1) ∧ a (.wire 10 75) = a (.wire 12 2) ∧ a (.wire 11 59) = a (.virt 26) ∧ a (.wire 12 3) = a (.virt 26) ∧ a (.virt 27) = a (.wire 12 4) ∧ a (.virt 27) = a (.wire 12 5) ∧ a (.virt 166) = a (.wire 12 6) ∧ a (.virt 36) = a (.wire 12 8) ∧ a (.virt 27) = a (.wire 12 9) ∧ a (.wire 9 7) = a (.wire 12 10) ∧ a (.virt 166) = a (.wire 11 64) ∧ a (.wire 12 11) = a (.wire 11 65) ∧ a (.virt 166) = a (.wire 11 66) ∧ a (.wire 12 11) = a (.wire 11 68) ∧ a (.virt 167) = a (.wire 11 69) ∧ a (.wire 12 11) = a (.wire 11 70) ∧ a (.wire 11 71) = a (.wire 12 12) ∧ a (.virt 27) = a (.wire 12 13) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies21, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ hq))))))
   simp only [publicBatchWrapper4.copies21, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies22 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 12 7) = a (.wire 12 14) ∧ a (.wire 11 51) = a (.virt 26489) ∧ a (.wire 12 15) = a (.virt 26489) ∧ a (.virt 26539) = a (.wire 11 56) ∧ a (.virt 26541) = a (.wire 11 57) ∧ a (.virt 26539) = a (.wire 11 58) ∧ a (.virt 26543) = a (.wire 11 60) ∧ a (.virt 26545) = a (.wire 11 61) ∧ a (.virt 26543) = a (.wire 11 62) ∧ a (.wire 11 59) = a (.wire 11 64) ∧ a (.wire 11 63) = a (.wire 11 65) ∧ a (.wire 11 59) = a (.wire 11 66) ∧ a (.wire 2 7) = a (.wire 6 32) ∧ a (.wire 11 67) = a (.wire 6 33) ∧ a (.wire 2 7) = a (.wire 6 34) ∧ a (.wire 6 35) = a (.wire 7 32) ∧ a (.virt 26488) = a (.wire 7 33) ∧ a (.wire 11 67) = a (.wire 7 34) ∧ a (.wire 7 35) = a (.virt 26488) ∧ a (.virt 26488) = a (.wire 12 16) ∧ a (.virt 26488) = a (.wire 12 17) ∧ a (.virt 26547) = a (.wire 12 18) ∧ a (.virt 19838) = a (.wire 12 20) ∧ a (.virt 26488) = a (.wire 12 21) ∧ a (.wire 9 23) = a (.wire 12 22) ∧ a (.virt 26547) = a (.wire 11 68) ∧ a (.wire 12 23) = a (.wire 11 69) ∧ a (.virt 26547) = a (.wire 11 70) ∧ a (.wire 12 23) = a (.wire 11 72) ∧ a (.virt 26548) = a (.wire 11 73) ∧ a (.wire 12 23) = a (.wire 11 74) ∧ a (.wire 11 75) = a (.wire 12 24) := by
+    a (.wire 12 7) = a (.wire 12 14) ∧ a (.wire 11 67) = a (.virt 26) ∧ a (.wire 12 15) = a (.virt 26) ∧ a (.virt 160) = a (.wire 11 72) ∧ a (.virt 162) = a (.wire 11 73) ∧ a (.virt 160) = a (.wire 11 74) ∧ a (.virt 164) = a (.wire 11 76) ∧ a (.virt 166) = a (.wire 11 77) ∧ a (.virt 164) = a (.wire 11 78) ∧ a (.wire 11 75) = a (.wire 13 0) ∧ a (.wire 11 79) = a (.wire 13 1) ∧ a (.wire 11 75) = a (.wire 13 2) ∧ a (.wire 3 23) = a (.wire 7 32) ∧ a (.wire 13 3) = a (.wire 7 33) ∧ a (.wire 3 23) = a (.wire 7 34) ∧ a (.wire 7 35) = a (.wire 14 0) ∧ a (.virt 27) = a (.wire 14 1) ∧ a (.wire 13 3) = a (.wire 14 2) ∧ a (.wire 14 3) = a (.virt 27) ∧ a (.virt 27) = a (.wire 12 16) ∧ a (.virt 27) = a (.wire 12 17) ∧ a (.virt 168) = a (.wire 12 18) ∧ a (.virt 57) = a (.wire 12 20) ∧ a (.virt 27) = a (.wire 12 21) ∧ a (.wire 9 23) = a (.wire 12 22) ∧ a (.virt 168) = a (.wire 13 4) ∧ a (.wire 12 23) = a (.wire 13 5) ∧ a (.virt 168) = a (.wire 13 6) ∧ a (.wire 12 23) = a (.wire 13 8) ∧ a (.virt 169) = a (.wire 13 9) ∧ a (.wire 12 23) = a (.wire 13 10) ∧ a (.wire 13 11) = a (.wire 12 24) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies22, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ hq)))))
   simp only [publicBatchWrapper4.copies22, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies23 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 26488) = a (.wire 12 25) ∧ a (.wire 12 19) = a (.wire 12 26) ∧ a (.wire 11 71) = a (.virt 26489) ∧ a (.wire 12 27) = a (.virt 26489) ∧ a (.wire 2 51) = a (.wire 6 36) ∧ a (.virt 26547) = a (.wire 6 37) ∧ a (.wire 2 51) = a (.wire 6 38) ∧ a (.wire 6 39) = a (.wire 7 36) ∧ a (.virt 26488) = a (.wire 7 37) ∧ a (.virt 26547) = a (.wire 7 38) ∧ a (.wire 7 39) = a (.virt 26488) ∧ a (.virt 26488) = a (.wire 12 28) ∧ a (.virt 26488) = a (.wire 12 29) ∧ a (.virt 26549) = a (.wire 12 30) ∧ a (.virt 19839) = a (.wire 12 32) ∧ a (.virt 26488) = a (.wire 12 33) ∧ a (.wire 9 31) = a (.wire 12 34) ∧ a (.virt 26549) = a (.wire 11 76) ∧ a (.wire 12 35) = a (.wire 11 77) ∧ a (.virt 26549) = a (.wire 11 78) ∧ a (.wire 12 35) = a (.wire 13 0) ∧ a (.virt 26550) = a (.wire 13 1) ∧ a (.wire 12 35) = a (.wire 13 2) ∧ a (.wire 13 3) = a (.wire 12 36) ∧ a (.virt 26488) = a (.wire 12 37) ∧ a (.wire 12 31) = a (.wire 12 38) ∧ a (.wire 11 79) = a (.virt 26489) ∧ a (.wire 12 39) = a (.virt 26489) ∧ a (.wire 2 51) = a (.wire 6 40) ∧ a (.virt 26549) = a (.wire 6 41) ∧ a (.wire 2 51) = a (.wire 6 42) ∧ a (.wire 6 43) = a (.wire 7 40) := by
+    a (.virt 27) = a (.wire 12 25) ∧ a (.wire 12 19) = a (.wire 12 26) ∧ a (.wire 13 7) = a (.virt 26) ∧ a (.wire 12 27) = a (.virt 26) ∧ a (.wire 3 67) = a (.wire 7 36) ∧ a (.virt 168) = a (.wire 7 37) ∧ a (.wire 3 67) = a (.wire 7 38) ∧ a (.wire 7 39) = a (.wire 14 4) ∧ a (.virt 27) = a (.wire 14 5) ∧ a (.virt 168) = a (.wire 14 6) ∧ a (.wire 14 7) = a (.virt 27) ∧ a (.virt 27) = a (.wire 12 28) ∧ a (.virt 27) = a (.wire 12 29) ∧ a (.virt 170) = a (.wire 12 30) ∧ a (.virt 58) = a (.wire 12 32) ∧ a (.virt 27) = a (.wire 12 33) ∧ a (.wire 9 31) = a (.wire 12 34) ∧ a (.virt 170) = a (.wire 13 12) ∧ a (.wire 12 35) = a (.wire 13 13) ∧ a (.virt 170) = a (.wire 13 14) ∧ a (.wire 12 35) = a (.wire 13 16) ∧ a (.virt 171) = a (.wire 13 17) ∧ a (.wire 12 35) = a (.wire 13 18) ∧ a (.wire 13 19) = a (.wire 12 36) ∧ a (.virt 27) = a (.wire 12 37) ∧ a (.wire 12 31) = a (.wire 12 38) ∧ a (.wire 13 15) = a (.virt 26) ∧ a (.wire 12 39) = a (.virt 26) ∧ a (.wire 3 67) = a (.wire 7 40) ∧ a (.virt 170) = a (.wire 7 41) ∧ a (.wire 3 67) = a (.wire 7 42) ∧ a (.wire 7 43) = a (.wire 14 8) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies23, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ hq)))))
   simp only [publicBatchWrapper4.copies23, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies24 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 26488) = a (.wire 7 41) ∧ a (.virt 26549) = a (.wire 7 42) ∧ a (.wire 7 43) = a (.virt 26488) ∧ a (.virt 26488) = a (.wire 12 40) ∧ a (.virt 26488) = a (.wire 12 41) ∧ a (.virt 26551) = a (.wire 12 42) ∧ a (.virt 19840) = a (.wire 12 44) ∧ a (.virt 26488) = a (.wire 12 45) ∧ a (.wire 8 63) = a (.wire 12 46) ∧ a (.virt 26551) = a (.wire 13 4) ∧ a (.wire 12 47) = a (.wire 13 5) ∧ a (.virt 26551) = a (.wire 13 6) ∧ a (.wire 12 47) = a (.wire 13 8) ∧ a (.virt 26552) = a (.wire 13 9) ∧ a (.wire 12 47) = a (.wire 13 10) ∧ a (.wire 13 11) = a (.wire 12 48) ∧ a (.virt 26488) = a (.wire 12 49) ∧ a (.wire 12 43) = a (.wire 12 50) ∧ a (.wire 13 7) = a (.virt 26489) ∧ a (.wire 12 51) = a (.virt 26489) ∧ a (.virt 26488) = a (.wire 12 52) ∧ a (.virt 26488) = a (.wire 12 53) ∧ a (.virt 26553) = a (.wire 12 54) ∧ a (.virt 19841) = a (.wire 12 56) ∧ a (.virt 26488) = a (.wire 12 57) ∧ a (.wire 8 71) = a (.wire 12 58) ∧ a (.virt 26553) = a (.wire 13 12) ∧ a (.wire 12 59) = a (.wire 13 13) ∧ a (.virt 26553) = a (.wire 13 14) ∧ a (.wire 12 59) = a (.wire 13 16) ∧ a (.virt 26554) = a (.wire 13 17) ∧ a (.wire 12 59) = a (.wire 13 18) := by
+    a (.virt 27) = a (.wire 14 9) ∧ a (.virt 170) = a (.wire 14 10) ∧ a (.wire 14 11) = a (.virt 27) ∧ a (.virt 27) = a (.wire 12 40) ∧ a (.virt 27) = a (.wire 12 41) ∧ a (.virt 172) = a (.wire 12 42) ∧ a (.virt 59) = a (.wire 12 44) ∧ a (.virt 27) = a (.wire 12 45) ∧ a (.wire 8 63) = a (.wire 12 46) ∧ a (.virt 172) = a (.wire 13 20) ∧ a (.wire 12 47) = a (.wire 13 21) ∧ a (.virt 172) = a (.wire 13 22) ∧ a (.wire 12 47) = a (.wire 13 24) ∧ a (.virt 173) = a (.wire 13 25) ∧ a (.wire 12 47) = a (.wire 13 26) ∧ a (.wire 13 27) = a (.wire 12 48) ∧ a (.virt 27) = a (.wire 12 49) ∧ a (.wire 12 43) = a (.wire 12 50) ∧ a (.wire 13 23) = a (.virt 26) ∧ a (.wire 12 51) = a (.virt 26) ∧ a (.virt 27) = a (.wire 12 52) ∧ a (.virt 27) = a (.wire 12 53) ∧ a (.virt 174) = a (.wire 12 54) ∧ a (.virt 60) = a (.wire 12 56) ∧ a (.virt 27) = a (.wire 12 57) ∧ a (.wire 8 71) = a (.wire 12 58) ∧ a (.virt 174) = a (.wire 13 28) ∧ a (.wire 12 59) = a (.wire 13 29) ∧ a (.virt 174) = a (.wire 13 30) ∧ a (.wire 12 59) = a (.wire 13 32) ∧ a (.virt 175) = a (.wire 13 33) ∧ a (.wire 12 59) = a (.wire 13 34) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies24, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ hq)))))
   simp only [publicBatchWrapper4.copies24, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies25 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 13 19) = a (.wire 12 60) ∧ a (.virt 26488) = a (.wire 12 61) ∧ a (.wire 12 55) = a (.wire 12 62) ∧ a (.wire 13 15) = a (.virt 26489) ∧ a (.wire 12 63) = a (.virt 26489) ∧ a (.virt 26488) = a (.wire 12 64) ∧ a (.virt 26488) = a (.wire 12 65) ∧ a (.virt 26555) = a (.wire 12 66) ∧ a (.virt 19842) = a (.wire 12 68) ∧ a (.virt 26488) = a (.wire 12 69) ∧ a (.wire 8 79) = a (.wire 12 70) ∧ a (.virt 26555) = a (.wire 13 20) ∧ a (.wire 12 71) = a (.wire 13 21) ∧ a (.virt 26555) = a (.wire 13 22) ∧ a (.wire 12 71) = a (.wire 13 24) ∧ a (.virt 26556) = a (.wire 13 25) ∧ a (.wire 12 71) = a (.wire 13 26) ∧ a (.wire 13 27) = a (.wire 12 72) ∧ a (.virt 26488) = a (.wire 12 73) ∧ a (.wire 12 67) = a (.wire 12 74) ∧ a (.wire 13 23) = a (.virt 26489) ∧ a (.wire 12 75) = a (.virt 26489) ∧ a (.virt 26488) = a (.wire 12 76) ∧ a (.virt 26488) = a (.wire 12 77) ∧ a (.virt 26557) = a (.wire 12 78) ∧ a (.virt 19843) = a (.wire 14 0) ∧ a (.virt 26488) = a (.wire 14 1) ∧ a (.wire 9 7) = a (.wire 14 2) ∧ a (.virt 26557) = a (.wire 13 28) ∧ a (.wire 14 3) = a (.wire 13 29) ∧ a (.virt 26557) = a (.wire 13 30) ∧ a (.wire 14 3) = a (.wire 13 32) := by
+    a (.wire 13 35) = a (.wire 12 60) ∧ a (.virt 27) = a (.wire 12 61) ∧ a (.wire 12 55) = a (.wire 12 62) ∧ a (.wire 13 31) = a (.virt 26) ∧ a (.wire 12 63) = a (.virt 26) ∧ a (.virt 27) = a (.wire 12 64) ∧ a (.virt 27) = a (.wire 12 65) ∧ a (.virt 176) = a (.wire 12 66) ∧ a (.virt 61) = a (.wire 12 68) ∧ a (.virt 27) = a (.wire 12 69) ∧ a (.wire 8 79) = a (.wire 12 70) ∧ a (.virt 176) = a (.wire 13 36) ∧ a (.wire 12 71) = a (.wire 13 37) ∧ a (.virt 176) = a (.wire 13 38) ∧ a (.wire 12 71) = a (.wire 13 40) ∧ a (.virt 177) = a (.wire 13 41) ∧ a (.wire 12 71) = a (.wire 13 42) ∧ a (.wire 13 43) = a (.wire 12 72) ∧ a (.virt 27) = a (.wire 12 73) ∧ a (.wire 12 67) = a (.wire 12 74) ∧ a (.wire 13 39) = a (.virt 26) ∧ a (.wire 12 75) = a (.virt 26) ∧ a (.virt 27) = a (.wire 12 76) ∧ a (.virt 27) = a (.wire 12 77) ∧ a (.virt 178) = a (.wire 12 78) ∧ a (.virt 62) = a (.wire 15 0) ∧ a (.virt 27) = a (.wire 15 1) ∧ a (.wire 9 7) = a (.wire 15 2) ∧ a (.virt 178) = a (.wire 13 44) ∧ a (.wire 15 3) = a (.wire 13 45) ∧ a (.virt 178) = a (.wire 13 46) ∧ a (.wire 15 3) = a (.wire 13 48) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies25, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ hq))))))
   simp only [publicBatchWrapper4.copies25, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies26 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 26558) = a (.wire 13 33) ∧ a (.wire 14 3) = a (.wire 13 34) ∧ a (.wire 13 35) = a (.wire 14 4) ∧ a (.virt 26488) = a (.wire 14 5) ∧ a (.wire 12 79) = a (.wire 14 6) ∧ a (.wire 13 31) = a (.virt 26489) ∧ a (.wire 14 7) = a (.virt 26489) ∧ a (.virt 26551) = a (.wire 13 36) ∧ a (.virt 26553) = a (.wire 13 37) ∧ a (.virt 26551) = a (.wire 13 38) ∧ a (.virt 26555) = a (.wire 13 40) ∧ a (.virt 26557) = a (.wire 13 41) ∧ a (.virt 26555) = a (.wire 13 42) ∧ a (.wire 13 39) = a (.wire 13 44) ∧ a (.wire 13 43) = a (.wire 13 45) ∧ a (.wire 13 39) = a (.wire 13 46) ∧ a (.wire 2 51) = a (.wire 6 44) ∧ a (.wire 13 47) = a (.wire 6 45) ∧ a (.wire 2 51) = a (.wire 6 46) ∧ a (.wire 6 47) = a (.wire 7 44) ∧ a (.virt 26488) = a (.wire 7 45) ∧ a (.wire 13 47) = a (.wire 7 46) ∧ a (.wire 7 47) = a (.virt 26488) ∧ a (.virt 26488) = a (.wire 14 8) ∧ a (.virt 26488) = a (.wire 14 9) ∧ a (.virt 26559) = a (.wire 14 10) ∧ a (.virt 26459) = a (.wire 14 12) ∧ a (.virt 26488) = a (.wire 14 13) ∧ a (.wire 9 23) = a (.wire 14 14) ∧ a (.virt 26559) = a (.wire 13 48) ∧ a (.wire 14 15) = a (.wire 13 49) ∧ a (.virt 26559) = a (.wire 13 50) := by
+    a (.virt 179) = a (.wire 13 49) ∧ a (.wire 15 3) = a (.wire 13 50) ∧ a (.wire 13 51) = a (.wire 15 4) ∧ a (.virt 27) = a (.wire 15 5) ∧ a (.wire 12 79) = a (.wire 15 6) ∧ a (.wire 13 47) = a (.virt 26) ∧ a (.wire 15 7) = a (.virt 26) ∧ a (.virt 172) = a (.wire 13 52) ∧ a (.virt 174) = a (.wire 13 53) ∧ a (.virt 172) = a (.wire 13 54) ∧ a (.virt 176) = a (.wire 13 56) ∧ a (.virt 178) = a (.wire 13 57) ∧ a (.virt 176) = a (.wire 13 58) ∧ a (.wire 13 55) = a (.wire 13 60) ∧ a (.wire 13 59) = a (.wire 13 61) ∧ a (.wire 13 55) = a (.wire 13 62) ∧ a (.wire 3 67) = a (.wire 7 44) ∧ a (.wire 13 63) = a (.wire 7 45) ∧ a (.wire 3 67) = a (.wire 7 46) ∧ a (.wire 7 47) = a (.wire 14 12) ∧ a (.virt 27) = a (.wire 14 13) ∧ a (.wire 13 63) = a (.wire 14 14) ∧ a (.wire 14 15) = a (.virt 27) ∧ a (.virt 27) = a (.wire 15 8) ∧ a (.virt 27) = a (.wire 15 9) ∧ a (.virt 180) = a (.wire 15 10) ∧ a (.virt 83) = a (.wire 15 12) ∧ a (.virt 27) = a (.wire 15 13) ∧ a (.wire 9 23) = a (.wire 15 14) ∧ a (.virt 180) = a (.wire 13 64) ∧ a (.wire 15 15) = a (.wire 13 65) ∧ a (.virt 180) = a (.wire 13 66) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies26, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ hq))))))
   simp only [publicBatchWrapper4.copies26, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies27 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 14 15) = a (.wire 13 52) ∧ a (.virt 26560) = a (.wire 13 53) ∧ a (.wire 14 15) = a (.wire 13 54) ∧ a (.wire 13 55) = a (.wire 14 16) ∧ a (.virt 26488) = a (.wire 14 17) ∧ a (.wire 14 11) = a (.wire 14 18) ∧ a (.wire 13 51) = a (.virt 26489) ∧ a (.wire 14 19) = a (.virt 26489) ∧ a (.wire 4 15) = a (.wire 6 48) ∧ a (.virt 26559) = a (.wire 6 49) ∧ a (.wire 4 15) = a (.wire 6 50) ∧ a (.wire 6 51) = a (.wire 7 48) ∧ a (.virt 26488) = a (.wire 7 49) ∧ a (.virt 26559) = a (.wire 7 50) ∧ a (.wire 7 51) = a (.virt 26488) ∧ a (.virt 26488) = a (.wire 14 20) ∧ a (.virt 26488) = a (.wire 14 21) ∧ a (.virt 26561) = a (.wire 14 22) ∧ a (.virt 26460) = a (.wire 14 24) ∧ a (.virt 26488) = a (.wire 14 25) ∧ a (.wire 9 31) = a (.wire 14 26) ∧ a (.virt 26561) = a (.wire 13 56) ∧ a (.wire 14 27) = a (.wire 13 57) ∧ a (.virt 26561) = a (.wire 13 58) ∧ a (.wire 14 27) = a (.wire 13 60) ∧ a (.virt 26562) = a (.wire 13 61) ∧ a (.wire 14 27) = a (.wire 13 62) ∧ a (.wire 13 63) = a (.wire 14 28) ∧ a (.virt 26488) = a (.wire 14 29) ∧ a (.wire 14 23) = a (.wire 14 30) ∧ a (.wire 13 59) = a (.virt 26489) ∧ a (.wire 14 31) = a (.virt 26489) := by
+    a (.wire 15 15) = a (.wire 13 68) ∧ a (.virt 181) = a (.wire 13 69) ∧ a (.wire 15 15) = a (.wire 13 70) ∧ a (.wire 13 71) = a (.wire 15 16) ∧ a (.virt 27) = a (.wire 15 17) ∧ a (.wire 15 11) = a (.wire 15 18) ∧ a (.wire 13 67) = a (.virt 26) ∧ a (.wire 15 19) = a (.virt 26) ∧ a (.wire 5 31) = a (.wire 7 48) ∧ a (.virt 180) = a (.wire 7 49) ∧ a (.wire 5 31) = a (.wire 7 50) ∧ a (.wire 7 51) = a (.wire 14 16) ∧ a (.virt 27) = a (.wire 14 17) ∧ a (.virt 180) = a (.wire 14 18) ∧ a (.wire 14 19) = a (.virt 27) ∧ a (.virt 27) = a (.wire 15 20) ∧ a (.virt 27) = a (.wire 15 21) ∧ a (.virt 182) = a (.wire 15 22) ∧ a (.virt 84) = a (.wire 15 24) ∧ a (.virt 27) = a (.wire 15 25) ∧ a (.wire 9 31) = a (.wire 15 26) ∧ a (.virt 182) = a (.wire 13 72) ∧ a (.wire 15 27) = a (.wire 13 73) ∧ a (.virt 182) = a (.wire 13 74) ∧ a (.wire 15 27) = a (.wire 13 76) ∧ a (.virt 183) = a (.wire 13 77) ∧ a (.wire 15 27) = a (.wire 13 78) ∧ a (.wire 13 79) = a (.wire 15 28) ∧ a (.virt 27) = a (.wire 15 29) ∧ a (.wire 15 23) = a (.wire 15 30) ∧ a (.wire 13 75) = a (.virt 26) ∧ a (.wire 15 31) = a (.virt 26) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies27, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_left _ hq)))))
   simp only [publicBatchWrapper4.copies27, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies28 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 4 15) = a (.wire 6 52) ∧ a (.virt 26561) = a (.wire 6 53) ∧ a (.wire 4 15) = a (.wire 6 54) ∧ a (.wire 6 55) = a (.wire 7 52) ∧ a (.virt 26488) = a (.wire 7 53) ∧ a (.virt 26561) = a (.wire 7 54) ∧ a (.wire 7 55) = a (.virt 26488) ∧ a (.virt 26488) = a (.wire 14 32) ∧ a (.virt 26488) = a (.wire 14 33) ∧ a (.virt 26563) = a (.wire 14 34) ∧ a (.virt 26461) = a (.wire 14 36) ∧ a (.virt 26488) = a (.wire 14 37) ∧ a (.wire 8 63) = a (.wire 14 38) ∧ a (.virt 26563) = a (.wire 13 64) ∧ a (.wire 14 39) = a (.wire 13 65) ∧ a (.virt 26563) = a (.wire 13 66) ∧ a (.wire 14 39) = a (.wire 13 68) ∧ a (.virt 26564) = a (.wire 13 69) ∧ a (.wire 14 39) = a (.wire 13 70) ∧ a (.wire 13 71) = a (.wire 14 40) ∧ a (.virt 26488) = a (.wire 14 41) ∧ a (.wire 14 35) = a (.wire 14 42) ∧ a (.wire 13 67) = a (.virt 26489) ∧ a (.wire 14 43) = a (.virt 26489) ∧ a (.virt 26488) = a (.wire 14 44) ∧ a (.virt 26488) = a (.wire 14 45) ∧ a (.virt 26565) = a (.wire 14 46) ∧ a (.virt 26462) = a (.wire 14 48) ∧ a (.virt 26488) = a (.wire 14 49) ∧ a (.wire 8 71) = a (.wire 14 50) ∧ a (.virt 26565) = a (.wire 13 72) ∧ a (.wire 14 51) = a (.wire 13 73) := by
+    a (.wire 5 31) = a (.wire 7 52) ∧ a (.virt 182) = a (.wire 7 53) ∧ a (.wire 5 31) = a (.wire 7 54) ∧ a (.wire 7 55) = a (.wire 14 20) ∧ a (.virt 27) = a (.wire 14 21) ∧ a (.virt 182) = a (.wire 14 22) ∧ a (.wire 14 23) = a (.virt 27) ∧ a (.virt 27) = a (.wire 15 32) ∧ a (.virt 27) = a (.wire 15 33) ∧ a (.virt 184) = a (.wire 15 34) ∧ a (.virt 85) = a (.wire 15 36) ∧ a (.virt 27) = a (.wire 15 37) ∧ a (.wire 8 63) = a (.wire 15 38) ∧ a (.virt 184) = a (.wire 16 0) ∧ a (.wire 15 39) = a (.wire 16 1) ∧ a (.virt 184) = a (.wire 16 2) ∧ a (.wire 15 39) = a (.wire 16 4) ∧ a (.virt 185) = a (.wire 16 5) ∧ a (.wire 15 39) = a (.wire 16 6) ∧ a (.wire 16 7) = a (.wire 15 40) ∧ a (.virt 27) = a (.wire 15 41) ∧ a (.wire 15 35) = a (.wire 15 42) ∧ a (.wire 16 3) = a (.virt 26) ∧ a (.wire 15 43) = a (.virt 26) ∧ a (.virt 27) = a (.wire 15 44) ∧ a (.virt 27) = a (.wire 15 45) ∧ a (.virt 186) = a (.wire 15 46) ∧ a (.virt 86) = a (.wire 15 48) ∧ a (.virt 27) = a (.wire 15 49) ∧ a (.wire 8 71) = a (.wire 15 50) ∧ a (.virt 186) = a (.wire 16 8) ∧ a (.wire 15 51) = a (.wire 16 9) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies28, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ hq))))))
   simp only [publicBatchWrapper4.copies28, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies29 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 26565) = a (.wire 13 74) ∧ a (.wire 14 51) = a (.wire 13 76) ∧ a (.virt 26566) = a (.wire 13 77) ∧ a (.wire 14 51) = a (.wire 13 78) ∧ a (.wire 13 79) = a (.wire 14 52) ∧ a (.virt 26488) = a (.wire 14 53) ∧ a (.wire 14 47) = a (.wire 14 54) ∧ a (.wire 13 75) = a (.virt 26489) ∧ a (.wire 14 55) = a (.virt 26489) ∧ a (.virt 26488) = a (.wire 14 56) ∧ a (.virt 26488) = a (.wire 14 57) ∧ a (.virt 26567) = a (.wire 14 58) ∧ a (.virt 26463) = a (.wire 14 60) ∧ a (.virt 26488) = a (.wire 14 61) ∧ a (.wire 8 79) = a (.wire 14 62) ∧ a (.virt 26567) = a (.wire 15 0) ∧ a (.wire 14 63) = a (.wire 15 1) ∧ a (.virt 26567) = a (.wire 15 2) ∧ a (.wire 14 63) = a (.wire 15 4) ∧ a (.virt 26568) = a (.wire 15 5) ∧ a (.wire 14 63) = a (.wire 15 6) ∧ a (.wire 15 7) = a (.wire 14 64) ∧ a (.virt 26488) = a (.wire 14 65) ∧ a (.wire 14 59) = a (.wire 14 66) ∧ a (.wire 15 3) = a (.virt 26489) ∧ a (.wire 14 67) = a (.virt 26489) ∧ a (.virt 26488) = a (.wire 14 68) ∧ a (.virt 26488) = a (.wire 14 69) ∧ a (.virt 26569) = a (.wire 14 70) ∧ a (.virt 26464) = a (.wire 14 72) ∧ a (.virt 26488) = a (.wire 14 73) ∧ a (.wire 9 7) = a (.wire 14 74) := by
+    a (.virt 186) = a (.wire 16 10) ∧ a (.wire 15 51) = a (.wire 16 12) ∧ a (.virt 187) = a (.wire 16 13) ∧ a (.wire 15 51) = a (.wire 16 14) ∧ a (.wire 16 15) = a (.wire 15 52) ∧ a (.virt 27) = a (.wire 15 53) ∧ a (.wire 15 47) = a (.wire 15 54) ∧ a (.wire 16 11) = a (.virt 26) ∧ a (.wire 15 55) = a (.virt 26) ∧ a (.virt 27) = a (.wire 15 56) ∧ a (.virt 27) = a (.wire 15 57) ∧ a (.virt 188) = a (.wire 15 58) ∧ a (.virt 87) = a (.wire 15 60) ∧ a (.virt 27) = a (.wire 15 61) ∧ a (.wire 8 79) = a (.wire 15 62) ∧ a (.virt 188) = a (.wire 16 16) ∧ a (.wire 15 63) = a (.wire 16 17) ∧ a (.virt 188) = a (.wire 16 18) ∧ a (.wire 15 63) = a (.wire 16 20) ∧ a (.virt 189) = a (.wire 16 21) ∧ a (.wire 15 63) = a (.wire 16 22) ∧ a (.wire 16 23) = a (.wire 15 64) ∧ a (.virt 27) = a (.wire 15 65) ∧ a (.wire 15 59) = a (.wire 15 66) ∧ a (.wire 16 19) = a (.virt 26) ∧ a (.wire 15 67) = a (.virt 26) ∧ a (.virt 27) = a (.wire 15 68) ∧ a (.virt 27) = a (.wire 15 69) ∧ a (.virt 190) = a (.wire 15 70) ∧ a (.virt 88) = a (.wire 15 72) ∧ a (.virt 27) = a (.wire 15 73) ∧ a (.wire 9 7) = a (.wire 15 74) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies29, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ hq))))))
   simp only [publicBatchWrapper4.copies29, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies30 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 26569) = a (.wire 15 8) ∧ a (.wire 14 75) = a (.wire 15 9) ∧ a (.virt 26569) = a (.wire 15 10) ∧ a (.wire 14 75) = a (.wire 15 12) ∧ a (.virt 26570) = a (.wire 15 13) ∧ a (.wire 14 75) = a (.wire 15 14) ∧ a (.wire 15 15) = a (.wire 14 76) ∧ a (.virt 26488) = a (.wire 14 77) ∧ a (.wire 14 71) = a (.wire 14 78) ∧ a (.wire 15 11) = a (.virt 26489) ∧ a (.wire 14 79) = a (.virt 26489) ∧ a (.virt 26563) = a (.wire 15 16) ∧ a (.virt 26565) = a (.wire 15 17) ∧ a (.virt 26563) = a (.wire 15 18) ∧ a (.virt 26567) = a (.wire 15 20) ∧ a (.virt 26569) = a (.wire 15 21) ∧ a (.virt 26567) = a (.wire 15 22) ∧ a (.wire 15 19) = a (.wire 15 24) ∧ a (.wire 15 23) = a (.wire 15 25) ∧ a (.wire 15 19) = a (.wire 15 26) ∧ a (.wire 4 15) = a (.wire 6 56) ∧ a (.wire 15 27) = a (.wire 6 57) ∧ a (.wire 4 15) = a (.wire 6 58) ∧ a (.wire 6 59) = a (.wire 7 56) ∧ a (.virt 26488) = a (.wire 7 57) ∧ a (.wire 15 27) = a (.wire 7 58) ∧ a (.wire 7 59) = a (.virt 26488) ∧ a (.wire 1 43) = a (.wire 16 0) ∧ a (.virt 6603) = a (.wire 16 1) ∧ a (.virt 6603) = a (.wire 16 2) ∧ a (.wire 1 43) = a (.wire 16 4) ∧ a (.virt 26489) = a (.wire 16 5) := by
+    a (.virt 190) = a (.wire 16 24) ∧ a (.wire 15 75) = a (.wire 16 25) ∧ a (.virt 190) = a (.wire 16 26) ∧ a (.wire 15 75) = a (.wire 16 28) ∧ a (.virt 191) = a (.wire 16 29) ∧ a (.wire 15 75) = a (.wire 16 30) ∧ a (.wire 16 31) = a (.wire 15 76) ∧ a (.virt 27) = a (.wire 15 77) ∧ a (.wire 15 71) = a (.wire 15 78) ∧ a (.wire 16 27) = a (.virt 26) ∧ a (.wire 15 79) = a (.virt 26) ∧ a (.virt 184) = a (.wire 16 32) ∧ a (.virt 186) = a (.wire 16 33) ∧ a (.virt 184) = a (.wire 16 34) ∧ a (.virt 188) = a (.wire 16 36) ∧ a (.virt 190) = a (.wire 16 37) ∧ a (.virt 188) = a (.wire 16 38) ∧ a (.wire 16 35) = a (.wire 16 40) ∧ a (.wire 16 39) = a (.wire 16 41) ∧ a (.wire 16 35) = a (.wire 16 42) ∧ a (.wire 5 31) = a (.wire 7 56) ∧ a (.wire 16 43) = a (.wire 7 57) ∧ a (.wire 5 31) = a (.wire 7 58) ∧ a (.wire 7 59) = a (.wire 14 24) ∧ a (.virt 27) = a (.wire 14 25) ∧ a (.wire 16 43) = a (.wire 14 26) ∧ a (.wire 14 27) = a (.virt 27) ∧ a (.wire 1 59) = a (.wire 17 0) ∧ a (.virt 8) = a (.wire 17 1) ∧ a (.virt 8) = a (.wire 17 2) ∧ a (.wire 1 59) = a (.wire 17 4) ∧ a (.virt 26) = a (.wire 17 5) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies30, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ hq)))))
   simp only [publicBatchWrapper4.copies30, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies31 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 16 3) = a (.wire 16 6) ∧ a (.wire 1 43) = a (.wire 16 8) ∧ a (.virt 6604) = a (.wire 16 9) ∧ a (.virt 6604) = a (.wire 16 10) ∧ a (.wire 1 43) = a (.wire 16 12) ∧ a (.virt 26489) = a (.wire 16 13) ∧ a (.wire 16 11) = a (.wire 16 14) ∧ a (.wire 1 43) = a (.wire 16 16) ∧ a (.virt 6605) = a (.wire 16 17) ∧ a (.virt 6605) = a (.wire 16 18) ∧ a (.wire 1 43) = a (.wire 16 20) ∧ a (.virt 26489) = a (.wire 16 21) ∧ a (.wire 16 19) = a (.wire 16 22) ∧ a (.wire 1 43) = a (.wire 16 24) ∧ a (.virt 6606) = a (.wire 16 25) ∧ a (.virt 6606) = a (.wire 16 26) ∧ a (.wire 1 43) = a (.wire 16 28) ∧ a (.virt 26489) = a (.wire 16 29) ∧ a (.wire 16 27) = a (.wire 16 30) ∧ a (.wire 1 43) = a (.wire 16 32) ∧ a (.virt 6607) = a (.wire 16 33) ∧ a (.virt 6607) = a (.wire 16 34) ∧ a (.wire 1 43) = a (.wire 16 36) ∧ a (.virt 26489) = a (.wire 16 37) ∧ a (.wire 16 35) = a (.wire 16 38) ∧ a (.wire 1 43) = a (.wire 16 40) ∧ a (.virt 6608) = a (.wire 16 41) ∧ a (.virt 6608) = a (.wire 16 42) ∧ a (.wire 1 43) = a (.wire 16 44) ∧ a (.virt 26489) = a (.wire 16 45) ∧ a (.wire 16 43) = a (.wire 16 46) ∧ a (.wire 1 43) = a (.wire 16 48) := by
+    a (.wire 17 3) = a (.wire 17 6) ∧ a (.wire 1 59) = a (.wire 17 8) ∧ a (.virt 9) = a (.wire 17 9) ∧ a (.virt 9) = a (.wire 17 10) ∧ a (.wire 1 59) = a (.wire 17 12) ∧ a (.virt 26) = a (.wire 17 13) ∧ a (.wire 17 11) = a (.wire 17 14) ∧ a (.wire 1 59) = a (.wire 17 16) ∧ a (.virt 10) = a (.wire 17 17) ∧ a (.virt 10) = a (.wire 17 18) ∧ a (.wire 1 59) = a (.wire 17 20) ∧ a (.virt 26) = a (.wire 17 21) ∧ a (.wire 17 19) = a (.wire 17 22) ∧ a (.wire 1 59) = a (.wire 17 24) ∧ a (.virt 11) = a (.wire 17 25) ∧ a (.virt 11) = a (.wire 17 26) ∧ a (.wire 1 59) = a (.wire 17 28) ∧ a (.virt 26) = a (.wire 17 29) ∧ a (.wire 17 27) = a (.wire 17 30) ∧ a (.wire 1 59) = a (.wire 17 32) ∧ a (.virt 12) = a (.wire 17 33) ∧ a (.virt 12) = a (.wire 17 34) ∧ a (.wire 1 59) = a (.wire 17 36) ∧ a (.virt 26) = a (.wire 17 37) ∧ a (.wire 17 35) = a (.wire 17 38) ∧ a (.wire 1 59) = a (.wire 17 40) ∧ a (.virt 13) = a (.wire 17 41) ∧ a (.virt 13) = a (.wire 17 42) ∧ a (.wire 1 59) = a (.wire 17 44) ∧ a (.virt 26) = a (.wire 17 45) ∧ a (.wire 17 43) = a (.wire 17 46) ∧ a (.wire 1 59) = a (.wire 17 48) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies31, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ hq))))))
   simp only [publicBatchWrapper4.copies31, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies32 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 6609) = a (.wire 16 49) ∧ a (.virt 6609) = a (.wire 16 50) ∧ a (.wire 1 43) = a (.wire 16 52) ∧ a (.virt 26489) = a (.wire 16 53) ∧ a (.wire 16 51) = a (.wire 16 54) ∧ a (.wire 1 43) = a (.wire 16 56) ∧ a (.virt 6610) = a (.wire 16 57) ∧ a (.virt 6610) = a (.wire 16 58) ∧ a (.wire 1 43) = a (.wire 16 60) ∧ a (.virt 26489) = a (.wire 16 61) ∧ a (.wire 16 59) = a (.wire 16 62) ∧ a (.wire 1 43) = a (.wire 16 64) ∧ a (.virt 6611) = a (.wire 16 65) ∧ a (.virt 6611) = a (.wire 16 66) ∧ a (.wire 1 43) = a (.wire 16 68) ∧ a (.virt 26489) = a (.wire 16 69) ∧ a (.wire 16 67) = a (.wire 16 70) ∧ a (.wire 1 43) = a (.wire 16 72) ∧ a (.virt 6612) = a (.wire 16 73) ∧ a (.virt 6612) = a (.wire 16 74) ∧ a (.wire 1 43) = a (.wire 16 76) ∧ a (.virt 26489) = a (.wire 16 77) ∧ a (.wire 16 75) = a (.wire 16 78) ∧ a (.wire 2 7) = a (.wire 17 0) ∧ a (.virt 13224) = a (.wire 17 1) ∧ a (.virt 13224) = a (.wire 17 2) ∧ a (.wire 2 7) = a (.wire 17 4) ∧ a (.virt 26489) = a (.wire 17 5) ∧ a (.wire 17 3) = a (.wire 17 6) ∧ a (.wire 2 7) = a (.wire 17 8) ∧ a (.virt 13225) = a (.wire 17 9) ∧ a (.virt 13225) = a (.wire 17 10) := by
+    a (.virt 14) = a (.wire 17 49) ∧ a (.virt 14) = a (.wire 17 50) ∧ a (.wire 1 59) = a (.wire 17 52) ∧ a (.virt 26) = a (.wire 17 53) ∧ a (.wire 17 51) = a (.wire 17 54) ∧ a (.wire 1 59) = a (.wire 17 56) ∧ a (.virt 15) = a (.wire 17 57) ∧ a (.virt 15) = a (.wire 17 58) ∧ a (.wire 1 59) = a (.wire 17 60) ∧ a (.virt 26) = a (.wire 17 61) ∧ a (.wire 17 59) = a (.wire 17 62) ∧ a (.wire 1 59) = a (.wire 17 64) ∧ a (.virt 16) = a (.wire 17 65) ∧ a (.virt 16) = a (.wire 17 66) ∧ a (.wire 1 59) = a (.wire 17 68) ∧ a (.virt 26) = a (.wire 17 69) ∧ a (.wire 17 67) = a (.wire 17 70) ∧ a (.wire 1 59) = a (.wire 17 72) ∧ a (.virt 17) = a (.wire 17 73) ∧ a (.virt 17) = a (.wire 17 74) ∧ a (.wire 1 59) = a (.wire 17 76) ∧ a (.virt 26) = a (.wire 17 77) ∧ a (.wire 17 75) = a (.wire 17 78) ∧ a (.wire 3 23) = a (.wire 18 0) ∧ a (.virt 38) = a (.wire 18 1) ∧ a (.virt 38) = a (.wire 18 2) ∧ a (.wire 3 23) = a (.wire 18 4) ∧ a (.virt 26) = a (.wire 18 5) ∧ a (.wire 18 3) = a (.wire 18 6) ∧ a (.wire 3 23) = a (.wire 18 8) ∧ a (.virt 39) = a (.wire 18 9) ∧ a (.virt 39) = a (.wire 18 10) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies32, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ hq))))))
   simp only [publicBatchWrapper4.copies32, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies33 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 2 7) = a (.wire 17 12) ∧ a (.virt 26489) = a (.wire 17 13) ∧ a (.wire 17 11) = a (.wire 17 14) ∧ a (.wire 2 7) = a (.wire 17 16) ∧ a (.virt 13226) = a (.wire 17 17) ∧ a (.virt 13226) = a (.wire 17 18) ∧ a (.wire 2 7) = a (.wire 17 20) ∧ a (.virt 26489) = a (.wire 17 21) ∧ a (.wire 17 19) = a (.wire 17 22) ∧ a (.wire 2 7) = a (.wire 17 24) ∧ a (.virt 13227) = a (.wire 17 25) ∧ a (.virt 13227) = a (.wire 17 26) ∧ a (.wire 2 7) = a (.wire 17 28) ∧ a (.virt 26489) = a (.wire 17 29) ∧ a (.wire 17 27) = a (.wire 17 30) ∧ a (.wire 2 7) = a (.wire 17 32) ∧ a (.virt 13228) = a (.wire 17 33) ∧ a (.virt 13228) = a (.wire 17 34) ∧ a (.wire 2 7) = a (.wire 17 36) ∧ a (.virt 26489) = a (.wire 17 37) ∧ a (.wire 17 35) = a (.wire 17 38) ∧ a (.wire 2 7) = a (.wire 17 40) ∧ a (.virt 13229) = a (.wire 17 41) ∧ a (.virt 13229) = a (.wire 17 42) ∧ a (.wire 2 7) = a (.wire 17 44) ∧ a (.virt 26489) = a (.wire 17 45) ∧ a (.wire 17 43) = a (.wire 17 46) ∧ a (.wire 2 7) = a (.wire 17 48) ∧ a (.virt 13230) = a (.wire 17 49) ∧ a (.virt 13230) = a (.wire 17 50) ∧ a (.wire 2 7) = a (.wire 17 52) ∧ a (.virt 26489) = a (.wire 17 53) := by
+    a (.wire 3 23) = a (.wire 18 12) ∧ a (.virt 26) = a (.wire 18 13) ∧ a (.wire 18 11) = a (.wire 18 14) ∧ a (.wire 3 23) = a (.wire 18 16) ∧ a (.virt 40) = a (.wire 18 17) ∧ a (.virt 40) = a (.wire 18 18) ∧ a (.wire 3 23) = a (.wire 18 20) ∧ a (.virt 26) = a (.wire 18 21) ∧ a (.wire 18 19) = a (.wire 18 22) ∧ a (.wire 3 23) = a (.wire 18 24) ∧ a (.virt 41) = a (.wire 18 25) ∧ a (.virt 41) = a (.wire 18 26) ∧ a (.wire 3 23) = a (.wire 18 28) ∧ a (.virt 26) = a (.wire 18 29) ∧ a (.wire 18 27) = a (.wire 18 30) ∧ a (.wire 3 23) = a (.wire 18 32) ∧ a (.virt 42) = a (.wire 18 33) ∧ a (.virt 42) = a (.wire 18 34) ∧ a (.wire 3 23) = a (.wire 18 36) ∧ a (.virt 26) = a (.wire 18 37) ∧ a (.wire 18 35) = a (.wire 18 38) ∧ a (.wire 3 23) = a (.wire 18 40) ∧ a (.virt 43) = a (.wire 18 41) ∧ a (.virt 43) = a (.wire 18 42) ∧ a (.wire 3 23) = a (.wire 18 44) ∧ a (.virt 26) = a (.wire 18 45) ∧ a (.wire 18 43) = a (.wire 18 46) ∧ a (.wire 3 23) = a (.wire 18 48) ∧ a (.virt 44) = a (.wire 18 49) ∧ a (.virt 44) = a (.wire 18 50) ∧ a (.wire 3 23) = a (.wire 18 52) ∧ a (.virt 26) = a (.wire 18 53) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies33, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _ hq)))))
   simp only [publicBatchWrapper4.copies33, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies34 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 17 51) = a (.wire 17 54) ∧ a (.wire 2 7) = a (.wire 17 56) ∧ a (.virt 13231) = a (.wire 17 57) ∧ a (.virt 13231) = a (.wire 17 58) ∧ a (.wire 2 7) = a (.wire 17 60) ∧ a (.virt 26489) = a (.wire 17 61) ∧ a (.wire 17 59) = a (.wire 17 62) ∧ a (.wire 2 7) = a (.wire 17 64) ∧ a (.virt 13232) = a (.wire 17 65) ∧ a (.virt 13232) = a (.wire 17 66) ∧ a (.wire 2 7) = a (.wire 17 68) ∧ a (.virt 26489) = a (.wire 17 69) ∧ a (.wire 17 67) = a (.wire 17 70) ∧ a (.wire 2 7) = a (.wire 17 72) ∧ a (.virt 13233) = a (.wire 17 73) ∧ a (.virt 13233) = a (.wire 17 74) ∧ a (.wire 2 7) = a (.wire 17 76) ∧ a (.virt 26489) = a (.wire 17 77) ∧ a (.wire 17 75) = a (.wire 17 78) ∧ a (.wire 2 51) = a (.wire 18 0) ∧ a (.virt 19845) = a (.wire 18 1) ∧ a (.virt 19845) = a (.wire 18 2) ∧ a (.wire 2 51) = a (.wire 18 4) ∧ a (.virt 26489) = a (.wire 18 5) ∧ a (.wire 18 3) = a (.wire 18 6) ∧ a (.wire 2 51) = a (.wire 18 8) ∧ a (.virt 19846) = a (.wire 18 9) ∧ a (.virt 19846) = a (.wire 18 10) ∧ a (.wire 2 51) = a (.wire 18 12) ∧ a (.virt 26489) = a (.wire 18 13) ∧ a (.wire 18 11) = a (.wire 18 14) ∧ a (.wire 2 51) = a (.wire 18 16) := by
+    a (.wire 18 51) = a (.wire 18 54) ∧ a (.wire 3 23) = a (.wire 18 56) ∧ a (.virt 45) = a (.wire 18 57) ∧ a (.virt 45) = a (.wire 18 58) ∧ a (.wire 3 23) = a (.wire 18 60) ∧ a (.virt 26) = a (.wire 18 61) ∧ a (.wire 18 59) = a (.wire 18 62) ∧ a (.wire 3 23) = a (.wire 18 64) ∧ a (.virt 46) = a (.wire 18 65) ∧ a (.virt 46) = a (.wire 18 66) ∧ a (.wire 3 23) = a (.wire 18 68) ∧ a (.virt 26) = a (.wire 18 69) ∧ a (.wire 18 67) = a (.wire 18 70) ∧ a (.wire 3 23) = a (.wire 18 72) ∧ a (.virt 47) = a (.wire 18 73) ∧ a (.virt 47) = a (.wire 18 74) ∧ a (.wire 3 23) = a (.wire 18 76) ∧ a (.virt 26) = a (.wire 18 77) ∧ a (.wire 18 75) = a (.wire 18 78) ∧ a (.wire 3 67) = a (.wire 19 0) ∧ a (.virt 64) = a (.wire 19 1) ∧ a (.virt 64) = a (.wire 19 2) ∧ a (.wire 3 67) = a (.wire 19 4) ∧ a (.virt 26) = a (.wire 19 5) ∧ a (.wire 19 3) = a (.wire 19 6) ∧ a (.wire 3 67) = a (.wire 19 8) ∧ a (.virt 65) = a (.wire 19 9) ∧ a (.virt 65) = a (.wire 19 10) ∧ a (.wire 3 67) = a (.wire 19 12) ∧ a (.virt 26) = a (.wire 19 13) ∧ a (.wire 19 11) = a (.wire 19 14) ∧ a (.wire 3 67) = a (.wire 19 16) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies34, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ hq))))))
   simp only [publicBatchWrapper4.copies34, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies35 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 19847) = a (.wire 18 17) ∧ a (.virt 19847) = a (.wire 18 18) ∧ a (.wire 2 51) = a (.wire 18 20) ∧ a (.virt 26489) = a (.wire 18 21) ∧ a (.wire 18 19) = a (.wire 18 22) ∧ a (.wire 2 51) = a (.wire 18 24) ∧ a (.virt 19848) = a (.wire 18 25) ∧ a (.virt 19848) = a (.wire 18 26) ∧ a (.wire 2 51) = a (.wire 18 28) ∧ a (.virt 26489) = a (.wire 18 29) ∧ a (.wire 18 27) = a (.wire 18 30) ∧ a (.wire 2 51) = a (.wire 18 32) ∧ a (.virt 19849) = a (.wire 18 33) ∧ a (.virt 19849) = a (.wire 18 34) ∧ a (.wire 2 51) = a (.wire 18 36) ∧ a (.virt 26489) = a (.wire 18 37) ∧ a (.wire 18 35) = a (.wire 18 38) ∧ a (.wire 2 51) = a (.wire 18 40) ∧ a (.virt 19850) = a (.wire 18 41) ∧ a (.virt 19850) = a (.wire 18 42) ∧ a (.wire 2 51) = a (.wire 18 44) ∧ a (.virt 26489) = a (.wire 18 45) ∧ a (.wire 18 43) = a (.wire 18 46) ∧ a (.wire 2 51) = a (.wire 18 48) ∧ a (.virt 19851) = a (.wire 18 49) ∧ a (.virt 19851) = a (.wire 18 50) ∧ a (.wire 2 51) = a (.wire 18 52) ∧ a (.virt 26489) = a (.wire 18 53) ∧ a (.wire 18 51) = a (.wire 18 54) ∧ a (.wire 2 51) = a (.wire 18 56) ∧ a (.virt 19852) = a (.wire 18 57) ∧ a (.virt 19852) = a (.wire 18 58) := by
+    a (.virt 66) = a (.wire 19 17) ∧ a (.virt 66) = a (.wire 19 18) ∧ a (.wire 3 67) = a (.wire 19 20) ∧ a (.virt 26) = a (.wire 19 21) ∧ a (.wire 19 19) = a (.wire 19 22) ∧ a (.wire 3 67) = a (.wire 19 24) ∧ a (.virt 67) = a (.wire 19 25) ∧ a (.virt 67) = a (.wire 19 26) ∧ a (.wire 3 67) = a (.wire 19 28) ∧ a (.virt 26) = a (.wire 19 29) ∧ a (.wire 19 27) = a (.wire 19 30) ∧ a (.wire 3 67) = a (.wire 19 32) ∧ a (.virt 68) = a (.wire 19 33) ∧ a (.virt 68) = a (.wire 19 34) ∧ a (.wire 3 67) = a (.wire 19 36) ∧ a (.virt 26) = a (.wire 19 37) ∧ a (.wire 19 35) = a (.wire 19 38) ∧ a (.wire 3 67) = a (.wire 19 40) ∧ a (.virt 69) = a (.wire 19 41) ∧ a (.virt 69) = a (.wire 19 42) ∧ a (.wire 3 67) = a (.wire 19 44) ∧ a (.virt 26) = a (.wire 19 45) ∧ a (.wire 19 43) = a (.wire 19 46) ∧ a (.wire 3 67) = a (.wire 19 48) ∧ a (.virt 70) = a (.wire 19 49) ∧ a (.virt 70) = a (.wire 19 50) ∧ a (.wire 3 67) = a (.wire 19 52) ∧ a (.virt 26) = a (.wire 19 53) ∧ a (.wire 19 51) = a (.wire 19 54) ∧ a (.wire 3 67) = a (.wire 19 56) ∧ a (.virt 71) = a (.wire 19 57) ∧ a (.virt 71) = a (.wire 19 58) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies35, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ hq))))))
   simp only [publicBatchWrapper4.copies35, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies36 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 2 51) = a (.wire 18 60) ∧ a (.virt 26489) = a (.wire 18 61) ∧ a (.wire 18 59) = a (.wire 18 62) ∧ a (.wire 2 51) = a (.wire 18 64) ∧ a (.virt 19853) = a (.wire 18 65) ∧ a (.virt 19853) = a (.wire 18 66) ∧ a (.wire 2 51) = a (.wire 18 68) ∧ a (.virt 26489) = a (.wire 18 69) ∧ a (.wire 18 67) = a (.wire 18 70) ∧ a (.wire 2 51) = a (.wire 18 72) ∧ a (.virt 19854) = a (.wire 18 73) ∧ a (.virt 19854) = a (.wire 18 74) ∧ a (.wire 2 51) = a (.wire 18 76) ∧ a (.virt 26489) = a (.wire 18 77) ∧ a (.wire 18 75) = a (.wire 18 78) ∧ a (.wire 4 15) = a (.wire 19 0) ∧ a (.virt 26466) = a (.wire 19 1) ∧ a (.virt 26466) = a (.wire 19 2) ∧ a (.wire 4 15) = a (.wire 19 4) ∧ a (.virt 26489) = a (.wire 19 5) ∧ a (.wire 19 3) = a (.wire 19 6) ∧ a (.wire 4 15) = a (.wire 19 8) ∧ a (.virt 26467) = a (.wire 19 9) ∧ a (.virt 26467) = a (.wire 19 10) ∧ a (.wire 4 15) = a (.wire 19 12) ∧ a (.virt 26489) = a (.wire 19 13) ∧ a (.wire 19 11) = a (.wire 19 14) ∧ a (.wire 4 15) = a (.wire 19 16) ∧ a (.virt 26468) = a (.wire 19 17) ∧ a (.virt 26468) = a (.wire 19 18) ∧ a (.wire 4 15) = a (.wire 19 20) ∧ a (.virt 26489) = a (.wire 19 21) := by
+    a (.wire 3 67) = a (.wire 19 60) ∧ a (.virt 26) = a (.wire 19 61) ∧ a (.wire 19 59) = a (.wire 19 62) ∧ a (.wire 3 67) = a (.wire 19 64) ∧ a (.virt 72) = a (.wire 19 65) ∧ a (.virt 72) = a (.wire 19 66) ∧ a (.wire 3 67) = a (.wire 19 68) ∧ a (.virt 26) = a (.wire 19 69) ∧ a (.wire 19 67) = a (.wire 19 70) ∧ a (.wire 3 67) = a (.wire 19 72) ∧ a (.virt 73) = a (.wire 19 73) ∧ a (.virt 73) = a (.wire 19 74) ∧ a (.wire 3 67) = a (.wire 19 76) ∧ a (.virt 26) = a (.wire 19 77) ∧ a (.wire 19 75) = a (.wire 19 78) ∧ a (.wire 5 31) = a (.wire 20 0) ∧ a (.virt 90) = a (.wire 20 1) ∧ a (.virt 90) = a (.wire 20 2) ∧ a (.wire 5 31) = a (.wire 20 4) ∧ a (.virt 26) = a (.wire 20 5) ∧ a (.wire 20 3) = a (.wire 20 6) ∧ a (.wire 5 31) = a (.wire 20 8) ∧ a (.virt 91) = a (.wire 20 9) ∧ a (.virt 91) = a (.wire 20 10) ∧ a (.wire 5 31) = a (.wire 20 12) ∧ a (.virt 26) = a (.wire 20 13) ∧ a (.wire 20 11) = a (.wire 20 14) ∧ a (.wire 5 31) = a (.wire 20 16) ∧ a (.virt 92) = a (.wire 20 17) ∧ a (.virt 92) = a (.wire 20 18) ∧ a (.wire 5 31) = a (.wire 20 20) ∧ a (.virt 26) = a (.wire 20 21) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies36, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ hq)))))
   simp only [publicBatchWrapper4.copies36, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies37 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 19 19) = a (.wire 19 22) ∧ a (.wire 4 15) = a (.wire 19 24) ∧ a (.virt 26469) = a (.wire 19 25) ∧ a (.virt 26469) = a (.wire 19 26) ∧ a (.wire 4 15) = a (.wire 19 28) ∧ a (.virt 26489) = a (.wire 19 29) ∧ a (.wire 19 27) = a (.wire 19 30) ∧ a (.wire 4 15) = a (.wire 19 32) ∧ a (.virt 26470) = a (.wire 19 33) ∧ a (.virt 26470) = a (.wire 19 34) ∧ a (.wire 4 15) = a (.wire 19 36) ∧ a (.virt 26489) = a (.wire 19 37) ∧ a (.wire 19 35) = a (.wire 19 38) ∧ a (.wire 4 15) = a (.wire 19 40) ∧ a (.virt 26471) = a (.wire 19 41) ∧ a (.virt 26471) = a (.wire 19 42) ∧ a (.wire 4 15) = a (.wire 19 44) ∧ a (.virt 26489) = a (.wire 19 45) ∧ a (.wire 19 43) = a (.wire 19 46) ∧ a (.wire 4 15) = a (.wire 19 48) ∧ a (.virt 26472) = a (.wire 19 49) ∧ a (.virt 26472) = a (.wire 19 50) ∧ a (.wire 4 15) = a (.wire 19 52) ∧ a (.virt 26489) = a (.wire 19 53) ∧ a (.wire 19 51) = a (.wire 19 54) ∧ a (.wire 4 15) = a (.wire 19 56) ∧ a (.virt 26473) = a (.wire 19 57) ∧ a (.virt 26473) = a (.wire 19 58) ∧ a (.wire 4 15) = a (.wire 19 60) ∧ a (.virt 26489) = a (.wire 19 61) ∧ a (.wire 19 59) = a (.wire 19 62) ∧ a (.wire 4 15) = a (.wire 19 64) := by
+    a (.wire 20 19) = a (.wire 20 22) ∧ a (.wire 5 31) = a (.wire 20 24) ∧ a (.virt 93) = a (.wire 20 25) ∧ a (.virt 93) = a (.wire 20 26) ∧ a (.wire 5 31) = a (.wire 20 28) ∧ a (.virt 26) = a (.wire 20 29) ∧ a (.wire 20 27) = a (.wire 20 30) ∧ a (.wire 5 31) = a (.wire 20 32) ∧ a (.virt 94) = a (.wire 20 33) ∧ a (.virt 94) = a (.wire 20 34) ∧ a (.wire 5 31) = a (.wire 20 36) ∧ a (.virt 26) = a (.wire 20 37) ∧ a (.wire 20 35) = a (.wire 20 38) ∧ a (.wire 5 31) = a (.wire 20 40) ∧ a (.virt 95) = a (.wire 20 41) ∧ a (.virt 95) = a (.wire 20 42) ∧ a (.wire 5 31) = a (.wire 20 44) ∧ a (.virt 26) = a (.wire 20 45) ∧ a (.wire 20 43) = a (.wire 20 46) ∧ a (.wire 5 31) = a (.wire 20 48) ∧ a (.virt 96) = a (.wire 20 49) ∧ a (.virt 96) = a (.wire 20 50) ∧ a (.wire 5 31) = a (.wire 20 52) ∧ a (.virt 26) = a (.wire 20 53) ∧ a (.wire 20 51) = a (.wire 20 54) ∧ a (.wire 5 31) = a (.wire 20 56) ∧ a (.virt 97) = a (.wire 20 57) ∧ a (.virt 97) = a (.wire 20 58) ∧ a (.wire 5 31) = a (.wire 20 60) ∧ a (.virt 26) = a (.wire 20 61) ∧ a (.wire 20 59) = a (.wire 20 62) ∧ a (.wire 5 31) = a (.wire 20 64) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies37, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ hq))))))
   simp only [publicBatchWrapper4.copies37, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies38 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 26474) = a (.wire 19 65) ∧ a (.virt 26474) = a (.wire 19 66) ∧ a (.wire 4 15) = a (.wire 19 68) ∧ a (.virt 26489) = a (.wire 19 69) ∧ a (.wire 19 67) = a (.wire 19 70) ∧ a (.wire 4 15) = a (.wire 19 72) ∧ a (.virt 26475) = a (.wire 19 73) ∧ a (.virt 26475) = a (.wire 19 74) ∧ a (.wire 4 15) = a (.wire 19 76) ∧ a (.virt 26489) = a (.wire 19 77) ∧ a (.wire 19 75) = a (.wire 19 78) ∧ a (.wire 1 43) = a (.wire 20 0) ∧ a (.virt 6613) = a (.wire 20 1) ∧ a (.virt 6613) = a (.wire 20 2) ∧ a (.wire 1 43) = a (.wire 20 4) ∧ a (.virt 26489) = a (.wire 20 5) ∧ a (.wire 20 3) = a (.wire 20 6) ∧ a (.wire 1 43) = a (.wire 20 8) ∧ a (.virt 6614) = a (.wire 20 9) ∧ a (.virt 6614) = a (.wire 20 10) ∧ a (.wire 1 43) = a (.wire 20 12) ∧ a (.virt 26489) = a (.wire 20 13) ∧ a (.wire 20 11) = a (.wire 20 14) ∧ a (.wire 1 43) = a (.wire 20 16) ∧ a (.virt 6615) = a (.wire 20 17) ∧ a (.virt 6615) = a (.wire 20 18) ∧ a (.wire 1 43) = a (.wire 20 20) ∧ a (.virt 26489) = a (.wire 20 21) ∧ a (.wire 20 19) = a (.wire 20 22) ∧ a (.wire 1 43) = a (.wire 20 24) ∧ a (.virt 6616) = a (.wire 20 25) ∧ a (.virt 6616) = a (.wire 20 26) := by
+    a (.virt 98) = a (.wire 20 65) ∧ a (.virt 98) = a (.wire 20 66) ∧ a (.wire 5 31) = a (.wire 20 68) ∧ a (.virt 26) = a (.wire 20 69) ∧ a (.wire 20 67) = a (.wire 20 70) ∧ a (.wire 5 31) = a (.wire 20 72) ∧ a (.virt 99) = a (.wire 20 73) ∧ a (.virt 99) = a (.wire 20 74) ∧ a (.wire 5 31) = a (.wire 20 76) ∧ a (.virt 26) = a (.wire 20 77) ∧ a (.wire 20 75) = a (.wire 20 78) ∧ a (.wire 1 59) = a (.wire 21 0) ∧ a (.virt 18) = a (.wire 21 1) ∧ a (.virt 18) = a (.wire 21 2) ∧ a (.wire 1 59) = a (.wire 21 4) ∧ a (.virt 26) = a (.wire 21 5) ∧ a (.wire 21 3) = a (.wire 21 6) ∧ a (.wire 1 59) = a (.wire 21 8) ∧ a (.virt 19) = a (.wire 21 9) ∧ a (.virt 19) = a (.wire 21 10) ∧ a (.wire 1 59) = a (.wire 21 12) ∧ a (.virt 26) = a (.wire 21 13) ∧ a (.wire 21 11) = a (.wire 21 14) ∧ a (.wire 1 59) = a (.wire 21 16) ∧ a (.virt 20) = a (.wire 21 17) ∧ a (.virt 20) = a (.wire 21 18) ∧ a (.wire 1 59) = a (.wire 21 20) ∧ a (.virt 26) = a (.wire 21 21) ∧ a (.wire 21 19) = a (.wire 21 22) ∧ a (.wire 1 59) = a (.wire 21 24) ∧ a (.virt 21) = a (.wire 21 25) ∧ a (.virt 21) = a (.wire 21 26) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies38, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ hq))))))
   simp only [publicBatchWrapper4.copies38, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies39 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 1 43) = a (.wire 20 28) ∧ a (.virt 26489) = a (.wire 20 29) ∧ a (.wire 20 27) = a (.wire 20 30) ∧ a (.wire 1 43) = a (.wire 20 32) ∧ a (.virt 6617) = a (.wire 20 33) ∧ a (.virt 6617) = a (.wire 20 34) ∧ a (.wire 1 43) = a (.wire 20 36) ∧ a (.virt 26489) = a (.wire 20 37) ∧ a (.wire 20 35) = a (.wire 20 38) ∧ a (.wire 1 43) = a (.wire 20 40) ∧ a (.virt 6618) = a (.wire 20 41) ∧ a (.virt 6618) = a (.wire 20 42) ∧ a (.wire 1 43) = a (.wire 20 44) ∧ a (.virt 26489) = a (.wire 20 45) ∧ a (.wire 20 43) = a (.wire 20 46) ∧ a (.wire 1 43) = a (.wire 20 48) ∧ a (.virt 6619) = a (.wire 20 49) ∧ a (.virt 6619) = a (.wire 20 50) ∧ a (.wire 1 43) = a (.wire 20 52) ∧ a (.virt 26489) = a (.wire 20 53) ∧ a (.wire 20 51) = a (.wire 20 54) ∧ a (.wire 1 43) = a (.wire 20 56) ∧ a (.virt 6620) = a (.wire 20 57) ∧ a (.virt 6620) = a (.wire 20 58) ∧ a (.wire 1 43) = a (.wire 20 60) ∧ a (.virt 26489) = a (.wire 20 61) ∧ a (.wire 20 59) = a (.wire 20 62) ∧ a (.wire 2 7) = a (.wire 20 64) ∧ a (.virt 13234) = a (.wire 20 65) ∧ a (.virt 13234) = a (.wire 20 66) ∧ a (.wire 2 7) = a (.wire 20 68) ∧ a (.virt 26489) = a (.wire 20 69) := by
+    a (.wire 1 59) = a (.wire 21 28) ∧ a (.virt 26) = a (.wire 21 29) ∧ a (.wire 21 27) = a (.wire 21 30) ∧ a (.wire 1 59) = a (.wire 21 32) ∧ a (.virt 22) = a (.wire 21 33) ∧ a (.virt 22) = a (.wire 21 34) ∧ a (.wire 1 59) = a (.wire 21 36) ∧ a (.virt 26) = a (.wire 21 37) ∧ a (.wire 21 35) = a (.wire 21 38) ∧ a (.wire 1 59) = a (.wire 21 40) ∧ a (.virt 23) = a (.wire 21 41) ∧ a (.virt 23) = a (.wire 21 42) ∧ a (.wire 1 59) = a (.wire 21 44) ∧ a (.virt 26) = a (.wire 21 45) ∧ a (.wire 21 43) = a (.wire 21 46) ∧ a (.wire 1 59) = a (.wire 21 48) ∧ a (.virt 24) = a (.wire 21 49) ∧ a (.virt 24) = a (.wire 21 50) ∧ a (.wire 1 59) = a (.wire 21 52) ∧ a (.virt 26) = a (.wire 21 53) ∧ a (.wire 21 51) = a (.wire 21 54) ∧ a (.wire 1 59) = a (.wire 21 56) ∧ a (.virt 25) = a (.wire 21 57) ∧ a (.virt 25) = a (.wire 21 58) ∧ a (.wire 1 59) = a (.wire 21 60) ∧ a (.virt 26) = a (.wire 21 61) ∧ a (.wire 21 59) = a (.wire 21 62) ∧ a (.wire 3 23) = a (.wire 21 64) ∧ a (.virt 48) = a (.wire 21 65) ∧ a (.virt 48) = a (.wire 21 66) ∧ a (.wire 3 23) = a (.wire 21 68) ∧ a (.virt 26) = a (.wire 21 69) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies39, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_left _ hq)))))
   simp only [publicBatchWrapper4.copies39, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies40 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 20 67) = a (.wire 20 70) ∧ a (.wire 2 7) = a (.wire 20 72) ∧ a (.virt 13235) = a (.wire 20 73) ∧ a (.virt 13235) = a (.wire 20 74) ∧ a (.wire 2 7) = a (.wire 20 76) ∧ a (.virt 26489) = a (.wire 20 77) ∧ a (.wire 20 75) = a (.wire 20 78) ∧ a (.wire 2 7) = a (.wire 21 0) ∧ a (.virt 13236) = a (.wire 21 1) ∧ a (.virt 13236) = a (.wire 21 2) ∧ a (.wire 2 7) = a (.wire 21 4) ∧ a (.virt 26489) = a (.wire 21 5) ∧ a (.wire 21 3) = a (.wire 21 6) ∧ a (.wire 2 7) = a (.wire 21 8) ∧ a (.virt 13237) = a (.wire 21 9) ∧ a (.virt 13237) = a (.wire 21 10) ∧ a (.wire 2 7) = a (.wire 21 12) ∧ a (.virt 26489) = a (.wire 21 13) ∧ a (.wire 21 11) = a (.wire 21 14) ∧ a (.wire 2 7) = a (.wire 21 16) ∧ a (.virt 13238) = a (.wire 21 17) ∧ a (.virt 13238) = a (.wire 21 18) ∧ a (.wire 2 7) = a (.wire 21 20) ∧ a (.virt 26489) = a (.wire 21 21) ∧ a (.wire 21 19) = a (.wire 21 22) ∧ a (.wire 2 7) = a (.wire 21 24) ∧ a (.virt 13239) = a (.wire 21 25) ∧ a (.virt 13239) = a (.wire 21 26) ∧ a (.wire 2 7) = a (.wire 21 28) ∧ a (.virt 26489) = a (.wire 21 29) ∧ a (.wire 21 27) = a (.wire 21 30) ∧ a (.wire 2 7) = a (.wire 21 32) := by
+    a (.wire 21 67) = a (.wire 21 70) ∧ a (.wire 3 23) = a (.wire 21 72) ∧ a (.virt 49) = a (.wire 21 73) ∧ a (.virt 49) = a (.wire 21 74) ∧ a (.wire 3 23) = a (.wire 21 76) ∧ a (.virt 26) = a (.wire 21 77) ∧ a (.wire 21 75) = a (.wire 21 78) ∧ a (.wire 3 23) = a (.wire 22 0) ∧ a (.virt 50) = a (.wire 22 1) ∧ a (.virt 50) = a (.wire 22 2) ∧ a (.wire 3 23) = a (.wire 22 4) ∧ a (.virt 26) = a (.wire 22 5) ∧ a (.wire 22 3) = a (.wire 22 6) ∧ a (.wire 3 23) = a (.wire 22 8) ∧ a (.virt 51) = a (.wire 22 9) ∧ a (.virt 51) = a (.wire 22 10) ∧ a (.wire 3 23) = a (.wire 22 12) ∧ a (.virt 26) = a (.wire 22 13) ∧ a (.wire 22 11) = a (.wire 22 14) ∧ a (.wire 3 23) = a (.wire 22 16) ∧ a (.virt 52) = a (.wire 22 17) ∧ a (.virt 52) = a (.wire 22 18) ∧ a (.wire 3 23) = a (.wire 22 20) ∧ a (.virt 26) = a (.wire 22 21) ∧ a (.wire 22 19) = a (.wire 22 22) ∧ a (.wire 3 23) = a (.wire 22 24) ∧ a (.virt 53) = a (.wire 22 25) ∧ a (.virt 53) = a (.wire 22 26) ∧ a (.wire 3 23) = a (.wire 22 28) ∧ a (.virt 26) = a (.wire 22 29) ∧ a (.wire 22 27) = a (.wire 22 30) ∧ a (.wire 3 23) = a (.wire 22 32) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies40, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_left _ hq))))))
   simp only [publicBatchWrapper4.copies40, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies41 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 13240) = a (.wire 21 33) ∧ a (.virt 13240) = a (.wire 21 34) ∧ a (.wire 2 7) = a (.wire 21 36) ∧ a (.virt 26489) = a (.wire 21 37) ∧ a (.wire 21 35) = a (.wire 21 38) ∧ a (.wire 2 7) = a (.wire 21 40) ∧ a (.virt 13241) = a (.wire 21 41) ∧ a (.virt 13241) = a (.wire 21 42) ∧ a (.wire 2 7) = a (.wire 21 44) ∧ a (.virt 26489) = a (.wire 21 45) ∧ a (.wire 21 43) = a (.wire 21 46) ∧ a (.wire 2 51) = a (.wire 21 48) ∧ a (.virt 19855) = a (.wire 21 49) ∧ a (.virt 19855) = a (.wire 21 50) ∧ a (.wire 2 51) = a (.wire 21 52) ∧ a (.virt 26489) = a (.wire 21 53) ∧ a (.wire 21 51) = a (.wire 21 54) ∧ a (.wire 2 51) = a (.wire 21 56) ∧ a (.virt 19856) = a (.wire 21 57) ∧ a (.virt 19856) = a (.wire 21 58) ∧ a (.wire 2 51) = a (.wire 21 60) ∧ a (.virt 26489) = a (.wire 21 61) ∧ a (.wire 21 59) = a (.wire 21 62) ∧ a (.wire 2 51) = a (.wire 21 64) ∧ a (.virt 19857) = a (.wire 21 65) ∧ a (.virt 19857) = a (.wire 21 66) ∧ a (.wire 2 51) = a (.wire 21 68) ∧ a (.virt 26489) = a (.wire 21 69) ∧ a (.wire 21 67) = a (.wire 21 70) ∧ a (.wire 2 51) = a (.wire 21 72) ∧ a (.virt 19858) = a (.wire 21 73) ∧ a (.virt 19858) = a (.wire 21 74) := by
+    a (.virt 54) = a (.wire 22 33) ∧ a (.virt 54) = a (.wire 22 34) ∧ a (.wire 3 23) = a (.wire 22 36) ∧ a (.virt 26) = a (.wire 22 37) ∧ a (.wire 22 35) = a (.wire 22 38) ∧ a (.wire 3 23) = a (.wire 22 40) ∧ a (.virt 55) = a (.wire 22 41) ∧ a (.virt 55) = a (.wire 22 42) ∧ a (.wire 3 23) = a (.wire 22 44) ∧ a (.virt 26) = a (.wire 22 45) ∧ a (.wire 22 43) = a (.wire 22 46) ∧ a (.wire 3 67) = a (.wire 22 48) ∧ a (.virt 74) = a (.wire 22 49) ∧ a (.virt 74) = a (.wire 22 50) ∧ a (.wire 3 67) = a (.wire 22 52) ∧ a (.virt 26) = a (.wire 22 53) ∧ a (.wire 22 51) = a (.wire 22 54) ∧ a (.wire 3 67) = a (.wire 22 56) ∧ a (.virt 75) = a (.wire 22 57) ∧ a (.virt 75) = a (.wire 22 58) ∧ a (.wire 3 67) = a (.wire 22 60) ∧ a (.virt 26) = a (.wire 22 61) ∧ a (.wire 22 59) = a (.wire 22 62) ∧ a (.wire 3 67) = a (.wire 22 64) ∧ a (.virt 76) = a (.wire 22 65) ∧ a (.virt 76) = a (.wire 22 66) ∧ a (.wire 3 67) = a (.wire 22 68) ∧ a (.virt 26) = a (.wire 22 69) ∧ a (.wire 22 67) = a (.wire 22 70) ∧ a (.wire 3 67) = a (.wire 22 72) ∧ a (.virt 77) = a (.wire 22 73) ∧ a (.virt 77) = a (.wire 22 74) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies41, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ (List.mem_append_right _ (List.mem_append_right _ hq))))))
   simp only [publicBatchWrapper4.copies41, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies42 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 2 51) = a (.wire 21 76) ∧ a (.virt 26489) = a (.wire 21 77) ∧ a (.wire 21 75) = a (.wire 21 78) ∧ a (.wire 2 51) = a (.wire 22 0) ∧ a (.virt 19859) = a (.wire 22 1) ∧ a (.virt 19859) = a (.wire 22 2) ∧ a (.wire 2 51) = a (.wire 22 4) ∧ a (.virt 26489) = a (.wire 22 5) ∧ a (.wire 22 3) = a (.wire 22 6) ∧ a (.wire 2 51) = a (.wire 22 8) ∧ a (.virt 19860) = a (.wire 22 9) ∧ a (.virt 19860) = a (.wire 22 10) ∧ a (.wire 2 51) = a (.wire 22 12) ∧ a (.virt 26489) = a (.wire 22 13) ∧ a (.wire 22 11) = a (.wire 22 14) ∧ a (.wire 2 51) = a (.wire 22 16) ∧ a (.virt 19861) = a (.wire 22 17) ∧ a (.virt 19861) = a (.wire 22 18) ∧ a (.wire 2 51) = a (.wire 22 20) ∧ a (.virt 26489) = a (.wire 22 21) ∧ a (.wire 22 19) = a (.wire 22 22) ∧ a (.wire 2 51) = a (.wire 22 24) ∧ a (.virt 19862) = a (.wire 22 25) ∧ a (.virt 19862) = a (.wire 22 26) ∧ a (.wire 2 51) = a (.wire 22 28) ∧ a (.virt 26489) = a (.wire 22 29) ∧ a (.wire 22 27) = a (.wire 22 30) ∧ a (.wire 4 15) = a (.wire 22 32) ∧ a (.virt 26476) = a (.wire 22 33) ∧ a (.virt 26476) = a (.wire 22 34) ∧ a (.wire 4 15) = a (.wire 22 36) ∧ a (.virt 26489) = a (.wire 22 37) := by
+    a (.wire 3 67) = a (.wire 22 76) ∧ a (.virt 26) = a (.wire 22 77) ∧ a (.wire 22 75) = a (.wire 22 78) ∧ a (.wire 3 67) = a (.wire 23 0) ∧ a (.virt 78) = a (.wire 23 1) ∧ a (.virt 78) = a (.wire 23 2) ∧ a (.wire 3 67) = a (.wire 23 4) ∧ a (.virt 26) = a (.wire 23 5) ∧ a (.wire 23 3) = a (.wire 23 6) ∧ a (.wire 3 67) = a (.wire 23 8) ∧ a (.virt 79) = a (.wire 23 9) ∧ a (.virt 79) = a (.wire 23 10) ∧ a (.wire 3 67) = a (.wire 23 12) ∧ a (.virt 26) = a (.wire 23 13) ∧ a (.wire 23 11) = a (.wire 23 14) ∧ a (.wire 3 67) = a (.wire 23 16) ∧ a (.virt 80) = a (.wire 23 17) ∧ a (.virt 80) = a (.wire 23 18) ∧ a (.wire 3 67) = a (.wire 23 20) ∧ a (.virt 26) = a (.wire 23 21) ∧ a (.wire 23 19) = a (.wire 23 22) ∧ a (.wire 3 67) = a (.wire 23 24) ∧ a (.virt 81) = a (.wire 23 25) ∧ a (.virt 81) = a (.wire 23 26) ∧ a (.wire 3 67) = a (.wire 23 28) ∧ a (.virt 26) = a (.wire 23 29) ∧ a (.wire 23 27) = a (.wire 23 30) ∧ a (.wire 5 31) = a (.wire 23 32) ∧ a (.virt 100) = a (.wire 23 33) ∧ a (.virt 100) = a (.wire 23 34) ∧ a (.wire 5 31) = a (.wire 23 36) ∧ a (.virt 26) = a (.wire 23 37) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies42, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ hq)))))
   simp only [publicBatchWrapper4.copies42, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies43 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 22 35) = a (.wire 22 38) ∧ a (.wire 4 15) = a (.wire 22 40) ∧ a (.virt 26477) = a (.wire 22 41) ∧ a (.virt 26477) = a (.wire 22 42) ∧ a (.wire 4 15) = a (.wire 22 44) ∧ a (.virt 26489) = a (.wire 22 45) ∧ a (.wire 22 43) = a (.wire 22 46) ∧ a (.wire 4 15) = a (.wire 22 48) ∧ a (.virt 26478) = a (.wire 22 49) ∧ a (.virt 26478) = a (.wire 22 50) ∧ a (.wire 4 15) = a (.wire 22 52) ∧ a (.virt 26489) = a (.wire 22 53) ∧ a (.wire 22 51) = a (.wire 22 54) ∧ a (.wire 4 15) = a (.wire 22 56) ∧ a (.virt 26479) = a (.wire 22 57) ∧ a (.virt 26479) = a (.wire 22 58) ∧ a (.wire 4 15) = a (.wire 22 60) ∧ a (.virt 26489) = a (.wire 22 61) ∧ a (.wire 22 59) = a (.wire 22 62) ∧ a (.wire 4 15) = a (.wire 22 64) ∧ a (.virt 26480) = a (.wire 22 65) ∧ a (.virt 26480) = a (.wire 22 66) ∧ a (.wire 4 15) = a (.wire 22 68) ∧ a (.virt 26489) = a (.wire 22 69) ∧ a (.wire 22 67) = a (.wire 22 70) ∧ a (.wire 4 15) = a (.wire 22 72) ∧ a (.virt 26481) = a (.wire 22 73) ∧ a (.virt 26481) = a (.wire 22 74) ∧ a (.wire 4 15) = a (.wire 22 76) ∧ a (.virt 26489) = a (.wire 22 77) ∧ a (.wire 22 75) = a (.wire 22 78) ∧ a (.wire 4 15) = a (.wire 23 0) := by
+    a (.wire 23 35) = a (.wire 23 38) ∧ a (.wire 5 31) = a (.wire 23 40) ∧ a (.virt 101) = a (.wire 23 41) ∧ a (.virt 101) = a (.wire 23 42) ∧ a (.wire 5 31) = a (.wire 23 44) ∧ a (.virt 26) = a (.wire 23 45) ∧ a (.wire 23 43) = a (.wire 23 46) ∧ a (.wire 5 31) = a (.wire 23 48) ∧ a (.virt 102) = a (.wire 23 49) ∧ a (.virt 102) = a (.wire 23 50) ∧ a (.wire 5 31) = a (.wire 23 52) ∧ a (.virt 26) = a (.wire 23 53) ∧ a (.wire 23 51) = a (.wire 23 54) ∧ a (.wire 5 31) = a (.wire 23 56) ∧ a (.virt 103) = a (.wire 23 57) ∧ a (.virt 103) = a (.wire 23 58) ∧ a (.wire 5 31) = a (.wire 23 60) ∧ a (.virt 26) = a (.wire 23 61) ∧ a (.wire 23 59) = a (.wire 23 62) ∧ a (.wire 5 31) = a (.wire 23 64) ∧ a (.virt 104) = a (.wire 23 65) ∧ a (.virt 104) = a (.wire 23 66) ∧ a (.wire 5 31) = a (.wire 23 68) ∧ a (.virt 26) = a (.wire 23 69) ∧ a (.wire 23 67) = a (.wire 23 70) ∧ a (.wire 5 31) = a (.wire 23 72) ∧ a (.virt 105) = a (.wire 23 73) ∧ a (.virt 105) = a (.wire 23 74) ∧ a (.wire 5 31) = a (.wire 23 76) ∧ a (.virt 26) = a (.wire 23 77) ∧ a (.wire 23 75) = a (.wire 23 78) ∧ a (.wire 5 31) = a (.wire 24 0) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies43, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_left _ hq))))))
   simp only [publicBatchWrapper4.copies43, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_copies44 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 26482) = a (.wire 23 1) ∧ a (.virt 26482) = a (.wire 23 2) ∧ a (.wire 4 15) = a (.wire 23 4) ∧ a (.virt 26489) = a (.wire 23 5) ∧ a (.wire 23 3) = a (.wire 23 6) ∧ a (.wire 4 15) = a (.wire 23 8) ∧ a (.virt 26483) = a (.wire 23 9) ∧ a (.virt 26483) = a (.wire 23 10) ∧ a (.wire 4 15) = a (.wire 23 12) ∧ a (.virt 26489) = a (.wire 23 13) ∧ a (.wire 23 11) = a (.wire 23 14) := by
+    a (.virt 106) = a (.wire 24 1) ∧ a (.virt 106) = a (.wire 24 2) ∧ a (.wire 5 31) = a (.wire 24 4) ∧ a (.virt 26) = a (.wire 24 5) ∧ a (.wire 24 3) = a (.wire 24 6) ∧ a (.wire 5 31) = a (.wire 24 8) ∧ a (.virt 107) = a (.wire 24 9) ∧ a (.virt 107) = a (.wire 24 10) ∧ a (.wire 5 31) = a (.wire 24 12) ∧ a (.virt 26) = a (.wire 24 13) ∧ a (.wire 24 11) = a (.wire 24 14) := by
   have hc : ∀ q ∈ publicBatchWrapper4.copies44, a q.1 = a q.2 := fun q hq => h.2.1 q (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ (List.mem_append_right _ hq))))))
   simp only [publicBatchWrapper4.copies44, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
 theorem publicBatchWrapper4_consts (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 26488) = 1 ∧ a (.virt 26489) = 0 ∧ a (.virt 26490) = 2 ∧ a (.virt 26571) = 8 := by
+    a (.virt 26) = 0 ∧ a (.virt 27) = 1 ∧ a (.virt 28) = 2 ∧ a (.virt 29) = 8 := by
   have hconst := h.2.2
   simp only [publicBatchWrapper4, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hconst
   obtain ⟨k0, k1, k2, k3⟩ := hconst
   exact ⟨k0, k1, k2, k3⟩
 
 theorem publicBatchWrapper4_f0 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 6595) = a (.virt 26490) := by
+    a (.virt 0) = a (.virt 28) := by
   have c0 := (publicBatchWrapper4_copies0 a h).1
   exact c0
 
 theorem publicBatchWrapper4_f1 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 13216) = a (.virt 26490) := by
+    a (.virt 30) = a (.virt 28) := by
   have c1 := (publicBatchWrapper4_copies0 a h).2.1
   exact c1
 
 theorem publicBatchWrapper4_f2 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 19837) = a (.virt 26490) := by
+    a (.virt 56) = a (.virt 28) := by
   have c2 := (publicBatchWrapper4_copies0 a h).2.2.1
   exact c2
 
 theorem publicBatchWrapper4_f3 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 26458) = a (.virt 26490) := by
+    a (.virt 82) = a (.virt 28) := by
   have c3 := (publicBatchWrapper4_copies0 a h).2.2.2.1
   exact c3
 
 theorem publicBatchWrapper4_f4 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 6598)) (a (.virt 26489)) (a (.virt 26491)) (a (.virt 26492)) := by
+    IsEqual (a (.virt 3)) (a (.virt 26)) (a (.virt 112)) (a (.virt 113)) := by
   have c4 := (publicBatchWrapper4_copies0 a h).2.2.2.2.1
   have c5 := (publicBatchWrapper4_copies0 a h).2.2.2.2.2.1
   have c6 := (publicBatchWrapper4_copies0 a h).2.2.2.2.2.2.1
@@ -2088,28 +2089,28 @@ theorem publicBatchWrapper4_f4 (a : Assignment p) (h : Satisfies (publicBatchWra
   have c16 := (publicBatchWrapper4_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c17 := (publicBatchWrapper4_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_0_0 := arithEq_of_rows h (row := 0) (i := 0) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_0
-  simp only [← c4, k0, ← c5, k0, ← c6] at e_0_0
-  have e_0_1 := arithEq_of_rows h (row := 0) (i := 1) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_1
-  simp only [← c13, ← c14, k0, ← c15] at e_0_1
-  have e_1_0 := arithEq_of_rows h (row := 1) (i := 0) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_0
-  simp only [← c7, ← c8, ← c9] at e_1_0
-  have e_1_1 := arithEq_of_rows h (row := 1) (i := 1) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_1
-  simp only [← c10, ← c11, ← c12] at e_1_1
-  simp only [k1]
+  have e_1_4 := arithEq_of_rows h (row := 1) (i := 4) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_4
+  simp only [← c7, ← c8, ← c9] at e_1_4
+  have e_1_5 := arithEq_of_rows h (row := 1) (i := 5) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_5
+  simp only [← c10, ← c11, ← c12] at e_1_5
+  have e_2_0 := arithEq_of_rows h (row := 2) (i := 0) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_0
+  simp only [← c4, k1, ← c5, k1, ← c6] at e_2_0
+  have e_2_1 := arithEq_of_rows h (row := 2) (i := 1) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_1
+  simp only [← c13, ← c14, k1, ← c15] at e_2_1
+  simp only [k0]
   refine ⟨?_, ?_⟩
-  · have hc := e_1_0
-    linear_combination c16.trans k1 - hc
-  · have hc := e_0_1
-    simp only [e_0_0, e_1_1] at hc
-    linear_combination c17.trans k1 - hc
+  · have hc := e_1_4
+    linear_combination c16.trans k0 - hc
+  · have hc := e_2_1
+    simp only [e_2_0, e_1_5] at hc
+    linear_combination c17.trans k0 - hc
 
 theorem publicBatchWrapper4_f5 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 6599)) (a (.virt 26489)) (a (.virt 26493)) (a (.virt 26494)) := by
+    IsEqual (a (.virt 4)) (a (.virt 26)) (a (.virt 114)) (a (.virt 115)) := by
   have c18 := (publicBatchWrapper4_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c19 := (publicBatchWrapper4_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c20 := (publicBatchWrapper4_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -2125,28 +2126,28 @@ theorem publicBatchWrapper4_f5 (a : Assignment p) (h : Satisfies (publicBatchWra
   have c30 := (publicBatchWrapper4_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c31 := (publicBatchWrapper4_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_0_2 := arithEq_of_rows h (row := 0) (i := 2) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_2
-  simp only [← c18, k0, ← c19, k0, ← c20] at e_0_2
-  have e_0_3 := arithEq_of_rows h (row := 0) (i := 3) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_3
-  simp only [← c27, ← c28, k0, ← c29] at e_0_3
-  have e_1_2 := arithEq_of_rows h (row := 1) (i := 2) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_2
-  simp only [← c21, ← c22, ← c23] at e_1_2
-  have e_1_3 := arithEq_of_rows h (row := 1) (i := 3) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_3
-  simp only [← c24, ← c25, ← c26] at e_1_3
-  simp only [k1]
+  have e_1_6 := arithEq_of_rows h (row := 1) (i := 6) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_6
+  simp only [← c21, ← c22, ← c23] at e_1_6
+  have e_1_7 := arithEq_of_rows h (row := 1) (i := 7) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_7
+  simp only [← c24, ← c25, ← c26] at e_1_7
+  have e_2_2 := arithEq_of_rows h (row := 2) (i := 2) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_2
+  simp only [← c18, k1, ← c19, k1, ← c20] at e_2_2
+  have e_2_3 := arithEq_of_rows h (row := 2) (i := 3) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_3
+  simp only [← c27, ← c28, k1, ← c29] at e_2_3
+  simp only [k0]
   refine ⟨?_, ?_⟩
-  · have hc := e_1_2
-    linear_combination c30.trans k1 - hc
-  · have hc := e_0_3
-    simp only [e_0_2, e_1_3] at hc
-    linear_combination c31.trans k1 - hc
+  · have hc := e_1_6
+    linear_combination c30.trans k0 - hc
+  · have hc := e_2_3
+    simp only [e_2_2, e_1_7] at hc
+    linear_combination c31.trans k0 - hc
 
 theorem publicBatchWrapper4_f6 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 6600)) (a (.virt 26489)) (a (.virt 26495)) (a (.virt 26496)) := by
+    IsEqual (a (.virt 5)) (a (.virt 26)) (a (.virt 116)) (a (.virt 117)) := by
   have c32 := (publicBatchWrapper4_copies1 a h).1
   have c33 := (publicBatchWrapper4_copies1 a h).2.1
   have c34 := (publicBatchWrapper4_copies1 a h).2.2.1
@@ -2162,28 +2163,28 @@ theorem publicBatchWrapper4_f6 (a : Assignment p) (h : Satisfies (publicBatchWra
   have c44 := (publicBatchWrapper4_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c45 := (publicBatchWrapper4_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_0_4 := arithEq_of_rows h (row := 0) (i := 4) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_4
-  simp only [← c32, k0, ← c33, k0, ← c34] at e_0_4
-  have e_0_5 := arithEq_of_rows h (row := 0) (i := 5) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_5
-  simp only [← c41, ← c42, k0, ← c43] at e_0_5
-  have e_1_4 := arithEq_of_rows h (row := 1) (i := 4) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_4
-  simp only [← c35, ← c36, ← c37] at e_1_4
-  have e_1_5 := arithEq_of_rows h (row := 1) (i := 5) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_5
-  simp only [← c38, ← c39, ← c40] at e_1_5
-  simp only [k1]
+  have e_1_8 := arithEq_of_rows h (row := 1) (i := 8) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_8
+  simp only [← c35, ← c36, ← c37] at e_1_8
+  have e_1_9 := arithEq_of_rows h (row := 1) (i := 9) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_9
+  simp only [← c38, ← c39, ← c40] at e_1_9
+  have e_2_4 := arithEq_of_rows h (row := 2) (i := 4) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_4
+  simp only [← c32, k1, ← c33, k1, ← c34] at e_2_4
+  have e_2_5 := arithEq_of_rows h (row := 2) (i := 5) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_5
+  simp only [← c41, ← c42, k1, ← c43] at e_2_5
+  simp only [k0]
   refine ⟨?_, ?_⟩
-  · have hc := e_1_4
-    linear_combination c44.trans k1 - hc
-  · have hc := e_0_5
-    simp only [e_0_4, e_1_5] at hc
-    linear_combination c45.trans k1 - hc
+  · have hc := e_1_8
+    linear_combination c44.trans k0 - hc
+  · have hc := e_2_5
+    simp only [e_2_4, e_1_9] at hc
+    linear_combination c45.trans k0 - hc
 
 theorem publicBatchWrapper4_f7 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 6601)) (a (.virt 26489)) (a (.virt 26497)) (a (.virt 26498)) := by
+    IsEqual (a (.virt 6)) (a (.virt 26)) (a (.virt 118)) (a (.virt 119)) := by
   have c46 := (publicBatchWrapper4_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c47 := (publicBatchWrapper4_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c48 := (publicBatchWrapper4_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -2199,64 +2200,64 @@ theorem publicBatchWrapper4_f7 (a : Assignment p) (h : Satisfies (publicBatchWra
   have c58 := (publicBatchWrapper4_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c59 := (publicBatchWrapper4_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_0_6 := arithEq_of_rows h (row := 0) (i := 6) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_6
-  simp only [← c46, k0, ← c47, k0, ← c48] at e_0_6
-  have e_0_7 := arithEq_of_rows h (row := 0) (i := 7) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_7
-  simp only [← c55, ← c56, k0, ← c57] at e_0_7
-  have e_1_6 := arithEq_of_rows h (row := 1) (i := 6) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_6
-  simp only [← c49, ← c50, ← c51] at e_1_6
-  have e_1_7 := arithEq_of_rows h (row := 1) (i := 7) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_7
-  simp only [← c52, ← c53, ← c54] at e_1_7
-  simp only [k1]
+  have e_1_10 := arithEq_of_rows h (row := 1) (i := 10) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_10
+  simp only [← c49, ← c50, ← c51] at e_1_10
+  have e_1_11 := arithEq_of_rows h (row := 1) (i := 11) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_11
+  simp only [← c52, ← c53, ← c54] at e_1_11
+  have e_2_6 := arithEq_of_rows h (row := 2) (i := 6) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_6
+  simp only [← c46, k1, ← c47, k1, ← c48] at e_2_6
+  have e_2_7 := arithEq_of_rows h (row := 2) (i := 7) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_7
+  simp only [← c55, ← c56, k1, ← c57] at e_2_7
+  simp only [k0]
   refine ⟨?_, ?_⟩
-  · have hc := e_1_6
-    linear_combination c58.trans k1 - hc
-  · have hc := e_0_7
-    simp only [e_0_6, e_1_7] at hc
-    linear_combination c59.trans k1 - hc
+  · have hc := e_1_10
+    linear_combination c58.trans k0 - hc
+  · have hc := e_2_7
+    simp only [e_2_6, e_1_11] at hc
+    linear_combination c59.trans k0 - hc
 
 theorem publicBatchWrapper4_f8 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 1 35) = band (a (.virt 26491)) (a (.virt 26493)) := by
+    a (.wire 1 51) = band (a (.virt 112)) (a (.virt 114)) := by
   have c60 := (publicBatchWrapper4_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c61 := (publicBatchWrapper4_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c62 := (publicBatchWrapper4_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_1_8 := arithEq_of_rows h (row := 1) (i := 8) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_8
-  simp only [← c60, ← c61, ← c62] at e_1_8
-  have hr := e_1_8
+  have e_1_12 := arithEq_of_rows h (row := 1) (i := 12) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_12
+  simp only [← c60, ← c61, ← c62] at e_1_12
+  have hr := e_1_12
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f9 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 1 39) = band (a (.virt 26495)) (a (.virt 26497)) := by
+    a (.wire 1 55) = band (a (.virt 116)) (a (.virt 118)) := by
   have c63 := (publicBatchWrapper4_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c64 := (publicBatchWrapper4_copies2 a h).1
   have c65 := (publicBatchWrapper4_copies2 a h).2.1
-  have e_1_9 := arithEq_of_rows h (row := 1) (i := 9) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_9
-  simp only [← c63, ← c64, ← c65] at e_1_9
-  have hr := e_1_9
+  have e_1_13 := arithEq_of_rows h (row := 1) (i := 13) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_13
+  simp only [← c63, ← c64, ← c65] at e_1_13
+  have hr := e_1_13
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f10 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 1 43) = band (a (.wire 1 35)) (a (.wire 1 39)) := by
+    a (.wire 1 59) = band (a (.wire 1 51)) (a (.wire 1 55)) := by
   have c66 := (publicBatchWrapper4_copies2 a h).2.2.1
   have c67 := (publicBatchWrapper4_copies2 a h).2.2.2.1
   have c68 := (publicBatchWrapper4_copies2 a h).2.2.2.2.1
-  have e_1_10 := arithEq_of_rows h (row := 1) (i := 10) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_10
-  simp only [← c66, ← c67, ← c68] at e_1_10
-  have hr := e_1_10
+  have e_1_14 := arithEq_of_rows h (row := 1) (i := 14) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_14
+  simp only [← c66, ← c67, ← c68] at e_1_14
+  have hr := e_1_14
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f11 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 13219)) (a (.virt 26489)) (a (.virt 26499)) (a (.virt 26500)) := by
+    IsEqual (a (.virt 33)) (a (.virt 26)) (a (.virt 120)) (a (.virt 121)) := by
   have c69 := (publicBatchWrapper4_copies2 a h).2.2.2.2.2.1
   have c70 := (publicBatchWrapper4_copies2 a h).2.2.2.2.2.2.1
   have c71 := (publicBatchWrapper4_copies2 a h).2.2.2.2.2.2.2.1
@@ -2272,28 +2273,28 @@ theorem publicBatchWrapper4_f11 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c81 := (publicBatchWrapper4_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c82 := (publicBatchWrapper4_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_0_8 := arithEq_of_rows h (row := 0) (i := 8) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_8
-  simp only [← c69, k0, ← c70, k0, ← c71] at e_0_8
-  have e_0_9 := arithEq_of_rows h (row := 0) (i := 9) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_9
-  simp only [← c78, ← c79, k0, ← c80] at e_0_9
-  have e_1_11 := arithEq_of_rows h (row := 1) (i := 11) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_11
-  simp only [← c72, ← c73, ← c74] at e_1_11
-  have e_1_12 := arithEq_of_rows h (row := 1) (i := 12) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_12
-  simp only [← c75, ← c76, ← c77] at e_1_12
-  simp only [k1]
+  have e_1_15 := arithEq_of_rows h (row := 1) (i := 15) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_15
+  simp only [← c72, ← c73, ← c74] at e_1_15
+  have e_1_16 := arithEq_of_rows h (row := 1) (i := 16) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_16
+  simp only [← c75, ← c76, ← c77] at e_1_16
+  have e_2_8 := arithEq_of_rows h (row := 2) (i := 8) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_8
+  simp only [← c69, k1, ← c70, k1, ← c71] at e_2_8
+  have e_2_9 := arithEq_of_rows h (row := 2) (i := 9) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_9
+  simp only [← c78, ← c79, k1, ← c80] at e_2_9
+  simp only [k0]
   refine ⟨?_, ?_⟩
-  · have hc := e_1_11
-    linear_combination c81.trans k1 - hc
-  · have hc := e_0_9
-    simp only [e_0_8, e_1_12] at hc
-    linear_combination c82.trans k1 - hc
+  · have hc := e_1_15
+    linear_combination c81.trans k0 - hc
+  · have hc := e_2_9
+    simp only [e_2_8, e_1_16] at hc
+    linear_combination c82.trans k0 - hc
 
 theorem publicBatchWrapper4_f12 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 13220)) (a (.virt 26489)) (a (.virt 26501)) (a (.virt 26502)) := by
+    IsEqual (a (.virt 34)) (a (.virt 26)) (a (.virt 122)) (a (.virt 123)) := by
   have c83 := (publicBatchWrapper4_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c84 := (publicBatchWrapper4_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c85 := (publicBatchWrapper4_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -2309,28 +2310,28 @@ theorem publicBatchWrapper4_f12 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c95 := (publicBatchWrapper4_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c96 := (publicBatchWrapper4_copies3 a h).1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_0_10 := arithEq_of_rows h (row := 0) (i := 10) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_10
-  simp only [← c83, k0, ← c84, k0, ← c85] at e_0_10
-  have e_0_11 := arithEq_of_rows h (row := 0) (i := 11) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_11
-  simp only [← c92, ← c93, k0, ← c94] at e_0_11
-  have e_1_13 := arithEq_of_rows h (row := 1) (i := 13) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_13
-  simp only [← c86, ← c87, ← c88] at e_1_13
-  have e_1_14 := arithEq_of_rows h (row := 1) (i := 14) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_14
-  simp only [← c89, ← c90, ← c91] at e_1_14
-  simp only [k1]
+  have e_1_17 := arithEq_of_rows h (row := 1) (i := 17) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_17
+  simp only [← c86, ← c87, ← c88] at e_1_17
+  have e_1_18 := arithEq_of_rows h (row := 1) (i := 18) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_18
+  simp only [← c89, ← c90, ← c91] at e_1_18
+  have e_2_10 := arithEq_of_rows h (row := 2) (i := 10) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_10
+  simp only [← c83, k1, ← c84, k1, ← c85] at e_2_10
+  have e_2_11 := arithEq_of_rows h (row := 2) (i := 11) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_11
+  simp only [← c92, ← c93, k1, ← c94] at e_2_11
+  simp only [k0]
   refine ⟨?_, ?_⟩
-  · have hc := e_1_13
-    linear_combination c95.trans k1 - hc
-  · have hc := e_0_11
-    simp only [e_0_10, e_1_14] at hc
-    linear_combination c96.trans k1 - hc
+  · have hc := e_1_17
+    linear_combination c95.trans k0 - hc
+  · have hc := e_2_11
+    simp only [e_2_10, e_1_18] at hc
+    linear_combination c96.trans k0 - hc
 
 theorem publicBatchWrapper4_f13 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 13221)) (a (.virt 26489)) (a (.virt 26503)) (a (.virt 26504)) := by
+    IsEqual (a (.virt 35)) (a (.virt 26)) (a (.virt 124)) (a (.virt 125)) := by
   have c97 := (publicBatchWrapper4_copies3 a h).2.1
   have c98 := (publicBatchWrapper4_copies3 a h).2.2.1
   have c99 := (publicBatchWrapper4_copies3 a h).2.2.2.1
@@ -2346,28 +2347,28 @@ theorem publicBatchWrapper4_f13 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c109 := (publicBatchWrapper4_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c110 := (publicBatchWrapper4_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_0_12 := arithEq_of_rows h (row := 0) (i := 12) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_12
-  simp only [← c97, k0, ← c98, k0, ← c99] at e_0_12
-  have e_0_13 := arithEq_of_rows h (row := 0) (i := 13) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_13
-  simp only [← c106, ← c107, k0, ← c108] at e_0_13
-  have e_1_15 := arithEq_of_rows h (row := 1) (i := 15) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_15
-  simp only [← c100, ← c101, ← c102] at e_1_15
-  have e_1_16 := arithEq_of_rows h (row := 1) (i := 16) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_16
-  simp only [← c103, ← c104, ← c105] at e_1_16
-  simp only [k1]
+  have e_1_19 := arithEq_of_rows h (row := 1) (i := 19) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_19
+  simp only [← c100, ← c101, ← c102] at e_1_19
+  have e_2_12 := arithEq_of_rows h (row := 2) (i := 12) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_12
+  simp only [← c97, k1, ← c98, k1, ← c99] at e_2_12
+  have e_2_13 := arithEq_of_rows h (row := 2) (i := 13) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_13
+  simp only [← c106, ← c107, k1, ← c108] at e_2_13
+  have e_3_0 := arithEq_of_rows h (row := 3) (i := 0) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_0
+  simp only [← c103, ← c104, ← c105] at e_3_0
+  simp only [k0]
   refine ⟨?_, ?_⟩
-  · have hc := e_1_15
-    linear_combination c109.trans k1 - hc
-  · have hc := e_0_13
-    simp only [e_0_12, e_1_16] at hc
-    linear_combination c110.trans k1 - hc
+  · have hc := e_1_19
+    linear_combination c109.trans k0 - hc
+  · have hc := e_2_13
+    simp only [e_2_12, e_3_0] at hc
+    linear_combination c110.trans k0 - hc
 
 theorem publicBatchWrapper4_f14 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 13222)) (a (.virt 26489)) (a (.virt 26505)) (a (.virt 26506)) := by
+    IsEqual (a (.virt 36)) (a (.virt 26)) (a (.virt 126)) (a (.virt 127)) := by
   have c111 := (publicBatchWrapper4_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c112 := (publicBatchWrapper4_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c113 := (publicBatchWrapper4_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -2383,64 +2384,64 @@ theorem publicBatchWrapper4_f14 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c123 := (publicBatchWrapper4_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c124 := (publicBatchWrapper4_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_0_14 := arithEq_of_rows h (row := 0) (i := 14) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_14
-  simp only [← c111, k0, ← c112, k0, ← c113] at e_0_14
-  have e_0_15 := arithEq_of_rows h (row := 0) (i := 15) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_15
-  simp only [← c120, ← c121, k0, ← c122] at e_0_15
-  have e_1_17 := arithEq_of_rows h (row := 1) (i := 17) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_17
-  simp only [← c114, ← c115, ← c116] at e_1_17
-  have e_1_18 := arithEq_of_rows h (row := 1) (i := 18) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_18
-  simp only [← c117, ← c118, ← c119] at e_1_18
-  simp only [k1]
+  have e_2_14 := arithEq_of_rows h (row := 2) (i := 14) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_14
+  simp only [← c111, k1, ← c112, k1, ← c113] at e_2_14
+  have e_2_15 := arithEq_of_rows h (row := 2) (i := 15) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_15
+  simp only [← c120, ← c121, k1, ← c122] at e_2_15
+  have e_3_1 := arithEq_of_rows h (row := 3) (i := 1) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_1
+  simp only [← c114, ← c115, ← c116] at e_3_1
+  have e_3_2 := arithEq_of_rows h (row := 3) (i := 2) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_2
+  simp only [← c117, ← c118, ← c119] at e_3_2
+  simp only [k0]
   refine ⟨?_, ?_⟩
-  · have hc := e_1_17
-    linear_combination c123.trans k1 - hc
-  · have hc := e_0_15
-    simp only [e_0_14, e_1_18] at hc
-    linear_combination c124.trans k1 - hc
+  · have hc := e_3_1
+    linear_combination c123.trans k0 - hc
+  · have hc := e_2_15
+    simp only [e_2_14, e_3_2] at hc
+    linear_combination c124.trans k0 - hc
 
 theorem publicBatchWrapper4_f15 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 1 79) = band (a (.virt 26499)) (a (.virt 26501)) := by
+    a (.wire 3 15) = band (a (.virt 120)) (a (.virt 122)) := by
   have c125 := (publicBatchWrapper4_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c126 := (publicBatchWrapper4_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c127 := (publicBatchWrapper4_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have e_1_19 := arithEq_of_rows h (row := 1) (i := 19) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_19
-  simp only [← c125, ← c126, ← c127] at e_1_19
-  have hr := e_1_19
+  have e_3_3 := arithEq_of_rows h (row := 3) (i := 3) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_3
+  simp only [← c125, ← c126, ← c127] at e_3_3
+  have hr := e_3_3
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f16 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 2 3) = band (a (.virt 26503)) (a (.virt 26505)) := by
+    a (.wire 3 19) = band (a (.virt 124)) (a (.virt 126)) := by
   have c128 := (publicBatchWrapper4_copies4 a h).1
   have c129 := (publicBatchWrapper4_copies4 a h).2.1
   have c130 := (publicBatchWrapper4_copies4 a h).2.2.1
-  have e_2_0 := arithEq_of_rows h (row := 2) (i := 0) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_0
-  simp only [← c128, ← c129, ← c130] at e_2_0
-  have hr := e_2_0
+  have e_3_4 := arithEq_of_rows h (row := 3) (i := 4) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_4
+  simp only [← c128, ← c129, ← c130] at e_3_4
+  have hr := e_3_4
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f17 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 2 7) = band (a (.wire 1 79)) (a (.wire 2 3)) := by
+    a (.wire 3 23) = band (a (.wire 3 15)) (a (.wire 3 19)) := by
   have c131 := (publicBatchWrapper4_copies4 a h).2.2.2.1
   have c132 := (publicBatchWrapper4_copies4 a h).2.2.2.2.1
   have c133 := (publicBatchWrapper4_copies4 a h).2.2.2.2.2.1
-  have e_2_1 := arithEq_of_rows h (row := 2) (i := 1) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_1
-  simp only [← c131, ← c132, ← c133] at e_2_1
-  have hr := e_2_1
+  have e_3_5 := arithEq_of_rows h (row := 3) (i := 5) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_5
+  simp only [← c131, ← c132, ← c133] at e_3_5
+  have hr := e_3_5
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f18 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 19840)) (a (.virt 26489)) (a (.virt 26507)) (a (.virt 26508)) := by
+    IsEqual (a (.virt 59)) (a (.virt 26)) (a (.virt 128)) (a (.virt 129)) := by
   have c134 := (publicBatchWrapper4_copies4 a h).2.2.2.2.2.2.1
   have c135 := (publicBatchWrapper4_copies4 a h).2.2.2.2.2.2.2.1
   have c136 := (publicBatchWrapper4_copies4 a h).2.2.2.2.2.2.2.2.1
@@ -2456,28 +2457,28 @@ theorem publicBatchWrapper4_f18 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c146 := (publicBatchWrapper4_copies4 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c147 := (publicBatchWrapper4_copies4 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_0_16 := arithEq_of_rows h (row := 0) (i := 16) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_16
-  simp only [← c134, k0, ← c135, k0, ← c136] at e_0_16
-  have e_0_17 := arithEq_of_rows h (row := 0) (i := 17) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_17
-  simp only [← c143, ← c144, k0, ← c145] at e_0_17
-  have e_2_2 := arithEq_of_rows h (row := 2) (i := 2) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_2
-  simp only [← c137, ← c138, ← c139] at e_2_2
-  have e_2_3 := arithEq_of_rows h (row := 2) (i := 3) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_3
-  simp only [← c140, ← c141, ← c142] at e_2_3
-  simp only [k1]
+  have e_2_16 := arithEq_of_rows h (row := 2) (i := 16) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_16
+  simp only [← c134, k1, ← c135, k1, ← c136] at e_2_16
+  have e_2_17 := arithEq_of_rows h (row := 2) (i := 17) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_17
+  simp only [← c143, ← c144, k1, ← c145] at e_2_17
+  have e_3_6 := arithEq_of_rows h (row := 3) (i := 6) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_6
+  simp only [← c137, ← c138, ← c139] at e_3_6
+  have e_3_7 := arithEq_of_rows h (row := 3) (i := 7) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_7
+  simp only [← c140, ← c141, ← c142] at e_3_7
+  simp only [k0]
   refine ⟨?_, ?_⟩
-  · have hc := e_2_2
-    linear_combination c146.trans k1 - hc
-  · have hc := e_0_17
-    simp only [e_0_16, e_2_3] at hc
-    linear_combination c147.trans k1 - hc
+  · have hc := e_3_6
+    linear_combination c146.trans k0 - hc
+  · have hc := e_2_17
+    simp only [e_2_16, e_3_7] at hc
+    linear_combination c147.trans k0 - hc
 
 theorem publicBatchWrapper4_f19 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 19841)) (a (.virt 26489)) (a (.virt 26509)) (a (.virt 26510)) := by
+    IsEqual (a (.virt 60)) (a (.virt 26)) (a (.virt 130)) (a (.virt 131)) := by
   have c148 := (publicBatchWrapper4_copies4 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c149 := (publicBatchWrapper4_copies4 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c150 := (publicBatchWrapper4_copies4 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -2493,28 +2494,28 @@ theorem publicBatchWrapper4_f19 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c160 := (publicBatchWrapper4_copies5 a h).1
   have c161 := (publicBatchWrapper4_copies5 a h).2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_0_18 := arithEq_of_rows h (row := 0) (i := 18) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_18
-  simp only [← c148, k0, ← c149, k0, ← c150] at e_0_18
-  have e_0_19 := arithEq_of_rows h (row := 0) (i := 19) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_19
-  simp only [← c157, ← c158, k0, ← c159] at e_0_19
-  have e_2_4 := arithEq_of_rows h (row := 2) (i := 4) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_4
-  simp only [← c151, ← c152, ← c153] at e_2_4
-  have e_2_5 := arithEq_of_rows h (row := 2) (i := 5) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_5
-  simp only [← c154, ← c155, ← c156] at e_2_5
-  simp only [k1]
+  have e_2_18 := arithEq_of_rows h (row := 2) (i := 18) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_18
+  simp only [← c148, k1, ← c149, k1, ← c150] at e_2_18
+  have e_2_19 := arithEq_of_rows h (row := 2) (i := 19) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_19
+  simp only [← c157, ← c158, k1, ← c159] at e_2_19
+  have e_3_8 := arithEq_of_rows h (row := 3) (i := 8) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_8
+  simp only [← c151, ← c152, ← c153] at e_3_8
+  have e_3_9 := arithEq_of_rows h (row := 3) (i := 9) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_9
+  simp only [← c154, ← c155, ← c156] at e_3_9
+  simp only [k0]
   refine ⟨?_, ?_⟩
-  · have hc := e_2_4
-    linear_combination c160.trans k1 - hc
-  · have hc := e_0_19
-    simp only [e_0_18, e_2_5] at hc
-    linear_combination c161.trans k1 - hc
+  · have hc := e_3_8
+    linear_combination c160.trans k0 - hc
+  · have hc := e_2_19
+    simp only [e_2_18, e_3_9] at hc
+    linear_combination c161.trans k0 - hc
 
 theorem publicBatchWrapper4_f20 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 19842)) (a (.virt 26489)) (a (.virt 26511)) (a (.virt 26512)) := by
+    IsEqual (a (.virt 61)) (a (.virt 26)) (a (.virt 132)) (a (.virt 133)) := by
   have c162 := (publicBatchWrapper4_copies5 a h).2.2.1
   have c163 := (publicBatchWrapper4_copies5 a h).2.2.2.1
   have c164 := (publicBatchWrapper4_copies5 a h).2.2.2.2.1
@@ -2530,28 +2531,28 @@ theorem publicBatchWrapper4_f20 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c174 := (publicBatchWrapper4_copies5 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c175 := (publicBatchWrapper4_copies5 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_2_6 := arithEq_of_rows h (row := 2) (i := 6) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_6
-  simp only [← c165, ← c166, ← c167] at e_2_6
-  have e_2_7 := arithEq_of_rows h (row := 2) (i := 7) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_7
-  simp only [← c168, ← c169, ← c170] at e_2_7
-  have e_3_0 := arithEq_of_rows h (row := 3) (i := 0) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_0
-  simp only [← c162, k0, ← c163, k0, ← c164] at e_3_0
-  have e_3_1 := arithEq_of_rows h (row := 3) (i := 1) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_1
-  simp only [← c171, ← c172, k0, ← c173] at e_3_1
-  simp only [k1]
+  have e_3_10 := arithEq_of_rows h (row := 3) (i := 10) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_10
+  simp only [← c165, ← c166, ← c167] at e_3_10
+  have e_3_11 := arithEq_of_rows h (row := 3) (i := 11) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_11
+  simp only [← c168, ← c169, ← c170] at e_3_11
+  have e_4_0 := arithEq_of_rows h (row := 4) (i := 0) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_0
+  simp only [← c162, k1, ← c163, k1, ← c164] at e_4_0
+  have e_4_1 := arithEq_of_rows h (row := 4) (i := 1) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_1
+  simp only [← c171, ← c172, k1, ← c173] at e_4_1
+  simp only [k0]
   refine ⟨?_, ?_⟩
-  · have hc := e_2_6
-    linear_combination c174.trans k1 - hc
-  · have hc := e_3_1
-    simp only [e_3_0, e_2_7] at hc
-    linear_combination c175.trans k1 - hc
+  · have hc := e_3_10
+    linear_combination c174.trans k0 - hc
+  · have hc := e_4_1
+    simp only [e_4_0, e_3_11] at hc
+    linear_combination c175.trans k0 - hc
 
 theorem publicBatchWrapper4_f21 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 19843)) (a (.virt 26489)) (a (.virt 26513)) (a (.virt 26514)) := by
+    IsEqual (a (.virt 62)) (a (.virt 26)) (a (.virt 134)) (a (.virt 135)) := by
   have c176 := (publicBatchWrapper4_copies5 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c177 := (publicBatchWrapper4_copies5 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c178 := (publicBatchWrapper4_copies5 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -2567,64 +2568,64 @@ theorem publicBatchWrapper4_f21 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c188 := (publicBatchWrapper4_copies5 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c189 := (publicBatchWrapper4_copies5 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_2_8 := arithEq_of_rows h (row := 2) (i := 8) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_8
-  simp only [← c179, ← c180, ← c181] at e_2_8
-  have e_2_9 := arithEq_of_rows h (row := 2) (i := 9) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_9
-  simp only [← c182, ← c183, ← c184] at e_2_9
-  have e_3_2 := arithEq_of_rows h (row := 3) (i := 2) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_2
-  simp only [← c176, k0, ← c177, k0, ← c178] at e_3_2
-  have e_3_3 := arithEq_of_rows h (row := 3) (i := 3) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_3
-  simp only [← c185, ← c186, k0, ← c187] at e_3_3
-  simp only [k1]
+  have e_3_12 := arithEq_of_rows h (row := 3) (i := 12) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_12
+  simp only [← c179, ← c180, ← c181] at e_3_12
+  have e_3_13 := arithEq_of_rows h (row := 3) (i := 13) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_13
+  simp only [← c182, ← c183, ← c184] at e_3_13
+  have e_4_2 := arithEq_of_rows h (row := 4) (i := 2) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_2
+  simp only [← c176, k1, ← c177, k1, ← c178] at e_4_2
+  have e_4_3 := arithEq_of_rows h (row := 4) (i := 3) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_3
+  simp only [← c185, ← c186, k1, ← c187] at e_4_3
+  simp only [k0]
   refine ⟨?_, ?_⟩
-  · have hc := e_2_8
-    linear_combination c188.trans k1 - hc
-  · have hc := e_3_3
-    simp only [e_3_2, e_2_9] at hc
-    linear_combination c189.trans k1 - hc
+  · have hc := e_3_12
+    linear_combination c188.trans k0 - hc
+  · have hc := e_4_3
+    simp only [e_4_2, e_3_13] at hc
+    linear_combination c189.trans k0 - hc
 
 theorem publicBatchWrapper4_f22 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 2 43) = band (a (.virt 26507)) (a (.virt 26509)) := by
+    a (.wire 3 59) = band (a (.virt 128)) (a (.virt 130)) := by
   have c190 := (publicBatchWrapper4_copies5 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c191 := (publicBatchWrapper4_copies5 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c192 := (publicBatchWrapper4_copies6 a h).1
-  have e_2_10 := arithEq_of_rows h (row := 2) (i := 10) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_10
-  simp only [← c190, ← c191, ← c192] at e_2_10
-  have hr := e_2_10
+  have e_3_14 := arithEq_of_rows h (row := 3) (i := 14) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_14
+  simp only [← c190, ← c191, ← c192] at e_3_14
+  have hr := e_3_14
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f23 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 2 47) = band (a (.virt 26511)) (a (.virt 26513)) := by
+    a (.wire 3 63) = band (a (.virt 132)) (a (.virt 134)) := by
   have c193 := (publicBatchWrapper4_copies6 a h).2.1
   have c194 := (publicBatchWrapper4_copies6 a h).2.2.1
   have c195 := (publicBatchWrapper4_copies6 a h).2.2.2.1
-  have e_2_11 := arithEq_of_rows h (row := 2) (i := 11) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_11
-  simp only [← c193, ← c194, ← c195] at e_2_11
-  have hr := e_2_11
+  have e_3_15 := arithEq_of_rows h (row := 3) (i := 15) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_15
+  simp only [← c193, ← c194, ← c195] at e_3_15
+  have hr := e_3_15
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f24 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 2 51) = band (a (.wire 2 43)) (a (.wire 2 47)) := by
+    a (.wire 3 67) = band (a (.wire 3 59)) (a (.wire 3 63)) := by
   have c196 := (publicBatchWrapper4_copies6 a h).2.2.2.2.1
   have c197 := (publicBatchWrapper4_copies6 a h).2.2.2.2.2.1
   have c198 := (publicBatchWrapper4_copies6 a h).2.2.2.2.2.2.1
-  have e_2_12 := arithEq_of_rows h (row := 2) (i := 12) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_12
-  simp only [← c196, ← c197, ← c198] at e_2_12
-  have hr := e_2_12
+  have e_3_16 := arithEq_of_rows h (row := 3) (i := 16) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_16
+  simp only [← c196, ← c197, ← c198] at e_3_16
+  have hr := e_3_16
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f25 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 26461)) (a (.virt 26489)) (a (.virt 26515)) (a (.virt 26516)) := by
+    IsEqual (a (.virt 85)) (a (.virt 26)) (a (.virt 136)) (a (.virt 137)) := by
   have c199 := (publicBatchWrapper4_copies6 a h).2.2.2.2.2.2.2.1
   have c200 := (publicBatchWrapper4_copies6 a h).2.2.2.2.2.2.2.2.1
   have c201 := (publicBatchWrapper4_copies6 a h).2.2.2.2.2.2.2.2.2.1
@@ -2640,28 +2641,28 @@ theorem publicBatchWrapper4_f25 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c211 := (publicBatchWrapper4_copies6 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c212 := (publicBatchWrapper4_copies6 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_2_13 := arithEq_of_rows h (row := 2) (i := 13) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_13
-  simp only [← c202, ← c203, ← c204] at e_2_13
-  have e_2_14 := arithEq_of_rows h (row := 2) (i := 14) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_14
-  simp only [← c205, ← c206, ← c207] at e_2_14
-  have e_3_4 := arithEq_of_rows h (row := 3) (i := 4) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_4
-  simp only [← c199, k0, ← c200, k0, ← c201] at e_3_4
-  have e_3_5 := arithEq_of_rows h (row := 3) (i := 5) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_5
-  simp only [← c208, ← c209, k0, ← c210] at e_3_5
-  simp only [k1]
+  have e_3_17 := arithEq_of_rows h (row := 3) (i := 17) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_17
+  simp only [← c202, ← c203, ← c204] at e_3_17
+  have e_3_18 := arithEq_of_rows h (row := 3) (i := 18) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_18
+  simp only [← c205, ← c206, ← c207] at e_3_18
+  have e_4_4 := arithEq_of_rows h (row := 4) (i := 4) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_4
+  simp only [← c199, k1, ← c200, k1, ← c201] at e_4_4
+  have e_4_5 := arithEq_of_rows h (row := 4) (i := 5) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_5
+  simp only [← c208, ← c209, k1, ← c210] at e_4_5
+  simp only [k0]
   refine ⟨?_, ?_⟩
-  · have hc := e_2_13
-    linear_combination c211.trans k1 - hc
-  · have hc := e_3_5
-    simp only [e_3_4, e_2_14] at hc
-    linear_combination c212.trans k1 - hc
+  · have hc := e_3_17
+    linear_combination c211.trans k0 - hc
+  · have hc := e_4_5
+    simp only [e_4_4, e_3_18] at hc
+    linear_combination c212.trans k0 - hc
 
 theorem publicBatchWrapper4_f26 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 26462)) (a (.virt 26489)) (a (.virt 26517)) (a (.virt 26518)) := by
+    IsEqual (a (.virt 86)) (a (.virt 26)) (a (.virt 138)) (a (.virt 139)) := by
   have c213 := (publicBatchWrapper4_copies6 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c214 := (publicBatchWrapper4_copies6 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c215 := (publicBatchWrapper4_copies6 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -2677,28 +2678,28 @@ theorem publicBatchWrapper4_f26 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c225 := (publicBatchWrapper4_copies7 a h).2.1
   have c226 := (publicBatchWrapper4_copies7 a h).2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_2_15 := arithEq_of_rows h (row := 2) (i := 15) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_15
-  simp only [← c216, ← c217, ← c218] at e_2_15
-  have e_2_16 := arithEq_of_rows h (row := 2) (i := 16) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_16
-  simp only [← c219, ← c220, ← c221] at e_2_16
-  have e_3_6 := arithEq_of_rows h (row := 3) (i := 6) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_6
-  simp only [← c213, k0, ← c214, k0, ← c215] at e_3_6
-  have e_3_7 := arithEq_of_rows h (row := 3) (i := 7) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_7
-  simp only [← c222, ← c223, k0, ← c224] at e_3_7
-  simp only [k1]
+  have e_3_19 := arithEq_of_rows h (row := 3) (i := 19) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_19
+  simp only [← c216, ← c217, ← c218] at e_3_19
+  have e_4_6 := arithEq_of_rows h (row := 4) (i := 6) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_6
+  simp only [← c213, k1, ← c214, k1, ← c215] at e_4_6
+  have e_4_7 := arithEq_of_rows h (row := 4) (i := 7) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_7
+  simp only [← c222, ← c223, k1, ← c224] at e_4_7
+  have e_5_0 := arithEq_of_rows h (row := 5) (i := 0) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_0
+  simp only [← c219, ← c220, ← c221] at e_5_0
+  simp only [k0]
   refine ⟨?_, ?_⟩
-  · have hc := e_2_15
-    linear_combination c225.trans k1 - hc
-  · have hc := e_3_7
-    simp only [e_3_6, e_2_16] at hc
-    linear_combination c226.trans k1 - hc
+  · have hc := e_3_19
+    linear_combination c225.trans k0 - hc
+  · have hc := e_4_7
+    simp only [e_4_6, e_5_0] at hc
+    linear_combination c226.trans k0 - hc
 
 theorem publicBatchWrapper4_f27 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 26463)) (a (.virt 26489)) (a (.virt 26519)) (a (.virt 26520)) := by
+    IsEqual (a (.virt 87)) (a (.virt 26)) (a (.virt 140)) (a (.virt 141)) := by
   have c227 := (publicBatchWrapper4_copies7 a h).2.2.2.1
   have c228 := (publicBatchWrapper4_copies7 a h).2.2.2.2.1
   have c229 := (publicBatchWrapper4_copies7 a h).2.2.2.2.2.1
@@ -2714,28 +2715,28 @@ theorem publicBatchWrapper4_f27 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c239 := (publicBatchWrapper4_copies7 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c240 := (publicBatchWrapper4_copies7 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_2_17 := arithEq_of_rows h (row := 2) (i := 17) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_17
-  simp only [← c230, ← c231, ← c232] at e_2_17
-  have e_2_18 := arithEq_of_rows h (row := 2) (i := 18) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_18
-  simp only [← c233, ← c234, ← c235] at e_2_18
-  have e_3_8 := arithEq_of_rows h (row := 3) (i := 8) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_8
-  simp only [← c227, k0, ← c228, k0, ← c229] at e_3_8
-  have e_3_9 := arithEq_of_rows h (row := 3) (i := 9) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_9
-  simp only [← c236, ← c237, k0, ← c238] at e_3_9
-  simp only [k1]
+  have e_4_8 := arithEq_of_rows h (row := 4) (i := 8) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_8
+  simp only [← c227, k1, ← c228, k1, ← c229] at e_4_8
+  have e_4_9 := arithEq_of_rows h (row := 4) (i := 9) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_9
+  simp only [← c236, ← c237, k1, ← c238] at e_4_9
+  have e_5_1 := arithEq_of_rows h (row := 5) (i := 1) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_1
+  simp only [← c230, ← c231, ← c232] at e_5_1
+  have e_5_2 := arithEq_of_rows h (row := 5) (i := 2) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_2
+  simp only [← c233, ← c234, ← c235] at e_5_2
+  simp only [k0]
   refine ⟨?_, ?_⟩
-  · have hc := e_2_17
-    linear_combination c239.trans k1 - hc
-  · have hc := e_3_9
-    simp only [e_3_8, e_2_18] at hc
-    linear_combination c240.trans k1 - hc
+  · have hc := e_5_1
+    linear_combination c239.trans k0 - hc
+  · have hc := e_4_9
+    simp only [e_4_8, e_5_2] at hc
+    linear_combination c240.trans k0 - hc
 
 theorem publicBatchWrapper4_f28 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 26464)) (a (.virt 26489)) (a (.virt 26521)) (a (.virt 26522)) := by
+    IsEqual (a (.virt 88)) (a (.virt 26)) (a (.virt 142)) (a (.virt 143)) := by
   have c241 := (publicBatchWrapper4_copies7 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c242 := (publicBatchWrapper4_copies7 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c243 := (publicBatchWrapper4_copies7 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -2751,357 +2752,357 @@ theorem publicBatchWrapper4_f28 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c253 := (publicBatchWrapper4_copies7 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c254 := (publicBatchWrapper4_copies7 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_2_19 := arithEq_of_rows h (row := 2) (i := 19) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_19
-  simp only [← c244, ← c245, ← c246] at e_2_19
-  have e_3_10 := arithEq_of_rows h (row := 3) (i := 10) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_10
-  simp only [← c241, k0, ← c242, k0, ← c243] at e_3_10
-  have e_3_11 := arithEq_of_rows h (row := 3) (i := 11) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_11
-  simp only [← c250, ← c251, k0, ← c252] at e_3_11
-  have e_4_0 := arithEq_of_rows h (row := 4) (i := 0) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_0
-  simp only [← c247, ← c248, ← c249] at e_4_0
-  simp only [k1]
+  have e_4_10 := arithEq_of_rows h (row := 4) (i := 10) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_10
+  simp only [← c241, k1, ← c242, k1, ← c243] at e_4_10
+  have e_4_11 := arithEq_of_rows h (row := 4) (i := 11) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_11
+  simp only [← c250, ← c251, k1, ← c252] at e_4_11
+  have e_5_3 := arithEq_of_rows h (row := 5) (i := 3) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_3
+  simp only [← c244, ← c245, ← c246] at e_5_3
+  have e_5_4 := arithEq_of_rows h (row := 5) (i := 4) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_4
+  simp only [← c247, ← c248, ← c249] at e_5_4
+  simp only [k0]
   refine ⟨?_, ?_⟩
-  · have hc := e_2_19
-    linear_combination c253.trans k1 - hc
-  · have hc := e_3_11
-    simp only [e_3_10, e_4_0] at hc
-    linear_combination c254.trans k1 - hc
+  · have hc := e_5_3
+    linear_combination c253.trans k0 - hc
+  · have hc := e_4_11
+    simp only [e_4_10, e_5_4] at hc
+    linear_combination c254.trans k0 - hc
 
 theorem publicBatchWrapper4_f29 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 4 7) = band (a (.virt 26515)) (a (.virt 26517)) := by
+    a (.wire 5 23) = band (a (.virt 136)) (a (.virt 138)) := by
   have c255 := (publicBatchWrapper4_copies7 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c256 := (publicBatchWrapper4_copies8 a h).1
   have c257 := (publicBatchWrapper4_copies8 a h).2.1
-  have e_4_1 := arithEq_of_rows h (row := 4) (i := 1) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_1
-  simp only [← c255, ← c256, ← c257] at e_4_1
-  have hr := e_4_1
+  have e_5_5 := arithEq_of_rows h (row := 5) (i := 5) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_5
+  simp only [← c255, ← c256, ← c257] at e_5_5
+  have hr := e_5_5
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f30 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 4 11) = band (a (.virt 26519)) (a (.virt 26521)) := by
+    a (.wire 5 27) = band (a (.virt 140)) (a (.virt 142)) := by
   have c258 := (publicBatchWrapper4_copies8 a h).2.2.1
   have c259 := (publicBatchWrapper4_copies8 a h).2.2.2.1
   have c260 := (publicBatchWrapper4_copies8 a h).2.2.2.2.1
-  have e_4_2 := arithEq_of_rows h (row := 4) (i := 2) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_2
-  simp only [← c258, ← c259, ← c260] at e_4_2
-  have hr := e_4_2
+  have e_5_6 := arithEq_of_rows h (row := 5) (i := 6) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_6
+  simp only [← c258, ← c259, ← c260] at e_5_6
+  have hr := e_5_6
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f31 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 4 15) = band (a (.wire 4 7)) (a (.wire 4 11)) := by
+    a (.wire 5 31) = band (a (.wire 5 23)) (a (.wire 5 27)) := by
   have c261 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.1
   have c262 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.1
   have c263 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.2.1
-  have e_4_3 := arithEq_of_rows h (row := 4) (i := 3) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_3
-  simp only [← c261, ← c262, ← c263] at e_4_3
-  have hr := e_4_3
+  have e_5_7 := arithEq_of_rows h (row := 5) (i := 7) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_7
+  simp only [← c261, ← c262, ← c263] at e_5_7
+  have hr := e_5_7
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f32 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 3 51) = bnot (a (.wire 1 43)) := by
+    a (.wire 4 51) = bnot (a (.wire 1 59)) := by
   have c264 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.2.2.1
   have c265 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.2.2.2.1
   have c266 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_3_12 := arithEq_of_rows h (row := 3) (i := 12) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_12
-  simp only [← c264, k0, ← c265, k0, ← c266] at e_3_12
-  have hr := e_3_12
+  have e_4_12 := arithEq_of_rows h (row := 4) (i := 12) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_12
+  simp only [← c264, k1, ← c265, k1, ← c266] at e_4_12
+  have hr := e_4_12
   simp only [bnot]
   linear_combination hr
 
 theorem publicBatchWrapper4_f33 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 26488) = bnot (a (.virt 26489)) := by
+    a (.virt 27) = bnot (a (.virt 26)) := by
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
   simp only [bnot, k0, k1]
   ring
 
 theorem publicBatchWrapper4_f34 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 3 51) = band (a (.wire 3 51)) (a (.virt 26488)) := by
+    a (.wire 4 51) = band (a (.wire 4 51)) (a (.virt 27)) := by
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  simp only [band, k0]
+  simp only [band, k1]
   ring
 
 theorem publicBatchWrapper4_f35 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 3 55) = bselect (a (.wire 3 51)) (a (.virt 6598)) (a (.virt 26489)) := by
+    a (.wire 4 55) = bselect (a (.wire 4 51)) (a (.virt 3)) (a (.virt 26)) := by
   have c267 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c268 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c269 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_3_13 := arithEq_of_rows h (row := 3) (i := 13) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_13
-  simp only [← c267, ← c268, ← c269, k1] at e_3_13
-  have hr := e_3_13
-  simp only [bselect, k1]
+  have e_4_13 := arithEq_of_rows h (row := 4) (i := 13) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_13
+  simp only [← c267, ← c268, ← c269, k0] at e_4_13
+  have hr := e_4_13
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f36 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 3 59) = bselect (a (.wire 3 51)) (a (.virt 6599)) (a (.virt 26489)) := by
+    a (.wire 4 59) = bselect (a (.wire 4 51)) (a (.virt 4)) (a (.virt 26)) := by
   have c270 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c271 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c272 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_3_14 := arithEq_of_rows h (row := 3) (i := 14) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_14
-  simp only [← c270, ← c271, ← c272, k1] at e_3_14
-  have hr := e_3_14
-  simp only [bselect, k1]
+  have e_4_14 := arithEq_of_rows h (row := 4) (i := 14) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_14
+  simp only [← c270, ← c271, ← c272, k0] at e_4_14
+  have hr := e_4_14
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f37 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 3 63) = bselect (a (.wire 3 51)) (a (.virt 6600)) (a (.virt 26489)) := by
+    a (.wire 4 63) = bselect (a (.wire 4 51)) (a (.virt 5)) (a (.virt 26)) := by
   have c273 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c274 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c275 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_3_15 := arithEq_of_rows h (row := 3) (i := 15) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_15
-  simp only [← c273, ← c274, ← c275, k1] at e_3_15
-  have hr := e_3_15
-  simp only [bselect, k1]
+  have e_4_15 := arithEq_of_rows h (row := 4) (i := 15) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_15
+  simp only [← c273, ← c274, ← c275, k0] at e_4_15
+  have hr := e_4_15
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f38 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 3 67) = bselect (a (.wire 3 51)) (a (.virt 6601)) (a (.virt 26489)) := by
+    a (.wire 4 67) = bselect (a (.wire 4 51)) (a (.virt 6)) (a (.virt 26)) := by
   have c276 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c277 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c278 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_3_16 := arithEq_of_rows h (row := 3) (i := 16) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_16
-  simp only [← c276, ← c277, ← c278, k1] at e_3_16
-  have hr := e_3_16
-  simp only [bselect, k1]
+  have e_4_16 := arithEq_of_rows h (row := 4) (i := 16) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_16
+  simp only [← c276, ← c277, ← c278, k0] at e_4_16
+  have hr := e_4_16
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f39 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 3 71) = bselect (a (.wire 3 51)) (a (.virt 6602)) (a (.virt 26489)) := by
+    a (.wire 4 71) = bselect (a (.wire 4 51)) (a (.virt 7)) (a (.virt 26)) := by
   have c279 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c280 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c281 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_3_17 := arithEq_of_rows h (row := 3) (i := 17) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_17
-  simp only [← c279, ← c280, ← c281, k1] at e_3_17
-  have hr := e_3_17
-  simp only [bselect, k1]
+  have e_4_17 := arithEq_of_rows h (row := 4) (i := 17) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_17
+  simp only [← c279, ← c280, ← c281, k0] at e_4_17
+  have hr := e_4_17
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f40 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 3 75) = bselect (a (.wire 3 51)) (a (.virt 6596)) (a (.virt 26489)) := by
+    a (.wire 4 75) = bselect (a (.wire 4 51)) (a (.virt 1)) (a (.virt 26)) := by
   have c282 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c283 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c284 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_3_18 := arithEq_of_rows h (row := 3) (i := 18) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_18
-  simp only [← c282, ← c283, ← c284, k1] at e_3_18
-  have hr := e_3_18
-  simp only [bselect, k1]
+  have e_4_18 := arithEq_of_rows h (row := 4) (i := 18) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_18
+  simp only [← c282, ← c283, ← c284, k0] at e_4_18
+  have hr := e_4_18
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f41 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 3 79) = bselect (a (.wire 3 51)) (a (.virt 6597)) (a (.virt 26489)) := by
+    a (.wire 4 79) = bselect (a (.wire 4 51)) (a (.virt 2)) (a (.virt 26)) := by
   have c285 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c286 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c287 := (publicBatchWrapper4_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_3_19 := arithEq_of_rows h (row := 3) (i := 19) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_19
-  simp only [← c285, ← c286, ← c287, k1] at e_3_19
-  have hr := e_3_19
-  simp only [bselect, k1]
+  have e_4_19 := arithEq_of_rows h (row := 4) (i := 19) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_19
+  simp only [← c285, ← c286, ← c287, k0] at e_4_19
+  have hr := e_4_19
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f42 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 3 51) = bor (a (.virt 26489)) (a (.wire 3 51)) := by
+    a (.wire 4 51) = bor (a (.virt 26)) (a (.wire 4 51)) := by
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  simp only [bor, k1]
+  simp only [bor, k0]
   ring
 
 theorem publicBatchWrapper4_f43 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 5 3) = bnot (a (.wire 2 7)) := by
+    a (.wire 6 3) = bnot (a (.wire 3 23)) := by
   have c288 := (publicBatchWrapper4_copies9 a h).1
   have c289 := (publicBatchWrapper4_copies9 a h).2.1
   have c290 := (publicBatchWrapper4_copies9 a h).2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_5_0 := arithEq_of_rows h (row := 5) (i := 0) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_0
-  simp only [← c288, k0, ← c289, k0, ← c290] at e_5_0
-  have hr := e_5_0
+  have e_6_0 := arithEq_of_rows h (row := 6) (i := 0) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_0
+  simp only [← c288, k1, ← c289, k1, ← c290] at e_6_0
+  have hr := e_6_0
   simp only [bnot]
   linear_combination hr
 
 theorem publicBatchWrapper4_f44 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 5 7) = bnot (a (.wire 3 51)) := by
+    a (.wire 6 7) = bnot (a (.wire 4 51)) := by
   have c291 := (publicBatchWrapper4_copies9 a h).2.2.2.1
   have c292 := (publicBatchWrapper4_copies9 a h).2.2.2.2.1
   have c293 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_5_1 := arithEq_of_rows h (row := 5) (i := 1) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_1
-  simp only [← c291, k0, ← c292, k0, ← c293] at e_5_1
-  have hr := e_5_1
+  have e_6_1 := arithEq_of_rows h (row := 6) (i := 1) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_1
+  simp only [← c291, k1, ← c292, k1, ← c293] at e_6_1
+  have hr := e_6_1
   simp only [bnot]
   linear_combination hr
 
 theorem publicBatchWrapper4_f45 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 4 19) = band (a (.wire 5 3)) (a (.wire 5 7)) := by
+    a (.wire 5 35) = band (a (.wire 6 3)) (a (.wire 6 7)) := by
   have c294 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.1
   have c295 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.2.1
   have c296 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.2.2.1
-  have e_4_4 := arithEq_of_rows h (row := 4) (i := 4) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_4
-  simp only [← c294, ← c295, ← c296] at e_4_4
-  have hr := e_4_4
+  have e_5_8 := arithEq_of_rows h (row := 5) (i := 8) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_8
+  simp only [← c294, ← c295, ← c296] at e_5_8
+  have hr := e_5_8
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f46 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 5 15) = bselect (a (.wire 4 19)) (a (.virt 13219)) (a (.wire 3 55)) := by
+    a (.wire 6 15) = bselect (a (.wire 5 35)) (a (.virt 33)) (a (.wire 4 55)) := by
   have c297 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.2.2.2.1
   have c298 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.2.2.2.2.1
   have c299 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c300 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c301 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c302 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_5_2 := arithEq_of_rows h (row := 5) (i := 2) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_2
-  simp only [← c297, ← c298, ← c299] at e_5_2
-  have e_5_3 := arithEq_of_rows h (row := 5) (i := 3) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_3
-  simp only [← c300, ← c301, ← c302] at e_5_3
-  have hr := e_5_3
-  simp only [e_5_2] at hr
+  have e_6_2 := arithEq_of_rows h (row := 6) (i := 2) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_2
+  simp only [← c297, ← c298, ← c299] at e_6_2
+  have e_6_3 := arithEq_of_rows h (row := 6) (i := 3) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_3
+  simp only [← c300, ← c301, ← c302] at e_6_3
+  have hr := e_6_3
+  simp only [e_6_2] at hr
   simp only [bselect]
   linear_combination hr
 
 theorem publicBatchWrapper4_f47 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 5 23) = bselect (a (.wire 4 19)) (a (.virt 13220)) (a (.wire 3 59)) := by
+    a (.wire 6 23) = bselect (a (.wire 5 35)) (a (.virt 34)) (a (.wire 4 59)) := by
   have c303 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c304 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c305 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c306 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c307 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c308 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_5_4 := arithEq_of_rows h (row := 5) (i := 4) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_4
-  simp only [← c303, ← c304, ← c305] at e_5_4
-  have e_5_5 := arithEq_of_rows h (row := 5) (i := 5) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_5
-  simp only [← c306, ← c307, ← c308] at e_5_5
-  have hr := e_5_5
-  simp only [e_5_4] at hr
+  have e_6_4 := arithEq_of_rows h (row := 6) (i := 4) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_4
+  simp only [← c303, ← c304, ← c305] at e_6_4
+  have e_6_5 := arithEq_of_rows h (row := 6) (i := 5) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_5
+  simp only [← c306, ← c307, ← c308] at e_6_5
+  have hr := e_6_5
+  simp only [e_6_4] at hr
   simp only [bselect]
   linear_combination hr
 
 theorem publicBatchWrapper4_f48 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 5 31) = bselect (a (.wire 4 19)) (a (.virt 13221)) (a (.wire 3 63)) := by
+    a (.wire 6 31) = bselect (a (.wire 5 35)) (a (.virt 35)) (a (.wire 4 63)) := by
   have c309 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c310 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c311 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c312 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c313 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c314 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_5_6 := arithEq_of_rows h (row := 5) (i := 6) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_6
-  simp only [← c309, ← c310, ← c311] at e_5_6
-  have e_5_7 := arithEq_of_rows h (row := 5) (i := 7) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_7
-  simp only [← c312, ← c313, ← c314] at e_5_7
-  have hr := e_5_7
-  simp only [e_5_6] at hr
+  have e_6_6 := arithEq_of_rows h (row := 6) (i := 6) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_6
+  simp only [← c309, ← c310, ← c311] at e_6_6
+  have e_6_7 := arithEq_of_rows h (row := 6) (i := 7) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_7
+  simp only [← c312, ← c313, ← c314] at e_6_7
+  have hr := e_6_7
+  simp only [e_6_6] at hr
   simp only [bselect]
   linear_combination hr
 
 theorem publicBatchWrapper4_f49 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 5 39) = bselect (a (.wire 4 19)) (a (.virt 13222)) (a (.wire 3 67)) := by
+    a (.wire 6 39) = bselect (a (.wire 5 35)) (a (.virt 36)) (a (.wire 4 67)) := by
   have c315 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c316 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c317 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c318 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c319 := (publicBatchWrapper4_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c320 := (publicBatchWrapper4_copies10 a h).1
-  have e_5_8 := arithEq_of_rows h (row := 5) (i := 8) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_8
-  simp only [← c315, ← c316, ← c317] at e_5_8
-  have e_5_9 := arithEq_of_rows h (row := 5) (i := 9) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_9
-  simp only [← c318, ← c319, ← c320] at e_5_9
-  have hr := e_5_9
-  simp only [e_5_8] at hr
+  have e_6_8 := arithEq_of_rows h (row := 6) (i := 8) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_8
+  simp only [← c315, ← c316, ← c317] at e_6_8
+  have e_6_9 := arithEq_of_rows h (row := 6) (i := 9) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_9
+  simp only [← c318, ← c319, ← c320] at e_6_9
+  have hr := e_6_9
+  simp only [e_6_8] at hr
   simp only [bselect]
   linear_combination hr
 
 theorem publicBatchWrapper4_f50 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 5 47) = bselect (a (.wire 4 19)) (a (.virt 13223)) (a (.wire 3 71)) := by
+    a (.wire 6 47) = bselect (a (.wire 5 35)) (a (.virt 37)) (a (.wire 4 71)) := by
   have c321 := (publicBatchWrapper4_copies10 a h).2.1
   have c322 := (publicBatchWrapper4_copies10 a h).2.2.1
   have c323 := (publicBatchWrapper4_copies10 a h).2.2.2.1
   have c324 := (publicBatchWrapper4_copies10 a h).2.2.2.2.1
   have c325 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.1
   have c326 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.2.1
-  have e_5_10 := arithEq_of_rows h (row := 5) (i := 10) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_10
-  simp only [← c321, ← c322, ← c323] at e_5_10
-  have e_5_11 := arithEq_of_rows h (row := 5) (i := 11) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_11
-  simp only [← c324, ← c325, ← c326] at e_5_11
-  have hr := e_5_11
-  simp only [e_5_10] at hr
+  have e_6_10 := arithEq_of_rows h (row := 6) (i := 10) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_10
+  simp only [← c321, ← c322, ← c323] at e_6_10
+  have e_6_11 := arithEq_of_rows h (row := 6) (i := 11) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_11
+  simp only [← c324, ← c325, ← c326] at e_6_11
+  have hr := e_6_11
+  simp only [e_6_10] at hr
   simp only [bselect]
   linear_combination hr
 
 theorem publicBatchWrapper4_f51 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 5 55) = bselect (a (.wire 4 19)) (a (.virt 13217)) (a (.wire 3 75)) := by
+    a (.wire 6 55) = bselect (a (.wire 5 35)) (a (.virt 31)) (a (.wire 4 75)) := by
   have c327 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.2.2.1
   have c328 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.2.2.2.1
   have c329 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.2.2.2.2.1
   have c330 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.2.2.2.2.2.1
   have c331 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c332 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_5_12 := arithEq_of_rows h (row := 5) (i := 12) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_12
-  simp only [← c327, ← c328, ← c329] at e_5_12
-  have e_5_13 := arithEq_of_rows h (row := 5) (i := 13) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_13
-  simp only [← c330, ← c331, ← c332] at e_5_13
-  have hr := e_5_13
-  simp only [e_5_12] at hr
+  have e_6_12 := arithEq_of_rows h (row := 6) (i := 12) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_12
+  simp only [← c327, ← c328, ← c329] at e_6_12
+  have e_6_13 := arithEq_of_rows h (row := 6) (i := 13) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_13
+  simp only [← c330, ← c331, ← c332] at e_6_13
+  have hr := e_6_13
+  simp only [e_6_12] at hr
   simp only [bselect]
   linear_combination hr
 
 theorem publicBatchWrapper4_f52 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 5 63) = bselect (a (.wire 4 19)) (a (.virt 13218)) (a (.wire 3 79)) := by
+    a (.wire 6 63) = bselect (a (.wire 5 35)) (a (.virt 32)) (a (.wire 4 79)) := by
   have c333 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c334 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c335 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c336 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c337 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c338 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_5_14 := arithEq_of_rows h (row := 5) (i := 14) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_14
-  simp only [← c333, ← c334, ← c335] at e_5_14
-  have e_5_15 := arithEq_of_rows h (row := 5) (i := 15) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_15
-  simp only [← c336, ← c337, ← c338] at e_5_15
-  have hr := e_5_15
-  simp only [e_5_14] at hr
+  have e_6_14 := arithEq_of_rows h (row := 6) (i := 14) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_14
+  simp only [← c333, ← c334, ← c335] at e_6_14
+  have e_6_15 := arithEq_of_rows h (row := 6) (i := 15) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_15
+  simp only [← c336, ← c337, ← c338] at e_6_15
+  have hr := e_6_15
+  simp only [e_6_14] at hr
   simp only [bselect]
   linear_combination hr
 
 theorem publicBatchWrapper4_f53 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 3) = bor (a (.wire 3 51)) (a (.wire 5 3)) := by
+    a (.wire 0 51) = bor (a (.wire 4 51)) (a (.wire 6 3)) := by
   have c339 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c340 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c341 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -3109,76 +3110,76 @@ theorem publicBatchWrapper4_f53 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c343 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c344 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_6_0 := arithEq_of_rows h (row := 6) (i := 0) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_0
-  simp only [← c339, ← c340, ← c341] at e_6_0
+  have e_0_12 := arithEq_of_rows h (row := 0) (i := 12) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_12
+  simp only [← c342, ← c343, k1, ← c344] at e_0_12
   have e_7_0 := arithEq_of_rows h (row := 7) (i := 0) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_0
-  simp only [← c342, ← c343, k0, ← c344] at e_7_0
-  have hr := e_7_0
-  simp only [e_6_0] at hr
+  simp only [← c339, ← c340, ← c341] at e_7_0
+  have hr := e_0_12
+  simp only [e_7_0] at hr
   simp only [bor]
   linear_combination hr
 
 theorem publicBatchWrapper4_f54 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 5 67) = bnot (a (.wire 2 51)) := by
+    a (.wire 6 67) = bnot (a (.wire 3 67)) := by
   have c345 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c346 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c347 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_5_16 := arithEq_of_rows h (row := 5) (i := 16) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_16
-  simp only [← c345, k0, ← c346, k0, ← c347] at e_5_16
-  have hr := e_5_16
+  have e_6_16 := arithEq_of_rows h (row := 6) (i := 16) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_16
+  simp only [← c345, k1, ← c346, k1, ← c347] at e_6_16
+  have hr := e_6_16
   simp only [bnot]
   linear_combination hr
 
 theorem publicBatchWrapper4_f55 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 5 71) = bnot (a (.wire 7 3)) := by
+    a (.wire 6 71) = bnot (a (.wire 0 51)) := by
   have c348 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c349 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c350 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_5_17 := arithEq_of_rows h (row := 5) (i := 17) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_17
-  simp only [← c348, k0, ← c349, k0, ← c350] at e_5_17
-  have hr := e_5_17
+  have e_6_17 := arithEq_of_rows h (row := 6) (i := 17) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_17
+  simp only [← c348, k1, ← c349, k1, ← c350] at e_6_17
+  have hr := e_6_17
   simp only [bnot]
   linear_combination hr
 
 theorem publicBatchWrapper4_f56 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 4 23) = band (a (.wire 5 67)) (a (.wire 5 71)) := by
+    a (.wire 5 39) = band (a (.wire 6 67)) (a (.wire 6 71)) := by
   have c351 := (publicBatchWrapper4_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c352 := (publicBatchWrapper4_copies11 a h).1
   have c353 := (publicBatchWrapper4_copies11 a h).2.1
-  have e_4_5 := arithEq_of_rows h (row := 4) (i := 5) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_5
-  simp only [← c351, ← c352, ← c353] at e_4_5
-  have hr := e_4_5
+  have e_5_9 := arithEq_of_rows h (row := 5) (i := 9) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_9
+  simp only [← c351, ← c352, ← c353] at e_5_9
+  have hr := e_5_9
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f57 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 5 79) = bselect (a (.wire 4 23)) (a (.virt 19840)) (a (.wire 5 15)) := by
+    a (.wire 6 79) = bselect (a (.wire 5 39)) (a (.virt 59)) (a (.wire 6 15)) := by
   have c354 := (publicBatchWrapper4_copies11 a h).2.2.1
   have c355 := (publicBatchWrapper4_copies11 a h).2.2.2.1
   have c356 := (publicBatchWrapper4_copies11 a h).2.2.2.2.1
   have c357 := (publicBatchWrapper4_copies11 a h).2.2.2.2.2.1
   have c358 := (publicBatchWrapper4_copies11 a h).2.2.2.2.2.2.1
   have c359 := (publicBatchWrapper4_copies11 a h).2.2.2.2.2.2.2.1
-  have e_5_18 := arithEq_of_rows h (row := 5) (i := 18) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_18
-  simp only [← c354, ← c355, ← c356] at e_5_18
-  have e_5_19 := arithEq_of_rows h (row := 5) (i := 19) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_19
-  simp only [← c357, ← c358, ← c359] at e_5_19
-  have hr := e_5_19
-  simp only [e_5_18] at hr
+  have e_6_18 := arithEq_of_rows h (row := 6) (i := 18) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_18
+  simp only [← c354, ← c355, ← c356] at e_6_18
+  have e_6_19 := arithEq_of_rows h (row := 6) (i := 19) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_19
+  simp only [← c357, ← c358, ← c359] at e_6_19
+  have hr := e_6_19
+  simp only [e_6_18] at hr
   simp only [bselect]
   linear_combination hr
 
 theorem publicBatchWrapper4_f58 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 8 7) = bselect (a (.wire 4 23)) (a (.virt 19841)) (a (.wire 5 23)) := by
+    a (.wire 8 7) = bselect (a (.wire 5 39)) (a (.virt 60)) (a (.wire 6 23)) := by
   have c360 := (publicBatchWrapper4_copies11 a h).2.2.2.2.2.2.2.2.1
   have c361 := (publicBatchWrapper4_copies11 a h).2.2.2.2.2.2.2.2.2.1
   have c362 := (publicBatchWrapper4_copies11 a h).2.2.2.2.2.2.2.2.2.2.1
@@ -3197,7 +3198,7 @@ theorem publicBatchWrapper4_f58 (a : Assignment p) (h : Satisfies (publicBatchWr
   linear_combination hr
 
 theorem publicBatchWrapper4_f59 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 8 15) = bselect (a (.wire 4 23)) (a (.virt 19842)) (a (.wire 5 31)) := by
+    a (.wire 8 15) = bselect (a (.wire 5 39)) (a (.virt 61)) (a (.wire 6 31)) := by
   have c366 := (publicBatchWrapper4_copies11 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c367 := (publicBatchWrapper4_copies11 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c368 := (publicBatchWrapper4_copies11 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -3216,7 +3217,7 @@ theorem publicBatchWrapper4_f59 (a : Assignment p) (h : Satisfies (publicBatchWr
   linear_combination hr
 
 theorem publicBatchWrapper4_f60 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 8 23) = bselect (a (.wire 4 23)) (a (.virt 19843)) (a (.wire 5 39)) := by
+    a (.wire 8 23) = bselect (a (.wire 5 39)) (a (.virt 62)) (a (.wire 6 39)) := by
   have c372 := (publicBatchWrapper4_copies11 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c373 := (publicBatchWrapper4_copies11 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c374 := (publicBatchWrapper4_copies11 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -3235,7 +3236,7 @@ theorem publicBatchWrapper4_f60 (a : Assignment p) (h : Satisfies (publicBatchWr
   linear_combination hr
 
 theorem publicBatchWrapper4_f61 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 8 31) = bselect (a (.wire 4 23)) (a (.virt 19844)) (a (.wire 5 47)) := by
+    a (.wire 8 31) = bselect (a (.wire 5 39)) (a (.virt 63)) (a (.wire 6 47)) := by
   have c378 := (publicBatchWrapper4_copies11 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c379 := (publicBatchWrapper4_copies11 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c380 := (publicBatchWrapper4_copies11 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -3254,7 +3255,7 @@ theorem publicBatchWrapper4_f61 (a : Assignment p) (h : Satisfies (publicBatchWr
   linear_combination hr
 
 theorem publicBatchWrapper4_f62 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 8 39) = bselect (a (.wire 4 23)) (a (.virt 19838)) (a (.wire 5 55)) := by
+    a (.wire 8 39) = bselect (a (.wire 5 39)) (a (.virt 57)) (a (.wire 6 55)) := by
   have c384 := (publicBatchWrapper4_copies12 a h).1
   have c385 := (publicBatchWrapper4_copies12 a h).2.1
   have c386 := (publicBatchWrapper4_copies12 a h).2.2.1
@@ -3273,7 +3274,7 @@ theorem publicBatchWrapper4_f62 (a : Assignment p) (h : Satisfies (publicBatchWr
   linear_combination hr
 
 theorem publicBatchWrapper4_f63 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 8 47) = bselect (a (.wire 4 23)) (a (.virt 19839)) (a (.wire 5 63)) := by
+    a (.wire 8 47) = bselect (a (.wire 5 39)) (a (.virt 58)) (a (.wire 6 63)) := by
   have c390 := (publicBatchWrapper4_copies12 a h).2.2.2.2.2.2.1
   have c391 := (publicBatchWrapper4_copies12 a h).2.2.2.2.2.2.2.1
   have c392 := (publicBatchWrapper4_copies12 a h).2.2.2.2.2.2.2.2.1
@@ -3292,7 +3293,7 @@ theorem publicBatchWrapper4_f63 (a : Assignment p) (h : Satisfies (publicBatchWr
   linear_combination hr
 
 theorem publicBatchWrapper4_f64 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 7) = bor (a (.wire 7 3)) (a (.wire 5 67)) := by
+    a (.wire 0 55) = bor (a (.wire 0 51)) (a (.wire 6 67)) := by
   have c396 := (publicBatchWrapper4_copies12 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c397 := (publicBatchWrapper4_copies12 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c398 := (publicBatchWrapper4_copies12 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -3300,57 +3301,57 @@ theorem publicBatchWrapper4_f64 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c400 := (publicBatchWrapper4_copies12 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c401 := (publicBatchWrapper4_copies12 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_6_1 := arithEq_of_rows h (row := 6) (i := 1) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_1
-  simp only [← c396, ← c397, ← c398] at e_6_1
+  have e_0_13 := arithEq_of_rows h (row := 0) (i := 13) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_13
+  simp only [← c399, ← c400, k1, ← c401] at e_0_13
   have e_7_1 := arithEq_of_rows h (row := 7) (i := 1) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_1
-  simp only [← c399, ← c400, k0, ← c401] at e_7_1
-  have hr := e_7_1
-  simp only [e_6_1] at hr
+  simp only [← c396, ← c397, ← c398] at e_7_1
+  have hr := e_0_13
+  simp only [e_7_1] at hr
   simp only [bor]
   linear_combination hr
 
 theorem publicBatchWrapper4_f65 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 8 51) = bnot (a (.wire 4 15)) := by
+    a (.wire 8 51) = bnot (a (.wire 5 31)) := by
   have c402 := (publicBatchWrapper4_copies12 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c403 := (publicBatchWrapper4_copies12 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c404 := (publicBatchWrapper4_copies12 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
   have e_8_12 := arithEq_of_rows h (row := 8) (i := 12) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_8_12
-  simp only [← c402, k0, ← c403, k0, ← c404] at e_8_12
+  simp only [← c402, k1, ← c403, k1, ← c404] at e_8_12
   have hr := e_8_12
   simp only [bnot]
   linear_combination hr
 
 theorem publicBatchWrapper4_f66 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 8 55) = bnot (a (.wire 7 7)) := by
+    a (.wire 8 55) = bnot (a (.wire 0 55)) := by
   have c405 := (publicBatchWrapper4_copies12 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c406 := (publicBatchWrapper4_copies12 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c407 := (publicBatchWrapper4_copies12 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
   have e_8_13 := arithEq_of_rows h (row := 8) (i := 13) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_8_13
-  simp only [← c405, k0, ← c406, k0, ← c407] at e_8_13
+  simp only [← c405, k1, ← c406, k1, ← c407] at e_8_13
   have hr := e_8_13
   simp only [bnot]
   linear_combination hr
 
 theorem publicBatchWrapper4_f67 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 4 27) = band (a (.wire 8 51)) (a (.wire 8 55)) := by
+    a (.wire 5 43) = band (a (.wire 8 51)) (a (.wire 8 55)) := by
   have c408 := (publicBatchWrapper4_copies12 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c409 := (publicBatchWrapper4_copies12 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c410 := (publicBatchWrapper4_copies12 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_4_6 := arithEq_of_rows h (row := 4) (i := 6) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_6
-  simp only [← c408, ← c409, ← c410] at e_4_6
-  have hr := e_4_6
+  have e_5_10 := arithEq_of_rows h (row := 5) (i := 10) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_10
+  simp only [← c408, ← c409, ← c410] at e_5_10
+  have hr := e_5_10
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f68 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 8 63) = bselect (a (.wire 4 27)) (a (.virt 26461)) (a (.wire 5 79)) := by
+    a (.wire 8 63) = bselect (a (.wire 5 43)) (a (.virt 85)) (a (.wire 6 79)) := by
   have c411 := (publicBatchWrapper4_copies12 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c412 := (publicBatchWrapper4_copies12 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c413 := (publicBatchWrapper4_copies12 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -3369,7 +3370,7 @@ theorem publicBatchWrapper4_f68 (a : Assignment p) (h : Satisfies (publicBatchWr
   linear_combination hr
 
 theorem publicBatchWrapper4_f69 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 8 71) = bselect (a (.wire 4 27)) (a (.virt 26462)) (a (.wire 8 7)) := by
+    a (.wire 8 71) = bselect (a (.wire 5 43)) (a (.virt 86)) (a (.wire 8 7)) := by
   have c417 := (publicBatchWrapper4_copies13 a h).2.1
   have c418 := (publicBatchWrapper4_copies13 a h).2.2.1
   have c419 := (publicBatchWrapper4_copies13 a h).2.2.2.1
@@ -3388,7 +3389,7 @@ theorem publicBatchWrapper4_f69 (a : Assignment p) (h : Satisfies (publicBatchWr
   linear_combination hr
 
 theorem publicBatchWrapper4_f70 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 8 79) = bselect (a (.wire 4 27)) (a (.virt 26463)) (a (.wire 8 15)) := by
+    a (.wire 8 79) = bselect (a (.wire 5 43)) (a (.virt 87)) (a (.wire 8 15)) := by
   have c423 := (publicBatchWrapper4_copies13 a h).2.2.2.2.2.2.2.1
   have c424 := (publicBatchWrapper4_copies13 a h).2.2.2.2.2.2.2.2.1
   have c425 := (publicBatchWrapper4_copies13 a h).2.2.2.2.2.2.2.2.2.1
@@ -3407,7 +3408,7 @@ theorem publicBatchWrapper4_f70 (a : Assignment p) (h : Satisfies (publicBatchWr
   linear_combination hr
 
 theorem publicBatchWrapper4_f71 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 9 7) = bselect (a (.wire 4 27)) (a (.virt 26464)) (a (.wire 8 23)) := by
+    a (.wire 9 7) = bselect (a (.wire 5 43)) (a (.virt 88)) (a (.wire 8 23)) := by
   have c429 := (publicBatchWrapper4_copies13 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c430 := (publicBatchWrapper4_copies13 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c431 := (publicBatchWrapper4_copies13 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -3426,7 +3427,7 @@ theorem publicBatchWrapper4_f71 (a : Assignment p) (h : Satisfies (publicBatchWr
   linear_combination hr
 
 theorem publicBatchWrapper4_f72 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 9 15) = bselect (a (.wire 4 27)) (a (.virt 26465)) (a (.wire 8 31)) := by
+    a (.wire 9 15) = bselect (a (.wire 5 43)) (a (.virt 89)) (a (.wire 8 31)) := by
   have c435 := (publicBatchWrapper4_copies13 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c436 := (publicBatchWrapper4_copies13 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c437 := (publicBatchWrapper4_copies13 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -3445,7 +3446,7 @@ theorem publicBatchWrapper4_f72 (a : Assignment p) (h : Satisfies (publicBatchWr
   linear_combination hr
 
 theorem publicBatchWrapper4_f73 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 9 23) = bselect (a (.wire 4 27)) (a (.virt 26459)) (a (.wire 8 39)) := by
+    a (.wire 9 23) = bselect (a (.wire 5 43)) (a (.virt 83)) (a (.wire 8 39)) := by
   have c441 := (publicBatchWrapper4_copies13 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c442 := (publicBatchWrapper4_copies13 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c443 := (publicBatchWrapper4_copies13 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -3464,7 +3465,7 @@ theorem publicBatchWrapper4_f73 (a : Assignment p) (h : Satisfies (publicBatchWr
   linear_combination hr
 
 theorem publicBatchWrapper4_f74 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 9 31) = bselect (a (.wire 4 27)) (a (.virt 26460)) (a (.wire 8 47)) := by
+    a (.wire 9 31) = bselect (a (.wire 5 43)) (a (.virt 84)) (a (.wire 8 47)) := by
   have c447 := (publicBatchWrapper4_copies13 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c448 := (publicBatchWrapper4_copies14 a h).1
   have c449 := (publicBatchWrapper4_copies14 a h).2.1
@@ -3483,7 +3484,7 @@ theorem publicBatchWrapper4_f74 (a : Assignment p) (h : Satisfies (publicBatchWr
   linear_combination hr
 
 theorem publicBatchWrapper4_f75 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 11) = bor (a (.wire 7 7)) (a (.wire 8 51)) := by
+    a (.wire 0 59) = bor (a (.wire 0 55)) (a (.wire 8 51)) := by
   have c453 := (publicBatchWrapper4_copies14 a h).2.2.2.2.2.1
   have c454 := (publicBatchWrapper4_copies14 a h).2.2.2.2.2.2.1
   have c455 := (publicBatchWrapper4_copies14 a h).2.2.2.2.2.2.2.1
@@ -3491,19 +3492,19 @@ theorem publicBatchWrapper4_f75 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c457 := (publicBatchWrapper4_copies14 a h).2.2.2.2.2.2.2.2.2.1
   have c458 := (publicBatchWrapper4_copies14 a h).2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_6_2 := arithEq_of_rows h (row := 6) (i := 2) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_2
-  simp only [← c453, ← c454, ← c455] at e_6_2
+  have e_0_14 := arithEq_of_rows h (row := 0) (i := 14) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_14
+  simp only [← c456, ← c457, k1, ← c458] at e_0_14
   have e_7_2 := arithEq_of_rows h (row := 7) (i := 2) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_2
-  simp only [← c456, ← c457, k0, ← c458] at e_7_2
-  have hr := e_7_2
-  simp only [e_6_2] at hr
+  simp only [← c453, ← c454, ← c455] at e_7_2
+  have hr := e_0_14
+  simp only [e_7_2] at hr
   simp only [bor]
   linear_combination hr
 
 theorem publicBatchWrapper4_f76 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 6596)) (a (.wire 9 23)) (a (.virt 26523)) (a (.virt 26524)) := by
+    IsEqual (a (.virt 1)) (a (.wire 9 23)) (a (.virt 144)) (a (.virt 145)) := by
   have c459 := (publicBatchWrapper4_copies14 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c460 := (publicBatchWrapper4_copies14 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c461 := (publicBatchWrapper4_copies14 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -3522,31 +3523,31 @@ theorem publicBatchWrapper4_f76 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c474 := (publicBatchWrapper4_copies14 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c475 := (publicBatchWrapper4_copies14 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_4_7 := arithEq_of_rows h (row := 4) (i := 7) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_7
-  simp only [← c465, ← c466, ← c467] at e_4_7
-  have e_4_8 := arithEq_of_rows h (row := 4) (i := 8) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_8
-  simp only [← c468, ← c469, ← c470] at e_4_8
+  have e_5_11 := arithEq_of_rows h (row := 5) (i := 11) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_11
+  simp only [← c465, ← c466, ← c467] at e_5_11
+  have e_5_12 := arithEq_of_rows h (row := 5) (i := 12) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_12
+  simp only [← c468, ← c469, ← c470] at e_5_12
   have e_9_8 := arithEq_of_rows h (row := 9) (i := 8) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_8
-  simp only [← c459, k0, ← c460, k0, ← c461] at e_9_8
+  simp only [← c459, k1, ← c460, k1, ← c461] at e_9_8
   have e_9_9 := arithEq_of_rows h (row := 9) (i := 9) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_9
-  simp only [← c462, ← c463, k0, ← c464] at e_9_9
+  simp only [← c462, ← c463, k1, ← c464] at e_9_9
   have e_9_10 := arithEq_of_rows h (row := 9) (i := 10) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_10
-  simp only [← c471, ← c472, k0, ← c473] at e_9_10
+  simp only [← c471, ← c472, k1, ← c473] at e_9_10
   refine ⟨?_, ?_⟩
-  · have hc := e_4_7
+  · have hc := e_5_11
     simp only [e_9_9] at hc
-    linear_combination c474.trans k1 - hc
+    linear_combination c474.trans k0 - hc
   · have hc := e_9_10
-    simp only [e_9_8, e_4_8, e_9_9] at hc
-    linear_combination c475.trans k1 - hc
+    simp only [e_9_8, e_5_12, e_9_9] at hc
+    linear_combination c475.trans k0 - hc
 
 theorem publicBatchWrapper4_f77 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 15) = bor (a (.wire 1 43)) (a (.virt 26523)) := by
+    a (.wire 0 63) = bor (a (.wire 1 59)) (a (.virt 144)) := by
   have c476 := (publicBatchWrapper4_copies14 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c477 := (publicBatchWrapper4_copies14 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c478 := (publicBatchWrapper4_copies14 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -3554,24 +3555,24 @@ theorem publicBatchWrapper4_f77 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c480 := (publicBatchWrapper4_copies15 a h).1
   have c481 := (publicBatchWrapper4_copies15 a h).2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_6_3 := arithEq_of_rows h (row := 6) (i := 3) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_3
-  simp only [← c476, ← c477, ← c478] at e_6_3
+  have e_0_15 := arithEq_of_rows h (row := 0) (i := 15) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_15
+  simp only [← c479, ← c480, k1, ← c481] at e_0_15
   have e_7_3 := arithEq_of_rows h (row := 7) (i := 3) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_3
-  simp only [← c479, ← c480, k0, ← c481] at e_7_3
-  have hr := e_7_3
-  simp only [e_6_3] at hr
+  simp only [← c476, ← c477, ← c478] at e_7_3
+  have hr := e_0_15
+  simp only [e_7_3] at hr
   simp only [bor]
   linear_combination hr
 
 theorem publicBatchWrapper4_f78 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 15) = a (.virt 26488) := by
+    a (.wire 0 63) = a (.virt 27) := by
   have c482 := (publicBatchWrapper4_copies15 a h).2.2.1
   exact c482
 
 theorem publicBatchWrapper4_f79 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 6597)) (a (.wire 9 31)) (a (.virt 26525)) (a (.virt 26526)) := by
+    IsEqual (a (.virt 2)) (a (.wire 9 31)) (a (.virt 146)) (a (.virt 147)) := by
   have c483 := (publicBatchWrapper4_copies15 a h).2.2.2.1
   have c484 := (publicBatchWrapper4_copies15 a h).2.2.2.2.1
   have c485 := (publicBatchWrapper4_copies15 a h).2.2.2.2.2.1
@@ -3590,31 +3591,31 @@ theorem publicBatchWrapper4_f79 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c498 := (publicBatchWrapper4_copies15 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c499 := (publicBatchWrapper4_copies15 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_4_9 := arithEq_of_rows h (row := 4) (i := 9) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_9
-  simp only [← c489, ← c490, ← c491] at e_4_9
-  have e_4_10 := arithEq_of_rows h (row := 4) (i := 10) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_10
-  simp only [← c492, ← c493, ← c494] at e_4_10
+  have e_5_13 := arithEq_of_rows h (row := 5) (i := 13) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_13
+  simp only [← c489, ← c490, ← c491] at e_5_13
+  have e_5_14 := arithEq_of_rows h (row := 5) (i := 14) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_14
+  simp only [← c492, ← c493, ← c494] at e_5_14
   have e_9_11 := arithEq_of_rows h (row := 9) (i := 11) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_11
-  simp only [← c483, k0, ← c484, k0, ← c485] at e_9_11
+  simp only [← c483, k1, ← c484, k1, ← c485] at e_9_11
   have e_9_12 := arithEq_of_rows h (row := 9) (i := 12) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_12
-  simp only [← c486, ← c487, k0, ← c488] at e_9_12
+  simp only [← c486, ← c487, k1, ← c488] at e_9_12
   have e_9_13 := arithEq_of_rows h (row := 9) (i := 13) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_13
-  simp only [← c495, ← c496, k0, ← c497] at e_9_13
+  simp only [← c495, ← c496, k1, ← c497] at e_9_13
   refine ⟨?_, ?_⟩
-  · have hc := e_4_9
+  · have hc := e_5_13
     simp only [e_9_12] at hc
-    linear_combination c498.trans k1 - hc
+    linear_combination c498.trans k0 - hc
   · have hc := e_9_13
-    simp only [e_9_11, e_4_10, e_9_12] at hc
-    linear_combination c499.trans k1 - hc
+    simp only [e_9_11, e_5_14, e_9_12] at hc
+    linear_combination c499.trans k0 - hc
 
 theorem publicBatchWrapper4_f80 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 19) = bor (a (.wire 1 43)) (a (.virt 26525)) := by
+    a (.wire 0 67) = bor (a (.wire 1 59)) (a (.virt 146)) := by
   have c500 := (publicBatchWrapper4_copies15 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c501 := (publicBatchWrapper4_copies15 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c502 := (publicBatchWrapper4_copies15 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -3622,24 +3623,24 @@ theorem publicBatchWrapper4_f80 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c504 := (publicBatchWrapper4_copies15 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c505 := (publicBatchWrapper4_copies15 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_6_4 := arithEq_of_rows h (row := 6) (i := 4) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_4
-  simp only [← c500, ← c501, ← c502] at e_6_4
+  have e_0_16 := arithEq_of_rows h (row := 0) (i := 16) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_16
+  simp only [← c503, ← c504, k1, ← c505] at e_0_16
   have e_7_4 := arithEq_of_rows h (row := 7) (i := 4) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_4
-  simp only [← c503, ← c504, k0, ← c505] at e_7_4
-  have hr := e_7_4
-  simp only [e_6_4] at hr
+  simp only [← c500, ← c501, ← c502] at e_7_4
+  have hr := e_0_16
+  simp only [e_7_4] at hr
   simp only [bor]
   linear_combination hr
 
 theorem publicBatchWrapper4_f81 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 19) = a (.virt 26488) := by
+    a (.wire 0 67) = a (.virt 27) := by
   have c506 := (publicBatchWrapper4_copies15 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   exact c506
 
 theorem publicBatchWrapper4_f82 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 6598)) (a (.wire 8 63)) (a (.virt 26527)) (a (.virt 26528)) := by
+    IsEqual (a (.virt 3)) (a (.wire 8 63)) (a (.virt 148)) (a (.virt 149)) := by
   have c507 := (publicBatchWrapper4_copies15 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c508 := (publicBatchWrapper4_copies15 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c509 := (publicBatchWrapper4_copies15 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -3658,31 +3659,31 @@ theorem publicBatchWrapper4_f82 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c522 := (publicBatchWrapper4_copies16 a h).2.2.2.2.2.2.2.2.2.2.1
   have c523 := (publicBatchWrapper4_copies16 a h).2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_4_11 := arithEq_of_rows h (row := 4) (i := 11) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_11
-  simp only [← c513, ← c514, ← c515] at e_4_11
-  have e_4_12 := arithEq_of_rows h (row := 4) (i := 12) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_12
-  simp only [← c516, ← c517, ← c518] at e_4_12
+  have e_5_15 := arithEq_of_rows h (row := 5) (i := 15) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_15
+  simp only [← c513, ← c514, ← c515] at e_5_15
+  have e_5_16 := arithEq_of_rows h (row := 5) (i := 16) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_16
+  simp only [← c516, ← c517, ← c518] at e_5_16
   have e_9_14 := arithEq_of_rows h (row := 9) (i := 14) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_14
-  simp only [← c507, k0, ← c508, k0, ← c509] at e_9_14
+  simp only [← c507, k1, ← c508, k1, ← c509] at e_9_14
   have e_9_15 := arithEq_of_rows h (row := 9) (i := 15) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_15
-  simp only [← c510, ← c511, k0, ← c512] at e_9_15
+  simp only [← c510, ← c511, k1, ← c512] at e_9_15
   have e_9_16 := arithEq_of_rows h (row := 9) (i := 16) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_16
-  simp only [← c519, ← c520, k0, ← c521] at e_9_16
+  simp only [← c519, ← c520, k1, ← c521] at e_9_16
   refine ⟨?_, ?_⟩
-  · have hc := e_4_11
+  · have hc := e_5_15
     simp only [e_9_15] at hc
-    linear_combination c522.trans k1 - hc
+    linear_combination c522.trans k0 - hc
   · have hc := e_9_16
-    simp only [e_9_14, e_4_12, e_9_15] at hc
-    linear_combination c523.trans k1 - hc
+    simp only [e_9_14, e_5_16, e_9_15] at hc
+    linear_combination c523.trans k0 - hc
 
 theorem publicBatchWrapper4_f83 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 6599)) (a (.wire 8 71)) (a (.virt 26529)) (a (.virt 26530)) := by
+    IsEqual (a (.virt 4)) (a (.wire 8 71)) (a (.virt 150)) (a (.virt 151)) := by
   have c524 := (publicBatchWrapper4_copies16 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c525 := (publicBatchWrapper4_copies16 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c526 := (publicBatchWrapper4_copies16 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -3701,31 +3702,31 @@ theorem publicBatchWrapper4_f83 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c539 := (publicBatchWrapper4_copies16 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c540 := (publicBatchWrapper4_copies16 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_4_13 := arithEq_of_rows h (row := 4) (i := 13) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_13
-  simp only [← c530, ← c531, ← c532] at e_4_13
-  have e_4_14 := arithEq_of_rows h (row := 4) (i := 14) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_14
-  simp only [← c533, ← c534, ← c535] at e_4_14
+  have e_5_17 := arithEq_of_rows h (row := 5) (i := 17) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_17
+  simp only [← c530, ← c531, ← c532] at e_5_17
+  have e_5_18 := arithEq_of_rows h (row := 5) (i := 18) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_18
+  simp only [← c533, ← c534, ← c535] at e_5_18
   have e_9_17 := arithEq_of_rows h (row := 9) (i := 17) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_17
-  simp only [← c524, k0, ← c525, k0, ← c526] at e_9_17
+  simp only [← c524, k1, ← c525, k1, ← c526] at e_9_17
   have e_9_18 := arithEq_of_rows h (row := 9) (i := 18) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_18
-  simp only [← c527, ← c528, k0, ← c529] at e_9_18
+  simp only [← c527, ← c528, k1, ← c529] at e_9_18
   have e_9_19 := arithEq_of_rows h (row := 9) (i := 19) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_19
-  simp only [← c536, ← c537, k0, ← c538] at e_9_19
+  simp only [← c536, ← c537, k1, ← c538] at e_9_19
   refine ⟨?_, ?_⟩
-  · have hc := e_4_13
+  · have hc := e_5_17
     simp only [e_9_18] at hc
-    linear_combination c539.trans k1 - hc
+    linear_combination c539.trans k0 - hc
   · have hc := e_9_19
-    simp only [e_9_17, e_4_14, e_9_18] at hc
-    linear_combination c540.trans k1 - hc
+    simp only [e_9_17, e_5_18, e_9_18] at hc
+    linear_combination c540.trans k0 - hc
 
 theorem publicBatchWrapper4_f84 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 6600)) (a (.wire 8 79)) (a (.virt 26531)) (a (.virt 26532)) := by
+    IsEqual (a (.virt 5)) (a (.wire 8 79)) (a (.virt 152)) (a (.virt 153)) := by
   have c541 := (publicBatchWrapper4_copies16 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c542 := (publicBatchWrapper4_copies16 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c543 := (publicBatchWrapper4_copies16 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
@@ -3744,31 +3745,31 @@ theorem publicBatchWrapper4_f84 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c556 := (publicBatchWrapper4_copies17 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c557 := (publicBatchWrapper4_copies17 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_4_15 := arithEq_of_rows h (row := 4) (i := 15) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_15
-  simp only [← c547, ← c548, ← c549] at e_4_15
-  have e_4_16 := arithEq_of_rows h (row := 4) (i := 16) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_16
-  simp only [← c550, ← c551, ← c552] at e_4_16
+  have e_5_19 := arithEq_of_rows h (row := 5) (i := 19) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_19
+  simp only [← c547, ← c548, ← c549] at e_5_19
   have e_10_0 := arithEq_of_rows h (row := 10) (i := 0) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_0
-  simp only [← c541, k0, ← c542, k0, ← c543] at e_10_0
+  simp only [← c541, k1, ← c542, k1, ← c543] at e_10_0
   have e_10_1 := arithEq_of_rows h (row := 10) (i := 1) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_1
-  simp only [← c544, ← c545, k0, ← c546] at e_10_1
+  simp only [← c544, ← c545, k1, ← c546] at e_10_1
   have e_10_2 := arithEq_of_rows h (row := 10) (i := 2) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_2
-  simp only [← c553, ← c554, k0, ← c555] at e_10_2
+  simp only [← c553, ← c554, k1, ← c555] at e_10_2
+  have e_11_0 := arithEq_of_rows h (row := 11) (i := 0) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_0
+  simp only [← c550, ← c551, ← c552] at e_11_0
   refine ⟨?_, ?_⟩
-  · have hc := e_4_15
+  · have hc := e_5_19
     simp only [e_10_1] at hc
-    linear_combination c556.trans k1 - hc
+    linear_combination c556.trans k0 - hc
   · have hc := e_10_2
-    simp only [e_10_0, e_4_16, e_10_1] at hc
-    linear_combination c557.trans k1 - hc
+    simp only [e_10_0, e_11_0, e_10_1] at hc
+    linear_combination c557.trans k0 - hc
 
 theorem publicBatchWrapper4_f85 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 6601)) (a (.wire 9 7)) (a (.virt 26533)) (a (.virt 26534)) := by
+    IsEqual (a (.virt 6)) (a (.wire 9 7)) (a (.virt 154)) (a (.virt 155)) := by
   have c558 := (publicBatchWrapper4_copies17 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c559 := (publicBatchWrapper4_copies17 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c560 := (publicBatchWrapper4_copies17 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -3787,67 +3788,67 @@ theorem publicBatchWrapper4_f85 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c573 := (publicBatchWrapper4_copies17 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c574 := (publicBatchWrapper4_copies17 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_4_17 := arithEq_of_rows h (row := 4) (i := 17) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_17
-  simp only [← c564, ← c565, ← c566] at e_4_17
-  have e_4_18 := arithEq_of_rows h (row := 4) (i := 18) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_18
-  simp only [← c567, ← c568, ← c569] at e_4_18
   have e_10_3 := arithEq_of_rows h (row := 10) (i := 3) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_3
-  simp only [← c558, k0, ← c559, k0, ← c560] at e_10_3
+  simp only [← c558, k1, ← c559, k1, ← c560] at e_10_3
   have e_10_4 := arithEq_of_rows h (row := 10) (i := 4) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_4
-  simp only [← c561, ← c562, k0, ← c563] at e_10_4
+  simp only [← c561, ← c562, k1, ← c563] at e_10_4
   have e_10_5 := arithEq_of_rows h (row := 10) (i := 5) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_5
-  simp only [← c570, ← c571, k0, ← c572] at e_10_5
+  simp only [← c570, ← c571, k1, ← c572] at e_10_5
+  have e_11_1 := arithEq_of_rows h (row := 11) (i := 1) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_1
+  simp only [← c564, ← c565, ← c566] at e_11_1
+  have e_11_2 := arithEq_of_rows h (row := 11) (i := 2) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_2
+  simp only [← c567, ← c568, ← c569] at e_11_2
   refine ⟨?_, ?_⟩
-  · have hc := e_4_17
+  · have hc := e_11_1
     simp only [e_10_4] at hc
-    linear_combination c573.trans k1 - hc
+    linear_combination c573.trans k0 - hc
   · have hc := e_10_5
-    simp only [e_10_3, e_4_18, e_10_4] at hc
-    linear_combination c574.trans k1 - hc
+    simp only [e_10_3, e_11_2, e_10_4] at hc
+    linear_combination c574.trans k0 - hc
 
 theorem publicBatchWrapper4_f86 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 4 79) = band (a (.virt 26527)) (a (.virt 26529)) := by
+    a (.wire 11 15) = band (a (.virt 148)) (a (.virt 150)) := by
   have c575 := (publicBatchWrapper4_copies17 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c576 := (publicBatchWrapper4_copies18 a h).1
   have c577 := (publicBatchWrapper4_copies18 a h).2.1
-  have e_4_19 := arithEq_of_rows h (row := 4) (i := 19) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_19
-  simp only [← c575, ← c576, ← c577] at e_4_19
-  have hr := e_4_19
+  have e_11_3 := arithEq_of_rows h (row := 11) (i := 3) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_3
+  simp only [← c575, ← c576, ← c577] at e_11_3
+  have hr := e_11_3
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f87 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 11 3) = band (a (.virt 26531)) (a (.virt 26533)) := by
+    a (.wire 11 19) = band (a (.virt 152)) (a (.virt 154)) := by
   have c578 := (publicBatchWrapper4_copies18 a h).2.2.1
   have c579 := (publicBatchWrapper4_copies18 a h).2.2.2.1
   have c580 := (publicBatchWrapper4_copies18 a h).2.2.2.2.1
-  have e_11_0 := arithEq_of_rows h (row := 11) (i := 0) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_0
-  simp only [← c578, ← c579, ← c580] at e_11_0
-  have hr := e_11_0
+  have e_11_4 := arithEq_of_rows h (row := 11) (i := 4) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_4
+  simp only [← c578, ← c579, ← c580] at e_11_4
+  have hr := e_11_4
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f88 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 11 7) = band (a (.wire 4 79)) (a (.wire 11 3)) := by
+    a (.wire 11 23) = band (a (.wire 11 15)) (a (.wire 11 19)) := by
   have c581 := (publicBatchWrapper4_copies18 a h).2.2.2.2.2.1
   have c582 := (publicBatchWrapper4_copies18 a h).2.2.2.2.2.2.1
   have c583 := (publicBatchWrapper4_copies18 a h).2.2.2.2.2.2.2.1
-  have e_11_1 := arithEq_of_rows h (row := 11) (i := 1) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_1
-  simp only [← c581, ← c582, ← c583] at e_11_1
-  have hr := e_11_1
+  have e_11_5 := arithEq_of_rows h (row := 11) (i := 5) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_5
+  simp only [← c581, ← c582, ← c583] at e_11_5
+  have hr := e_11_5
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f89 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 23) = bor (a (.wire 1 43)) (a (.wire 11 7)) := by
+    a (.wire 0 71) = bor (a (.wire 1 59)) (a (.wire 11 23)) := by
   have c584 := (publicBatchWrapper4_copies18 a h).2.2.2.2.2.2.2.2.1
   have c585 := (publicBatchWrapper4_copies18 a h).2.2.2.2.2.2.2.2.2.1
   have c586 := (publicBatchWrapper4_copies18 a h).2.2.2.2.2.2.2.2.2.2.1
@@ -3855,24 +3856,24 @@ theorem publicBatchWrapper4_f89 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c588 := (publicBatchWrapper4_copies18 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c589 := (publicBatchWrapper4_copies18 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_6_5 := arithEq_of_rows h (row := 6) (i := 5) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_5
-  simp only [← c584, ← c585, ← c586] at e_6_5
+  have e_0_17 := arithEq_of_rows h (row := 0) (i := 17) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_17
+  simp only [← c587, ← c588, k1, ← c589] at e_0_17
   have e_7_5 := arithEq_of_rows h (row := 7) (i := 5) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_5
-  simp only [← c587, ← c588, k0, ← c589] at e_7_5
-  have hr := e_7_5
-  simp only [e_6_5] at hr
+  simp only [← c584, ← c585, ← c586] at e_7_5
+  have hr := e_0_17
+  simp only [e_7_5] at hr
   simp only [bor]
   linear_combination hr
 
 theorem publicBatchWrapper4_f90 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 23) = a (.virt 26488) := by
+    a (.wire 0 71) = a (.virt 27) := by
   have c590 := (publicBatchWrapper4_copies18 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   exact c590
 
 theorem publicBatchWrapper4_f91 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 13217)) (a (.wire 9 23)) (a (.virt 26535)) (a (.virt 26536)) := by
+    IsEqual (a (.virt 31)) (a (.wire 9 23)) (a (.virt 156)) (a (.virt 157)) := by
   have c591 := (publicBatchWrapper4_copies18 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c592 := (publicBatchWrapper4_copies18 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c593 := (publicBatchWrapper4_copies18 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -3893,29 +3894,29 @@ theorem publicBatchWrapper4_f91 (a : Assignment p) (h : Satisfies (publicBatchWr
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
   have e_10_6 := arithEq_of_rows h (row := 10) (i := 6) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_6
-  simp only [← c591, k0, ← c592, k0, ← c593] at e_10_6
+  simp only [← c591, k1, ← c592, k1, ← c593] at e_10_6
   have e_10_7 := arithEq_of_rows h (row := 10) (i := 7) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_7
-  simp only [← c594, ← c595, k0, ← c596] at e_10_7
+  simp only [← c594, ← c595, k1, ← c596] at e_10_7
   have e_10_8 := arithEq_of_rows h (row := 10) (i := 8) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_8
-  simp only [← c603, ← c604, k0, ← c605] at e_10_8
-  have e_11_2 := arithEq_of_rows h (row := 11) (i := 2) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_2
-  simp only [← c597, ← c598, ← c599] at e_11_2
-  have e_11_3 := arithEq_of_rows h (row := 11) (i := 3) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_3
-  simp only [← c600, ← c601, ← c602] at e_11_3
+  simp only [← c603, ← c604, k1, ← c605] at e_10_8
+  have e_11_6 := arithEq_of_rows h (row := 11) (i := 6) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_6
+  simp only [← c597, ← c598, ← c599] at e_11_6
+  have e_11_7 := arithEq_of_rows h (row := 11) (i := 7) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_7
+  simp only [← c600, ← c601, ← c602] at e_11_7
   refine ⟨?_, ?_⟩
-  · have hc := e_11_2
+  · have hc := e_11_6
     simp only [e_10_7] at hc
-    linear_combination c606.trans k1 - hc
+    linear_combination c606.trans k0 - hc
   · have hc := e_10_8
-    simp only [e_10_6, e_11_3, e_10_7] at hc
-    linear_combination c607.trans k1 - hc
+    simp only [e_10_6, e_11_7, e_10_7] at hc
+    linear_combination c607.trans k0 - hc
 
 theorem publicBatchWrapper4_f92 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 27) = bor (a (.wire 2 7)) (a (.virt 26535)) := by
+    a (.wire 0 75) = bor (a (.wire 3 23)) (a (.virt 156)) := by
   have c608 := (publicBatchWrapper4_copies19 a h).1
   have c609 := (publicBatchWrapper4_copies19 a h).2.1
   have c610 := (publicBatchWrapper4_copies19 a h).2.2.1
@@ -3923,24 +3924,24 @@ theorem publicBatchWrapper4_f92 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c612 := (publicBatchWrapper4_copies19 a h).2.2.2.2.1
   have c613 := (publicBatchWrapper4_copies19 a h).2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_6_6 := arithEq_of_rows h (row := 6) (i := 6) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_6
-  simp only [← c608, ← c609, ← c610] at e_6_6
+  have e_0_18 := arithEq_of_rows h (row := 0) (i := 18) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_18
+  simp only [← c611, ← c612, k1, ← c613] at e_0_18
   have e_7_6 := arithEq_of_rows h (row := 7) (i := 6) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_6
-  simp only [← c611, ← c612, k0, ← c613] at e_7_6
-  have hr := e_7_6
-  simp only [e_6_6] at hr
+  simp only [← c608, ← c609, ← c610] at e_7_6
+  have hr := e_0_18
+  simp only [e_7_6] at hr
   simp only [bor]
   linear_combination hr
 
 theorem publicBatchWrapper4_f93 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 27) = a (.virt 26488) := by
+    a (.wire 0 75) = a (.virt 27) := by
   have c614 := (publicBatchWrapper4_copies19 a h).2.2.2.2.2.2.1
   exact c614
 
 theorem publicBatchWrapper4_f94 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 13218)) (a (.wire 9 31)) (a (.virt 26537)) (a (.virt 26538)) := by
+    IsEqual (a (.virt 32)) (a (.wire 9 31)) (a (.virt 158)) (a (.virt 159)) := by
   have c615 := (publicBatchWrapper4_copies19 a h).2.2.2.2.2.2.2.1
   have c616 := (publicBatchWrapper4_copies19 a h).2.2.2.2.2.2.2.2.1
   have c617 := (publicBatchWrapper4_copies19 a h).2.2.2.2.2.2.2.2.2.1
@@ -3961,29 +3962,29 @@ theorem publicBatchWrapper4_f94 (a : Assignment p) (h : Satisfies (publicBatchWr
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
   have e_10_9 := arithEq_of_rows h (row := 10) (i := 9) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_9
-  simp only [← c615, k0, ← c616, k0, ← c617] at e_10_9
+  simp only [← c615, k1, ← c616, k1, ← c617] at e_10_9
   have e_10_10 := arithEq_of_rows h (row := 10) (i := 10) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_10
-  simp only [← c618, ← c619, k0, ← c620] at e_10_10
+  simp only [← c618, ← c619, k1, ← c620] at e_10_10
   have e_10_11 := arithEq_of_rows h (row := 10) (i := 11) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_11
-  simp only [← c627, ← c628, k0, ← c629] at e_10_11
-  have e_11_4 := arithEq_of_rows h (row := 11) (i := 4) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_4
-  simp only [← c621, ← c622, ← c623] at e_11_4
-  have e_11_5 := arithEq_of_rows h (row := 11) (i := 5) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_5
-  simp only [← c624, ← c625, ← c626] at e_11_5
+  simp only [← c627, ← c628, k1, ← c629] at e_10_11
+  have e_11_8 := arithEq_of_rows h (row := 11) (i := 8) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_8
+  simp only [← c621, ← c622, ← c623] at e_11_8
+  have e_11_9 := arithEq_of_rows h (row := 11) (i := 9) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_9
+  simp only [← c624, ← c625, ← c626] at e_11_9
   refine ⟨?_, ?_⟩
-  · have hc := e_11_4
+  · have hc := e_11_8
     simp only [e_10_10] at hc
-    linear_combination c630.trans k1 - hc
+    linear_combination c630.trans k0 - hc
   · have hc := e_10_11
-    simp only [e_10_9, e_11_5, e_10_10] at hc
-    linear_combination c631.trans k1 - hc
+    simp only [e_10_9, e_11_9, e_10_10] at hc
+    linear_combination c631.trans k0 - hc
 
 theorem publicBatchWrapper4_f95 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 31) = bor (a (.wire 2 7)) (a (.virt 26537)) := by
+    a (.wire 0 79) = bor (a (.wire 3 23)) (a (.virt 158)) := by
   have c632 := (publicBatchWrapper4_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c633 := (publicBatchWrapper4_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c634 := (publicBatchWrapper4_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -3991,24 +3992,24 @@ theorem publicBatchWrapper4_f95 (a : Assignment p) (h : Satisfies (publicBatchWr
   have c636 := (publicBatchWrapper4_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c637 := (publicBatchWrapper4_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_6_7 := arithEq_of_rows h (row := 6) (i := 7) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_7
-  simp only [← c632, ← c633, ← c634] at e_6_7
+  have e_0_19 := arithEq_of_rows h (row := 0) (i := 19) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_19
+  simp only [← c635, ← c636, k1, ← c637] at e_0_19
   have e_7_7 := arithEq_of_rows h (row := 7) (i := 7) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_7
-  simp only [← c635, ← c636, k0, ← c637] at e_7_7
-  have hr := e_7_7
-  simp only [e_6_7] at hr
+  simp only [← c632, ← c633, ← c634] at e_7_7
+  have hr := e_0_19
+  simp only [e_7_7] at hr
   simp only [bor]
   linear_combination hr
 
 theorem publicBatchWrapper4_f96 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 31) = a (.virt 26488) := by
+    a (.wire 0 79) = a (.virt 27) := by
   have c638 := (publicBatchWrapper4_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   exact c638
 
 theorem publicBatchWrapper4_f97 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 13219)) (a (.wire 8 63)) (a (.virt 26539)) (a (.virt 26540)) := by
+    IsEqual (a (.virt 33)) (a (.wire 8 63)) (a (.virt 160)) (a (.virt 161)) := by
   have c639 := (publicBatchWrapper4_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c640 := (publicBatchWrapper4_copies20 a h).1
   have c641 := (publicBatchWrapper4_copies20 a h).2.1
@@ -4029,29 +4030,29 @@ theorem publicBatchWrapper4_f97 (a : Assignment p) (h : Satisfies (publicBatchWr
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
   have e_10_12 := arithEq_of_rows h (row := 10) (i := 12) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_12
-  simp only [← c639, k0, ← c640, k0, ← c641] at e_10_12
+  simp only [← c639, k1, ← c640, k1, ← c641] at e_10_12
   have e_10_13 := arithEq_of_rows h (row := 10) (i := 13) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_13
-  simp only [← c642, ← c643, k0, ← c644] at e_10_13
+  simp only [← c642, ← c643, k1, ← c644] at e_10_13
   have e_10_14 := arithEq_of_rows h (row := 10) (i := 14) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_14
-  simp only [← c651, ← c652, k0, ← c653] at e_10_14
-  have e_11_6 := arithEq_of_rows h (row := 11) (i := 6) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_6
-  simp only [← c645, ← c646, ← c647] at e_11_6
-  have e_11_7 := arithEq_of_rows h (row := 11) (i := 7) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_7
-  simp only [← c648, ← c649, ← c650] at e_11_7
+  simp only [← c651, ← c652, k1, ← c653] at e_10_14
+  have e_11_10 := arithEq_of_rows h (row := 11) (i := 10) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_10
+  simp only [← c645, ← c646, ← c647] at e_11_10
+  have e_11_11 := arithEq_of_rows h (row := 11) (i := 11) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_11
+  simp only [← c648, ← c649, ← c650] at e_11_11
   refine ⟨?_, ?_⟩
-  · have hc := e_11_6
+  · have hc := e_11_10
     simp only [e_10_13] at hc
-    linear_combination c654.trans k1 - hc
+    linear_combination c654.trans k0 - hc
   · have hc := e_10_14
-    simp only [e_10_12, e_11_7, e_10_13] at hc
-    linear_combination c655.trans k1 - hc
+    simp only [e_10_12, e_11_11, e_10_13] at hc
+    linear_combination c655.trans k0 - hc
 
 theorem publicBatchWrapper4_f98 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 13220)) (a (.wire 8 71)) (a (.virt 26541)) (a (.virt 26542)) := by
+    IsEqual (a (.virt 34)) (a (.wire 8 71)) (a (.virt 162)) (a (.virt 163)) := by
   have c656 := (publicBatchWrapper4_copies20 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c657 := (publicBatchWrapper4_copies20 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c658 := (publicBatchWrapper4_copies20 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -4072,29 +4073,29 @@ theorem publicBatchWrapper4_f98 (a : Assignment p) (h : Satisfies (publicBatchWr
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
   have e_10_15 := arithEq_of_rows h (row := 10) (i := 15) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_15
-  simp only [← c656, k0, ← c657, k0, ← c658] at e_10_15
+  simp only [← c656, k1, ← c657, k1, ← c658] at e_10_15
   have e_10_16 := arithEq_of_rows h (row := 10) (i := 16) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_16
-  simp only [← c659, ← c660, k0, ← c661] at e_10_16
+  simp only [← c659, ← c660, k1, ← c661] at e_10_16
   have e_10_17 := arithEq_of_rows h (row := 10) (i := 17) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_17
-  simp only [← c668, ← c669, k0, ← c670] at e_10_17
-  have e_11_8 := arithEq_of_rows h (row := 11) (i := 8) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_8
-  simp only [← c662, ← c663, ← c664] at e_11_8
-  have e_11_9 := arithEq_of_rows h (row := 11) (i := 9) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_9
-  simp only [← c665, ← c666, ← c667] at e_11_9
+  simp only [← c668, ← c669, k1, ← c670] at e_10_17
+  have e_11_12 := arithEq_of_rows h (row := 11) (i := 12) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_12
+  simp only [← c662, ← c663, ← c664] at e_11_12
+  have e_11_13 := arithEq_of_rows h (row := 11) (i := 13) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_13
+  simp only [← c665, ← c666, ← c667] at e_11_13
   refine ⟨?_, ?_⟩
-  · have hc := e_11_8
+  · have hc := e_11_12
     simp only [e_10_16] at hc
-    linear_combination c671.trans k1 - hc
+    linear_combination c671.trans k0 - hc
   · have hc := e_10_17
-    simp only [e_10_15, e_11_9, e_10_16] at hc
-    linear_combination c672.trans k1 - hc
+    simp only [e_10_15, e_11_13, e_10_16] at hc
+    linear_combination c672.trans k0 - hc
 
 theorem publicBatchWrapper4_f99 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 13221)) (a (.wire 8 79)) (a (.virt 26543)) (a (.virt 26544)) := by
+    IsEqual (a (.virt 35)) (a (.wire 8 79)) (a (.virt 164)) (a (.virt 165)) := by
   have c673 := (publicBatchWrapper4_copies21 a h).2.1
   have c674 := (publicBatchWrapper4_copies21 a h).2.2.1
   have c675 := (publicBatchWrapper4_copies21 a h).2.2.2.1
@@ -4115,29 +4116,29 @@ theorem publicBatchWrapper4_f99 (a : Assignment p) (h : Satisfies (publicBatchWr
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
   have e_10_18 := arithEq_of_rows h (row := 10) (i := 18) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_18
-  simp only [← c673, k0, ← c674, k0, ← c675] at e_10_18
+  simp only [← c673, k1, ← c674, k1, ← c675] at e_10_18
   have e_10_19 := arithEq_of_rows h (row := 10) (i := 19) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_19
-  simp only [← c676, ← c677, k0, ← c678] at e_10_19
-  have e_11_10 := arithEq_of_rows h (row := 11) (i := 10) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_10
-  simp only [← c679, ← c680, ← c681] at e_11_10
-  have e_11_11 := arithEq_of_rows h (row := 11) (i := 11) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_11
-  simp only [← c682, ← c683, ← c684] at e_11_11
+  simp only [← c676, ← c677, k1, ← c678] at e_10_19
+  have e_11_14 := arithEq_of_rows h (row := 11) (i := 14) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_14
+  simp only [← c679, ← c680, ← c681] at e_11_14
+  have e_11_15 := arithEq_of_rows h (row := 11) (i := 15) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_15
+  simp only [← c682, ← c683, ← c684] at e_11_15
   have e_12_0 := arithEq_of_rows h (row := 12) (i := 0) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_0
-  simp only [← c685, ← c686, k0, ← c687] at e_12_0
+  simp only [← c685, ← c686, k1, ← c687] at e_12_0
   refine ⟨?_, ?_⟩
-  · have hc := e_11_10
+  · have hc := e_11_14
     simp only [e_10_19] at hc
-    linear_combination c688.trans k1 - hc
+    linear_combination c688.trans k0 - hc
   · have hc := e_12_0
-    simp only [e_10_18, e_11_11, e_10_19] at hc
-    linear_combination c689.trans k1 - hc
+    simp only [e_10_18, e_11_15, e_10_19] at hc
+    linear_combination c689.trans k0 - hc
 
 theorem publicBatchWrapper4_f100 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 13222)) (a (.wire 9 7)) (a (.virt 26545)) (a (.virt 26546)) := by
+    IsEqual (a (.virt 36)) (a (.wire 9 7)) (a (.virt 166)) (a (.virt 167)) := by
   have c690 := (publicBatchWrapper4_copies21 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c691 := (publicBatchWrapper4_copies21 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c692 := (publicBatchWrapper4_copies21 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -4156,67 +4157,67 @@ theorem publicBatchWrapper4_f100 (a : Assignment p) (h : Satisfies (publicBatchW
   have c705 := (publicBatchWrapper4_copies22 a h).2.1
   have c706 := (publicBatchWrapper4_copies22 a h).2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_11_12 := arithEq_of_rows h (row := 11) (i := 12) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_12
-  simp only [← c696, ← c697, ← c698] at e_11_12
-  have e_11_13 := arithEq_of_rows h (row := 11) (i := 13) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_13
-  simp only [← c699, ← c700, ← c701] at e_11_13
+  have e_11_16 := arithEq_of_rows h (row := 11) (i := 16) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_16
+  simp only [← c696, ← c697, ← c698] at e_11_16
+  have e_11_17 := arithEq_of_rows h (row := 11) (i := 17) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_17
+  simp only [← c699, ← c700, ← c701] at e_11_17
   have e_12_1 := arithEq_of_rows h (row := 12) (i := 1) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_1
-  simp only [← c690, k0, ← c691, k0, ← c692] at e_12_1
+  simp only [← c690, k1, ← c691, k1, ← c692] at e_12_1
   have e_12_2 := arithEq_of_rows h (row := 12) (i := 2) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_2
-  simp only [← c693, ← c694, k0, ← c695] at e_12_2
+  simp only [← c693, ← c694, k1, ← c695] at e_12_2
   have e_12_3 := arithEq_of_rows h (row := 12) (i := 3) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_3
-  simp only [← c702, ← c703, k0, ← c704] at e_12_3
+  simp only [← c702, ← c703, k1, ← c704] at e_12_3
   refine ⟨?_, ?_⟩
-  · have hc := e_11_12
+  · have hc := e_11_16
     simp only [e_12_2] at hc
-    linear_combination c705.trans k1 - hc
+    linear_combination c705.trans k0 - hc
   · have hc := e_12_3
-    simp only [e_12_1, e_11_13, e_12_2] at hc
-    linear_combination c706.trans k1 - hc
+    simp only [e_12_1, e_11_17, e_12_2] at hc
+    linear_combination c706.trans k0 - hc
 
 theorem publicBatchWrapper4_f101 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 11 59) = band (a (.virt 26539)) (a (.virt 26541)) := by
+    a (.wire 11 75) = band (a (.virt 160)) (a (.virt 162)) := by
   have c707 := (publicBatchWrapper4_copies22 a h).2.2.2.1
   have c708 := (publicBatchWrapper4_copies22 a h).2.2.2.2.1
   have c709 := (publicBatchWrapper4_copies22 a h).2.2.2.2.2.1
-  have e_11_14 := arithEq_of_rows h (row := 11) (i := 14) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_14
-  simp only [← c707, ← c708, ← c709] at e_11_14
-  have hr := e_11_14
+  have e_11_18 := arithEq_of_rows h (row := 11) (i := 18) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_18
+  simp only [← c707, ← c708, ← c709] at e_11_18
+  have hr := e_11_18
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f102 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 11 63) = band (a (.virt 26543)) (a (.virt 26545)) := by
+    a (.wire 11 79) = band (a (.virt 164)) (a (.virt 166)) := by
   have c710 := (publicBatchWrapper4_copies22 a h).2.2.2.2.2.2.1
   have c711 := (publicBatchWrapper4_copies22 a h).2.2.2.2.2.2.2.1
   have c712 := (publicBatchWrapper4_copies22 a h).2.2.2.2.2.2.2.2.1
-  have e_11_15 := arithEq_of_rows h (row := 11) (i := 15) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_15
-  simp only [← c710, ← c711, ← c712] at e_11_15
-  have hr := e_11_15
+  have e_11_19 := arithEq_of_rows h (row := 11) (i := 19) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_19
+  simp only [← c710, ← c711, ← c712] at e_11_19
+  have hr := e_11_19
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f103 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 11 67) = band (a (.wire 11 59)) (a (.wire 11 63)) := by
+    a (.wire 13 3) = band (a (.wire 11 75)) (a (.wire 11 79)) := by
   have c713 := (publicBatchWrapper4_copies22 a h).2.2.2.2.2.2.2.2.2.1
   have c714 := (publicBatchWrapper4_copies22 a h).2.2.2.2.2.2.2.2.2.2.1
   have c715 := (publicBatchWrapper4_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.1
-  have e_11_16 := arithEq_of_rows h (row := 11) (i := 16) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_16
-  simp only [← c713, ← c714, ← c715] at e_11_16
-  have hr := e_11_16
+  have e_13_0 := arithEq_of_rows h (row := 13) (i := 0) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_0
+  simp only [← c713, ← c714, ← c715] at e_13_0
+  have hr := e_13_0
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f104 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 35) = bor (a (.wire 2 7)) (a (.wire 11 67)) := by
+    a (.wire 14 3) = bor (a (.wire 3 23)) (a (.wire 13 3)) := by
   have c716 := (publicBatchWrapper4_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c717 := (publicBatchWrapper4_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c718 := (publicBatchWrapper4_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -4224,24 +4225,24 @@ theorem publicBatchWrapper4_f104 (a : Assignment p) (h : Satisfies (publicBatchW
   have c720 := (publicBatchWrapper4_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c721 := (publicBatchWrapper4_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_6_8 := arithEq_of_rows h (row := 6) (i := 8) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_8
-  simp only [← c716, ← c717, ← c718] at e_6_8
   have e_7_8 := arithEq_of_rows h (row := 7) (i := 8) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_8
-  simp only [← c719, ← c720, k0, ← c721] at e_7_8
-  have hr := e_7_8
-  simp only [e_6_8] at hr
+  simp only [← c716, ← c717, ← c718] at e_7_8
+  have e_14_0 := arithEq_of_rows h (row := 14) (i := 0) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_0
+  simp only [← c719, ← c720, k1, ← c721] at e_14_0
+  have hr := e_14_0
+  simp only [e_7_8] at hr
   simp only [bor]
   linear_combination hr
 
 theorem publicBatchWrapper4_f105 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 35) = a (.virt 26488) := by
+    a (.wire 14 3) = a (.virt 27) := by
   have c722 := (publicBatchWrapper4_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   exact c722
 
 theorem publicBatchWrapper4_f106 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 19838)) (a (.wire 9 23)) (a (.virt 26547)) (a (.virt 26548)) := by
+    IsEqual (a (.virt 57)) (a (.wire 9 23)) (a (.virt 168)) (a (.virt 169)) := by
   have c723 := (publicBatchWrapper4_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c724 := (publicBatchWrapper4_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c725 := (publicBatchWrapper4_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -4260,31 +4261,31 @@ theorem publicBatchWrapper4_f106 (a : Assignment p) (h : Satisfies (publicBatchW
   have c738 := (publicBatchWrapper4_copies23 a h).2.2.1
   have c739 := (publicBatchWrapper4_copies23 a h).2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_11_17 := arithEq_of_rows h (row := 11) (i := 17) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_17
-  simp only [← c729, ← c730, ← c731] at e_11_17
-  have e_11_18 := arithEq_of_rows h (row := 11) (i := 18) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_18
-  simp only [← c732, ← c733, ← c734] at e_11_18
   have e_12_4 := arithEq_of_rows h (row := 12) (i := 4) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_4
-  simp only [← c723, k0, ← c724, k0, ← c725] at e_12_4
+  simp only [← c723, k1, ← c724, k1, ← c725] at e_12_4
   have e_12_5 := arithEq_of_rows h (row := 12) (i := 5) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_5
-  simp only [← c726, ← c727, k0, ← c728] at e_12_5
+  simp only [← c726, ← c727, k1, ← c728] at e_12_5
   have e_12_6 := arithEq_of_rows h (row := 12) (i := 6) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_6
-  simp only [← c735, ← c736, k0, ← c737] at e_12_6
+  simp only [← c735, ← c736, k1, ← c737] at e_12_6
+  have e_13_1 := arithEq_of_rows h (row := 13) (i := 1) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_1
+  simp only [← c729, ← c730, ← c731] at e_13_1
+  have e_13_2 := arithEq_of_rows h (row := 13) (i := 2) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_2
+  simp only [← c732, ← c733, ← c734] at e_13_2
   refine ⟨?_, ?_⟩
-  · have hc := e_11_17
+  · have hc := e_13_1
     simp only [e_12_5] at hc
-    linear_combination c738.trans k1 - hc
+    linear_combination c738.trans k0 - hc
   · have hc := e_12_6
-    simp only [e_12_4, e_11_18, e_12_5] at hc
-    linear_combination c739.trans k1 - hc
+    simp only [e_12_4, e_13_2, e_12_5] at hc
+    linear_combination c739.trans k0 - hc
 
 theorem publicBatchWrapper4_f107 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 39) = bor (a (.wire 2 51)) (a (.virt 26547)) := by
+    a (.wire 14 7) = bor (a (.wire 3 67)) (a (.virt 168)) := by
   have c740 := (publicBatchWrapper4_copies23 a h).2.2.2.2.1
   have c741 := (publicBatchWrapper4_copies23 a h).2.2.2.2.2.1
   have c742 := (publicBatchWrapper4_copies23 a h).2.2.2.2.2.2.1
@@ -4292,24 +4293,24 @@ theorem publicBatchWrapper4_f107 (a : Assignment p) (h : Satisfies (publicBatchW
   have c744 := (publicBatchWrapper4_copies23 a h).2.2.2.2.2.2.2.2.1
   have c745 := (publicBatchWrapper4_copies23 a h).2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_6_9 := arithEq_of_rows h (row := 6) (i := 9) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_9
-  simp only [← c740, ← c741, ← c742] at e_6_9
   have e_7_9 := arithEq_of_rows h (row := 7) (i := 9) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_9
-  simp only [← c743, ← c744, k0, ← c745] at e_7_9
-  have hr := e_7_9
-  simp only [e_6_9] at hr
+  simp only [← c740, ← c741, ← c742] at e_7_9
+  have e_14_1 := arithEq_of_rows h (row := 14) (i := 1) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_1
+  simp only [← c743, ← c744, k1, ← c745] at e_14_1
+  have hr := e_14_1
+  simp only [e_7_9] at hr
   simp only [bor]
   linear_combination hr
 
 theorem publicBatchWrapper4_f108 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 39) = a (.virt 26488) := by
+    a (.wire 14 7) = a (.virt 27) := by
   have c746 := (publicBatchWrapper4_copies23 a h).2.2.2.2.2.2.2.2.2.2.1
   exact c746
 
 theorem publicBatchWrapper4_f109 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 19839)) (a (.wire 9 31)) (a (.virt 26549)) (a (.virt 26550)) := by
+    IsEqual (a (.virt 58)) (a (.wire 9 31)) (a (.virt 170)) (a (.virt 171)) := by
   have c747 := (publicBatchWrapper4_copies23 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c748 := (publicBatchWrapper4_copies23 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c749 := (publicBatchWrapper4_copies23 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -4328,31 +4329,31 @@ theorem publicBatchWrapper4_f109 (a : Assignment p) (h : Satisfies (publicBatchW
   have c762 := (publicBatchWrapper4_copies23 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c763 := (publicBatchWrapper4_copies23 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_11_19 := arithEq_of_rows h (row := 11) (i := 19) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_19
-  simp only [← c753, ← c754, ← c755] at e_11_19
   have e_12_7 := arithEq_of_rows h (row := 12) (i := 7) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_7
-  simp only [← c747, k0, ← c748, k0, ← c749] at e_12_7
+  simp only [← c747, k1, ← c748, k1, ← c749] at e_12_7
   have e_12_8 := arithEq_of_rows h (row := 12) (i := 8) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_8
-  simp only [← c750, ← c751, k0, ← c752] at e_12_8
+  simp only [← c750, ← c751, k1, ← c752] at e_12_8
   have e_12_9 := arithEq_of_rows h (row := 12) (i := 9) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_9
-  simp only [← c759, ← c760, k0, ← c761] at e_12_9
-  have e_13_0 := arithEq_of_rows h (row := 13) (i := 0) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_0
-  simp only [← c756, ← c757, ← c758] at e_13_0
+  simp only [← c759, ← c760, k1, ← c761] at e_12_9
+  have e_13_3 := arithEq_of_rows h (row := 13) (i := 3) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_3
+  simp only [← c753, ← c754, ← c755] at e_13_3
+  have e_13_4 := arithEq_of_rows h (row := 13) (i := 4) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_4
+  simp only [← c756, ← c757, ← c758] at e_13_4
   refine ⟨?_, ?_⟩
-  · have hc := e_11_19
+  · have hc := e_13_3
     simp only [e_12_8] at hc
-    linear_combination c762.trans k1 - hc
+    linear_combination c762.trans k0 - hc
   · have hc := e_12_9
-    simp only [e_12_7, e_13_0, e_12_8] at hc
-    linear_combination c763.trans k1 - hc
+    simp only [e_12_7, e_13_4, e_12_8] at hc
+    linear_combination c763.trans k0 - hc
 
 theorem publicBatchWrapper4_f110 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 43) = bor (a (.wire 2 51)) (a (.virt 26549)) := by
+    a (.wire 14 11) = bor (a (.wire 3 67)) (a (.virt 170)) := by
   have c764 := (publicBatchWrapper4_copies23 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c765 := (publicBatchWrapper4_copies23 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c766 := (publicBatchWrapper4_copies23 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -4360,24 +4361,24 @@ theorem publicBatchWrapper4_f110 (a : Assignment p) (h : Satisfies (publicBatchW
   have c768 := (publicBatchWrapper4_copies24 a h).1
   have c769 := (publicBatchWrapper4_copies24 a h).2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_6_10 := arithEq_of_rows h (row := 6) (i := 10) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_10
-  simp only [← c764, ← c765, ← c766] at e_6_10
   have e_7_10 := arithEq_of_rows h (row := 7) (i := 10) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_10
-  simp only [← c767, ← c768, k0, ← c769] at e_7_10
-  have hr := e_7_10
-  simp only [e_6_10] at hr
+  simp only [← c764, ← c765, ← c766] at e_7_10
+  have e_14_2 := arithEq_of_rows h (row := 14) (i := 2) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_2
+  simp only [← c767, ← c768, k1, ← c769] at e_14_2
+  have hr := e_14_2
+  simp only [e_7_10] at hr
   simp only [bor]
   linear_combination hr
 
 theorem publicBatchWrapper4_f111 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 43) = a (.virt 26488) := by
+    a (.wire 14 11) = a (.virt 27) := by
   have c770 := (publicBatchWrapper4_copies24 a h).2.2.1
   exact c770
 
 theorem publicBatchWrapper4_f112 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 19840)) (a (.wire 8 63)) (a (.virt 26551)) (a (.virt 26552)) := by
+    IsEqual (a (.virt 59)) (a (.wire 8 63)) (a (.virt 172)) (a (.virt 173)) := by
   have c771 := (publicBatchWrapper4_copies24 a h).2.2.2.1
   have c772 := (publicBatchWrapper4_copies24 a h).2.2.2.2.1
   have c773 := (publicBatchWrapper4_copies24 a h).2.2.2.2.2.1
@@ -4398,29 +4399,29 @@ theorem publicBatchWrapper4_f112 (a : Assignment p) (h : Satisfies (publicBatchW
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
   have e_12_10 := arithEq_of_rows h (row := 12) (i := 10) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_10
-  simp only [← c771, k0, ← c772, k0, ← c773] at e_12_10
+  simp only [← c771, k1, ← c772, k1, ← c773] at e_12_10
   have e_12_11 := arithEq_of_rows h (row := 12) (i := 11) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_11
-  simp only [← c774, ← c775, k0, ← c776] at e_12_11
+  simp only [← c774, ← c775, k1, ← c776] at e_12_11
   have e_12_12 := arithEq_of_rows h (row := 12) (i := 12) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_12
-  simp only [← c783, ← c784, k0, ← c785] at e_12_12
-  have e_13_1 := arithEq_of_rows h (row := 13) (i := 1) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_1
-  simp only [← c777, ← c778, ← c779] at e_13_1
-  have e_13_2 := arithEq_of_rows h (row := 13) (i := 2) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_2
-  simp only [← c780, ← c781, ← c782] at e_13_2
+  simp only [← c783, ← c784, k1, ← c785] at e_12_12
+  have e_13_5 := arithEq_of_rows h (row := 13) (i := 5) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_5
+  simp only [← c777, ← c778, ← c779] at e_13_5
+  have e_13_6 := arithEq_of_rows h (row := 13) (i := 6) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_6
+  simp only [← c780, ← c781, ← c782] at e_13_6
   refine ⟨?_, ?_⟩
-  · have hc := e_13_1
+  · have hc := e_13_5
     simp only [e_12_11] at hc
-    linear_combination c786.trans k1 - hc
+    linear_combination c786.trans k0 - hc
   · have hc := e_12_12
-    simp only [e_12_10, e_13_2, e_12_11] at hc
-    linear_combination c787.trans k1 - hc
+    simp only [e_12_10, e_13_6, e_12_11] at hc
+    linear_combination c787.trans k0 - hc
 
 theorem publicBatchWrapper4_f113 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 19841)) (a (.wire 8 71)) (a (.virt 26553)) (a (.virt 26554)) := by
+    IsEqual (a (.virt 60)) (a (.wire 8 71)) (a (.virt 174)) (a (.virt 175)) := by
   have c788 := (publicBatchWrapper4_copies24 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c789 := (publicBatchWrapper4_copies24 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c790 := (publicBatchWrapper4_copies24 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -4441,29 +4442,29 @@ theorem publicBatchWrapper4_f113 (a : Assignment p) (h : Satisfies (publicBatchW
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
   have e_12_13 := arithEq_of_rows h (row := 12) (i := 13) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_13
-  simp only [← c788, k0, ← c789, k0, ← c790] at e_12_13
+  simp only [← c788, k1, ← c789, k1, ← c790] at e_12_13
   have e_12_14 := arithEq_of_rows h (row := 12) (i := 14) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_14
-  simp only [← c791, ← c792, k0, ← c793] at e_12_14
+  simp only [← c791, ← c792, k1, ← c793] at e_12_14
   have e_12_15 := arithEq_of_rows h (row := 12) (i := 15) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_15
-  simp only [← c800, ← c801, k0, ← c802] at e_12_15
-  have e_13_3 := arithEq_of_rows h (row := 13) (i := 3) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_3
-  simp only [← c794, ← c795, ← c796] at e_13_3
-  have e_13_4 := arithEq_of_rows h (row := 13) (i := 4) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_4
-  simp only [← c797, ← c798, ← c799] at e_13_4
+  simp only [← c800, ← c801, k1, ← c802] at e_12_15
+  have e_13_7 := arithEq_of_rows h (row := 13) (i := 7) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_7
+  simp only [← c794, ← c795, ← c796] at e_13_7
+  have e_13_8 := arithEq_of_rows h (row := 13) (i := 8) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_8
+  simp only [← c797, ← c798, ← c799] at e_13_8
   refine ⟨?_, ?_⟩
-  · have hc := e_13_3
+  · have hc := e_13_7
     simp only [e_12_14] at hc
-    linear_combination c803.trans k1 - hc
+    linear_combination c803.trans k0 - hc
   · have hc := e_12_15
-    simp only [e_12_13, e_13_4, e_12_14] at hc
-    linear_combination c804.trans k1 - hc
+    simp only [e_12_13, e_13_8, e_12_14] at hc
+    linear_combination c804.trans k0 - hc
 
 theorem publicBatchWrapper4_f114 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 19842)) (a (.wire 8 79)) (a (.virt 26555)) (a (.virt 26556)) := by
+    IsEqual (a (.virt 61)) (a (.wire 8 79)) (a (.virt 176)) (a (.virt 177)) := by
   have c805 := (publicBatchWrapper4_copies25 a h).2.2.2.2.2.1
   have c806 := (publicBatchWrapper4_copies25 a h).2.2.2.2.2.2.1
   have c807 := (publicBatchWrapper4_copies25 a h).2.2.2.2.2.2.2.1
@@ -4484,29 +4485,29 @@ theorem publicBatchWrapper4_f114 (a : Assignment p) (h : Satisfies (publicBatchW
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
   have e_12_16 := arithEq_of_rows h (row := 12) (i := 16) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_16
-  simp only [← c805, k0, ← c806, k0, ← c807] at e_12_16
+  simp only [← c805, k1, ← c806, k1, ← c807] at e_12_16
   have e_12_17 := arithEq_of_rows h (row := 12) (i := 17) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_17
-  simp only [← c808, ← c809, k0, ← c810] at e_12_17
+  simp only [← c808, ← c809, k1, ← c810] at e_12_17
   have e_12_18 := arithEq_of_rows h (row := 12) (i := 18) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_18
-  simp only [← c817, ← c818, k0, ← c819] at e_12_18
-  have e_13_5 := arithEq_of_rows h (row := 13) (i := 5) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_5
-  simp only [← c811, ← c812, ← c813] at e_13_5
-  have e_13_6 := arithEq_of_rows h (row := 13) (i := 6) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_6
-  simp only [← c814, ← c815, ← c816] at e_13_6
+  simp only [← c817, ← c818, k1, ← c819] at e_12_18
+  have e_13_9 := arithEq_of_rows h (row := 13) (i := 9) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_9
+  simp only [← c811, ← c812, ← c813] at e_13_9
+  have e_13_10 := arithEq_of_rows h (row := 13) (i := 10) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_10
+  simp only [← c814, ← c815, ← c816] at e_13_10
   refine ⟨?_, ?_⟩
-  · have hc := e_13_5
+  · have hc := e_13_9
     simp only [e_12_17] at hc
-    linear_combination c820.trans k1 - hc
+    linear_combination c820.trans k0 - hc
   · have hc := e_12_18
-    simp only [e_12_16, e_13_6, e_12_17] at hc
-    linear_combination c821.trans k1 - hc
+    simp only [e_12_16, e_13_10, e_12_17] at hc
+    linear_combination c821.trans k0 - hc
 
 theorem publicBatchWrapper4_f115 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 19843)) (a (.wire 9 7)) (a (.virt 26557)) (a (.virt 26558)) := by
+    IsEqual (a (.virt 62)) (a (.wire 9 7)) (a (.virt 178)) (a (.virt 179)) := by
   have c822 := (publicBatchWrapper4_copies25 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c823 := (publicBatchWrapper4_copies25 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c824 := (publicBatchWrapper4_copies25 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -4527,65 +4528,65 @@ theorem publicBatchWrapper4_f115 (a : Assignment p) (h : Satisfies (publicBatchW
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
   have e_12_19 := arithEq_of_rows h (row := 12) (i := 19) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_19
-  simp only [← c822, k0, ← c823, k0, ← c824] at e_12_19
-  have e_13_7 := arithEq_of_rows h (row := 13) (i := 7) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_7
-  simp only [← c828, ← c829, ← c830] at e_13_7
-  have e_13_8 := arithEq_of_rows h (row := 13) (i := 8) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_8
-  simp only [← c831, ← c832, ← c833] at e_13_8
-  have e_14_0 := arithEq_of_rows h (row := 14) (i := 0) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_0
-  simp only [← c825, ← c826, k0, ← c827] at e_14_0
-  have e_14_1 := arithEq_of_rows h (row := 14) (i := 1) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_1
-  simp only [← c834, ← c835, k0, ← c836] at e_14_1
+  simp only [← c822, k1, ← c823, k1, ← c824] at e_12_19
+  have e_13_11 := arithEq_of_rows h (row := 13) (i := 11) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_11
+  simp only [← c828, ← c829, ← c830] at e_13_11
+  have e_13_12 := arithEq_of_rows h (row := 13) (i := 12) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_12
+  simp only [← c831, ← c832, ← c833] at e_13_12
+  have e_15_0 := arithEq_of_rows h (row := 15) (i := 0) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_0
+  simp only [← c825, ← c826, k1, ← c827] at e_15_0
+  have e_15_1 := arithEq_of_rows h (row := 15) (i := 1) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_1
+  simp only [← c834, ← c835, k1, ← c836] at e_15_1
   refine ⟨?_, ?_⟩
-  · have hc := e_13_7
-    simp only [e_14_0] at hc
-    linear_combination c837.trans k1 - hc
-  · have hc := e_14_1
-    simp only [e_12_19, e_13_8, e_14_0] at hc
-    linear_combination c838.trans k1 - hc
+  · have hc := e_13_11
+    simp only [e_15_0] at hc
+    linear_combination c837.trans k0 - hc
+  · have hc := e_15_1
+    simp only [e_12_19, e_13_12, e_15_0] at hc
+    linear_combination c838.trans k0 - hc
 
 theorem publicBatchWrapper4_f116 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 13 39) = band (a (.virt 26551)) (a (.virt 26553)) := by
+    a (.wire 13 55) = band (a (.virt 172)) (a (.virt 174)) := by
   have c839 := (publicBatchWrapper4_copies26 a h).2.2.2.2.2.2.2.1
   have c840 := (publicBatchWrapper4_copies26 a h).2.2.2.2.2.2.2.2.1
   have c841 := (publicBatchWrapper4_copies26 a h).2.2.2.2.2.2.2.2.2.1
-  have e_13_9 := arithEq_of_rows h (row := 13) (i := 9) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_9
-  simp only [← c839, ← c840, ← c841] at e_13_9
-  have hr := e_13_9
+  have e_13_13 := arithEq_of_rows h (row := 13) (i := 13) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_13
+  simp only [← c839, ← c840, ← c841] at e_13_13
+  have hr := e_13_13
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f117 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 13 43) = band (a (.virt 26555)) (a (.virt 26557)) := by
+    a (.wire 13 59) = band (a (.virt 176)) (a (.virt 178)) := by
   have c842 := (publicBatchWrapper4_copies26 a h).2.2.2.2.2.2.2.2.2.2.1
   have c843 := (publicBatchWrapper4_copies26 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c844 := (publicBatchWrapper4_copies26 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_13_10 := arithEq_of_rows h (row := 13) (i := 10) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_10
-  simp only [← c842, ← c843, ← c844] at e_13_10
-  have hr := e_13_10
+  have e_13_14 := arithEq_of_rows h (row := 13) (i := 14) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_14
+  simp only [← c842, ← c843, ← c844] at e_13_14
+  have hr := e_13_14
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f118 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 13 47) = band (a (.wire 13 39)) (a (.wire 13 43)) := by
+    a (.wire 13 63) = band (a (.wire 13 55)) (a (.wire 13 59)) := by
   have c845 := (publicBatchWrapper4_copies26 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c846 := (publicBatchWrapper4_copies26 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c847 := (publicBatchWrapper4_copies26 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_13_11 := arithEq_of_rows h (row := 13) (i := 11) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_11
-  simp only [← c845, ← c846, ← c847] at e_13_11
-  have hr := e_13_11
+  have e_13_15 := arithEq_of_rows h (row := 13) (i := 15) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_15
+  simp only [← c845, ← c846, ← c847] at e_13_15
+  have hr := e_13_15
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f119 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 47) = bor (a (.wire 2 51)) (a (.wire 13 47)) := by
+    a (.wire 14 15) = bor (a (.wire 3 67)) (a (.wire 13 63)) := by
   have c848 := (publicBatchWrapper4_copies26 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c849 := (publicBatchWrapper4_copies26 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c850 := (publicBatchWrapper4_copies26 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -4593,24 +4594,24 @@ theorem publicBatchWrapper4_f119 (a : Assignment p) (h : Satisfies (publicBatchW
   have c852 := (publicBatchWrapper4_copies26 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c853 := (publicBatchWrapper4_copies26 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_6_11 := arithEq_of_rows h (row := 6) (i := 11) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_11
-  simp only [← c848, ← c849, ← c850] at e_6_11
   have e_7_11 := arithEq_of_rows h (row := 7) (i := 11) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_11
-  simp only [← c851, ← c852, k0, ← c853] at e_7_11
-  have hr := e_7_11
-  simp only [e_6_11] at hr
+  simp only [← c848, ← c849, ← c850] at e_7_11
+  have e_14_3 := arithEq_of_rows h (row := 14) (i := 3) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_3
+  simp only [← c851, ← c852, k1, ← c853] at e_14_3
+  have hr := e_14_3
+  simp only [e_7_11] at hr
   simp only [bor]
   linear_combination hr
 
 theorem publicBatchWrapper4_f120 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 47) = a (.virt 26488) := by
+    a (.wire 14 15) = a (.virt 27) := by
   have c854 := (publicBatchWrapper4_copies26 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   exact c854
 
 theorem publicBatchWrapper4_f121 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 26459)) (a (.wire 9 23)) (a (.virt 26559)) (a (.virt 26560)) := by
+    IsEqual (a (.virt 83)) (a (.wire 9 23)) (a (.virt 180)) (a (.virt 181)) := by
   have c855 := (publicBatchWrapper4_copies26 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c856 := (publicBatchWrapper4_copies26 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c857 := (publicBatchWrapper4_copies26 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -4629,31 +4630,31 @@ theorem publicBatchWrapper4_f121 (a : Assignment p) (h : Satisfies (publicBatchW
   have c870 := (publicBatchWrapper4_copies27 a h).2.2.2.2.2.2.1
   have c871 := (publicBatchWrapper4_copies27 a h).2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_13_12 := arithEq_of_rows h (row := 13) (i := 12) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_12
-  simp only [← c861, ← c862, ← c863] at e_13_12
-  have e_13_13 := arithEq_of_rows h (row := 13) (i := 13) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_13
-  simp only [← c864, ← c865, ← c866] at e_13_13
-  have e_14_2 := arithEq_of_rows h (row := 14) (i := 2) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_2
-  simp only [← c855, k0, ← c856, k0, ← c857] at e_14_2
-  have e_14_3 := arithEq_of_rows h (row := 14) (i := 3) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_3
-  simp only [← c858, ← c859, k0, ← c860] at e_14_3
-  have e_14_4 := arithEq_of_rows h (row := 14) (i := 4) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_4
-  simp only [← c867, ← c868, k0, ← c869] at e_14_4
+  have e_13_16 := arithEq_of_rows h (row := 13) (i := 16) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_16
+  simp only [← c861, ← c862, ← c863] at e_13_16
+  have e_13_17 := arithEq_of_rows h (row := 13) (i := 17) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_17
+  simp only [← c864, ← c865, ← c866] at e_13_17
+  have e_15_2 := arithEq_of_rows h (row := 15) (i := 2) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_2
+  simp only [← c855, k1, ← c856, k1, ← c857] at e_15_2
+  have e_15_3 := arithEq_of_rows h (row := 15) (i := 3) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_3
+  simp only [← c858, ← c859, k1, ← c860] at e_15_3
+  have e_15_4 := arithEq_of_rows h (row := 15) (i := 4) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_4
+  simp only [← c867, ← c868, k1, ← c869] at e_15_4
   refine ⟨?_, ?_⟩
-  · have hc := e_13_12
-    simp only [e_14_3] at hc
-    linear_combination c870.trans k1 - hc
-  · have hc := e_14_4
-    simp only [e_14_2, e_13_13, e_14_3] at hc
-    linear_combination c871.trans k1 - hc
+  · have hc := e_13_16
+    simp only [e_15_3] at hc
+    linear_combination c870.trans k0 - hc
+  · have hc := e_15_4
+    simp only [e_15_2, e_13_17, e_15_3] at hc
+    linear_combination c871.trans k0 - hc
 
 theorem publicBatchWrapper4_f122 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 51) = bor (a (.wire 4 15)) (a (.virt 26559)) := by
+    a (.wire 14 19) = bor (a (.wire 5 31)) (a (.virt 180)) := by
   have c872 := (publicBatchWrapper4_copies27 a h).2.2.2.2.2.2.2.2.1
   have c873 := (publicBatchWrapper4_copies27 a h).2.2.2.2.2.2.2.2.2.1
   have c874 := (publicBatchWrapper4_copies27 a h).2.2.2.2.2.2.2.2.2.2.1
@@ -4661,24 +4662,24 @@ theorem publicBatchWrapper4_f122 (a : Assignment p) (h : Satisfies (publicBatchW
   have c876 := (publicBatchWrapper4_copies27 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c877 := (publicBatchWrapper4_copies27 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_6_12 := arithEq_of_rows h (row := 6) (i := 12) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_12
-  simp only [← c872, ← c873, ← c874] at e_6_12
   have e_7_12 := arithEq_of_rows h (row := 7) (i := 12) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_12
-  simp only [← c875, ← c876, k0, ← c877] at e_7_12
-  have hr := e_7_12
-  simp only [e_6_12] at hr
+  simp only [← c872, ← c873, ← c874] at e_7_12
+  have e_14_4 := arithEq_of_rows h (row := 14) (i := 4) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_4
+  simp only [← c875, ← c876, k1, ← c877] at e_14_4
+  have hr := e_14_4
+  simp only [e_7_12] at hr
   simp only [bor]
   linear_combination hr
 
 theorem publicBatchWrapper4_f123 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 51) = a (.virt 26488) := by
+    a (.wire 14 19) = a (.virt 27) := by
   have c878 := (publicBatchWrapper4_copies27 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   exact c878
 
 theorem publicBatchWrapper4_f124 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 26460)) (a (.wire 9 31)) (a (.virt 26561)) (a (.virt 26562)) := by
+    IsEqual (a (.virt 84)) (a (.wire 9 31)) (a (.virt 182)) (a (.virt 183)) := by
   have c879 := (publicBatchWrapper4_copies27 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c880 := (publicBatchWrapper4_copies27 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c881 := (publicBatchWrapper4_copies27 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -4697,31 +4698,31 @@ theorem publicBatchWrapper4_f124 (a : Assignment p) (h : Satisfies (publicBatchW
   have c894 := (publicBatchWrapper4_copies27 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c895 := (publicBatchWrapper4_copies27 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_13_14 := arithEq_of_rows h (row := 13) (i := 14) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_14
-  simp only [← c885, ← c886, ← c887] at e_13_14
-  have e_13_15 := arithEq_of_rows h (row := 13) (i := 15) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_15
-  simp only [← c888, ← c889, ← c890] at e_13_15
-  have e_14_5 := arithEq_of_rows h (row := 14) (i := 5) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_5
-  simp only [← c879, k0, ← c880, k0, ← c881] at e_14_5
-  have e_14_6 := arithEq_of_rows h (row := 14) (i := 6) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_6
-  simp only [← c882, ← c883, k0, ← c884] at e_14_6
-  have e_14_7 := arithEq_of_rows h (row := 14) (i := 7) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_7
-  simp only [← c891, ← c892, k0, ← c893] at e_14_7
+  have e_13_18 := arithEq_of_rows h (row := 13) (i := 18) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_18
+  simp only [← c885, ← c886, ← c887] at e_13_18
+  have e_13_19 := arithEq_of_rows h (row := 13) (i := 19) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_19
+  simp only [← c888, ← c889, ← c890] at e_13_19
+  have e_15_5 := arithEq_of_rows h (row := 15) (i := 5) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_5
+  simp only [← c879, k1, ← c880, k1, ← c881] at e_15_5
+  have e_15_6 := arithEq_of_rows h (row := 15) (i := 6) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_6
+  simp only [← c882, ← c883, k1, ← c884] at e_15_6
+  have e_15_7 := arithEq_of_rows h (row := 15) (i := 7) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_7
+  simp only [← c891, ← c892, k1, ← c893] at e_15_7
   refine ⟨?_, ?_⟩
-  · have hc := e_13_14
-    simp only [e_14_6] at hc
-    linear_combination c894.trans k1 - hc
-  · have hc := e_14_7
-    simp only [e_14_5, e_13_15, e_14_6] at hc
-    linear_combination c895.trans k1 - hc
+  · have hc := e_13_18
+    simp only [e_15_6] at hc
+    linear_combination c894.trans k0 - hc
+  · have hc := e_15_7
+    simp only [e_15_5, e_13_19, e_15_6] at hc
+    linear_combination c895.trans k0 - hc
 
 theorem publicBatchWrapper4_f125 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 55) = bor (a (.wire 4 15)) (a (.virt 26561)) := by
+    a (.wire 14 23) = bor (a (.wire 5 31)) (a (.virt 182)) := by
   have c896 := (publicBatchWrapper4_copies28 a h).1
   have c897 := (publicBatchWrapper4_copies28 a h).2.1
   have c898 := (publicBatchWrapper4_copies28 a h).2.2.1
@@ -4729,24 +4730,24 @@ theorem publicBatchWrapper4_f125 (a : Assignment p) (h : Satisfies (publicBatchW
   have c900 := (publicBatchWrapper4_copies28 a h).2.2.2.2.1
   have c901 := (publicBatchWrapper4_copies28 a h).2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_6_13 := arithEq_of_rows h (row := 6) (i := 13) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_13
-  simp only [← c896, ← c897, ← c898] at e_6_13
   have e_7_13 := arithEq_of_rows h (row := 7) (i := 13) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_13
-  simp only [← c899, ← c900, k0, ← c901] at e_7_13
-  have hr := e_7_13
-  simp only [e_6_13] at hr
+  simp only [← c896, ← c897, ← c898] at e_7_13
+  have e_14_5 := arithEq_of_rows h (row := 14) (i := 5) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_5
+  simp only [← c899, ← c900, k1, ← c901] at e_14_5
+  have hr := e_14_5
+  simp only [e_7_13] at hr
   simp only [bor]
   linear_combination hr
 
 theorem publicBatchWrapper4_f126 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 55) = a (.virt 26488) := by
+    a (.wire 14 23) = a (.virt 27) := by
   have c902 := (publicBatchWrapper4_copies28 a h).2.2.2.2.2.2.1
   exact c902
 
 theorem publicBatchWrapper4_f127 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 26461)) (a (.wire 8 63)) (a (.virt 26563)) (a (.virt 26564)) := by
+    IsEqual (a (.virt 85)) (a (.wire 8 63)) (a (.virt 184)) (a (.virt 185)) := by
   have c903 := (publicBatchWrapper4_copies28 a h).2.2.2.2.2.2.2.1
   have c904 := (publicBatchWrapper4_copies28 a h).2.2.2.2.2.2.2.2.1
   have c905 := (publicBatchWrapper4_copies28 a h).2.2.2.2.2.2.2.2.2.1
@@ -4765,31 +4766,31 @@ theorem publicBatchWrapper4_f127 (a : Assignment p) (h : Satisfies (publicBatchW
   have c918 := (publicBatchWrapper4_copies28 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c919 := (publicBatchWrapper4_copies28 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_13_16 := arithEq_of_rows h (row := 13) (i := 16) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_16
-  simp only [← c909, ← c910, ← c911] at e_13_16
-  have e_13_17 := arithEq_of_rows h (row := 13) (i := 17) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_17
-  simp only [← c912, ← c913, ← c914] at e_13_17
-  have e_14_8 := arithEq_of_rows h (row := 14) (i := 8) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_8
-  simp only [← c903, k0, ← c904, k0, ← c905] at e_14_8
-  have e_14_9 := arithEq_of_rows h (row := 14) (i := 9) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_9
-  simp only [← c906, ← c907, k0, ← c908] at e_14_9
-  have e_14_10 := arithEq_of_rows h (row := 14) (i := 10) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_10
-  simp only [← c915, ← c916, k0, ← c917] at e_14_10
+  have e_15_8 := arithEq_of_rows h (row := 15) (i := 8) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_8
+  simp only [← c903, k1, ← c904, k1, ← c905] at e_15_8
+  have e_15_9 := arithEq_of_rows h (row := 15) (i := 9) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_9
+  simp only [← c906, ← c907, k1, ← c908] at e_15_9
+  have e_15_10 := arithEq_of_rows h (row := 15) (i := 10) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_10
+  simp only [← c915, ← c916, k1, ← c917] at e_15_10
+  have e_16_0 := arithEq_of_rows h (row := 16) (i := 0) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_0
+  simp only [← c909, ← c910, ← c911] at e_16_0
+  have e_16_1 := arithEq_of_rows h (row := 16) (i := 1) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_1
+  simp only [← c912, ← c913, ← c914] at e_16_1
   refine ⟨?_, ?_⟩
-  · have hc := e_13_16
-    simp only [e_14_9] at hc
-    linear_combination c918.trans k1 - hc
-  · have hc := e_14_10
-    simp only [e_14_8, e_13_17, e_14_9] at hc
-    linear_combination c919.trans k1 - hc
+  · have hc := e_16_0
+    simp only [e_15_9] at hc
+    linear_combination c918.trans k0 - hc
+  · have hc := e_15_10
+    simp only [e_15_8, e_16_1, e_15_9] at hc
+    linear_combination c919.trans k0 - hc
 
 theorem publicBatchWrapper4_f128 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 26462)) (a (.wire 8 71)) (a (.virt 26565)) (a (.virt 26566)) := by
+    IsEqual (a (.virt 86)) (a (.wire 8 71)) (a (.virt 186)) (a (.virt 187)) := by
   have c920 := (publicBatchWrapper4_copies28 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c921 := (publicBatchWrapper4_copies28 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c922 := (publicBatchWrapper4_copies28 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -4808,31 +4809,31 @@ theorem publicBatchWrapper4_f128 (a : Assignment p) (h : Satisfies (publicBatchW
   have c935 := (publicBatchWrapper4_copies29 a h).2.2.2.2.2.2.2.1
   have c936 := (publicBatchWrapper4_copies29 a h).2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_13_18 := arithEq_of_rows h (row := 13) (i := 18) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_18
-  simp only [← c926, ← c927, ← c928] at e_13_18
-  have e_13_19 := arithEq_of_rows h (row := 13) (i := 19) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_19
-  simp only [← c929, ← c930, ← c931] at e_13_19
-  have e_14_11 := arithEq_of_rows h (row := 14) (i := 11) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_11
-  simp only [← c920, k0, ← c921, k0, ← c922] at e_14_11
-  have e_14_12 := arithEq_of_rows h (row := 14) (i := 12) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_12
-  simp only [← c923, ← c924, k0, ← c925] at e_14_12
-  have e_14_13 := arithEq_of_rows h (row := 14) (i := 13) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_13
-  simp only [← c932, ← c933, k0, ← c934] at e_14_13
+  have e_15_11 := arithEq_of_rows h (row := 15) (i := 11) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_11
+  simp only [← c920, k1, ← c921, k1, ← c922] at e_15_11
+  have e_15_12 := arithEq_of_rows h (row := 15) (i := 12) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_12
+  simp only [← c923, ← c924, k1, ← c925] at e_15_12
+  have e_15_13 := arithEq_of_rows h (row := 15) (i := 13) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_13
+  simp only [← c932, ← c933, k1, ← c934] at e_15_13
+  have e_16_2 := arithEq_of_rows h (row := 16) (i := 2) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_2
+  simp only [← c926, ← c927, ← c928] at e_16_2
+  have e_16_3 := arithEq_of_rows h (row := 16) (i := 3) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_3
+  simp only [← c929, ← c930, ← c931] at e_16_3
   refine ⟨?_, ?_⟩
-  · have hc := e_13_18
-    simp only [e_14_12] at hc
-    linear_combination c935.trans k1 - hc
-  · have hc := e_14_13
-    simp only [e_14_11, e_13_19, e_14_12] at hc
-    linear_combination c936.trans k1 - hc
+  · have hc := e_16_2
+    simp only [e_15_12] at hc
+    linear_combination c935.trans k0 - hc
+  · have hc := e_15_13
+    simp only [e_15_11, e_16_3, e_15_12] at hc
+    linear_combination c936.trans k0 - hc
 
 theorem publicBatchWrapper4_f129 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 26463)) (a (.wire 8 79)) (a (.virt 26567)) (a (.virt 26568)) := by
+    IsEqual (a (.virt 87)) (a (.wire 8 79)) (a (.virt 188)) (a (.virt 189)) := by
   have c937 := (publicBatchWrapper4_copies29 a h).2.2.2.2.2.2.2.2.2.1
   have c938 := (publicBatchWrapper4_copies29 a h).2.2.2.2.2.2.2.2.2.2.1
   have c939 := (publicBatchWrapper4_copies29 a h).2.2.2.2.2.2.2.2.2.2.2.1
@@ -4851,31 +4852,31 @@ theorem publicBatchWrapper4_f129 (a : Assignment p) (h : Satisfies (publicBatchW
   have c952 := (publicBatchWrapper4_copies29 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c953 := (publicBatchWrapper4_copies29 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_14_14 := arithEq_of_rows h (row := 14) (i := 14) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_14
-  simp only [← c937, k0, ← c938, k0, ← c939] at e_14_14
-  have e_14_15 := arithEq_of_rows h (row := 14) (i := 15) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_15
-  simp only [← c940, ← c941, k0, ← c942] at e_14_15
-  have e_14_16 := arithEq_of_rows h (row := 14) (i := 16) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_16
-  simp only [← c949, ← c950, k0, ← c951] at e_14_16
-  have e_15_0 := arithEq_of_rows h (row := 15) (i := 0) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_0
-  simp only [← c943, ← c944, ← c945] at e_15_0
-  have e_15_1 := arithEq_of_rows h (row := 15) (i := 1) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_1
-  simp only [← c946, ← c947, ← c948] at e_15_1
+  have e_15_14 := arithEq_of_rows h (row := 15) (i := 14) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_14
+  simp only [← c937, k1, ← c938, k1, ← c939] at e_15_14
+  have e_15_15 := arithEq_of_rows h (row := 15) (i := 15) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_15
+  simp only [← c940, ← c941, k1, ← c942] at e_15_15
+  have e_15_16 := arithEq_of_rows h (row := 15) (i := 16) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_16
+  simp only [← c949, ← c950, k1, ← c951] at e_15_16
+  have e_16_4 := arithEq_of_rows h (row := 16) (i := 4) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_4
+  simp only [← c943, ← c944, ← c945] at e_16_4
+  have e_16_5 := arithEq_of_rows h (row := 16) (i := 5) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_5
+  simp only [← c946, ← c947, ← c948] at e_16_5
   refine ⟨?_, ?_⟩
-  · have hc := e_15_0
-    simp only [e_14_15] at hc
-    linear_combination c952.trans k1 - hc
-  · have hc := e_14_16
-    simp only [e_14_14, e_15_1, e_14_15] at hc
-    linear_combination c953.trans k1 - hc
+  · have hc := e_16_4
+    simp only [e_15_15] at hc
+    linear_combination c952.trans k0 - hc
+  · have hc := e_15_16
+    simp only [e_15_14, e_16_5, e_15_15] at hc
+    linear_combination c953.trans k0 - hc
 
 theorem publicBatchWrapper4_f130 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    IsEqual (a (.virt 26464)) (a (.wire 9 7)) (a (.virt 26569)) (a (.virt 26570)) := by
+    IsEqual (a (.virt 88)) (a (.wire 9 7)) (a (.virt 190)) (a (.virt 191)) := by
   have c954 := (publicBatchWrapper4_copies29 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c955 := (publicBatchWrapper4_copies29 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c956 := (publicBatchWrapper4_copies29 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -4894,67 +4895,67 @@ theorem publicBatchWrapper4_f130 (a : Assignment p) (h : Satisfies (publicBatchW
   have c969 := (publicBatchWrapper4_copies30 a h).2.2.2.2.2.2.2.2.2.1
   have c970 := (publicBatchWrapper4_copies30 a h).2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_14_17 := arithEq_of_rows h (row := 14) (i := 17) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_17
-  simp only [← c954, k0, ← c955, k0, ← c956] at e_14_17
-  have e_14_18 := arithEq_of_rows h (row := 14) (i := 18) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_18
-  simp only [← c957, ← c958, k0, ← c959] at e_14_18
-  have e_14_19 := arithEq_of_rows h (row := 14) (i := 19) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_19
-  simp only [← c966, ← c967, k0, ← c968] at e_14_19
-  have e_15_2 := arithEq_of_rows h (row := 15) (i := 2) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_2
-  simp only [← c960, ← c961, ← c962] at e_15_2
-  have e_15_3 := arithEq_of_rows h (row := 15) (i := 3) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_3
-  simp only [← c963, ← c964, ← c965] at e_15_3
+  have e_15_17 := arithEq_of_rows h (row := 15) (i := 17) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_17
+  simp only [← c954, k1, ← c955, k1, ← c956] at e_15_17
+  have e_15_18 := arithEq_of_rows h (row := 15) (i := 18) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_18
+  simp only [← c957, ← c958, k1, ← c959] at e_15_18
+  have e_15_19 := arithEq_of_rows h (row := 15) (i := 19) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_19
+  simp only [← c966, ← c967, k1, ← c968] at e_15_19
+  have e_16_6 := arithEq_of_rows h (row := 16) (i := 6) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_6
+  simp only [← c960, ← c961, ← c962] at e_16_6
+  have e_16_7 := arithEq_of_rows h (row := 16) (i := 7) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_7
+  simp only [← c963, ← c964, ← c965] at e_16_7
   refine ⟨?_, ?_⟩
-  · have hc := e_15_2
-    simp only [e_14_18] at hc
-    linear_combination c969.trans k1 - hc
-  · have hc := e_14_19
-    simp only [e_14_17, e_15_3, e_14_18] at hc
-    linear_combination c970.trans k1 - hc
+  · have hc := e_16_6
+    simp only [e_15_18] at hc
+    linear_combination c969.trans k0 - hc
+  · have hc := e_15_19
+    simp only [e_15_17, e_16_7, e_15_18] at hc
+    linear_combination c970.trans k0 - hc
 
 theorem publicBatchWrapper4_f131 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 15 19) = band (a (.virt 26563)) (a (.virt 26565)) := by
+    a (.wire 16 35) = band (a (.virt 184)) (a (.virt 186)) := by
   have c971 := (publicBatchWrapper4_copies30 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c972 := (publicBatchWrapper4_copies30 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c973 := (publicBatchWrapper4_copies30 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_15_4 := arithEq_of_rows h (row := 15) (i := 4) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_4
-  simp only [← c971, ← c972, ← c973] at e_15_4
-  have hr := e_15_4
+  have e_16_8 := arithEq_of_rows h (row := 16) (i := 8) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_8
+  simp only [← c971, ← c972, ← c973] at e_16_8
+  have hr := e_16_8
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f132 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 15 23) = band (a (.virt 26567)) (a (.virt 26569)) := by
+    a (.wire 16 39) = band (a (.virt 188)) (a (.virt 190)) := by
   have c974 := (publicBatchWrapper4_copies30 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c975 := (publicBatchWrapper4_copies30 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c976 := (publicBatchWrapper4_copies30 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_15_5 := arithEq_of_rows h (row := 15) (i := 5) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_5
-  simp only [← c974, ← c975, ← c976] at e_15_5
-  have hr := e_15_5
+  have e_16_9 := arithEq_of_rows h (row := 16) (i := 9) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_9
+  simp only [← c974, ← c975, ← c976] at e_16_9
+  have hr := e_16_9
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f133 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 15 27) = band (a (.wire 15 19)) (a (.wire 15 23)) := by
+    a (.wire 16 43) = band (a (.wire 16 35)) (a (.wire 16 39)) := by
   have c977 := (publicBatchWrapper4_copies30 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c978 := (publicBatchWrapper4_copies30 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c979 := (publicBatchWrapper4_copies30 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_15_6 := arithEq_of_rows h (row := 15) (i := 6) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_6
-  simp only [← c977, ← c978, ← c979] at e_15_6
-  have hr := e_15_6
+  have e_16_10 := arithEq_of_rows h (row := 16) (i := 10) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_10
+  simp only [← c977, ← c978, ← c979] at e_16_10
+  have hr := e_16_10
   simp only [band]
   linear_combination hr
 
 theorem publicBatchWrapper4_f134 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 59) = bor (a (.wire 4 15)) (a (.wire 15 27)) := by
+    a (.wire 14 27) = bor (a (.wire 5 31)) (a (.wire 16 43)) := by
   have c980 := (publicBatchWrapper4_copies30 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c981 := (publicBatchWrapper4_copies30 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c982 := (publicBatchWrapper4_copies30 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -4962,24 +4963,24 @@ theorem publicBatchWrapper4_f134 (a : Assignment p) (h : Satisfies (publicBatchW
   have c984 := (publicBatchWrapper4_copies30 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c985 := (publicBatchWrapper4_copies30 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_6_14 := arithEq_of_rows h (row := 6) (i := 14) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_14
-  simp only [← c980, ← c981, ← c982] at e_6_14
   have e_7_14 := arithEq_of_rows h (row := 7) (i := 14) rfl (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_14
-  simp only [← c983, ← c984, k0, ← c985] at e_7_14
-  have hr := e_7_14
-  simp only [e_6_14] at hr
+  simp only [← c980, ← c981, ← c982] at e_7_14
+  have e_14_6 := arithEq_of_rows h (row := 14) (i := 6) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_6
+  simp only [← c983, ← c984, k1, ← c985] at e_14_6
+  have hr := e_14_6
+  simp only [e_7_14] at hr
   simp only [bor]
   linear_combination hr
 
 theorem publicBatchWrapper4_f135 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 7 59) = a (.virt 26488) := by
+    a (.wire 14 27) = a (.virt 27) := by
   have c986 := (publicBatchWrapper4_copies30 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   exact c986
 
 theorem publicBatchWrapper4_f136 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 16 7) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6603)) := by
+    a (.wire 17 7) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 8)) := by
   have c987 := (publicBatchWrapper4_copies30 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c988 := (publicBatchWrapper4_copies30 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c989 := (publicBatchWrapper4_copies30 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -4987,19 +4988,19 @@ theorem publicBatchWrapper4_f136 (a : Assignment p) (h : Satisfies (publicBatchW
   have c991 := (publicBatchWrapper4_copies30 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c992 := (publicBatchWrapper4_copies31 a h).1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_16_0 := arithEq_of_rows h (row := 16) (i := 0) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_0
-  simp only [← c987, ← c988, ← c989] at e_16_0
-  have e_16_1 := arithEq_of_rows h (row := 16) (i := 1) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_1
-  simp only [← c990, ← c991, k1, ← c992] at e_16_1
-  have hr := e_16_1
-  simp only [e_16_0] at hr
-  simp only [bselect, k1]
+  have e_17_0 := arithEq_of_rows h (row := 17) (i := 0) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_0
+  simp only [← c987, ← c988, ← c989] at e_17_0
+  have e_17_1 := arithEq_of_rows h (row := 17) (i := 1) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_1
+  simp only [← c990, ← c991, k0, ← c992] at e_17_1
+  have hr := e_17_1
+  simp only [e_17_0] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f137 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 16 15) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6604)) := by
+    a (.wire 17 15) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 9)) := by
   have c993 := (publicBatchWrapper4_copies31 a h).2.1
   have c994 := (publicBatchWrapper4_copies31 a h).2.2.1
   have c995 := (publicBatchWrapper4_copies31 a h).2.2.2.1
@@ -5007,19 +5008,19 @@ theorem publicBatchWrapper4_f137 (a : Assignment p) (h : Satisfies (publicBatchW
   have c997 := (publicBatchWrapper4_copies31 a h).2.2.2.2.2.1
   have c998 := (publicBatchWrapper4_copies31 a h).2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_16_2 := arithEq_of_rows h (row := 16) (i := 2) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_2
-  simp only [← c993, ← c994, ← c995] at e_16_2
-  have e_16_3 := arithEq_of_rows h (row := 16) (i := 3) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_3
-  simp only [← c996, ← c997, k1, ← c998] at e_16_3
-  have hr := e_16_3
-  simp only [e_16_2] at hr
-  simp only [bselect, k1]
+  have e_17_2 := arithEq_of_rows h (row := 17) (i := 2) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_2
+  simp only [← c993, ← c994, ← c995] at e_17_2
+  have e_17_3 := arithEq_of_rows h (row := 17) (i := 3) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_3
+  simp only [← c996, ← c997, k0, ← c998] at e_17_3
+  have hr := e_17_3
+  simp only [e_17_2] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f138 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 16 23) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6605)) := by
+    a (.wire 17 23) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 10)) := by
   have c999 := (publicBatchWrapper4_copies31 a h).2.2.2.2.2.2.2.1
   have c1000 := (publicBatchWrapper4_copies31 a h).2.2.2.2.2.2.2.2.1
   have c1001 := (publicBatchWrapper4_copies31 a h).2.2.2.2.2.2.2.2.2.1
@@ -5027,19 +5028,19 @@ theorem publicBatchWrapper4_f138 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1003 := (publicBatchWrapper4_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c1004 := (publicBatchWrapper4_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_16_4 := arithEq_of_rows h (row := 16) (i := 4) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_4
-  simp only [← c999, ← c1000, ← c1001] at e_16_4
-  have e_16_5 := arithEq_of_rows h (row := 16) (i := 5) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_5
-  simp only [← c1002, ← c1003, k1, ← c1004] at e_16_5
-  have hr := e_16_5
-  simp only [e_16_4] at hr
-  simp only [bselect, k1]
+  have e_17_4 := arithEq_of_rows h (row := 17) (i := 4) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_4
+  simp only [← c999, ← c1000, ← c1001] at e_17_4
+  have e_17_5 := arithEq_of_rows h (row := 17) (i := 5) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_5
+  simp only [← c1002, ← c1003, k0, ← c1004] at e_17_5
+  have hr := e_17_5
+  simp only [e_17_4] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f139 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 16 31) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6606)) := by
+    a (.wire 17 31) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 11)) := by
   have c1005 := (publicBatchWrapper4_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1006 := (publicBatchWrapper4_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1007 := (publicBatchWrapper4_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5047,19 +5048,19 @@ theorem publicBatchWrapper4_f139 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1009 := (publicBatchWrapper4_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1010 := (publicBatchWrapper4_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_16_6 := arithEq_of_rows h (row := 16) (i := 6) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_6
-  simp only [← c1005, ← c1006, ← c1007] at e_16_6
-  have e_16_7 := arithEq_of_rows h (row := 16) (i := 7) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_7
-  simp only [← c1008, ← c1009, k1, ← c1010] at e_16_7
-  have hr := e_16_7
-  simp only [e_16_6] at hr
-  simp only [bselect, k1]
+  have e_17_6 := arithEq_of_rows h (row := 17) (i := 6) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_6
+  simp only [← c1005, ← c1006, ← c1007] at e_17_6
+  have e_17_7 := arithEq_of_rows h (row := 17) (i := 7) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_7
+  simp only [← c1008, ← c1009, k0, ← c1010] at e_17_7
+  have hr := e_17_7
+  simp only [e_17_6] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f140 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 16 39) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6607)) := by
+    a (.wire 17 39) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 12)) := by
   have c1011 := (publicBatchWrapper4_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1012 := (publicBatchWrapper4_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1013 := (publicBatchWrapper4_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5067,19 +5068,19 @@ theorem publicBatchWrapper4_f140 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1015 := (publicBatchWrapper4_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1016 := (publicBatchWrapper4_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_16_8 := arithEq_of_rows h (row := 16) (i := 8) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_8
-  simp only [← c1011, ← c1012, ← c1013] at e_16_8
-  have e_16_9 := arithEq_of_rows h (row := 16) (i := 9) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_9
-  simp only [← c1014, ← c1015, k1, ← c1016] at e_16_9
-  have hr := e_16_9
-  simp only [e_16_8] at hr
-  simp only [bselect, k1]
+  have e_17_8 := arithEq_of_rows h (row := 17) (i := 8) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_8
+  simp only [← c1011, ← c1012, ← c1013] at e_17_8
+  have e_17_9 := arithEq_of_rows h (row := 17) (i := 9) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_9
+  simp only [← c1014, ← c1015, k0, ← c1016] at e_17_9
+  have hr := e_17_9
+  simp only [e_17_8] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f141 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 16 47) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6608)) := by
+    a (.wire 17 47) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 13)) := by
   have c1017 := (publicBatchWrapper4_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1018 := (publicBatchWrapper4_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1019 := (publicBatchWrapper4_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5087,19 +5088,19 @@ theorem publicBatchWrapper4_f141 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1021 := (publicBatchWrapper4_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1022 := (publicBatchWrapper4_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_16_10 := arithEq_of_rows h (row := 16) (i := 10) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_10
-  simp only [← c1017, ← c1018, ← c1019] at e_16_10
-  have e_16_11 := arithEq_of_rows h (row := 16) (i := 11) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_11
-  simp only [← c1020, ← c1021, k1, ← c1022] at e_16_11
-  have hr := e_16_11
-  simp only [e_16_10] at hr
-  simp only [bselect, k1]
+  have e_17_10 := arithEq_of_rows h (row := 17) (i := 10) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_10
+  simp only [← c1017, ← c1018, ← c1019] at e_17_10
+  have e_17_11 := arithEq_of_rows h (row := 17) (i := 11) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_11
+  simp only [← c1020, ← c1021, k0, ← c1022] at e_17_11
+  have hr := e_17_11
+  simp only [e_17_10] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f142 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 16 55) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6609)) := by
+    a (.wire 17 55) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 14)) := by
   have c1023 := (publicBatchWrapper4_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c1024 := (publicBatchWrapper4_copies32 a h).1
   have c1025 := (publicBatchWrapper4_copies32 a h).2.1
@@ -5107,19 +5108,19 @@ theorem publicBatchWrapper4_f142 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1027 := (publicBatchWrapper4_copies32 a h).2.2.2.1
   have c1028 := (publicBatchWrapper4_copies32 a h).2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_16_12 := arithEq_of_rows h (row := 16) (i := 12) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_12
-  simp only [← c1023, ← c1024, ← c1025] at e_16_12
-  have e_16_13 := arithEq_of_rows h (row := 16) (i := 13) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_13
-  simp only [← c1026, ← c1027, k1, ← c1028] at e_16_13
-  have hr := e_16_13
-  simp only [e_16_12] at hr
-  simp only [bselect, k1]
+  have e_17_12 := arithEq_of_rows h (row := 17) (i := 12) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_12
+  simp only [← c1023, ← c1024, ← c1025] at e_17_12
+  have e_17_13 := arithEq_of_rows h (row := 17) (i := 13) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_13
+  simp only [← c1026, ← c1027, k0, ← c1028] at e_17_13
+  have hr := e_17_13
+  simp only [e_17_12] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f143 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 16 63) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6610)) := by
+    a (.wire 17 63) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 15)) := by
   have c1029 := (publicBatchWrapper4_copies32 a h).2.2.2.2.2.1
   have c1030 := (publicBatchWrapper4_copies32 a h).2.2.2.2.2.2.1
   have c1031 := (publicBatchWrapper4_copies32 a h).2.2.2.2.2.2.2.1
@@ -5127,19 +5128,19 @@ theorem publicBatchWrapper4_f143 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1033 := (publicBatchWrapper4_copies32 a h).2.2.2.2.2.2.2.2.2.1
   have c1034 := (publicBatchWrapper4_copies32 a h).2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_16_14 := arithEq_of_rows h (row := 16) (i := 14) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_14
-  simp only [← c1029, ← c1030, ← c1031] at e_16_14
-  have e_16_15 := arithEq_of_rows h (row := 16) (i := 15) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_15
-  simp only [← c1032, ← c1033, k1, ← c1034] at e_16_15
-  have hr := e_16_15
-  simp only [e_16_14] at hr
-  simp only [bselect, k1]
+  have e_17_14 := arithEq_of_rows h (row := 17) (i := 14) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_14
+  simp only [← c1029, ← c1030, ← c1031] at e_17_14
+  have e_17_15 := arithEq_of_rows h (row := 17) (i := 15) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_15
+  simp only [← c1032, ← c1033, k0, ← c1034] at e_17_15
+  have hr := e_17_15
+  simp only [e_17_14] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f144 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 16 71) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6611)) := by
+    a (.wire 17 71) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 16)) := by
   have c1035 := (publicBatchWrapper4_copies32 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c1036 := (publicBatchWrapper4_copies32 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1037 := (publicBatchWrapper4_copies32 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5147,19 +5148,19 @@ theorem publicBatchWrapper4_f144 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1039 := (publicBatchWrapper4_copies32 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1040 := (publicBatchWrapper4_copies32 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_16_16 := arithEq_of_rows h (row := 16) (i := 16) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_16
-  simp only [← c1035, ← c1036, ← c1037] at e_16_16
-  have e_16_17 := arithEq_of_rows h (row := 16) (i := 17) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_17
-  simp only [← c1038, ← c1039, k1, ← c1040] at e_16_17
-  have hr := e_16_17
-  simp only [e_16_16] at hr
-  simp only [bselect, k1]
+  have e_17_16 := arithEq_of_rows h (row := 17) (i := 16) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_16
+  simp only [← c1035, ← c1036, ← c1037] at e_17_16
+  have e_17_17 := arithEq_of_rows h (row := 17) (i := 17) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_17
+  simp only [← c1038, ← c1039, k0, ← c1040] at e_17_17
+  have hr := e_17_17
+  simp only [e_17_16] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f145 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 16 79) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6612)) := by
+    a (.wire 17 79) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 17)) := by
   have c1041 := (publicBatchWrapper4_copies32 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1042 := (publicBatchWrapper4_copies32 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1043 := (publicBatchWrapper4_copies32 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5167,19 +5168,19 @@ theorem publicBatchWrapper4_f145 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1045 := (publicBatchWrapper4_copies32 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1046 := (publicBatchWrapper4_copies32 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_16_18 := arithEq_of_rows h (row := 16) (i := 18) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_18
-  simp only [← c1041, ← c1042, ← c1043] at e_16_18
-  have e_16_19 := arithEq_of_rows h (row := 16) (i := 19) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_19
-  simp only [← c1044, ← c1045, k1, ← c1046] at e_16_19
-  have hr := e_16_19
-  simp only [e_16_18] at hr
-  simp only [bselect, k1]
+  have e_17_18 := arithEq_of_rows h (row := 17) (i := 18) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_18
+  simp only [← c1041, ← c1042, ← c1043] at e_17_18
+  have e_17_19 := arithEq_of_rows h (row := 17) (i := 19) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_19
+  simp only [← c1044, ← c1045, k0, ← c1046] at e_17_19
+  have hr := e_17_19
+  simp only [e_17_18] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f146 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 17 7) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13224)) := by
+    a (.wire 18 7) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 38)) := by
   have c1047 := (publicBatchWrapper4_copies32 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1048 := (publicBatchWrapper4_copies32 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1049 := (publicBatchWrapper4_copies32 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5187,19 +5188,19 @@ theorem publicBatchWrapper4_f146 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1051 := (publicBatchWrapper4_copies32 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1052 := (publicBatchWrapper4_copies32 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_17_0 := arithEq_of_rows h (row := 17) (i := 0) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_0
-  simp only [← c1047, ← c1048, ← c1049] at e_17_0
-  have e_17_1 := arithEq_of_rows h (row := 17) (i := 1) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_1
-  simp only [← c1050, ← c1051, k1, ← c1052] at e_17_1
-  have hr := e_17_1
-  simp only [e_17_0] at hr
-  simp only [bselect, k1]
+  have e_18_0 := arithEq_of_rows h (row := 18) (i := 0) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_0
+  simp only [← c1047, ← c1048, ← c1049] at e_18_0
+  have e_18_1 := arithEq_of_rows h (row := 18) (i := 1) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_1
+  simp only [← c1050, ← c1051, k0, ← c1052] at e_18_1
+  have hr := e_18_1
+  simp only [e_18_0] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f147 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 17 15) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13225)) := by
+    a (.wire 18 15) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 39)) := by
   have c1053 := (publicBatchWrapper4_copies32 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1054 := (publicBatchWrapper4_copies32 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1055 := (publicBatchWrapper4_copies32 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
@@ -5207,19 +5208,19 @@ theorem publicBatchWrapper4_f147 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1057 := (publicBatchWrapper4_copies33 a h).2.1
   have c1058 := (publicBatchWrapper4_copies33 a h).2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_17_2 := arithEq_of_rows h (row := 17) (i := 2) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_2
-  simp only [← c1053, ← c1054, ← c1055] at e_17_2
-  have e_17_3 := arithEq_of_rows h (row := 17) (i := 3) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_3
-  simp only [← c1056, ← c1057, k1, ← c1058] at e_17_3
-  have hr := e_17_3
-  simp only [e_17_2] at hr
-  simp only [bselect, k1]
+  have e_18_2 := arithEq_of_rows h (row := 18) (i := 2) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_2
+  simp only [← c1053, ← c1054, ← c1055] at e_18_2
+  have e_18_3 := arithEq_of_rows h (row := 18) (i := 3) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_3
+  simp only [← c1056, ← c1057, k0, ← c1058] at e_18_3
+  have hr := e_18_3
+  simp only [e_18_2] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f148 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 17 23) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13226)) := by
+    a (.wire 18 23) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 40)) := by
   have c1059 := (publicBatchWrapper4_copies33 a h).2.2.2.1
   have c1060 := (publicBatchWrapper4_copies33 a h).2.2.2.2.1
   have c1061 := (publicBatchWrapper4_copies33 a h).2.2.2.2.2.1
@@ -5227,19 +5228,19 @@ theorem publicBatchWrapper4_f148 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1063 := (publicBatchWrapper4_copies33 a h).2.2.2.2.2.2.2.1
   have c1064 := (publicBatchWrapper4_copies33 a h).2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_17_4 := arithEq_of_rows h (row := 17) (i := 4) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_4
-  simp only [← c1059, ← c1060, ← c1061] at e_17_4
-  have e_17_5 := arithEq_of_rows h (row := 17) (i := 5) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_5
-  simp only [← c1062, ← c1063, k1, ← c1064] at e_17_5
-  have hr := e_17_5
-  simp only [e_17_4] at hr
-  simp only [bselect, k1]
+  have e_18_4 := arithEq_of_rows h (row := 18) (i := 4) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_4
+  simp only [← c1059, ← c1060, ← c1061] at e_18_4
+  have e_18_5 := arithEq_of_rows h (row := 18) (i := 5) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_5
+  simp only [← c1062, ← c1063, k0, ← c1064] at e_18_5
+  have hr := e_18_5
+  simp only [e_18_4] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f149 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 17 31) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13227)) := by
+    a (.wire 18 31) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 41)) := by
   have c1065 := (publicBatchWrapper4_copies33 a h).2.2.2.2.2.2.2.2.2.1
   have c1066 := (publicBatchWrapper4_copies33 a h).2.2.2.2.2.2.2.2.2.2.1
   have c1067 := (publicBatchWrapper4_copies33 a h).2.2.2.2.2.2.2.2.2.2.2.1
@@ -5247,19 +5248,19 @@ theorem publicBatchWrapper4_f149 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1069 := (publicBatchWrapper4_copies33 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1070 := (publicBatchWrapper4_copies33 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_17_6 := arithEq_of_rows h (row := 17) (i := 6) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_6
-  simp only [← c1065, ← c1066, ← c1067] at e_17_6
-  have e_17_7 := arithEq_of_rows h (row := 17) (i := 7) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_7
-  simp only [← c1068, ← c1069, k1, ← c1070] at e_17_7
-  have hr := e_17_7
-  simp only [e_17_6] at hr
-  simp only [bselect, k1]
+  have e_18_6 := arithEq_of_rows h (row := 18) (i := 6) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_6
+  simp only [← c1065, ← c1066, ← c1067] at e_18_6
+  have e_18_7 := arithEq_of_rows h (row := 18) (i := 7) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_7
+  simp only [← c1068, ← c1069, k0, ← c1070] at e_18_7
+  have hr := e_18_7
+  simp only [e_18_6] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f150 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 17 39) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13228)) := by
+    a (.wire 18 39) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 42)) := by
   have c1071 := (publicBatchWrapper4_copies33 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1072 := (publicBatchWrapper4_copies33 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1073 := (publicBatchWrapper4_copies33 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5267,19 +5268,19 @@ theorem publicBatchWrapper4_f150 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1075 := (publicBatchWrapper4_copies33 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1076 := (publicBatchWrapper4_copies33 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_17_8 := arithEq_of_rows h (row := 17) (i := 8) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_8
-  simp only [← c1071, ← c1072, ← c1073] at e_17_8
-  have e_17_9 := arithEq_of_rows h (row := 17) (i := 9) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_9
-  simp only [← c1074, ← c1075, k1, ← c1076] at e_17_9
-  have hr := e_17_9
-  simp only [e_17_8] at hr
-  simp only [bselect, k1]
+  have e_18_8 := arithEq_of_rows h (row := 18) (i := 8) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_8
+  simp only [← c1071, ← c1072, ← c1073] at e_18_8
+  have e_18_9 := arithEq_of_rows h (row := 18) (i := 9) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_9
+  simp only [← c1074, ← c1075, k0, ← c1076] at e_18_9
+  have hr := e_18_9
+  simp only [e_18_8] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f151 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 17 47) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13229)) := by
+    a (.wire 18 47) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 43)) := by
   have c1077 := (publicBatchWrapper4_copies33 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1078 := (publicBatchWrapper4_copies33 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1079 := (publicBatchWrapper4_copies33 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5287,19 +5288,19 @@ theorem publicBatchWrapper4_f151 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1081 := (publicBatchWrapper4_copies33 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1082 := (publicBatchWrapper4_copies33 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_17_10 := arithEq_of_rows h (row := 17) (i := 10) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_10
-  simp only [← c1077, ← c1078, ← c1079] at e_17_10
-  have e_17_11 := arithEq_of_rows h (row := 17) (i := 11) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_11
-  simp only [← c1080, ← c1081, k1, ← c1082] at e_17_11
-  have hr := e_17_11
-  simp only [e_17_10] at hr
-  simp only [bselect, k1]
+  have e_18_10 := arithEq_of_rows h (row := 18) (i := 10) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_10
+  simp only [← c1077, ← c1078, ← c1079] at e_18_10
+  have e_18_11 := arithEq_of_rows h (row := 18) (i := 11) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_11
+  simp only [← c1080, ← c1081, k0, ← c1082] at e_18_11
+  have hr := e_18_11
+  simp only [e_18_10] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f152 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 17 55) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13230)) := by
+    a (.wire 18 55) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 44)) := by
   have c1083 := (publicBatchWrapper4_copies33 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1084 := (publicBatchWrapper4_copies33 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1085 := (publicBatchWrapper4_copies33 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5307,19 +5308,19 @@ theorem publicBatchWrapper4_f152 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1087 := (publicBatchWrapper4_copies33 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c1088 := (publicBatchWrapper4_copies34 a h).1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_17_12 := arithEq_of_rows h (row := 17) (i := 12) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_12
-  simp only [← c1083, ← c1084, ← c1085] at e_17_12
-  have e_17_13 := arithEq_of_rows h (row := 17) (i := 13) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_13
-  simp only [← c1086, ← c1087, k1, ← c1088] at e_17_13
-  have hr := e_17_13
-  simp only [e_17_12] at hr
-  simp only [bselect, k1]
+  have e_18_12 := arithEq_of_rows h (row := 18) (i := 12) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_12
+  simp only [← c1083, ← c1084, ← c1085] at e_18_12
+  have e_18_13 := arithEq_of_rows h (row := 18) (i := 13) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_13
+  simp only [← c1086, ← c1087, k0, ← c1088] at e_18_13
+  have hr := e_18_13
+  simp only [e_18_12] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f153 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 17 63) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13231)) := by
+    a (.wire 18 63) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 45)) := by
   have c1089 := (publicBatchWrapper4_copies34 a h).2.1
   have c1090 := (publicBatchWrapper4_copies34 a h).2.2.1
   have c1091 := (publicBatchWrapper4_copies34 a h).2.2.2.1
@@ -5327,19 +5328,19 @@ theorem publicBatchWrapper4_f153 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1093 := (publicBatchWrapper4_copies34 a h).2.2.2.2.2.1
   have c1094 := (publicBatchWrapper4_copies34 a h).2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_17_14 := arithEq_of_rows h (row := 17) (i := 14) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_14
-  simp only [← c1089, ← c1090, ← c1091] at e_17_14
-  have e_17_15 := arithEq_of_rows h (row := 17) (i := 15) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_15
-  simp only [← c1092, ← c1093, k1, ← c1094] at e_17_15
-  have hr := e_17_15
-  simp only [e_17_14] at hr
-  simp only [bselect, k1]
+  have e_18_14 := arithEq_of_rows h (row := 18) (i := 14) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_14
+  simp only [← c1089, ← c1090, ← c1091] at e_18_14
+  have e_18_15 := arithEq_of_rows h (row := 18) (i := 15) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_15
+  simp only [← c1092, ← c1093, k0, ← c1094] at e_18_15
+  have hr := e_18_15
+  simp only [e_18_14] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f154 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 17 71) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13232)) := by
+    a (.wire 18 71) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 46)) := by
   have c1095 := (publicBatchWrapper4_copies34 a h).2.2.2.2.2.2.2.1
   have c1096 := (publicBatchWrapper4_copies34 a h).2.2.2.2.2.2.2.2.1
   have c1097 := (publicBatchWrapper4_copies34 a h).2.2.2.2.2.2.2.2.2.1
@@ -5347,19 +5348,19 @@ theorem publicBatchWrapper4_f154 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1099 := (publicBatchWrapper4_copies34 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c1100 := (publicBatchWrapper4_copies34 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_17_16 := arithEq_of_rows h (row := 17) (i := 16) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_16
-  simp only [← c1095, ← c1096, ← c1097] at e_17_16
-  have e_17_17 := arithEq_of_rows h (row := 17) (i := 17) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_17
-  simp only [← c1098, ← c1099, k1, ← c1100] at e_17_17
-  have hr := e_17_17
-  simp only [e_17_16] at hr
-  simp only [bselect, k1]
+  have e_18_16 := arithEq_of_rows h (row := 18) (i := 16) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_16
+  simp only [← c1095, ← c1096, ← c1097] at e_18_16
+  have e_18_17 := arithEq_of_rows h (row := 18) (i := 17) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_17
+  simp only [← c1098, ← c1099, k0, ← c1100] at e_18_17
+  have hr := e_18_17
+  simp only [e_18_16] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f155 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 17 79) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13233)) := by
+    a (.wire 18 79) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 47)) := by
   have c1101 := (publicBatchWrapper4_copies34 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1102 := (publicBatchWrapper4_copies34 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1103 := (publicBatchWrapper4_copies34 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5367,19 +5368,19 @@ theorem publicBatchWrapper4_f155 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1105 := (publicBatchWrapper4_copies34 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1106 := (publicBatchWrapper4_copies34 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_17_18 := arithEq_of_rows h (row := 17) (i := 18) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_18
-  simp only [← c1101, ← c1102, ← c1103] at e_17_18
-  have e_17_19 := arithEq_of_rows h (row := 17) (i := 19) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_19
-  simp only [← c1104, ← c1105, k1, ← c1106] at e_17_19
-  have hr := e_17_19
-  simp only [e_17_18] at hr
-  simp only [bselect, k1]
+  have e_18_18 := arithEq_of_rows h (row := 18) (i := 18) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_18
+  simp only [← c1101, ← c1102, ← c1103] at e_18_18
+  have e_18_19 := arithEq_of_rows h (row := 18) (i := 19) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_19
+  simp only [← c1104, ← c1105, k0, ← c1106] at e_18_19
+  have hr := e_18_19
+  simp only [e_18_18] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f156 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 18 7) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19845)) := by
+    a (.wire 19 7) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 64)) := by
   have c1107 := (publicBatchWrapper4_copies34 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1108 := (publicBatchWrapper4_copies34 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1109 := (publicBatchWrapper4_copies34 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5387,19 +5388,19 @@ theorem publicBatchWrapper4_f156 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1111 := (publicBatchWrapper4_copies34 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1112 := (publicBatchWrapper4_copies34 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_18_0 := arithEq_of_rows h (row := 18) (i := 0) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_0
-  simp only [← c1107, ← c1108, ← c1109] at e_18_0
-  have e_18_1 := arithEq_of_rows h (row := 18) (i := 1) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_1
-  simp only [← c1110, ← c1111, k1, ← c1112] at e_18_1
-  have hr := e_18_1
-  simp only [e_18_0] at hr
-  simp only [bselect, k1]
+  have e_19_0 := arithEq_of_rows h (row := 19) (i := 0) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_0
+  simp only [← c1107, ← c1108, ← c1109] at e_19_0
+  have e_19_1 := arithEq_of_rows h (row := 19) (i := 1) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_1
+  simp only [← c1110, ← c1111, k0, ← c1112] at e_19_1
+  have hr := e_19_1
+  simp only [e_19_0] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f157 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 18 15) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19846)) := by
+    a (.wire 19 15) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 65)) := by
   have c1113 := (publicBatchWrapper4_copies34 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1114 := (publicBatchWrapper4_copies34 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1115 := (publicBatchWrapper4_copies34 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5407,19 +5408,19 @@ theorem publicBatchWrapper4_f157 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1117 := (publicBatchWrapper4_copies34 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1118 := (publicBatchWrapper4_copies34 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_18_2 := arithEq_of_rows h (row := 18) (i := 2) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_2
-  simp only [← c1113, ← c1114, ← c1115] at e_18_2
-  have e_18_3 := arithEq_of_rows h (row := 18) (i := 3) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_3
-  simp only [← c1116, ← c1117, k1, ← c1118] at e_18_3
-  have hr := e_18_3
-  simp only [e_18_2] at hr
-  simp only [bselect, k1]
+  have e_19_2 := arithEq_of_rows h (row := 19) (i := 2) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_2
+  simp only [← c1113, ← c1114, ← c1115] at e_19_2
+  have e_19_3 := arithEq_of_rows h (row := 19) (i := 3) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_3
+  simp only [← c1116, ← c1117, k0, ← c1118] at e_19_3
+  have hr := e_19_3
+  simp only [e_19_2] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f158 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 18 23) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19847)) := by
+    a (.wire 19 23) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 66)) := by
   have c1119 := (publicBatchWrapper4_copies34 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c1120 := (publicBatchWrapper4_copies35 a h).1
   have c1121 := (publicBatchWrapper4_copies35 a h).2.1
@@ -5427,19 +5428,19 @@ theorem publicBatchWrapper4_f158 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1123 := (publicBatchWrapper4_copies35 a h).2.2.2.1
   have c1124 := (publicBatchWrapper4_copies35 a h).2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_18_4 := arithEq_of_rows h (row := 18) (i := 4) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_4
-  simp only [← c1119, ← c1120, ← c1121] at e_18_4
-  have e_18_5 := arithEq_of_rows h (row := 18) (i := 5) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_5
-  simp only [← c1122, ← c1123, k1, ← c1124] at e_18_5
-  have hr := e_18_5
-  simp only [e_18_4] at hr
-  simp only [bselect, k1]
+  have e_19_4 := arithEq_of_rows h (row := 19) (i := 4) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_4
+  simp only [← c1119, ← c1120, ← c1121] at e_19_4
+  have e_19_5 := arithEq_of_rows h (row := 19) (i := 5) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_5
+  simp only [← c1122, ← c1123, k0, ← c1124] at e_19_5
+  have hr := e_19_5
+  simp only [e_19_4] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f159 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 18 31) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19848)) := by
+    a (.wire 19 31) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 67)) := by
   have c1125 := (publicBatchWrapper4_copies35 a h).2.2.2.2.2.1
   have c1126 := (publicBatchWrapper4_copies35 a h).2.2.2.2.2.2.1
   have c1127 := (publicBatchWrapper4_copies35 a h).2.2.2.2.2.2.2.1
@@ -5447,19 +5448,19 @@ theorem publicBatchWrapper4_f159 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1129 := (publicBatchWrapper4_copies35 a h).2.2.2.2.2.2.2.2.2.1
   have c1130 := (publicBatchWrapper4_copies35 a h).2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_18_6 := arithEq_of_rows h (row := 18) (i := 6) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_6
-  simp only [← c1125, ← c1126, ← c1127] at e_18_6
-  have e_18_7 := arithEq_of_rows h (row := 18) (i := 7) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_7
-  simp only [← c1128, ← c1129, k1, ← c1130] at e_18_7
-  have hr := e_18_7
-  simp only [e_18_6] at hr
-  simp only [bselect, k1]
+  have e_19_6 := arithEq_of_rows h (row := 19) (i := 6) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_6
+  simp only [← c1125, ← c1126, ← c1127] at e_19_6
+  have e_19_7 := arithEq_of_rows h (row := 19) (i := 7) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_7
+  simp only [← c1128, ← c1129, k0, ← c1130] at e_19_7
+  have hr := e_19_7
+  simp only [e_19_6] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f160 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 18 39) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19849)) := by
+    a (.wire 19 39) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 68)) := by
   have c1131 := (publicBatchWrapper4_copies35 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c1132 := (publicBatchWrapper4_copies35 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1133 := (publicBatchWrapper4_copies35 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5467,19 +5468,19 @@ theorem publicBatchWrapper4_f160 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1135 := (publicBatchWrapper4_copies35 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1136 := (publicBatchWrapper4_copies35 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_18_8 := arithEq_of_rows h (row := 18) (i := 8) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_8
-  simp only [← c1131, ← c1132, ← c1133] at e_18_8
-  have e_18_9 := arithEq_of_rows h (row := 18) (i := 9) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_9
-  simp only [← c1134, ← c1135, k1, ← c1136] at e_18_9
-  have hr := e_18_9
-  simp only [e_18_8] at hr
-  simp only [bselect, k1]
+  have e_19_8 := arithEq_of_rows h (row := 19) (i := 8) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_8
+  simp only [← c1131, ← c1132, ← c1133] at e_19_8
+  have e_19_9 := arithEq_of_rows h (row := 19) (i := 9) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_9
+  simp only [← c1134, ← c1135, k0, ← c1136] at e_19_9
+  have hr := e_19_9
+  simp only [e_19_8] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f161 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 18 47) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19850)) := by
+    a (.wire 19 47) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 69)) := by
   have c1137 := (publicBatchWrapper4_copies35 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1138 := (publicBatchWrapper4_copies35 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1139 := (publicBatchWrapper4_copies35 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5487,19 +5488,19 @@ theorem publicBatchWrapper4_f161 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1141 := (publicBatchWrapper4_copies35 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1142 := (publicBatchWrapper4_copies35 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_18_10 := arithEq_of_rows h (row := 18) (i := 10) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_10
-  simp only [← c1137, ← c1138, ← c1139] at e_18_10
-  have e_18_11 := arithEq_of_rows h (row := 18) (i := 11) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_11
-  simp only [← c1140, ← c1141, k1, ← c1142] at e_18_11
-  have hr := e_18_11
-  simp only [e_18_10] at hr
-  simp only [bselect, k1]
+  have e_19_10 := arithEq_of_rows h (row := 19) (i := 10) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_10
+  simp only [← c1137, ← c1138, ← c1139] at e_19_10
+  have e_19_11 := arithEq_of_rows h (row := 19) (i := 11) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_11
+  simp only [← c1140, ← c1141, k0, ← c1142] at e_19_11
+  have hr := e_19_11
+  simp only [e_19_10] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f162 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 18 55) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19851)) := by
+    a (.wire 19 55) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 70)) := by
   have c1143 := (publicBatchWrapper4_copies35 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1144 := (publicBatchWrapper4_copies35 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1145 := (publicBatchWrapper4_copies35 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5507,19 +5508,19 @@ theorem publicBatchWrapper4_f162 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1147 := (publicBatchWrapper4_copies35 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1148 := (publicBatchWrapper4_copies35 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_18_12 := arithEq_of_rows h (row := 18) (i := 12) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_12
-  simp only [← c1143, ← c1144, ← c1145] at e_18_12
-  have e_18_13 := arithEq_of_rows h (row := 18) (i := 13) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_13
-  simp only [← c1146, ← c1147, k1, ← c1148] at e_18_13
-  have hr := e_18_13
-  simp only [e_18_12] at hr
-  simp only [bselect, k1]
+  have e_19_12 := arithEq_of_rows h (row := 19) (i := 12) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_12
+  simp only [← c1143, ← c1144, ← c1145] at e_19_12
+  have e_19_13 := arithEq_of_rows h (row := 19) (i := 13) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_13
+  simp only [← c1146, ← c1147, k0, ← c1148] at e_19_13
+  have hr := e_19_13
+  simp only [e_19_12] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f163 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 18 63) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19852)) := by
+    a (.wire 19 63) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 71)) := by
   have c1149 := (publicBatchWrapper4_copies35 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1150 := (publicBatchWrapper4_copies35 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1151 := (publicBatchWrapper4_copies35 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
@@ -5527,19 +5528,19 @@ theorem publicBatchWrapper4_f163 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1153 := (publicBatchWrapper4_copies36 a h).2.1
   have c1154 := (publicBatchWrapper4_copies36 a h).2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_18_14 := arithEq_of_rows h (row := 18) (i := 14) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_14
-  simp only [← c1149, ← c1150, ← c1151] at e_18_14
-  have e_18_15 := arithEq_of_rows h (row := 18) (i := 15) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_15
-  simp only [← c1152, ← c1153, k1, ← c1154] at e_18_15
-  have hr := e_18_15
-  simp only [e_18_14] at hr
-  simp only [bselect, k1]
+  have e_19_14 := arithEq_of_rows h (row := 19) (i := 14) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_14
+  simp only [← c1149, ← c1150, ← c1151] at e_19_14
+  have e_19_15 := arithEq_of_rows h (row := 19) (i := 15) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_15
+  simp only [← c1152, ← c1153, k0, ← c1154] at e_19_15
+  have hr := e_19_15
+  simp only [e_19_14] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f164 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 18 71) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19853)) := by
+    a (.wire 19 71) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 72)) := by
   have c1155 := (publicBatchWrapper4_copies36 a h).2.2.2.1
   have c1156 := (publicBatchWrapper4_copies36 a h).2.2.2.2.1
   have c1157 := (publicBatchWrapper4_copies36 a h).2.2.2.2.2.1
@@ -5547,19 +5548,19 @@ theorem publicBatchWrapper4_f164 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1159 := (publicBatchWrapper4_copies36 a h).2.2.2.2.2.2.2.1
   have c1160 := (publicBatchWrapper4_copies36 a h).2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_18_16 := arithEq_of_rows h (row := 18) (i := 16) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_16
-  simp only [← c1155, ← c1156, ← c1157] at e_18_16
-  have e_18_17 := arithEq_of_rows h (row := 18) (i := 17) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_17
-  simp only [← c1158, ← c1159, k1, ← c1160] at e_18_17
-  have hr := e_18_17
-  simp only [e_18_16] at hr
-  simp only [bselect, k1]
+  have e_19_16 := arithEq_of_rows h (row := 19) (i := 16) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_16
+  simp only [← c1155, ← c1156, ← c1157] at e_19_16
+  have e_19_17 := arithEq_of_rows h (row := 19) (i := 17) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_17
+  simp only [← c1158, ← c1159, k0, ← c1160] at e_19_17
+  have hr := e_19_17
+  simp only [e_19_16] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f165 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 18 79) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19854)) := by
+    a (.wire 19 79) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 73)) := by
   have c1161 := (publicBatchWrapper4_copies36 a h).2.2.2.2.2.2.2.2.2.1
   have c1162 := (publicBatchWrapper4_copies36 a h).2.2.2.2.2.2.2.2.2.2.1
   have c1163 := (publicBatchWrapper4_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.1
@@ -5567,19 +5568,19 @@ theorem publicBatchWrapper4_f165 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1165 := (publicBatchWrapper4_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1166 := (publicBatchWrapper4_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_18_18 := arithEq_of_rows h (row := 18) (i := 18) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_18
-  simp only [← c1161, ← c1162, ← c1163] at e_18_18
-  have e_18_19 := arithEq_of_rows h (row := 18) (i := 19) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_19
-  simp only [← c1164, ← c1165, k1, ← c1166] at e_18_19
-  have hr := e_18_19
-  simp only [e_18_18] at hr
-  simp only [bselect, k1]
+  have e_19_18 := arithEq_of_rows h (row := 19) (i := 18) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_18
+  simp only [← c1161, ← c1162, ← c1163] at e_19_18
+  have e_19_19 := arithEq_of_rows h (row := 19) (i := 19) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_19
+  simp only [← c1164, ← c1165, k0, ← c1166] at e_19_19
+  have hr := e_19_19
+  simp only [e_19_18] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f166 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 19 7) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26466)) := by
+    a (.wire 20 7) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 90)) := by
   have c1167 := (publicBatchWrapper4_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1168 := (publicBatchWrapper4_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1169 := (publicBatchWrapper4_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5587,19 +5588,19 @@ theorem publicBatchWrapper4_f166 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1171 := (publicBatchWrapper4_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1172 := (publicBatchWrapper4_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_19_0 := arithEq_of_rows h (row := 19) (i := 0) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_0
-  simp only [← c1167, ← c1168, ← c1169] at e_19_0
-  have e_19_1 := arithEq_of_rows h (row := 19) (i := 1) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_1
-  simp only [← c1170, ← c1171, k1, ← c1172] at e_19_1
-  have hr := e_19_1
-  simp only [e_19_0] at hr
-  simp only [bselect, k1]
+  have e_20_0 := arithEq_of_rows h (row := 20) (i := 0) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_0
+  simp only [← c1167, ← c1168, ← c1169] at e_20_0
+  have e_20_1 := arithEq_of_rows h (row := 20) (i := 1) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_1
+  simp only [← c1170, ← c1171, k0, ← c1172] at e_20_1
+  have hr := e_20_1
+  simp only [e_20_0] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f167 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 19 15) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26467)) := by
+    a (.wire 20 15) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 91)) := by
   have c1173 := (publicBatchWrapper4_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1174 := (publicBatchWrapper4_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1175 := (publicBatchWrapper4_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5607,19 +5608,19 @@ theorem publicBatchWrapper4_f167 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1177 := (publicBatchWrapper4_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1178 := (publicBatchWrapper4_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_19_2 := arithEq_of_rows h (row := 19) (i := 2) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_2
-  simp only [← c1173, ← c1174, ← c1175] at e_19_2
-  have e_19_3 := arithEq_of_rows h (row := 19) (i := 3) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_3
-  simp only [← c1176, ← c1177, k1, ← c1178] at e_19_3
-  have hr := e_19_3
-  simp only [e_19_2] at hr
-  simp only [bselect, k1]
+  have e_20_2 := arithEq_of_rows h (row := 20) (i := 2) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_2
+  simp only [← c1173, ← c1174, ← c1175] at e_20_2
+  have e_20_3 := arithEq_of_rows h (row := 20) (i := 3) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_3
+  simp only [← c1176, ← c1177, k0, ← c1178] at e_20_3
+  have hr := e_20_3
+  simp only [e_20_2] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f168 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 19 23) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26468)) := by
+    a (.wire 20 23) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 92)) := by
   have c1179 := (publicBatchWrapper4_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1180 := (publicBatchWrapper4_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1181 := (publicBatchWrapper4_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5627,19 +5628,19 @@ theorem publicBatchWrapper4_f168 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1183 := (publicBatchWrapper4_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c1184 := (publicBatchWrapper4_copies37 a h).1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_19_4 := arithEq_of_rows h (row := 19) (i := 4) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_4
-  simp only [← c1179, ← c1180, ← c1181] at e_19_4
-  have e_19_5 := arithEq_of_rows h (row := 19) (i := 5) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_5
-  simp only [← c1182, ← c1183, k1, ← c1184] at e_19_5
-  have hr := e_19_5
-  simp only [e_19_4] at hr
-  simp only [bselect, k1]
+  have e_20_4 := arithEq_of_rows h (row := 20) (i := 4) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_4
+  simp only [← c1179, ← c1180, ← c1181] at e_20_4
+  have e_20_5 := arithEq_of_rows h (row := 20) (i := 5) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_5
+  simp only [← c1182, ← c1183, k0, ← c1184] at e_20_5
+  have hr := e_20_5
+  simp only [e_20_4] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f169 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 19 31) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26469)) := by
+    a (.wire 20 31) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 93)) := by
   have c1185 := (publicBatchWrapper4_copies37 a h).2.1
   have c1186 := (publicBatchWrapper4_copies37 a h).2.2.1
   have c1187 := (publicBatchWrapper4_copies37 a h).2.2.2.1
@@ -5647,19 +5648,19 @@ theorem publicBatchWrapper4_f169 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1189 := (publicBatchWrapper4_copies37 a h).2.2.2.2.2.1
   have c1190 := (publicBatchWrapper4_copies37 a h).2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_19_6 := arithEq_of_rows h (row := 19) (i := 6) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_6
-  simp only [← c1185, ← c1186, ← c1187] at e_19_6
-  have e_19_7 := arithEq_of_rows h (row := 19) (i := 7) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_7
-  simp only [← c1188, ← c1189, k1, ← c1190] at e_19_7
-  have hr := e_19_7
-  simp only [e_19_6] at hr
-  simp only [bselect, k1]
+  have e_20_6 := arithEq_of_rows h (row := 20) (i := 6) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_6
+  simp only [← c1185, ← c1186, ← c1187] at e_20_6
+  have e_20_7 := arithEq_of_rows h (row := 20) (i := 7) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_7
+  simp only [← c1188, ← c1189, k0, ← c1190] at e_20_7
+  have hr := e_20_7
+  simp only [e_20_6] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f170 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 19 39) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26470)) := by
+    a (.wire 20 39) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 94)) := by
   have c1191 := (publicBatchWrapper4_copies37 a h).2.2.2.2.2.2.2.1
   have c1192 := (publicBatchWrapper4_copies37 a h).2.2.2.2.2.2.2.2.1
   have c1193 := (publicBatchWrapper4_copies37 a h).2.2.2.2.2.2.2.2.2.1
@@ -5667,19 +5668,19 @@ theorem publicBatchWrapper4_f170 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1195 := (publicBatchWrapper4_copies37 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c1196 := (publicBatchWrapper4_copies37 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_19_8 := arithEq_of_rows h (row := 19) (i := 8) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_8
-  simp only [← c1191, ← c1192, ← c1193] at e_19_8
-  have e_19_9 := arithEq_of_rows h (row := 19) (i := 9) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_9
-  simp only [← c1194, ← c1195, k1, ← c1196] at e_19_9
-  have hr := e_19_9
-  simp only [e_19_8] at hr
-  simp only [bselect, k1]
+  have e_20_8 := arithEq_of_rows h (row := 20) (i := 8) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_8
+  simp only [← c1191, ← c1192, ← c1193] at e_20_8
+  have e_20_9 := arithEq_of_rows h (row := 20) (i := 9) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_9
+  simp only [← c1194, ← c1195, k0, ← c1196] at e_20_9
+  have hr := e_20_9
+  simp only [e_20_8] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f171 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 19 47) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26471)) := by
+    a (.wire 20 47) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 95)) := by
   have c1197 := (publicBatchWrapper4_copies37 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1198 := (publicBatchWrapper4_copies37 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1199 := (publicBatchWrapper4_copies37 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5687,19 +5688,19 @@ theorem publicBatchWrapper4_f171 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1201 := (publicBatchWrapper4_copies37 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1202 := (publicBatchWrapper4_copies37 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_19_10 := arithEq_of_rows h (row := 19) (i := 10) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_10
-  simp only [← c1197, ← c1198, ← c1199] at e_19_10
-  have e_19_11 := arithEq_of_rows h (row := 19) (i := 11) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_11
-  simp only [← c1200, ← c1201, k1, ← c1202] at e_19_11
-  have hr := e_19_11
-  simp only [e_19_10] at hr
-  simp only [bselect, k1]
+  have e_20_10 := arithEq_of_rows h (row := 20) (i := 10) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_10
+  simp only [← c1197, ← c1198, ← c1199] at e_20_10
+  have e_20_11 := arithEq_of_rows h (row := 20) (i := 11) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_11
+  simp only [← c1200, ← c1201, k0, ← c1202] at e_20_11
+  have hr := e_20_11
+  simp only [e_20_10] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f172 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 19 55) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26472)) := by
+    a (.wire 20 55) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 96)) := by
   have c1203 := (publicBatchWrapper4_copies37 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1204 := (publicBatchWrapper4_copies37 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1205 := (publicBatchWrapper4_copies37 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5707,19 +5708,19 @@ theorem publicBatchWrapper4_f172 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1207 := (publicBatchWrapper4_copies37 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1208 := (publicBatchWrapper4_copies37 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_19_12 := arithEq_of_rows h (row := 19) (i := 12) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_12
-  simp only [← c1203, ← c1204, ← c1205] at e_19_12
-  have e_19_13 := arithEq_of_rows h (row := 19) (i := 13) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_13
-  simp only [← c1206, ← c1207, k1, ← c1208] at e_19_13
-  have hr := e_19_13
-  simp only [e_19_12] at hr
-  simp only [bselect, k1]
+  have e_20_12 := arithEq_of_rows h (row := 20) (i := 12) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_12
+  simp only [← c1203, ← c1204, ← c1205] at e_20_12
+  have e_20_13 := arithEq_of_rows h (row := 20) (i := 13) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_13
+  simp only [← c1206, ← c1207, k0, ← c1208] at e_20_13
+  have hr := e_20_13
+  simp only [e_20_12] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f173 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 19 63) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26473)) := by
+    a (.wire 20 63) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 97)) := by
   have c1209 := (publicBatchWrapper4_copies37 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1210 := (publicBatchWrapper4_copies37 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1211 := (publicBatchWrapper4_copies37 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5727,19 +5728,19 @@ theorem publicBatchWrapper4_f173 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1213 := (publicBatchWrapper4_copies37 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1214 := (publicBatchWrapper4_copies37 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_19_14 := arithEq_of_rows h (row := 19) (i := 14) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_14
-  simp only [← c1209, ← c1210, ← c1211] at e_19_14
-  have e_19_15 := arithEq_of_rows h (row := 19) (i := 15) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_15
-  simp only [← c1212, ← c1213, k1, ← c1214] at e_19_15
-  have hr := e_19_15
-  simp only [e_19_14] at hr
-  simp only [bselect, k1]
+  have e_20_14 := arithEq_of_rows h (row := 20) (i := 14) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_14
+  simp only [← c1209, ← c1210, ← c1211] at e_20_14
+  have e_20_15 := arithEq_of_rows h (row := 20) (i := 15) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_15
+  simp only [← c1212, ← c1213, k0, ← c1214] at e_20_15
+  have hr := e_20_15
+  simp only [e_20_14] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f174 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 19 71) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26474)) := by
+    a (.wire 20 71) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 98)) := by
   have c1215 := (publicBatchWrapper4_copies37 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c1216 := (publicBatchWrapper4_copies38 a h).1
   have c1217 := (publicBatchWrapper4_copies38 a h).2.1
@@ -5747,19 +5748,19 @@ theorem publicBatchWrapper4_f174 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1219 := (publicBatchWrapper4_copies38 a h).2.2.2.1
   have c1220 := (publicBatchWrapper4_copies38 a h).2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_19_16 := arithEq_of_rows h (row := 19) (i := 16) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_16
-  simp only [← c1215, ← c1216, ← c1217] at e_19_16
-  have e_19_17 := arithEq_of_rows h (row := 19) (i := 17) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_17
-  simp only [← c1218, ← c1219, k1, ← c1220] at e_19_17
-  have hr := e_19_17
-  simp only [e_19_16] at hr
-  simp only [bselect, k1]
+  have e_20_16 := arithEq_of_rows h (row := 20) (i := 16) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_16
+  simp only [← c1215, ← c1216, ← c1217] at e_20_16
+  have e_20_17 := arithEq_of_rows h (row := 20) (i := 17) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_17
+  simp only [← c1218, ← c1219, k0, ← c1220] at e_20_17
+  have hr := e_20_17
+  simp only [e_20_16] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f175 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 19 79) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26475)) := by
+    a (.wire 20 79) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 99)) := by
   have c1221 := (publicBatchWrapper4_copies38 a h).2.2.2.2.2.1
   have c1222 := (publicBatchWrapper4_copies38 a h).2.2.2.2.2.2.1
   have c1223 := (publicBatchWrapper4_copies38 a h).2.2.2.2.2.2.2.1
@@ -5767,19 +5768,19 @@ theorem publicBatchWrapper4_f175 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1225 := (publicBatchWrapper4_copies38 a h).2.2.2.2.2.2.2.2.2.1
   have c1226 := (publicBatchWrapper4_copies38 a h).2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_19_18 := arithEq_of_rows h (row := 19) (i := 18) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_18
-  simp only [← c1221, ← c1222, ← c1223] at e_19_18
-  have e_19_19 := arithEq_of_rows h (row := 19) (i := 19) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_19
-  simp only [← c1224, ← c1225, k1, ← c1226] at e_19_19
-  have hr := e_19_19
-  simp only [e_19_18] at hr
-  simp only [bselect, k1]
+  have e_20_18 := arithEq_of_rows h (row := 20) (i := 18) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_18
+  simp only [← c1221, ← c1222, ← c1223] at e_20_18
+  have e_20_19 := arithEq_of_rows h (row := 20) (i := 19) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_19
+  simp only [← c1224, ← c1225, k0, ← c1226] at e_20_19
+  have hr := e_20_19
+  simp only [e_20_18] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f176 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 20 7) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6613)) := by
+    a (.wire 21 7) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 18)) := by
   have c1227 := (publicBatchWrapper4_copies38 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c1228 := (publicBatchWrapper4_copies38 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1229 := (publicBatchWrapper4_copies38 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5787,19 +5788,19 @@ theorem publicBatchWrapper4_f176 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1231 := (publicBatchWrapper4_copies38 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1232 := (publicBatchWrapper4_copies38 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_20_0 := arithEq_of_rows h (row := 20) (i := 0) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_0
-  simp only [← c1227, ← c1228, ← c1229] at e_20_0
-  have e_20_1 := arithEq_of_rows h (row := 20) (i := 1) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_1
-  simp only [← c1230, ← c1231, k1, ← c1232] at e_20_1
-  have hr := e_20_1
-  simp only [e_20_0] at hr
-  simp only [bselect, k1]
+  have e_21_0 := arithEq_of_rows h (row := 21) (i := 0) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_0
+  simp only [← c1227, ← c1228, ← c1229] at e_21_0
+  have e_21_1 := arithEq_of_rows h (row := 21) (i := 1) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_1
+  simp only [← c1230, ← c1231, k0, ← c1232] at e_21_1
+  have hr := e_21_1
+  simp only [e_21_0] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f177 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 20 15) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6614)) := by
+    a (.wire 21 15) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 19)) := by
   have c1233 := (publicBatchWrapper4_copies38 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1234 := (publicBatchWrapper4_copies38 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1235 := (publicBatchWrapper4_copies38 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5807,19 +5808,19 @@ theorem publicBatchWrapper4_f177 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1237 := (publicBatchWrapper4_copies38 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1238 := (publicBatchWrapper4_copies38 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_20_2 := arithEq_of_rows h (row := 20) (i := 2) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_2
-  simp only [← c1233, ← c1234, ← c1235] at e_20_2
-  have e_20_3 := arithEq_of_rows h (row := 20) (i := 3) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_3
-  simp only [← c1236, ← c1237, k1, ← c1238] at e_20_3
-  have hr := e_20_3
-  simp only [e_20_2] at hr
-  simp only [bselect, k1]
+  have e_21_2 := arithEq_of_rows h (row := 21) (i := 2) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_2
+  simp only [← c1233, ← c1234, ← c1235] at e_21_2
+  have e_21_3 := arithEq_of_rows h (row := 21) (i := 3) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_3
+  simp only [← c1236, ← c1237, k0, ← c1238] at e_21_3
+  have hr := e_21_3
+  simp only [e_21_2] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f178 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 20 23) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6615)) := by
+    a (.wire 21 23) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 20)) := by
   have c1239 := (publicBatchWrapper4_copies38 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1240 := (publicBatchWrapper4_copies38 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1241 := (publicBatchWrapper4_copies38 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5827,19 +5828,19 @@ theorem publicBatchWrapper4_f178 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1243 := (publicBatchWrapper4_copies38 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1244 := (publicBatchWrapper4_copies38 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_20_4 := arithEq_of_rows h (row := 20) (i := 4) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_4
-  simp only [← c1239, ← c1240, ← c1241] at e_20_4
-  have e_20_5 := arithEq_of_rows h (row := 20) (i := 5) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_5
-  simp only [← c1242, ← c1243, k1, ← c1244] at e_20_5
-  have hr := e_20_5
-  simp only [e_20_4] at hr
-  simp only [bselect, k1]
+  have e_21_4 := arithEq_of_rows h (row := 21) (i := 4) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_4
+  simp only [← c1239, ← c1240, ← c1241] at e_21_4
+  have e_21_5 := arithEq_of_rows h (row := 21) (i := 5) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_5
+  simp only [← c1242, ← c1243, k0, ← c1244] at e_21_5
+  have hr := e_21_5
+  simp only [e_21_4] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f179 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 20 31) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6616)) := by
+    a (.wire 21 31) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 21)) := by
   have c1245 := (publicBatchWrapper4_copies38 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1246 := (publicBatchWrapper4_copies38 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1247 := (publicBatchWrapper4_copies38 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
@@ -5847,19 +5848,19 @@ theorem publicBatchWrapper4_f179 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1249 := (publicBatchWrapper4_copies39 a h).2.1
   have c1250 := (publicBatchWrapper4_copies39 a h).2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_20_6 := arithEq_of_rows h (row := 20) (i := 6) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_6
-  simp only [← c1245, ← c1246, ← c1247] at e_20_6
-  have e_20_7 := arithEq_of_rows h (row := 20) (i := 7) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_7
-  simp only [← c1248, ← c1249, k1, ← c1250] at e_20_7
-  have hr := e_20_7
-  simp only [e_20_6] at hr
-  simp only [bselect, k1]
+  have e_21_6 := arithEq_of_rows h (row := 21) (i := 6) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_6
+  simp only [← c1245, ← c1246, ← c1247] at e_21_6
+  have e_21_7 := arithEq_of_rows h (row := 21) (i := 7) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_7
+  simp only [← c1248, ← c1249, k0, ← c1250] at e_21_7
+  have hr := e_21_7
+  simp only [e_21_6] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f180 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 20 39) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6617)) := by
+    a (.wire 21 39) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 22)) := by
   have c1251 := (publicBatchWrapper4_copies39 a h).2.2.2.1
   have c1252 := (publicBatchWrapper4_copies39 a h).2.2.2.2.1
   have c1253 := (publicBatchWrapper4_copies39 a h).2.2.2.2.2.1
@@ -5867,19 +5868,19 @@ theorem publicBatchWrapper4_f180 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1255 := (publicBatchWrapper4_copies39 a h).2.2.2.2.2.2.2.1
   have c1256 := (publicBatchWrapper4_copies39 a h).2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_20_8 := arithEq_of_rows h (row := 20) (i := 8) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_8
-  simp only [← c1251, ← c1252, ← c1253] at e_20_8
-  have e_20_9 := arithEq_of_rows h (row := 20) (i := 9) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_9
-  simp only [← c1254, ← c1255, k1, ← c1256] at e_20_9
-  have hr := e_20_9
-  simp only [e_20_8] at hr
-  simp only [bselect, k1]
+  have e_21_8 := arithEq_of_rows h (row := 21) (i := 8) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_8
+  simp only [← c1251, ← c1252, ← c1253] at e_21_8
+  have e_21_9 := arithEq_of_rows h (row := 21) (i := 9) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_9
+  simp only [← c1254, ← c1255, k0, ← c1256] at e_21_9
+  have hr := e_21_9
+  simp only [e_21_8] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f181 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 20 47) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6618)) := by
+    a (.wire 21 47) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 23)) := by
   have c1257 := (publicBatchWrapper4_copies39 a h).2.2.2.2.2.2.2.2.2.1
   have c1258 := (publicBatchWrapper4_copies39 a h).2.2.2.2.2.2.2.2.2.2.1
   have c1259 := (publicBatchWrapper4_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.1
@@ -5887,19 +5888,19 @@ theorem publicBatchWrapper4_f181 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1261 := (publicBatchWrapper4_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1262 := (publicBatchWrapper4_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_20_10 := arithEq_of_rows h (row := 20) (i := 10) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_10
-  simp only [← c1257, ← c1258, ← c1259] at e_20_10
-  have e_20_11 := arithEq_of_rows h (row := 20) (i := 11) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_11
-  simp only [← c1260, ← c1261, k1, ← c1262] at e_20_11
-  have hr := e_20_11
-  simp only [e_20_10] at hr
-  simp only [bselect, k1]
+  have e_21_10 := arithEq_of_rows h (row := 21) (i := 10) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_10
+  simp only [← c1257, ← c1258, ← c1259] at e_21_10
+  have e_21_11 := arithEq_of_rows h (row := 21) (i := 11) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_11
+  simp only [← c1260, ← c1261, k0, ← c1262] at e_21_11
+  have hr := e_21_11
+  simp only [e_21_10] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f182 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 20 55) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6619)) := by
+    a (.wire 21 55) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 24)) := by
   have c1263 := (publicBatchWrapper4_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1264 := (publicBatchWrapper4_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1265 := (publicBatchWrapper4_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5907,19 +5908,19 @@ theorem publicBatchWrapper4_f182 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1267 := (publicBatchWrapper4_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1268 := (publicBatchWrapper4_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_20_12 := arithEq_of_rows h (row := 20) (i := 12) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_12
-  simp only [← c1263, ← c1264, ← c1265] at e_20_12
-  have e_20_13 := arithEq_of_rows h (row := 20) (i := 13) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_13
-  simp only [← c1266, ← c1267, k1, ← c1268] at e_20_13
-  have hr := e_20_13
-  simp only [e_20_12] at hr
-  simp only [bselect, k1]
+  have e_21_12 := arithEq_of_rows h (row := 21) (i := 12) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_12
+  simp only [← c1263, ← c1264, ← c1265] at e_21_12
+  have e_21_13 := arithEq_of_rows h (row := 21) (i := 13) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_13
+  simp only [← c1266, ← c1267, k0, ← c1268] at e_21_13
+  have hr := e_21_13
+  simp only [e_21_12] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f183 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 20 63) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6620)) := by
+    a (.wire 21 63) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 25)) := by
   have c1269 := (publicBatchWrapper4_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1270 := (publicBatchWrapper4_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1271 := (publicBatchWrapper4_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5927,19 +5928,19 @@ theorem publicBatchWrapper4_f183 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1273 := (publicBatchWrapper4_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1274 := (publicBatchWrapper4_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_20_14 := arithEq_of_rows h (row := 20) (i := 14) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_14
-  simp only [← c1269, ← c1270, ← c1271] at e_20_14
-  have e_20_15 := arithEq_of_rows h (row := 20) (i := 15) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_15
-  simp only [← c1272, ← c1273, k1, ← c1274] at e_20_15
-  have hr := e_20_15
-  simp only [e_20_14] at hr
-  simp only [bselect, k1]
+  have e_21_14 := arithEq_of_rows h (row := 21) (i := 14) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_14
+  simp only [← c1269, ← c1270, ← c1271] at e_21_14
+  have e_21_15 := arithEq_of_rows h (row := 21) (i := 15) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_15
+  simp only [← c1272, ← c1273, k0, ← c1274] at e_21_15
+  have hr := e_21_15
+  simp only [e_21_14] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f184 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 20 71) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13234)) := by
+    a (.wire 21 71) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 48)) := by
   have c1275 := (publicBatchWrapper4_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1276 := (publicBatchWrapper4_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1277 := (publicBatchWrapper4_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -5947,19 +5948,19 @@ theorem publicBatchWrapper4_f184 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1279 := (publicBatchWrapper4_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c1280 := (publicBatchWrapper4_copies40 a h).1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_20_16 := arithEq_of_rows h (row := 20) (i := 16) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_16
-  simp only [← c1275, ← c1276, ← c1277] at e_20_16
-  have e_20_17 := arithEq_of_rows h (row := 20) (i := 17) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_17
-  simp only [← c1278, ← c1279, k1, ← c1280] at e_20_17
-  have hr := e_20_17
-  simp only [e_20_16] at hr
-  simp only [bselect, k1]
+  have e_21_16 := arithEq_of_rows h (row := 21) (i := 16) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_16
+  simp only [← c1275, ← c1276, ← c1277] at e_21_16
+  have e_21_17 := arithEq_of_rows h (row := 21) (i := 17) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_17
+  simp only [← c1278, ← c1279, k0, ← c1280] at e_21_17
+  have hr := e_21_17
+  simp only [e_21_16] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f185 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 20 79) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13235)) := by
+    a (.wire 21 79) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 49)) := by
   have c1281 := (publicBatchWrapper4_copies40 a h).2.1
   have c1282 := (publicBatchWrapper4_copies40 a h).2.2.1
   have c1283 := (publicBatchWrapper4_copies40 a h).2.2.2.1
@@ -5967,19 +5968,19 @@ theorem publicBatchWrapper4_f185 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1285 := (publicBatchWrapper4_copies40 a h).2.2.2.2.2.1
   have c1286 := (publicBatchWrapper4_copies40 a h).2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_20_18 := arithEq_of_rows h (row := 20) (i := 18) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_18
-  simp only [← c1281, ← c1282, ← c1283] at e_20_18
-  have e_20_19 := arithEq_of_rows h (row := 20) (i := 19) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_19
-  simp only [← c1284, ← c1285, k1, ← c1286] at e_20_19
-  have hr := e_20_19
-  simp only [e_20_18] at hr
-  simp only [bselect, k1]
+  have e_21_18 := arithEq_of_rows h (row := 21) (i := 18) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_18
+  simp only [← c1281, ← c1282, ← c1283] at e_21_18
+  have e_21_19 := arithEq_of_rows h (row := 21) (i := 19) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_19
+  simp only [← c1284, ← c1285, k0, ← c1286] at e_21_19
+  have hr := e_21_19
+  simp only [e_21_18] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f186 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 21 7) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13236)) := by
+    a (.wire 22 7) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 50)) := by
   have c1287 := (publicBatchWrapper4_copies40 a h).2.2.2.2.2.2.2.1
   have c1288 := (publicBatchWrapper4_copies40 a h).2.2.2.2.2.2.2.2.1
   have c1289 := (publicBatchWrapper4_copies40 a h).2.2.2.2.2.2.2.2.2.1
@@ -5987,19 +5988,19 @@ theorem publicBatchWrapper4_f186 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1291 := (publicBatchWrapper4_copies40 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c1292 := (publicBatchWrapper4_copies40 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_21_0 := arithEq_of_rows h (row := 21) (i := 0) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_0
-  simp only [← c1287, ← c1288, ← c1289] at e_21_0
-  have e_21_1 := arithEq_of_rows h (row := 21) (i := 1) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_1
-  simp only [← c1290, ← c1291, k1, ← c1292] at e_21_1
-  have hr := e_21_1
-  simp only [e_21_0] at hr
-  simp only [bselect, k1]
+  have e_22_0 := arithEq_of_rows h (row := 22) (i := 0) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_0
+  simp only [← c1287, ← c1288, ← c1289] at e_22_0
+  have e_22_1 := arithEq_of_rows h (row := 22) (i := 1) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_1
+  simp only [← c1290, ← c1291, k0, ← c1292] at e_22_1
+  have hr := e_22_1
+  simp only [e_22_0] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f187 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 21 15) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13237)) := by
+    a (.wire 22 15) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 51)) := by
   have c1293 := (publicBatchWrapper4_copies40 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1294 := (publicBatchWrapper4_copies40 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1295 := (publicBatchWrapper4_copies40 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -6007,19 +6008,19 @@ theorem publicBatchWrapper4_f187 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1297 := (publicBatchWrapper4_copies40 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1298 := (publicBatchWrapper4_copies40 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_21_2 := arithEq_of_rows h (row := 21) (i := 2) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_2
-  simp only [← c1293, ← c1294, ← c1295] at e_21_2
-  have e_21_3 := arithEq_of_rows h (row := 21) (i := 3) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_3
-  simp only [← c1296, ← c1297, k1, ← c1298] at e_21_3
-  have hr := e_21_3
-  simp only [e_21_2] at hr
-  simp only [bselect, k1]
+  have e_22_2 := arithEq_of_rows h (row := 22) (i := 2) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_2
+  simp only [← c1293, ← c1294, ← c1295] at e_22_2
+  have e_22_3 := arithEq_of_rows h (row := 22) (i := 3) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_3
+  simp only [← c1296, ← c1297, k0, ← c1298] at e_22_3
+  have hr := e_22_3
+  simp only [e_22_2] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f188 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 21 23) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13238)) := by
+    a (.wire 22 23) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 52)) := by
   have c1299 := (publicBatchWrapper4_copies40 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1300 := (publicBatchWrapper4_copies40 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1301 := (publicBatchWrapper4_copies40 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -6027,19 +6028,19 @@ theorem publicBatchWrapper4_f188 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1303 := (publicBatchWrapper4_copies40 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1304 := (publicBatchWrapper4_copies40 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_21_4 := arithEq_of_rows h (row := 21) (i := 4) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_4
-  simp only [← c1299, ← c1300, ← c1301] at e_21_4
-  have e_21_5 := arithEq_of_rows h (row := 21) (i := 5) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_5
-  simp only [← c1302, ← c1303, k1, ← c1304] at e_21_5
-  have hr := e_21_5
-  simp only [e_21_4] at hr
-  simp only [bselect, k1]
+  have e_22_4 := arithEq_of_rows h (row := 22) (i := 4) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_4
+  simp only [← c1299, ← c1300, ← c1301] at e_22_4
+  have e_22_5 := arithEq_of_rows h (row := 22) (i := 5) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_5
+  simp only [← c1302, ← c1303, k0, ← c1304] at e_22_5
+  have hr := e_22_5
+  simp only [e_22_4] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f189 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 21 31) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13239)) := by
+    a (.wire 22 31) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 53)) := by
   have c1305 := (publicBatchWrapper4_copies40 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1306 := (publicBatchWrapper4_copies40 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1307 := (publicBatchWrapper4_copies40 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -6047,19 +6048,19 @@ theorem publicBatchWrapper4_f189 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1309 := (publicBatchWrapper4_copies40 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1310 := (publicBatchWrapper4_copies40 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_21_6 := arithEq_of_rows h (row := 21) (i := 6) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_6
-  simp only [← c1305, ← c1306, ← c1307] at e_21_6
-  have e_21_7 := arithEq_of_rows h (row := 21) (i := 7) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_7
-  simp only [← c1308, ← c1309, k1, ← c1310] at e_21_7
-  have hr := e_21_7
-  simp only [e_21_6] at hr
-  simp only [bselect, k1]
+  have e_22_6 := arithEq_of_rows h (row := 22) (i := 6) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_6
+  simp only [← c1305, ← c1306, ← c1307] at e_22_6
+  have e_22_7 := arithEq_of_rows h (row := 22) (i := 7) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_7
+  simp only [← c1308, ← c1309, k0, ← c1310] at e_22_7
+  have hr := e_22_7
+  simp only [e_22_6] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f190 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 21 39) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13240)) := by
+    a (.wire 22 39) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 54)) := by
   have c1311 := (publicBatchWrapper4_copies40 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c1312 := (publicBatchWrapper4_copies41 a h).1
   have c1313 := (publicBatchWrapper4_copies41 a h).2.1
@@ -6067,19 +6068,19 @@ theorem publicBatchWrapper4_f190 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1315 := (publicBatchWrapper4_copies41 a h).2.2.2.1
   have c1316 := (publicBatchWrapper4_copies41 a h).2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_21_8 := arithEq_of_rows h (row := 21) (i := 8) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_8
-  simp only [← c1311, ← c1312, ← c1313] at e_21_8
-  have e_21_9 := arithEq_of_rows h (row := 21) (i := 9) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_9
-  simp only [← c1314, ← c1315, k1, ← c1316] at e_21_9
-  have hr := e_21_9
-  simp only [e_21_8] at hr
-  simp only [bselect, k1]
+  have e_22_8 := arithEq_of_rows h (row := 22) (i := 8) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_8
+  simp only [← c1311, ← c1312, ← c1313] at e_22_8
+  have e_22_9 := arithEq_of_rows h (row := 22) (i := 9) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_9
+  simp only [← c1314, ← c1315, k0, ← c1316] at e_22_9
+  have hr := e_22_9
+  simp only [e_22_8] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f191 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 21 47) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13241)) := by
+    a (.wire 22 47) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 55)) := by
   have c1317 := (publicBatchWrapper4_copies41 a h).2.2.2.2.2.1
   have c1318 := (publicBatchWrapper4_copies41 a h).2.2.2.2.2.2.1
   have c1319 := (publicBatchWrapper4_copies41 a h).2.2.2.2.2.2.2.1
@@ -6087,19 +6088,19 @@ theorem publicBatchWrapper4_f191 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1321 := (publicBatchWrapper4_copies41 a h).2.2.2.2.2.2.2.2.2.1
   have c1322 := (publicBatchWrapper4_copies41 a h).2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_21_10 := arithEq_of_rows h (row := 21) (i := 10) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_10
-  simp only [← c1317, ← c1318, ← c1319] at e_21_10
-  have e_21_11 := arithEq_of_rows h (row := 21) (i := 11) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_11
-  simp only [← c1320, ← c1321, k1, ← c1322] at e_21_11
-  have hr := e_21_11
-  simp only [e_21_10] at hr
-  simp only [bselect, k1]
+  have e_22_10 := arithEq_of_rows h (row := 22) (i := 10) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_10
+  simp only [← c1317, ← c1318, ← c1319] at e_22_10
+  have e_22_11 := arithEq_of_rows h (row := 22) (i := 11) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_11
+  simp only [← c1320, ← c1321, k0, ← c1322] at e_22_11
+  have hr := e_22_11
+  simp only [e_22_10] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f192 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 21 55) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19855)) := by
+    a (.wire 22 55) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 74)) := by
   have c1323 := (publicBatchWrapper4_copies41 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c1324 := (publicBatchWrapper4_copies41 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1325 := (publicBatchWrapper4_copies41 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -6107,19 +6108,19 @@ theorem publicBatchWrapper4_f192 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1327 := (publicBatchWrapper4_copies41 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1328 := (publicBatchWrapper4_copies41 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_21_12 := arithEq_of_rows h (row := 21) (i := 12) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_12
-  simp only [← c1323, ← c1324, ← c1325] at e_21_12
-  have e_21_13 := arithEq_of_rows h (row := 21) (i := 13) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_13
-  simp only [← c1326, ← c1327, k1, ← c1328] at e_21_13
-  have hr := e_21_13
-  simp only [e_21_12] at hr
-  simp only [bselect, k1]
+  have e_22_12 := arithEq_of_rows h (row := 22) (i := 12) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_12
+  simp only [← c1323, ← c1324, ← c1325] at e_22_12
+  have e_22_13 := arithEq_of_rows h (row := 22) (i := 13) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_13
+  simp only [← c1326, ← c1327, k0, ← c1328] at e_22_13
+  have hr := e_22_13
+  simp only [e_22_12] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f193 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 21 63) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19856)) := by
+    a (.wire 22 63) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 75)) := by
   have c1329 := (publicBatchWrapper4_copies41 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1330 := (publicBatchWrapper4_copies41 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1331 := (publicBatchWrapper4_copies41 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -6127,19 +6128,19 @@ theorem publicBatchWrapper4_f193 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1333 := (publicBatchWrapper4_copies41 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1334 := (publicBatchWrapper4_copies41 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_21_14 := arithEq_of_rows h (row := 21) (i := 14) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_14
-  simp only [← c1329, ← c1330, ← c1331] at e_21_14
-  have e_21_15 := arithEq_of_rows h (row := 21) (i := 15) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_15
-  simp only [← c1332, ← c1333, k1, ← c1334] at e_21_15
-  have hr := e_21_15
-  simp only [e_21_14] at hr
-  simp only [bselect, k1]
+  have e_22_14 := arithEq_of_rows h (row := 22) (i := 14) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_14
+  simp only [← c1329, ← c1330, ← c1331] at e_22_14
+  have e_22_15 := arithEq_of_rows h (row := 22) (i := 15) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_15
+  simp only [← c1332, ← c1333, k0, ← c1334] at e_22_15
+  have hr := e_22_15
+  simp only [e_22_14] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f194 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 21 71) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19857)) := by
+    a (.wire 22 71) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 76)) := by
   have c1335 := (publicBatchWrapper4_copies41 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1336 := (publicBatchWrapper4_copies41 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1337 := (publicBatchWrapper4_copies41 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -6147,19 +6148,19 @@ theorem publicBatchWrapper4_f194 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1339 := (publicBatchWrapper4_copies41 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1340 := (publicBatchWrapper4_copies41 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_21_16 := arithEq_of_rows h (row := 21) (i := 16) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_16
-  simp only [← c1335, ← c1336, ← c1337] at e_21_16
-  have e_21_17 := arithEq_of_rows h (row := 21) (i := 17) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_17
-  simp only [← c1338, ← c1339, k1, ← c1340] at e_21_17
-  have hr := e_21_17
-  simp only [e_21_16] at hr
-  simp only [bselect, k1]
+  have e_22_16 := arithEq_of_rows h (row := 22) (i := 16) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_16
+  simp only [← c1335, ← c1336, ← c1337] at e_22_16
+  have e_22_17 := arithEq_of_rows h (row := 22) (i := 17) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_17
+  simp only [← c1338, ← c1339, k0, ← c1340] at e_22_17
+  have hr := e_22_17
+  simp only [e_22_16] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f195 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 21 79) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19858)) := by
+    a (.wire 22 79) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 77)) := by
   have c1341 := (publicBatchWrapper4_copies41 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1342 := (publicBatchWrapper4_copies41 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1343 := (publicBatchWrapper4_copies41 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
@@ -6167,19 +6168,19 @@ theorem publicBatchWrapper4_f195 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1345 := (publicBatchWrapper4_copies42 a h).2.1
   have c1346 := (publicBatchWrapper4_copies42 a h).2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_21_18 := arithEq_of_rows h (row := 21) (i := 18) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_18
-  simp only [← c1341, ← c1342, ← c1343] at e_21_18
-  have e_21_19 := arithEq_of_rows h (row := 21) (i := 19) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_19
-  simp only [← c1344, ← c1345, k1, ← c1346] at e_21_19
-  have hr := e_21_19
-  simp only [e_21_18] at hr
-  simp only [bselect, k1]
+  have e_22_18 := arithEq_of_rows h (row := 22) (i := 18) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_18
+  simp only [← c1341, ← c1342, ← c1343] at e_22_18
+  have e_22_19 := arithEq_of_rows h (row := 22) (i := 19) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_19
+  simp only [← c1344, ← c1345, k0, ← c1346] at e_22_19
+  have hr := e_22_19
+  simp only [e_22_18] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f196 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 22 7) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19859)) := by
+    a (.wire 23 7) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 78)) := by
   have c1347 := (publicBatchWrapper4_copies42 a h).2.2.2.1
   have c1348 := (publicBatchWrapper4_copies42 a h).2.2.2.2.1
   have c1349 := (publicBatchWrapper4_copies42 a h).2.2.2.2.2.1
@@ -6187,19 +6188,19 @@ theorem publicBatchWrapper4_f196 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1351 := (publicBatchWrapper4_copies42 a h).2.2.2.2.2.2.2.1
   have c1352 := (publicBatchWrapper4_copies42 a h).2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_22_0 := arithEq_of_rows h (row := 22) (i := 0) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_0
-  simp only [← c1347, ← c1348, ← c1349] at e_22_0
-  have e_22_1 := arithEq_of_rows h (row := 22) (i := 1) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_1
-  simp only [← c1350, ← c1351, k1, ← c1352] at e_22_1
-  have hr := e_22_1
-  simp only [e_22_0] at hr
-  simp only [bselect, k1]
+  have e_23_0 := arithEq_of_rows h (row := 23) (i := 0) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_0
+  simp only [← c1347, ← c1348, ← c1349] at e_23_0
+  have e_23_1 := arithEq_of_rows h (row := 23) (i := 1) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_1
+  simp only [← c1350, ← c1351, k0, ← c1352] at e_23_1
+  have hr := e_23_1
+  simp only [e_23_0] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f197 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 22 15) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19860)) := by
+    a (.wire 23 15) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 79)) := by
   have c1353 := (publicBatchWrapper4_copies42 a h).2.2.2.2.2.2.2.2.2.1
   have c1354 := (publicBatchWrapper4_copies42 a h).2.2.2.2.2.2.2.2.2.2.1
   have c1355 := (publicBatchWrapper4_copies42 a h).2.2.2.2.2.2.2.2.2.2.2.1
@@ -6207,19 +6208,19 @@ theorem publicBatchWrapper4_f197 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1357 := (publicBatchWrapper4_copies42 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1358 := (publicBatchWrapper4_copies42 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_22_2 := arithEq_of_rows h (row := 22) (i := 2) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_2
-  simp only [← c1353, ← c1354, ← c1355] at e_22_2
-  have e_22_3 := arithEq_of_rows h (row := 22) (i := 3) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_3
-  simp only [← c1356, ← c1357, k1, ← c1358] at e_22_3
-  have hr := e_22_3
-  simp only [e_22_2] at hr
-  simp only [bselect, k1]
+  have e_23_2 := arithEq_of_rows h (row := 23) (i := 2) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_2
+  simp only [← c1353, ← c1354, ← c1355] at e_23_2
+  have e_23_3 := arithEq_of_rows h (row := 23) (i := 3) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_3
+  simp only [← c1356, ← c1357, k0, ← c1358] at e_23_3
+  have hr := e_23_3
+  simp only [e_23_2] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f198 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 22 23) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19861)) := by
+    a (.wire 23 23) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 80)) := by
   have c1359 := (publicBatchWrapper4_copies42 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1360 := (publicBatchWrapper4_copies42 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1361 := (publicBatchWrapper4_copies42 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -6227,19 +6228,19 @@ theorem publicBatchWrapper4_f198 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1363 := (publicBatchWrapper4_copies42 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1364 := (publicBatchWrapper4_copies42 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_22_4 := arithEq_of_rows h (row := 22) (i := 4) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_4
-  simp only [← c1359, ← c1360, ← c1361] at e_22_4
-  have e_22_5 := arithEq_of_rows h (row := 22) (i := 5) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_5
-  simp only [← c1362, ← c1363, k1, ← c1364] at e_22_5
-  have hr := e_22_5
-  simp only [e_22_4] at hr
-  simp only [bselect, k1]
+  have e_23_4 := arithEq_of_rows h (row := 23) (i := 4) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_4
+  simp only [← c1359, ← c1360, ← c1361] at e_23_4
+  have e_23_5 := arithEq_of_rows h (row := 23) (i := 5) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_5
+  simp only [← c1362, ← c1363, k0, ← c1364] at e_23_5
+  have hr := e_23_5
+  simp only [e_23_4] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f199 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 22 31) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19862)) := by
+    a (.wire 23 31) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 81)) := by
   have c1365 := (publicBatchWrapper4_copies42 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1366 := (publicBatchWrapper4_copies42 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1367 := (publicBatchWrapper4_copies42 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -6247,19 +6248,19 @@ theorem publicBatchWrapper4_f199 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1369 := (publicBatchWrapper4_copies42 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1370 := (publicBatchWrapper4_copies42 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_22_6 := arithEq_of_rows h (row := 22) (i := 6) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_6
-  simp only [← c1365, ← c1366, ← c1367] at e_22_6
-  have e_22_7 := arithEq_of_rows h (row := 22) (i := 7) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_7
-  simp only [← c1368, ← c1369, k1, ← c1370] at e_22_7
-  have hr := e_22_7
-  simp only [e_22_6] at hr
-  simp only [bselect, k1]
+  have e_23_6 := arithEq_of_rows h (row := 23) (i := 6) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_6
+  simp only [← c1365, ← c1366, ← c1367] at e_23_6
+  have e_23_7 := arithEq_of_rows h (row := 23) (i := 7) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_7
+  simp only [← c1368, ← c1369, k0, ← c1370] at e_23_7
+  have hr := e_23_7
+  simp only [e_23_6] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f200 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 22 39) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26476)) := by
+    a (.wire 23 39) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 100)) := by
   have c1371 := (publicBatchWrapper4_copies42 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1372 := (publicBatchWrapper4_copies42 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1373 := (publicBatchWrapper4_copies42 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -6267,19 +6268,19 @@ theorem publicBatchWrapper4_f200 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1375 := (publicBatchWrapper4_copies42 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c1376 := (publicBatchWrapper4_copies43 a h).1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_22_8 := arithEq_of_rows h (row := 22) (i := 8) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_8
-  simp only [← c1371, ← c1372, ← c1373] at e_22_8
-  have e_22_9 := arithEq_of_rows h (row := 22) (i := 9) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_9
-  simp only [← c1374, ← c1375, k1, ← c1376] at e_22_9
-  have hr := e_22_9
-  simp only [e_22_8] at hr
-  simp only [bselect, k1]
+  have e_23_8 := arithEq_of_rows h (row := 23) (i := 8) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_8
+  simp only [← c1371, ← c1372, ← c1373] at e_23_8
+  have e_23_9 := arithEq_of_rows h (row := 23) (i := 9) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_9
+  simp only [← c1374, ← c1375, k0, ← c1376] at e_23_9
+  have hr := e_23_9
+  simp only [e_23_8] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f201 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 22 47) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26477)) := by
+    a (.wire 23 47) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 101)) := by
   have c1377 := (publicBatchWrapper4_copies43 a h).2.1
   have c1378 := (publicBatchWrapper4_copies43 a h).2.2.1
   have c1379 := (publicBatchWrapper4_copies43 a h).2.2.2.1
@@ -6287,19 +6288,19 @@ theorem publicBatchWrapper4_f201 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1381 := (publicBatchWrapper4_copies43 a h).2.2.2.2.2.1
   have c1382 := (publicBatchWrapper4_copies43 a h).2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_22_10 := arithEq_of_rows h (row := 22) (i := 10) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_10
-  simp only [← c1377, ← c1378, ← c1379] at e_22_10
-  have e_22_11 := arithEq_of_rows h (row := 22) (i := 11) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_11
-  simp only [← c1380, ← c1381, k1, ← c1382] at e_22_11
-  have hr := e_22_11
-  simp only [e_22_10] at hr
-  simp only [bselect, k1]
+  have e_23_10 := arithEq_of_rows h (row := 23) (i := 10) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_10
+  simp only [← c1377, ← c1378, ← c1379] at e_23_10
+  have e_23_11 := arithEq_of_rows h (row := 23) (i := 11) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_11
+  simp only [← c1380, ← c1381, k0, ← c1382] at e_23_11
+  have hr := e_23_11
+  simp only [e_23_10] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f202 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 22 55) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26478)) := by
+    a (.wire 23 55) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 102)) := by
   have c1383 := (publicBatchWrapper4_copies43 a h).2.2.2.2.2.2.2.1
   have c1384 := (publicBatchWrapper4_copies43 a h).2.2.2.2.2.2.2.2.1
   have c1385 := (publicBatchWrapper4_copies43 a h).2.2.2.2.2.2.2.2.2.1
@@ -6307,19 +6308,19 @@ theorem publicBatchWrapper4_f202 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1387 := (publicBatchWrapper4_copies43 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c1388 := (publicBatchWrapper4_copies43 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_22_12 := arithEq_of_rows h (row := 22) (i := 12) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_12
-  simp only [← c1383, ← c1384, ← c1385] at e_22_12
-  have e_22_13 := arithEq_of_rows h (row := 22) (i := 13) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_13
-  simp only [← c1386, ← c1387, k1, ← c1388] at e_22_13
-  have hr := e_22_13
-  simp only [e_22_12] at hr
-  simp only [bselect, k1]
+  have e_23_12 := arithEq_of_rows h (row := 23) (i := 12) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_12
+  simp only [← c1383, ← c1384, ← c1385] at e_23_12
+  have e_23_13 := arithEq_of_rows h (row := 23) (i := 13) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_13
+  simp only [← c1386, ← c1387, k0, ← c1388] at e_23_13
+  have hr := e_23_13
+  simp only [e_23_12] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f203 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 22 63) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26479)) := by
+    a (.wire 23 63) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 103)) := by
   have c1389 := (publicBatchWrapper4_copies43 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1390 := (publicBatchWrapper4_copies43 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1391 := (publicBatchWrapper4_copies43 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -6327,19 +6328,19 @@ theorem publicBatchWrapper4_f203 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1393 := (publicBatchWrapper4_copies43 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1394 := (publicBatchWrapper4_copies43 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_22_14 := arithEq_of_rows h (row := 22) (i := 14) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_14
-  simp only [← c1389, ← c1390, ← c1391] at e_22_14
-  have e_22_15 := arithEq_of_rows h (row := 22) (i := 15) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_15
-  simp only [← c1392, ← c1393, k1, ← c1394] at e_22_15
-  have hr := e_22_15
-  simp only [e_22_14] at hr
-  simp only [bselect, k1]
+  have e_23_14 := arithEq_of_rows h (row := 23) (i := 14) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_14
+  simp only [← c1389, ← c1390, ← c1391] at e_23_14
+  have e_23_15 := arithEq_of_rows h (row := 23) (i := 15) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_15
+  simp only [← c1392, ← c1393, k0, ← c1394] at e_23_15
+  have hr := e_23_15
+  simp only [e_23_14] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f204 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 22 71) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26480)) := by
+    a (.wire 23 71) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 104)) := by
   have c1395 := (publicBatchWrapper4_copies43 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1396 := (publicBatchWrapper4_copies43 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1397 := (publicBatchWrapper4_copies43 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -6347,19 +6348,19 @@ theorem publicBatchWrapper4_f204 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1399 := (publicBatchWrapper4_copies43 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1400 := (publicBatchWrapper4_copies43 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_22_16 := arithEq_of_rows h (row := 22) (i := 16) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_16
-  simp only [← c1395, ← c1396, ← c1397] at e_22_16
-  have e_22_17 := arithEq_of_rows h (row := 22) (i := 17) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_17
-  simp only [← c1398, ← c1399, k1, ← c1400] at e_22_17
-  have hr := e_22_17
-  simp only [e_22_16] at hr
-  simp only [bselect, k1]
+  have e_23_16 := arithEq_of_rows h (row := 23) (i := 16) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_16
+  simp only [← c1395, ← c1396, ← c1397] at e_23_16
+  have e_23_17 := arithEq_of_rows h (row := 23) (i := 17) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_17
+  simp only [← c1398, ← c1399, k0, ← c1400] at e_23_17
+  have hr := e_23_17
+  simp only [e_23_16] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f205 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 22 79) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26481)) := by
+    a (.wire 23 79) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 105)) := by
   have c1401 := (publicBatchWrapper4_copies43 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1402 := (publicBatchWrapper4_copies43 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1403 := (publicBatchWrapper4_copies43 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
@@ -6367,19 +6368,19 @@ theorem publicBatchWrapper4_f205 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1405 := (publicBatchWrapper4_copies43 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1406 := (publicBatchWrapper4_copies43 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_22_18 := arithEq_of_rows h (row := 22) (i := 18) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_18
-  simp only [← c1401, ← c1402, ← c1403] at e_22_18
-  have e_22_19 := arithEq_of_rows h (row := 22) (i := 19) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_19
-  simp only [← c1404, ← c1405, k1, ← c1406] at e_22_19
-  have hr := e_22_19
-  simp only [e_22_18] at hr
-  simp only [bselect, k1]
+  have e_23_18 := arithEq_of_rows h (row := 23) (i := 18) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_18
+  simp only [← c1401, ← c1402, ← c1403] at e_23_18
+  have e_23_19 := arithEq_of_rows h (row := 23) (i := 19) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_19
+  simp only [← c1404, ← c1405, k0, ← c1406] at e_23_19
+  have hr := e_23_19
+  simp only [e_23_18] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f206 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 23 7) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26482)) := by
+    a (.wire 24 7) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 106)) := by
   have c1407 := (publicBatchWrapper4_copies43 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c1408 := (publicBatchWrapper4_copies44 a h).1
   have c1409 := (publicBatchWrapper4_copies44 a h).2.1
@@ -6387,19 +6388,19 @@ theorem publicBatchWrapper4_f206 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1411 := (publicBatchWrapper4_copies44 a h).2.2.2.1
   have c1412 := (publicBatchWrapper4_copies44 a h).2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_23_0 := arithEq_of_rows h (row := 23) (i := 0) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_0
-  simp only [← c1407, ← c1408, ← c1409] at e_23_0
-  have e_23_1 := arithEq_of_rows h (row := 23) (i := 1) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_1
-  simp only [← c1410, ← c1411, k1, ← c1412] at e_23_1
-  have hr := e_23_1
-  simp only [e_23_0] at hr
-  simp only [bselect, k1]
+  have e_24_0 := arithEq_of_rows h (row := 24) (i := 0) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_24_0
+  simp only [← c1407, ← c1408, ← c1409] at e_24_0
+  have e_24_1 := arithEq_of_rows h (row := 24) (i := 1) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_24_1
+  simp only [← c1410, ← c1411, k0, ← c1412] at e_24_1
+  have hr := e_24_1
+  simp only [e_24_0] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 theorem publicBatchWrapper4_f207 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.wire 23 15) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26483)) := by
+    a (.wire 24 15) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 107)) := by
   have c1413 := (publicBatchWrapper4_copies44 a h).2.2.2.2.2.1
   have c1414 := (publicBatchWrapper4_copies44 a h).2.2.2.2.2.2.1
   have c1415 := (publicBatchWrapper4_copies44 a h).2.2.2.2.2.2.2.1
@@ -6407,228 +6408,228 @@ theorem publicBatchWrapper4_f207 (a : Assignment p) (h : Satisfies (publicBatchW
   have c1417 := (publicBatchWrapper4_copies44 a h).2.2.2.2.2.2.2.2.2.1
   have c1418 := (publicBatchWrapper4_copies44 a h).2.2.2.2.2.2.2.2.2.2
   obtain ⟨k0, k1, k2, k3⟩ := publicBatchWrapper4_consts a h
-  have e_23_2 := arithEq_of_rows h (row := 23) (i := 2) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_2
-  simp only [← c1413, ← c1414, ← c1415] at e_23_2
-  have e_23_3 := arithEq_of_rows h (row := 23) (i := 3) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_3
-  simp only [← c1416, ← c1417, k1, ← c1418] at e_23_3
-  have hr := e_23_3
-  simp only [e_23_2] at hr
-  simp only [bselect, k1]
+  have e_24_2 := arithEq_of_rows h (row := 24) (i := 2) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_24_2
+  simp only [← c1413, ← c1414, ← c1415] at e_24_2
+  have e_24_3 := arithEq_of_rows h (row := 24) (i := 3) rfl (by decide)
+  simp only [Nat.reduceMul, Nat.reduceAdd] at e_24_3
+  simp only [← c1416, ← c1417, k0, ← c1418] at e_24_3
+  have hr := e_24_3
+  simp only [e_24_2] at hr
+  simp only [bselect, k0]
   linear_combination hr
 
 set_option maxHeartbeats 4000000 in
 /-- Every satisfying assignment of `publicBatchWrapper4` has the meaning of each recorded gadget call. Generated at gadget-call granularity; see `gadget.rs`. -/
 theorem publicBatchWrapper4_decode (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    (a (.virt 6595) = a (.virt 26490) ∧
-    a (.virt 13216) = a (.virt 26490) ∧
-    a (.virt 19837) = a (.virt 26490) ∧
-    a (.virt 26458) = a (.virt 26490) ∧
-    IsEqual (a (.virt 6598)) (a (.virt 26489)) (a (.virt 26491)) (a (.virt 26492)) ∧
-    IsEqual (a (.virt 6599)) (a (.virt 26489)) (a (.virt 26493)) (a (.virt 26494)) ∧
-    IsEqual (a (.virt 6600)) (a (.virt 26489)) (a (.virt 26495)) (a (.virt 26496)) ∧
-    IsEqual (a (.virt 6601)) (a (.virt 26489)) (a (.virt 26497)) (a (.virt 26498)) ∧
-    a (.wire 1 35) = band (a (.virt 26491)) (a (.virt 26493)) ∧
-    a (.wire 1 39) = band (a (.virt 26495)) (a (.virt 26497)) ∧
-    a (.wire 1 43) = band (a (.wire 1 35)) (a (.wire 1 39)) ∧
-    IsEqual (a (.virt 13219)) (a (.virt 26489)) (a (.virt 26499)) (a (.virt 26500)) ∧
-    IsEqual (a (.virt 13220)) (a (.virt 26489)) (a (.virt 26501)) (a (.virt 26502)) ∧
-    IsEqual (a (.virt 13221)) (a (.virt 26489)) (a (.virt 26503)) (a (.virt 26504)) ∧
-    IsEqual (a (.virt 13222)) (a (.virt 26489)) (a (.virt 26505)) (a (.virt 26506)) ∧
-    a (.wire 1 79) = band (a (.virt 26499)) (a (.virt 26501)) ∧
-    a (.wire 2 3) = band (a (.virt 26503)) (a (.virt 26505)) ∧
-    a (.wire 2 7) = band (a (.wire 1 79)) (a (.wire 2 3)) ∧
-    IsEqual (a (.virt 19840)) (a (.virt 26489)) (a (.virt 26507)) (a (.virt 26508)) ∧
-    IsEqual (a (.virt 19841)) (a (.virt 26489)) (a (.virt 26509)) (a (.virt 26510)) ∧
-    IsEqual (a (.virt 19842)) (a (.virt 26489)) (a (.virt 26511)) (a (.virt 26512)) ∧
-    IsEqual (a (.virt 19843)) (a (.virt 26489)) (a (.virt 26513)) (a (.virt 26514)) ∧
-    a (.wire 2 43) = band (a (.virt 26507)) (a (.virt 26509)) ∧
-    a (.wire 2 47) = band (a (.virt 26511)) (a (.virt 26513)) ∧
-    a (.wire 2 51) = band (a (.wire 2 43)) (a (.wire 2 47)) ∧
-    IsEqual (a (.virt 26461)) (a (.virt 26489)) (a (.virt 26515)) (a (.virt 26516)) ∧
-    IsEqual (a (.virt 26462)) (a (.virt 26489)) (a (.virt 26517)) (a (.virt 26518)) ∧
-    IsEqual (a (.virt 26463)) (a (.virt 26489)) (a (.virt 26519)) (a (.virt 26520)) ∧
-    IsEqual (a (.virt 26464)) (a (.virt 26489)) (a (.virt 26521)) (a (.virt 26522)) ∧
-    a (.wire 4 7) = band (a (.virt 26515)) (a (.virt 26517)) ∧
-    a (.wire 4 11) = band (a (.virt 26519)) (a (.virt 26521)) ∧
-    a (.wire 4 15) = band (a (.wire 4 7)) (a (.wire 4 11))) ∧
-    (a (.wire 3 51) = bnot (a (.wire 1 43)) ∧
-    a (.virt 26488) = bnot (a (.virt 26489)) ∧
-    a (.wire 3 51) = band (a (.wire 3 51)) (a (.virt 26488)) ∧
-    a (.wire 3 55) = bselect (a (.wire 3 51)) (a (.virt 6598)) (a (.virt 26489)) ∧
-    a (.wire 3 59) = bselect (a (.wire 3 51)) (a (.virt 6599)) (a (.virt 26489)) ∧
-    a (.wire 3 63) = bselect (a (.wire 3 51)) (a (.virt 6600)) (a (.virt 26489)) ∧
-    a (.wire 3 67) = bselect (a (.wire 3 51)) (a (.virt 6601)) (a (.virt 26489)) ∧
-    a (.wire 3 71) = bselect (a (.wire 3 51)) (a (.virt 6602)) (a (.virt 26489)) ∧
-    a (.wire 3 75) = bselect (a (.wire 3 51)) (a (.virt 6596)) (a (.virt 26489)) ∧
-    a (.wire 3 79) = bselect (a (.wire 3 51)) (a (.virt 6597)) (a (.virt 26489)) ∧
-    a (.wire 3 51) = bor (a (.virt 26489)) (a (.wire 3 51)) ∧
-    a (.wire 5 3) = bnot (a (.wire 2 7)) ∧
-    a (.wire 5 7) = bnot (a (.wire 3 51)) ∧
-    a (.wire 4 19) = band (a (.wire 5 3)) (a (.wire 5 7)) ∧
-    a (.wire 5 15) = bselect (a (.wire 4 19)) (a (.virt 13219)) (a (.wire 3 55)) ∧
-    a (.wire 5 23) = bselect (a (.wire 4 19)) (a (.virt 13220)) (a (.wire 3 59)) ∧
-    a (.wire 5 31) = bselect (a (.wire 4 19)) (a (.virt 13221)) (a (.wire 3 63)) ∧
-    a (.wire 5 39) = bselect (a (.wire 4 19)) (a (.virt 13222)) (a (.wire 3 67)) ∧
-    a (.wire 5 47) = bselect (a (.wire 4 19)) (a (.virt 13223)) (a (.wire 3 71)) ∧
-    a (.wire 5 55) = bselect (a (.wire 4 19)) (a (.virt 13217)) (a (.wire 3 75)) ∧
-    a (.wire 5 63) = bselect (a (.wire 4 19)) (a (.virt 13218)) (a (.wire 3 79)) ∧
-    a (.wire 7 3) = bor (a (.wire 3 51)) (a (.wire 5 3)) ∧
-    a (.wire 5 67) = bnot (a (.wire 2 51)) ∧
-    a (.wire 5 71) = bnot (a (.wire 7 3)) ∧
-    a (.wire 4 23) = band (a (.wire 5 67)) (a (.wire 5 71)) ∧
-    a (.wire 5 79) = bselect (a (.wire 4 23)) (a (.virt 19840)) (a (.wire 5 15)) ∧
-    a (.wire 8 7) = bselect (a (.wire 4 23)) (a (.virt 19841)) (a (.wire 5 23)) ∧
-    a (.wire 8 15) = bselect (a (.wire 4 23)) (a (.virt 19842)) (a (.wire 5 31)) ∧
-    a (.wire 8 23) = bselect (a (.wire 4 23)) (a (.virt 19843)) (a (.wire 5 39)) ∧
-    a (.wire 8 31) = bselect (a (.wire 4 23)) (a (.virt 19844)) (a (.wire 5 47)) ∧
-    a (.wire 8 39) = bselect (a (.wire 4 23)) (a (.virt 19838)) (a (.wire 5 55)) ∧
-    a (.wire 8 47) = bselect (a (.wire 4 23)) (a (.virt 19839)) (a (.wire 5 63))) ∧
-    (a (.wire 7 7) = bor (a (.wire 7 3)) (a (.wire 5 67)) ∧
-    a (.wire 8 51) = bnot (a (.wire 4 15)) ∧
-    a (.wire 8 55) = bnot (a (.wire 7 7)) ∧
-    a (.wire 4 27) = band (a (.wire 8 51)) (a (.wire 8 55)) ∧
-    a (.wire 8 63) = bselect (a (.wire 4 27)) (a (.virt 26461)) (a (.wire 5 79)) ∧
-    a (.wire 8 71) = bselect (a (.wire 4 27)) (a (.virt 26462)) (a (.wire 8 7)) ∧
-    a (.wire 8 79) = bselect (a (.wire 4 27)) (a (.virt 26463)) (a (.wire 8 15)) ∧
-    a (.wire 9 7) = bselect (a (.wire 4 27)) (a (.virt 26464)) (a (.wire 8 23)) ∧
-    a (.wire 9 15) = bselect (a (.wire 4 27)) (a (.virt 26465)) (a (.wire 8 31)) ∧
-    a (.wire 9 23) = bselect (a (.wire 4 27)) (a (.virt 26459)) (a (.wire 8 39)) ∧
-    a (.wire 9 31) = bselect (a (.wire 4 27)) (a (.virt 26460)) (a (.wire 8 47)) ∧
-    a (.wire 7 11) = bor (a (.wire 7 7)) (a (.wire 8 51)) ∧
-    IsEqual (a (.virt 6596)) (a (.wire 9 23)) (a (.virt 26523)) (a (.virt 26524)) ∧
-    a (.wire 7 15) = bor (a (.wire 1 43)) (a (.virt 26523)) ∧
-    a (.wire 7 15) = a (.virt 26488) ∧
-    IsEqual (a (.virt 6597)) (a (.wire 9 31)) (a (.virt 26525)) (a (.virt 26526)) ∧
-    a (.wire 7 19) = bor (a (.wire 1 43)) (a (.virt 26525)) ∧
-    a (.wire 7 19) = a (.virt 26488) ∧
-    IsEqual (a (.virt 6598)) (a (.wire 8 63)) (a (.virt 26527)) (a (.virt 26528)) ∧
-    IsEqual (a (.virt 6599)) (a (.wire 8 71)) (a (.virt 26529)) (a (.virt 26530)) ∧
-    IsEqual (a (.virt 6600)) (a (.wire 8 79)) (a (.virt 26531)) (a (.virt 26532)) ∧
-    IsEqual (a (.virt 6601)) (a (.wire 9 7)) (a (.virt 26533)) (a (.virt 26534)) ∧
-    a (.wire 4 79) = band (a (.virt 26527)) (a (.virt 26529)) ∧
-    a (.wire 11 3) = band (a (.virt 26531)) (a (.virt 26533)) ∧
-    a (.wire 11 7) = band (a (.wire 4 79)) (a (.wire 11 3)) ∧
-    a (.wire 7 23) = bor (a (.wire 1 43)) (a (.wire 11 7)) ∧
-    a (.wire 7 23) = a (.virt 26488) ∧
-    IsEqual (a (.virt 13217)) (a (.wire 9 23)) (a (.virt 26535)) (a (.virt 26536)) ∧
-    a (.wire 7 27) = bor (a (.wire 2 7)) (a (.virt 26535)) ∧
-    a (.wire 7 27) = a (.virt 26488) ∧
-    IsEqual (a (.virt 13218)) (a (.wire 9 31)) (a (.virt 26537)) (a (.virt 26538)) ∧
-    a (.wire 7 31) = bor (a (.wire 2 7)) (a (.virt 26537))) ∧
-    (a (.wire 7 31) = a (.virt 26488) ∧
-    IsEqual (a (.virt 13219)) (a (.wire 8 63)) (a (.virt 26539)) (a (.virt 26540)) ∧
-    IsEqual (a (.virt 13220)) (a (.wire 8 71)) (a (.virt 26541)) (a (.virt 26542)) ∧
-    IsEqual (a (.virt 13221)) (a (.wire 8 79)) (a (.virt 26543)) (a (.virt 26544)) ∧
-    IsEqual (a (.virt 13222)) (a (.wire 9 7)) (a (.virt 26545)) (a (.virt 26546)) ∧
-    a (.wire 11 59) = band (a (.virt 26539)) (a (.virt 26541)) ∧
-    a (.wire 11 63) = band (a (.virt 26543)) (a (.virt 26545)) ∧
-    a (.wire 11 67) = band (a (.wire 11 59)) (a (.wire 11 63)) ∧
-    a (.wire 7 35) = bor (a (.wire 2 7)) (a (.wire 11 67)) ∧
-    a (.wire 7 35) = a (.virt 26488) ∧
-    IsEqual (a (.virt 19838)) (a (.wire 9 23)) (a (.virt 26547)) (a (.virt 26548)) ∧
-    a (.wire 7 39) = bor (a (.wire 2 51)) (a (.virt 26547)) ∧
-    a (.wire 7 39) = a (.virt 26488) ∧
-    IsEqual (a (.virt 19839)) (a (.wire 9 31)) (a (.virt 26549)) (a (.virt 26550)) ∧
-    a (.wire 7 43) = bor (a (.wire 2 51)) (a (.virt 26549)) ∧
-    a (.wire 7 43) = a (.virt 26488) ∧
-    IsEqual (a (.virt 19840)) (a (.wire 8 63)) (a (.virt 26551)) (a (.virt 26552)) ∧
-    IsEqual (a (.virt 19841)) (a (.wire 8 71)) (a (.virt 26553)) (a (.virt 26554)) ∧
-    IsEqual (a (.virt 19842)) (a (.wire 8 79)) (a (.virt 26555)) (a (.virt 26556)) ∧
-    IsEqual (a (.virt 19843)) (a (.wire 9 7)) (a (.virt 26557)) (a (.virt 26558)) ∧
-    a (.wire 13 39) = band (a (.virt 26551)) (a (.virt 26553)) ∧
-    a (.wire 13 43) = band (a (.virt 26555)) (a (.virt 26557)) ∧
-    a (.wire 13 47) = band (a (.wire 13 39)) (a (.wire 13 43)) ∧
-    a (.wire 7 47) = bor (a (.wire 2 51)) (a (.wire 13 47)) ∧
-    a (.wire 7 47) = a (.virt 26488) ∧
-    IsEqual (a (.virt 26459)) (a (.wire 9 23)) (a (.virt 26559)) (a (.virt 26560)) ∧
-    a (.wire 7 51) = bor (a (.wire 4 15)) (a (.virt 26559)) ∧
-    a (.wire 7 51) = a (.virt 26488) ∧
-    IsEqual (a (.virt 26460)) (a (.wire 9 31)) (a (.virt 26561)) (a (.virt 26562)) ∧
-    a (.wire 7 55) = bor (a (.wire 4 15)) (a (.virt 26561)) ∧
-    a (.wire 7 55) = a (.virt 26488) ∧
-    IsEqual (a (.virt 26461)) (a (.wire 8 63)) (a (.virt 26563)) (a (.virt 26564))) ∧
-    (IsEqual (a (.virt 26462)) (a (.wire 8 71)) (a (.virt 26565)) (a (.virt 26566)) ∧
-    IsEqual (a (.virt 26463)) (a (.wire 8 79)) (a (.virt 26567)) (a (.virt 26568)) ∧
-    IsEqual (a (.virt 26464)) (a (.wire 9 7)) (a (.virt 26569)) (a (.virt 26570)) ∧
-    a (.wire 15 19) = band (a (.virt 26563)) (a (.virt 26565)) ∧
-    a (.wire 15 23) = band (a (.virt 26567)) (a (.virt 26569)) ∧
-    a (.wire 15 27) = band (a (.wire 15 19)) (a (.wire 15 23)) ∧
-    a (.wire 7 59) = bor (a (.wire 4 15)) (a (.wire 15 27)) ∧
-    a (.wire 7 59) = a (.virt 26488) ∧
-    a (.wire 16 7) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6603)) ∧
-    a (.wire 16 15) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6604)) ∧
-    a (.wire 16 23) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6605)) ∧
-    a (.wire 16 31) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6606)) ∧
-    a (.wire 16 39) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6607)) ∧
-    a (.wire 16 47) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6608)) ∧
-    a (.wire 16 55) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6609)) ∧
-    a (.wire 16 63) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6610)) ∧
-    a (.wire 16 71) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6611)) ∧
-    a (.wire 16 79) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6612)) ∧
-    a (.wire 17 7) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13224)) ∧
-    a (.wire 17 15) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13225)) ∧
-    a (.wire 17 23) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13226)) ∧
-    a (.wire 17 31) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13227)) ∧
-    a (.wire 17 39) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13228)) ∧
-    a (.wire 17 47) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13229)) ∧
-    a (.wire 17 55) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13230)) ∧
-    a (.wire 17 63) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13231)) ∧
-    a (.wire 17 71) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13232)) ∧
-    a (.wire 17 79) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13233)) ∧
-    a (.wire 18 7) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19845)) ∧
-    a (.wire 18 15) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19846)) ∧
-    a (.wire 18 23) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19847)) ∧
-    a (.wire 18 31) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19848))) ∧
-    (a (.wire 18 39) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19849)) ∧
-    a (.wire 18 47) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19850)) ∧
-    a (.wire 18 55) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19851)) ∧
-    a (.wire 18 63) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19852)) ∧
-    a (.wire 18 71) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19853)) ∧
-    a (.wire 18 79) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19854)) ∧
-    a (.wire 19 7) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26466)) ∧
-    a (.wire 19 15) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26467)) ∧
-    a (.wire 19 23) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26468)) ∧
-    a (.wire 19 31) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26469)) ∧
-    a (.wire 19 39) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26470)) ∧
-    a (.wire 19 47) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26471)) ∧
-    a (.wire 19 55) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26472)) ∧
-    a (.wire 19 63) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26473)) ∧
-    a (.wire 19 71) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26474)) ∧
-    a (.wire 19 79) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26475)) ∧
-    a (.wire 20 7) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6613)) ∧
-    a (.wire 20 15) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6614)) ∧
-    a (.wire 20 23) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6615)) ∧
-    a (.wire 20 31) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6616)) ∧
-    a (.wire 20 39) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6617)) ∧
-    a (.wire 20 47) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6618)) ∧
-    a (.wire 20 55) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6619)) ∧
-    a (.wire 20 63) = bselect (a (.wire 1 43)) (a (.virt 26489)) (a (.virt 6620)) ∧
-    a (.wire 20 71) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13234)) ∧
-    a (.wire 20 79) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13235)) ∧
-    a (.wire 21 7) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13236)) ∧
-    a (.wire 21 15) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13237)) ∧
-    a (.wire 21 23) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13238)) ∧
-    a (.wire 21 31) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13239)) ∧
-    a (.wire 21 39) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13240)) ∧
-    a (.wire 21 47) = bselect (a (.wire 2 7)) (a (.virt 26489)) (a (.virt 13241))) ∧
-    (a (.wire 21 55) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19855)) ∧
-    a (.wire 21 63) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19856)) ∧
-    a (.wire 21 71) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19857)) ∧
-    a (.wire 21 79) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19858)) ∧
-    a (.wire 22 7) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19859)) ∧
-    a (.wire 22 15) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19860)) ∧
-    a (.wire 22 23) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19861)) ∧
-    a (.wire 22 31) = bselect (a (.wire 2 51)) (a (.virt 26489)) (a (.virt 19862)) ∧
-    a (.wire 22 39) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26476)) ∧
-    a (.wire 22 47) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26477)) ∧
-    a (.wire 22 55) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26478)) ∧
-    a (.wire 22 63) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26479)) ∧
-    a (.wire 22 71) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26480)) ∧
-    a (.wire 22 79) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26481)) ∧
-    a (.wire 23 7) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26482)) ∧
-    a (.wire 23 15) = bselect (a (.wire 4 15)) (a (.virt 26489)) (a (.virt 26483))) :=
+    (a (.virt 0) = a (.virt 28) ∧
+    a (.virt 30) = a (.virt 28) ∧
+    a (.virt 56) = a (.virt 28) ∧
+    a (.virt 82) = a (.virt 28) ∧
+    IsEqual (a (.virt 3)) (a (.virt 26)) (a (.virt 112)) (a (.virt 113)) ∧
+    IsEqual (a (.virt 4)) (a (.virt 26)) (a (.virt 114)) (a (.virt 115)) ∧
+    IsEqual (a (.virt 5)) (a (.virt 26)) (a (.virt 116)) (a (.virt 117)) ∧
+    IsEqual (a (.virt 6)) (a (.virt 26)) (a (.virt 118)) (a (.virt 119)) ∧
+    a (.wire 1 51) = band (a (.virt 112)) (a (.virt 114)) ∧
+    a (.wire 1 55) = band (a (.virt 116)) (a (.virt 118)) ∧
+    a (.wire 1 59) = band (a (.wire 1 51)) (a (.wire 1 55)) ∧
+    IsEqual (a (.virt 33)) (a (.virt 26)) (a (.virt 120)) (a (.virt 121)) ∧
+    IsEqual (a (.virt 34)) (a (.virt 26)) (a (.virt 122)) (a (.virt 123)) ∧
+    IsEqual (a (.virt 35)) (a (.virt 26)) (a (.virt 124)) (a (.virt 125)) ∧
+    IsEqual (a (.virt 36)) (a (.virt 26)) (a (.virt 126)) (a (.virt 127)) ∧
+    a (.wire 3 15) = band (a (.virt 120)) (a (.virt 122)) ∧
+    a (.wire 3 19) = band (a (.virt 124)) (a (.virt 126)) ∧
+    a (.wire 3 23) = band (a (.wire 3 15)) (a (.wire 3 19)) ∧
+    IsEqual (a (.virt 59)) (a (.virt 26)) (a (.virt 128)) (a (.virt 129)) ∧
+    IsEqual (a (.virt 60)) (a (.virt 26)) (a (.virt 130)) (a (.virt 131)) ∧
+    IsEqual (a (.virt 61)) (a (.virt 26)) (a (.virt 132)) (a (.virt 133)) ∧
+    IsEqual (a (.virt 62)) (a (.virt 26)) (a (.virt 134)) (a (.virt 135)) ∧
+    a (.wire 3 59) = band (a (.virt 128)) (a (.virt 130)) ∧
+    a (.wire 3 63) = band (a (.virt 132)) (a (.virt 134)) ∧
+    a (.wire 3 67) = band (a (.wire 3 59)) (a (.wire 3 63)) ∧
+    IsEqual (a (.virt 85)) (a (.virt 26)) (a (.virt 136)) (a (.virt 137)) ∧
+    IsEqual (a (.virt 86)) (a (.virt 26)) (a (.virt 138)) (a (.virt 139)) ∧
+    IsEqual (a (.virt 87)) (a (.virt 26)) (a (.virt 140)) (a (.virt 141)) ∧
+    IsEqual (a (.virt 88)) (a (.virt 26)) (a (.virt 142)) (a (.virt 143)) ∧
+    a (.wire 5 23) = band (a (.virt 136)) (a (.virt 138)) ∧
+    a (.wire 5 27) = band (a (.virt 140)) (a (.virt 142)) ∧
+    a (.wire 5 31) = band (a (.wire 5 23)) (a (.wire 5 27))) ∧
+    (a (.wire 4 51) = bnot (a (.wire 1 59)) ∧
+    a (.virt 27) = bnot (a (.virt 26)) ∧
+    a (.wire 4 51) = band (a (.wire 4 51)) (a (.virt 27)) ∧
+    a (.wire 4 55) = bselect (a (.wire 4 51)) (a (.virt 3)) (a (.virt 26)) ∧
+    a (.wire 4 59) = bselect (a (.wire 4 51)) (a (.virt 4)) (a (.virt 26)) ∧
+    a (.wire 4 63) = bselect (a (.wire 4 51)) (a (.virt 5)) (a (.virt 26)) ∧
+    a (.wire 4 67) = bselect (a (.wire 4 51)) (a (.virt 6)) (a (.virt 26)) ∧
+    a (.wire 4 71) = bselect (a (.wire 4 51)) (a (.virt 7)) (a (.virt 26)) ∧
+    a (.wire 4 75) = bselect (a (.wire 4 51)) (a (.virt 1)) (a (.virt 26)) ∧
+    a (.wire 4 79) = bselect (a (.wire 4 51)) (a (.virt 2)) (a (.virt 26)) ∧
+    a (.wire 4 51) = bor (a (.virt 26)) (a (.wire 4 51)) ∧
+    a (.wire 6 3) = bnot (a (.wire 3 23)) ∧
+    a (.wire 6 7) = bnot (a (.wire 4 51)) ∧
+    a (.wire 5 35) = band (a (.wire 6 3)) (a (.wire 6 7)) ∧
+    a (.wire 6 15) = bselect (a (.wire 5 35)) (a (.virt 33)) (a (.wire 4 55)) ∧
+    a (.wire 6 23) = bselect (a (.wire 5 35)) (a (.virt 34)) (a (.wire 4 59)) ∧
+    a (.wire 6 31) = bselect (a (.wire 5 35)) (a (.virt 35)) (a (.wire 4 63)) ∧
+    a (.wire 6 39) = bselect (a (.wire 5 35)) (a (.virt 36)) (a (.wire 4 67)) ∧
+    a (.wire 6 47) = bselect (a (.wire 5 35)) (a (.virt 37)) (a (.wire 4 71)) ∧
+    a (.wire 6 55) = bselect (a (.wire 5 35)) (a (.virt 31)) (a (.wire 4 75)) ∧
+    a (.wire 6 63) = bselect (a (.wire 5 35)) (a (.virt 32)) (a (.wire 4 79)) ∧
+    a (.wire 0 51) = bor (a (.wire 4 51)) (a (.wire 6 3)) ∧
+    a (.wire 6 67) = bnot (a (.wire 3 67)) ∧
+    a (.wire 6 71) = bnot (a (.wire 0 51)) ∧
+    a (.wire 5 39) = band (a (.wire 6 67)) (a (.wire 6 71)) ∧
+    a (.wire 6 79) = bselect (a (.wire 5 39)) (a (.virt 59)) (a (.wire 6 15)) ∧
+    a (.wire 8 7) = bselect (a (.wire 5 39)) (a (.virt 60)) (a (.wire 6 23)) ∧
+    a (.wire 8 15) = bselect (a (.wire 5 39)) (a (.virt 61)) (a (.wire 6 31)) ∧
+    a (.wire 8 23) = bselect (a (.wire 5 39)) (a (.virt 62)) (a (.wire 6 39)) ∧
+    a (.wire 8 31) = bselect (a (.wire 5 39)) (a (.virt 63)) (a (.wire 6 47)) ∧
+    a (.wire 8 39) = bselect (a (.wire 5 39)) (a (.virt 57)) (a (.wire 6 55)) ∧
+    a (.wire 8 47) = bselect (a (.wire 5 39)) (a (.virt 58)) (a (.wire 6 63))) ∧
+    (a (.wire 0 55) = bor (a (.wire 0 51)) (a (.wire 6 67)) ∧
+    a (.wire 8 51) = bnot (a (.wire 5 31)) ∧
+    a (.wire 8 55) = bnot (a (.wire 0 55)) ∧
+    a (.wire 5 43) = band (a (.wire 8 51)) (a (.wire 8 55)) ∧
+    a (.wire 8 63) = bselect (a (.wire 5 43)) (a (.virt 85)) (a (.wire 6 79)) ∧
+    a (.wire 8 71) = bselect (a (.wire 5 43)) (a (.virt 86)) (a (.wire 8 7)) ∧
+    a (.wire 8 79) = bselect (a (.wire 5 43)) (a (.virt 87)) (a (.wire 8 15)) ∧
+    a (.wire 9 7) = bselect (a (.wire 5 43)) (a (.virt 88)) (a (.wire 8 23)) ∧
+    a (.wire 9 15) = bselect (a (.wire 5 43)) (a (.virt 89)) (a (.wire 8 31)) ∧
+    a (.wire 9 23) = bselect (a (.wire 5 43)) (a (.virt 83)) (a (.wire 8 39)) ∧
+    a (.wire 9 31) = bselect (a (.wire 5 43)) (a (.virt 84)) (a (.wire 8 47)) ∧
+    a (.wire 0 59) = bor (a (.wire 0 55)) (a (.wire 8 51)) ∧
+    IsEqual (a (.virt 1)) (a (.wire 9 23)) (a (.virt 144)) (a (.virt 145)) ∧
+    a (.wire 0 63) = bor (a (.wire 1 59)) (a (.virt 144)) ∧
+    a (.wire 0 63) = a (.virt 27) ∧
+    IsEqual (a (.virt 2)) (a (.wire 9 31)) (a (.virt 146)) (a (.virt 147)) ∧
+    a (.wire 0 67) = bor (a (.wire 1 59)) (a (.virt 146)) ∧
+    a (.wire 0 67) = a (.virt 27) ∧
+    IsEqual (a (.virt 3)) (a (.wire 8 63)) (a (.virt 148)) (a (.virt 149)) ∧
+    IsEqual (a (.virt 4)) (a (.wire 8 71)) (a (.virt 150)) (a (.virt 151)) ∧
+    IsEqual (a (.virt 5)) (a (.wire 8 79)) (a (.virt 152)) (a (.virt 153)) ∧
+    IsEqual (a (.virt 6)) (a (.wire 9 7)) (a (.virt 154)) (a (.virt 155)) ∧
+    a (.wire 11 15) = band (a (.virt 148)) (a (.virt 150)) ∧
+    a (.wire 11 19) = band (a (.virt 152)) (a (.virt 154)) ∧
+    a (.wire 11 23) = band (a (.wire 11 15)) (a (.wire 11 19)) ∧
+    a (.wire 0 71) = bor (a (.wire 1 59)) (a (.wire 11 23)) ∧
+    a (.wire 0 71) = a (.virt 27) ∧
+    IsEqual (a (.virt 31)) (a (.wire 9 23)) (a (.virt 156)) (a (.virt 157)) ∧
+    a (.wire 0 75) = bor (a (.wire 3 23)) (a (.virt 156)) ∧
+    a (.wire 0 75) = a (.virt 27) ∧
+    IsEqual (a (.virt 32)) (a (.wire 9 31)) (a (.virt 158)) (a (.virt 159)) ∧
+    a (.wire 0 79) = bor (a (.wire 3 23)) (a (.virt 158))) ∧
+    (a (.wire 0 79) = a (.virt 27) ∧
+    IsEqual (a (.virt 33)) (a (.wire 8 63)) (a (.virt 160)) (a (.virt 161)) ∧
+    IsEqual (a (.virt 34)) (a (.wire 8 71)) (a (.virt 162)) (a (.virt 163)) ∧
+    IsEqual (a (.virt 35)) (a (.wire 8 79)) (a (.virt 164)) (a (.virt 165)) ∧
+    IsEqual (a (.virt 36)) (a (.wire 9 7)) (a (.virt 166)) (a (.virt 167)) ∧
+    a (.wire 11 75) = band (a (.virt 160)) (a (.virt 162)) ∧
+    a (.wire 11 79) = band (a (.virt 164)) (a (.virt 166)) ∧
+    a (.wire 13 3) = band (a (.wire 11 75)) (a (.wire 11 79)) ∧
+    a (.wire 14 3) = bor (a (.wire 3 23)) (a (.wire 13 3)) ∧
+    a (.wire 14 3) = a (.virt 27) ∧
+    IsEqual (a (.virt 57)) (a (.wire 9 23)) (a (.virt 168)) (a (.virt 169)) ∧
+    a (.wire 14 7) = bor (a (.wire 3 67)) (a (.virt 168)) ∧
+    a (.wire 14 7) = a (.virt 27) ∧
+    IsEqual (a (.virt 58)) (a (.wire 9 31)) (a (.virt 170)) (a (.virt 171)) ∧
+    a (.wire 14 11) = bor (a (.wire 3 67)) (a (.virt 170)) ∧
+    a (.wire 14 11) = a (.virt 27) ∧
+    IsEqual (a (.virt 59)) (a (.wire 8 63)) (a (.virt 172)) (a (.virt 173)) ∧
+    IsEqual (a (.virt 60)) (a (.wire 8 71)) (a (.virt 174)) (a (.virt 175)) ∧
+    IsEqual (a (.virt 61)) (a (.wire 8 79)) (a (.virt 176)) (a (.virt 177)) ∧
+    IsEqual (a (.virt 62)) (a (.wire 9 7)) (a (.virt 178)) (a (.virt 179)) ∧
+    a (.wire 13 55) = band (a (.virt 172)) (a (.virt 174)) ∧
+    a (.wire 13 59) = band (a (.virt 176)) (a (.virt 178)) ∧
+    a (.wire 13 63) = band (a (.wire 13 55)) (a (.wire 13 59)) ∧
+    a (.wire 14 15) = bor (a (.wire 3 67)) (a (.wire 13 63)) ∧
+    a (.wire 14 15) = a (.virt 27) ∧
+    IsEqual (a (.virt 83)) (a (.wire 9 23)) (a (.virt 180)) (a (.virt 181)) ∧
+    a (.wire 14 19) = bor (a (.wire 5 31)) (a (.virt 180)) ∧
+    a (.wire 14 19) = a (.virt 27) ∧
+    IsEqual (a (.virt 84)) (a (.wire 9 31)) (a (.virt 182)) (a (.virt 183)) ∧
+    a (.wire 14 23) = bor (a (.wire 5 31)) (a (.virt 182)) ∧
+    a (.wire 14 23) = a (.virt 27) ∧
+    IsEqual (a (.virt 85)) (a (.wire 8 63)) (a (.virt 184)) (a (.virt 185))) ∧
+    (IsEqual (a (.virt 86)) (a (.wire 8 71)) (a (.virt 186)) (a (.virt 187)) ∧
+    IsEqual (a (.virt 87)) (a (.wire 8 79)) (a (.virt 188)) (a (.virt 189)) ∧
+    IsEqual (a (.virt 88)) (a (.wire 9 7)) (a (.virt 190)) (a (.virt 191)) ∧
+    a (.wire 16 35) = band (a (.virt 184)) (a (.virt 186)) ∧
+    a (.wire 16 39) = band (a (.virt 188)) (a (.virt 190)) ∧
+    a (.wire 16 43) = band (a (.wire 16 35)) (a (.wire 16 39)) ∧
+    a (.wire 14 27) = bor (a (.wire 5 31)) (a (.wire 16 43)) ∧
+    a (.wire 14 27) = a (.virt 27) ∧
+    a (.wire 17 7) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 8)) ∧
+    a (.wire 17 15) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 9)) ∧
+    a (.wire 17 23) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 10)) ∧
+    a (.wire 17 31) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 11)) ∧
+    a (.wire 17 39) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 12)) ∧
+    a (.wire 17 47) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 13)) ∧
+    a (.wire 17 55) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 14)) ∧
+    a (.wire 17 63) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 15)) ∧
+    a (.wire 17 71) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 16)) ∧
+    a (.wire 17 79) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 17)) ∧
+    a (.wire 18 7) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 38)) ∧
+    a (.wire 18 15) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 39)) ∧
+    a (.wire 18 23) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 40)) ∧
+    a (.wire 18 31) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 41)) ∧
+    a (.wire 18 39) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 42)) ∧
+    a (.wire 18 47) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 43)) ∧
+    a (.wire 18 55) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 44)) ∧
+    a (.wire 18 63) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 45)) ∧
+    a (.wire 18 71) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 46)) ∧
+    a (.wire 18 79) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 47)) ∧
+    a (.wire 19 7) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 64)) ∧
+    a (.wire 19 15) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 65)) ∧
+    a (.wire 19 23) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 66)) ∧
+    a (.wire 19 31) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 67))) ∧
+    (a (.wire 19 39) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 68)) ∧
+    a (.wire 19 47) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 69)) ∧
+    a (.wire 19 55) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 70)) ∧
+    a (.wire 19 63) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 71)) ∧
+    a (.wire 19 71) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 72)) ∧
+    a (.wire 19 79) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 73)) ∧
+    a (.wire 20 7) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 90)) ∧
+    a (.wire 20 15) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 91)) ∧
+    a (.wire 20 23) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 92)) ∧
+    a (.wire 20 31) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 93)) ∧
+    a (.wire 20 39) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 94)) ∧
+    a (.wire 20 47) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 95)) ∧
+    a (.wire 20 55) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 96)) ∧
+    a (.wire 20 63) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 97)) ∧
+    a (.wire 20 71) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 98)) ∧
+    a (.wire 20 79) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 99)) ∧
+    a (.wire 21 7) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 18)) ∧
+    a (.wire 21 15) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 19)) ∧
+    a (.wire 21 23) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 20)) ∧
+    a (.wire 21 31) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 21)) ∧
+    a (.wire 21 39) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 22)) ∧
+    a (.wire 21 47) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 23)) ∧
+    a (.wire 21 55) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 24)) ∧
+    a (.wire 21 63) = bselect (a (.wire 1 59)) (a (.virt 26)) (a (.virt 25)) ∧
+    a (.wire 21 71) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 48)) ∧
+    a (.wire 21 79) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 49)) ∧
+    a (.wire 22 7) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 50)) ∧
+    a (.wire 22 15) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 51)) ∧
+    a (.wire 22 23) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 52)) ∧
+    a (.wire 22 31) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 53)) ∧
+    a (.wire 22 39) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 54)) ∧
+    a (.wire 22 47) = bselect (a (.wire 3 23)) (a (.virt 26)) (a (.virt 55))) ∧
+    (a (.wire 22 55) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 74)) ∧
+    a (.wire 22 63) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 75)) ∧
+    a (.wire 22 71) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 76)) ∧
+    a (.wire 22 79) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 77)) ∧
+    a (.wire 23 7) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 78)) ∧
+    a (.wire 23 15) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 79)) ∧
+    a (.wire 23 23) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 80)) ∧
+    a (.wire 23 31) = bselect (a (.wire 3 67)) (a (.virt 26)) (a (.virt 81)) ∧
+    a (.wire 23 39) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 100)) ∧
+    a (.wire 23 47) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 101)) ∧
+    a (.wire 23 55) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 102)) ∧
+    a (.wire 23 63) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 103)) ∧
+    a (.wire 23 71) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 104)) ∧
+    a (.wire 23 79) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 105)) ∧
+    a (.wire 24 7) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 106)) ∧
+    a (.wire 24 15) = bselect (a (.wire 5 31)) (a (.virt 26)) (a (.virt 107))) :=
   ⟨⟨publicBatchWrapper4_f0 a h, publicBatchWrapper4_f1 a h, publicBatchWrapper4_f2 a h, publicBatchWrapper4_f3 a h, publicBatchWrapper4_f4 a h, publicBatchWrapper4_f5 a h, publicBatchWrapper4_f6 a h, publicBatchWrapper4_f7 a h, publicBatchWrapper4_f8 a h, publicBatchWrapper4_f9 a h, publicBatchWrapper4_f10 a h, publicBatchWrapper4_f11 a h, publicBatchWrapper4_f12 a h, publicBatchWrapper4_f13 a h, publicBatchWrapper4_f14 a h, publicBatchWrapper4_f15 a h, publicBatchWrapper4_f16 a h, publicBatchWrapper4_f17 a h, publicBatchWrapper4_f18 a h, publicBatchWrapper4_f19 a h, publicBatchWrapper4_f20 a h, publicBatchWrapper4_f21 a h, publicBatchWrapper4_f22 a h, publicBatchWrapper4_f23 a h, publicBatchWrapper4_f24 a h, publicBatchWrapper4_f25 a h, publicBatchWrapper4_f26 a h, publicBatchWrapper4_f27 a h, publicBatchWrapper4_f28 a h, publicBatchWrapper4_f29 a h, publicBatchWrapper4_f30 a h, publicBatchWrapper4_f31 a h⟩, ⟨publicBatchWrapper4_f32 a h, publicBatchWrapper4_f33 a h, publicBatchWrapper4_f34 a h, publicBatchWrapper4_f35 a h, publicBatchWrapper4_f36 a h, publicBatchWrapper4_f37 a h, publicBatchWrapper4_f38 a h, publicBatchWrapper4_f39 a h, publicBatchWrapper4_f40 a h, publicBatchWrapper4_f41 a h, publicBatchWrapper4_f42 a h, publicBatchWrapper4_f43 a h, publicBatchWrapper4_f44 a h, publicBatchWrapper4_f45 a h, publicBatchWrapper4_f46 a h, publicBatchWrapper4_f47 a h, publicBatchWrapper4_f48 a h, publicBatchWrapper4_f49 a h, publicBatchWrapper4_f50 a h, publicBatchWrapper4_f51 a h, publicBatchWrapper4_f52 a h, publicBatchWrapper4_f53 a h, publicBatchWrapper4_f54 a h, publicBatchWrapper4_f55 a h, publicBatchWrapper4_f56 a h, publicBatchWrapper4_f57 a h, publicBatchWrapper4_f58 a h, publicBatchWrapper4_f59 a h, publicBatchWrapper4_f60 a h, publicBatchWrapper4_f61 a h, publicBatchWrapper4_f62 a h, publicBatchWrapper4_f63 a h⟩, ⟨publicBatchWrapper4_f64 a h, publicBatchWrapper4_f65 a h, publicBatchWrapper4_f66 a h, publicBatchWrapper4_f67 a h, publicBatchWrapper4_f68 a h, publicBatchWrapper4_f69 a h, publicBatchWrapper4_f70 a h, publicBatchWrapper4_f71 a h, publicBatchWrapper4_f72 a h, publicBatchWrapper4_f73 a h, publicBatchWrapper4_f74 a h, publicBatchWrapper4_f75 a h, publicBatchWrapper4_f76 a h, publicBatchWrapper4_f77 a h, publicBatchWrapper4_f78 a h, publicBatchWrapper4_f79 a h, publicBatchWrapper4_f80 a h, publicBatchWrapper4_f81 a h, publicBatchWrapper4_f82 a h, publicBatchWrapper4_f83 a h, publicBatchWrapper4_f84 a h, publicBatchWrapper4_f85 a h, publicBatchWrapper4_f86 a h, publicBatchWrapper4_f87 a h, publicBatchWrapper4_f88 a h, publicBatchWrapper4_f89 a h, publicBatchWrapper4_f90 a h, publicBatchWrapper4_f91 a h, publicBatchWrapper4_f92 a h, publicBatchWrapper4_f93 a h, publicBatchWrapper4_f94 a h, publicBatchWrapper4_f95 a h⟩, ⟨publicBatchWrapper4_f96 a h, publicBatchWrapper4_f97 a h, publicBatchWrapper4_f98 a h, publicBatchWrapper4_f99 a h, publicBatchWrapper4_f100 a h, publicBatchWrapper4_f101 a h, publicBatchWrapper4_f102 a h, publicBatchWrapper4_f103 a h, publicBatchWrapper4_f104 a h, publicBatchWrapper4_f105 a h, publicBatchWrapper4_f106 a h, publicBatchWrapper4_f107 a h, publicBatchWrapper4_f108 a h, publicBatchWrapper4_f109 a h, publicBatchWrapper4_f110 a h, publicBatchWrapper4_f111 a h, publicBatchWrapper4_f112 a h, publicBatchWrapper4_f113 a h, publicBatchWrapper4_f114 a h, publicBatchWrapper4_f115 a h, publicBatchWrapper4_f116 a h, publicBatchWrapper4_f117 a h, publicBatchWrapper4_f118 a h, publicBatchWrapper4_f119 a h, publicBatchWrapper4_f120 a h, publicBatchWrapper4_f121 a h, publicBatchWrapper4_f122 a h, publicBatchWrapper4_f123 a h, publicBatchWrapper4_f124 a h, publicBatchWrapper4_f125 a h, publicBatchWrapper4_f126 a h, publicBatchWrapper4_f127 a h⟩, ⟨publicBatchWrapper4_f128 a h, publicBatchWrapper4_f129 a h, publicBatchWrapper4_f130 a h, publicBatchWrapper4_f131 a h, publicBatchWrapper4_f132 a h, publicBatchWrapper4_f133 a h, publicBatchWrapper4_f134 a h, publicBatchWrapper4_f135 a h, publicBatchWrapper4_f136 a h, publicBatchWrapper4_f137 a h, publicBatchWrapper4_f138 a h, publicBatchWrapper4_f139 a h, publicBatchWrapper4_f140 a h, publicBatchWrapper4_f141 a h, publicBatchWrapper4_f142 a h, publicBatchWrapper4_f143 a h, publicBatchWrapper4_f144 a h, publicBatchWrapper4_f145 a h, publicBatchWrapper4_f146 a h, publicBatchWrapper4_f147 a h, publicBatchWrapper4_f148 a h, publicBatchWrapper4_f149 a h, publicBatchWrapper4_f150 a h, publicBatchWrapper4_f151 a h, publicBatchWrapper4_f152 a h, publicBatchWrapper4_f153 a h, publicBatchWrapper4_f154 a h, publicBatchWrapper4_f155 a h, publicBatchWrapper4_f156 a h, publicBatchWrapper4_f157 a h, publicBatchWrapper4_f158 a h, publicBatchWrapper4_f159 a h⟩, ⟨publicBatchWrapper4_f160 a h, publicBatchWrapper4_f161 a h, publicBatchWrapper4_f162 a h, publicBatchWrapper4_f163 a h, publicBatchWrapper4_f164 a h, publicBatchWrapper4_f165 a h, publicBatchWrapper4_f166 a h, publicBatchWrapper4_f167 a h, publicBatchWrapper4_f168 a h, publicBatchWrapper4_f169 a h, publicBatchWrapper4_f170 a h, publicBatchWrapper4_f171 a h, publicBatchWrapper4_f172 a h, publicBatchWrapper4_f173 a h, publicBatchWrapper4_f174 a h, publicBatchWrapper4_f175 a h, publicBatchWrapper4_f176 a h, publicBatchWrapper4_f177 a h, publicBatchWrapper4_f178 a h, publicBatchWrapper4_f179 a h, publicBatchWrapper4_f180 a h, publicBatchWrapper4_f181 a h, publicBatchWrapper4_f182 a h, publicBatchWrapper4_f183 a h, publicBatchWrapper4_f184 a h, publicBatchWrapper4_f185 a h, publicBatchWrapper4_f186 a h, publicBatchWrapper4_f187 a h, publicBatchWrapper4_f188 a h, publicBatchWrapper4_f189 a h, publicBatchWrapper4_f190 a h, publicBatchWrapper4_f191 a h⟩, ⟨publicBatchWrapper4_f192 a h, publicBatchWrapper4_f193 a h, publicBatchWrapper4_f194 a h, publicBatchWrapper4_f195 a h, publicBatchWrapper4_f196 a h, publicBatchWrapper4_f197 a h, publicBatchWrapper4_f198 a h, publicBatchWrapper4_f199 a h, publicBatchWrapper4_f200 a h, publicBatchWrapper4_f201 a h, publicBatchWrapper4_f202 a h, publicBatchWrapper4_f203 a h, publicBatchWrapper4_f204 a h, publicBatchWrapper4_f205 a h, publicBatchWrapper4_f206 a h, publicBatchWrapper4_f207 a h⟩⟩
 
 end Plonky2Spec.Generated

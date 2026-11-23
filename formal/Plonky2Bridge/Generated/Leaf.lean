@@ -2496,12 +2496,6 @@ def pubOf (v : Fin 11 → ZMod p) : LeafPublic :=
 omit [Fact p.Prime] in
 theorem pub_eq (a : Assignment p) : pub a = pubOf (a ∘ pi) := rfl
 
-/-- The leaf verifies no proofs of its own. -/
-def tree : Recursive p := .node "leaf_circuit" (leafCircuit p) []
-
-omit [Fact p.Prime] in
-theorem tree_verifiers : (tree (p := p)).verifiers = leafCircuit.verifiers := rfl
-
 /-- **An accepted leaf proof attests `Rleaf`.** Through `proof_sound_leaf`
     (`poseidon_transcript_oracle`, `fri_proximity_gap`, `algebraic_sampling`, `verifier_algebra_of`
     on the certified `build_refines` and `build_hashes`), on the good events `hg` for the leaf's

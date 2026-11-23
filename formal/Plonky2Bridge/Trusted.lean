@@ -274,9 +274,9 @@ theorem Built.Linked.witness_eq {b : Built p} {o : Opened p} (hc : CopyIdentitie
 /-! ### Certified builds
 
   `Built.Refines` is about the whole built system. What the exporter reads off
-  `CircuitBuilder::build`, and what a proof of `Refines` needs, is less: the export's rows
-  at their indices, the `σ`-cycles the export's copies and constants run along, the place
-  of each virtual target, and the wires `build` fixes to the export's constants.
+  `CircuitBuilder::build`, and what a proof of `Refines` needs, is less: where each export
+  row sits, the `σ`-cycles the export's copies and constants run along, the place of each
+  virtual target, and the wires `build` fixes to the export's constants.
   `BuildCert` is that data, `Built.Agrees` says a built system has it, and
   `Built.Agrees.refines` proves `Refines` from it and from checks of the certificate
   against the export that the kernel evaluates. What is left to trust of a certified
@@ -319,13 +319,15 @@ theorem Tbl.get?_mem {α : Type} {t : Tbl α} {i : ℕ} {a : α} (h : t.get? i =
 
 /-- The parts of a built system that `Built.Refines` reads, as the exporter reads them
     off `build`. Natural numbers only: a constant is named by its index in the export's
-    constant list, so the certificate does not depend on the field. The cycles and the
-    virtual targets are tables (`Tbl`) so that the checks against the export, which look
-    them up once per copy, are cheap for the kernel. -/
+    constant list, so the certificate does not depend on the field. The rows, the cycles
+    and the virtual targets are tables (`Tbl`) so that the checks against the export,
+    which look them up once per copy, are cheap for the kernel. -/
 structure BuildCert where
-  /-- The export's rows are rows `0..exportRows` of the built system, and the export's
-      wire targets sit at themselves. -/
-  exportRows : ℕ
+  /-- Export row `i` is row `rowAt i` of the built system, and the export's wire targets
+      on row `i` sit on that row. A wrapper's export shares rows with the recursive
+      verifiers it omits — an arithmetic op lands in a free slot of a row the verifiers
+      left — so its rows are not a prefix of the build's. -/
+  rowAt : Tbl ℕ
   routed : ℕ
   numPublicInputs : ℕ
   /-- Cycles of `σ`, each in `σ` order: the copy classes the export's copies and
@@ -349,7 +351,7 @@ def BuildCert.cycleList (k : BuildCert) : List (List (ℕ × ℕ)) :=
 
 /-- Where the certificate places a target of the export. -/
 def BuildCert.loc (k : BuildCert) : Target → Option (ℕ × ℕ)
-  | .wire i j => if i < k.exportRows then some (i, j) else none
+  | .wire i j => (k.rowAt.get? i).map fun i' => (i', j)
   | .virt n => (k.virt.get? n).join
 
 /-- Cycle `ci` of the certificate, looked up and listed, is one of its cycles. -/
@@ -358,13 +360,14 @@ theorem BuildCert.mem_cycleList {k : BuildCert} {ci : ℕ} {C : Tbl (ℕ × ℕ)
   List.mem_map_of_mem (Tbl.get?_mem h)
 
 /-- The built system `b` is as the certificate `k` describes it, against the export `c`:
-    the export's rows at their indices, `σ` along the listed cycles, which lie in the
+    the export's rows at the rows `rowAt` names, `σ` along the listed cycles, which lie in the
     domain, the listed wires fixed to the export's constants, the targets `k.loc`
     places, where it places them, the listed wires fixed to `0`, and the
     `PublicInputGate` and `PoseidonGate` rows it names. Nothing is said of targets it
     does not place. -/
 structure Built.Agrees (b : Built p) (c : Circuit p) (k : BuildCert) : Prop where
-  rows : ∀ (i : ℕ) (r : Row p), c.rows[i]? = some r → b.rows[i]? = some r
+  rows : ∀ (i : ℕ) (r : Row p), c.rows[i]? = some r →
+    ∃ i', k.rowAt.get? i = some i' ∧ b.rows[i']? = some r
   routed : b.routed = k.routed
   numPublicInputs : b.numPublicInputs = k.numPublicInputs
   domain : ∀ L ∈ k.cycleList, ∀ u ∈ L, u.1 < b.rows.length ∧ u.2 < b.routed
@@ -458,6 +461,13 @@ theorem BuildCert.copiesOk_sound {k : BuildCert} :
     · exact copyOk_sound h.1
     · exact copiesOk_sound h.2 z hz
 
+/-- Links of two copy lists are links of their concatenation: the export's copies are
+    checked a chunk at a time. -/
+theorem BuildCert.links_append {k : BuildCert} {xs ys : List (Target × Target)}
+    (hx : ∀ xy ∈ xs, k.Links xy.1 xy.2) (hy : ∀ xy ∈ ys, k.Links xy.1 xy.2) :
+    ∀ xy ∈ xs ++ ys, k.Links xy.1 xy.2 := fun xy h =>
+  (List.mem_append.mp h).elim (hx xy) (hy xy)
+
 /-- Check the export's constant target number `m`, `t`, against its witness: cycle `ci`
     carries `t` at `iu` and, at `iv`, a wire pinned to constant `m`. -/
 def BuildCert.constOk (k : BuildCert) (m : ℕ) (t : Target) : ℕ × ℕ × ℕ → Bool
@@ -515,30 +525,28 @@ def noConstantRow : GateKind → Bool
   | .constant _ => false
   | _ => true
 
-/-- The export's wire targets are placed at themselves. -/
+/-- The export's wire targets on row `i` are placed on the row `rowAt` names. -/
 theorem Built.Agrees.loc_wire {b : Built p} {c : Circuit p} {k : BuildCert}
-    (h : b.Agrees c k) {i : ℕ} (hi : i < k.exportRows) (j : ℕ) :
-    b.loc (.wire i j) = some (i, j) :=
+    (h : b.Agrees c k) {i i' : ℕ} (hi : k.rowAt.get? i = some i') (j : ℕ) :
+    b.loc (.wire i j) = some (i', j) :=
   h.loc _ _ (by simp [BuildCert.loc, hi])
 
-/-- Each export row is hosted at its own index. -/
+/-- Each export row is hosted at the row `rowAt` names. -/
 theorem Built.Agrees.hosts {b : Built p} {c : Circuit p} {k : BuildCert} (h : b.Agrees c k)
-    (hlen : c.rows.length ≤ k.exportRows) {i : ℕ} {r : Row p} (hi : c.rows[i]? = some r)
-    (hnc : noConstantRow r.kind = true) : b.Hosts i r := by
-  have hlt : i < k.exportRows :=
-    lt_of_lt_of_le (List.getElem?_eq_some_iff.mp hi).1 hlen
-  have hb : b.rows[i]? = some ⟨r.kind, r.consts⟩ := h.rows i r hi
+    {i : ℕ} {r : Row p} (hi : c.rows[i]? = some r) (hnc : noConstantRow r.kind = true) :
+    b.Hosts i r := by
+  obtain ⟨i', hat, hb⟩ := h.rows i r hi
   unfold Built.Hosts
   split
   · rename_i n hk
     intro k' hk'
-    exact Or.inl ⟨i, n, r.consts, k', hk ▸ hb, hk', rfl, rfl, fun m _ => h.loc_wire hlt _⟩
+    exact Or.inl ⟨i', n, r.consts, k', hk ▸ hb, hk', rfl, rfl, fun m _ => h.loc_wire hat _⟩
   · rename_i n hk
     exact absurd hnc (by simp [hk, noConstantRow])
   · rename_i n hk
-    exact ⟨i, r.consts, hk ▸ hb, fun j _ => h.loc_wire hlt j⟩
+    exact ⟨i', r.consts, hk ▸ hb, fun j _ => h.loc_wire hat j⟩
   · rename_i hk
-    exact ⟨i, r.consts, hk ▸ hb, fun j _ => h.loc_wire hlt j⟩
+    exact ⟨i', r.consts, hk ▸ hb, fun j _ => h.loc_wire hat j⟩
   · trivial
   · trivial
   · trivial
@@ -559,18 +567,18 @@ theorem Built.Agrees.pins {b : Built p} {c : Circuit p} {k : BuildCert} (h : b.A
 
 /-- **A certified build refines its export.** From `Agrees` and the checks of the
     certificate against the export, which the kernel evaluates: no `ConstantGate` rows,
-    every copy linked, every constant pinned, the public-input count. -/
+    every copy linked (`copiesOk_sound` per chunk of copies, joined by `links_append`),
+    every constant pinned, the public-input count. -/
 theorem Built.Agrees.refines {b : Built p} {c : Circuit p} {k : BuildCert} (h : b.Agrees c k)
-    {ws cws : List (ℕ × ℕ × ℕ)}
-    (hlen : c.rows.length ≤ k.exportRows)
+    {cws : List (ℕ × ℕ × ℕ)}
     (hnc : (c.rows.map Row.kind).all noConstantRow = true)
-    (hcopies : k.copiesOk c.copies ws = true)
+    (hcopies : ∀ xy ∈ c.copies, k.Links xy.1 xy.2)
     (hconsts : k.constsOk 0 (c.constants.map Prod.fst) cws = true)
     (hpi : k.numPublicInputs = c.publicInputs.length) : b.Refines c where
-  rows i r hi := h.hosts hlen hi (by
+  rows i r hi := h.hosts hi (by
     have := List.all_eq_true.mp hnc r.kind
     exact this (List.mem_map_of_mem (List.mem_of_getElem? hi)))
-  copies xy hxy := h.linked (BuildCert.copiesOk_sound hcopies xy hxy)
+  copies xy hxy := h.linked (hcopies xy hxy)
   constants tc htc := by
     obtain ⟨m, hm, rfl⟩ := List.getElem_of_mem htc
     have hm' : c.constants[m]? = some c.constants[m] := List.getElem?_eq_getElem hm
@@ -616,7 +624,9 @@ def absorbNoPad (perm : St p → St p) (s : St p) : List (ZMod p) → St p
 /-- `InnerHasher::hash_no_pad`, the proof-system hash of a public-input list: the verifier
     computes it of the list it is given (`get_public_inputs_hash`) and `build` lays it
     down in circuit on the public-input targets. `absorbNoPad` from the all-zero state,
-    the first four lanes squeezed (`NUM_HASH_OUT_ELTS = 4 ≤ RATE`, so one squeeze). -/
+    the first four lanes squeezed (`NUM_HASH_OUT_ELTS = 4 ≤ RATE`, so one squeeze).
+    Pinned to the native hash by `publicInputsHash_test`
+    (`Generated/PublicInputsHashVector.lean`), a kernel-evaluated vector. -/
 def publicInputsHash (xs : List (ZMod p)) : Fin 4 → ZMod p :=
   squeeze4 (absorbNoPad poseidonPerm (fun _ => 0) xs)
 
@@ -1292,19 +1302,20 @@ theorem Built.Refines.satisfies {perm : St p → St p} {pis : List (ZMod p)} {b 
     For the leaf the export is the builder's whole pre-`build` state. `build` adds the
     public-input hash and its `PublicInputGate`, the routed constants, the no-op padding,
     and `σ` from the copy list. For the wrappers the export is less than that state:
-    their traces are recorded on a fresh builder that lays down no `verify_proof` rows
-    (`TracingBuilder::verify_proof` in qp-zk-circuits), and production runs
-    `add_recursive_verifiers` before the wrapper logic. The deployed wrapper rows and
-    virtual targets are numbered differently from the export, the wrapper's arithmetic ops
-    can share rows with the gadgets', and its constants can sit on `RandomAccessGate`
-    wires. `Built.Refines` is stated up to `loc` for that reason.
+    production runs `add_recursive_verifiers` before the wrapper logic, and the trace
+    records the wrapper's part of the builder that results — its rows at their production
+    indices, among them rows of the verifiers whose free slots its arithmetic ops took,
+    and the virtual targets it uses. `Built.Refines` is stated up to `loc` for that
+    reason.
 
     Discharging this is a model of `build` on the deployed builder, or a check of
     `Built.Refines` against an export of the built system. The second is
     `Built.Agrees.refines`: a circuit whose built system is certified (`BuildCert`) proves
     its refinement from `Agrees`, and `proof_sound_of` takes that proof instead of this
-    declaration. The leaf is certified (`Plonky2Bridge.LeafBuild`); the wrappers are not,
-    since their traces are not the deployed builder's, and use this declaration. -/
+    declaration. Every traced circuit is certified (`Plonky2Bridge.LeafBuild`,
+    `PrivateWrapperBuild`, `PublicWrapperBuild`, `PublicWrapperProductionBuild`); this
+    declaration remains as the reading of `proof_sound` for a circuit that is not, which
+    no capstone takes. -/
 axiom build_refines_export (tag : String) (c : Circuit p)
     (children : List (Recursive p × List Target)) (b : Built p) :
     BuildOf (.node tag c children) b → b.Refines c
@@ -1328,8 +1339,7 @@ theorem poseidon2_gate_rows (perm : St p → St p) (pis : List (ZMod p))
     The same kind of fact as `build_refines_export`, about the part of `build` that is
     not the export. A circuit with a certified build proves it from `Agrees`
     (`Built.Agrees.hashesPublicInputs`), and `proof_sound_of` takes that proof instead of
-    this declaration. The leaf is certified (`Plonky2Bridge.LeafBuild`); the wrappers use
-    this declaration. -/
+    this declaration, which every traced circuit does. -/
 axiom public_inputs_wired (tag : String) (c : Circuit p)
     (children : List (Recursive p × List Target)) (b : Built p) :
     BuildOf (.node tag c children) b → b.HashesPublicInputs c

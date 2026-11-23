@@ -197,19 +197,20 @@ unconditional on them.
   proved to compute the proof-system permutation (`poseidon_gate_rows`, Step 18), and
   four deterministic obligations remain as declarations:
   - **`build_refines_export`** — the system the verifier key commits to refines the
-    pre-`build` export. Replaced for the leaf by a certified build (Step 16):
-    `Built.Agrees.refines` proves `Refines` from the exporter's certificate of
-    `CircuitBuilder::build`, kernel-checked against the export, and what is declared
-    instead is **`LeafCircuit.build_agrees`** — the deployed leaf build is the one the
-    certificate describes — checked in Rust against the build whose digest is the
-    deployed leaf's. The wrappers keep this declaration: their traces are not the
-    deployed builder's state (no `verify_proof` rows).
+    pre-`build` export. Replaced by a certified build for the leaf (Step 16) and the
+    private-batch wrappers (Step 19): `Built.Agrees.refines` proves `Refines` from the
+    exporter's certificate of `CircuitBuilder::build`, kernel-checked against the
+    export, and what is declared instead is one **`build_agrees`** per circuit
+    (`LeafCircuit.build_agrees`, `Wrapper{2,4,8}.build_agrees`) — the deployed build is
+    the one the certificate describes — checked in Rust against the build of the
+    production builder's state (the leaf's by its circuit digest, the wrappers' by the
+    pre-`build` state digest their traces record). No capstone takes this declaration.
   - **`public_inputs_wired`** — the system the verifier key commits to hashes the
     export's public inputs into its `PublicInputGate` (`Built.HashesPublicInputs`: the
-    `PoseidonGate` rows of `hash_n_to_m_no_pad` and the copies into them). Replaced for
-    the leaf by the certified build (Step 17): `Built.Agrees.hashesPublicInputs` proves
-    it from the certificate, under the same `LeafCircuit.build_agrees`. The wrappers keep
-    this declaration, as they keep `build_refines_export`.
+    `PoseidonGate` rows of `hash_n_to_m_no_pad` and the copies into them). Replaced by
+    the certified builds (Steps 17 and 19): `Built.Agrees.hashesPublicInputs` proves it
+    from the certificate, under the same `build_agrees`. No capstone takes this
+    declaration.
   - **`child_gadget_satisfied`** — the built system holds each child's `verify_proof`
     gadget, on the targets the tree names.
   - **`recursive_verifier_transcript`** — a satisfied gadget is `ProofAccepted`: the
@@ -229,9 +230,11 @@ Poseidon2 collision resistance is not one of these. It stays the `*_or_collision
 reduction against `spongeRO`. A break of `verify` does not produce a collision, so
 `proof_sound` is not `Satisfies ∨ Collision`.
 
-Each declaration says what would discharge it. A capstone that reads a wrapper proof
-calls `proof_sound`; its axiom footprint is exactly the three assumptions,
-`public_input_binding`, the four obligations and, through the leaf proofs under it,
+Each declaration says what would discharge it. A capstone that reads an `n`-leaf wrapper
+proof (`Wrapper{n}.accepted_sound`, `public_batch_end_to_end_wired*`) calls
+`proof_sound_of` on the wrapper's certified build; its axiom footprint is exactly the
+three assumptions, `public_input_binding`, the two child obligations,
+`Wrapper{n}.build_agrees` and, through the leaf proofs under it,
 `LeafCircuit.build_agrees`. A capstone that reads only leaf proofs
 (`LeafCircuit.accepted_sound`, `private_batch_end_to_end_wired*`) calls
 `proof_sound_leaf`; its footprint is the three assumptions, `public_input_binding` and
@@ -1389,6 +1392,67 @@ since Step 14, and `poseidonPerm` is a definition pinned to `Poseidon::poseidon`
   `proof_sound_leaf`: the three assumptions and `public_input_binding`. `proof_sound` /
   `verifier_algebra`: those with the four obligations. `poseidon_gate_rows` is in no
   footprint.
+
+### Step 19 — The wrappers' builds certified  ✅ DONE
+`build_refines_export` and `public_inputs_wired` were kept by the wrappers because their
+traces were not the deployed builder's state: a fresh builder with no `verify_proof` rows,
+where production runs `add_recursive_verifiers` first. The traces are now the production
+builder's, and the private-batch wrappers are certified as the leaf is.
+- **Traces of the production builder** (qp-zk-circuits `common/src/formal_trace.rs`).
+  `TracingBuilder::over` wraps the builder `add_recursive_verifiers` has written to and
+  records the wrapper's part of what follows: its rows at their production indices —
+  among them verifier rows whose free `ArithmeticGate` slots its ops took — its copies,
+  the virtual targets it uses (some the verifiers made: the cached constants `0` and
+  `1`), its public inputs, named targets and gadget calls, plus the builder's counts
+  when tracing began (`start`), the config, and `state_digest`: keccak-256 of the whole
+  pre-`build` state (every row with its constants, copies, constants, public inputs,
+  virtual-target count). The trace tests build each wrapper over the canonical child
+  verifier data as production does and assert the digest is the production
+  constructor's (`PrivateBatchCircuit::new`, `PublicBatchCircuit::new`,
+  `WormholeCircuit::new`); so the `n_inner = 89` trace is checked without building its
+  2^19-row circuit.
+- **Replay** (`constraint-exporter/src/built.rs`). The exporter renumbers a trace to
+  export-local rows and virtual targets (`LoadedTrace.row_at`, `virt_at`), so the Lean
+  export and certificate index only what the wrapper touches (the production wrapper has
+  2.26 M virtual targets). `replay` builds the child circuit from its own trace, lays
+  down `constant_verifier_data` and one `add_virtual_proof_with_pis` / `verify_proof` per
+  recorded verifier, checks the counts equal `start`, places the trace's rows (shared
+  rows must already hold the recorded gate), virtual targets, copies and public inputs
+  at their production indices, and checks `state_digest` against the trace: the result is
+  the production builder. The same `state_digest` function in both repositories is the
+  seam.
+- **Certificates.** `BuildCert.rowAt : Tbl ℕ` replaces `exportRows`: export row `i` is
+  build row `rowAt i`, `loc (.wire i j) = (rowAt i, j)`, and `Agrees.rows` places each
+  export row there. `Agrees.refines` takes the copy links as a proposition and
+  `BuildCert.links_append` joins `copiesOk_sound` over chunks of copies, since a
+  wrapper's copies are rendered in chunks. Each `Generated/{Leaf,Wrapper{2,4,8}}Built.lean`
+  now also carries the circuit's recursion tree (`tree`, the child public inputs
+  `leafPis`, `tree_verifiers`), so the hand-written `build_agrees` declarations
+  (`LeafBuild.lean`, `PrivateWrapperBuild.lean`) are stated on `tree`, and each bridge's
+  `accepted_sound` calls `proof_sound_of` with `build_refines`, `build_hashes` and
+  `children_accepted`. The `σ`-cycles a wrapper's copies run along include the
+  verifiers' classes of the constants `0` and `1` (tens of thousands of positions); the
+  `n = 8` certificate is 5 MB and about four minutes of Lean.
+- **Not certified: the public-batch wrappers.** Their capstones take the inner proofs as
+  hypotheses (`hacc`) and call no `proof_sound*` on their own tree, so nothing consumes
+  a certificate; the exporter can replay and certify the `n_inner = 2` and `4` traces
+  (`tests/built.rs`), and the production one needs more than 14 GB for its 2^19-row
+  build even without the `σ` commitment (`try_build_with_formal_view(false)`), beyond
+  CI. A `PublicWrapper{n}.accepted_sound` would be the consumer; it needs `out` restated
+  on the public inputs alone (`outOf`), as the private wrappers have.
+- **The public-input hash pinned in the kernel.** `publicInputsHash_test`
+  (`Generated/PublicInputsHashVector.lean`): `publicInputsHash` of the lanes `1, …, 11`
+  — a leaf's public-input count, a full rate block and a partial one — equals
+  `PoseidonHash::hash_no_pad` of them, by `decide +kernel`. The differential test
+  `public_inputs_hash_matches_lean_model` remains the check at random lengths; the vector
+  is the one the kernel sees.
+- **Axiom gate.** `Wrapper{n}.build_refines_of_agrees` / `build_hashes_of_agrees`,
+  `publicInputsHash_test`: bare. `Wrapper{n}.build_refines` / `build_hashes`:
+  `Wrapper{n}.build_agrees`. `Wrapper{n}.accepted_sound` and the public-batch capstones:
+  the three assumptions, `public_input_binding`, `child_gadget_satisfied`,
+  `recursive_verifier_transcript`, `LeafCircuit.build_agrees`, `Wrapper{n}.build_agrees`.
+  `build_refines_export` and `public_inputs_wired` are in no capstone's footprint;
+  `proof_sound` keeps them as the reading for an uncertified circuit.
 
 ## 9. Definition of done
 

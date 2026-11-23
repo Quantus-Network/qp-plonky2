@@ -6,7 +6,7 @@
 use alloc::{vec, vec::Vec};
 
 use log::debug;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::challenger::Challenger;
 use crate::config::{GenericConfig, Hasher};
@@ -18,7 +18,7 @@ use crate::hash_types::{RichField, NUM_HASH_OUT_ELTS};
 use crate::merkle_tree::MerkleCap;
 
 /// A method for deciding what arity to use at each reduction layer.
-#[derive(Debug, Clone, Eq, PartialEq, Serialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub enum FriReductionStrategy {
     /// Specifies the exact sequence of arities (expressed in bits) to use.
     Fixed(Vec<usize>),
@@ -189,7 +189,7 @@ fn relative_proof_size(
 }
 
 /// A configuration for the FRI protocol.
-#[derive(Debug, Clone, Eq, PartialEq, Serialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct FriConfig {
     /// `rate = 2^{-rate_bits}`.
     pub rate_bits: usize,

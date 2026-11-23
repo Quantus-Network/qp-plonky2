@@ -17,7 +17,7 @@ set_option maxHeartbeats 0
 
 theorem blockLimb_3 (a : Assignment p) (h : Satisfies (publicBatchWrapper89 p) a) :
     a (.wire 170 7) = blockRef (rows a) 3 := by
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
+  obtain ⟨kslots, ktot, kzero, kone⟩ := consts a h
   rw [(publicBatchWrapper89_f1686 a h)]
   rw [(publicBatchWrapper89_f1675 a h)]
   rw [(publicBatchWrapper89_f1664 a h)]

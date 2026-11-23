@@ -10,11 +10,13 @@
   `leaves`, `us`, `slots`, `out`) and discharges every hypothesis of
   `private_batch_val_rows` (`Plonky2Bridge/PrivateBatch.lean`), so `private_batch_end_to_end`
   is restated on the wiring (`end_to_end_wired`), with the children's `Rleaf` recovered from
-  their accepted proofs through `proof_sound` and the leaf bridge
-  (Step 10). `accepted_sound` is the wrapper's own `proof_sound` consequence, for the
-  public-batch wrapper above it.
+  their accepted proofs through `proof_sound_of` and the leaf bridge
+  (Step 10). `accepted_sound` is the wrapper's own `proof_sound_of` consequence, on its
+  certified build (`Plonky2Bridge/PrivateWrapperBuild.lean`), for the public-batch
+  wrapper above it.
 -/
 import Plonky2Bridge.PrivateBatch
+import Plonky2Bridge.PrivateWrapperBuild
 import Plonky2Bridge.Generated.Leaf
 import Plonky2Spec.Generated.PrivateBatchWrapper2
 
@@ -35,11 +37,6 @@ set_option linter.unusedSimpArgs false
 
 /-! ### Reading the spec objects off the wiring -/
 
-/-- The 11 leaf public inputs of leaf `i` (`leaf_pis_i`). -/
-def leafPis : Fin 2 → Fin 11 → Target
-  | 0 => privateBatchWrapper2.leaf_pis_0
-  | 1 => privateBatchWrapper2.leaf_pis_1
-
 /-- The 4-felt dummy-nullifier preimage of leaf `i` (`dummy_pre_image_i`). -/
 def preimage : Fin 2 → Fin 4 → Target
   | 0 => privateBatchWrapper2.dummy_pre_image_0
@@ -53,16 +50,16 @@ def row (a : Assignment p) : Fin 2 → LeafRow p
     { assetId := a (leafPis 0 0), nullifier := fun j => a (leafPis 0 ⟨1 + j, by omega⟩),
       blockHash := fun j => a (leafPis 0 ⟨5 + j, by omega⟩),
       blockNumber := a (leafPis 0 9), inputAmount := a (leafPis 0 10),
-      dummyEq := ![a (.virt 13212), a (.virt 13214), a (.virt 13216), a (.virt 13218)]
-      dummyInv := ![a (.virt 13213), a (.virt 13215), a (.virt 13217), a (.virt 13219)]
-      pre := fun j => a (preimage 0 j), dnull := fun j => a (.wire 18 (12 + j)) }
+      dummyEq := ![a (.virt 44), a (.virt 46), a (.virt 48), a (.virt 50)]
+      dummyInv := ![a (.virt 45), a (.virt 47), a (.virt 49), a (.virt 51)]
+      pre := fun j => a (preimage 0 j), dnull := fun j => a (.wire 20 (12 + j)) }
   | 1 =>
     { assetId := a (leafPis 1 0), nullifier := fun j => a (leafPis 1 ⟨1 + j, by omega⟩),
       blockHash := fun j => a (leafPis 1 ⟨5 + j, by omega⟩),
       blockNumber := a (leafPis 1 9), inputAmount := a (leafPis 1 10),
-      dummyEq := ![a (.virt 13220), a (.virt 13222), a (.virt 13224), a (.virt 13226)]
-      dummyInv := ![a (.virt 13221), a (.virt 13223), a (.virt 13225), a (.virt 13227)]
-      pre := fun j => a (preimage 1 j), dnull := fun j => a (.wire 20 (12 + j)) }
+      dummyEq := ![a (.virt 52), a (.virt 54), a (.virt 56), a (.virt 58)]
+      dummyInv := ![a (.virt 53), a (.virt 55), a (.virt 57), a (.virt 59)]
+      pre := fun j => a (preimage 1 j), dnull := fun j => a (.wire 22 (12 + j)) }
 
 def rows (a : Assignment p) : List (LeafRow p) := [row a 0, row a 1]
 
@@ -78,8 +75,8 @@ theorem rows_us (a : Assignment p) : (rows a).map LeafRow.u = us a := rfl
 
 /-- The 2 witnessed exit slots `(exit_amount_k, exit_account_k)`. -/
 def slots (a : Assignment p) : List (SlotF p) :=
-  [(a (.virt 13195), fun j => a (![Target.virt 13191, Target.virt 13192, Target.virt 13193, Target.virt 13194] j)),
-   (a (.virt 13200), fun j => a (![Target.virt 13196, Target.virt 13197, Target.virt 13198, Target.virt 13199] j))]
+  [(a (.virt 30), fun j => a (![Target.virt 26, Target.virt 27, Target.virt 28, Target.virt 29] j)),
+   (a (.virt 35), fun j => a (![Target.virt 31, Target.virt 32, Target.virt 33, Target.virt 34] j))]
 
 /-- Public input `k` of the wrapper, decoded through `.val`. -/
 def pv (a : Assignment p) (k : ℕ) : Felt :=
@@ -109,7 +106,7 @@ theorem scanRefL_2 (r0 r1 : LeafRow p) (f : LeafRow p → ZMod p) :
 /-! ### Composition -/
 
 theorem consts (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
-    a (.virt 13209) = 1 ∧ a (.virt 13210) = 0 ∧ a (.virt 13211) = 2 ∧ a (.virt 13244) = 576460752303423488 ∧ a (.virt 13245) = 10000 := by
+    a (.virt 76) = 10000 ∧ a (.virt 11) = 0 ∧ a (.virt 12) = 1 ∧ a (.virt 13) = 2 := by
   have hc := h.2.2
   simp only [privateBatchWrapper2, List.forall_mem_cons, List.not_mem_nil, false_implies,
     implies_true, and_true] at hc
@@ -125,7 +122,7 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     (hp : Poseidon2Rows perm (privateBatchWrapper2 p) a)
     (h32 : ∀ q ∈ leaves a, inRange 32 q.inputAmount) :
     RPrivateBatch (spongeRO perm) (leaves a) (us a) (out a) := by
-  obtain ⟨kone, kzero, ktot, -, kten⟩ := consts a h
+  obtain ⟨kten, kzero, kone, ktot⟩ := consts a h
   have e0_0 := privateBatchWrapper2_f0 a h
   rw [kzero] at e0_0
   have e0_1 := privateBatchWrapper2_f1 a h
@@ -227,38 +224,38 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
   obtain ⟨hi1_0, hi1_1, hi1_2, hi1_3⟩ := privateBatchWrapper2_f86 perm a h hp
   obtain ⟨ho1_0, ho1_1, ho1_2, ho1_3⟩ := privateBatchWrapper2_f87 perm a h hp
 
-  have hd0 : a (.wire 1 43) = (row a 0).isDummy := by rw [e0m, e0a, e0b]; rfl
-  have hd1 : a (.wire 2 27) = (row a 1).isDummy := by rw [e1m, e1a, e1b]; rfl
+  have hd0 : a (.wire 1 55) = (row a 0).isDummy := by rw [e0m, e0a, e0b]; rfl
+  have hd1 : a (.wire 3 39) = (row a 1).isDummy := by rw [e1m, e1a, e1b]; rfl
   have hmem : ∀ r ∈ rows a, r = row a 0 ∨ r = row a 1 := by
     intro r hr
     simpa only [rows, List.mem_cons, List.not_mem_nil, or_false] using hr
   have hsel : ∀ x0 x1 : ZMod p,
-      bselect (a (.wire 2 31)) x1 (bselect (a (.wire 3 7)) x0 0)
+      bselect (a (.wire 3 43)) x1 (bselect (a (.wire 4 7)) x0 0)
         = bselect (band (bnot (row a 1).isDummy) (bnot (bnot (row a 0).isDummy))) x1 (bselect (bnot (row a 0).isDummy) x0 0) := by
     intro x0 x1
     rw [tk1, nf1, r1, r0, hd0, hd1]
-  have hblockRef : (fun j => a (![Target.wire 3 43, Target.wire 3 51, Target.wire 3 59, Target.wire 4 7] j)) = blockRefL (rows a) := by
+  have hblockRef : (fun j => a (![Target.wire 4 43, Target.wire 4 51, Target.wire 4 59, Target.wire 5 7] j)) = blockRefL (rows a) := by
     funext j
     simp only [blockRefL, rows, scanRefL_2]
     fin_cases j
-    · show a (.wire 3 43) = _
+    · show a (.wire 4 43) = _
       rw [sb1_0, sb0_0, hsel]; rfl
-    · show a (.wire 3 51) = _
+    · show a (.wire 4 51) = _
       rw [sb1_1, sb0_1, hsel]; rfl
-    · show a (.wire 3 59) = _
+    · show a (.wire 4 59) = _
       rw [sb1_2, sb0_2, hsel]; rfl
-    · show a (.wire 4 7) = _
+    · show a (.wire 5 7) = _
       rw [sb1_3, sb0_3, hsel]; rfl
-  have hnumRef : a (.wire 4 15) = scanRefL (rows a) fun r => r.blockNumber := by
+  have hnumRef : a (.wire 5 15) = scanRefL (rows a) fun r => r.blockNumber := by
     rw [rows, scanRefL_2, sn1, sn0, hsel]; rfl
   have hM0 : a (.wire 8 59) = bselect (row a 0).isDummy 0 (row a 0).inputAmount := by
     rw [mi0, hd0]; rfl
-  have hM1 : a (.wire 9 7) = bselect (row a 1).isDummy 0 (row a 1).inputAmount := by
+  have hM1 : a (.wire 10 7) = bselect (row a 1).isDummy 0 (row a 1).inputAmount := by
     rw [mi1, hd1]; rfl
-  have hin : a (.wire 6 15) = ((rows a).map fun r => bselect r.isDummy 0 r.inputAmount).sum := by
+  have hin : a (.wire 0 59) = ((rows a).map fun r => bselect r.isDummy 0 r.inputAmount).sum := by
     simp only [rows, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, add_zero]
     rw [ai1, hM0, hM1]
-  have hout : a (.wire 6 19) = ((slots a).map Prod.fst).sum := by
+  have hout : a (.wire 13 3) = ((slots a).map Prod.fst).sum := by
     simp only [slots, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, add_zero]
     rw [ao1]
   have hslots32 : ∀ s ∈ slots a, rangeCheck s.1 32 := by
@@ -267,19 +264,19 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     rcases hs with rfl | rfl
     · exact rc0
     · exact rc1
-  have hfc : FeeCheck (a (.virt 13190)) (a (.wire 6 15)) (a (.wire 6 19)) := by
+  have hfc : FeeCheck (a (.virt 25)) (a (.wire 0 59)) (a (.wire 13 3)) := by
     refine ⟨ffr, ?_, ?_⟩
-    · show rangeCheck (feeDen - a (.virt 13190)) 14
+    · show rangeCheck (feeDen - a (.virt 25)) 14
       unfold feeDen; rw [Nat.cast_ofNat, ← kten, ← fc]; exact fcr
-    · show rangeCheck (a (.wire 6 15) * (feeDen - a (.virt 13190)) - a (.wire 6 19) * feeDen) 52
+    · show rangeCheck (a (.wire 0 59) * (feeDen - a (.virt 25)) - a (.wire 13 3) * feeDen) 52
       unfold feeDen; rw [Nat.cast_ofNat, ← kten, ← fc, ← fl, ← fr, ← fd]; exact fdr
   have hnulls : (out a).nullifiers = ((rows a).map fun r => r.slot.sel).map valDigest := by
-    show ([⟨(a (.wire 16 11)).val, (a (.wire 16 19)).val, (a (.wire 16 27)).val, (a (.wire 16 35)).val⟩,
-      ⟨(a (.wire 16 43)).val, (a (.wire 16 51)).val, (a (.wire 16 59)).val, (a (.wire 21 7)).val⟩] : List Digest) = _
+    show ([⟨(a (.wire 17 11)).val, (a (.wire 17 19)).val, (a (.wire 17 27)).val, (a (.wire 17 35)).val⟩,
+      ⟨(a (.wire 17 43)).val, (a (.wire 17 51)).val, (a (.wire 17 59)).val, (a (.wire 23 7)).val⟩] : List Digest) = _
     rw [s0_0, s0_1, s0_2, s0_3, s1_0, s1_1, s1_2, s1_3, hd0, hd1]
     rfl
   have u0_1 : UniqCheck (row a 0).nullifier (row a 1).nullifier (row a 0).isDummy (row a 1).isDummy :=
-    ⟨a (.wire 14 55), ⟨![a (.virt 13246), a (.virt 13248), a (.virt 13250), a (.virt 13252)], ![a (.virt 13247), a (.virt 13249), a (.virt 13251), a (.virt 13253)], fun j => by fin_cases j <;> assumption, by rw [q0_1m, q0_1a, q0_1b]; rfl⟩, by
+    ⟨a (.wire 18 7), ⟨![a (.virt 77), a (.virt 79), a (.virt 81), a (.virt 83)], ![a (.virt 78), a (.virt 80), a (.virt 82), a (.virt 84)], fun j => by fin_cases j <;> assumption, by rw [q0_1m, q0_1a, q0_1b]; rfl⟩, by
       rw [← hd0, ← hd1, ← un0_1, ← um0_1, ← ub0_1, ← uc0_1]; exact uz0_1⟩
   have hcol : (rows a).Pairwise fun r s => UniqCheck r.nullifier s.nullifier r.isDummy s.isDummy := by
     unfold rows
@@ -292,8 +289,8 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
       nomatch hs
   have hR : RPrivateBatch (spongeRO perm) ((rows a).map LeafRow.leaf) ((rows a).map LeafRow.u) (out a) := by
     refine private_batch_val_rows perm hpg (rows a) (out := out a)
-      (fee := a (.virt 13190)) (totalIn := a (.wire 6 15)) (totalOut := a (.wire 6 19))
-      (assetRef := a (.virt 6584)) (numRef := a (.wire 4 15)) (blockRef := fun j => a (![Target.wire 3 43, Target.wire 3 51, Target.wire 3 59, Target.wire 4 7] j))
+      (fee := a (.virt 25)) (totalIn := a (.wire 0 59)) (totalOut := a (.wire 13 3))
+      (assetRef := a (.virt 0)) (numRef := a (.wire 5 15)) (blockRef := fun j => a (![Target.wire 4 43, Target.wire 4 51, Target.wire 4 59, Target.wire 5 7] j))
       (slots := slots a) ?_ ?_ (by show 2 ≤ 64; decide) h32 hblockRef hnumRef ?_ ?_
       rfl rfl rfl rfl ?_ hin hslots32 (by show 2 ≤ 64; decide) hout hfc rfl hnulls hcol
     · -- dummy checks
@@ -304,9 +301,9 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     · -- dummy nullifiers
       intro r hr
       rcases hmem r hr with rfl | rfl
-      · exact ⟨fun j => a (.wire 17 (12 + j)), fun j => by fin_cases j <;> assumption,
-          fun j => by fin_cases j <;> assumption⟩
       · exact ⟨fun j => a (.wire 19 (12 + j)), fun j => by fin_cases j <;> assumption,
+          fun j => by fin_cases j <;> assumption⟩
+      · exact ⟨fun j => a (.wire 21 (12 + j)), fun j => by fin_cases j <;> assumption,
           fun j => by fin_cases j <;> assumption⟩
     · -- asset consistency
       intro r hr
@@ -316,32 +313,20 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     · -- block consistency
       intro r hr
       rcases hmem r hr with rfl | rfl
-      · refine ⟨![a (.virt 13228), a (.virt 13230), a (.virt 13232), a (.virt 13234)], ![a (.virt 13229), a (.virt 13231), a (.virt 13233), a (.virt 13235)], fun j => by fin_cases j <;> assumption, ?_⟩
-        show bor (row a 0).isDummy (band (band (a (.virt 13228)) (a (.virt 13230))) (band (a (.virt 13232)) (a (.virt 13234)))) = 1
+      · refine ⟨![a (.virt 60), a (.virt 62), a (.virt 64), a (.virt 66)], ![a (.virt 61), a (.virt 63), a (.virt 65), a (.virt 67)], fun j => by fin_cases j <;> assumption, ?_⟩
+        show bor (row a 0).isDummy (band (band (a (.virt 60)) (a (.virt 62))) (band (a (.virt 64)) (a (.virt 66)))) = 1
         rw [← hd0, ← cb0a, ← cb0b, ← cb0m, ← cbo0, cbk0, kone]
-      · refine ⟨![a (.virt 13236), a (.virt 13238), a (.virt 13240), a (.virt 13242)], ![a (.virt 13237), a (.virt 13239), a (.virt 13241), a (.virt 13243)], fun j => by fin_cases j <;> assumption, ?_⟩
-        show bor (row a 1).isDummy (band (band (a (.virt 13236)) (a (.virt 13238))) (band (a (.virt 13240)) (a (.virt 13242)))) = 1
+      · refine ⟨![a (.virt 68), a (.virt 70), a (.virt 72), a (.virt 74)], ![a (.virt 69), a (.virt 71), a (.virt 73), a (.virt 75)], fun j => by fin_cases j <;> assumption, ?_⟩
+        show bor (row a 1).isDummy (band (band (a (.virt 68)) (a (.virt 70))) (band (a (.virt 72)) (a (.virt 74)))) = 1
         rw [← hd1, ← cb1a, ← cb1b, ← cb1m, ← cbo1, cbk1, kone]
     · -- the slot count
-      show (a (.virt 13211)).val = 2
+      show (a (.virt 13)).val = 2
       rw [ktot]
       have hc : (2 : ℕ) < p := lt_of_lt_of_le (by decide) hpg
       rw [← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]
   rwa [rows_leaves, rows_us] at hR
 
 /-! ### The wrapper as a recursion tree (PLAN.md Step 10) -/
-
-/-- The wrapper with its recursion gadgets: `verify_proof` under the leaf verifier key on
-    each `leaf_pis_i`. -/
-def tree : Recursive p :=
-  .node "private_batch_wrapper_n2" (privateBatchWrapper2 p)
-    [(LeafCircuit.tree, List.ofFn (leafPis 0)),
-     (LeafCircuit.tree, List.ofFn (leafPis 1))]
-
-omit [Fact p.Prime] in
-set_option maxRecDepth 8192 in
-/-- The tree's gadgets are the recorded ones. -/
-theorem tree_verifiers : (tree (p := p)).verifiers = privateBatchWrapper2.verifiers := rfl
 
 omit [Fact p.Prime] in
 /-- Child `i`'s public inputs, as the wrapper reads them, are the leaf's `pubOf`. -/
@@ -378,7 +363,7 @@ theorem end_to_end_wired (perm : St p → St p) (hpg : WormholeSpec.goldilocks �
 
 /-- The 26 public inputs in registration order. -/
 def pi : Fin 26 → Target :=
-  ![.virt 13211, .virt 6584, .virt 13190, .wire 3 43, .wire 3 51, .wire 3 59, .wire 4 7, .wire 4 15, .virt 13195, .virt 13191, .virt 13192, .virt 13193, .virt 13194, .virt 13200, .virt 13196, .virt 13197, .virt 13198, .virt 13199, .wire 16 11, .wire 16 19, .wire 16 27, .wire 16 35, .wire 16 43, .wire 16 51, .wire 16 59, .wire 21 7]
+  ![.virt 13, .virt 0, .virt 25, .wire 4 43, .wire 4 51, .wire 4 59, .wire 5 7, .wire 5 15, .virt 30, .virt 26, .virt 27, .virt 28, .virt 29, .virt 35, .virt 31, .virt 32, .virt 33, .virt 34, .wire 17 11, .wire 17 19, .wire 17 27, .wire 17 35, .wire 17 43, .wire 17 51, .wire 17 59, .wire 23 7]
 
 omit [Fact p.Prime] in
 set_option maxRecDepth 8192 in
@@ -397,18 +382,19 @@ omit [Fact p.Prime] in
 set_option maxRecDepth 8192 in
 theorem out_eq (a : Assignment p) : out a = outOf (a ∘ pi) := rfl
 
-/-- **An accepted private-batch proof attests `RPrivateBatch`.** Through `proof_sound` on
-    the good events `hg` for the wrapper's proofs and `hgl` for the leaf proofs: the
-    accepted public inputs are those of an assignment satisfying the wrapper's exported
-    wiring whose own recursion gadgets accepted every leaf proof, hence (`end_to_end_wired`)
-    an `RPrivateBatch` instance. This is what `WormholeSpec.private_batch_proof_sound` used
-    to assume. -/
+/-- **An accepted private-batch proof attests `RPrivateBatch`.** Through `proof_sound_of`
+    on the certified `build_refines` and `build_hashes`, the good events `hg` for the
+    wrapper's proofs and `hgl` for the leaf proofs: the accepted public inputs are those of
+    an assignment satisfying the wrapper's exported wiring whose own recursion gadgets
+    accepted every leaf proof, hence (`end_to_end_wired`) an `RPrivateBatch` instance. This
+    is what `WormholeSpec.private_batch_proof_sound` used to assume. -/
 theorem accepted_sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     (hg : GoodEvents perm tree) (hgl : GoodEvents perm LeafCircuit.tree)
     {ts : Fin 26 → Target} {a : Assignment p}
     (h : ProofAccepted perm tree ((List.ofFn ts).map a)) :
     ∃ leaves us, RPrivateBatch (spongeRO perm) leaves us (outOf (a ∘ ts)) := by
-  obtain ⟨a', h', hp', hpis, hch⟩ := proof_sound perm _ _ _ _ hg h
+  obtain ⟨a', h', hp', hpis, hch⟩ :=
+    proof_sound_of perm _ _ _ _ hg build_refines build_hashes (children_accepted perm _ _ _ _) h
   rw [publicInputs_eq] at hpis
   have hacc : ∀ i : Fin 2, ProofAccepted perm LeafCircuit.tree ((List.ofFn (leafPis i)).map a') := by
     intro i

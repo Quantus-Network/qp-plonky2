@@ -41,8 +41,8 @@ def innerPis : Fin 2 → Fin 26 → Target
 def row (a : Assignment p) : Fin 2 → InnerRow p
   | 0 =>
     { blockHash := fun j => a (innerPis 0 ⟨3 + j, by omega⟩)
-      dummyEq := ![a (.virt 13249), a (.virt 13251), a (.virt 13253), a (.virt 13255)]
-      dummyInv := ![a (.virt 13250), a (.virt 13252), a (.virt 13254), a (.virt 13256)]
+      dummyEq := ![a (.virt 60), a (.virt 62), a (.virt 64), a (.virt 66)]
+      dummyInv := ![a (.virt 61), a (.virt 63), a (.virt 65), a (.virt 67)]
       blockNumber := a (innerPis 0 7), assetId := a (innerPis 0 1), fee := a (innerPis 0 2)
       slots := [(a (innerPis 0 8), fun j => a (innerPis 0 ⟨9 + j, by omega⟩)),
         (a (innerPis 0 13), fun j => a (innerPis 0 ⟨14 + j, by omega⟩))]
@@ -50,8 +50,8 @@ def row (a : Assignment p) : Fin 2 → InnerRow p
         fun j => a (innerPis 0 ⟨22 + j, by omega⟩)] }
   | 1 =>
     { blockHash := fun j => a (innerPis 1 ⟨3 + j, by omega⟩)
-      dummyEq := ![a (.virt 13257), a (.virt 13259), a (.virt 13261), a (.virt 13263)]
-      dummyInv := ![a (.virt 13258), a (.virt 13260), a (.virt 13262), a (.virt 13264)]
+      dummyEq := ![a (.virt 68), a (.virt 70), a (.virt 72), a (.virt 74)]
+      dummyInv := ![a (.virt 69), a (.virt 71), a (.virt 73), a (.virt 75)]
       blockNumber := a (innerPis 1 7), assetId := a (innerPis 1 1), fee := a (innerPis 1 2)
       slots := [(a (innerPis 1 8), fun j => a (innerPis 1 ⟨9 + j, by omega⟩)),
         (a (innerPis 1 13), fun j => a (innerPis 1 ⟨14 + j, by omega⟩))]
@@ -59,8 +59,8 @@ def row (a : Assignment p) : Fin 2 → InnerRow p
         fun j => a (innerPis 1 ⟨22 + j, by omega⟩)] }
   | _ =>
     { blockHash := fun j => a (innerPis 0 ⟨3 + j, by omega⟩)
-      dummyEq := ![a (.virt 13249), a (.virt 13251), a (.virt 13253), a (.virt 13255)]
-      dummyInv := ![a (.virt 13250), a (.virt 13252), a (.virt 13254), a (.virt 13256)]
+      dummyEq := ![a (.virt 60), a (.virt 62), a (.virt 64), a (.virt 66)]
+      dummyInv := ![a (.virt 61), a (.virt 63), a (.virt 65), a (.virt 67)]
       blockNumber := a (innerPis 0 7), assetId := a (innerPis 0 1), fee := a (innerPis 0 2)
       slots := [(a (innerPis 0 8), fun j => a (innerPis 0 ⟨9 + j, by omega⟩)),
         (a (innerPis 0 13), fun j => a (innerPis 0 ⟨14 + j, by omega⟩))]
@@ -89,18 +89,18 @@ def pv (a : Assignment p) (k : ℕ) : Felt :=
 
 /-- Inner `i`'s forwarded exit slots, read off the wiring. -/
 def exitChunk (a : Assignment p) : Fin 2 → List ExitSlot
-  | 0 => [⟨(a (.wire 7 71)).val, ⟨(a (.wire 7 79)).val, (a (.wire 9 7)).val, (a (.wire 9 15)).val, (a (.wire 9 23)).val⟩⟩,
-      ⟨(a (.wire 9 31)).val, ⟨(a (.wire 9 39)).val, (a (.wire 9 47)).val, (a (.wire 9 55)).val, (a (.wire 9 63)).val⟩⟩]
-  | 1 => [⟨(a (.wire 9 71)).val, ⟨(a (.wire 9 79)).val, (a (.wire 10 7)).val, (a (.wire 10 15)).val, (a (.wire 10 23)).val⟩⟩,
-      ⟨(a (.wire 10 31)).val, ⟨(a (.wire 10 39)).val, (a (.wire 10 47)).val, (a (.wire 10 55)).val, (a (.wire 10 63)).val⟩⟩]
+  | 0 => [⟨(a (.wire 8 71)).val, ⟨(a (.wire 8 79)).val, (a (.wire 11 7)).val, (a (.wire 11 15)).val, (a (.wire 11 23)).val⟩⟩,
+      ⟨(a (.wire 11 31)).val, ⟨(a (.wire 11 39)).val, (a (.wire 11 47)).val, (a (.wire 11 55)).val, (a (.wire 11 63)).val⟩⟩]
+  | 1 => [⟨(a (.wire 11 71)).val, ⟨(a (.wire 11 79)).val, (a (.wire 12 7)).val, (a (.wire 12 15)).val, (a (.wire 12 23)).val⟩⟩,
+      ⟨(a (.wire 12 31)).val, ⟨(a (.wire 12 39)).val, (a (.wire 12 47)).val, (a (.wire 12 55)).val, (a (.wire 12 63)).val⟩⟩]
   | _ => []
 
 /-- Inner `i`'s forwarded nullifiers, read off the wiring. -/
 def nullChunk (a : Assignment p) : Fin 2 → List Digest
-  | 0 => [⟨(a (.wire 10 71)).val, (a (.wire 10 79)).val, (a (.wire 11 7)).val, (a (.wire 11 15)).val⟩,
-      ⟨(a (.wire 11 23)).val, (a (.wire 11 31)).val, (a (.wire 11 39)).val, (a (.wire 11 47)).val⟩]
-  | 1 => [⟨(a (.wire 11 55)).val, (a (.wire 11 63)).val, (a (.wire 11 71)).val, (a (.wire 11 79)).val⟩,
-      ⟨(a (.wire 12 7)).val, (a (.wire 12 15)).val, (a (.wire 12 23)).val, (a (.wire 12 31)).val⟩]
+  | 0 => [⟨(a (.wire 12 71)).val, (a (.wire 12 79)).val, (a (.wire 13 7)).val, (a (.wire 13 15)).val⟩,
+      ⟨(a (.wire 13 23)).val, (a (.wire 13 31)).val, (a (.wire 13 39)).val, (a (.wire 13 47)).val⟩]
+  | 1 => [⟨(a (.wire 13 55)).val, (a (.wire 13 63)).val, (a (.wire 13 71)).val, (a (.wire 13 79)).val⟩,
+      ⟨(a (.wire 14 7)).val, (a (.wire 14 15)).val, (a (.wire 14 23)).val, (a (.wire 14 31)).val⟩]
   | _ => []
 
 /-- The aggregated output at the public-batch layout: `[aggregator_address(4), asset_id,
@@ -125,7 +125,7 @@ theorem scanRef_2 (t0 t1 : InnerPair p) (f : InnerPair p → ZMod p) :
 /-! ### Composition -/
 
 theorem consts (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
-    a (.virt 13246) = 1 ∧ a (.virt 13247) = 0 ∧ a (.virt 13248) = 2 ∧ a (.virt 13289) = 4 := by
+    a (.virt 26) = 0 ∧ a (.virt 27) = 4 ∧ a (.virt 28) = 1 ∧ a (.virt 29) = 2 := by
   have hc := h.2.2
   simp only [publicBatchWrapper2, List.forall_mem_cons, List.not_mem_nil, false_implies,
     implies_true, and_true] at hc
@@ -134,8 +134,8 @@ theorem consts (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
 theorem exitChunk_eq_0 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
     exitChunk a 0 = ((row a 0).slots.map (maskSlot (row a 0).isDummy)).map valSlot := by
   unfold exitChunk
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
-  have hd : a (.wire 1 43) = (row a 0).isDummy := by rw [(publicBatchWrapper2_f8 a h), (publicBatchWrapper2_f6 a h), (publicBatchWrapper2_f7 a h)]; rfl
+  obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
+  have hd : a (.wire 3 11) = (row a 0).isDummy := by rw [(publicBatchWrapper2_f8 a h), (publicBatchWrapper2_f6 a h), (publicBatchWrapper2_f7 a h)]; rfl
   rw [(publicBatchWrapper2_f68 a h), (publicBatchWrapper2_f69 a h), (publicBatchWrapper2_f70 a h), (publicBatchWrapper2_f71 a h), (publicBatchWrapper2_f72 a h), (publicBatchWrapper2_f73 a h), (publicBatchWrapper2_f74 a h), (publicBatchWrapper2_f75 a h), (publicBatchWrapper2_f76 a h), (publicBatchWrapper2_f77 a h)]
   rw [kzero, hd]
   rfl
@@ -143,8 +143,8 @@ theorem exitChunk_eq_0 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p)
 theorem nullChunk_eq_0 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
     nullChunk a 0 = ((row a 0).nulls.map fun x j => bselect (row a 0).isDummy 0 (x j)).map valDigest := by
   unfold nullChunk
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
-  have hd : a (.wire 1 43) = (row a 0).isDummy := by rw [(publicBatchWrapper2_f8 a h), (publicBatchWrapper2_f6 a h), (publicBatchWrapper2_f7 a h)]; rfl
+  obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
+  have hd : a (.wire 3 11) = (row a 0).isDummy := by rw [(publicBatchWrapper2_f8 a h), (publicBatchWrapper2_f6 a h), (publicBatchWrapper2_f7 a h)]; rfl
   rw [(publicBatchWrapper2_f88 a h), (publicBatchWrapper2_f89 a h), (publicBatchWrapper2_f90 a h), (publicBatchWrapper2_f91 a h), (publicBatchWrapper2_f92 a h), (publicBatchWrapper2_f93 a h), (publicBatchWrapper2_f94 a h), (publicBatchWrapper2_f95 a h)]
   rw [kzero, hd]
   rfl
@@ -152,8 +152,8 @@ theorem nullChunk_eq_0 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p)
 theorem exitChunk_eq_1 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
     exitChunk a 1 = ((row a 1).slots.map (maskSlot (row a 1).isDummy)).map valSlot := by
   unfold exitChunk
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
-  have hd : a (.wire 2 7) = (row a 1).isDummy := by rw [(publicBatchWrapper2_f15 a h), (publicBatchWrapper2_f13 a h), (publicBatchWrapper2_f14 a h)]; rfl
+  obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
+  have hd : a (.wire 3 55) = (row a 1).isDummy := by rw [(publicBatchWrapper2_f15 a h), (publicBatchWrapper2_f13 a h), (publicBatchWrapper2_f14 a h)]; rfl
   rw [(publicBatchWrapper2_f78 a h), (publicBatchWrapper2_f79 a h), (publicBatchWrapper2_f80 a h), (publicBatchWrapper2_f81 a h), (publicBatchWrapper2_f82 a h), (publicBatchWrapper2_f83 a h), (publicBatchWrapper2_f84 a h), (publicBatchWrapper2_f85 a h), (publicBatchWrapper2_f86 a h), (publicBatchWrapper2_f87 a h)]
   rw [kzero, hd]
   rfl
@@ -161,50 +161,50 @@ theorem exitChunk_eq_1 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p)
 theorem nullChunk_eq_1 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
     nullChunk a 1 = ((row a 1).nulls.map fun x j => bselect (row a 1).isDummy 0 (x j)).map valDigest := by
   unfold nullChunk
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
-  have hd : a (.wire 2 7) = (row a 1).isDummy := by rw [(publicBatchWrapper2_f15 a h), (publicBatchWrapper2_f13 a h), (publicBatchWrapper2_f14 a h)]; rfl
+  obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
+  have hd : a (.wire 3 55) = (row a 1).isDummy := by rw [(publicBatchWrapper2_f15 a h), (publicBatchWrapper2_f13 a h), (publicBatchWrapper2_f14 a h)]; rfl
   rw [(publicBatchWrapper2_f96 a h), (publicBatchWrapper2_f97 a h), (publicBatchWrapper2_f98 a h), (publicBatchWrapper2_f99 a h), (publicBatchWrapper2_f100 a h), (publicBatchWrapper2_f101 a h), (publicBatchWrapper2_f102 a h), (publicBatchWrapper2_f103 a h)]
   rw [kzero, hd]
   rfl
 
 /-- The take wire of inner `i` (`is_real` for inner 0, where the scan folds). -/
 def takeWire : Fin 2 → Target
-  | 0 => .wire 0 67
-  | 1 => .wire 2 11
-  | _ => .wire 0 67
+  | 0 => .wire 2 67
+  | 1 => .wire 3 59
+  | _ => .wire 2 67
 
 theorem realEq_0 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
-    a (.wire 0 67) = (bnot (row a 0).isDummy) := by
-  have hd : a (.wire 1 43) = (row a 0).isDummy := by rw [(publicBatchWrapper2_f8 a h), (publicBatchWrapper2_f6 a h), (publicBatchWrapper2_f7 a h)]; rfl
+    a (.wire 2 67) = (bnot (row a 0).isDummy) := by
+  have hd : a (.wire 3 11) = (row a 0).isDummy := by rw [(publicBatchWrapper2_f8 a h), (publicBatchWrapper2_f6 a h), (publicBatchWrapper2_f7 a h)]; rfl
   rw [(publicBatchWrapper2_f16 a h), hd]
 
 theorem takeEq_0 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
-    a (.wire 0 67) = (bnot (row a 0).isDummy) := by
+    a (.wire 2 67) = (bnot (row a 0).isDummy) := by
   exact realEq_0 a h
 
 theorem realEq_1 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
-    a (.wire 3 19) = (bnot (row a 1).isDummy) := by
-  have hd : a (.wire 2 7) = (row a 1).isDummy := by rw [(publicBatchWrapper2_f15 a h), (publicBatchWrapper2_f13 a h), (publicBatchWrapper2_f14 a h)]; rfl
+    a (.wire 4 19) = (bnot (row a 1).isDummy) := by
+  have hd : a (.wire 3 55) = (row a 1).isDummy := by rw [(publicBatchWrapper2_f15 a h), (publicBatchWrapper2_f13 a h), (publicBatchWrapper2_f14 a h)]; rfl
   rw [(publicBatchWrapper2_f27 a h), hd]
 
 theorem takeEq_1 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
-    a (.wire 2 11) = (band (bnot (row a 1).isDummy) (bnot (bnot (row a 0).isDummy))) := by
-  have hd : a (.wire 2 7) = (row a 1).isDummy := by rw [(publicBatchWrapper2_f15 a h), (publicBatchWrapper2_f13 a h), (publicBatchWrapper2_f14 a h)]; rfl
+    a (.wire 3 59) = (band (bnot (row a 1).isDummy) (bnot (bnot (row a 0).isDummy))) := by
+  have hd : a (.wire 3 55) = (row a 1).isDummy := by rw [(publicBatchWrapper2_f15 a h), (publicBatchWrapper2_f13 a h), (publicBatchWrapper2_f14 a h)]; rfl
   rw [(publicBatchWrapper2_f29 a h)]
   rw [(publicBatchWrapper2_f27 a h), hd]
   rw [(publicBatchWrapper2_f28 a h)]
   rw [realEq_0 a h]
 
 theorem selChain_eq (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
-    ∀ x0 x1 : ZMod p, bselect (a (.wire 2 11)) x1 (bselect (a (.wire 0 67)) x0 0)
+    ∀ x0 x1 : ZMod p, bselect (a (.wire 3 59)) x1 (bselect (a (.wire 2 67)) x0 0)
       = bselect (band (bnot (row a 1).isDummy) (bnot (bnot (row a 0).isDummy))) x1 (bselect (bnot (row a 0).isDummy) x0 0) := by
   intro x0 x1
   rw [takeEq_1 a h]
   rw [takeEq_0 a h]
 
 theorem blockLimb_0 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
-    a (.wire 3 31) = blockRef (rows a) 0 := by
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
+    a (.wire 4 31) = blockRef (rows a) 0 := by
+  obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
   rw [(publicBatchWrapper2_f30 a h)]
   rw [(publicBatchWrapper2_f19 a h)]
   rw [kzero, selChain_eq a h]
@@ -212,8 +212,8 @@ theorem blockLimb_0 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a)
   rfl
 
 theorem blockLimb_1 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
-    a (.wire 3 39) = blockRef (rows a) 1 := by
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
+    a (.wire 4 39) = blockRef (rows a) 1 := by
+  obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
   rw [(publicBatchWrapper2_f31 a h)]
   rw [(publicBatchWrapper2_f20 a h)]
   rw [kzero, selChain_eq a h]
@@ -221,8 +221,8 @@ theorem blockLimb_1 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a)
   rfl
 
 theorem blockLimb_2 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
-    a (.wire 3 47) = blockRef (rows a) 2 := by
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
+    a (.wire 4 47) = blockRef (rows a) 2 := by
+  obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
   rw [(publicBatchWrapper2_f32 a h)]
   rw [(publicBatchWrapper2_f21 a h)]
   rw [kzero, selChain_eq a h]
@@ -230,8 +230,8 @@ theorem blockLimb_2 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a)
   rfl
 
 theorem blockLimb_3 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
-    a (.wire 3 55) = blockRef (rows a) 3 := by
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
+    a (.wire 4 55) = blockRef (rows a) 3 := by
+  obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
   rw [(publicBatchWrapper2_f33 a h)]
   rw [(publicBatchWrapper2_f22 a h)]
   rw [kzero, selChain_eq a h]
@@ -239,8 +239,8 @@ theorem blockLimb_3 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a)
   rfl
 
 theorem scan_sn (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
-    a (.wire 3 63) = scanRef (rows a) fun t => t.1.blockNumber := by
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
+    a (.wire 4 63) = scanRef (rows a) fun t => t.1.blockNumber := by
+  obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
   rw [(publicBatchWrapper2_f34 a h)]
   rw [(publicBatchWrapper2_f23 a h)]
   rw [kzero, selChain_eq a h]
@@ -248,8 +248,8 @@ theorem scan_sn (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
   rfl
 
 theorem scan_sa (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
-    a (.wire 3 71) = scanRef (rows a) fun t => t.1.assetId := by
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
+    a (.wire 4 71) = scanRef (rows a) fun t => t.1.assetId := by
+  obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
   rw [(publicBatchWrapper2_f35 a h)]
   rw [(publicBatchWrapper2_f24 a h)]
   rw [kzero, selChain_eq a h]
@@ -257,8 +257,8 @@ theorem scan_sa (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
   rfl
 
 theorem scan_sf (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
-    a (.wire 3 79) = scanRef (rows a) fun t => t.1.fee := by
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
+    a (.wire 4 79) = scanRef (rows a) fun t => t.1.fee := by
+  obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
   rw [(publicBatchWrapper2_f36 a h)]
   rw [(publicBatchWrapper2_f25 a h)]
   rw [kzero, selChain_eq a h]
@@ -267,7 +267,7 @@ theorem scan_sf (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
 
 theorem dummyAt_0 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
     DummyCheck (row a 0) := by
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
+  obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
   intro j; fin_cases j
   · have e := (publicBatchWrapper2_f2 a h); rw [kzero] at e; exact e
   · have e := (publicBatchWrapper2_f3 a h); rw [kzero] at e; exact e
@@ -277,49 +277,49 @@ theorem dummyAt_0 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
 theorem assetAt_0 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
     ConsistencyCheck (row a 0).isDummy (row a 0).assetId
       (scanRef (rows a) fun t => t.1.assetId) := by
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
-  have hd : a (.wire 1 43) = (row a 0).isDummy := by rw [(publicBatchWrapper2_f8 a h), (publicBatchWrapper2_f6 a h), (publicBatchWrapper2_f7 a h)]; rfl
+  obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
+  have hd : a (.wire 3 11) = (row a 0).isDummy := by rw [(publicBatchWrapper2_f8 a h), (publicBatchWrapper2_f6 a h), (publicBatchWrapper2_f7 a h)]; rfl
   exact ⟨_, _, scan_sa a h ▸ (publicBatchWrapper2_f38 a h), by rw [← hd, ← (publicBatchWrapper2_f39 a h), (publicBatchWrapper2_f40 a h), kone]⟩
 
 theorem feeAt_0 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
     ConsistencyCheck (row a 0).isDummy (row a 0).fee
       (scanRef (rows a) fun t => t.1.fee) := by
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
-  have hd : a (.wire 1 43) = (row a 0).isDummy := by rw [(publicBatchWrapper2_f8 a h), (publicBatchWrapper2_f6 a h), (publicBatchWrapper2_f7 a h)]; rfl
+  obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
+  have hd : a (.wire 3 11) = (row a 0).isDummy := by rw [(publicBatchWrapper2_f8 a h), (publicBatchWrapper2_f6 a h), (publicBatchWrapper2_f7 a h)]; rfl
   exact ⟨_, _, scan_sf a h ▸ (publicBatchWrapper2_f41 a h), by rw [← hd, ← (publicBatchWrapper2_f42 a h), (publicBatchWrapper2_f43 a h), kone]⟩
 
 theorem blockAt_0 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
     DigestConsistencyCheck (row a 0).isDummy (row a 0).blockHash (blockRef (rows a)) := by
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
-  have hd : a (.wire 1 43) = (row a 0).isDummy := by rw [(publicBatchWrapper2_f8 a h), (publicBatchWrapper2_f6 a h), (publicBatchWrapper2_f7 a h)]; rfl
-  have hblk : ∀ j, a (![.wire 3 31, .wire 3 39, .wire 3 47, .wire 3 55] j) = blockRef (rows a) j := by
+  obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
+  have hd : a (.wire 3 11) = (row a 0).isDummy := by rw [(publicBatchWrapper2_f8 a h), (publicBatchWrapper2_f6 a h), (publicBatchWrapper2_f7 a h)]; rfl
+  have hblk : ∀ j, a (![.wire 4 31, .wire 4 39, .wire 4 47, .wire 4 55] j) = blockRef (rows a) j := by
     intro j; fin_cases j
     · exact blockLimb_0 a h
     · exact blockLimb_1 a h
     · exact blockLimb_2 a h
     · exact blockLimb_3 a h
-  refine ⟨![a (.virt 13269), a (.virt 13271), a (.virt 13273), a (.virt 13275)],
-    ![a (.virt 13270), a (.virt 13272), a (.virt 13274), a (.virt 13276)], ?_, ?_⟩
+  refine ⟨![a (.virt 80), a (.virt 82), a (.virt 84), a (.virt 86)],
+    ![a (.virt 81), a (.virt 83), a (.virt 85), a (.virt 87)], ?_, ?_⟩
   · intro j; rw [← hblk j]; fin_cases j
     · exact (publicBatchWrapper2_f44 a h)
     · exact (publicBatchWrapper2_f45 a h)
     · exact (publicBatchWrapper2_f46 a h)
     · exact (publicBatchWrapper2_f47 a h)
-  · show bor (row a 0).isDummy (band (band (a (.virt 13269)) (a (.virt 13271)))
-      (band (a (.virt 13273)) (a (.virt 13275)))) = 1
+  · show bor (row a 0).isDummy (band (band (a (.virt 80)) (a (.virt 82)))
+      (band (a (.virt 84)) (a (.virt 86)))) = 1
     rw [← hd, ← (publicBatchWrapper2_f48 a h), ← (publicBatchWrapper2_f49 a h), ← (publicBatchWrapper2_f50 a h), ← (publicBatchWrapper2_f51 a h), (publicBatchWrapper2_f52 a h), kone]
 
 theorem countAt_0 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a)
     (hpg : WormholeSpec.goldilocks ≤ p) :
     (inner a 0).numExitSlots = 2 := by
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
+  obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
   have hc : (2 : ℕ) < p := lt_of_lt_of_le (by decide) hpg
-  show (a (.virt 6595)).val = 2
+  show (a (.virt 0)).val = 2
   rw [(publicBatchWrapper2_f0 a h), kslots, ← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]
 
 theorem dummyAt_1 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
     DummyCheck (row a 1) := by
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
+  obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
   intro j; fin_cases j
   · have e := (publicBatchWrapper2_f9 a h); rw [kzero] at e; exact e
   · have e := (publicBatchWrapper2_f10 a h); rw [kzero] at e; exact e
@@ -329,44 +329,44 @@ theorem dummyAt_1 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
 theorem assetAt_1 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
     ConsistencyCheck (row a 1).isDummy (row a 1).assetId
       (scanRef (rows a) fun t => t.1.assetId) := by
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
-  have hd : a (.wire 2 7) = (row a 1).isDummy := by rw [(publicBatchWrapper2_f15 a h), (publicBatchWrapper2_f13 a h), (publicBatchWrapper2_f14 a h)]; rfl
+  obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
+  have hd : a (.wire 3 55) = (row a 1).isDummy := by rw [(publicBatchWrapper2_f15 a h), (publicBatchWrapper2_f13 a h), (publicBatchWrapper2_f14 a h)]; rfl
   exact ⟨_, _, scan_sa a h ▸ (publicBatchWrapper2_f53 a h), by rw [← hd, ← (publicBatchWrapper2_f54 a h), (publicBatchWrapper2_f55 a h), kone]⟩
 
 theorem feeAt_1 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
     ConsistencyCheck (row a 1).isDummy (row a 1).fee
       (scanRef (rows a) fun t => t.1.fee) := by
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
-  have hd : a (.wire 2 7) = (row a 1).isDummy := by rw [(publicBatchWrapper2_f15 a h), (publicBatchWrapper2_f13 a h), (publicBatchWrapper2_f14 a h)]; rfl
+  obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
+  have hd : a (.wire 3 55) = (row a 1).isDummy := by rw [(publicBatchWrapper2_f15 a h), (publicBatchWrapper2_f13 a h), (publicBatchWrapper2_f14 a h)]; rfl
   exact ⟨_, _, scan_sf a h ▸ (publicBatchWrapper2_f56 a h), by rw [← hd, ← (publicBatchWrapper2_f57 a h), (publicBatchWrapper2_f58 a h), kone]⟩
 
 theorem blockAt_1 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
     DigestConsistencyCheck (row a 1).isDummy (row a 1).blockHash (blockRef (rows a)) := by
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
-  have hd : a (.wire 2 7) = (row a 1).isDummy := by rw [(publicBatchWrapper2_f15 a h), (publicBatchWrapper2_f13 a h), (publicBatchWrapper2_f14 a h)]; rfl
-  have hblk : ∀ j, a (![.wire 3 31, .wire 3 39, .wire 3 47, .wire 3 55] j) = blockRef (rows a) j := by
+  obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
+  have hd : a (.wire 3 55) = (row a 1).isDummy := by rw [(publicBatchWrapper2_f15 a h), (publicBatchWrapper2_f13 a h), (publicBatchWrapper2_f14 a h)]; rfl
+  have hblk : ∀ j, a (![.wire 4 31, .wire 4 39, .wire 4 47, .wire 4 55] j) = blockRef (rows a) j := by
     intro j; fin_cases j
     · exact blockLimb_0 a h
     · exact blockLimb_1 a h
     · exact blockLimb_2 a h
     · exact blockLimb_3 a h
-  refine ⟨![a (.virt 13281), a (.virt 13283), a (.virt 13285), a (.virt 13287)],
-    ![a (.virt 13282), a (.virt 13284), a (.virt 13286), a (.virt 13288)], ?_, ?_⟩
+  refine ⟨![a (.virt 92), a (.virt 94), a (.virt 96), a (.virt 98)],
+    ![a (.virt 93), a (.virt 95), a (.virt 97), a (.virt 99)], ?_, ?_⟩
   · intro j; rw [← hblk j]; fin_cases j
     · exact (publicBatchWrapper2_f59 a h)
     · exact (publicBatchWrapper2_f60 a h)
     · exact (publicBatchWrapper2_f61 a h)
     · exact (publicBatchWrapper2_f62 a h)
-  · show bor (row a 1).isDummy (band (band (a (.virt 13281)) (a (.virt 13283)))
-      (band (a (.virt 13285)) (a (.virt 13287)))) = 1
+  · show bor (row a 1).isDummy (band (band (a (.virt 92)) (a (.virt 94)))
+      (band (a (.virt 96)) (a (.virt 98)))) = 1
     rw [← hd, ← (publicBatchWrapper2_f63 a h), ← (publicBatchWrapper2_f64 a h), ← (publicBatchWrapper2_f65 a h), ← (publicBatchWrapper2_f66 a h), (publicBatchWrapper2_f67 a h), kone]
 
 theorem countAt_1 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a)
     (hpg : WormholeSpec.goldilocks ≤ p) :
     (inner a 1).numExitSlots = 2 := by
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
+  obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
   have hc : (2 : ℕ) < p := lt_of_lt_of_le (by decide) hpg
-  show (a (.virt 13216)).val = 2
+  show (a (.virt 30)).val = 2
   rw [(publicBatchWrapper2_f1 a h), kslots, ← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]
 
 theorem dummyAll (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
@@ -484,18 +484,18 @@ theorem nullFwd (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
 theorem sound (ro : RandomOracle) (hpg : WormholeSpec.goldilocks ≤ p)
     (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
     RPublicBatch ro (inners a) (addr a) (out a) := by
-  obtain ⟨kone, kzero, kslots, ktot⟩ := consts a h
-  have hblk : ∀ j, a (![.wire 3 31, .wire 3 39, .wire 3 47, .wire 3 55] j) = blockRef (rows a) j := by
+  obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
+  have hblk : ∀ j, a (![.wire 4 31, .wire 4 39, .wire 4 47, .wire 4 55] j) = blockRef (rows a) j := by
     intro j
     fin_cases j
     · exact blockLimb_0 a h
     · exact blockLimb_1 a h
     · exact blockLimb_2 a h
     · exact blockLimb_3 a h
-  have hb0 : a (.wire 3 31) = blockRef (rows a) 0 := hblk 0
-  have hb1 : a (.wire 3 39) = blockRef (rows a) 1 := hblk 1
-  have hb2 : a (.wire 3 47) = blockRef (rows a) 2 := hblk 2
-  have hb3 : a (.wire 3 55) = blockRef (rows a) 3 := hblk 3
+  have hb0 : a (.wire 4 31) = blockRef (rows a) 0 := hblk 0
+  have hb1 : a (.wire 4 39) = blockRef (rows a) 1 := hblk 1
+  have hb2 : a (.wire 4 47) = blockRef (rows a) 2 := hblk 2
+  have hb3 : a (.wire 4 55) = blockRef (rows a) 3 := hblk 3
   have hsnR := scan_sn a h
   have hsaR := scan_sa a h
   have hsfR := scan_sf a h
@@ -505,17 +505,17 @@ theorem sound (ro : RandomOracle) (hpg : WormholeSpec.goldilocks ≤ p)
     (assetAll a h) (feeAll a h) (blockAll a h)
     (exitFwd a h) (nullFwd a h) (shapeAll a) (countAll a h hpg) ?_
   · -- header: block hash
-    show (⟨(a (.wire 3 31)).val, (a (.wire 3 39)).val, (a (.wire 3 47)).val, (a (.wire 3 55)).val⟩ : Digest)
+    show (⟨(a (.wire 4 31)).val, (a (.wire 4 39)).val, (a (.wire 4 47)).val, (a (.wire 4 55)).val⟩ : Digest)
       = ⟨(blockRef (rows a) 0).val, (blockRef (rows a) 1).val, (blockRef (rows a) 2).val,
           (blockRef (rows a) 3).val⟩
     rw [hb0, hb1, hb2, hb3]
-  · show (a (.wire 3 63)).val = _
+  · show (a (.wire 4 63)).val = _
     rw [hsnR]
-  · show (a (.wire 3 71)).val = _
+  · show (a (.wire 4 71)).val = _
     rw [hsaR]
-  · show (a (.wire 3 79)).val = _
+  · show (a (.wire 4 79)).val = _
     rw [hsfR]
-  · show (a (.virt 13289)).val = 2 * 2
+  · show (a (.virt 27)).val = 2 * 2
     rw [ktot]
     have hc : (4 : ℕ) < p := lt_of_lt_of_le (by decide) hpg
     rw [← Nat.cast_ofNat, ZMod.val_natCast_of_lt hc]

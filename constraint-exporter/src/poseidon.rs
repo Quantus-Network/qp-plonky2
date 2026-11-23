@@ -6,15 +6,20 @@
 //! padded shape the Lean model indexes (`initMat` with `e₀` as its first row and column,
 //! `w r` with `M₀₀` in front of the `w^` row, `v r` with an unused lane `0`), and one
 //! input/output pair of `Poseidon::poseidon`, which the generated module checks against
-//! `Consts.perm` by kernel evaluation.
+//! `Consts.perm` by kernel evaluation. It also writes an input/output pair of
+//! `PoseidonHash::hash_no_pad`, the proof-system public-input hash, which
+//! `Plonky2Bridge/Generated/PublicInputsHashVector.lean` checks against
+//! `Plonky2Bridge.publicInputsHash` the same way (Step 19).
 
 use core::fmt::Write as _;
 
 use plonky2::field::goldilocks_field::GoldilocksField;
 use plonky2::field::types::{Field, Field64, PrimeField64};
 use plonky2::hash::poseidon::{
-    Poseidon, ALL_ROUND_CONSTANTS, N_PARTIAL_ROUNDS, N_ROUNDS, SPONGE_WIDTH,
+    Poseidon, PoseidonHash, ALL_ROUND_CONSTANTS, N_PARTIAL_ROUNDS, N_ROUNDS, SPONGE_RATE,
+    SPONGE_WIDTH,
 };
+use plonky2::plonk::config::Hasher;
 
 /// The tables of `Plonky2Spec.Poseidon.Consts`, as the Lean model indexes them.
 pub struct Tables {
@@ -73,6 +78,20 @@ pub fn test_vector() -> ([u64; SPONGE_WIDTH], [u64; SPONGE_WIDTH]) {
     let output = <GF as Poseidon>::poseidon(input);
     (
         input.map(|x| x.to_canonical_u64()),
+        output.map(|x| x.to_canonical_u64()),
+    )
+}
+
+/// `PoseidonHash::hash_no_pad` on `1, 2, …, 11` — a leaf's public-input count: a full rate
+/// block and a partial one, so the vector exercises the overwrite absorption of a second
+/// block and the no-padding of a short one.
+pub fn hash_no_pad_vector() -> (Vec<u64>, [u64; 4]) {
+    let input: Vec<GF> = (1..=SPONGE_RATE as u64 + 3)
+        .map(GF::from_canonical_u64)
+        .collect();
+    let output = PoseidonHash::hash_no_pad(&input).elements;
+    (
+        input.iter().map(|x| x.to_canonical_u64()).collect(),
         output.map(|x| x.to_canonical_u64()),
     )
 }
@@ -161,6 +180,46 @@ pub fn generate_poseidon_consts_lean() -> String {
     );
     out.push_str("end Plonky2Spec.Poseidon\n");
     out
+}
+
+/// `formal/Plonky2Bridge/Generated/PublicInputsHashVector.lean`: the no-pad sponge model
+/// of the public-input hash evaluated in the kernel on a vector of the real
+/// `PoseidonHash::hash_no_pad`.
+pub fn generate_public_inputs_hash_vector_lean() -> String {
+    let (input, output) = hash_no_pad_vector();
+    let input: Vec<String> = input.iter().map(u64::to_string).collect();
+    format!(
+        "/-\n\
+         \x20 AUTO-GENERATED — do not edit by hand.\n\n\
+         \x20 A test vector of `PoseidonHash::hash_no_pad`, the proof-system hash of a public-input\n\
+         \x20 list (`get_public_inputs_hash`), checked against its model `publicInputsHash`\n\
+         \x20 (`Plonky2Bridge/Trusted.lean`) by kernel evaluation. Regenerate with:\n\n\
+         \x20     cargo run -p qp-plonky2-constraint-exporter --bin export-constraints\n\n\
+         \x20 The input is eleven lanes, a leaf's public-input count: a full rate block and a\n\
+         \x20 partial one. The vector pins what the differential test\n\
+         \x20 `public_inputs_hash_matches_lean_model` (the exporter's tests) checks at random\n\
+         \x20 inputs — no padding, overwrite absorption, a permutation per block, the four-lane\n\
+         \x20 squeeze — on the permutation `goldilocks_perm_test` pins.\n\
+         -/\n\
+         import Plonky2Bridge.Trusted\n\n\
+         namespace Plonky2Bridge\n\n\
+         open Plonky2Spec.Poseidon (goldilocksPrime)\n\n\
+         /-- The lanes `1, 2, …, {}`. -/\n\
+         def publicInputsHashTestInput : List (ZMod goldilocksPrime) := [{}]\n\n\
+         /-- `PoseidonHash::hash_no_pad` of `publicInputsHashTestInput`. -/\n\
+         def publicInputsHashTestOutput : Fin 4 → ZMod goldilocksPrime :=\n\
+         \x20 {}\n\n\
+         set_option maxRecDepth 8192 in\n\
+         /-- The model of the public-input hash is the native one, on the test vector.\n\
+         \x20   Kernel-evaluated. -/\n\
+         theorem publicInputsHash_test :\n\
+         \x20   publicInputsHash publicInputsHashTestInput = publicInputsHashTestOutput := by\n\
+         \x20 decide +kernel\n\n\
+         end Plonky2Bridge\n",
+        input.len(),
+        input.join(", "),
+        vec_lean(&output, "    "),
+    )
 }
 
 #[cfg(test)]

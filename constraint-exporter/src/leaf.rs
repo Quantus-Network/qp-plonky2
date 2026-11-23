@@ -1277,15 +1277,6 @@ pub fn render(shape: &Shape, t: &LoadedTrace) -> String {
     w!("omit [Fact p.Prime] in");
     w!("theorem pub_eq (a : Assignment p) : pub a = pubOf (a ∘ pi) := rfl");
     w!("");
-    w!("/-- The leaf verifies no proofs of its own. -/");
-    w!(
-        "def tree : Recursive p := .node {:?} (leafCircuit p) []",
-        t.circuit
-    );
-    w!("");
-    w!("omit [Fact p.Prime] in");
-    w!("theorem tree_verifiers : (tree (p := p)).verifiers = leafCircuit.verifiers := rfl");
-    w!("");
     w!("/-- **An accepted leaf proof attests `Rleaf`.** Through `proof_sound_leaf`");
     w!("    (`poseidon_transcript_oracle`, `fri_proximity_gap`, `algebraic_sampling`, `verifier_algebra_of`");
     w!("    on the certified `build_refines` and `build_hashes`), on the good events `hg` for the leaf's");

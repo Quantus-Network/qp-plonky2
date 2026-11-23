@@ -291,15 +291,13 @@ fn wrapper_lean_is_current() {
         assert_eq!(generated.matches("    · exact rc").count(), slots(n));
         assert!(!generated.contains("rounds"));
         assert!(!generated.contains("network"));
-        assert!(generated.contains(&format!(
-            ".node \"private_batch_wrapper_n{n}\" (privateBatchWrapper{n} p)"
-        )));
+        assert!(generated.contains("import Plonky2Bridge.PrivateWrapperBuild"));
         assert_eq!(
             generated
                 .matches("(LeafCircuit.tree, List.ofFn (leafPis ")
                 .count(),
-            2 * n,
-            "one child per leaf in `tree`, one membership per leaf in `accepted_sound`"
+            n,
+            "one child membership per leaf in `accepted_sound`"
         );
         assert!(generated.contains(&format!(
             "def pi : Fin {} → Target :=",
@@ -309,7 +307,9 @@ fn wrapper_lean_is_current() {
         assert!(
             generated.contains("RPrivateBatch (spongeRO perm) leaves us (outOf (a ∘ ts)) := by")
         );
-        assert!(generated.contains("proof_sound perm _ _ _ _ hg h"));
+        assert!(generated.contains(
+            "proof_sound_of perm _ _ _ _ hg build_refines build_hashes (children_accepted perm _ _ _ _) h"
+        ));
         assert!(!generated.contains("leaf_proof_sound"));
         assert!(!generated.contains("LeafProofAccepted"));
     }
@@ -317,8 +317,14 @@ fn wrapper_lean_is_current() {
 
 #[test]
 fn malformed_traces_are_rejected() {
-    let base = r#"{"circuit":"t","num_routed_wires":80,"num_virtual_targets":2,
-        "rows":[],"copies":[],"constants":[],"public_inputs":[],"named":[],"calls":[CALLS]}"#;
+    let base = r#"{"circuit":"t",
+        "config":{"fri_config":{"cap_height":4,"num_query_rounds":19,"proof_of_work_bits":16,"rate_bits":6,
+          "reduction_strategy":{"ConstantArityBits":[4,5]}},"max_quotient_degree_factor":8,"num_challenges":2,
+          "num_constants":2,"num_routed_wires":80,"num_wires":135,"security_bits":128,
+          "use_base_arithmetic_gate":true,"zero_knowledge":false},
+        "digest":"","start":{"rows":0,"copies":0,"virtual_targets":0},"num_virtual_targets":2,
+        "rows":[{"row":0,"gate":"ArithmeticGate { num_ops: 20 }","constants":[]}],
+        "copies":[],"constants":[],"public_inputs":[],"named":[],"verifiers":[],"calls":[CALLS]}"#;
     let with = |calls: &str| parse(&base.replace("CALLS", calls));
     assert!(with("").is_ok());
     let err = with(
@@ -337,15 +343,20 @@ fn malformed_traces_are_rejected() {
     .unwrap_err();
     assert!(err.contains("without bits"), "{err}");
     let err = with(
+        r#"{"kind":"poseidon2_hash","args":["v0","v1","v2","v3"],"outs":["w5:12","w5:13","w5:14","w5:15"],"fresh":[],"rows":[5,6],"copies":[0,0]}"#,
+    )
+    .unwrap_err();
+    assert!(err.contains("on a row the trace does not list"), "{err}");
+    let err = with(
         r#"{"kind":"poseidon2_hash","args":["v0","v1","v2","v3"],"outs":["w0:12","w0:13","w0:14","w0:15"],"fresh":[],"rows":[0,1],"copies":[0,0]}"#,
     )
     .unwrap_err();
-    assert!(err.contains("row range [0, 1] is out of bounds"), "{err}");
+    assert!(err.contains("expected 1 Poseidon2Gate rows"), "{err}");
     let err = with(
-        r#"{"kind":"poseidon2_hash","args":["v0","v1","v2","v3"],"outs":["w0:12","w0:13","w0:14","w0:15"],"fresh":[],"rows":[0,0],"copies":[0,0]}"#,
+        r#"{"kind":"add","args":["v0","v1"],"outs":["w0:2"],"fresh":[],"rows":[0,1],"copies":[0,3]}"#,
     )
     .unwrap_err();
-    assert!(err.contains("expected 1 Poseidon2Gate rows"), "{err}");
+    assert!(err.contains("copy range [0, 3] is out of bounds"), "{err}");
     let err = with(
         r#"{"kind":"split_le","args":["v0"],"outs":["w0:1"],"fresh":[],"bits":1,"rows":[0,0],"copies":[0,0]}"#,
     )
