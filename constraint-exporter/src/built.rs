@@ -1,102 +1,160 @@
-//! Post-`build` export (PLAN.md Step 16): the system a verifier key commits to, read off
-//! the real `CircuitBuilder::build`, and a certificate that it refines the pre-`build`
-//! export.
+//! Post-`build` export (PLAN.md Steps 16, 17 and 19): the system a verifier key commits
+//! to, read off the real `CircuitBuilder::build`, and a certificate that it refines the
+//! pre-`build` export.
 //!
-//! A trace is the pre-`build` state of the builder that recorded it. `build` is a function
-//! of that state and the config: it hashes the public inputs, adds the `PublicInputGate`,
-//! the `ConstantGate`s and the padding, and resolves the copy list into `σ`. So a trace
-//! whose recording builder was the deployed one — the leaf's, whose trace test runs the
-//! production constructor's steps — can be *replayed* into a fresh builder here and built,
-//! and the result is the deployed system. `FormalBuiltView` reads it: the rows of the
-//! padded domain, `σ`, the copy-class representatives, the fixed constant wires.
+//! A trace is the pre-`build` state of the production builder: for a wrapper, the state
+//! after `add_recursive_verifiers`, of which the trace records the wrapper's own part —
+//! the rows and copies its gadgets added, the rows whose free slots they used, the
+//! constants and public inputs — plus the builder's counts when tracing began and a
+//! digest of the whole state (`state_digest`, the same function in
+//! `qp-zk-circuits/common/src/formal_trace.rs`). `replay` runs the recursive verifiers
+//! here over the child circuits built the same way, lays the trace's part down on top,
+//! and checks the digest: the result is the production builder. `build` is a function of
+//! that state and the config, so building it gives the deployed system, and
+//! `FormalBuiltView` reads it: the rows of the padded domain, `σ`, the copy-class
+//! representatives, the fixed constant wires.
 //!
 //! From the view, `certify` writes the `BuildCert` the Lean side consumes
-//! (`Plonky2Bridge.BuildCert`): the `σ`-cycles the export's copies and constants run
-//! along, the place of every virtual target, the wires pinned to the export's constants,
-//! and per-copy witnesses; and (Step 17) the public-input hash `build` laid down — the
-//! `PublicInputGate` row, the `PoseidonGate` rows of `hash_n_to_m_no_pad`, the wires
-//! fixed to `0` — with a witness per copy into those rows. `Built.Agrees.refines` then
-//! proves `Built.Refines`, and `Built.Agrees.hashesPublicInputs` proves
-//! `Built.HashesPublicInputs`, from the certificate, with the checks of certificate
-//! against export evaluated by the kernel. What is trusted of a certified circuit is
-//! `Built.Agrees`: that the deployed build has the rows, `σ`-cycles, fixed wires and
-//! placements the certificate lists. `verify_agrees` is that statement checked in Rust
-//! against the built view, and the test `leaf_build_matches_deployed_digest` ties the
-//! replayed build to the deployed one by `circuit_digest`.
+//! (`Plonky2Bridge.BuildCert`): where each export row sits in the build, the `σ`-cycles
+//! the export's copies and constants run along, the place of every virtual target, the
+//! wires pinned to the export's constants, per-copy witnesses, and the public-input hash
+//! `build` laid down — the `PublicInputGate` row, the `PoseidonGate` rows of
+//! `hash_n_to_m_no_pad`, the wires fixed to `0` — with a witness per copy into those
+//! rows. `Built.Agrees.refines` then proves `Built.Refines`, and
+//! `Built.Agrees.hashesPublicInputs` proves `Built.HashesPublicInputs`, from the
+//! certificate, with the checks of certificate against export evaluated by the kernel.
+//! What is trusted of a certified circuit is `Built.Agrees`: that the deployed build has
+//! the rows, `σ`-cycles, fixed wires and placements the certificate lists.
+//! `verify_agrees` is that statement checked in Rust against the built view.
 
 use core::fmt::Write as _;
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 use plonky2::field::goldilocks_field::GoldilocksField;
 use plonky2::field::types::{Field, PrimeField64};
-use plonky2::fri::{FriConfig, FriReductionStrategy};
 use plonky2::gates::arithmetic_base::ArithmeticGate;
 use plonky2::gates::base_sum::BaseSumGate;
 use plonky2::gates::poseidon2::Poseidon2Gate;
+use plonky2::hash::hash_types::BytesHash;
+use plonky2::hash::keccak::KeccakHash;
 use plonky2::iop::target::Target;
 use plonky2::plonk::circuit_builder::{CircuitBuilder, FormalBuiltView};
-use plonky2::plonk::circuit_data::{CircuitConfig, CircuitData};
-use plonky2::plonk::config::PoseidonGoldilocksConfig;
+use plonky2::plonk::circuit_data::CircuitData;
+use plonky2::plonk::config::{Hasher, PoseidonGoldilocksConfig};
 
-use crate::circuit::{classify, export, lean_target, CircuitExport, GateKind};
-use crate::trace::{load, traces_dir, LoadedTrace};
+use crate::circuit::{classify, lean_target, GateKind};
+use crate::trace::{load, traces_dir, Counts, LoadedTrace};
 
 type F = GoldilocksField;
 const D: usize = 2;
 type C = PoseidonGoldilocksConfig;
 
-/// The deployed leaf's config, `wormhole_leaf_circuit_config()` in
-/// `qp-zk-circuits/common/src/circuit.rs` over `qp_wormhole_inputs::leaf_config`. Only
-/// `num_wires`, `num_routed_wires`, `num_constants`, `num_challenges` and
-/// `zero_knowledge` shape the built system; the FRI parameters shape the proof. The
-/// digest test checks the whole config against the deployed build.
-pub fn leaf_config() -> CircuitConfig {
-    CircuitConfig {
-        num_wires: 135,
-        num_routed_wires: 60,
-        security_bits: 128,
-        zero_knowledge: false,
-        fri_config: FriConfig {
-            rate_bits: 6,
-            cap_height: 4,
-            proof_of_work_bits: 16,
-            reduction_strategy: FriReductionStrategy::ConstantArityBits(4, 5),
-            num_query_rounds: 19,
-        },
-        ..CircuitConfig::standard_recursion_config()
+/// Keccak-256, hex, of the builder's pre-`build` constraint system: every gate row with
+/// its constants, the copy constraints, constant targets, public inputs and the
+/// virtual-target count. The same function as `formal_trace::state_digest` in
+/// qp-zk-circuits, whose trace tests check it against the production constructor's
+/// builder; two builders with one digest build one circuit.
+pub fn state_digest(b: &CircuitBuilder<F, D>) -> String {
+    let view = b.formal_export_view();
+    assert!(
+        view.lookups.iter().all(Vec::is_empty),
+        "lookups are not modeled"
+    );
+    let felt = |n: usize| F::from_canonical_u64(n as u64);
+    let target = |t: &Target| match *t {
+        Target::Wire(w) => [felt(0), felt(w.row), felt(w.column)],
+        Target::VirtualTarget { index } => [felt(1), felt(index), felt(0)],
+    };
+    let mut input = Vec::new();
+    input.push(felt(view.gate_instances.len()));
+    for gi in view.gate_instances {
+        let id = gi.gate_ref.0.id();
+        input.push(felt(id.len()));
+        input.extend(id.bytes().map(|b| felt(b as usize)));
+        input.push(felt(gi.constants.len()));
+        input.extend(&gi.constants);
+    }
+    input.push(felt(view.copy_constraints.len()));
+    for c in view.copy_constraints {
+        input.extend(target(&c.pair.0));
+        input.extend(target(&c.pair.1));
+    }
+    let constants: BTreeMap<String, (&Target, &F)> = view
+        .constant_targets
+        .iter()
+        .map(|(t, v)| (crate::trace::encode_target(*t), (t, v)))
+        .collect();
+    input.push(felt(constants.len()));
+    for (t, v) in constants.values() {
+        input.extend(target(t));
+        input.push(**v);
+    }
+    input.push(felt(view.public_inputs.len()));
+    for t in view.public_inputs {
+        input.extend(target(t));
+    }
+    input.push(felt(view.num_virtual_targets));
+    let BytesHash(bytes) = KeccakHash::<32>::hash_no_pad(&input);
+    bytes.iter().map(|b| format!("{b:02x}")).collect()
+}
+
+fn counts(b: &CircuitBuilder<F, D>) -> Counts {
+    let view = b.formal_export_view();
+    Counts {
+        rows: view.gate_instances.len(),
+        copies: view.copy_constraints.len(),
+        virtual_targets: view.num_virtual_targets,
     }
 }
 
-/// The deployed leaf's `circuit_digest`: `WormholeCircuit::new(wormhole_leaf_circuit_config())
-/// .build_circuit()` at the `wormholeSpec` revision `formal/lakefile.toml` pins, over the
-/// published `qp-plonky2 1.6.0` that revision depends on. `leaf_build_matches_deployed_digest`
-/// checks the replayed build against it.
-pub const LEAF_CIRCUIT_DIGEST: [u64; 4] = [
-    15101204307867406391,
-    4984110629781477994,
-    15964602978973519077,
-    1260699525966399192,
-];
-
-/// Replay a trace into a fresh builder with `config`: its rows as gate instances with
-/// their constants, its virtual targets in index order with the constant targets made by
-/// `constant`, its copies and its public inputs. The result's `formal_export_view` is
-/// checked to be the trace again.
-pub fn replay(t: &LoadedTrace, config: CircuitConfig) -> Result<CircuitBuilder<F, D>, String> {
-    let routed = t
-        .num_routed_wires
-        .ok_or("trace records no num_routed_wires")?;
-    if routed != config.num_routed_wires {
+/// Replay a trace into a fresh builder with its config: first the recursive verifiers,
+/// as `add_recursive_verifiers` lays them down — the child's verifier key as constants,
+/// then a virtual proof and `verify_proof` per recorded verifier — on the built `child`
+/// the trace's verifiers name; then the trace's rows at their recorded indices, its
+/// virtual targets in index order with the constant targets made by `constant`, its
+/// copies and its public inputs. The result's `state_digest` must be the trace's.
+pub fn replay(
+    t: &LoadedTrace,
+    child: Option<(&str, &CircuitData<F, C, D>)>,
+) -> Result<CircuitBuilder<F, D>, String> {
+    let mut b = CircuitBuilder::<F, D>::new(t.config.clone());
+    match (child, t.ex.verifiers.is_empty()) {
+        (None, true) => {}
+        (None, false) => return Err("trace has verifiers but no child circuit was given".into()),
+        (Some(_), true) => return Err("trace has no verifiers for the child circuit given".into()),
+        (Some((name, data)), false) => {
+            let key = b.constant_verifier_data::<C>(&data.verifier_only);
+            for (i, (tag, pis)) in t.ex.verifiers.iter().enumerate() {
+                if tag != name {
+                    return Err(format!(
+                        "verifier {i} is for {tag:?}, child given is {name:?}"
+                    ));
+                }
+                let proof = b.add_virtual_proof_with_pis(&data.common);
+                b.verify_proof::<C>(&proof, &key, &data.common);
+                let recorded: Vec<Target> = pis.iter().map(|&t_| t.production(t_)).collect();
+                if proof.public_inputs != recorded {
+                    return Err(format!("verifier {i}'s public inputs are not the trace's"));
+                }
+            }
+        }
+    }
+    let start = counts(&b);
+    if start != t.start {
         return Err(format!(
-            "trace has num_routed_wires {routed}, config {}",
-            config.num_routed_wires
+            "the verifiers left {start:?}, the trace began at {:?}",
+            t.start
         ));
     }
-    let num_virt = t
-        .num_virtual_targets
-        .ok_or("trace records no num_virtual_targets")?;
-    let mut b = CircuitBuilder::<F, D>::new(config);
     for (i, (kind, consts)) in t.ex.rows.iter().enumerate() {
+        let at = t.row_at[i];
+        if at < t.start.rows {
+            let gi = &b.formal_export_view().gate_instances[at];
+            if classify(&gi.gate_ref.0.id()) != *kind || gi.constants != *consts {
+                return Err(format!("row {at} of the verifiers is not export row {i}"));
+            }
+            continue;
+        }
         let row = match kind {
             GateKind::Arithmetic { num_ops } => {
                 b.add_gate(ArithmeticGate { num_ops: *num_ops }, consts.clone())
@@ -107,12 +165,18 @@ pub fn replay(t: &LoadedTrace, config: CircuitConfig) -> Result<CircuitBuilder<F
             GateKind::Poseidon2 => b.add_gate(Poseidon2Gate::<F, D>::new(), consts.clone()),
             other => return Err(format!("row {i}: cannot replay a {other:?} row")),
         };
-        if row != i {
-            return Err(format!("row {i} was placed at {row}"));
+        if row != at {
+            return Err(format!(
+                "export row {i} was placed at {row}, the trace has {at}"
+            ));
         }
     }
-    let consts: HashMap<Target, F> = t.ex.constants.iter().copied().collect();
-    for index in 0..num_virt {
+    let consts: HashMap<Target, F> =
+        t.ex.constants
+            .iter()
+            .map(|&(t_, c)| (t.production(t_), c))
+            .collect();
+    for index in t.start.virtual_targets..t.num_virtual_targets {
         let want = Target::VirtualTarget { index };
         let got = match consts.get(&want) {
             Some(&c) => b.constant(c),
@@ -123,36 +187,32 @@ pub fn replay(t: &LoadedTrace, config: CircuitConfig) -> Result<CircuitBuilder<F
         }
     }
     for &(x, y) in &t.ex.copies {
-        b.connect(x, y);
+        b.connect(t.production(x), t.production(y));
     }
-    b.register_public_inputs(&t.ex.public_inputs);
-
-    let again = export(&b, Vec::new())?;
-    let sorted = |cs: &[(Target, F)]| {
-        let mut cs = cs.to_vec();
-        cs.sort_by_key(|(t, c)| (c.to_canonical_u64(), format!("{t:?}")));
-        cs
-    };
-    if again.rows != t.ex.rows {
-        return Err("replayed rows differ from the trace".into());
-    }
-    if again.copies != t.ex.copies {
-        return Err("replayed copies differ from the trace".into());
-    }
-    if sorted(&again.constants) != sorted(&t.ex.constants) {
-        return Err("replayed constants differ from the trace".into());
-    }
-    if again.public_inputs != t.ex.public_inputs {
-        return Err("replayed public inputs differ from the trace".into());
+    let pis: Vec<Target> =
+        t.ex.public_inputs
+            .iter()
+            .map(|&t_| t.production(t_))
+            .collect();
+    b.register_public_inputs(&pis);
+    let digest = state_digest(&b);
+    if digest != t.digest {
+        return Err(format!(
+            "the replayed builder's state digest is {digest}, the trace's {}",
+            t.digest
+        ));
     }
     Ok(b)
 }
 
-/// `build`, with the built view.
+/// `build`, with the built view. The certificate reads only the view, so the commitment
+/// to `σ` — most of the memory of a large build — is optional; the circuit digest is only
+/// meaningful with it.
 pub fn build(
     b: CircuitBuilder<F, D>,
+    commit_to_sigma: bool,
 ) -> Result<(CircuitData<F, C, D>, FormalBuiltView<F, D>), String> {
-    let (data, ok, view) = b.try_build_with_formal_view::<C>(true);
+    let (data, ok, view) = b.try_build_with_formal_view::<C>(commit_to_sigma);
     if !ok {
         return Err("build failed".into());
     }
@@ -173,13 +233,14 @@ pub fn digest(data: &CircuitData<F, C, D>) -> [u64; 4] {
 /// `Plonky2Bridge.BuildCert` with the witnesses of its checks.
 #[derive(Debug, Clone)]
 pub struct Cert {
-    pub export_rows: usize,
+    /// Export row `i` is row `row_at[i]` of the build.
+    pub row_at: Vec<usize>,
     pub routed: usize,
     pub num_public_inputs: usize,
     /// Cycles of `σ`, each in `σ` order: the copy classes the export's copies and constants
     /// use.
     pub cycles: Vec<Vec<(usize, usize)>>,
-    /// A routed wire of each virtual target's copy class, by index.
+    /// A routed wire of each export virtual target's copy class, by index.
     pub virt: Vec<Option<(usize, usize)>>,
     /// `(m, v)`: wire `v` is fixed to the export's constant number `m`.
     pub pins: Vec<(usize, (usize, usize))>,
@@ -246,27 +307,28 @@ fn classes(view: &FormalBuiltView<F, D>) -> HashMap<usize, Vec<(usize, usize)>> 
     classes
 }
 
-/// Where the certificate places a target: an export wire at itself, a virtual target at
-/// the routed wire of its class.
-fn loc(export_rows: usize, virt: &[Option<(usize, usize)>], t: Target) -> Option<(usize, usize)> {
+/// Where the certificate places an export target: a wire target at its row's place in
+/// the build, a virtual target at the routed wire of its class.
+fn loc(row_at: &[usize], virt: &[Option<(usize, usize)>], t: Target) -> Option<(usize, usize)> {
     match t {
-        Target::Wire(w) => (w.row < export_rows).then_some((w.row, w.column)),
+        Target::Wire(w) => row_at.get(w.row).map(|&r| (r, w.column)),
         Target::VirtualTarget { index } => virt.get(index).copied().flatten(),
     }
 }
 
-/// Write the certificate of `view` against `ex`.
-pub fn certify(ex: &CircuitExport, view: &FormalBuiltView<F, D>) -> Result<Cert, String> {
+/// Write the certificate of `view`, the build of `t` replayed, against `t`'s export.
+pub fn certify(t: &LoadedTrace, view: &FormalBuiltView<F, D>) -> Result<Cert, String> {
+    let ex = &t.ex;
     let degree = view.gate_instances.len();
     let routed = view.num_routed_wires;
-    let export_rows = ex.rows.len();
-    if export_rows > degree {
-        return Err(format!("export has {export_rows} rows, the build {degree}"));
-    }
+    let row_at = t.row_at.clone();
     for (i, (kind, consts)) in ex.rows.iter().enumerate() {
-        let gi = &view.gate_instances[i];
+        let gi = view
+            .gate_instances
+            .get(row_at[i])
+            .ok_or_else(|| format!("export row {i} is past the build"))?;
         if classify(&gi.gate_ref.0.id()) != *kind || gi.constants != *consts {
-            return Err(format!("row {i} differs after build"));
+            return Err(format!("export row {i} differs after build"));
         }
     }
     if view.num_public_inputs != ex.public_inputs.len() {
@@ -287,9 +349,8 @@ pub fn certify(ex: &CircuitExport, view: &FormalBuiltView<F, D>) -> Result<Cert,
             }
         }
     }
-    let num_virt = view.representatives.len() - degree * view.num_wires;
-    let rep = |t: Target| view.representatives[index(view, t)];
-    let virt: Vec<Option<(usize, usize)>> = (0..num_virt)
+    let rep = |t_: Target| view.representatives[index(view, t.production(t_))];
+    let virt: Vec<Option<(usize, usize)>> = (0..t.virt_at.len())
         .map(|index| {
             classes
                 .get(&rep(Target::VirtualTarget { index }))
@@ -318,7 +379,7 @@ pub fn certify(ex: &CircuitExport, view: &FormalBuiltView<F, D>) -> Result<Cert,
 
     let mut copy_wits = Vec::with_capacity(ex.copies.len());
     for (n, &(x, y)) in ex.copies.iter().enumerate() {
-        let (Some(u), Some(v)) = (loc(export_rows, &virt, x), loc(export_rows, &virt, y)) else {
+        let (Some(u), Some(v)) = (loc(&row_at, &virt, x), loc(&row_at, &virt, y)) else {
             return Err(format!("copy {n} {x:?} = {y:?} has an unplaced target"));
         };
         if rep(x) != rep(y) {
@@ -331,10 +392,10 @@ pub fn certify(ex: &CircuitExport, view: &FormalBuiltView<F, D>) -> Result<Cert,
 
     let mut pins = Vec::with_capacity(ex.constants.len());
     let mut const_wits = Vec::with_capacity(ex.constants.len());
-    for (m, &(t, c)) in ex.constants.iter().enumerate() {
-        let u = loc(export_rows, &virt, t)
-            .ok_or_else(|| format!("constant target {t:?} is unplaced"))?;
-        let ci = cycle_of(&mut cycle_index, &mut cycles, &classes, rep(t));
+    for (m, &(t_, c)) in ex.constants.iter().enumerate() {
+        let u =
+            loc(&row_at, &virt, t_).ok_or_else(|| format!("constant target {t_:?} is unplaced"))?;
+        let ci = cycle_of(&mut cycle_index, &mut cycles, &classes, rep(t_));
         let cyc = &cycles[ci];
         let iu = position(cyc, u)?;
         let (iv, &v) = cyc
@@ -351,19 +412,18 @@ pub fn certify(ex: &CircuitExport, view: &FormalBuiltView<F, D>) -> Result<Cert,
     }
 
     // The public-input hash. `build` lays down `hash_n_to_m_no_pad` on the public inputs
-    // right after the export's rows — one `PoseidonGate` per rate block — then the
-    // `PublicInputGate`; so the rows between the export and the gate are the hash rows.
-    let pi_row = (export_rows..degree)
+    // right after the builder's rows — one `PoseidonGate` per rate block — then the
+    // `PublicInputGate`; so the rows just before the gate are the hash rows.
+    let pi_row = (0..degree)
         .find(|&i| classify(&view.gate_instances[i].gate_ref.0.id()) == GateKind::PublicInput)
         .ok_or("build has no PublicInputGate row")?;
-    let hash_rows: Vec<usize> = (export_rows..pi_row).collect();
     let blocks = ex.public_inputs.len().div_ceil(RATE);
-    if hash_rows.len() != blocks {
+    if pi_row < blocks {
         return Err(format!(
-            "{} rows between the export and the PublicInputGate, {blocks} rate blocks",
-            hash_rows.len()
+            "the PublicInputGate is at row {pi_row}, before {blocks} hash rows"
         ));
     }
+    let hash_rows: Vec<usize> = (pi_row - blocks..pi_row).collect();
     let zeros: Vec<(usize, usize)> = view
         .fixed
         .iter()
@@ -372,20 +432,21 @@ pub fn certify(ex: &CircuitExport, view: &FormalBuiltView<F, D>) -> Result<Cert,
         .collect();
     let zero_rep = {
         let &(r, c) = zeros.first().ok_or("build fixes no wire to 0")?;
-        rep(Target::wire(r, c))
+        view.representatives[index(view, Target::wire(r, c))]
     };
+    let wire_rep = |r: usize, c: usize| view.representatives[index(view, Target::wire(r, c))];
     // A witness that `src` feeds the routed wire `u`: a cycle carrying both.
     let mut feed =
         |src: Result<Target, Lane>, u: (usize, usize)| -> Result<(usize, usize, usize), String> {
             let (from, r) = match src {
-                Ok(t) => (
-                    loc(export_rows, &virt, t).ok_or_else(|| format!("{t:?} is unplaced"))?,
-                    rep(t),
+                Ok(t_) => (
+                    loc(&row_at, &virt, t_).ok_or_else(|| format!("{t_:?} is unplaced"))?,
+                    rep(t_),
                 ),
-                Err(Lane::Wire(r, c)) => ((r, c), rep(Target::wire(r, c))),
+                Err(Lane::Wire(r, c)) => ((r, c), wire_rep(r, c)),
                 Err(Lane::Zero) => ((0, 0), zero_rep),
             };
-            if r != rep(Target::wire(u.0, u.1)) {
+            if r != wire_rep(u.0, u.1) {
                 return Err(format!("{src:?} is not copied to {u:?}"));
             }
             let ci = cycle_of(&mut cycle_index, &mut cycles, &classes, r);
@@ -419,7 +480,7 @@ pub fn certify(ex: &CircuitExport, view: &FormalBuiltView<F, D>) -> Result<Cert,
         .collect::<Result<Vec<_>, _>>()?;
 
     let cert = Cert {
-        export_rows,
+        row_at,
         routed,
         num_public_inputs: view.num_public_inputs,
         cycles,
@@ -433,30 +494,34 @@ pub fn certify(ex: &CircuitExport, view: &FormalBuiltView<F, D>) -> Result<Cert,
         hash_wits,
         out_wits,
     };
-    verify_agrees(&cert, ex, view)?;
+    verify_agrees(&cert, t, view)?;
     Ok(cert)
 }
 
 /// `Plonky2Bridge.Built.Agrees` of the built view, against the export, checked in Rust:
-/// what the Lean side trusts of a certified circuit. The export's rows are rows
-/// `0..exportRows` of the build; `routed` and `numPublicInputs` are the build's; every
-/// listed cycle lies in the domain and is a cycle of `σ`; every pin is a fixed wire of
-/// the build with the export's constant; and every target is placed where `loc` says:
-/// virtual target `n` at a routed wire of its copy class, or nowhere when the class has
-/// none; every listed zero is a wire fixed to `0`; and the `PublicInputGate` row and the
-/// `PoseidonGate` rows are where the certificate names them.
+/// what the Lean side trusts of a certified circuit. Export row `i` is row `rowAt i` of
+/// the build; `routed` and `numPublicInputs` are the build's; every listed cycle lies in
+/// the domain and is a cycle of `σ`; every pin is a fixed wire of the build with the
+/// export's constant; every target is placed where `loc` says: virtual target `n` at a
+/// routed wire of its copy class, or nowhere when the class has none; every listed zero
+/// is a wire fixed to `0`; and the `PublicInputGate` row and the `PoseidonGate` rows are
+/// where the certificate names them.
 pub fn verify_agrees(
     cert: &Cert,
-    ex: &CircuitExport,
+    t: &LoadedTrace,
     view: &FormalBuiltView<F, D>,
 ) -> Result<(), String> {
+    let ex = &t.ex;
     let degree = view.gate_instances.len();
     let routed = view.num_routed_wires;
-    if cert.export_rows != ex.rows.len() || cert.export_rows > degree {
-        return Err("exportRows".into());
+    if cert.row_at.len() != ex.rows.len() {
+        return Err("rowAt".into());
     }
     for (i, (kind, consts)) in ex.rows.iter().enumerate() {
-        let gi = &view.gate_instances[i];
+        let gi = view
+            .gate_instances
+            .get(cert.row_at[i])
+            .ok_or_else(|| format!("Agrees.rows at {i}"))?;
         if classify(&gi.gate_ref.0.id()) != *kind || gi.constants != *consts {
             return Err(format!("Agrees.rows at {i}"));
         }
@@ -496,13 +561,13 @@ pub fn verify_agrees(
             ));
         }
     }
-    let num_virt = view.representatives.len() - degree * view.num_wires;
-    if cert.virt.len() != num_virt {
+    if cert.virt.len() != t.virt_at.len() {
         return Err("Agrees.loc: virtual target count".into());
     }
     let classes = classes(view);
     for (n, &place) in cert.virt.iter().enumerate() {
-        let rep = view.representatives[index(view, Target::VirtualTarget { index: n })];
+        let rep =
+            view.representatives[index(view, t.production(Target::VirtualTarget { index: n }))];
         match (place, classes.get(&rep)) {
             (None, None) => {}
             (Some((row, column)), Some(cls)) => {
@@ -543,20 +608,22 @@ pub fn verify_agrees(
 /// Items per chunk definition of a long list.
 const CHUNK: usize = 128;
 
+/// A flat Lean list literal, eight items to a line.
+fn flat(items: &[String]) -> String {
+    let mut s = String::from("[");
+    for (i, it) in items.iter().enumerate() {
+        if i % 8 == 0 {
+            s.push_str("\n   ");
+        }
+        let _ = write!(s, " {it}{}", if i + 1 == items.len() { "" } else { "," });
+    }
+    s.push(']');
+    s
+}
+
 /// Render `items` as `def {name}{k} : List ({ty}) := [...]` chunks into `defs` and return
 /// the balanced `++` tree over them (or the flat literal when short).
 fn render_list(defs: &mut String, name: &str, ty: &str, items: &[String]) -> String {
-    fn flat(items: &[String]) -> String {
-        let mut s = String::from("[");
-        for (i, it) in items.iter().enumerate() {
-            if i % 8 == 0 {
-                s.push_str("\n   ");
-            }
-            let _ = write!(s, " {it}{}", if i + 1 == items.len() { "" } else { "," });
-        }
-        s.push(']');
-        s
-    }
     fn tree(name: &str, lo: usize, hi: usize) -> String {
         if hi - lo == 1 {
             format!("{name}{lo}")
@@ -659,54 +726,116 @@ def {name}{k} : Tbl ({ty}) :=
     tree(name, &ranges, 0, ranges.len())
 }
 
-/// The `++` tree the export renderer wrote for the export's copies (`render_lean` in
-/// `circuit.rs`), so `copies_eq` is `rfl`.
-fn export_copies_expr(name: &str, len: usize) -> String {
-    match crate::circuit::chunks(len) {
-        None => format!("({name} p).copies"),
-        Some(ranges) => crate::circuit::chunk_tree(&format!("{name}.copies"), 0, ranges.len()),
+/// The Lean names of a traced circuit: its generated module under
+/// `Plonky2Bridge/Generated/`, its bridge namespace, its export's definition and the
+/// spec module defining it.
+pub struct Names {
+    pub module: String,
+    pub namespace: String,
+    pub circuit: String,
+    pub spec_module: String,
+}
+
+/// The names of the circuit whose trace is `tag`.
+pub fn names(tag: &str) -> Result<Names, String> {
+    let (module, namespace, circuit, spec) = if tag == "leaf_circuit" {
+        (
+            "LeafBuilt".to_string(),
+            "LeafCircuit".to_string(),
+            "leafCircuit".to_string(),
+            "LeafCircuit".to_string(),
+        )
+    } else if let Some(n) = tag.strip_prefix("private_batch_wrapper_n") {
+        (
+            format!("Wrapper{n}Built"),
+            format!("Wrapper{n}"),
+            format!("privateBatchWrapper{n}"),
+            format!("PrivateBatchWrapper{n}"),
+        )
+    } else if let Some(n) = tag.strip_prefix("public_batch_wrapper_n") {
+        (
+            format!("PublicWrapper{n}Built"),
+            format!("PublicWrapper{n}"),
+            format!("publicBatchWrapper{n}"),
+            format!("PublicBatchWrapper{n}"),
+        )
+    } else {
+        return Err(format!("no Lean names for circuit {tag:?}"));
+    };
+    Ok(Names {
+        module,
+        namespace: format!("Plonky2Bridge.{namespace}"),
+        circuit,
+        spec_module: format!("Plonky2Spec.Generated.{spec}"),
+    })
+}
+
+/// The children of a circuit's tree, as the bridge names them: the leaf's public inputs
+/// are `leafPis` over the `leaf_pis_i` targets, an inner wrapper's `innerPis` over
+/// `inner_pis_i`.
+fn child_pis(child: &str) -> (&'static str, &'static str) {
+    if child == "leaf_circuit" {
+        ("leafPis", "leaf_pis_")
+    } else {
+        ("innerPis", "inner_pis_")
     }
 }
 
-/// Render the certificate as `Plonky2Bridge/Generated/{Module}.lean`: the `BuildCert`,
-/// its witnesses, the kernel-evaluated checks against the export, and
-/// `build_refines_of_agrees`.
-pub fn render_lean(
-    module: &str,
-    namespace: &str,
-    circuit_name: &str,
-    spec_module: &str,
-    doc: &str,
-    ex: &CircuitExport,
-    cert: &Cert,
-) -> String {
+/// Render the certificate as `Plonky2Bridge/Generated/{Module}.lean`: the circuit as a
+/// recursion tree over its children, the `BuildCert`, its witnesses, the
+/// kernel-evaluated checks against the export, `build_refines_of_agrees` and
+/// `build_hashes_of_agrees`.
+pub fn render_lean(t: &LoadedTrace, cert: &Cert) -> Result<String, String> {
+    let ex = &t.ex;
+    let tag = &t.circuit;
+    let Names {
+        namespace,
+        circuit: circuit_name,
+        spec_module,
+        ..
+    } = names(tag)?;
+    let child = ex.verifiers.first().map(|(c, _)| names(c)).transpose()?;
     let positions: usize = cert.cycles.iter().map(Vec::len).sum();
     let mut o = String::new();
+    let prelude = match &ex.verifiers[..] {
+        [] => "with the recorded config".to_string(),
+        [(c, _), ..] => format!(
+            "with the recorded config, after\n  \
+             `verify_proof` gadgets under the built `{c}` on {} proofs, as\n  \
+             `add_recursive_verifiers` lays them down,",
+            ex.verifiers.len()
+        ),
+    };
     let _ = writeln!(
         o,
-        "/-\n  GENERATED by `constraint-exporter` (`built.rs`) — do not edit.\n\n  {doc}\n\n  \
-         `buildCert` is what the exporter read off `CircuitBuilder::build` of the replayed trace:\n  \
-         the export's {} rows at their indices, {} positions on {} `σ`-cycles the export's {} copies\n  \
+        "/-\n  GENERATED by `constraint-exporter` (`built.rs`) — do not edit.\n\n  \
+         The certified build of `{tag}`: its trace replayed into `CircuitBuilder` {prelude} and built,\n  \
+         to the state digest the trace records of the production builder.\n\n  \
+         `buildCert` is what the exporter read off `CircuitBuilder::build` of that builder:\n  \
+         the export's {} rows at their places, {} positions on {} `σ`-cycles the export's {} copies\n  \
          and {} constants run along, over {} routed columns, the place of {} virtual targets, and\n  \
-         the public-input hash: `PoseidonGate` rows {:?} absorbing the {} public inputs into the\n  \
+         the public-input hash: `PoseidonGate` rows {}..{} absorbing the {} public inputs into the\n  \
          `PublicInputGate` at row {}.\n  \
          The checks of the certificate against the export are kernel evaluations\n  \
          (`decide +kernel`); `build_refines_of_agrees` is `Built.Agrees.refines` on them and\n  \
          `build_hashes_of_agrees` is `Built.Agrees.hashesPublicInputs`. Nothing here is assumed:\n  \
-         that the deployed build `Agrees` with this certificate is `{namespace}.build_agrees` in\n  \
-         `Plonky2Bridge/{module}.lean`.\n-/",
-        cert.export_rows,
+         that the deployed build `Agrees` with this certificate is `{namespace}.build_agrees`.\n-/",
+        ex.rows.len(),
         positions,
         cert.cycles.len(),
         ex.copies.len(),
         ex.constants.len(),
         cert.routed,
         cert.virt.len(),
-        cert.hash_rows,
+        cert.hash_rows.first().copied().unwrap_or(cert.pi_row),
+        cert.pi_row,
         ex.public_inputs.len(),
         cert.pi_row,
     );
     let _ = writeln!(o, "import Plonky2Bridge.Trusted");
+    if let Some(child) = &child {
+        let _ = writeln!(o, "import Plonky2Bridge.Generated.{}", child.module);
+    }
     let _ = writeln!(o, "import {spec_module}\n");
     let _ = writeln!(o, "namespace {namespace}\n");
     let _ = writeln!(o, "open Plonky2Spec.Wiring");
@@ -714,7 +843,86 @@ pub fn render_lean(
     let _ = writeln!(o, "variable {{p : ℕ}}\n");
     let _ = writeln!(o, "set_option maxRecDepth 8192\n");
 
+    // The tree.
+    let _ = writeln!(
+        o,
+        "/-! ### The circuit as a recursion tree (PLAN.md Step 10) -/\n"
+    );
+    let n = ex.verifiers.len();
+    if let Some(child) = &child {
+        let child_tag = &ex.verifiers[0].0;
+        let pi_len = ex.verifiers[0].1.len();
+        let (pis, prefix) = child_pis(child_tag);
+        let _ = writeln!(
+            o,
+            "/-- The {pi_len} public inputs of child proof `i` (`{prefix}i`): the targets its\n    \
+             `verify_proof` gadget reads. -/\n\
+             def {pis} : Fin {n} → Fin {pi_len} → Target"
+        );
+        for i in 0..n {
+            let _ = writeln!(o, "  | {i} => {circuit_name}.{prefix}{i}");
+        }
+        if child_tag != "leaf_circuit" {
+            let _ = writeln!(o, "  | _ => {circuit_name}.{prefix}0");
+        }
+        let _ = writeln!(
+            o,
+            "\n/-- The circuit with its recursion gadgets: `verify_proof` under the `{child_tag}`\n    \
+             verifier key on each `{prefix}i`. -/\n\
+             def tree : Recursive p :=\n  .node \"{tag}\" ({circuit_name} p)"
+        );
+        let children: Vec<String> = (0..n)
+            .map(|i| {
+                format!(
+                    "({}.tree, List.ofFn ({pis} {i}))",
+                    child.namespace.trim_start_matches("Plonky2Bridge.")
+                )
+            })
+            .collect();
+        let _ = writeln!(o, "    [{}]\n", children.join(",\n     "));
+        let child_ns = child.namespace.trim_start_matches("Plonky2Bridge.");
+        if child_tag == "leaf_circuit" {
+            let _ = writeln!(
+                o,
+                "/-- The tree's gadgets are the recorded ones. -/\n\
+                 theorem tree_verifiers : (tree (p := p)).verifiers = {circuit_name}.verifiers := rfl\n"
+            );
+        } else {
+            for i in 0..n {
+                let _ = writeln!(
+                    o,
+                    "theorem pisEq_{i} :\n    \
+                     List.ofFn ({pis} {i}) = ({circuit_name}.verifiers[{i}]'(by decide)).2 := by\n  rfl\n"
+                );
+            }
+            let _ = writeln!(
+                o,
+                "/-- The tree's gadgets are the recorded ones. -/\n\
+                 theorem tree_verifiers : (tree (p := p)).verifiers = {circuit_name}.verifiers := by\n  \
+                 have htag : {child_ns}.tree.tag (p := p) = \"{child_tag}\" := by\n    \
+                 simp only [Recursive.tag, {child_ns}.tree]\n  \
+                 rw [Recursive.verifiers, tree, Recursive.children]"
+            );
+            for i in 0..n {
+                let _ = writeln!(o, "  rw [List.map_cons, htag, pisEq_{i}]");
+            }
+            let _ = writeln!(o, "  rw [List.map_nil]\n  rfl\n");
+        }
+    } else {
+        let _ = writeln!(
+            o,
+            "/-- The circuit as a recursion tree: no gadgets. -/\n\
+             def tree : Recursive p := .node \"{tag}\" ({circuit_name} p) []\n\n\
+             /-- The tree's gadgets are the recorded ones: none. -/\n\
+             theorem tree_verifiers : (tree (p := p)).verifiers = {circuit_name}.verifiers := rfl\n"
+        );
+    }
+
+    // The certificate.
+    let _ = writeln!(o, "/-! ### The certificate -/\n");
     let mut defs = String::new();
+    let row_at: Vec<(String, usize)> = cert.row_at.iter().map(|r| (r.to_string(), 1)).collect();
+    let row_at = render_tbl(&mut defs, "buildCert.rowAt", "ℕ", &row_at);
     let cycles: Vec<(String, usize)> = cert
         .cycles
         .iter()
@@ -756,40 +964,46 @@ def {name} : Tbl (ℕ × ℕ) := {expr}
         .map(|(m, v)| format!("({m}, {})", pos(*v)))
         .collect();
     let pins = render_list(&mut defs, "buildCert.pins", "ℕ × (ℕ × ℕ)", &pins);
-    let copy_wits: Vec<String> = cert
-        .copy_wits
-        .iter()
-        .map(|(ci, iu, iv)| format!("({ci}, {iu}, {iv})"))
-        .collect();
-    let copy_wits = render_list(&mut defs, "copyWits", "ℕ × ℕ × ℕ", &copy_wits);
-    let const_wits: Vec<String> = cert
-        .const_wits
-        .iter()
-        .map(|(ci, iu, iv)| format!("({ci}, {iu}, {iv})"))
-        .collect();
+    let wit = |(ci, iu, iv): &(usize, usize, usize)| format!("({ci}, {iu}, {iv})");
+    let copy_wits: Vec<String> = cert.copy_wits.iter().map(wit).collect();
+    let const_wits: Vec<String> = cert.const_wits.iter().map(wit).collect();
     let const_wits = render_list(&mut defs, "constWits", "ℕ × ℕ × ℕ", &const_wits);
     o.push_str(&defs);
 
-    let wit = |(ci, iu, iv): &(usize, usize, usize)| format!("({ci}, {iu}, {iv})");
     let zeros: Vec<String> = cert.zeros.iter().map(|&u| pos(u)).collect();
     let hash_rows: Vec<String> = cert.hash_rows.iter().map(usize::to_string).collect();
     let _ = writeln!(
         o,
         "/-- The certificate of the deployed build against `{circuit_name}`. -/\n\
-         def buildCert : BuildCert where\n  exportRows := {}\n  routed := {}\n  numPublicInputs := {}\n  \
+         def buildCert : BuildCert where\n  rowAt := {row_at}\n  routed := {}\n  numPublicInputs := {}\n  \
          cycles := {cycles}\n  virt := {virt}\n  pins := {pins}\n  zeros := [{}]\n  piRow := {}\n  \
          hashRows := [{}]\n",
-        cert.export_rows,
         cert.routed,
         cert.num_public_inputs,
         zeros.join(", "),
         cert.pi_row,
         hash_rows.join(", "),
     );
-    let _ = writeln!(
-        o,
-        "/-- One witness per copy of the export. -/\ndef copyWits : List (ℕ × ℕ × ℕ) := {copy_wits}\n"
-    );
+    let copy_chunks = crate::circuit::chunks(ex.copies.len());
+    match &copy_chunks {
+        None => {
+            let _ = writeln!(
+                o,
+                "/-- One witness per copy of the export. -/\ndef copyWits : List (ℕ × ℕ × ℕ) := {}\n",
+                flat(&copy_wits)
+            );
+        }
+        Some(ranges) => {
+            for (k, r) in ranges.iter().enumerate() {
+                let _ = writeln!(
+                    o,
+                    "/-- One witness per copy of `{circuit_name}.copies{k}`. -/\n\
+                     def copyWits{k} : List (ℕ × ℕ × ℕ) := {}\n",
+                    flat(&copy_wits[r.clone()])
+                );
+            }
+        }
+    }
     let _ = writeln!(
         o,
         "/-- One witness per constant target of the export. -/\ndef constWits : List (ℕ × ℕ × ℕ) := {const_wits}\n"
@@ -848,23 +1062,13 @@ def {name} : Tbl (ℕ × ℕ) := {expr}
     let pi_targets: Vec<String> = ex.public_inputs.iter().map(|&t| lean_target(t)).collect();
     let _ = writeln!(
         o,
-        "/-- The export's public-input targets, in its order. -/\ndef piTargets : List Target := [{}]\n",
-        pi_targets.join(", ")
+        "/-- The export's public-input targets, in its order. -/\ndef piTargets : List Target := {}\n",
+        flat(&pi_targets)
     );
-    let copies_expr = export_copies_expr(circuit_name, ex.copies.len());
 
     let _ = writeln!(
         o,
         "theorem rowKinds_eq : ({circuit_name} p).rows.map Row.kind = rowKinds := rfl\n"
-    );
-    let _ = writeln!(
-        o,
-        "theorem rows_length : ({circuit_name} p).rows.length = {} := rfl\n",
-        ex.rows.len()
-    );
-    let _ = writeln!(
-        o,
-        "theorem copies_eq : ({circuit_name} p).copies = {copies_expr} := rfl\n"
     );
     let _ = writeln!(
         o,
@@ -884,11 +1088,48 @@ def {name} : Tbl (ℕ × ℕ) := {expr}
         "/-- The export has no `ConstantGate` row. -/\n\
          theorem checks_rows : rowKinds.all noConstantRow = true := by decide +kernel\n"
     );
-    let _ = writeln!(
-        o,
-        "/-- Every copy of the export is linked in the certificate. -/\n\
-         theorem checks_copies : buildCert.copiesOk {copies_expr} copyWits = true := by\n  decide +kernel\n"
-    );
+    match &copy_chunks {
+        None => {
+            let _ = writeln!(
+                o,
+                "theorem checks_copies : buildCert.copiesOk ({circuit_name} p).copies copyWits = true := by\n  \
+                 decide +kernel\n\n\
+                 /-- Every copy of the export is linked in the certificate. -/\n\
+                 theorem copies_linked : ∀ xy ∈ ({circuit_name} p).copies, buildCert.Links xy.1 xy.2 :=\n  \
+                 BuildCert.copiesOk_sound checks_copies\n"
+            );
+        }
+        Some(ranges) => {
+            for k in 0..ranges.len() {
+                let _ = writeln!(
+                    o,
+                    "theorem checks_copies_{k} : buildCert.copiesOk {circuit_name}.copies{k} copyWits{k} = true := by\n  \
+                     decide +kernel\n"
+                );
+            }
+            fn linked(lo: usize, hi: usize) -> String {
+                if hi - lo == 1 {
+                    format!("(BuildCert.copiesOk_sound checks_copies_{lo})")
+                } else {
+                    let mid = lo + (hi - lo) / 2;
+                    format!(
+                        "(BuildCert.links_append {} {})",
+                        linked(lo, mid),
+                        linked(mid, hi)
+                    )
+                }
+            }
+            let _ = writeln!(
+                o,
+                "theorem copies_eq : ({circuit_name} p).copies = {} := rfl\n\n\
+                 /-- Every copy of the export is linked in the certificate. -/\n\
+                 theorem copies_linked : ∀ xy ∈ ({circuit_name} p).copies, buildCert.Links xy.1 xy.2 := by\n  \
+                 rw [copies_eq]\n  exact {}\n",
+                crate::circuit::chunk_tree(&format!("{circuit_name}.copies"), 0, ranges.len()),
+                linked(0, ranges.len())
+            );
+        }
+    }
     let _ = writeln!(
         o,
         "/-- Every constant target of the export is pinned in the certificate. -/\n\
@@ -900,9 +1141,8 @@ def {name} : Tbl (ℕ × ℕ) := {expr}
          on the checks above. -/\n\
          theorem build_refines_of_agrees (b : Built p) (h : b.Agrees ({circuit_name} p) buildCert) :\n    \
          b.Refines ({circuit_name} p) :=\n  \
-         h.refines (le_of_eq rows_length) (by rw [rowKinds_eq]; exact checks_rows)\n    \
-         (by rw [copies_eq]; exact checks_copies) (by rw [constants_fst]; exact checks_constants)\n    \
-         publicInputs_length.symm\n"
+         h.refines (by rw [rowKinds_eq]; exact checks_rows) copies_linked\n    \
+         (by rw [constants_fst]; exact checks_constants) publicInputs_length.symm\n"
     );
     let _ = writeln!(
         o,
@@ -920,43 +1160,43 @@ def {name} : Tbl (ℕ × ℕ) := {expr}
          h.hashesPublicInputs (by rw [publicInputs_targets]; exact checks_pi)\n"
     );
     let _ = writeln!(o, "end {namespace}");
-    o
+    Ok(o)
 }
 
-/// A certified build: the trace, what `build` made of its replay, the built view and the
-/// certificate.
-pub type Certified = (
-    LoadedTrace,
-    CircuitData<F, C, D>,
-    FormalBuiltView<F, D>,
-    Cert,
-);
+/// A certified build: the trace, the built view of its replay and the certificate.
+pub struct Certified {
+    pub trace: LoadedTrace,
+    pub view: FormalBuiltView<F, D>,
+    pub cert: Cert,
+}
 
-/// The leaf's certificate from its vendored trace: replayed with `leaf_config`, built, read.
-pub fn leaf_cert() -> Result<Certified, String> {
-    let t = load(&traces_dir().join("leaf_circuit.json"))?;
-    if t.circuit != "leaf_circuit" {
+/// The named circuit's vendored trace, replayed over its child built the same way.
+pub fn replay_circuit(name: &str) -> Result<(LoadedTrace, CircuitBuilder<F, D>), String> {
+    let t = load(&traces_dir().join(format!("{name}.json")))?;
+    if t.circuit != name {
         return Err(format!("trace is for {:?}", t.circuit));
     }
-    let b = replay(&t, leaf_config())?;
-    let (data, view) = build(b)?;
-    let cert = certify(&t.ex, &view)?;
-    Ok((t, data, view, cert))
+    let child = match t.ex.verifiers.first() {
+        Some((child, _)) => {
+            let (_, b) = replay_circuit(child)?;
+            Some((child.clone(), b.build::<C>()))
+        }
+        None => None,
+    };
+    let b = replay(&t, child.as_ref().map(|(name, data)| (name.as_str(), data)))?;
+    Ok((t, b))
 }
 
-/// `Plonky2Bridge/Generated/LeafBuilt.lean`.
-pub fn generate_leaf_built_lean() -> Result<String, String> {
-    let (t, _, _, cert) = leaf_cert()?;
-    Ok(render_lean(
-        "LeafBuild",
-        "Plonky2Bridge.LeafCircuit",
-        "leafCircuit",
-        "Plonky2Spec.Generated.LeafCircuit",
-        "The certified build of the wormhole leaf circuit: `leaf_circuit.json` replayed into\n  \
-         `CircuitBuilder` with `wormhole_leaf_circuit_config()` and built, as the production\n  \
-         constructor builds it (`WormholeCircuit::new_internal`: `CircuitTargets::new`, then\n  \
-         `build_leaf_constraints`, the steps the trace test runs).",
-        &t.ex,
-        &cert,
-    ))
+/// The named circuit's certificate from its vendored trace: replayed, built, read.
+pub fn certify_circuit(name: &str) -> Result<Certified, String> {
+    let (trace, b) = replay_circuit(name)?;
+    let (_, view) = build(b, false)?;
+    let cert = certify(&trace, &view)?;
+    Ok(Certified { trace, view, cert })
+}
+
+/// `Plonky2Bridge/Generated/{Module}.lean` for the named circuit.
+pub fn generate_built_lean(name: &str) -> Result<String, String> {
+    let Certified { trace, cert, .. } = certify_circuit(name)?;
+    render_lean(&trace, &cert)
 }

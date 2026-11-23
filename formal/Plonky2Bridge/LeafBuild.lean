@@ -1,7 +1,8 @@
 /-
   The certified build of the leaf circuit (PLAN.md §7, Steps 16 and 17).
 
-  `Plonky2Bridge/Generated/LeafBuilt.lean` carries `LeafCircuit.buildCert`, the exporter's
+  `Plonky2Bridge/Generated/LeafBuilt.lean` carries `LeafCircuit.tree`, the leaf as a
+  recursion-tree node, and `LeafCircuit.buildCert`, the exporter's
   reading of `CircuitBuilder::build` on the replayed `leaf_circuit.json`, and proves
   `build_refines_of_agrees`: a built system that `Agrees` with the certificate `Refines`
   the leaf export; and `build_hashes_of_agrees`: it hashes the export's public inputs
@@ -11,12 +12,11 @@
   `public_inputs_wired` for the leaf, and `proof_sound_leaf` composes them.
 
   WHY THIS IS SMALLER THAN `build_refines_export`.
-  `build_refines_export` asserts a property of `build` for every circuit, including the
-  wrappers whose traces are not the deployed builder's state. `build_agrees` is a claim
-  about one build of one circuit, and each part of it is a fact the exporter checked on
-  the built system (`built::verify_agrees` in `constraint-exporter`) whose digest is the
-  deployed leaf's (`built::LEAF_CIRCUIT_DIGEST`, the `leaf_build_matches_deployed_digest`
-  test): the export's 223 rows at rows `0..223`, `σ` along the listed cycles, the
+  `build_refines_export` asserts a property of `build` for every circuit. `build_agrees`
+  is a claim about one build of one circuit, and each part of it is a fact the exporter
+  checked on the built system (`built::verify_agrees` in `constraint-exporter`) whose
+  digest is the deployed leaf's (`LEAF_CIRCUIT_DIGEST` in `tests/built.rs`, the
+  `leaf_build_matches_deployed_digest` test): the export's 223 rows at rows `0..223`, `σ` along the listed cycles, the
   constant wires `build` fixed, the location of each target, and the `PublicInputGate`
   and `PoseidonGate` rows `build` added. The exporter's check is Rust, so it is trusted;
   what the kernel verifies is that these facts imply `Refines` and
@@ -27,8 +27,8 @@
   commits to. `build_agrees` says that system is the one the exporter built from the
   trace, as far as `Agrees` looks. That is the statement "the trace is the deployed
   pre-`build` state, and `build` is deterministic", which the trace test in
-  qp-zk-circuits (`formal/traces`, mirrored on `WormholeCircuit::new_internal`) and the
-  digest test check.
+  qp-zk-circuits (`formal/traces`, whose `state_digest` is `WormholeCircuit::new`'s
+  builder's) and the digest test check.
 -/
 import Plonky2Bridge.Generated.LeafBuilt
 
@@ -49,19 +49,16 @@ variable {p : ℕ}
     Checked in Rust: `constraint-exporter`'s `built::verify_agrees` on the
     `FormalBuiltView` of `CircuitBuilder::build` for the replayed trace, whose circuit
     digest is the deployed leaf's (`leaf_build_matches_deployed_digest`). -/
-axiom build_agrees (b : Built p) :
-    BuildOf (.node "leaf_circuit" (leafCircuit p) []) b → b.Agrees (leafCircuit p) buildCert
+axiom build_agrees (b : Built p) : BuildOf tree b → b.Agrees (leafCircuit p) buildCert
 
 /-- **The deployed leaf build refines the leaf export.** `build_agrees` and the certified
     `build_refines_of_agrees`; the leaf's replacement for `build_refines_export`. -/
-theorem build_refines (b : Built p) :
-    BuildOf (.node "leaf_circuit" (leafCircuit p) []) b → b.Refines (leafCircuit p) :=
+theorem build_refines (b : Built p) : BuildOf tree b → b.Refines (leafCircuit p) :=
   fun h => build_refines_of_agrees b (build_agrees b h)
 
 /-- **The deployed leaf build hashes the leaf's public inputs.** `build_agrees` and the
     certified `build_hashes_of_agrees`; the leaf's replacement for `public_inputs_wired`. -/
-theorem build_hashes (b : Built p) :
-    BuildOf (.node "leaf_circuit" (leafCircuit p) []) b → b.HashesPublicInputs (leafCircuit p) :=
+theorem build_hashes (b : Built p) : BuildOf tree b → b.HashesPublicInputs (leafCircuit p) :=
   fun h => build_hashes_of_agrees b (build_agrees b h)
 
 end Plonky2Bridge.LeafCircuit

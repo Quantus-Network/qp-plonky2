@@ -12,7 +12,10 @@
 //!     compositions into `RPrivateBatch` / `RPublicBatch` (Step 8e)
 //!   * `LeafCircuit.lean`    — the recorded leaf circuit                (Step 9b)
 //!   * `Plonky2Bridge/Generated/Leaf.lean` — its composition into `Rleaf` (Step 9d)
-//!   * `Plonky2Bridge/Generated/LeafBuilt.lean` — the certificate of its build (Step 16)
+//!   * `Plonky2Bridge/Generated/LeafBuilt.lean`, `Wrapper{2,4,8}Built.lean` — the
+//!     certificates of their builds, carrying their recursion trees (Steps 16, 19)
+//!   * `Plonky2Bridge/Generated/PublicInputsHashVector.lean` — a kernel-checked vector of
+//!     the proof-system public-input hash (Step 19)
 //!
 //!     cargo run -p qp-plonky2-constraint-exporter --bin export-constraints
 //!
@@ -29,6 +32,16 @@ const PRIVATE_WRAPPER_SIZES: [usize; 3] = [2, 4, 8];
 /// The public-batch wrapper arities with recorded traces. `n = 2` and `4` are over
 /// 2-leaf private batches; `n = 89` is the production arity over the `n = 8` one.
 const PUBLIC_WRAPPER_SIZES: [usize; 3] = [2, 4, 89];
+/// The circuits whose builds are certified (`Plonky2Bridge/Generated/*Built.lean`, Steps 16
+/// and 19): those whose proofs a bridge consumes through `proof_sound_of`. The public-batch
+/// wrappers' capstones take their inner proofs as hypotheses, and the production one is a
+/// 2^19-row build, so they are not.
+const CERTIFIED_CIRCUITS: [&str; 4] = [
+    "leaf_circuit",
+    "private_batch_wrapper_n2",
+    "private_batch_wrapper_n4",
+    "private_batch_wrapper_n8",
+];
 
 fn formal_dir() -> PathBuf {
     // <repo>/qp-plonky2/constraint-exporter -> <repo>/qp-plonky2/formal
@@ -105,6 +118,8 @@ fn main() -> std::io::Result<()> {
     let poseidon2 = constraint_exporter::generate_poseidon2_lean();
     let poseidon2_prims = constraint_exporter::generate_poseidon2_prims_lean();
     let poseidon_consts = constraint_exporter::poseidon::generate_poseidon_consts_lean();
+    let public_inputs_hash_vector =
+        constraint_exporter::poseidon::generate_public_inputs_hash_vector_lean();
     let nullifier_select = constraint_exporter::circuit::generate_nullifier_select_lean();
     let gadget_zoo = constraint_exporter::gadget::generate_gadget_zoo_lean();
     let gadget_edge_cases = constraint_exporter::gadget::generate_gadget_edge_cases_lean();
@@ -120,8 +135,15 @@ fn main() -> std::io::Result<()> {
         constraint_exporter::trace::generate_leaf_circuit_lean().map_err(std::io::Error::other)?;
     let leaf_bridge =
         constraint_exporter::leaf::generate_leaf_bridge_lean().map_err(std::io::Error::other)?;
-    let leaf_built =
-        constraint_exporter::built::generate_leaf_built_lean().map_err(std::io::Error::other)?;
+    let mut built = Vec::new();
+    for circuit in CERTIFIED_CIRCUITS {
+        let module = constraint_exporter::built::names(circuit)
+            .map_err(std::io::Error::other)?
+            .module;
+        let contents = constraint_exporter::built::generate_built_lean(circuit)
+            .map_err(std::io::Error::other)?;
+        built.push((module, contents));
+    }
     let mut public_wrappers = Vec::new();
     for n in PUBLIC_WRAPPER_SIZES {
         let decode = constraint_exporter::trace::generate_public_batch_wrapper_modules(n)
@@ -164,7 +186,14 @@ fn main() -> std::io::Result<()> {
     }
     write(&dir, "LeafCircuit.lean", &leaf)?;
     write(&bridge_dir, "Leaf.lean", &leaf_bridge)?;
-    write(&bridge_dir, "LeafBuilt.lean", &leaf_built)?;
+    for (module, contents) in &built {
+        write(&bridge_dir, &format!("{module}.lean"), contents)?;
+    }
+    write(
+        &bridge_dir,
+        "PublicInputsHashVector.lean",
+        &public_inputs_hash_vector,
+    )?;
 
     print!("{gates}");
     println!("\n-- ===== Poseidon2.lean =====");
@@ -203,7 +232,9 @@ fn main() -> std::io::Result<()> {
     print!("{leaf}");
     println!("\n-- ===== Plonky2Bridge/Generated/Leaf.lean =====");
     print!("{leaf_bridge}");
-    println!("\n-- ===== Plonky2Bridge/Generated/LeafBuilt.lean =====");
-    print!("{leaf_built}");
+    for (module, contents) in &built {
+        println!("\n-- ===== Plonky2Bridge/Generated/{module}.lean =====");
+        print_exported(if module.contains("89") { 89 } else { 2 }, module, contents);
+    }
     Ok(())
 }
