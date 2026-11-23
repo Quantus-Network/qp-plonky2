@@ -152,24 +152,31 @@ jobs:
             Plonky2Bridge.fri_proximity_gap
             Plonky2Bridge.algebraic_sampling
           )
+          children=(
+            Plonky2Bridge.child_gadget_satisfied
+            Plonky2Bridge.recursive_verifier_transcript
+          )
           obligations=(
             Plonky2Bridge.build_refines_export
             Plonky2Bridge.public_inputs_wired
-            Plonky2Bridge.child_gadget_satisfied
-            Plonky2Bridge.recursive_verifier_transcript
+            "${children[@]}"
           )
           binding=(Plonky2Bridge.public_input_binding)
           algebra=("${obligations[@]}" "${binding[@]}")
           trusted=("${assumptions[@]}" "${algebra[@]}")
-          # The leaf's build is certified (Steps 16 and 17): its path through
-          # `proof_sound_leaf` has neither `build_refines_export` nor `public_inputs_wired`
-          # nor the two child obligations, and rests on the one per-circuit trusted
-          # declaration `LeafCircuit.build_agrees` instead. The private-wrapper capstones on
-          # wiring read only leaf proofs, so they have the leaf's footprint too; anything
-          # that reads a wrapper proof (`Wrapper{n}.accepted_sound`, the public-wrapper
-          # capstones) is `trusted` plus that one.
+          # The leaf's and the private wrappers' builds are certified (Steps 16, 17 and
+          # 19): their paths through `proof_sound_leaf` / `proof_sound_of` have neither
+          # `build_refines_export` nor `public_inputs_wired`, and rest on one per-circuit
+          # trusted declaration (`LeafCircuit.build_agrees`, `Wrapper{n}.build_agrees`)
+          # instead. The leaf has no children, so its path has neither child obligation
+          # either; the private-wrapper capstones on wiring read only leaf proofs, so they
+          # have the leaf's footprint too. Anything that reads an `n`-leaf wrapper proof
+          # (`Wrapper{n}.accepted_sound`, the public-wrapper capstones) is the assumptions,
+          # the binding, the two child obligations, and the leaf's and that wrapper's
+          # certificates.
           leaf_trusted=("${assumptions[@]}" "${binding[@]}")
           leaf_cert=(Plonky2Bridge.LeafCircuit.build_agrees)
+          wrapper_trusted=("${leaf_trusted[@]}" "${children[@]}" "${leaf_cert[@]}")
           expect Plonky2Bridge.proof_sound "${base[@]}" "${trusted[@]}"
           expect Plonky2Bridge.verifier_algebra "${base[@]}" "${algebra[@]}"
           expect Plonky2Bridge.identical_constraints_satisfies "${base[@]}" Plonky2Bridge.build_refines_export
@@ -178,6 +185,7 @@ jobs:
           expect Plonky2Bridge.poseidon_gate_rows "${base[@]}"
           expect Plonky2Spec.Poseidon.gate_sound_complete "${base[@]}"
           expect Plonky2Spec.Poseidon.goldilocks_perm_test "${base[@]}"
+          expect Plonky2Bridge.publicInputsHash_test "${base[@]}"
           expect Plonky2Bridge.proof_sound_leaf "${base[@]}" "${leaf_trusted[@]}"
           expect Plonky2Bridge.Built.Agrees.refines propext Quot.sound
           expect Plonky2Bridge.LeafCircuit.build_refines_of_agrees propext Quot.sound
@@ -186,17 +194,23 @@ jobs:
           expect Plonky2Bridge.Built.Agrees.hashesPublicInputs propext Quot.sound
           expect Plonky2Bridge.LeafCircuit.build_hashes_of_agrees propext Quot.sound
           expect Plonky2Bridge.LeafCircuit.build_hashes propext Quot.sound "${leaf_cert[@]}"
+          for n in 2 4 8; do
+            expect Plonky2Bridge.Wrapper$n.build_refines_of_agrees propext Quot.sound
+            expect Plonky2Bridge.Wrapper$n.build_hashes_of_agrees propext Quot.sound
+            expect Plonky2Bridge.Wrapper$n.build_refines propext Quot.sound Plonky2Bridge.Wrapper$n.build_agrees
+            expect Plonky2Bridge.Wrapper$n.build_hashes propext Quot.sound Plonky2Bridge.Wrapper$n.build_agrees
+          done
           expect Plonky2Bridge.private_batch_end_to_end "${base[@]}"
           expect Plonky2Bridge.public_batch_end_to_end "${base[@]}"
           expect Plonky2Bridge.private_batch_end_to_end_wired "${base[@]}" "${leaf_trusted[@]}" "${leaf_cert[@]}"
           expect Plonky2Bridge.private_batch_end_to_end_wired_n4 "${base[@]}" "${leaf_trusted[@]}" "${leaf_cert[@]}"
           expect Plonky2Bridge.private_batch_end_to_end_wired_production "${base[@]}" "${leaf_trusted[@]}" "${leaf_cert[@]}"
-          expect Plonky2Bridge.public_batch_end_to_end_wired "${base[@]}" "${trusted[@]}" "${leaf_cert[@]}"
-          expect Plonky2Bridge.public_batch_end_to_end_wired_n4 "${base[@]}" "${trusted[@]}" "${leaf_cert[@]}"
+          expect Plonky2Bridge.public_batch_end_to_end_wired "${base[@]}" "${wrapper_trusted[@]}" Plonky2Bridge.Wrapper2.build_agrees
+          expect Plonky2Bridge.public_batch_end_to_end_wired_n4 "${base[@]}" "${wrapper_trusted[@]}" Plonky2Bridge.Wrapper2.build_agrees
           expect Plonky2Bridge.LeafCircuit.accepted_sound "${base[@]}" "${leaf_trusted[@]}" "${leaf_cert[@]}"
-          expect Plonky2Bridge.Wrapper2.accepted_sound "${base[@]}" "${trusted[@]}" "${leaf_cert[@]}"
-          expect Plonky2Bridge.Wrapper4.accepted_sound "${base[@]}" "${trusted[@]}" "${leaf_cert[@]}"
-          expect Plonky2Bridge.Wrapper8.accepted_sound "${base[@]}" "${trusted[@]}" "${leaf_cert[@]}"
+          expect Plonky2Bridge.Wrapper2.accepted_sound "${base[@]}" "${wrapper_trusted[@]}" Plonky2Bridge.Wrapper2.build_agrees
+          expect Plonky2Bridge.Wrapper4.accepted_sound "${base[@]}" "${wrapper_trusted[@]}" Plonky2Bridge.Wrapper4.build_agrees
+          expect Plonky2Bridge.Wrapper8.accepted_sound "${base[@]}" "${wrapper_trusted[@]}" Plonky2Bridge.Wrapper8.build_agrees
           expect Plonky2Bridge.Wrapper2.sound "${base[@]}"
           expect Plonky2Bridge.Wrapper4.sound "${base[@]}"
           expect Plonky2Bridge.Wrapper8.sound "${base[@]}"
@@ -205,6 +219,6 @@ jobs:
           expect Plonky2Bridge.leaf_wired "${base[@]}"
           expect Plonky2Bridge.LeafCircuit.sound "${base[@]}"
           if [ "$FORMAL_FULL" = true ]; then
-            expect Plonky2Bridge.public_batch_end_to_end_wired_production "${base[@]}" "${trusted[@]}" "${leaf_cert[@]}"
+            expect Plonky2Bridge.public_batch_end_to_end_wired_production "${base[@]}" "${wrapper_trusted[@]}" Plonky2Bridge.Wrapper8.build_agrees
             expect Plonky2Bridge.PublicWrapper89.sound "${base[@]}"
           fi

@@ -20,9 +20,10 @@
     `Built.Refines.satisfies`, the step from the domain identities to `Satisfies`,
     `poseidon2_gate_rows`, the Poseidon2 rows from `Poseidon2.gate_sound_complete`, and
     `poseidon_gate_rows`, the `PoseidonGate` rows from `Poseidon.gate_sound_complete`
-    (Step 18), on the bare allow-list — as are `Poseidon.gate_sound_complete` itself and
+    (Step 18), on the bare allow-list — as are `Poseidon.gate_sound_complete` itself,
     `Poseidon.goldilocks_perm_test`, the kernel-evaluated test vector that pins the
-    model's permutation to the native one.
+    model's permutation to the native one, and `publicInputsHash_test`, the one that pins
+    the model of the public-input hash to `PoseidonHash::hash_no_pad` (Step 19).
   * The leaf's build is certified (Steps 16 and 17). `proof_sound_leaf` is gated on the
     allow-list plus the three assumptions and `public_input_binding`: neither
     `build_refines_export` nor `public_inputs_wired` nor the two child obligations.
@@ -39,11 +40,17 @@
     exporter-generated private-wrapper wiring (`n = 2` / `4` / `8`), which read only leaf
     proofs — are gated on the footprint of `proof_sound_leaf` plus
     `LeafCircuit.build_agrees`.
+  * The private wrappers' builds are certified too (Step 19). The generated
+    `Wrapper{2,4,8}.build_refines_of_agrees` / `build_hashes_of_agrees` are gated on the
+    bare allow-list and `Wrapper{n}.build_refines` / `build_hashes` on the allow-list plus
+    the one trusted declaration `Plonky2Bridge.Wrapper{n}.build_agrees`.
   * `Wrapper{2,4,8}.accepted_sound` — an accepted proof of the named tree attests its
     relation — and `public_batch_end_to_end_wired` / `_n4` — the capstones on the
-    public-wrapper wiring (`n_inner = 2` / `4`), which read wrapper proofs — are gated on
-    the allow-list plus those eight declarations and, through the leaf,
-    `LeafCircuit.build_agrees`.
+    public-wrapper wiring (`n_inner = 2` / `4`), which read 2-leaf wrapper proofs — are
+    gated on the footprint of `proof_sound_leaf` plus the two child obligations
+    (`child_gadget_satisfied`, `recursive_verifier_transcript`), `LeafCircuit.build_agrees`
+    and the named wrapper's `build_agrees`: neither `build_refines_export` nor
+    `public_inputs_wired`, which no capstone takes.
   * `Wrapper{2,4,8}.sound`, `PublicWrapper{2,4}.sound` and `leaf_wired`
     (`LeafCircuit.sound`), the wiring-to-relation steps underneath, use no trusted axiom.
   The production public wrapper (`n_inner = 89`, `Plonky2BridgeProduction`) is gated the
@@ -55,6 +62,7 @@ import Plonky2Bridge.PublicBatch
 import Plonky2Bridge.PrivateWrapper
 import Plonky2Bridge.PublicWrapper
 import Plonky2Bridge.LeafWired
+import Plonky2Bridge.Generated.PublicInputsHashVector
 
 #print axioms Plonky2Bridge.proof_sound
 #print axioms Plonky2Bridge.verifier_algebra
@@ -64,6 +72,7 @@ import Plonky2Bridge.LeafWired
 #print axioms Plonky2Bridge.poseidon_gate_rows
 #print axioms Plonky2Spec.Poseidon.gate_sound_complete
 #print axioms Plonky2Spec.Poseidon.goldilocks_perm_test
+#print axioms Plonky2Bridge.publicInputsHash_test
 #print axioms Plonky2Bridge.proof_sound_leaf
 #print axioms Plonky2Bridge.Built.Agrees.refines
 #print axioms Plonky2Bridge.LeafCircuit.build_refines_of_agrees
@@ -72,6 +81,18 @@ import Plonky2Bridge.LeafWired
 #print axioms Plonky2Bridge.Built.Agrees.hashesPublicInputs
 #print axioms Plonky2Bridge.LeafCircuit.build_hashes_of_agrees
 #print axioms Plonky2Bridge.LeafCircuit.build_hashes
+#print axioms Plonky2Bridge.Wrapper2.build_refines_of_agrees
+#print axioms Plonky2Bridge.Wrapper2.build_hashes_of_agrees
+#print axioms Plonky2Bridge.Wrapper2.build_refines
+#print axioms Plonky2Bridge.Wrapper2.build_hashes
+#print axioms Plonky2Bridge.Wrapper4.build_refines_of_agrees
+#print axioms Plonky2Bridge.Wrapper4.build_hashes_of_agrees
+#print axioms Plonky2Bridge.Wrapper4.build_refines
+#print axioms Plonky2Bridge.Wrapper4.build_hashes
+#print axioms Plonky2Bridge.Wrapper8.build_refines_of_agrees
+#print axioms Plonky2Bridge.Wrapper8.build_hashes_of_agrees
+#print axioms Plonky2Bridge.Wrapper8.build_refines
+#print axioms Plonky2Bridge.Wrapper8.build_hashes
 #print axioms Plonky2Bridge.private_batch_end_to_end
 #print axioms Plonky2Bridge.public_batch_end_to_end
 #print axioms Plonky2Bridge.private_batch_end_to_end_wired

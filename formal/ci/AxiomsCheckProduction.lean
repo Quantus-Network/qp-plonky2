@@ -4,9 +4,10 @@
   runs that build that target (pushes to `main`, release pull requests, pull requests
   labelled `formal-full`). The expectations are those of `public_batch_end_to_end_wired`
   and `PublicWrapper2.sound` there: `public_batch_end_to_end_wired_production` reads
-  wrapper proofs, so it is gated on the allow-list plus the declarations under
-  `proof_sound` and, through the leaf, `LeafCircuit.build_agrees`; `PublicWrapper89.sound`,
-  the wiring-to-relation step, on the bare allow-list.
+  8-leaf wrapper proofs, so it is gated on the allow-list plus the three assumptions, the
+  binding, the two child obligations, `LeafCircuit.build_agrees` and
+  `Wrapper8.build_agrees`; `PublicWrapper89.sound`, the wiring-to-relation step, on the
+  bare allow-list.
   Import-only.
 -/
 import Plonky2Bridge.PublicWrapperProduction
