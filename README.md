@@ -1,7 +1,7 @@
 # Plonky2 & more
 [![Discord](https://img.shields.io/discord/743511677072572486?logo=discord)](https://discord.gg/QZKRUpqCJ6)
 
-This repository was originally for Plonky2, a SNARK implementation based on techniques from PLONK and FRI. It has since expanded to include tools such as Starky, a highly performant STARK implementation.
+This repository is Plonky2, a SNARK implementation based on techniques from PLONK and FRI.
 
 ## Crate Structure
 
