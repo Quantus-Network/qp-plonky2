@@ -129,11 +129,19 @@ sound+complete) and compose up to the gadget. The gates our gadgets emit
 - Pinned `lean-toolchain` to the **Lean version mathlib's release pins** (mathlib
   is the binding constraint; reconcile with qp-zk-circuits' v4.30.0 when wiring the
   bridge — bump the spec toolchain if needed).
-- CI mirrors the qp-zk-circuits `formal-spec` job: `leanprover/lean-action`
-  (pinned SHA) running `lake build` + `leanchecker: true`, plus the grep-based
-  **no-`sorry`/`admit`** gate. **Add `lake exe cache get`** (mathlib prebuilt
-  `.olean` cache) so CI doesn't compile mathlib from source. No `nanoda` (crashes
-  on v4.30 export format).
+- CI (the `formal` job) mirrors the qp-zk-circuits `formal-spec` job:
+  `leanprover/lean-action` (pinned SHA) running `lake build` + `leanchecker: true`, plus
+  the grep-based **no-`sorry`/`admit`** gate, then `lake build Plonky2Bridge` and the
+  axiom-footprint gate in the same job. `use-mathlib-cache` fetches mathlib's prebuilt
+  `.olean`s; the package's own `.lake/build` is cached between runs by content hash, so
+  a pull request rebuilds only what it changes. No `nanoda` (crashes on v4.30 export
+  format).
+- The production public wrapper (`n_inner = 89`) is its own target,
+  `Plonky2BridgeProduction` (`Plonky2Bridge/PublicWrapperProduction.lean`, gated by
+  `ci/AxiomsCheckProduction.lean`): its 20,000 generated gadget facts and 89 forwarding
+  modules are most of a cold build. CI builds it on pushes to `main`, on release pull
+  requests, and on pull requests labelled `formal-full`; every pull request builds the
+  `n_inner = 2` and `4` shapes of the same capstone.
 
 ## 6. Composition with qp-zk-circuits
 

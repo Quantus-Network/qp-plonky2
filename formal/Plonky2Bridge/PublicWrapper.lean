@@ -1,6 +1,9 @@
 /-
-  The public-batch wrapper capstones on the recorded wiring, at every tree size with a
-  recorded trace (`constraint-exporter/traces/public_batch_wrapper_n*.json`).
+  The public-batch wrapper capstones on the recorded wiring, at the tree sizes CI builds
+  on every pull request (`n_inner = 2`, `4`). The production size (`89`) is
+  `Plonky2Bridge/PublicWrapperProduction.lean`, the `Plonky2BridgeProduction` target,
+  built on `main` and release pull requests: its 20,000 generated gadget facts take the
+  bulk of a cold Lean build.
 
   Each `Generated/PublicWrapper{N}.lean` is emitted by the exporter (`src/public_wrapper.rs`)
   from the `n_inner = N` trace: it reads the inner outputs and the aggregated output off the
@@ -12,7 +15,6 @@
 -/
 import Plonky2Bridge.Generated.PublicWrapper2
 import Plonky2Bridge.Generated.PublicWrapper4
-import Plonky2Bridge.Generated.PublicWrapper89
 
 namespace Plonky2Bridge
 
@@ -21,9 +23,5 @@ alias public_batch_end_to_end_wired := PublicWrapper2.end_to_end_wired
 
 /-- `public_batch_end_to_end` on the `n_inner = 4` wiring (`PublicWrapper4.end_to_end_wired`). -/
 alias public_batch_end_to_end_wired_n4 := PublicWrapper4.end_to_end_wired
-
-/-- `public_batch_end_to_end` on the production wiring: 89 inners, each an 8-leaf
-    32-slot private batch (`PublicWrapper89.end_to_end_wired`). -/
-alias public_batch_end_to_end_wired_production := PublicWrapper89.end_to_end_wired
 
 end Plonky2Bridge
