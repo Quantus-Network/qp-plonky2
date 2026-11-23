@@ -9,9 +9,8 @@
   `PrivateBatchCircuit::new`'s builder. They prove `build_refines_of_agrees` and
   `build_hashes_of_agrees` by kernel evaluation of the certificate's checks against the
   export. What is left to trust is one declaration per wrapper below: that the deployed
-  build agrees with its certificate. `proof_sound_of` composes them, with
-  `children_accepted`, into each wrapper's `accepted_sound`, which thereby has neither
-  `build_refines_export` nor `public_inputs_wired` in its footprint.
+  build agrees with its certificate. `proof_sound` composes them, with the two child
+  obligations, into each wrapper's `accepted_sound`.
 
   WHAT `Agrees` SAYS OF A WRAPPER.
   A wrapper's export is its own part of the production builder: the rows its gadgets

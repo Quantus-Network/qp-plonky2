@@ -1,5 +1,5 @@
 /-
-  The trusted base (PLAN.md §7, Steps 12 to 18).
+  The trusted base (PLAN.md §7, Steps 12 to 20).
 
   `proof_sound` is a theorem. It is the composition of three assumptions and
   `verifier_algebra`, and the capstones depend on nothing else outside the standard Lean
@@ -21,18 +21,19 @@
     gate, copy, and permutation identities of the built system on its whole domain, and
     `Built.Refines.satisfies` proves they give `Satisfies` for an export that system
     refines, and `poseidon2_gate_rows` proves the Poseidon2 rows compute `perm` from
-    `Poseidon2.gate_sound_complete`. Four obligations remain as declarations:
-    `build_refines_export`, `public_inputs_wired`, `child_gadget_satisfied`, and
-    `recursive_verifier_transcript`. They are deterministic. The public inputs
-    additionally need `public_input_binding`: on its good event, the proof-system hash
-    does not collide them with the list the verifier was given.
-  * Certified builds (Step 16). `BuildCert` is what the exporter reads off
+    `Poseidon2.gate_sound_complete`. Two obligations remain as declarations:
+    `child_gadget_satisfied` and `recursive_verifier_transcript`. They are
+    deterministic. The public inputs additionally need `public_input_binding`: on its
+    good event, the proof-system hash does not collide them with the list the verifier
+    was given.
+  * Certified builds (Steps 16, 19, 20). `BuildCert` is what the exporter reads off
     `CircuitBuilder::build`, `Built.Agrees` says a built system has it, and
     `Built.Agrees.refines` proves `Built.Refines` from it and kernel-evaluated checks of
-    the certificate against the export. `verifier_algebra_of` and `proof_sound_of` take
-    the refinement as a hypothesis; `proof_sound_leaf` is their instance for a certified
-    circuit with no children, with neither `build_refines_export` nor the two child
-    obligations in its footprint. The leaf is certified in `Plonky2Bridge/LeafBuild.lean`.
+    the certificate against the export. `verifier_algebra` and `proof_sound` take the
+    refinement as a hypothesis, which every traced circuit supplies from its certificate
+    (`Plonky2Bridge/LeafBuild.lean`, `PrivateWrapperBuild.lean`): nothing is declared of
+    `build` for every circuit. `proof_sound_leaf` is the instance for a certified circuit
+    with no children, without the two child obligations in its footprint.
   * The public-input hash (Steps 17, 18). `Built.HashesPublicInputs` is the in-circuit
     sponge `build` lays down over `PoseidonGate` rows and copies into the
     `PublicInputGate`, `Built.HashesPublicInputs.hash_eq` proves the carried public
@@ -40,7 +41,7 @@
     certificate. `poseidonPerm` is the proof-system permutation on the Goldilocks tables
     (`Plonky2Spec.Poseidon`), and `poseidon_gate_rows` proves a `PoseidonGate` row
     computes it from `Poseidon.gate_sound_complete`. Nothing of the hash is trusted;
-    `public_inputs_wired` is the obligation for an uncertified build.
+    `proof_sound` takes it as a hypothesis, supplied from the certificate too.
 
   Poseidon2 collision resistance is not an assumption here. A forged proof need not
   exhibit a collision. The wormhole relations that do reduce to a collision are
@@ -1291,34 +1292,17 @@ theorem Built.Refines.satisfies {perm : St p → St p} {pis : List (ZMod p)} {b 
 
 /-! ### The obligations that remain
 
-  `verifier_algebra` is these four, `public_input_binding`, and the theorems
-  `Built.Refines.satisfies` and `poseidon2_gate_rows`. None is a proximity conjecture or
-  a sampling error. The four are deterministic. `public_input_binding` is not: it is the
-  binding of the proof-system hash on the public inputs. -/
-
-/-- **OBLIGATION — `build` versus the pre-`build` export.** The system a verifier key
-    commits to refines the export of its circuit.
-
-    For the leaf the export is the builder's whole pre-`build` state. `build` adds the
-    public-input hash and its `PublicInputGate`, the routed constants, the no-op padding,
-    and `σ` from the copy list. For the wrappers the export is less than that state:
-    production runs `add_recursive_verifiers` before the wrapper logic, and the trace
-    records the wrapper's part of the builder that results — its rows at their production
-    indices, among them rows of the verifiers whose free slots its arithmetic ops took,
-    and the virtual targets it uses. `Built.Refines` is stated up to `loc` for that
-    reason.
-
-    Discharging this is a model of `build` on the deployed builder, or a check of
-    `Built.Refines` against an export of the built system. The second is
-    `Built.Agrees.refines`: a circuit whose built system is certified (`BuildCert`) proves
-    its refinement from `Agrees`, and `proof_sound_of` takes that proof instead of this
-    declaration. Every traced circuit is certified (`Plonky2Bridge.LeafBuild`,
-    `PrivateWrapperBuild`, `PublicWrapperBuild`, `PublicWrapperProductionBuild`); this
-    declaration remains as the reading of `proof_sound` for a circuit that is not, which
-    no capstone takes. -/
-axiom build_refines_export (tag : String) (c : Circuit p)
-    (children : List (Recursive p × List Target)) (b : Built p) :
-    BuildOf (.node tag c children) b → b.Refines c
+  `verifier_algebra` is the two child obligations, `public_input_binding`, and the
+  theorems `Built.Refines.satisfies` and `poseidon2_gate_rows`, under two hypotheses on
+  the deployed builder that each certified circuit proves from its `BuildCert`: the
+  system the verifier key commits to refines the export (`Built.Refines`, from
+  `Built.Agrees.refines`), and it hashes the export's public inputs into its
+  `PublicInputGate` (`Built.HashesPublicInputs`, from `Built.Agrees.hashesPublicInputs`).
+  Neither is declared of `build` for every circuit (Step 20): what is declared instead is
+  one `build_agrees` per traced circuit, that the deployed build is the one its
+  certificate describes. None of the obligations is a proximity conjecture or a sampling
+  error. The two are deterministic. `public_input_binding` is not: it is the binding of
+  the proof-system hash on the public inputs. -/
 
 /-- **Poseidon2 rows.** The constraints of a `Poseidon2Gate` row make its output wires
     `12..24` the image under `perm` of its input wires `0..12`. This is the soundness
@@ -1330,19 +1314,6 @@ theorem poseidon2_gate_rows (perm : St p → St p) (pis : List (ZMod p))
   rintro ⟨k, rfl, h⟩
   exact (Plonky2Spec.Poseidon2.gate_sound_complete _ _).mp
     ⟨_, _, _, by simp, by simp, by simp, h⟩
-
-/-- **OBLIGATION — the public-input hash wiring.** The system a verifier key commits to
-    hashes its circuit's public inputs into its `PublicInputGate`
-    (`Built.HashesPublicInputs`): the `hash_n_to_hash_no_pad` rows `build` lays down and
-    the copies from their outputs to the gate.
-
-    The same kind of fact as `build_refines_export`, about the part of `build` that is
-    not the export. A circuit with a certified build proves it from `Agrees`
-    (`Built.Agrees.hashesPublicInputs`), and `proof_sound_of` takes that proof instead of
-    this declaration, which every traced circuit does. -/
-axiom public_inputs_wired (tag : String) (c : Circuit p)
-    (children : List (Recursive p × List Target)) (b : Built p) :
-    BuildOf (.node tag c children) b → b.HashesPublicInputs c
 
 /-- **TRUSTED — public-input binding.** On `BindingGood`, the public inputs carried by
     the values a transcript for `pis` opens do not collide with `pis` under the
@@ -1398,8 +1369,8 @@ opaque GadgetSatisfied (perm : St p → St p) (r : Recursive p) (pis : List (ZMo
     This is the fidelity of `children` to the deployed circuit: the exporter's
     `verifiers` list, which each generated `tree_verifiers` checks against the tree.
 
-    Discharging this is the same model of the deployed builder as `build_refines_export`,
-    extended to the gadget rows. -/
+    Discharging this is a certificate of the deployed builder like `BuildCert`, extended
+    to the gadget rows. -/
 axiom child_gadget_satisfied (perm : St p → St p) (tag : String) (c : Circuit p)
     (children : List (Recursive p × List Target)) (pis : List (ZMod p)) (b : Built p)
     (o : Opened p) :
@@ -1443,13 +1414,14 @@ theorem Built.Refines.poseidon2Rows {perm : St p → St p} {pis : List (ZMod p)}
   exact key
 
 /-- **Identical constraints satisfy the exported circuit.** The first piece of
-    `verifier_algebra`: it uses `build_refines_export` and no other obligation. -/
+    `verifier_algebra`: it uses the refinement and no obligation. -/
 theorem identical_constraints_satisfies (perm : St p → St p) (tag : String) (c : Circuit p)
-    (children : List (Recursive p × List Target)) (pis : List (ZMod p)) :
+    (children : List (Recursive p × List Target)) (pis : List (ZMod p))
+    (href : ∀ b : Built p, BuildOf (.node tag c children) b → b.Refines c) :
     IdenticalConstraints perm (.node tag c children) pis →
       ∃ a : Assignment p, Satisfies c a := by
   rintro ⟨b, o, hb, -, -, hid⟩
-  exact ⟨b.witness o, (build_refines_export tag c children b hb).satisfies hid⟩
+  exact ⟨b.witness o, (href b hb).satisfies hid⟩
 
 /-- **Verifier algebra.** Identical constraints are a satisfying assignment of the
     exported circuit: `build` agrees with the pre-`build` export (`Satisfies`), the
@@ -1462,11 +1434,11 @@ theorem identical_constraints_satisfies (perm : St p → St p) (tag : String) (c
     hypotheses are about the deployed builder: `href`, that the system the verifier key
     commits to refines the export; `hpi`, that it hashes the export's public inputs into
     its `PublicInputGate`; and `hch`, that the children's proofs were accepted on the
-    targets the tree names. `verifier_algebra` supplies them from
-    `build_refines_export`, `public_inputs_wired`, and `child_gadget_satisfied` with
-    `recursive_verifier_transcript`; a circuit with a certified build supplies `href` and
-    `hpi` from `Built.Agrees.refines` and `Built.Agrees.hashesPublicInputs`, and a circuit
-    without children supplies `hch` vacuously. -/
+    targets the tree names. A circuit with a certified build supplies `href` and `hpi`
+    from `Built.Agrees.refines` and `Built.Agrees.hashesPublicInputs`;
+    `verifier_algebra` supplies `hch` from `child_gadget_satisfied` with
+    `recursive_verifier_transcript`, and a circuit without children supplies it
+    vacuously. -/
 theorem verifier_algebra_of (perm : St p → St p) (tag : String) (c : Circuit p)
     (children : List (Recursive p × List Target)) (pis : List (ZMod p))
     (hev : BindingGood perm (.node tag c children))
@@ -1495,18 +1467,21 @@ theorem children_accepted (perm : St p → St p) (tag : String) (c : Circuit p)
   recursive_verifier_transcript perm v.1 _
     (child_gadget_satisfied perm tag c children pis b o hb hid v hv)
 
-/-- `verifier_algebra_of` with the three builder hypotheses supplied by the declarations.
+/-- `verifier_algebra_of` with the children's `ProofAccepted` supplied by the two child
+    declarations. The builder hypotheses `href` and `hpi` are the certified circuit's.
 
     A proof of `proof_sound` may use only `poseidon_transcript_oracle`,
     `fri_proximity_gap`, `algebraic_sampling`, and the declarations above. -/
 theorem verifier_algebra (perm : St p → St p) (tag : String) (c : Circuit p)
     (children : List (Recursive p × List Target)) (pis : List (ZMod p))
-    (hev : BindingGood perm (.node tag c children)) :
+    (hev : BindingGood perm (.node tag c children))
+    (href : ∀ b : Built p, BuildOf (.node tag c children) b → b.Refines c)
+    (hpi : ∀ b : Built p, BuildOf (.node tag c children) b → b.HashesPublicInputs c) :
     IdenticalConstraints perm (.node tag c children) pis →
       ∃ a : Assignment p, Satisfies c a ∧ Poseidon2Rows perm c a ∧
         c.publicInputs.map a = pis ∧ ∀ v ∈ children, ProofAccepted perm v.1 (v.2.map a) :=
-  verifier_algebra_of perm tag c children pis hev (build_refines_export tag c children)
-    (public_inputs_wired tag c children) (children_accepted perm tag c children pis)
+  verifier_algebra_of perm tag c children pis hev href hpi
+    (children_accepted perm tag c children pis)
 
 /-- **Proof-system soundness, composed.** On the good events for `node tag c children`,
     an accepted proof of it comes from an assignment that satisfies `c`'s exported
@@ -1536,23 +1511,24 @@ theorem proof_sound_of (perm : St p → St p) (tag : String) (c : Circuit p)
       (fri_proximity_gap perm (.node tag c children) pis hg.proximity
         (poseidon_transcript_oracle perm tag c children pis hg.oracle h)))
 
-/-- `proof_sound_of` with the builder obligations supplied by `build_refines_export`,
-    `public_inputs_wired` and `child_gadget_satisfied`: the reading for a circuit whose
-    build is not certified. -/
+/-- `proof_sound_of` with the children's `ProofAccepted` supplied by
+    `child_gadget_satisfied` and `recursive_verifier_transcript`: the reading for a
+    certified circuit with children, whose `href` and `hpi` come from its certificate
+    (`Built.Agrees.refines`, `Built.Agrees.hashesPublicInputs`). The private-batch
+    wrappers' `accepted_sound` call it. -/
 theorem proof_sound (perm : St p → St p) (tag : String) (c : Circuit p)
     (children : List (Recursive p × List Target)) (pis : List (ZMod p))
     (hg : GoodEvents perm (.node tag c children))
+    (href : ∀ b : Built p, BuildOf (.node tag c children) b → b.Refines c)
+    (hpi : ∀ b : Built p, BuildOf (.node tag c children) b → b.HashesPublicInputs c)
     (h : ProofAccepted perm (.node tag c children) pis) :
     ∃ a : Assignment p, Satisfies c a ∧ Poseidon2Rows perm c a ∧
       c.publicInputs.map a = pis ∧ ∀ v ∈ children, ProofAccepted perm v.1 (v.2.map a) :=
-  proof_sound_of perm tag c children pis hg (build_refines_export tag c children)
-    (public_inputs_wired tag c children) (children_accepted perm tag c children pis) h
+  proof_sound_of perm tag c children pis hg href hpi (children_accepted perm tag c children pis) h
 
-/-- `proof_sound_of` for a circuit with a certified build and no children: `href` and
-    `hpi` from `Built.Agrees.refines` and `Built.Agrees.hashesPublicInputs`, and nothing
-    to say of children. Its footprint has neither `build_refines_export` nor
-    `public_inputs_wired` nor `child_gadget_satisfied` nor
-    `recursive_verifier_transcript`. -/
+/-- `proof_sound_of` for a certified circuit with no children: nothing to say of
+    children, so its footprint has neither `child_gadget_satisfied` nor
+    `recursive_verifier_transcript`. The leaf's `accepted_sound` calls it. -/
 theorem proof_sound_leaf (perm : St p → St p) (tag : String) (c : Circuit p)
     (pis : List (ZMod p)) (hg : GoodEvents perm (.node tag c []))
     (href : ∀ b : Built p, BuildOf (.node tag c []) b → b.Refines c)
@@ -1565,11 +1541,13 @@ theorem proof_sound_leaf (perm : St p → St p) (tag : String) (c : Circuit p)
 
 /-- `proof_sound` on a tree given by its projections. -/
 theorem proof_sound' (perm : St p → St p) (r : Recursive p) (pis : List (ZMod p))
-    (hg : GoodEvents perm r) (h : ProofAccepted perm r pis) :
+    (hg : GoodEvents perm r) (href : ∀ b : Built p, BuildOf r b → b.Refines r.circuit)
+    (hpi : ∀ b : Built p, BuildOf r b → b.HashesPublicInputs r.circuit)
+    (h : ProofAccepted perm r pis) :
     ∃ a : Assignment p, Satisfies r.circuit a ∧ Poseidon2Rows perm r.circuit a ∧
       r.circuit.publicInputs.map a = pis ∧ ∀ v ∈ r.children, ProofAccepted perm v.1 (v.2.map a) := by
   obtain ⟨tag, c, children⟩ := r
-  exact proof_sound perm tag c children pis hg h
+  exact proof_sound perm tag c children pis hg href hpi h
 
 omit [Fact p.Prime] in
 /-- Two lists of public-input targets read the same values: componentwise. -/

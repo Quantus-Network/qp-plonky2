@@ -10,8 +10,8 @@
   `leaves`, `us`, `slots`, `out`) and discharges every hypothesis of
   `private_batch_val_rows` (`Plonky2Bridge/PrivateBatch.lean`), so `private_batch_end_to_end`
   is restated on the wiring (`end_to_end_wired`), with the children's `Rleaf` recovered from
-  their accepted proofs through `proof_sound_of` and the leaf bridge
-  (Step 10). `accepted_sound` is the wrapper's own `proof_sound_of` consequence, on its
+  their accepted proofs through `proof_sound` and the leaf bridge
+  (Step 10). `accepted_sound` is the wrapper's own `proof_sound` consequence, on its
   certified build (`Plonky2Bridge/PrivateWrapperBuild.lean`), for the public-batch
   wrapper above it.
 -/
@@ -1407,7 +1407,7 @@ omit [Fact p.Prime] in
 set_option maxRecDepth 8192 in
 theorem out_eq (a : Assignment p) : out a = outOf (a ∘ pi) := rfl
 
-/-- **An accepted private-batch proof attests `RPrivateBatch`.** Through `proof_sound_of`
+/-- **An accepted private-batch proof attests `RPrivateBatch`.** Through `proof_sound`
     on the certified `build_refines` and `build_hashes`, the good events `hg` for the
     wrapper's proofs and `hgl` for the leaf proofs: the accepted public inputs are those of
     an assignment satisfying the wrapper's exported wiring whose own recursion gadgets
@@ -1418,8 +1418,7 @@ theorem accepted_sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤
     {ts : Fin 200 → Target} {a : Assignment p}
     (h : ProofAccepted perm tree ((List.ofFn ts).map a)) :
     ∃ leaves us, RPrivateBatch (spongeRO perm) leaves us (outOf (a ∘ ts)) := by
-  obtain ⟨a', h', hp', hpis, hch⟩ :=
-    proof_sound_of perm _ _ _ _ hg build_refines build_hashes (children_accepted perm _ _ _ _) h
+  obtain ⟨a', h', hp', hpis, hch⟩ := proof_sound perm _ _ _ _ hg build_refines build_hashes h
   rw [publicInputs_eq] at hpis
   have hacc : ∀ i : Fin 8, ProofAccepted perm LeafCircuit.tree ((List.ofFn (leafPis i)).map a') := by
     intro i
