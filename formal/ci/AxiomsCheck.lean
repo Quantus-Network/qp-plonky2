@@ -6,31 +6,32 @@
   `{propext, Classical.choice, Quot.sound}` plus, where a theorem consumes accepted proofs,
   exactly the declarations `proof_sound` rests on: the three assumptions
   (`Plonky2Bridge.poseidon_transcript_oracle`, `Plonky2Bridge.fri_proximity_gap`,
-  `Plonky2Bridge.algebraic_sampling`) and the six declarations under `verifier_algebra`:
+  `Plonky2Bridge.algebraic_sampling`) and the five declarations under `verifier_algebra`:
   the four obligations (`Plonky2Bridge.build_refines_export`,
   `Plonky2Bridge.public_inputs_wired`, `Plonky2Bridge.child_gadget_satisfied`,
-  `Plonky2Bridge.recursive_verifier_transcript`), the binding assumption
-  `Plonky2Bridge.public_input_binding`, and the trusted `Plonky2Bridge.poseidon_gate_rows`
-  (a `PoseidonGate` row computes the proof-system permutation).
-  `proof_sound`, `verifier_algebra` and `poseidon2_gate_rows` are theorems. The
-  assumptions are implications on their good events (`GoodEvents`, opaque), which the
-  capstones take as hypotheses; that changes no footprint.
+  `Plonky2Bridge.recursive_verifier_transcript`) and the binding assumption
+  `Plonky2Bridge.public_input_binding`. `proof_sound`, `verifier_algebra`,
+  `poseidon2_gate_rows` and `poseidon_gate_rows` are theorems. The assumptions are
+  implications on their good events (`GoodEvents`, opaque), which the capstones take as
+  hypotheses; that changes no footprint.
 
-  * `verifier_algebra` is gated on the allow-list plus those six,
+  * `verifier_algebra` is gated on the allow-list plus those five,
     `identical_constraints_satisfies` on the allow-list plus `build_refines_export`, and
-    `Built.Refines.satisfies`, the step from the domain identities to `Satisfies`, and
-    `poseidon2_gate_rows`, the Poseidon2 rows from `gate_sound_complete`, on the bare
-    allow-list.
+    `Built.Refines.satisfies`, the step from the domain identities to `Satisfies`,
+    `poseidon2_gate_rows`, the Poseidon2 rows from `Poseidon2.gate_sound_complete`, and
+    `poseidon_gate_rows`, the `PoseidonGate` rows from `Poseidon.gate_sound_complete`
+    (Step 18), on the bare allow-list — as are `Poseidon.gate_sound_complete` itself and
+    `Poseidon.goldilocks_perm_test`, the kernel-evaluated test vector that pins the
+    model's permutation to the native one.
   * The leaf's build is certified (Steps 16 and 17). `proof_sound_leaf` is gated on the
-    allow-list plus the three assumptions, `public_input_binding` and
-    `poseidon_gate_rows`: neither `build_refines_export` nor `public_inputs_wired` nor the
-    two child obligations. `Built.Agrees.refines`, `Built.Agrees.hashesPublicInputs` and
-    the generated `LeafCircuit.build_refines_of_agrees` / `build_hashes_of_agrees` (the
-    certificate checks, kernel evaluations) are gated on the bare allow-list;
+    allow-list plus the three assumptions and `public_input_binding`: neither
+    `build_refines_export` nor `public_inputs_wired` nor the two child obligations.
+    `Built.Agrees.refines`, `Built.Agrees.hashesPublicInputs` and the generated
+    `LeafCircuit.build_refines_of_agrees` / `build_hashes_of_agrees` (the certificate
+    checks, kernel evaluations) are gated on the bare allow-list;
     `Built.HashesPublicInputs.hash_eq`, the hash read off the certified wiring, on the
-    allow-list plus `poseidon_gate_rows`; and `LeafCircuit.build_refines` /
-    `build_hashes` on the allow-list plus the one trusted declaration
-    `Plonky2Bridge.LeafCircuit.build_agrees`.
+    allow-list; and `LeafCircuit.build_refines` / `build_hashes` on the allow-list plus
+    the one trusted declaration `Plonky2Bridge.LeafCircuit.build_agrees`.
   * `private_batch_end_to_end` / `public_batch_end_to_end` take the children's relations as
     hypotheses and are gated on the bare allow-list.
   * `LeafCircuit.accepted_sound` — an accepted leaf proof attests `Rleaf` — and
@@ -60,6 +61,9 @@ import Plonky2Bridge.LeafWired
 #print axioms Plonky2Bridge.identical_constraints_satisfies
 #print axioms Plonky2Bridge.Built.Refines.satisfies
 #print axioms Plonky2Bridge.poseidon2_gate_rows
+#print axioms Plonky2Bridge.poseidon_gate_rows
+#print axioms Plonky2Spec.Poseidon.gate_sound_complete
+#print axioms Plonky2Spec.Poseidon.goldilocks_perm_test
 #print axioms Plonky2Bridge.proof_sound_leaf
 #print axioms Plonky2Bridge.Built.Agrees.refines
 #print axioms Plonky2Bridge.LeafCircuit.build_refines_of_agrees

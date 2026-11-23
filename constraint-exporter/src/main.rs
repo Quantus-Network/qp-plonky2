@@ -104,6 +104,7 @@ fn main() -> std::io::Result<()> {
     let gates = constraint_exporter::generate_lean();
     let poseidon2 = constraint_exporter::generate_poseidon2_lean();
     let poseidon2_prims = constraint_exporter::generate_poseidon2_prims_lean();
+    let poseidon_consts = constraint_exporter::poseidon::generate_poseidon_consts_lean();
     let nullifier_select = constraint_exporter::circuit::generate_nullifier_select_lean();
     let gadget_zoo = constraint_exporter::gadget::generate_gadget_zoo_lean();
     let gadget_edge_cases = constraint_exporter::gadget::generate_gadget_edge_cases_lean();
@@ -133,6 +134,7 @@ fn main() -> std::io::Result<()> {
     write(&dir, "Gates.lean", &gates)?;
     write(&dir, "Poseidon2.lean", &poseidon2)?;
     write(&dir, "Poseidon2Prims.lean", &poseidon2_prims)?;
+    write(&dir, "PoseidonConsts.lean", &poseidon_consts)?;
     write(&dir, "NullifierSelectCircuit.lean", &nullifier_select)?;
     write(&dir, "GadgetZooCircuit.lean", &gadget_zoo)?;
     write(&dir, "GadgetEdgeCasesCircuit.lean", &gadget_edge_cases)?;

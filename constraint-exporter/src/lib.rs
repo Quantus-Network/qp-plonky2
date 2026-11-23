@@ -10,6 +10,7 @@ pub mod extract;
 pub mod gadget;
 pub mod leaf;
 pub mod lean_split;
+pub mod poseidon;
 pub mod private_wrapper;
 pub mod public_wrapper;
 pub mod render;

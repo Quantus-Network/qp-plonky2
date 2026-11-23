@@ -193,8 +193,9 @@ unconditional on them.
   exported circuit. A theorem since Step 13: `Satisfies` is proved
   (`Built.Refines.satisfies`), the Poseidon2 rows are proved to compute `perm`
   (`poseidon2_gate_rows`, Step 14), the public-input digest is read off the in-circuit
-  hash (`Built.HashesPublicInputs.hash_eq`, Step 17), and four deterministic
-  obligations remain as declarations:
+  hash (`Built.HashesPublicInputs.hash_eq`, Step 17) whose `PoseidonGate` rows are
+  proved to compute the proof-system permutation (`poseidon_gate_rows`, Step 18), and
+  four deterministic obligations remain as declarations:
   - **`build_refines_export`** — the system the verifier key commits to refines the
     pre-`build` export. Replaced for the leaf by a certified build (Step 16):
     `Built.Agrees.refines` proves `Refines` from the exporter's certificate of
@@ -214,12 +215,7 @@ unconditional on them.
   - **`recursive_verifier_transcript`** — a satisfied gadget is `ProofAccepted`: the
     recursive verifier implements the `TranscriptAccepted` the native one does.
 
-  and two on the proof-system hash:
-  - **`poseidon_gate_rows`** — a `PoseidonGate` row whose swap wire is `0` computes the
-    proof-system permutation `poseidonPerm` (opaque, width 12) from its input wires to
-    its output wires. Deterministic, like `poseidon2_gate_rows` before Step 14; what
-    discharges it is the same extraction and proof for `PoseidonGate`, with
-    `poseidonPerm` made a definition.
+  and one on the proof-system hash:
   - **`public_input_binding`** — the public inputs carried by what a transcript for
     `pis` opens do not collide with `pis`: one length and one digest give one list
     (`PublicInputBinding`). Stated of `TranscriptOpens`, so it is an event about a
@@ -235,11 +231,11 @@ reduction against `spongeRO`. A break of `verify` does not produce a collision, 
 
 Each declaration says what would discharge it. A capstone that reads a wrapper proof
 calls `proof_sound`; its axiom footprint is exactly the three assumptions,
-`public_input_binding`, `poseidon_gate_rows`, the four obligations and, through the leaf
-proofs under it, `LeafCircuit.build_agrees`. A capstone that reads only leaf proofs
+`public_input_binding`, the four obligations and, through the leaf proofs under it,
+`LeafCircuit.build_agrees`. A capstone that reads only leaf proofs
 (`LeafCircuit.accepted_sound`, `private_batch_end_to_end_wired*`) calls
-`proof_sound_leaf`; its footprint is the three assumptions, `public_input_binding`,
-`poseidon_gate_rows` and `LeafCircuit.build_agrees`. Their statements carry one
+`proof_sound_leaf`; its footprint is the three assumptions, `public_input_binding` and
+`LeafCircuit.build_agrees`. Their statements carry one
 `GoodEvents` per tree whose proofs they read: `GoodEvents perm tree` for the proofs
 they take, and the children's trees for the proofs `proof_sound` extracts.
 
@@ -1341,6 +1337,58 @@ of `pis`. It is now a theorem of the built system's wiring and one fact about th
   `Built.HashesPublicInputs.hash_eq`: bare plus `poseidon_gate_rows`.
   `Built.Agrees.hashesPublicInputs`, `build_hashes_of_agrees`: bare. `build_hashes`: bare
   plus `build_agrees`. The leaf capstones: `proof_sound_leaf` plus `build_agrees`.
+
+### Step 18 — `poseidon_gate_rows` proved  ✅ DONE
+`poseidon_gate_rows` asserted that a `PoseidonGate` row with its swap wire at `0` computes
+`poseidonPerm`, an opaque permutation. It is now a theorem, as `poseidon2_gate_rows` is
+since Step 14, and `poseidonPerm` is a definition pinned to `Poseidon::poseidon`.
+- **The permutation, modelled.** `Plonky2Spec/Poseidon.lean`: `Consts p` holds a
+  `Poseidon` instance's tables in the fast partial-round form the gate and the native
+  permutation both compute (`circ`/`diag` for the MDS matrix, `rc` per round,
+  `partialFirst`, `partialRc`, `initMat`, and per partial round the sparse matrix's first
+  row `w` and column `v`). `Consts.perm` is `Poseidon::poseidon`: four full rounds
+  (`fullRound`: constants, `x^7`, `mdsLayer`), the partial phase's constant layer and
+  `partialInit`, twenty-two partial rounds (`partialRound`: `x^7` and the constant on
+  lane `0`, `partialFast`), four full rounds. Generic in the tables; the primitives are
+  `irreducible`, as in `Poseidon2`, and the matrix primitives end in `materialize`, which
+  lists the lanes before reading them back so that a kernel evaluation shares the rounds
+  (without it the test vector below recomputes each round once per lane read, and does
+  not finish).
+- **The gate.** `Consts.gateConstraints` is `eval_unfiltered` in order: `swap · (swap − 1)`,
+  the four deltas `swap · (input[i + 4] − input[i]) − delta_i`, full round `0` on
+  `swapIn delta input` without a checkpoint, the checkpointed first full rounds
+  (`fullConstrs`: twelve `state[i] + rc[i] − ck[i]` per round, continue from `ck`), the
+  partial phase (`partialConstrs`: `state[0] − ck`, continue from `sbox7 ck + rc`), the
+  checkpointed last full rounds, and `state[i] − output[i]`. The gate adds no constant
+  after its last partial round; `FAST_PARTIAL_ROUND_CONSTANTS[21] = 0` and the model
+  adds it uniformly.
+- **Proved.** `Poseidon.gate_sound_complete`: the constraints are satisfiable over the
+  checkpoint wires iff `swap` is binary, the deltas are `swapDelta swap input`, and
+  `output = perm (swapIn delta input)`. The checkpoint substitution of Step 14, with the
+  swap carried through. `Consts.rowHolds` reads the constraints at the gate's layout
+  (`135` wires: inputs `0..12`, outputs `12..24`, swap `24`, deltas `25..29`, first full
+  rounds `29..65`, partial `65..87`, last full rounds `87..135`), and
+  `Consts.rowHolds.perm_eq` is the soundness half with the swap at `0` (`swapIn_zero`).
+  `PoseidonRow` is `goldilocks.rowHolds`, `poseidonPerm` is `goldilocks.perm`, and
+  `poseidon_gate_rows` is `rowHolds.perm_eq`. Standard axioms only.
+- **Pinned to the Rust, twice.** The exporter writes
+  `Plonky2Spec/Generated/PoseidonConsts.lean` (`constraint-exporter/src/poseidon.rs`):
+  the Goldilocks tables of `impl Poseidon for GoldilocksField` as `goldilocks : Consts p`,
+  in the padded shape the model indexes, and `Poseidon::poseidon` of the lanes
+  `0, …, 11`; `goldilocks_perm_test : goldilocks.perm testInput = testOutput` is proved
+  by `decide +kernel` (about five seconds), so the model's matrices, constants and round
+  structure are the native permutation's, checked in Lean and not by a Rust test. The
+  constraint walk is pinned the other way: `poseidon_hand_gate_constraints_match_real_gate`
+  transliterates `gateConstraints` and its primitives definition by definition on the
+  same tables and compares with `PoseidonGate::eval_unfiltered` at random wires, and
+  `poseidon_hand_perm_matches_native` does the same for `perm`. The flat extraction of
+  the gate through the symbolic field (Step 3a for Poseidon2) is not repeated: it is not
+  what the proof consumes.
+- **Axiom gate.** `poseidon_gate_rows`, `Poseidon.gate_sound_complete`,
+  `Poseidon.goldilocks_perm_test`, `Built.HashesPublicInputs.hash_eq`: bare.
+  `proof_sound_leaf`: the three assumptions and `public_input_binding`. `proof_sound` /
+  `verifier_algebra`: those with the four obligations. `poseidon_gate_rows` is in no
+  footprint.
 
 ## 9. Definition of done
 

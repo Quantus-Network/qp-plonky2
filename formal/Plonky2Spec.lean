@@ -38,6 +38,14 @@
                              constraints are satisfiable iff `output = perm(input)`;
                              `Generated.Poseidon2Prims` pins its primitives to the
                              real Rust helpers by `ring`
+  * `Plonky2Spec.Poseidon`   the proof-system `PoseidonGate` (Step 18): the Poseidon
+                             permutation in its fast partial-round form, for any
+                             `Consts`, and `gate_sound_complete` for the gate's
+                             checkpointed, swap-aware constraints;
+                             `Generated.PoseidonConsts` is the Goldilocks tables
+                             written by the exporter, with the kernel-evaluated
+                             test vector `goldilocks_perm_test` pinning `Consts.perm`
+                             to `Poseidon::poseidon`
   * `Plonky2Spec.Sponge`     the `hash_no_pad` sponge over the verified permutation
                              (3c): `pad10`/absorb/squeeze, the `H : List Felt → Digest`
                              computational realization of the spec's `RandomOracle.H`,
@@ -88,6 +96,8 @@ import Plonky2Spec.Generated.Poseidon2
 import Plonky2Spec.Poseidon2
 import Plonky2Spec.Generated.Poseidon2Prims
 import Plonky2Spec.Bridges.Poseidon2Bridge
+import Plonky2Spec.Poseidon
+import Plonky2Spec.Generated.PoseidonConsts
 import Plonky2Spec.Sponge
 import Plonky2Spec.Wiring
 import Plonky2Spec.Generated.NullifierSelectCircuit

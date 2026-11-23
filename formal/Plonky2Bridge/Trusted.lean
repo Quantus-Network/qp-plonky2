@@ -1,5 +1,5 @@
 /-
-  The trusted base (PLAN.md §7, Steps 12 to 17).
+  The trusted base (PLAN.md §7, Steps 12 to 18).
 
   `proof_sound` is a theorem. It is the composition of three assumptions and
   `verifier_algebra`, and the capstones depend on nothing else outside the standard Lean
@@ -33,13 +33,14 @@
     the refinement as a hypothesis; `proof_sound_leaf` is their instance for a certified
     circuit with no children, with neither `build_refines_export` nor the two child
     obligations in its footprint. The leaf is certified in `Plonky2Bridge/LeafBuild.lean`.
-  * The public-input hash (Step 17). `Built.HashesPublicInputs` is the in-circuit
+  * The public-input hash (Steps 17, 18). `Built.HashesPublicInputs` is the in-circuit
     sponge `build` lays down over `PoseidonGate` rows and copies into the
     `PublicInputGate`, `Built.HashesPublicInputs.hash_eq` proves the carried public
     inputs hash to `pis` from it, and `Built.Agrees.hashesPublicInputs` proves it from a
-    certificate. What remains trusted of the hash is `poseidon_gate_rows`: a
-    `PoseidonGate` row computes `poseidonPerm`, the proof-system permutation, which
-    stays opaque. `public_inputs_wired` is the obligation for an uncertified build.
+    certificate. `poseidonPerm` is the proof-system permutation on the Goldilocks tables
+    (`Plonky2Spec.Poseidon`), and `poseidon_gate_rows` proves a `PoseidonGate` row
+    computes it from `Poseidon.gate_sound_complete`. Nothing of the hash is trusted;
+    `public_inputs_wired` is the obligation for an uncertified build.
 
   Poseidon2 collision resistance is not an assumption here. A forged proof need not
   exhibit a collision. The wormhole relations that do reduce to a collision are
@@ -47,6 +48,7 @@
 -/
 import Plonky2Spec.Wiring
 import Plonky2Spec.Poseidon2
+import Plonky2Spec.Generated.PoseidonConsts
 import Plonky2Spec.Sponge
 
 namespace Plonky2Bridge
@@ -587,12 +589,13 @@ theorem Built.Agrees.refines {b : Built p} {c : Circuit p} {k : BuildCert} (h : 
   (`get_public_inputs_hash`). The sponge is `hash_n_to_m_no_pad`: the all-zero state,
   each rate block *overwriting* the rate lanes, a permutation per block, the first four
   lanes squeezed. No padding, so `[1]` and `[1, 0]` share a digest. The permutation is
-  the proof-system Poseidon, not the wormhole Poseidon2, and it is not modelled:
-  `poseidonPerm` is opaque, and `poseidon_gate_rows` is the one thing trusted of it. -/
+  the proof-system Poseidon, not the wormhole Poseidon2: `Plonky2Spec.Poseidon.Consts.perm`
+  on the Goldilocks tables. -/
 
-/-- The proof-system Poseidon permutation (`Poseidon::poseidon`, width `12`). `opaque`:
-    not modelled. What is said of it is `poseidon_gate_rows`. -/
-opaque poseidonPerm : St p → St p
+/-- The proof-system Poseidon permutation (`Poseidon::poseidon`, width `12`): the model's
+    permutation on the Goldilocks tables, pinned to the native one by
+    `Poseidon.goldilocks_perm_test`. -/
+def poseidonPerm : St p → St p := Plonky2Spec.Poseidon.goldilocks.perm
 
 /-- Overwrite the first `block.length` lanes with the block (`set_from_slice(block, 0)`). -/
 def setBlock (s : St p) (block : List (ZMod p)) : St p :=
@@ -924,27 +927,20 @@ def Poseidon2Row (perm : St p → St p) (wires : ℕ → ZMod p) : Prop :=
 def PublicInputRow (pis : List (ZMod p)) (wires : ℕ → ZMod p) : Prop :=
   ∀ i : Fin 4, wires i = publicInputsHash pis i
 
-/-- The constraints of a `PoseidonGate` row. `opaque`: the proof-system Poseidon gate is
-    not modelled; what is trusted of it is `poseidon_gate_rows`. -/
-opaque PoseidonRow (wires : ℕ → ZMod p) : Prop
+/-- The constraints of a `PoseidonGate` row: `Poseidon.gateConstraints` on the Goldilocks
+    tables, read at the gate's layout (`Poseidon.Consts.rowHolds`). -/
+def PoseidonRow (wires : ℕ → ZMod p) : Prop :=
+  Plonky2Spec.Poseidon.goldilocks.rowHolds wires
 
-/-- **TRUSTED — Poseidon rows.** The constraints of a `PoseidonGate` row whose swap wire
-    `24` is `0` make its output wires `12..24` the proof-system permutation of its input
-    wires `0..12`.
-
-    This is for `PoseidonGate` what `poseidon2_gate_rows` proves of `Poseidon2Gate` from
-    its extracted constraints (`Poseidon2.gate_sound_complete`). With the swap wire at
-    `0` the gate's deltas vanish and its rounds are those of `Poseidon::poseidon`: the
-    four initial full rounds with S-box checkpoints, the `22` partial rounds in the fast
-    form the native permutation also computes, the four terminal full rounds. The gate
-    and the native hash are one algorithm over one table of constants
-    (`qp_plonky2_core::poseidon`), which is why one `poseidonPerm` names both.
-
-    Discharging this is that extraction and proof for `PoseidonGate`
-    (`plonky2/src/gates/poseidon.rs`), with `poseidonPerm` made a definition. -/
-axiom poseidon_gate_rows (wires : ℕ → ZMod p) :
+/-- **Poseidon rows.** The constraints of a `PoseidonGate` row whose swap wire `24` is `0`
+    make its output wires `12..24` the proof-system permutation of its input wires
+    `0..12`: the soundness half of `Poseidon.gate_sound_complete`, with the deltas at `0`.
+    The gate and the native hash are one algorithm over one table of constants
+    (`qp_plonky2_core::poseidon`), which is why one `poseidonPerm` names both. -/
+theorem poseidon_gate_rows (wires : ℕ → ZMod p) :
     PoseidonRow wires → wires 24 = 0 →
-      (fun i : Fin 12 => wires (12 + i)) = poseidonPerm fun i : Fin 12 => wires i
+      (fun i : Fin 12 => wires (12 + i)) = poseidonPerm fun i : Fin 12 => wires i :=
+  fun h hswap => h.perm_eq hswap
 
 /-- The constraints of a gate the export names only by `id`. `opaque`: not modelled. -/
 opaque OtherRow (id : String) (consts : List (ZMod p)) (wires : ℕ → ZMod p) : Prop
@@ -1452,7 +1448,7 @@ theorem identical_constraints_satisfies (perm : St p → St p) (tag : String) (c
 
     `Satisfies` is `Built.Refines.satisfies`, the Poseidon2 rows are
     `poseidon2_gate_rows`, and the public inputs are `Built.HashesPublicInputs.hash_eq`
-    (on `poseidon_gate_rows`) with `public_input_binding` on its good event. Three
+    with `public_input_binding` on its good event. Three
     hypotheses are about the deployed builder: `href`, that the system the verifier key
     commits to refines the export; `hpi`, that it hashes the export's public inputs into
     its `PublicInputGate`; and `hch`, that the children's proofs were accepted on the
