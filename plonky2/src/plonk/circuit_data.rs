@@ -438,10 +438,10 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
         qp_plonky2_core::circuit_config::check_common_data_valid(
             &self.config,
             self.quotient_degree_factor,
-            self.config.fri_config.rate_bits,
+            &self.fri_params,
             self.public_initial_degree_bits,
             self.trace_degree_bits,
-            self.fri_params.degree_bits,
+            F::TWO_ADICITY,
             || self.luts.iter().any(|lut| lut.is_empty()),
         )
     }
