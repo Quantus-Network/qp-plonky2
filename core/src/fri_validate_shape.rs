@@ -5,10 +5,10 @@ use alloc::{vec, vec::Vec};
 
 use anyhow::ensure;
 
-use crate::config::{GenericConfig, Hasher};
+use crate::config::GenericConfig;
 use crate::field::extension::Extendable;
 use crate::fri::FriParams;
-use crate::fri_proof::{FriInitialTreeProof, FriProof, FriQueryRound, FriQueryStep};
+use crate::fri_proof::{FriProof, FriQueryRound, FriQueryStep};
 use crate::fri_structure::FriInstanceInfo;
 use crate::hash_types::RichField;
 use crate::plonk_common::salt_size;
@@ -30,9 +30,8 @@ where
 ///
 /// In batch FRI a single oracle's leaf concatenates polynomials from every instance, so both the
 /// polynomial-index bound and the leaf length sum `num_polys` (plus salt) across instances; this
-/// reduces to a single instance for plain FRI. Sharing this between full proof-shape validation and
-/// the compressed verifier's inference step (`validate_fri_initial_proof_shape`) ensures neither
-/// path can index an oracle leaf out of bounds and panic on malformed metadata (#64696).
+/// reduces to a single instance for plain FRI. Checking the bound here keeps the verifier from
+/// indexing an oracle leaf out of bounds on malformed metadata (#64696).
 fn checked_leaf_lengths<F, const D: usize>(
     instances: &[FriInstanceInfo<F, D>],
     leaf_hiding: bool,
@@ -71,34 +70,6 @@ where
         }
     }
     Ok(leaf_len)
-}
-
-/// Validates a single FRI initial-tree proof's leaf shapes against `instances`, so that later
-/// `unsalted_eval` indexing cannot go out of bounds (#64696).
-///
-/// The compressed verifier evaluates opening expressions during inference (`get_inferred_elements`)
-/// *before* full proof-shape validation runs, so it must call this first. Only leaf contents are
-/// checked (not Merkle-proof depth), which is correct for the compressed representation where
-/// sibling paths are pruned.
-pub fn validate_fri_initial_proof_shape<F, H, const D: usize>(
-    initial_trees_proof: &FriInitialTreeProof<F, H>,
-    instances: &[FriInstanceInfo<F, D>],
-    leaf_hiding: bool,
-) -> anyhow::Result<()>
-where
-    F: RichField + Extendable<D>,
-    H: Hasher<F>,
-{
-    let leaf_len = checked_leaf_lengths(instances, leaf_hiding)?;
-    ensure!(
-        initial_trees_proof.evals_proofs.len() == leaf_len.len(),
-        "FRI oracle count mismatch"
-    );
-    for ((leaf, _merkle_proof), expected) in initial_trees_proof.evals_proofs.iter().zip(&leaf_len)
-    {
-        ensure!(leaf.len() == *expected, "FRI leaf length mismatch");
-    }
-    Ok(())
 }
 
 pub fn validate_batch_fri_proof_shape<F, C, const D: usize>(
@@ -168,12 +139,10 @@ mod tests {
     use crate::fri_structure::{
         FriBatchInfo, FriOpeningExpression, FriOracleInfo, FriPolynomialInfo,
     };
-    use crate::merkle_proofs::MerkleProof;
 
     const D: usize = 2;
     type C = PoseidonGoldilocksConfig;
     type F = <C as GenericConfig<D>>::F;
-    type H = <C as GenericConfig<D>>::Hasher;
 
     fn single_oracle_instance(num_polys: usize, polynomial_index: usize) -> FriInstanceInfo<F, D> {
         FriInstanceInfo {
@@ -191,46 +160,25 @@ mod tests {
         }
     }
 
-    fn single_oracle_proof(leaf_len: usize) -> FriInitialTreeProof<F, H> {
-        FriInitialTreeProof {
-            evals_proofs: vec![(vec![F::ZERO; leaf_len], MerkleProof { siblings: vec![] })],
-        }
-    }
-
     /// #64696: an opening term whose `polynomial_index` exceeds the oracle's `num_polys` must be
-    /// rejected before `unsalted_eval` indexes the leaf out of bounds (the compressed-verifier
-    /// inference path that the audit PoC exercised).
+    /// rejected before `unsalted_eval` indexes the leaf out of bounds.
     #[test]
     fn rejects_out_of_range_polynomial_index() {
         let inst = single_oracle_instance(1, 5);
-        let proof = single_oracle_proof(1);
-        assert!(validate_fri_initial_proof_shape::<F, H, D>(
-            &proof,
-            core::slice::from_ref(&inst),
-            false
-        )
-        .is_err());
-    }
-
-    /// #64696: an in-range index but a proof leaf shorter than the declared `num_polys` must also be
-    /// rejected (a short attacker-supplied leaf for a large declared oracle).
-    #[test]
-    fn rejects_short_leaf() {
-        let inst = single_oracle_instance(3, 2);
-        let proof = single_oracle_proof(1);
-        assert!(validate_fri_initial_proof_shape::<F, H, D>(
-            &proof,
-            core::slice::from_ref(&inst),
-            false
-        )
-        .is_err());
+        assert!(checked_leaf_lengths(core::slice::from_ref(&inst), false).is_err());
     }
 
     #[test]
-    fn accepts_consistent_shape() {
-        let inst = single_oracle_instance(3, 2);
-        let proof = single_oracle_proof(3);
-        validate_fri_initial_proof_shape::<F, H, D>(&proof, core::slice::from_ref(&inst), false)
-            .unwrap();
+    fn leaf_length_includes_salt_only_for_blinded_oracles() {
+        let mut inst = single_oracle_instance(3, 2);
+        assert_eq!(
+            checked_leaf_lengths(core::slice::from_ref(&inst), true).unwrap(),
+            vec![3]
+        );
+        inst.oracles[0].blinding = true;
+        assert_eq!(
+            checked_leaf_lengths(core::slice::from_ref(&inst), true).unwrap(),
+            vec![3 + salt_size(true)]
+        );
     }
 }

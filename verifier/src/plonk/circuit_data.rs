@@ -24,7 +24,7 @@ use crate::gates::selectors::SelectorsInfo;
 use crate::hash::hash_types::{HashOut, RichField};
 use crate::plonk::config::{GenericConfig, Hasher};
 use crate::plonk::plonk_common::PlonkOracle;
-use crate::plonk::proof::{CompressedProofWithPublicInputs, ProofWithPublicInputs};
+use crate::plonk::proof::ProofWithPublicInputs;
 use crate::plonk::verifier::verify;
 use crate::util::serialization::{Buffer, GateSerializer, IoResult, Read, Write};
 
@@ -91,13 +91,6 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
     {
         self.verify(proof_with_pis.clone())?;
         check_cyclic_proof_verifier_data(&proof_with_pis, &self.verifier_only, &self.common)
-    }
-
-    pub fn verify_compressed(
-        &self,
-        compressed_proof_with_pis: CompressedProofWithPublicInputs<F, C, D>,
-    ) -> Result<()> {
-        compressed_proof_with_pis.verify(&self.verifier_only, &self.common)
     }
 }
 

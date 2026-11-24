@@ -14,9 +14,8 @@ pub use plonky2_field as field;
 #[doc(inline)]
 pub use plonky2_verifier::verify;
 pub use plonky2_verifier::{
-    CommonCircuitData, CompressedProofWithPublicInputs, GenericConfig, GenericHashOut, Hasher,
-    PoseidonGoldilocksConfig, Proof, ProofWithPublicInputs, VerifierCircuitData,
-    VerifierOnlyCircuitData, C, D, F,
+    CommonCircuitData, GenericConfig, GenericHashOut, Hasher, PoseidonGoldilocksConfig, Proof,
+    ProofWithPublicInputs, VerifierCircuitData, VerifierOnlyCircuitData, C, D, F,
 };
 
 pub mod batch_fri;

@@ -22,7 +22,6 @@ rand = ["plonky2-field/rand", "dep:rand"]
 
 [dependencies]
 anyhow = { workspace = true }
-hashbrown = { workspace = true }
 itertools = { workspace = true }
 log = { workspace = true }
 num = { version = "=0.4.3", default-features = false, features = ["alloc"] }

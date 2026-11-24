@@ -636,7 +636,6 @@ name = "qp-plonky2-core"
 version = "1.6.0"
 dependencies = [
  "anyhow",
- "hashbrown",
  "itertools 0.15.0",
  "log",
  "num",
