@@ -77,17 +77,22 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for Lo
     }
 
     fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
-        let num_slots = src.read_usize_in(0..=Self::num_slots(&common_data.config))?;
+        let num_slots = src.read_usize()?;
         let lut_index = src.read_usize()?;
         let lut = common_data.luts.get(lut_index).ok_or(IoError)?.clone();
         let mut lut_hash = [0u8; 32];
         src.read_exact(&mut lut_hash)?;
 
-        Ok(Self {
+        Self {
             num_slots,
             lut,
             lut_hash,
-        })
+        }
+        .fitting(common_data)
+    }
+
+    fn parameters_fit(&self, config: &CircuitConfig) -> bool {
+        self.num_slots <= Self::num_slots(config)
     }
 
     fn eval_unfiltered(&self, _vars: EvaluationVars<F, D>) -> Vec<F::Extension> {

@@ -15,7 +15,7 @@ use crate::plonk::vars::{
     EvaluationVars, EvaluationVarsBase, EvaluationVarsBaseBatch, EvaluationVarsBasePacked,
 };
 use crate::util::log_floor;
-use crate::util::serialization::{Buffer, IoError, IoResult, Read, Write};
+use crate::util::serialization::{Buffer, IoResult, Read, Write};
 
 /// A gate which can decompose a number into base B little-endian limbs.
 #[derive(Copy, Clone, Debug)]
@@ -36,6 +36,11 @@ impl<const B: usize> BaseSumGate<B> {
     /// The widest decomposition that is still injective over `F`.
     pub fn max_limbs<F: Field64>() -> usize {
         log_floor(F::ORDER - 1, B as u64)
+    }
+
+    /// `max_limbs` further bounded by the wires a row has for limbs.
+    pub(crate) fn max_num_limbs<F: Field64>(config: &CircuitConfig) -> usize {
+        Self::max_limbs::<F>().min(config.num_wires - Self::START_LIMBS)
     }
 
     pub(crate) const WIRE_SUM: usize = 0;
@@ -59,8 +64,14 @@ impl<F: RichField + Extendable<D>, const D: usize, const B: usize> VerificationG
     }
 
     fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
-        let num_limbs = src.read_usize_in(0..=common_data.config.num_wires - Self::START_LIMBS)?;
-        Ok(Self { num_limbs })
+        Self {
+            num_limbs: src.read_usize()?,
+        }
+        .fitting(common_data)
+    }
+
+    fn parameters_fit(&self, config: &CircuitConfig) -> bool {
+        self.num_limbs <= Self::max_num_limbs::<F>(config)
     }
 
     fn eval_unfiltered(&self, vars: EvaluationVars<F, D>) -> Vec<F::Extension> {

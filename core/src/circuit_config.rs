@@ -225,6 +225,11 @@ macro_rules! common_circuit_data_constructors {
             num_public_inputs: usize,
             luts: Vec<$crate::plonk_common::LookupTable>,
         ) -> Result<Self, &'static str> {
+            // The fit checks take logarithms of the config's widths, so the config comes first.
+            config.check_valid()?;
+            if !gates.iter().all(|gate| gate.0.parameters_fit(&config)) {
+                return Err("gate parameters do not fit within the circuit config");
+            }
             let gate_shapes: Vec<$crate::circuit_config::GateShape> = gates
                 .iter()
                 .map(|gate| $crate::circuit_config::GateShape {
@@ -319,9 +324,10 @@ pub struct DerivedCommonData<F: Field> {
 /// Derives the rest of a `CommonCircuitData` the way `CircuitBuilder::build` does, after
 /// checking that the primitives are ones the builder could have fixed: the config passes the
 /// builder's checks, the FRI domain and schedule exist for the degree, the gates are sorted by
-/// `(degree, id)` without repeats and fit the config, and no lookup table is empty. The gate
-/// methods behind [`GateShape`] must already be safe to call, which each gate's deserializer
-/// guarantees by checking its own parameters.
+/// `(degree, id)` without repeats and fit the config, and no lookup table is empty.
+///
+/// The gate methods behind [`GateShape`] are only meaningful on parameters the builder could
+/// have produced, so callers check every gate's `parameters_fit` before building the shapes.
 ///
 /// This cannot tell which circuit the primitives describe, so a verifier must pin the whole
 /// common data, not only the verifier key.

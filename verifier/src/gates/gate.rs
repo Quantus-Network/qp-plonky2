@@ -16,9 +16,9 @@ use crate::field::types::Field;
 use crate::gates::selectors::UNUSED_SELECTOR;
 use crate::gates::util::StridedConstraintConsumer;
 use crate::hash::hash_types::RichField;
-use crate::plonk::circuit_data::CommonCircuitData;
+use crate::plonk::circuit_data::{CircuitConfig, CommonCircuitData};
 use crate::plonk::vars::{EvaluationVars, EvaluationVarsBase, EvaluationVarsBaseBatch};
-use crate::util::serialization::{Buffer, IoResult};
+use crate::util::serialization::{Buffer, IoError, IoResult};
 
 /// A verification-only gate trait.
 ///
@@ -67,6 +67,26 @@ pub trait VerificationGate<F: RichField + Extendable<D>, const D: usize>:
     fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self>
     where
         Self: Sized;
+
+    /// Whether the builder could have produced this gate's parameters under `config`. The width
+    /// and constraint-count methods are only meaningful on such parameters; on others they may
+    /// overflow or divide by zero, so callers must check this first.
+    fn parameters_fit(&self, _config: &CircuitConfig) -> bool {
+        true
+    }
+
+    /// `self` if its parameters fit `common_data.config`, for deserializers reading untrusted
+    /// bytes.
+    fn fitting(self, common_data: &CommonCircuitData<F, D>) -> IoResult<Self>
+    where
+        Self: Sized,
+    {
+        if self.parameters_fit(&common_data.config) {
+            Ok(self)
+        } else {
+            Err(IoError)
+        }
+    }
 
     /// Defines and evaluates the constraints that enforce the statement represented by this gate.
     /// Constraints must be defined in the extension of this custom gate base field.
