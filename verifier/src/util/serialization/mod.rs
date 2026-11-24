@@ -6,6 +6,7 @@ use alloc::{sync::Arc, vec, vec::Vec};
 use core::convert::Infallible;
 use core::fmt::{Debug, Display, Formatter};
 use core::mem::size_of;
+use core::ops::RangeInclusive;
 #[cfg(feature = "std")]
 use std::sync::Arc;
 
@@ -113,6 +114,18 @@ pub trait Read {
         let mut buf = [0; core::mem::size_of::<u64>()];
         self.read_exact(&mut buf)?;
         Ok(u64::from_le_bytes(buf) as usize)
+    }
+
+    /// Reads a `usize` that must lie within `allowed`, so that gate parameters read from
+    /// untrusted bytes cannot overflow or underflow the arithmetic the gate performs on them.
+    #[inline]
+    fn read_usize_in(&mut self, allowed: RangeInclusive<usize>) -> IoResult<usize> {
+        let value = self.read_usize()?;
+        if allowed.contains(&value) {
+            Ok(value)
+        } else {
+            Err(IoError)
+        }
     }
 
     /// Reads a vector of `usize` value from `self`.

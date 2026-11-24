@@ -27,7 +27,7 @@ use crate::plonk::vars::{
     EvaluationTargets, EvaluationVars, EvaluationVarsBase, EvaluationVarsBaseBatch,
     EvaluationVarsBasePacked,
 };
-use crate::util::serialization::{Buffer, IoResult, Read, Write};
+use crate::util::serialization::{Buffer, IoError, IoResult, Read, Write};
 
 /// A gate which stores the set of (input, output) value pairs of a lookup table, and their multiplicities.
 #[derive(Debug, Clone)]
@@ -101,15 +101,16 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for LookupTableGat
     }
 
     fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
-        let num_slots = src.read_usize()?;
+        let num_slots = src.read_usize_in(0..=Self::num_slots(&common_data.config))?;
         let last_lut_row = src.read_usize()?;
         let lut_index = src.read_usize()?;
+        let lut = common_data.luts.get(lut_index).ok_or(IoError)?.clone();
         let mut lut_hash = [0u8; 32];
         src.read_exact(&mut lut_hash)?;
 
         Ok(Self {
             num_slots,
-            lut: common_data.luts[lut_index].clone(),
+            lut,
             lut_hash,
             last_lut_row,
         })

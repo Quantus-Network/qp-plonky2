@@ -50,8 +50,8 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for ConstantGate {
         dst.write_usize(self.num_consts)
     }
 
-    fn deserialize(src: &mut Buffer, _common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
-        let num_consts = src.read_usize()?;
+    fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
+        let num_consts = src.read_usize_in(0..=common_data.config.num_constants)?;
         Ok(Self { num_consts })
     }
 

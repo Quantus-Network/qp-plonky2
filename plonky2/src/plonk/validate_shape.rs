@@ -56,9 +56,10 @@ where
         lookup_zs_next,
     } = openings;
     let cap_height = common_data.fri_params.config.cap_height;
-    ensure!(wires_cap.height() == cap_height);
-    ensure!(plonk_zs_partial_products_cap.height() == cap_height);
-    ensure!(quotient_polys_cap.height() == cap_height);
+    // Compare lengths rather than `height()`, which panics on a non-power-of-two cap.
+    ensure!(wires_cap.len() == 1 << cap_height);
+    ensure!(plonk_zs_partial_products_cap.len() == 1 << cap_height);
+    ensure!(quotient_polys_cap.len() == 1 << cap_height);
     ensure!(constants.len() == common_data.num_constants);
     ensure!(plonk_sigmas.len() == config.num_routed_wires);
     ensure!(wires.len() == config.num_wires);

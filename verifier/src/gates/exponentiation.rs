@@ -74,8 +74,10 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D>
         dst.write_usize(self.num_power_bits)
     }
 
-    fn deserialize(src: &mut Buffer, _common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
-        let num_power_bits = src.read_usize()?;
+    fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
+        let config = &common_data.config;
+        let max_power_bits = Self::max_power_bits(config.num_wires, config.num_routed_wires);
+        let num_power_bits = src.read_usize_in(1..=max_power_bits)?;
         Ok(Self::new(num_power_bits))
     }
 

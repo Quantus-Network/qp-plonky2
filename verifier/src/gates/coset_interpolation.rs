@@ -178,10 +178,14 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D>
         dst.write_field_vec(&self.barycentric_weights)
     }
 
-    fn deserialize(src: &mut Buffer, _common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
-        let subgroup_bits = src.read_usize()?;
-        let degree = src.read_usize()?;
-        let length = src.read_usize()?;
+    fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
+        // The interpolation points alone need `num_points` wires, and the intermediate count
+        // divides by `degree - 1`.
+        let max_subgroup_bits = common_data.config.num_wires.ilog2() as usize;
+        let subgroup_bits = src.read_usize_in(1..=max_subgroup_bits)?;
+        let num_points = 1 << subgroup_bits;
+        let degree = src.read_usize_in(2..=num_points)?;
+        let length = src.read_usize_in(num_points..=num_points)?;
         let barycentric_weights: Vec<F> = src.read_field_vec(length)?;
         Ok(Self {
             subgroup_bits,

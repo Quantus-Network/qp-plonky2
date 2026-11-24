@@ -134,10 +134,12 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for RandomAccessGa
         Ok(())
     }
 
-    fn deserialize(src: &mut Buffer, _common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
-        let bits = src.read_usize()?;
-        let num_copies = src.read_usize()?;
-        let num_extra_constants = src.read_usize()?;
+    fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
+        let config = &common_data.config;
+        let bits = src.read_usize_in(1..=config.num_routed_wires.ilog2() as usize)?;
+        let widest = Self::new_from_config(config, bits);
+        let num_copies = src.read_usize_in(1..=widest.num_copies)?;
+        let num_extra_constants = src.read_usize_in(0..=config.num_constants)?;
         Ok(Self::new(num_copies, bits, num_extra_constants))
     }
 

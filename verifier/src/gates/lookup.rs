@@ -16,7 +16,7 @@ use crate::plonk::plonk_common::lookup_gate_slots;
 use crate::plonk::vars::{
     EvaluationVars, EvaluationVarsBase, EvaluationVarsBaseBatch, EvaluationVarsBasePacked,
 };
-use crate::util::serialization::{Buffer, IoResult, Read, Write};
+use crate::util::serialization::{Buffer, IoError, IoResult, Read, Write};
 
 /// A gate which stores (input, output) lookup pairs made elsewhere in the trace. It doesn't check any constraints itself.
 #[derive(Debug, Clone)]
@@ -77,14 +77,15 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for Lo
     }
 
     fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
-        let num_slots = src.read_usize()?;
+        let num_slots = src.read_usize_in(0..=Self::num_slots(&common_data.config))?;
         let lut_index = src.read_usize()?;
+        let lut = common_data.luts.get(lut_index).ok_or(IoError)?.clone();
         let mut lut_hash = [0u8; 32];
         src.read_exact(&mut lut_hash)?;
 
         Ok(Self {
             num_slots,
-            lut: common_data.luts[lut_index].clone(),
+            lut,
             lut_hash,
         })
     }

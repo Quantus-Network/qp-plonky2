@@ -63,7 +63,14 @@ pub fn verify_batch_merkle_proof_to_cap<F: RichField, H: Hasher<F>>(
     merkle_cap: &MerkleCap<F, H>,
     proof: &MerkleProof<F, H>,
 ) -> Result<()> {
-    assert_eq!(leaf_data.len(), leaf_heights.len());
+    ensure!(
+        !leaf_data.is_empty() && leaf_data.len() == leaf_heights.len(),
+        "Merkle leaf data and heights do not match."
+    );
+    ensure!(
+        proof.siblings.len() <= leaf_heights[0],
+        "Merkle proof is taller than the tree."
+    );
     let mut current_digest = H::hash_leaf(&leaf_data[0]);
     let mut current_height = leaf_heights[0];
     let mut leaf_data_index = 1;
@@ -87,9 +94,12 @@ pub fn verify_batch_merkle_proof_to_cap<F: RichField, H: Hasher<F>>(
             leaf_data_index += 1;
         }
     }
-    assert_eq!(leaf_data_index, leaf_data.len());
     ensure!(
-        current_digest == merkle_cap.0[leaf_index],
+        leaf_data_index == leaf_data.len(),
+        "Merkle proof does not reach every leaf layer."
+    );
+    ensure!(
+        merkle_cap.0.get(leaf_index) == Some(&current_digest),
         "Invalid Merkle proof."
     );
 

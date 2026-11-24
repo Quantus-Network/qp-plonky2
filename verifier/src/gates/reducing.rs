@@ -23,7 +23,7 @@ impl<const D: usize> ReducingGate<D> {
     }
 
     pub fn max_coeffs_len(num_wires: usize, num_routed_wires: usize) -> usize {
-        (num_routed_wires - 3 * D).min((num_wires - 2 * D) / (D + 1))
+        (num_routed_wires.saturating_sub(3 * D)).min(num_wires.saturating_sub(2 * D) / (D + 1))
     }
 
     pub(crate) const fn wires_output() -> Range<usize> {
@@ -61,14 +61,13 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for Re
         Ok(())
     }
 
-    fn deserialize(src: &mut Buffer, _common_data: &CommonCircuitData<F, D>) -> IoResult<Self>
+    fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self>
     where
         Self: Sized,
     {
-        let num_coeffs = src.read_usize()?;
-        if num_coeffs == 0 {
-            return Err(crate::util::serialization::IoError);
-        }
+        let config = &common_data.config;
+        let max_coeffs = Self::max_coeffs_len(config.num_wires, config.num_routed_wires);
+        let num_coeffs = src.read_usize_in(1..=max_coeffs)?;
         Ok(Self::new(num_coeffs))
     }
 

@@ -58,11 +58,8 @@ impl<F: RichField + Extendable<D>, const D: usize, const B: usize> VerificationG
         dst.write_usize(self.num_limbs)
     }
 
-    fn deserialize(src: &mut Buffer, _common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
-        let num_limbs = src.read_usize()?;
-        if num_limbs > Self::max_limbs::<F>() {
-            return Err(IoError);
-        }
+    fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
+        let num_limbs = src.read_usize_in(0..=common_data.config.num_wires - Self::START_LIMBS)?;
         Ok(Self { num_limbs })
     }
 

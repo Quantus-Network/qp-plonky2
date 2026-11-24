@@ -91,8 +91,9 @@ where
     let leaf_len = checked_leaf_lengths(instances, params.leaf_hiding)?;
 
     let cap_height = params.config.cap_height;
+    // Compare lengths rather than `height()`, which panics on a non-power-of-two cap.
     for cap in commit_phase_merkle_caps {
-        ensure!(cap.height() == cap_height);
+        ensure!(cap.len() == 1 << cap_height);
     }
 
     for query_round in query_round_proofs {

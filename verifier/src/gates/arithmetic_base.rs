@@ -57,8 +57,8 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for Ar
         dst.write_usize(self.num_ops)
     }
 
-    fn deserialize(src: &mut Buffer, _common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
-        let num_ops = src.read_usize()?;
+    fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
+        let num_ops = src.read_usize_in(0..=Self::num_ops(&common_data.config))?;
         Ok(Self { num_ops })
     }
 
