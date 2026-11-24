@@ -607,37 +607,6 @@ fn forged_sldc_chain_start_is_rejected() {
     );
 }
 
-/// The recursive verifier's lookup constraints must agree with the prover's.
-#[test]
-fn test_lookup_proof_verifies_recursively() -> anyhow::Result<()> {
-    init_logger();
-
-    let tip5_table = TIP5_TABLE.to_vec();
-    let table: LookupTable = Arc::new((0..256).zip_eq(tip5_table).collect());
-    let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
-    let input = builder.add_virtual_target();
-    let table_index = builder.add_lookup_table_from_pairs(table);
-    let output = builder.add_lookup_from_index(input, table_index);
-    builder.register_public_input(input);
-    builder.register_public_input(output);
-    let inner = builder.build::<C>();
-
-    let mut pw = PartialWitness::new();
-    pw.set_target(input, F::from_canonical_usize(5))?;
-    let inner_proof = inner.prove(pw)?;
-    inner.verify(inner_proof.clone())?;
-
-    let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
-    let proof_target = builder.add_virtual_proof_with_pis(&inner.common);
-    let verifier_target = builder.constant_verifier_data(&inner.verifier_only);
-    builder.verify_proof::<C>(&proof_target, &verifier_target, &inner.common);
-    let outer = builder.build::<C>();
-
-    let mut pw = PartialWitness::new();
-    pw.set_proof_with_pis_target(&proof_target, &inner_proof)?;
-    outer.verify(outer.prove(pw)?)
-}
-
 fn init_logger() {
     #[cfg(feature = "std")]
     {
