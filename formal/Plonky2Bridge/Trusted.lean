@@ -62,34 +62,56 @@ open Plonky2Spec.Wiring
 open Plonky2Spec.Poseidon2 (St)
 open Plonky2Spec.Sponge (rate squeeze4)
 
-/-! ### FRI parameters the in-repo default config is chosen against
+/-! ### FRI query parameters
 
-  `CircuitConfig.standard_recursion_config` uses blowup `2^rateBits`, `numQueries`
-  FRI queries and `proofOfWorkBits` of grinding. These are different quantities.
-  `friQueryBits` is the statistical query exponent: each query fails with
-  probability at most the rate, so the default is `(1/8)^28 = 2^{-84}`.
-  `friConjecturedBits` adds the grinding bits. That sum is the work factor stored in
-  `CircuitConfig.security_bits`. It is not a statistical error of `2^{-100}`: the
-  grinding term depends on how many times the adversary queries the oracle, as
-  separated in Appendix A.3.2 of *Fiat-Shamir Security of FRI and Related SNARKs*.
-  The `rfl` checks certify only the arithmetic. The deployed wormhole circuit may
-  use a different `FriConfig`. -/
+  A `FriConfig` has blowup `2^rateBits`, `numQueries` FRI queries and `proofOfWorkBits`
+  of grinding. The deployed circuits' parameters are pinned from their recorded traces in
+  `Plonky2Bridge/Generated/FriParams.lean` (`leafFri`, `privateBatchFri`,
+  `publicBatchFri`); `standardRecursionFri` is plonky2's default, for comparison.
 
-/-- The FRI query parameters that determine the conjectured soundness error. -/
+  Three exponents are read off them, and they are different quantities:
+  * `friQueryBits = numQueries * rateBits` is the query exponent under the capacity
+    conjecture of ethSTARK and BCIKS'20 (correlated agreement out to `1 − ρ`), where a
+    query fails with probability at most the rate. That conjecture is refuted:
+    Crites–Stewart (ePrint 2025/2046) disprove it over large fields, and
+    Krachun–Kazanin–Haböck (ePrint 2026/782) for codes over multiplicative subgroups of
+    prime fields, FRI's domains. The conjecture that replaces it (S-two, ePrint
+    2026/532, Appendix A.5) stops at the Elias radius with an error exponential in the
+    gap to it, and yields some `0.83`–`0.91 · rateBits` per query.
+  * `friJohnsonQueryBits = numQueries * rateBits / 2` is the query exponent that is
+    proved (BCIKS'20, improved in ePrint 2025/2055): proximity gaps out to the Johnson
+    radius `1 − √ρ`, where a query fails with probability at most `√ρ`. It is an upper
+    bound: the proof trades a slack `η` in the radius against a commit-phase term
+    quadratic in the domain size, which takes a few bits off the larger circuits.
+  * `friConjecturedBits` adds the grinding bits. That sum is the work factor stored in
+    `CircuitConfig.security_bits`. It is not a statistical error: the grinding term is
+    adversary work per attempt at the query round, as separated in Appendix A.3.2 of
+    *Fiat-Shamir Security of FRI and Related SNARKs*, and it does not protect the
+    earlier challenges.
+  The `rfl` checks certify only the arithmetic. -/
+
+/-- The FRI query parameters that determine the soundness error. -/
 structure FriQueryParams where
   rateBits : ℕ
   numQueries : ℕ
   proofOfWorkBits : ℕ
 
-/-- `CircuitConfig.standard_recursion_config`'s FRI query parameters. -/
+/-- `CircuitConfig.standard_recursion_config`'s FRI query parameters; not a deployed
+    circuit's. -/
 def standardRecursionFri : FriQueryParams where
   rateBits := 3
   numQueries := 28
   proofOfWorkBits := 16
 
-/-- Statistical query exponent: `numQueries * rateBits`, i.e. `rate^{numQueries} = 2^{-this}`. -/
+/-- Query exponent under the capacity conjecture: `numQueries * rateBits`, i.e.
+    `rate^{numQueries} = 2^{-this}`. -/
 def friQueryBits (q : FriQueryParams) : ℕ :=
   q.numQueries * q.rateBits
+
+/-- Query exponent proved out to the Johnson radius: `numQueries * rateBits / 2`, i.e.
+    `√rate^{numQueries} = 2^{-this}` (rounded down). -/
+def friJohnsonQueryBits (q : FriQueryParams) : ℕ :=
+  q.numQueries * q.rateBits / 2
 
 /-- Query exponent plus grinding bits. This is `CircuitConfig.security_bits`'s accounting,
     not a single statistical probability. -/
@@ -97,6 +119,7 @@ def friConjecturedBits (q : FriQueryParams) : ℕ :=
   friQueryBits q + q.proofOfWorkBits
 
 example : friQueryBits standardRecursionFri = 84 := rfl
+example : friJohnsonQueryBits standardRecursionFri = 42 := rfl
 example : friConjecturedBits standardRecursionFri = 100 := rfl
 
 /-! ### The built system and its domain
@@ -1021,8 +1044,9 @@ def IdenticalConstraints (perm : St p → St p) (r : Recursive p) (pis : List (Z
 opaque OracleGood (perm : St p → St p) (r : Recursive p) : Prop
 
 /-- The proximity good event for the proofs of `r`: every FRI query of an accepting
-    transcript sees a word within the proximity radius. Probability
-    `1 − 2^{-friQueryBits}` under the proximity-gap conjecture. -/
+    transcript sees a word within the proximity radius. Probability at least
+    `1 − 2^{-friJohnsonQueryBits}` (less a few bits of commit-phase error) by the proved
+    proximity gaps; `1 − 2^{-friQueryBits}` only under the refuted capacity conjecture. -/
 opaque ProximityGood (perm : St p → St p) (r : Recursive p) : Prop
 
 /-- The sampling good event for the proofs of `r`: the base-field challenges `α`, `β`,
@@ -1063,18 +1087,24 @@ axiom poseidon_transcript_oracle (perm : St p → St p) (tag : String) (c : Circ
 /-- **TRUSTED — FRI proximity gaps.** On `ProximityGood`, an accepting transcript means
     the opened polynomials are low degree in the sense of `LowDegreeOpenings`.
 
-    This is the ethSTARK proximity-gap conjecture at the FRI parameters of the circuit
-    whose verifier accepted, not a property of either hash. For `standardRecursionFri`
-    the statistical query error is `2^{-friQueryBits standardRecursionFri} = 2^{-84}`:
-    each of the 28 queries is bounded by the rate `1/8`. The further 16 bits in
-    `friConjecturedBits standardRecursionFri = 100` are grinding. They are adversary
-    work against the oracle, not another `2^{-16}` in this probability. This
-    implication is the proximity good event only. It does not remove the algebraic
-    sampling error (`algebraic_sampling`).
+    This is a proximity-gap theorem for Reed–Solomon codes at the FRI parameters of the
+    circuit whose verifier accepted, not a property of either hash. What is proved
+    (BCIKS'20, ePrint 2025/2055) reaches the Johnson radius `1 − √ρ`: a query then
+    fails with probability at most `√ρ`, so the query exponent is `friJohnsonQueryBits`
+    — `54` for the batch wrappers (`36` queries at rate `1/8`), `57` for the leaf (`19`
+    at `1/64`), less a few bits of commit-phase error on the larger domains. The
+    `security_bits = 128` of the deployed configs counted `friQueryBits` instead
+    (`108` and `114`), a query failing with probability at most `ρ`, which is the
+    capacity conjecture of ethSTARK and BCIKS'20. That conjecture is refuted
+    (Crites–Stewart, ePrint 2025/2046; Krachun–Kazanin–Haböck, ePrint 2026/782, on
+    FRI's own domains); its replacement (S-two, ePrint 2026/532) yields some
+    `0.83`–`0.91 · rateBits` per query, `90`–`98` for the batch wrappers. The grinding
+    bits (`20`, `16`) are adversary work per attempt at the query round, not another
+    term of this probability. This implication is the proximity good event only. It
+    does not remove the algebraic sampling error (`algebraic_sampling`).
 
-    Discharging this is a proof of proximity gaps out to the list-decoding radius
-    this blowup uses. The unique-decoding regime is proved in the literature; the
-    parameters above sit past it. -/
+    Discharging this at the Johnson radius is a formalization of BCIKS'20; beyond it,
+    an open problem in coding theory. -/
 axiom fri_proximity_gap (perm : St p → St p) (r : Recursive p) (pis : List (ZMod p)) :
     ProximityGood perm r → TranscriptAccepted perm r pis → LowDegreeOpenings perm r pis
 
