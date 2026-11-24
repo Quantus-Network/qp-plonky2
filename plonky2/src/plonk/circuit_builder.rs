@@ -922,19 +922,9 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     }
 
     fn fri_params(&self, degree_bits: usize) -> FriParams {
-        let fri_params = self
-            .config
+        self.config
             .fri_config
-            .fri_params(degree_bits, self.config.zero_knowledge);
-
-        assert!(
-            fri_params.total_arities()
-                <= degree_bits + self.config.fri_config.rate_bits
-                    - self.config.fri_config.cap_height,
-            "FRI total reduction arity is too large.",
-        );
-
-        fri_params
+            .fri_params(degree_bits, self.config.zero_knowledge)
     }
 
     /// The number of (base field) `arithmetic` operations that can be performed in a single gate.
@@ -1439,6 +1429,11 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             num_lookup_selectors,
             luts: self.luts,
         };
+        // The same check the verifier applies to deserialized data, so that anything the builder
+        // produces is accepted there and the two never disagree on what a valid circuit is.
+        common
+            .check_valid()
+            .unwrap_or_else(|error| panic!("built invalid common circuit data: {error}"));
 
         // Precompute FFT roots for the phase-1 commitments. Trace-domain
         // batches compute exact FFT roots on demand so they are never coupled to the public size.
