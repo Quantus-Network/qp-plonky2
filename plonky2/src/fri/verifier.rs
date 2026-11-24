@@ -9,7 +9,6 @@ pub use qp_plonky2_core::fri_verifier::{
 
 #[cfg(test)]
 mod tests {
-    use std::panic::{catch_unwind, AssertUnwindSafe};
 
     use super::verify_fri_proof;
     use crate::fri::proof::{FriChallenges, FriProof};
@@ -79,10 +78,6 @@ mod tests {
                 &self.params,
             )
         }
-
-        fn rejects(&self) -> bool {
-            catch_unwind(AssertUnwindSafe(|| self.verify())).map_or(true, |result| result.is_err())
-        }
     }
 
     #[test]
@@ -108,7 +103,7 @@ mod tests {
     fn short_fri_betas_rejected() -> anyhow::Result<()> {
         let mut inputs = FriVerifierInputs::honest()?;
         inputs.challenges.fri_betas.pop();
-        assert!(inputs.rejects());
+        assert!(inputs.verify().is_err());
         Ok(())
     }
 
@@ -124,7 +119,7 @@ mod tests {
     fn out_of_domain_query_index_rejected() -> anyhow::Result<()> {
         let mut inputs = FriVerifierInputs::honest()?;
         inputs.challenges.fri_query_indices[0] = inputs.params.lde_size();
-        assert!(inputs.rejects());
+        assert!(inputs.verify().is_err());
         Ok(())
     }
 
@@ -140,7 +135,7 @@ mod tests {
     fn short_openings_batch_rejected() -> anyhow::Result<()> {
         let mut inputs = FriVerifierInputs::honest()?;
         inputs.openings.batches[0].values.pop();
-        assert!(inputs.rejects());
+        assert!(inputs.verify().is_err());
         Ok(())
     }
 }

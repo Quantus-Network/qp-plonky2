@@ -62,8 +62,8 @@ pub use fri_structure::{
     FriOpeningExpression, FriOpeningTerm, FriOpenings, FriOracleInfo, FriPolynomialInfo,
 };
 pub use fri_validate_shape::{
-    validate_batch_fri_proof_shape, validate_fri_initial_proof_shape, validate_fri_proof_shape,
-    validate_fri_verifier_inputs,
+    check_fri_verifier_input_counts, validate_batch_fri_proof_shape,
+    validate_fri_initial_proof_shape, validate_fri_proof_shape, validate_fri_verifier_inputs,
 };
 pub use fri_verifier::{
     compute_evaluation, fri_combine_initial, fri_verify_proof_of_work, verify_fri_proof,

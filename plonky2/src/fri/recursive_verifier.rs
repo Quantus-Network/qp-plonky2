@@ -12,6 +12,7 @@ use crate::fri::structure::{
     FriBatchInfoTarget, FriCoefficientTarget, FriInstanceInfoTarget, FriOpeningExpressionTarget,
     FriOpeningsTarget,
 };
+use crate::fri::validate_shape::check_fri_verifier_input_counts;
 use crate::fri::{FriConfig, FriParams};
 use crate::gates::coset_interpolation::CosetInterpolationGate;
 use crate::gates::gate::Gate;
@@ -36,51 +37,46 @@ pub(crate) fn assert_fri_verifier_target_shape<F: RichField + Extendable<D>, con
     proof: &FriProofTarget<D>,
     params: &FriParams,
 ) {
-    let oracle_count = instances.first().map_or(0, |inst| inst.oracles.len());
-    assert_eq!(
-        initial_merkle_caps.len(),
-        oracle_count,
-        "Number of initial Merkle caps does not match the oracle count."
-    );
     assert_eq!(
         proof.commit_phase_merkle_caps.len(),
         params.reduction_arity_bits.len(),
         "Number of commit-phase caps does not match the reduction schedule."
     );
     assert_eq!(
-        challenges.fri_betas.len(),
-        params.reduction_arity_bits.len(),
-        "Number of FRI betas does not match the reduction schedule."
-    );
-    assert_eq!(
         proof.query_round_proofs.len(),
         params.config.num_query_rounds,
         "Number of query rounds does not match config."
     );
-    assert_eq!(
+    let expected_opening_counts = instances
+        .iter()
+        .map(|instance| {
+            instance
+                .batches
+                .iter()
+                .map(|batch| batch.openings.len())
+                .collect()
+        })
+        .collect::<Vec<Vec<usize>>>();
+    let claimed_opening_counts = openings
+        .iter()
+        .map(|opening| {
+            opening
+                .batches
+                .iter()
+                .map(|batch| batch.values.len())
+                .collect()
+        })
+        .collect::<Vec<Vec<usize>>>();
+    check_fri_verifier_input_counts(
+        instances.first().map_or(0, |inst| inst.oracles.len()),
+        initial_merkle_caps.len(),
+        challenges.fri_betas.len(),
         challenges.fri_query_indices.len(),
-        params.config.num_query_rounds,
-        "Number of FRI query indices does not match config."
-    );
-    assert_eq!(
-        openings.len(),
-        instances.len(),
-        "Number of FRI openings does not match the instance count."
-    );
-    for (instance, opening) in instances.iter().zip(openings) {
-        assert_eq!(
-            instance.batches.len(),
-            opening.batches.len(),
-            "Number of opening batches does not match the instance."
-        );
-        for (batch, values) in instance.batches.iter().zip(&opening.batches) {
-            assert_eq!(
-                batch.openings.len(),
-                values.values.len(),
-                "Number of claimed openings does not match the batch."
-            );
-        }
-    }
+        &expected_opening_counts,
+        &claimed_opening_counts,
+        params,
+    )
+    .unwrap_or_else(|error| panic!("{error}"));
 }
 
 impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
@@ -629,5 +625,80 @@ impl<const D: usize> PrecomputedReducedOpeningsTarget<D> {
         Self {
             reduced_openings_at_point,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::field::types::Field;
+    use crate::fri::proof::FriChallengesTarget;
+    use crate::iop::witness::PartialWitness;
+    use crate::plonk::circuit_data::CircuitConfig;
+    use crate::plonk::config::PoseidonGoldilocksConfig;
+
+    const D: usize = 2;
+    type C = PoseidonGoldilocksConfig;
+    type F = <C as GenericConfig<D>>::F;
+
+    /// The recursive verifier zips caller-supplied target lists against the proof target, so a
+    /// short list is a construction error that must stop the build, not a circuit that silently
+    /// skips part of the inner proof.
+    #[test]
+    #[should_panic(expected = "Number of initial Merkle caps does not match the oracle count")]
+    fn short_initial_cap_list_stops_the_build() {
+        let inner = {
+            let mut builder =
+                CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+            let one = builder.one();
+            builder.register_public_input(one);
+            builder.build::<C>()
+        };
+        let inner_proof = inner.prove(PartialWitness::new()).unwrap();
+        let challenges = inner_proof
+            .get_challenges(
+                inner_proof.get_public_inputs_hash(),
+                &inner.verifier_only.circuit_digest,
+                &inner.common,
+            )
+            .unwrap();
+
+        let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+        let proof_target = builder.add_virtual_proof_with_pis(&inner.common);
+        let zeta = builder.constant_extension(challenges.plonk_zeta);
+        let instance = inner.common.get_fri_instance_target(&mut builder, zeta);
+        let openings = proof_target.proof.openings.to_fri_openings();
+        let fri_challenges = FriChallengesTarget {
+            fri_alpha: builder.constant_extension(challenges.fri_challenges.fri_alpha),
+            fri_betas: challenges
+                .fri_challenges
+                .fri_betas
+                .iter()
+                .map(|&beta| builder.constant_extension(beta))
+                .collect(),
+            fri_pow_response: builder.constant(challenges.fri_challenges.fri_pow_response),
+            fri_query_indices: challenges
+                .fri_challenges
+                .fri_query_indices
+                .iter()
+                .map(|&index| builder.constant(F::from_canonical_usize(index)))
+                .collect(),
+        };
+        let cap_height = inner.common.fri_params.config.cap_height;
+        // Three caps for four oracles.
+        let initial_merkle_caps = [
+            builder.add_virtual_cap(cap_height),
+            proof_target.proof.wires_cap.clone(),
+            proof_target.proof.plonk_zs_partial_products_cap.clone(),
+        ];
+
+        builder.verify_fri_proof::<C>(
+            &instance,
+            &openings,
+            &fri_challenges,
+            &initial_merkle_caps,
+            &proof_target.proof.opening_proof,
+            &inner.common.fri_params,
+        );
     }
 }

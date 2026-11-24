@@ -56,6 +56,11 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             instance.len(),
             "Number of degree bits does not match the instance count."
         );
+        assert!(
+            degree_bits.first() == Some(&params.degree_bits)
+                && degree_bits.windows(2).all(|pair| pair[0] > pair[1]),
+            "Batch FRI degree bits must start at the FRI degree and strictly decrease."
+        );
 
         with_context!(
             self,

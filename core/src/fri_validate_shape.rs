@@ -53,6 +53,11 @@ where
             "FRI instances disagree on oracle count"
         );
         for (i, oracle) in inst.oracles.iter().enumerate() {
+            // The salt is trimmed per oracle, so every instance must agree on whether it exists.
+            ensure!(
+                oracle.blinding == first.oracles[i].blinding,
+                "FRI instances disagree on oracle blinding"
+            );
             total_num_polys[i] += oracle.num_polys;
             leaf_len[i] += oracle.num_polys + salt_size(oracle.blinding && leaf_hiding);
         }
@@ -126,9 +131,10 @@ where
         commit_phase_merkle_caps.len() == params.reduction_arity_bits.len(),
         "Number of commit-phase caps does not match the reduction schedule."
     );
+    // Compare lengths rather than `height()`, which panics on a non-power-of-two cap.
     let cap_height = params.config.cap_height;
     for cap in commit_phase_merkle_caps {
-        ensure!(cap.height() == cap_height);
+        ensure!(cap.len() == 1 << cap_height);
     }
 
     ensure!(
@@ -168,10 +174,46 @@ where
     Ok(())
 }
 
-/// Validates the caller-supplied verifier inputs that `verify_fri_proof` zips against the proof:
-/// one initial cap per oracle, one beta per reduction step, one in-domain query index per round,
-/// and one claimed opening per opening expression. A short list would otherwise silently leave
-/// part of the proof unchecked.
+/// Checks the list lengths that both the native and the in-circuit FRI verifiers zip against each
+/// other: one initial cap per oracle, one beta per reduction step, one query index per round, and
+/// one claimed opening per opening expression (`expected_opening_counts` and
+/// `claimed_opening_counts` are per instance, per batch). A short list would otherwise silently
+/// leave part of the proof unchecked.
+pub fn check_fri_verifier_input_counts(
+    oracle_count: usize,
+    initial_cap_count: usize,
+    beta_count: usize,
+    query_index_count: usize,
+    expected_opening_counts: &[Vec<usize>],
+    claimed_opening_counts: &[Vec<usize>],
+    params: &FriParams,
+) -> Result<(), &'static str> {
+    if initial_cap_count != oracle_count {
+        return Err("Number of initial Merkle caps does not match the oracle count.");
+    }
+    if beta_count != params.reduction_arity_bits.len() {
+        return Err("Number of FRI betas does not match the reduction schedule.");
+    }
+    if query_index_count != params.config.num_query_rounds {
+        return Err("Number of FRI query indices does not match config.");
+    }
+    if claimed_opening_counts.len() != expected_opening_counts.len() {
+        return Err("Number of FRI openings does not match the instance count.");
+    }
+    for (expected, claimed) in expected_opening_counts.iter().zip(claimed_opening_counts) {
+        if expected.len() != claimed.len() {
+            return Err("Number of opening batches does not match the instance.");
+        }
+        if expected != claimed {
+            return Err("Number of claimed openings does not match the batch.");
+        }
+    }
+    Ok(())
+}
+
+/// Validates the caller-supplied verifier inputs that `verify_fri_proof` zips against the proof,
+/// plus the value-level checks only the native verifier can make: cap heights and in-domain
+/// query indices.
 pub fn validate_fri_verifier_inputs<F, H, const D: usize>(
     instances: &[FriInstanceInfo<F, D>],
     openings: &[FriOpenings<F, D>],
@@ -183,23 +225,40 @@ where
     F: RichField + Extendable<D>,
     H: Hasher<F>,
 {
-    let oracle_count = instances.first().map_or(0, |inst| inst.oracles.len());
-    ensure!(
-        initial_merkle_caps.len() == oracle_count,
-        "Number of initial Merkle caps does not match the oracle count."
-    );
-    for cap in initial_merkle_caps {
-        ensure!(cap.height() == params.config.cap_height);
-    }
+    let expected_opening_counts = instances
+        .iter()
+        .map(|instance| {
+            instance
+                .batches
+                .iter()
+                .map(|batch| batch.openings.len())
+                .collect()
+        })
+        .collect::<Vec<Vec<usize>>>();
+    let claimed_opening_counts = openings
+        .iter()
+        .map(|opening| {
+            opening
+                .batches
+                .iter()
+                .map(|batch| batch.values.len())
+                .collect()
+        })
+        .collect::<Vec<Vec<usize>>>();
+    check_fri_verifier_input_counts(
+        instances.first().map_or(0, |inst| inst.oracles.len()),
+        initial_merkle_caps.len(),
+        challenges.fri_betas.len(),
+        challenges.fri_query_indices.len(),
+        &expected_opening_counts,
+        &claimed_opening_counts,
+        params,
+    )
+    .map_err(anyhow::Error::msg)?;
 
-    ensure!(
-        challenges.fri_betas.len() == params.reduction_arity_bits.len(),
-        "Number of FRI betas does not match the reduction schedule."
-    );
-    ensure!(
-        challenges.fri_query_indices.len() == params.config.num_query_rounds,
-        "Number of FRI query indices does not match config."
-    );
+    for cap in initial_merkle_caps {
+        ensure!(cap.len() == 1 << params.config.cap_height);
+    }
     ensure!(
         challenges
             .fri_query_indices
@@ -207,23 +266,6 @@ where
             .all(|&index| index < params.lde_size()),
         "FRI query index outside the LDE domain."
     );
-
-    ensure!(
-        openings.len() == instances.len(),
-        "Number of FRI openings does not match the instance count."
-    );
-    for (instance, opening) in instances.iter().zip(openings) {
-        ensure!(
-            instance.batches.len() == opening.batches.len(),
-            "Number of opening batches does not match the instance."
-        );
-        for (batch, values) in instance.batches.iter().zip(&opening.batches) {
-            ensure!(
-                batch.openings.len() == values.values.len(),
-                "Number of claimed openings does not match the batch."
-            );
-        }
-    }
 
     Ok(())
 }
@@ -236,6 +278,7 @@ mod tests {
     use super::*;
     use crate::config::{GenericConfig, PoseidonGoldilocksConfig};
     use crate::field::types::Field;
+    use crate::fri::{FriConfig, FriReductionStrategy};
     use crate::fri_structure::{
         FriBatchInfo, FriOpeningExpression, FriOracleInfo, FriPolynomialInfo,
     };
@@ -303,5 +346,72 @@ mod tests {
         let proof = single_oracle_proof(3);
         validate_fri_initial_proof_shape::<F, H, D>(&proof, core::slice::from_ref(&inst), false)
             .unwrap();
+    }
+
+    /// The salt is trimmed per oracle by the current instance's `blinding`, so instances that
+    /// disagree on it would make the leaf layout and the opening reads disagree too.
+    #[test]
+    fn rejects_mixed_blinding_per_oracle() {
+        let unsalted = single_oracle_instance(1, 0);
+        let mut salted = single_oracle_instance(1, 1);
+        salted.oracles[0].blinding = true;
+        let proof = single_oracle_proof(2 * (1 + salt_size(true)));
+        assert!(validate_fri_initial_proof_shape::<F, H, D>(
+            &proof,
+            &[salted.clone(), unsalted],
+            true
+        )
+        .is_err());
+        assert!(validate_fri_initial_proof_shape::<F, H, D>(
+            &proof,
+            &[salted.clone(), salted],
+            true
+        )
+        .is_ok());
+    }
+
+    #[test]
+    fn verifier_input_counts_must_all_match() {
+        let params = FriParams {
+            config: FriConfig {
+                rate_bits: 1,
+                cap_height: 0,
+                proof_of_work_bits: 0,
+                reduction_strategy: FriReductionStrategy::Fixed(vec![1, 1]),
+                num_query_rounds: 3,
+            },
+            leaf_hiding: false,
+            degree_bits: 4,
+            reduction_arity_bits: vec![1, 1],
+        };
+        let expected = vec![vec![2, 1], vec![1]];
+        let check = |caps: usize, betas: usize, queries: usize, claimed: &[Vec<usize>]| {
+            check_fri_verifier_input_counts(2, caps, betas, queries, &expected, claimed, &params)
+        };
+        assert_eq!(check(2, 2, 3, &expected), Ok(()));
+        assert_eq!(
+            check(1, 2, 3, &expected),
+            Err("Number of initial Merkle caps does not match the oracle count.")
+        );
+        assert_eq!(
+            check(2, 1, 3, &expected),
+            Err("Number of FRI betas does not match the reduction schedule.")
+        );
+        assert_eq!(
+            check(2, 2, 2, &expected),
+            Err("Number of FRI query indices does not match config.")
+        );
+        assert_eq!(
+            check(2, 2, 3, &expected[..1]),
+            Err("Number of FRI openings does not match the instance count.")
+        );
+        assert_eq!(
+            check(2, 2, 3, &[vec![2], vec![1]]),
+            Err("Number of opening batches does not match the instance.")
+        );
+        assert_eq!(
+            check(2, 2, 3, &[vec![2, 1], vec![2]]),
+            Err("Number of claimed openings does not match the batch.")
+        );
     }
 }
