@@ -22,7 +22,8 @@ pub trait GenericHashOut<F: RichField>:
     Copy + Clone + Debug + Eq + PartialEq + Send + Sync + Serialize + DeserializeOwned
 {
     fn to_bytes(&self) -> Vec<u8>;
-    fn from_bytes(bytes: &[u8]) -> Self;
+    /// Decodes `bytes`, or returns `None` if they are not the canonical encoding of a hash.
+    fn from_bytes(bytes: &[u8]) -> Option<Self>;
 
     fn to_vec(&self) -> Vec<F>;
 }
@@ -108,16 +109,14 @@ impl<F: RichField> GenericHashOut<F> for HashOut<F> {
             .collect()
     }
 
-    fn from_bytes(bytes: &[u8]) -> Self {
-        HashOut {
-            elements: bytes
-                .chunks(8)
-                .take(NUM_HASH_OUT_ELTS)
-                .map(|x| F::from_canonical_u64(u64::from_le_bytes(x.try_into().unwrap())))
-                .collect::<Vec<_>>()
-                .try_into()
-                .unwrap(),
-        }
+    fn from_bytes(bytes: &[u8]) -> Option<Self> {
+        let elements = bytes
+            .chunks(8)
+            .map(|limb| F::try_from_canonical_u64(u64::from_le_bytes(limb.try_into().ok()?)))
+            .collect::<Option<Vec<_>>>()?
+            .try_into()
+            .ok()?;
+        Some(HashOut { elements })
     }
 
     fn to_vec(&self) -> Vec<F> {
@@ -130,8 +129,8 @@ impl<F: RichField, const N: usize> GenericHashOut<F> for BytesHash<N> {
         self.0.to_vec()
     }
 
-    fn from_bytes(bytes: &[u8]) -> Self {
-        Self(bytes.try_into().unwrap())
+    fn from_bytes(bytes: &[u8]) -> Option<Self> {
+        bytes.try_into().ok().map(Self)
     }
 
     fn to_vec(&self) -> Vec<F> {

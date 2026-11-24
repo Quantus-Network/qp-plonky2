@@ -523,6 +523,13 @@ pub trait PrimeField: Field {
 pub trait Field64: Field {
     const ORDER: u64;
 
+    /// Returns `n` if it is the canonical encoding of a field element, i.e. `n < Self::ORDER`,
+    /// so that untrusted bytes have exactly one accepted encoding per element.
+    #[inline]
+    fn try_from_canonical_u64(n: u64) -> Option<Self> {
+        (n < Self::ORDER).then(|| Self::from_canonical_u64(n))
+    }
+
     /// Returns `n` as an element of this field. Assumes that `0 <= n < Self::ORDER`.
     // TODO: Move to `Field`.
     // TODO: Should probably be unsafe.

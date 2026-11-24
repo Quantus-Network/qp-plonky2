@@ -941,9 +941,17 @@ fn proof_bytes_are_canonical() -> anyhow::Result<()> {
     non_canonical[tail..].copy_from_slice(&(F::ORDER + 1).to_le_bytes());
     assert_eq!(F::from_noncanonical_u64(F::ORDER + 1).to_canonical_u64(), 1);
 
-    assert!(ProofWithPublicInputs::<F, C, D>::from_bytes(bytes.clone(), common).is_ok());
-    assert!(ProofWithPublicInputs::<F, C, D>::from_bytes(trailing.clone(), common).is_err());
-    assert!(ProofWithPublicInputs::<F, C, D>::from_bytes(non_canonical.clone(), common).is_err());
+    // Hash limbs are field elements too; the first limb of `wires_cap` opens the proof. Poseidon
+    // hashes `p + x` as `x`, so an unchecked limb would be a second encoding of the same proof.
+    let mut non_canonical_cap = bytes.clone();
+    non_canonical_cap[..8].copy_from_slice(&u64::MAX.to_le_bytes());
+
+    let plonky2_rejects =
+        |bytes: Vec<u8>| ProofWithPublicInputs::<F, C, D>::from_bytes(bytes, common).is_err();
+    assert!(!plonky2_rejects(bytes.clone()));
+    assert!(plonky2_rejects(trailing.clone()));
+    assert!(plonky2_rejects(non_canonical.clone()));
+    assert!(plonky2_rejects(non_canonical_cap.clone()));
 
     let verifier_common =
         plonky2_verifier::plonk::circuit_data::CommonCircuitData::<F, D>::from_bytes(
@@ -951,9 +959,12 @@ fn proof_bytes_are_canonical() -> anyhow::Result<()> {
             &plonky2_verifier::util::serialization::DefaultGateSerializer,
         )
         .unwrap();
-    assert!(VerifierProof::<F, C, D>::from_bytes(bytes, &verifier_common).is_ok());
-    assert!(VerifierProof::<F, C, D>::from_bytes(trailing, &verifier_common).is_err());
-    assert!(VerifierProof::<F, C, D>::from_bytes(non_canonical, &verifier_common).is_err());
+    let verifier_rejects =
+        |bytes: Vec<u8>| VerifierProof::<F, C, D>::from_bytes(bytes, &verifier_common).is_err();
+    assert!(!verifier_rejects(bytes));
+    assert!(verifier_rejects(trailing));
+    assert!(verifier_rejects(non_canonical));
+    assert!(verifier_rejects(non_canonical_cap));
     Ok(())
 }
 
@@ -970,6 +981,48 @@ fn circuit_data_bytes_with_trailing_data_rejected() -> anyhow::Result<()> {
 
     let mut verifier_only_bytes = data.verifier_only.to_bytes().unwrap();
     verifier_only_bytes.push(0);
-    assert!(VerifierOnlyCircuitData::<C, D>::from_bytes(verifier_only_bytes).is_err());
+    assert!(VerifierOnlyCircuitData::<C, D>::from_bytes(verifier_only_bytes.clone()).is_err());
+
+    let generator_serializer = DefaultGeneratorSerializer::<C, D>::default();
+    let mut prover_only_bytes = data
+        .prover_only
+        .to_bytes(&generator_serializer, &data.common)
+        .unwrap();
+    prover_only_bytes.push(0);
+    assert!(ProverOnlyCircuitData::<F, C, D>::from_bytes(
+        &prover_only_bytes,
+        &generator_serializer,
+        &data.common
+    )
+    .is_err());
+
+    let mut circuit_data_bytes = data
+        .to_bytes(&gate_serializer, &generator_serializer)
+        .unwrap();
+    circuit_data_bytes.push(0);
+    assert!(
+        plonky2::plonk::circuit_data::CircuitData::<F, C, D>::from_bytes(
+            &circuit_data_bytes,
+            &gate_serializer,
+            &generator_serializer
+        )
+        .is_err()
+    );
+
+    let mut verifier_common_bytes = data.common.to_bytes(&gate_serializer).unwrap();
+    verifier_common_bytes.push(0);
+    assert!(
+        plonky2_verifier::plonk::circuit_data::CommonCircuitData::<F, D>::from_bytes(
+            verifier_common_bytes,
+            &plonky2_verifier::util::serialization::DefaultGateSerializer,
+        )
+        .is_err()
+    );
+    assert!(
+        plonky2_verifier::plonk::circuit_data::VerifierOnlyCircuitData::<C, D>::from_bytes(
+            verifier_only_bytes
+        )
+        .is_err()
+    );
     Ok(())
 }

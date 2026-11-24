@@ -187,11 +187,7 @@ pub trait Read {
     {
         let mut buf = [0; size_of::<u64>()];
         self.read_exact(&mut buf)?;
-        let n = u64::from_le_bytes(buf);
-        if n >= F::ORDER {
-            return Err(IoError);
-        }
-        Ok(F::from_canonical_u64(n))
+        F::try_from_canonical_u64(u64::from_le_bytes(buf)).ok_or(IoError)
     }
 
     /// Reads a vector of elements from the field `F` from `self`.
@@ -303,7 +299,7 @@ pub trait Read {
     {
         let mut buf = vec![0; H::HASH_SIZE];
         self.read_exact(&mut buf)?;
-        Ok(H::Hash::from_bytes(&buf))
+        H::Hash::from_bytes(&buf).ok_or(IoError)
     }
 
     /// Reads a HashOutTarget value from `self`.
