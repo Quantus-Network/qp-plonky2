@@ -127,6 +127,11 @@ impl CircuitConfig {
         if self.num_routed_wires > self.num_wires {
             return Err("num_routed_wires must not exceed num_wires");
         }
+        // Every row is opened at `num_wires` points, so wider rows are not circuits but attempts
+        // to overflow the arithmetic gates perform on their widths.
+        if self.num_wires > u32::MAX as usize || self.num_constants > u32::MAX as usize {
+            return Err("num_wires and num_constants must fit in 32 bits");
+        }
 
         // The lookup argument batches `max_quotient_degree_factor - 1` slots per partial polynomial
         // and the permutation argument `max_quotient_degree_factor` wires, so neither can be zero.
@@ -299,7 +304,9 @@ pub fn check_common_data_valid<F: Field>(data: &CommonDataShape<F>) -> Result<()
     if data.num_partial_products != config.num_routed_wires.div_ceil(quotient_degree_factor) - 1 {
         return Err("num_partial_products must be derived from the config");
     }
-    if data.k_is != get_unique_coset_shifts::<F>(1 << degree_bits, config.num_routed_wires) {
+    if data.k_is.len() != config.num_routed_wires
+        || data.k_is != get_unique_coset_shifts::<F>(1 << degree_bits, config.num_routed_wires)
+    {
         return Err("k_is must be the unique coset shifts for the degree");
     }
 
