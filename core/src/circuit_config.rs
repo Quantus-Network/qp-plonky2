@@ -387,6 +387,13 @@ mod tests {
             config.check_valid(),
             Err("max_quotient_degree_factor must be at least 2")
         );
+
+        let mut config = CircuitConfig::standard_recursion_config();
+        config.num_wires = usize::MAX;
+        assert_eq!(
+            config.check_valid(),
+            Err("num_wires and num_constants must fit in 32 bits")
+        );
     }
 
     /// An owned `CommonCircuitData` stand-in derived the way the builder derives it, so tests can
