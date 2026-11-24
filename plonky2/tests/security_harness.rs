@@ -566,6 +566,93 @@ fn common_data_primitives_are_checked_on_load() {
     );
 }
 
+/// Gate parameters are bounded by the config as they are read, before any gate method can
+/// overflow, underflow or divide by zero on them and before the common-data validator (which
+/// trusts those methods) runs. The same bytes are rejected by both crates' deserializers.
+#[test]
+fn hostile_gate_parameters_rejected_on_deserialization() {
+    use plonky2::gates::arithmetic_base::ArithmeticGate;
+    use plonky2::gates::base_sum::BaseSumGate;
+    use plonky2::gates::gate::GateRef;
+    use plonky2::util::serialization::GateSerializer;
+    use plonky2_verifier::util::serialization::{
+        Buffer as VerifierBuffer, DefaultGateSerializer as VerifierGateSerializer,
+        GateSerializer as _,
+    };
+
+    let common = simple_circuit_data().common;
+    let serializer = DefaultGateSerializer;
+    let verifier_serializer = VerifierGateSerializer;
+    let verifier_common =
+        plonky2_verifier::plonk::circuit_data::CommonCircuitData::<F, D>::from_bytes(
+            common.to_bytes(&serializer).unwrap(),
+            &verifier_serializer,
+        )
+        .unwrap();
+
+    let accepted = |gate: GateRef<F, D>| {
+        let mut bytes = Vec::new();
+        serializer.write_gate(&mut bytes, &gate, &common).unwrap();
+        let prover_accepts = serializer
+            .read_gate(&mut Buffer::new(&bytes), &common)
+            .is_ok();
+        let verifier_accepts = verifier_serializer
+            .read_gate(&mut VerifierBuffer::new(&bytes), &verifier_common)
+            .is_ok();
+        assert_eq!(prover_accepts, verifier_accepts, "{gate:?}");
+        prover_accepts
+    };
+
+    assert!(accepted(GateRef::new(ArithmeticGate::new_from_config(
+        &common.config
+    ))));
+    // `num_wires()` would wrap to zero and slip past the width check.
+    assert!(!accepted(GateRef::new(ArithmeticGate { num_ops: 1 << 62 })));
+
+    assert!(accepted(GateRef::new(CosetInterpolationGate::<F, D>::new(
+        4
+    ))));
+    let mut divides_by_zero = CosetInterpolationGate::<F, D>::new(4);
+    divides_by_zero.degree = 1;
+    assert!(!accepted(GateRef::new(divides_by_zero)));
+
+    assert!(accepted(GateRef::new(ExponentiationGate::<F, D>::new(8))));
+    assert!(!accepted(GateRef::new(ExponentiationGate::<F, D>::new(0))));
+    assert!(!accepted(GateRef::new(ExponentiationGate::<F, D>::new(
+        common.config.num_wires
+    ))));
+
+    assert!(accepted(GateRef::new(BaseSumGate::<2>::new(32))));
+    assert!(!accepted(GateRef::new(BaseSumGate::<2>::new(usize::MAX))));
+
+    assert!(accepted(GateRef::new(ReducingGate::<D>::new(4))));
+    assert!(!accepted(GateRef::new(ReducingGate::<D>::new(
+        common.config.num_wires
+    ))));
+}
+
+/// Proofs built in memory (or via serde) skip `from_bytes`, so the verifier's own shape checks
+/// must return errors on odd cap lengths and over-tall Merkle proofs rather than panic.
+#[test]
+fn malformed_in_memory_proof_rejected_not_panicking() -> anyhow::Result<()> {
+    use plonky2::hash::merkle_proofs::verify_merkle_proof_to_cap;
+    use plonky2::hash::merkle_tree::MerkleTree;
+
+    let data = simple_circuit_data();
+    let mut proof = data.prove(PartialWitness::new())?;
+    proof.proof.wires_cap.0.pop();
+    assert!(data.verify(proof).is_err());
+
+    type H = <C as GenericConfig<D>>::Hasher;
+    let leaves: Vec<Vec<F>> = (0..8u64).map(|i| vec![F::from_canonical_u64(i)]).collect();
+    let tree = MerkleTree::<F, H>::new(leaves.clone(), 1);
+    let mut merkle_proof = tree.prove(3);
+    verify_merkle_proof_to_cap(leaves[3].clone(), 3, &tree.cap, &merkle_proof)?;
+    merkle_proof.siblings.push(merkle_proof.siblings[0]);
+    assert!(verify_merkle_proof_to_cap(leaves[3].clone(), 3, &tree.cap, &merkle_proof).is_err());
+    Ok(())
+}
+
 /// Derived fields are not in the encoding, so altering one in memory changes nothing on the wire:
 /// the bytes decode to what the builder produced. Gates are read against the circuit's own
 /// config, so circuits wider than the default config round-trip too; that half only bites once
