@@ -789,3 +789,32 @@ fn test_poseidon2_int_mix_gate_cross_crate() -> Result<()> {
 
     Ok(())
 }
+
+/// Lookups add constraints outside the gate set (the RE/Sum/LDC running sums in
+/// `vanishing_poly`), which both crates implement separately.
+#[test]
+fn test_lookup_cross_crate() -> Result<()> {
+    use std::sync::Arc;
+
+    use itertools::Itertools;
+
+    use crate::gadgets::lookup::TIP5_TABLE;
+    use crate::gates::lookup_table::LookupTable;
+
+    let table: LookupTable = Arc::new((0..256).zip_eq(TIP5_TABLE.to_vec()).collect());
+    let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+    let input = builder.add_virtual_target();
+    let table_index = builder.add_lookup_table_from_pairs(table);
+    let output = builder.add_lookup_from_index(input, table_index);
+    builder.register_public_input(input);
+    builder.register_public_input(output);
+    let data = builder.build::<C>();
+
+    let mut pw = PartialWitness::new();
+    pw.set_target(input, F::from_canonical_usize(5))?;
+    let proof = data.prove(pw)?;
+    data.verify(proof.clone())?;
+    verify_with_verifier_crate(&data.common, &data.verifier_only, &proof);
+
+    Ok(())
+}

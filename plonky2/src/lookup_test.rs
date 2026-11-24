@@ -552,6 +552,92 @@ fn test_many_lookups_on_big_lut() -> anyhow::Result<()> {
     data.verify(proof)
 }
 
+/// The Sum/LDC running sum enters its first row (`first_lut_row + 1`, where `InitSre` is set)
+/// through the last partial SLDC polynomial, so a prover who puts an arbitrary offset there could
+/// cancel out a lookup of a value that is not in the table. Every partial polynomial must be
+/// constrained to zero on that row.
+#[test]
+fn forged_sldc_chain_start_is_rejected() {
+    use crate::field::extension::Extendable;
+    use crate::gates::selectors::LookupSelectors;
+    use crate::hash::hash_types::HashOut;
+    use crate::plonk::circuit_builder::NUM_COINS_LOOKUP;
+    use crate::plonk::vanishing_poly::check_lookup_constraints;
+    use crate::plonk::vars::EvaluationVars;
+
+    let table: LookupTable = Arc::new((0..4).zip_eq(1..5).collect());
+    let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+    let input = builder.constant(F::ONE);
+    let table_index = builder.add_lookup_table_from_pairs(table);
+    let _ = builder.add_lookup_from_index(input, table_index);
+    let common = builder.build::<C>().common;
+
+    let num_sldc_polys = common.num_lookup_polys - 1;
+    assert!(
+        num_sldc_polys > 1,
+        "the chain start differs from the first SLDC polynomial only with several of them"
+    );
+
+    type FE = <F as Extendable<D>>::Extension;
+    let zeros = |n| vec![FE::ZERO; n];
+    let mut local_lookup_zs = zeros(common.num_lookup_polys);
+    *local_lookup_zs.last_mut().unwrap() = FE::from_canonical_u64(0xdead_beef);
+    let mut lookup_selectors = zeros(common.num_lookup_selectors);
+    lookup_selectors[LookupSelectors::InitSre as usize] = FE::ONE;
+    let local_constants = zeros(common.num_constants);
+    let local_wires = zeros(common.config.num_wires);
+    let vars = EvaluationVars {
+        local_constants: &local_constants,
+        local_wires: &local_wires,
+        public_inputs_hash: &HashOut::ZERO,
+    };
+    let deltas = [F::from_canonical_u64(7); NUM_COINS_LOOKUP];
+
+    let constraints = check_lookup_constraints(
+        &common,
+        vars,
+        &local_lookup_zs,
+        &zeros(common.num_lookup_polys),
+        &lookup_selectors,
+        &deltas,
+    );
+    assert!(
+        constraints.iter().any(|c| !c.is_zero()),
+        "a nonzero chain start on the InitSre row must violate a constraint"
+    );
+}
+
+/// The recursive verifier's lookup constraints must agree with the prover's.
+#[test]
+fn test_lookup_proof_verifies_recursively() -> anyhow::Result<()> {
+    init_logger();
+
+    let tip5_table = TIP5_TABLE.to_vec();
+    let table: LookupTable = Arc::new((0..256).zip_eq(tip5_table).collect());
+    let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+    let input = builder.add_virtual_target();
+    let table_index = builder.add_lookup_table_from_pairs(table);
+    let output = builder.add_lookup_from_index(input, table_index);
+    builder.register_public_input(input);
+    builder.register_public_input(output);
+    let inner = builder.build::<C>();
+
+    let mut pw = PartialWitness::new();
+    pw.set_target(input, F::from_canonical_usize(5))?;
+    let inner_proof = inner.prove(pw)?;
+    inner.verify(inner_proof.clone())?;
+
+    let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+    let proof_target = builder.add_virtual_proof_with_pis(&inner.common);
+    let verifier_target = builder.constant_verifier_data(&inner.verifier_only);
+    builder.verify_proof::<C>(&proof_target, &verifier_target, &inner.common);
+    let outer = builder.build::<C>();
+
+    let mut pw = PartialWitness::new();
+    pw.set_proof_with_pis_target(&proof_target, &inner_proof)?;
+    outer.verify(outer.prove(pw)?)
+}
+
 fn init_logger() {
     #[cfg(feature = "std")]
     {
