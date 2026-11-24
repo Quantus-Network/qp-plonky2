@@ -31,12 +31,14 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
 
     /// Returns `(a,b)` such that `x = a + 2^n_log * b` with `a < 2^n_log`.
     /// `x` is assumed to be range-checked for having `num_bits` bits.
+    ///
+    /// `num_bits` must stay below the field bit-width: at 64 bits `x` and `x + F::ORDER` both
+    /// have in-range decompositions, so `(a, b)` would not be determined by `x`.
     pub fn split_low_high(&mut self, x: Target, n_log: usize, num_bits: usize) -> (Target, Target) {
         assert!(n_log <= num_bits, "n_log must not exceed num_bits");
-        assert!(n_log < u64::BITS as usize, "n_log must be less than 64");
         assert!(
-            num_bits <= u64::BITS as usize,
-            "num_bits must be at most 64"
+            num_bits < u64::BITS as usize,
+            "num_bits must be less than 64"
         );
 
         let low = self.add_virtual_target();

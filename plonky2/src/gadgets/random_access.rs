@@ -28,6 +28,9 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         let bits = log2_strict(vec_size);
         debug_assert!(vec_size > 0);
         if vec_size == 1 {
+            // The only valid index into a one-element vector is zero; a `RandomAccessGate`
+            // would enforce that, so the shortcut must too.
+            self.assert_zero(access_index);
             return v[0];
         }
         let claimed_element = self.add_virtual_target();

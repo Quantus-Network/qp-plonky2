@@ -22,8 +22,19 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     /// bit of the integer, with little-endian ordering.
     /// Verifies that the decomposition is correct by using `k` `BaseSum<2>` gates
     /// with `k` such that `k * num_routed_wires >= num_bits`.
+    ///
+    /// With `num_bits == 0` this constrains `integer` to be zero, so that
+    /// `range_check(x, 0)` asserts `x < 1` rather than nothing. The decomposition is only
+    /// canonical for `num_bits < F::BITS`; at `F::BITS` a non-canonical encoding (the value plus
+    /// the field order) also satisfies the constraints, so callers that need the bits to
+    /// determine the value must stay below that width.
     pub fn split_le(&mut self, integer: Target, num_bits: usize) -> Vec<BoolTarget> {
+        assert!(
+            num_bits <= F::BITS,
+            "cannot split a field element into {num_bits} bits"
+        );
         if num_bits == 0 {
+            self.assert_zero(integer);
             return Vec::new();
         }
         let gate_type = BaseSumGate::<2>::new_from_config::<F>(&self.config);
