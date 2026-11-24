@@ -50,10 +50,10 @@ impl FriReductionStrategy {
             &FriReductionStrategy::ConstantArityBits(arity_bits, final_poly_bits) => {
                 let mut result = Vec::new();
                 while degree_bits > final_poly_bits
+                    && degree_bits >= arity_bits
                     && degree_bits + rate_bits - arity_bits >= cap_height
                 {
                     result.push(arity_bits);
-                    assert!(degree_bits >= arity_bits);
                     degree_bits -= arity_bits;
                 }
                 result.shrink_to_fit();
@@ -168,14 +168,16 @@ fn relative_proof_size(
 
     let mut current_layer_bits = degree_bits + rate_bits;
 
-    let mut total_elems = 0;
+    // Saturating so that an absurd `num_queries` from untrusted parameters cannot overflow.
+    let mut total_elems: usize = 0;
     for arity_bits in arity_bits {
         let arity = 1 << arity_bits;
 
         // Add neighboring evaluations, which are extension field elements.
-        total_elems += (arity - 1) * D * num_queries;
+        total_elems = total_elems.saturating_add(((arity - 1) * D).saturating_mul(num_queries));
         // Add siblings in the Merkle path.
-        total_elems += current_layer_bits * 4 * num_queries;
+        total_elems =
+            total_elems.saturating_add((current_layer_bits * 4).saturating_mul(num_queries));
 
         current_layer_bits -= arity_bits;
     }
@@ -183,9 +185,7 @@ fn relative_proof_size(
     // Add the final polynomial's coefficients.
     assert!(current_layer_bits >= rate_bits);
     let final_poly_len = 1 << (current_layer_bits - rate_bits);
-    total_elems += D * final_poly_len;
-
-    total_elems
+    total_elems.saturating_add(D * final_poly_len)
 }
 
 /// A configuration for the FRI protocol.

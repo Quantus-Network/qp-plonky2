@@ -363,9 +363,6 @@ fn zero_poly_on_coset_valid_domain_works() {
     assert_eq!(eval * eval_inverse, F::ONE);
 }
 
-/// #64700: deserialization must reject a `CommonCircuitData` whose `public_initial_degree_bits`
-/// (which seeds FRI query sampling) disagrees with the transcript-bound `fri_params.degree_bits`,
-/// otherwise a malicious blob could shrink the sampled query domain.
 /// A FRI rate of 1 or zero query rounds leaves FRI with nothing to test; the builder must refuse
 /// such a config even when `security_bits` is set low enough to pass the security-level check.
 #[test]
@@ -380,18 +377,6 @@ fn degenerate_fri_config_rejected_at_build() {
         }));
         assert!(result.is_err());
     }
-}
-
-/// The verifier takes its query count and cap height from `fri_params.config`, which is
-/// serialized separately from `config.fri_config`; the two must agree on deserialization.
-#[test]
-fn divergent_fri_params_common_data_deserialization_rejected() {
-    let data = simple_circuit_data();
-    let gate_serializer = DefaultGateSerializer;
-    let mut common = data.common.clone();
-    common.fri_params.config.num_query_rounds = 1;
-    let bytes = common.to_bytes(&gate_serializer).unwrap();
-    assert!(CommonCircuitData::<F, D>::from_bytes(bytes, &gate_serializer).is_err());
 }
 
 /// A config too narrow for a gate to hold a single operation must fail loudly when that gate
@@ -416,38 +401,91 @@ fn zero_slot_gate_rejected() {
     assert!(message.contains("no operation slots"), "{message}");
 }
 
+/// Every derived field of `CommonCircuitData` is recomputed from the config, degree, gates and
+/// lookup tables and compared, so a tampered copy is reported whether it arrives through
+/// `from_bytes` or is built in memory and handed straight to `verify`.
 #[test]
-fn mismatched_degree_bits_common_data_deserialization_rejected() {
-    let mut data = simple_circuit_data();
-    data.common.public_initial_degree_bits = data.common.fri_params.degree_bits + 1;
-
-    let gate_serializer = DefaultGateSerializer;
-    let bytes = data.common.to_bytes(&gate_serializer).unwrap();
-
-    assert!(CommonCircuitData::<F, D>::from_bytes(bytes, &gate_serializer).is_err());
-}
-
-/// `verify` revalidates the common data it is handed, so a caller that pins only the verifier
-/// key and takes common data from elsewhere still cannot be steered by a weakened copy that
-/// never went through `from_bytes`.
-#[test]
-fn verify_rejects_tampered_in_memory_common_data() -> anyhow::Result<()> {
+fn tampered_common_data_is_reported_by_field() -> anyhow::Result<()> {
     let data = simple_circuit_data();
     let proof = data.prove(PartialWitness::new())?;
     data.verify(proof.clone())?;
 
-    let mut fewer_queries = data.verifier_data();
-    fewer_queries.common.fri_params.config.num_query_rounds = 1;
-    assert!(fewer_queries.verify(proof.clone()).is_err());
+    let tampered = |mutate: fn(&mut CommonCircuitData<F, D>), error: &str| -> anyhow::Result<()> {
+        let mut verifier_data = data.verifier_data();
+        mutate(&mut verifier_data.common);
+        assert_eq!(verifier_data.common.check_valid(), Err(error));
+        assert!(verifier_data.verify(proof.clone()).is_err());
 
-    let mut smaller_trace = data.verifier_data();
-    smaller_trace.common.trace_degree_bits -= 1;
-    assert!(smaller_trace.verify(proof).is_err());
+        let gate_serializer = DefaultGateSerializer;
+        let bytes = verifier_data.common.to_bytes(&gate_serializer).unwrap();
+        assert!(CommonCircuitData::<F, D>::from_bytes(bytes.clone(), &gate_serializer).is_err());
+        assert!(
+            plonky2_verifier::plonk::circuit_data::CommonCircuitData::<F, D>::from_bytes(
+                bytes,
+                &plonky2_verifier::util::serialization::DefaultGateSerializer,
+            )
+            .is_err()
+        );
+        Ok(())
+    };
+
+    // #64700: FRI query indices are sampled from `public_initial_degree_bits`, so a smaller value
+    // than the committed `fri_params.degree_bits` would draw queries from a smaller domain.
+    tampered(
+        |common| common.public_initial_degree_bits -= 1,
+        "trace_degree_bits, public_initial_degree_bits and FRI degree_bits must agree",
+    )?;
+    tampered(
+        |common| common.trace_degree_bits -= 1,
+        "trace_degree_bits, public_initial_degree_bits and FRI degree_bits must agree",
+    )?;
+    // The verifier takes its query count and reduction schedule from `fri_params`, which is
+    // serialized separately from `config.fri_config`.
+    tampered(
+        |common| common.fri_params.config.num_query_rounds = 1,
+        "fri_params must be derived from config",
+    )?;
+    tampered(
+        |common| common.fri_params.reduction_arity_bits.push(1),
+        "fri_params must be derived from config",
+    )?;
+    tampered(
+        |common| common.quotient_degree_factor -= 1,
+        "quotient_degree_factor must equal config.max_quotient_degree_factor",
+    )?;
+    tampered(
+        |common| common.gates.swap(0, 1),
+        "gates must be sorted by degree and id without duplicates",
+    )?;
+    tampered(
+        |common| common.selectors_info.groups.truncate(1),
+        "selectors_info must be derived from the gates",
+    )?;
+    tampered(
+        |common| common.num_constants += 1,
+        "num_constants must be derived from the selectors and gates",
+    )?;
+    tampered(
+        |common| common.num_gate_constraints += 1,
+        "num_gate_constraints must be the maximum over the gates",
+    )?;
+    tampered(
+        |common| common.num_partial_products += 1,
+        "num_partial_products must be derived from the config",
+    )?;
+    tampered(
+        |common| common.k_is[1] = common.k_is[0],
+        "k_is must be the unique coset shifts for the degree",
+    )?;
+    tampered(
+        |common| common.num_lookup_polys += 1,
+        "num_lookup_polys must be derived from the config and lookup tables",
+    )?;
     Ok(())
 }
 
 #[test]
-fn matching_degree_bits_common_data_roundtrips() {
+fn untampered_common_data_roundtrips() {
     let data = simple_circuit_data();
     let gate_serializer = DefaultGateSerializer;
     let bytes = data.common.to_bytes(&gate_serializer).unwrap();

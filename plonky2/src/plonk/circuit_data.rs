@@ -19,6 +19,7 @@ use core::ops::{Range, RangeFrom};
 use std::collections::BTreeMap;
 
 use anyhow::Result;
+use qp_plonky2_core::circuit_config::{check_common_data_valid, CommonDataShape, GateShape};
 pub use qp_plonky2_core::CircuitConfig;
 use serde::Serialize;
 
@@ -431,19 +432,37 @@ pub struct CommonCircuitData<F: RichField + Extendable<D>, const D: usize> {
 }
 
 impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
-    /// Validate invariants required by the prover.
-    ///
-    /// This checks that degree parameters are consistent and within bounds.
+    /// Checks that every derived field is what `CircuitBuilder::build` would have produced from
+    /// the config, degree, gates and lookup tables.
     pub fn check_valid(&self) -> Result<(), &'static str> {
-        qp_plonky2_core::circuit_config::check_common_data_valid(
-            &self.config,
-            self.quotient_degree_factor,
-            &self.fri_params,
-            self.public_initial_degree_bits,
-            self.trace_degree_bits,
-            F::TWO_ADICITY,
-            || self.luts.iter().any(|lut| lut.is_empty()),
-        )
+        let gates: Vec<GateShape> = self
+            .gates
+            .iter()
+            .map(|gate| GateShape {
+                id: gate.0.id(),
+                degree: gate.0.degree(),
+                num_wires: gate.0.num_wires(),
+                num_constants: gate.0.num_constants(),
+                num_constraints: gate.0.num_constraints(),
+            })
+            .collect();
+        let lut_lengths: Vec<usize> = self.luts.iter().map(|lut| lut.len()).collect();
+        check_common_data_valid(&CommonDataShape {
+            config: &self.config,
+            trace_degree_bits: self.trace_degree_bits,
+            fri_params: &self.fri_params,
+            public_initial_degree_bits: self.public_initial_degree_bits,
+            gates: &gates,
+            selectors_info: &self.selectors_info,
+            quotient_degree_factor: self.quotient_degree_factor,
+            num_gate_constraints: self.num_gate_constraints,
+            num_constants: self.num_constants,
+            k_is: &self.k_is,
+            num_partial_products: self.num_partial_products,
+            num_lookup_polys: self.num_lookup_polys,
+            num_lookup_selectors: self.num_lookup_selectors,
+            lut_lengths: &lut_lengths,
+        })
     }
 
     pub fn to_bytes(&self, gate_serializer: &dyn GateSerializer<F, D>) -> IoResult<Vec<u8>> {
