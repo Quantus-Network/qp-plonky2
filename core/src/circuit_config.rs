@@ -183,12 +183,26 @@ mod tests {
         fri_params: &FriParams,
         public_initial_degree_bits: usize,
     ) -> Result<(), &'static str> {
+        check_with_trace(
+            config,
+            fri_params,
+            public_initial_degree_bits,
+            public_initial_degree_bits,
+        )
+    }
+
+    fn check_with_trace(
+        config: &CircuitConfig,
+        fri_params: &FriParams,
+        public_initial_degree_bits: usize,
+        trace_degree_bits: usize,
+    ) -> Result<(), &'static str> {
         super::check_common_data_valid(
             config,
             1,
             fri_params,
             public_initial_degree_bits,
-            public_initial_degree_bits,
+            trace_degree_bits,
             32,
             || false,
         )
@@ -206,6 +220,20 @@ mod tests {
             check(&config, &fri_params, 9),
             Err("public_initial_degree_bits must match FRI degree_bits")
         );
+    }
+
+    /// The vanishing polynomial is evaluated over `trace_degree_bits`; a smaller value than the
+    /// committed domain passed deserialization before, so pin all three degrees to each other.
+    #[test]
+    fn check_common_data_rejects_mismatched_trace_degree_bits() {
+        let config = CircuitConfig::standard_recursion_config();
+        let fri_params = fri_params_for(&config, 10);
+        for trace_degree_bits in [9, 11] {
+            assert_eq!(
+                check_with_trace(&config, &fri_params, 10, trace_degree_bits),
+                Err("trace_degree_bits must match public_initial_degree_bits")
+            );
+        }
     }
 
     /// The verifier runs with `fri_params.config`, so it must be the validated `config.fri_config`
@@ -314,14 +342,13 @@ pub fn check_common_data_valid(
         return Err("quotient_degree_factor exceeds FRI rate_bits");
     }
 
-    // Public initial degree must be at least as large as trace degree.
-    if public_initial_degree_bits < trace_degree_bits {
-        return Err("public_initial_degree_bits must be >= trace_degree_bits");
+    // The builder derives all three degrees from the padded gate count. The verifier evaluates the
+    // vanishing polynomial over `trace_degree_bits`, samples FRI query indices from
+    // `public_initial_degree_bits` and checks the FRI proof over `fri_params.degree_bits`, so any
+    // disagreement lets a proof be checked against a different domain than it was committed to.
+    if trace_degree_bits != public_initial_degree_bits {
+        return Err("trace_degree_bits must match public_initial_degree_bits");
     }
-
-    // The query domain is sampled from `public_initial_degree_bits` while FRI is verified over the
-    // transcript-bound `fri_params.degree_bits`; they must match or queries could be drawn from a
-    // smaller domain than the proof is checked against.
     if public_initial_degree_bits != fri_params.degree_bits {
         return Err("public_initial_degree_bits must match FRI degree_bits");
     }
