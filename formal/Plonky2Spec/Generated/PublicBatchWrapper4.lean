@@ -2046,7 +2046,7 @@ theorem publicBatchWrapper4_copies44 (a : Assignment p) (h : Satisfies (publicBa
   exact hc
 
 theorem publicBatchWrapper4_consts (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p) a) :
-    a (.virt 26) = 0 ∧ a (.virt 27) = 1 ∧ a (.virt 28) = 2 ∧ a (.virt 29) = 8 := by
+    (a (.virt 26) = 0 ∧ a (.virt 27) = 1 ∧ a (.virt 28) = 2 ∧ a (.virt 29) = 8) := by
   have hconst := h.2.2
   simp only [publicBatchWrapper4, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hconst
   obtain ⟨k0, k1, k2, k3⟩ := hconst

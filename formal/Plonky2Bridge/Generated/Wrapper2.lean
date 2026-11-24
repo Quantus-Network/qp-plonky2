@@ -105,12 +105,11 @@ theorem scanRefL_2 (r0 r1 : LeafRow p) (f : LeafRow p → ZMod p) :
 
 /-! ### Composition -/
 
+/-- The trace's constants, the first 4 of the export's `privateBatchWrapper2_consts`. -/
 theorem consts (a : Assignment p) (h : Satisfies (privateBatchWrapper2 p) a) :
     a (.virt 76) = 10000 ∧ a (.virt 11) = 0 ∧ a (.virt 12) = 1 ∧ a (.virt 13) = 2 := by
-  have hc := h.2.2
-  simp only [privateBatchWrapper2, List.forall_mem_cons, List.not_mem_nil, false_implies,
-    implies_true, and_true] at hc
-  exact hc
+  have hk := (privateBatchWrapper2_consts a h).1.1.1.1
+  exact ⟨hk.1, hk.2.1, hk.2.2.1, hk.2.2.2.1⟩
 
 set_option maxHeartbeats 4000000 in
 /-- **The recorded private-batch wrapper satisfies `RPrivateBatch`.** Every satisfying
@@ -383,17 +382,17 @@ set_option maxRecDepth 8192 in
 theorem out_eq (a : Assignment p) : out a = outOf (a ∘ pi) := rfl
 
 /-- **An accepted private-batch proof attests `RPrivateBatch`.** Through `proof_sound`
-    on the certified `build_refines` and `build_hashes`, the good events `hg` for the
-    wrapper's proofs and `hgl` for the leaf proofs: the accepted public inputs are those of
-    an assignment satisfying the wrapper's exported wiring whose own recursion gadgets
-    accepted every leaf proof, hence (`end_to_end_wired`) an `RPrivateBatch` instance. This
-    is what `WormholeSpec.private_batch_proof_sound` used to assume. -/
+    on the certified `build_refines`, `build_hashes` and `build_complete`, the good events
+    `hg` for the wrapper's proofs and `hgl` for the leaf proofs: the accepted public inputs
+    are those of an assignment satisfying the wrapper's exported wiring whose own recursion
+    gadgets accepted every leaf proof, hence (`end_to_end_wired`) an `RPrivateBatch`
+    instance. This is what `WormholeSpec.private_batch_proof_sound` used to assume. -/
 theorem accepted_sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     (hg : GoodEvents perm tree) (hgl : GoodEvents perm LeafCircuit.tree)
     {ts : Fin 26 → Target} {a : Assignment p}
     (h : ProofAccepted perm tree ((List.ofFn ts).map a)) :
     ∃ leaves us, RPrivateBatch (spongeRO perm) leaves us (outOf (a ∘ ts)) := by
-  obtain ⟨a', h', hp', hpis, hch⟩ := proof_sound perm _ _ _ _ hg build_refines build_hashes h
+  obtain ⟨a', h', hp', hpis, hch⟩ := proof_sound perm _ _ _ _ hg build_refines build_hashes build_complete h
   rw [publicInputs_eq] at hpis
   have hacc : ∀ i : Fin 2, ProofAccepted perm LeafCircuit.tree ((List.ofFn (leafPis i)).map a') := by
     intro i

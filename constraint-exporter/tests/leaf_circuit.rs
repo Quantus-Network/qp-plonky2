@@ -12,11 +12,13 @@ use constraint_exporter::circuit::GateKind;
 use constraint_exporter::gadget::{Fact, FACT_GROUP};
 use constraint_exporter::leaf::{generate_leaf_bridge_lean, Shape};
 use constraint_exporter::trace::{
-    assert_vendored_trace_matches_pinned, generate_leaf_circuit_lean, load, traces_dir,
+    assert_vendored_trace_matches_pinned, generate_leaf_circuit_modules, load, traces_dir,
 };
 use plonky2::field::goldilocks_field::GoldilocksField as F;
 use plonky2::field::types::Field;
 use plonky2::iop::target::Target;
+
+mod common;
 
 const TRACE: &str = "leaf_circuit.json";
 
@@ -109,13 +111,29 @@ fn leaf_trace_shape() {
 
 #[test]
 fn leaf_lean_is_current() {
-    let path = format!(
-        "{}/../formal/Plonky2Spec/Generated/LeafCircuit.lean",
+    let root = format!(
+        "{}/../formal/Plonky2Spec/Generated",
         env!("CARGO_MANIFEST_DIR")
     );
-    let on_disk = std::fs::read_to_string(&path).unwrap();
-    let generated = generate_leaf_circuit_lean().unwrap();
-    assert_eq!(on_disk, generated, "run export-constraints ({path})");
+    let complete = constraint_exporter::built::certify_circuit("leaf_circuit").unwrap();
+    let modules = generate_leaf_circuit_modules(&complete.trace).unwrap();
+    for module in &modules {
+        let path = format!("{root}/{}", module.relative);
+        let on_disk = std::fs::read_to_string(&path).unwrap_or_default();
+        assert_eq!(on_disk, module.contents, "run export-constraints ({path})");
+    }
+    common::assert_split_manifest(
+        &root,
+        &modules
+            .iter()
+            .map(|m| m.relative.clone())
+            .collect::<Vec<_>>(),
+    );
+    let generated = modules
+        .iter()
+        .map(|m| m.contents.as_str())
+        .collect::<Vec<_>>()
+        .join("\n");
     assert!(generated.contains(
         "theorem leafCircuit_decode (perm : St p → St p) (a : Assignment p) \
          (h : Satisfies (leafCircuit p) a)\n    \

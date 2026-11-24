@@ -22,6 +22,7 @@
 //! Files are written to their canonical paths next to the Lean spec; contents
 //! are also echoed to stdout.
 
+use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -58,12 +59,12 @@ fn bridge_generated_dir() -> PathBuf {
     formal_dir().join("Plonky2Bridge").join("Generated")
 }
 
-/// Write modules for one public-batch wrapper.
+/// Write modules for one wrapper.
 ///
 /// A split wrapper has pieces under `{dir_name}/` plus a root file next to that
 /// directory. Pieces are owned through `{dir_name}/.generated-files`: only a
 /// basename on the previous manifest is eligible for deletion. Files outside
-/// the directory, such as `PublicBatchWrapper2.lean`, are written in place.
+/// the directory, such as an unsplit `PublicBatchWrapper2.lean`, are written in place.
 fn write_split(parent: &Path, dir_name: &str, modules: &[(&str, &str)]) -> std::io::Result<()> {
     let prefix = format!("{dir_name}/");
     let mut inside = Vec::new();
@@ -123,27 +124,37 @@ fn main() -> std::io::Result<()> {
     let nullifier_select = constraint_exporter::circuit::generate_nullifier_select_lean();
     let gadget_zoo = constraint_exporter::gadget::generate_gadget_zoo_lean();
     let gadget_edge_cases = constraint_exporter::gadget::generate_gadget_edge_cases_lean();
-    let mut private_wrappers = Vec::new();
-    for n in PRIVATE_WRAPPER_SIZES {
-        let decode = constraint_exporter::trace::generate_private_batch_wrapper_lean(n)
-            .map_err(std::io::Error::other)?;
-        let bridge = constraint_exporter::private_wrapper::generate_private_wrapper_bridge_lean(n)
-            .map_err(std::io::Error::other)?;
-        private_wrappers.push((n, decode, bridge));
-    }
-    let leaf =
-        constraint_exporter::trace::generate_leaf_circuit_lean().map_err(std::io::Error::other)?;
-    let leaf_bridge =
-        constraint_exporter::leaf::generate_leaf_bridge_lean().map_err(std::io::Error::other)?;
+    // The certified circuits' exports are their traces completed to the whole builder
+    // (`built::complete`), from which both their decode module and their certificate are
+    // generated.
+    let mut certified = HashMap::new();
     let mut built = Vec::new();
     for circuit in CERTIFIED_CIRCUITS {
         let module = constraint_exporter::built::names(circuit)
             .map_err(std::io::Error::other)?
             .module;
-        let contents = constraint_exporter::built::generate_built_lean(circuit)
+        let c =
+            constraint_exporter::built::certify_circuit(circuit).map_err(std::io::Error::other)?;
+        let modules = constraint_exporter::built::built_modules(&c.trace, &c.cert)
             .map_err(std::io::Error::other)?;
-        built.push((module, contents));
+        built.push((module, modules));
+        certified.insert(circuit, c);
     }
+    let mut private_wrappers = Vec::new();
+    for n in PRIVATE_WRAPPER_SIZES {
+        let trace = &certified[format!("private_batch_wrapper_n{n}").as_str()].trace;
+        let decode = constraint_exporter::trace::generate_private_batch_wrapper_modules(n, trace)
+            .map_err(std::io::Error::other)?;
+        let bridge =
+            constraint_exporter::private_wrapper::generate_private_wrapper_bridge_lean(n, trace)
+                .map_err(std::io::Error::other)?;
+        private_wrappers.push((n, decode, bridge));
+    }
+    let leaf =
+        constraint_exporter::trace::generate_leaf_circuit_modules(&certified["leaf_circuit"].trace)
+            .map_err(std::io::Error::other)?;
+    let leaf_bridge =
+        constraint_exporter::leaf::generate_leaf_bridge_lean().map_err(std::io::Error::other)?;
     let mut public_wrappers = Vec::new();
     for n in PUBLIC_WRAPPER_SIZES {
         let decode = constraint_exporter::trace::generate_public_batch_wrapper_modules(n)
@@ -162,8 +173,15 @@ fn main() -> std::io::Result<()> {
     write(&dir, "GadgetEdgeCasesCircuit.lean", &gadget_edge_cases)?;
     let bridge_dir = bridge_generated_dir();
     fs::create_dir_all(&bridge_dir)?;
-    for (n, decode, bridge) in &private_wrappers {
-        write(&dir, &format!("PrivateBatchWrapper{n}.lean"), decode)?;
+    for (n, modules, bridge) in &private_wrappers {
+        write_split(
+            &dir,
+            &format!("PrivateBatchWrapper{n}"),
+            &modules
+                .iter()
+                .map(|m| (m.relative.as_str(), m.contents.as_str()))
+                .collect::<Vec<_>>(),
+        )?;
         write(&bridge_dir, &format!("Wrapper{n}.lean"), bridge)?;
     }
     for (n, modules, bridge) in &public_wrappers {
@@ -184,10 +202,24 @@ fn main() -> std::io::Result<()> {
                 .collect::<Vec<_>>(),
         )?;
     }
-    write(&dir, "LeafCircuit.lean", &leaf)?;
+    write_split(
+        &dir,
+        "LeafCircuit",
+        &leaf
+            .iter()
+            .map(|m| (m.relative.as_str(), m.contents.as_str()))
+            .collect::<Vec<_>>(),
+    )?;
     write(&bridge_dir, "Leaf.lean", &leaf_bridge)?;
-    for (module, contents) in &built {
-        write(&bridge_dir, &format!("{module}.lean"), contents)?;
+    for (module, modules) in &built {
+        write_split(
+            &bridge_dir,
+            module,
+            &modules
+                .iter()
+                .map(|m| (m.relative.as_str(), m.contents.as_str()))
+                .collect::<Vec<_>>(),
+        )?;
     }
     write(
         &bridge_dir,
@@ -206,9 +238,14 @@ fn main() -> std::io::Result<()> {
     print!("{gadget_zoo}");
     println!("\n-- ===== GadgetEdgeCasesCircuit.lean =====");
     print!("{gadget_edge_cases}");
-    for (n, decode, bridge) in &private_wrappers {
-        println!("\n-- ===== PrivateBatchWrapper{n}.lean =====");
-        print!("{decode}");
+    for (n, modules, bridge) in &private_wrappers {
+        println!(
+            "\n-- ===== PrivateBatchWrapper{n} ({} files) =====",
+            modules.len()
+        );
+        for module in modules {
+            print_exported(*n, &module.relative, &module.contents);
+        }
         println!("\n-- ===== Plonky2Bridge/Generated/Wrapper{n}.lean =====");
         print!("{bridge}");
     }
@@ -228,13 +265,20 @@ fn main() -> std::io::Result<()> {
             print_exported(*n, &module.relative, &module.contents);
         }
     }
-    println!("\n-- ===== LeafCircuit.lean =====");
-    print!("{leaf}");
+    println!("\n-- ===== LeafCircuit ({} files) =====", leaf.len());
+    for module in &leaf {
+        print_exported(2, &module.relative, &module.contents);
+    }
     println!("\n-- ===== Plonky2Bridge/Generated/Leaf.lean =====");
     print!("{leaf_bridge}");
-    for (module, contents) in &built {
-        println!("\n-- ===== Plonky2Bridge/Generated/{module}.lean =====");
-        print_exported(if module.contains("89") { 89 } else { 2 }, module, contents);
+    for (module, modules) in &built {
+        println!(
+            "\n-- ===== Plonky2Bridge/Generated/{module} ({} files) =====",
+            modules.len()
+        );
+        for part in modules {
+            print_exported(89, &part.relative, &part.contents);
+        }
     }
     Ok(())
 }

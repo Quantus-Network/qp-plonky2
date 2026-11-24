@@ -1,3 +1,6 @@
+//! Checks shared by several test binaries; not every binary uses each one.
+#![allow(dead_code)]
+
 use constraint_exporter::gadget::{Call, Fact};
 use plonky2::field::goldilocks_field::GoldilocksField as F;
 use plonky2::field::types::{Field, PrimeField64};
@@ -48,5 +51,31 @@ pub fn assert_facts_hold(calls: &[Call], val: impl Fn(Target) -> F) {
                 }
             }
         }
+    }
+}
+
+/// A split wrapper's `.generated-files` manifest is exactly the basenames the
+/// generator owns in that directory. Regeneration deletes only those names.
+pub fn assert_split_manifest(root: &str, relatives: &[String]) {
+    let mut by_dir: std::collections::BTreeMap<String, std::collections::BTreeSet<String>> =
+        std::collections::BTreeMap::new();
+    for relative in relatives {
+        if let Some((dir, name)) = relative.split_once('/') {
+            assert!(!name.contains('/'), "{relative}");
+            by_dir
+                .entry(dir.to_string())
+                .or_default()
+                .insert(name.to_string());
+        }
+    }
+    for (dir, names) in by_dir {
+        let mut expected = names.into_iter().collect::<Vec<_>>().join("\n");
+        expected.push('\n');
+        let path = format!(
+            "{root}/{dir}/{}",
+            constraint_exporter::lean_split::GENERATED_MANIFEST
+        );
+        let on_disk = std::fs::read_to_string(&path).unwrap_or_default();
+        assert_eq!(on_disk, expected, "run export-constraints ({path})");
     }
 }

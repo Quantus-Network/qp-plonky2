@@ -289,9 +289,11 @@ pub struct LoadedTrace {
     /// The recording builder's counts when tracing began: what its verifiers laid down.
     pub start: Counts,
     pub num_virtual_targets: usize,
-    /// Export row `i` is the builder's row `row_at[i]`; increasing.
+    /// Export row `i` is the builder's row `row_at[i]`. Increasing as parsed; the rows
+    /// `built::complete` appends follow.
     pub row_at: Vec<usize>,
-    /// Export virtual target `n` is the builder's virtual target `virt_at[n]`; increasing.
+    /// Export virtual target `n` is the builder's virtual target `virt_at[n]`. Increasing
+    /// as parsed; the targets `built::complete` appends follow.
     pub virt_at: Vec<usize>,
 }
 
@@ -501,31 +503,52 @@ pub fn assert_vendored_trace_matches_pinned(name: &str) {
 }
 
 /// Build `formal/Plonky2Spec/Generated/PrivateBatchWrapper{n}.lean` from the recorded `n`-leaf
-/// private-batch wrapper.
-pub fn generate_private_batch_wrapper_lean(n: usize) -> Result<String, String> {
+/// private-batch wrapper, completed to the whole builder (`built::complete`): `t` is the
+/// completed trace of `private_batch_wrapper_n{n}`.
+pub fn generate_private_batch_wrapper_lean(n: usize, t: &LoadedTrace) -> Result<String, String> {
     generate_wrapper_lean(
         &format!("private_batch_wrapper_n{n}"),
         &format!(
             "the `n = {n}` private-batch wrapper trace\n\
              \x20 (`qp-zk-circuits/formal/traces/private_batch_wrapper_n{n}.json`, recorded by\n\
-             \x20 `TracingBuilder` while `build_private_batch_constraints` ran on the real builder)"
+             \x20 `TracingBuilder` while `build_private_batch_constraints` ran on the real builder),\n\
+             \x20 completed to the whole builder by `built::complete`: the wrapper's part first, then\n\
+             \x20 the rows, copies and constants of its `verify_proof` gadgets, with the constants\n\
+             \x20 `build` gives the spare constant wires"
         ),
         &format!("privateBatchWrapper{n}"),
         &format!(
-            "The private-batch aggregation wrapper at `n = {n}` without the leaf verifiers \
+            "The private-batch aggregation wrapper at `n = {n}` with its leaf verifiers \
              (`wormhole/aggregator/src/private_batch/circuit/circuit_logic.rs`): leaf \
              public inputs `leaf_pis_0..{}`, dummy-nullifier preimages \
              `dummy_pre_image_0..{}`, the permutation switches `switches`, and the aggregated \
-             public inputs.",
+             public inputs; then the `verify_proof` gadgets' rows and copies.",
             n - 1,
             n - 1
         ),
+        t,
     )
+}
+
+/// The private-batch decode module, split into several Lean files when it is too large
+/// to elaborate at once. Each entry is a path relative to `Plonky2Spec/Generated/`.
+pub fn generate_private_batch_wrapper_modules(
+    n: usize,
+    t: &LoadedTrace,
+) -> Result<Vec<crate::lean_split::LeanModule>, String> {
+    let src = generate_private_batch_wrapper_lean(n, t)?;
+    Ok(crate::lean_split::split_module(
+        &crate::lean_split::SPEC,
+        &format!("PrivateBatchWrapper{n}"),
+        &src,
+    ))
 }
 
 /// Build `formal/Plonky2Spec/Generated/PublicBatchWrapper{n}.lean` from the recorded
 /// `n_inner = n` public-batch wrapper over `2`-leaf private batches.
 pub fn generate_public_batch_wrapper_lean(n: usize) -> Result<String, String> {
+    let circuit = format!("public_batch_wrapper_n{n}");
+    let t = load(&traces_dir().join(format!("{circuit}.json")))?;
     generate_wrapper_lean(
         &format!("public_batch_wrapper_n{n}"),
         &format!(
@@ -542,6 +565,7 @@ pub fn generate_public_batch_wrapper_lean(n: usize) -> Result<String, String> {
              aggregated public inputs.",
             n - 1
         ),
+        &t,
     )
 }
 
@@ -552,13 +576,26 @@ pub fn generate_public_batch_wrapper_modules(
 ) -> Result<Vec<crate::lean_split::LeanModule>, String> {
     let src = generate_public_batch_wrapper_lean(n)?;
     Ok(crate::lean_split::split_module(
+        &crate::lean_split::SPEC,
         &format!("PublicBatchWrapper{n}"),
         &src,
     ))
 }
 
-/// Build `formal/Plonky2Spec/Generated/LeafCircuit.lean` from the recorded leaf circuit.
-pub fn generate_leaf_circuit_lean() -> Result<String, String> {
+/// Build `formal/Plonky2Spec/Generated/LeafCircuit.lean` from the recorded leaf circuit,
+/// split across `LeafCircuit/`: `t` is its trace, completed (`built::complete`), which for
+/// the leaf adds nothing.
+pub fn generate_leaf_circuit_modules(
+    t: &LoadedTrace,
+) -> Result<Vec<crate::lean_split::LeanModule>, String> {
+    Ok(crate::lean_split::split_module(
+        &crate::lean_split::SPEC,
+        "LeafCircuit",
+        &generate_leaf_circuit_lean(t)?,
+    ))
+}
+
+fn generate_leaf_circuit_lean(t: &LoadedTrace) -> Result<String, String> {
     generate_wrapper_lean(
         "leaf_circuit",
         "the leaf circuit trace\n\
@@ -570,6 +607,7 @@ pub fn generate_leaf_circuit_lean() -> Result<String, String> {
          with the nullifier and block-hash bindings, on the witness targets `secret`, \
          `transfer_count`, `to_account`, `account_id`, `root_hash`, `depth`, `positions`, \
          `is_not_dummy`, `siblings_0..15` and the header fields.",
+        t,
     )
 }
 
@@ -578,8 +616,8 @@ fn generate_wrapper_lean(
     source: &str,
     name: &str,
     doc: &str,
+    t: &LoadedTrace,
 ) -> Result<String, String> {
-    let t = load(&traces_dir().join(format!("{circuit}.json")))?;
     if t.circuit != circuit {
         return Err(format!("unexpected trace circuit {:?}", t.circuit));
     }
@@ -588,8 +626,8 @@ fn generate_wrapper_lean(
         &[GeneratedCircuit {
             name: name.into(),
             doc: doc.into(),
-            ex: t.ex,
-            calls: t.calls,
+            ex: t.ex.clone(),
+            calls: t.calls.clone(),
         }],
     ))
 }

@@ -1,27 +1,61 @@
 //! Split a generated Lean module that is too large to elaborate as one file.
 //!
-//! A production public-batch wrapper is tens of megabytes of per-call lemmas. One
-//! `lean` process holding all of them runs out of memory, so the module is cut on
-//! declaration boundaries into layers that import only what they need:
-//! copy-list defs, the circuit, copy lemmas, per-call facts, then the decode
-//! conjunction. The original module path becomes an import of that chain.
+//! A production public-batch wrapper is tens of megabytes of per-call lemmas, and a
+//! complete build certificate (Step 21) tens of megabytes of `σ`-cycle tables. One
+//! `lean` process holding all of it runs out of memory, so the module is cut on
+//! declaration boundaries into layers by dependency depth: a declaration sits one layer
+//! above the deepest declaration of the module it mentions, so every layer imports only
+//! the one below. The original module path becomes an import of that chain.
 
+use std::collections::HashMap;
 use std::fmt::Write as _;
 
 pub struct LeanModule {
-    /// Path relative to `formal/Plonky2Spec/Generated/`.
+    /// Path relative to the layout's package directory (`formal/Plonky2Spec/Generated/`
+    /// for `SPEC`).
     pub relative: String,
     pub contents: String,
 }
 
-/// Modules larger than this are split. Leaf (~2.5MB) elaborates comfortably under it.
-const MAX_MODULE_BYTES: usize = 2_000_000;
-
-pub fn split_module(module: &str, src: &str) -> Vec<LeanModule> {
-    split_module_max(module, src, MAX_MODULE_BYTES)
+/// Where a split module lives and what its layers are called, by dependency depth
+/// (deeper layers than named are `Layer{depth}`).
+pub struct Layout {
+    pub package: &'static str,
+    pub layers: &'static [&'static str],
 }
 
-fn split_module_max(module: &str, src: &str, max_bytes: usize) -> Vec<LeanModule> {
+/// A recorded circuit's decode module: copy-list chunks, the circuit, the copy and
+/// constant lemmas, the per-call facts, then the decode conjunction.
+pub const SPEC: Layout = Layout {
+    package: "Plonky2Spec.Generated",
+    layers: &["CopyData", "Circuit", "CopyLemma", "Fact", "Decode"],
+};
+
+/// A build certificate (`built.rs`): table chunks, the long cycles, the cycle table, the
+/// certificate, its chunked checks, then what they prove.
+pub const BUILT: Layout = Layout {
+    package: "Plonky2Bridge.Generated",
+    layers: &[
+        "Data", "Cycle", "Cycles", "Cert", "Check", "Linked", "Agrees",
+    ],
+};
+
+/// Modules larger than this are split into parts of at most this size. A `lean` process
+/// holds well over a gigabyte per megabyte of table literals it elaborates, and `lake`
+/// runs one per core, so a megabyte keeps four of them inside a 16 GB runner.
+const MAX_MODULE_BYTES: usize = 1_000_000;
+
+/// A part holds at most this many declarations, so a layer of thousands of small
+/// kernel checks is spread over parts `lake` elaborates in parallel: within a part they
+/// run one at a time (`Elab.async false`), since elaborating them as tasks retains some
+/// 12 MB per check until the file is done.
+const MAX_PART_DECLS: usize = 1_000;
+
+pub fn split_module(layout: &Layout, module: &str, src: &str) -> Vec<LeanModule> {
+    split_module_max(layout, module, src, MAX_MODULE_BYTES)
+}
+
+fn split_module_max(layout: &Layout, module: &str, src: &str, max_bytes: usize) -> Vec<LeanModule> {
     if src.len() <= max_bytes {
         return vec![LeanModule {
             relative: format!("{module}.lean"),
@@ -46,54 +80,99 @@ fn split_module_max(module: &str, src: &str, max_bytes: usize) -> Vec<LeanModule
         .to_string();
     let body = body_after_variable(src, &variable);
     let blocks = declaration_blocks(&body);
-    let mut layers: [Vec<String>; 5] = Default::default();
-    for block in blocks {
-        let layer = decl_layer(&block);
-        layers[layer].push(block);
+    let mut layers: Vec<Vec<String>> = Vec::new();
+    for (block, depth) in blocks.iter().zip(dependency_depths(&blocks)) {
+        if layers.len() <= depth {
+            layers.resize_with(depth + 1, Vec::new);
+        }
+        layers[depth].push(block.clone());
     }
-    let layer_names = ["CopyData", "Circuit", "CopyLemma", "Fact", "Decode"];
     let mut files: Vec<LeanModule> = Vec::new();
     let mut prev: Option<String> = None;
-    for (layer, blocks) in layers.iter().enumerate() {
-        if blocks.is_empty() {
-            continue;
-        }
+    for (depth, blocks) in layers.iter().enumerate() {
         let parts = pack(blocks, max_bytes);
         let count = parts.len();
-        let stem = layer_names[layer];
+        let stem = layout
+            .layers
+            .get(depth)
+            .map(|s| s.to_string())
+            .unwrap_or_else(|| format!("Layer{depth}"));
         let deps: Vec<String> = prev.iter().cloned().collect();
         for (i, part) in parts.iter().enumerate() {
             let name = if count == 1 {
-                stem.to_string()
+                stem.clone()
             } else {
                 format!("{stem}{i}")
             };
             files.push(LeanModule {
                 relative: format!("{module}/{name}.lean"),
-                contents: render_part(module, &imports, &opens, &namespace, &variable, &deps, part),
+                contents: render_part(
+                    layout, module, &imports, &opens, &namespace, &variable, &deps, part,
+                ),
             });
         }
-        let imported = if count == 1 {
-            stem.to_string()
-        } else {
-            let barrel = render_barrel(
-                module,
-                &(0..count).map(|i| format!("{stem}{i}")).collect::<Vec<_>>(),
-            );
+        if count > 1 {
             files.push(LeanModule {
                 relative: format!("{module}/{stem}.lean"),
-                contents: barrel,
+                contents: render_barrel(
+                    layout,
+                    module,
+                    &(0..count).map(|i| format!("{stem}{i}")).collect::<Vec<_>>(),
+                ),
             });
-            stem.to_string()
-        };
-        prev = Some(imported);
+        }
+        prev = Some(stem);
     }
     let root_dep = prev.unwrap_or_else(|| panic!("{module}: nothing to split"));
     files.push(LeanModule {
         relative: format!("{module}.lean"),
-        contents: render_root(module, &root_dep),
+        contents: render_root(layout, module, &root_dep),
     });
     files
+}
+
+/// The name each declaration block declares, if any.
+fn declared_name(block: &str) -> Option<&str> {
+    block.lines().find_map(|line| {
+        let rest = line
+            .strip_prefix("noncomputable def ")
+            .or_else(|| line.strip_prefix("def "))
+            .or_else(|| line.strip_prefix("theorem "))
+            .or_else(|| line.strip_prefix("lemma "))?;
+        rest.split_whitespace().next()
+    })
+}
+
+/// One more than the deepest earlier block a block mentions, or `0`. A mention is the
+/// declared name as a token, or as the head of a dotted token (`buildCert.copiesOk`
+/// mentions `buildCert`).
+fn dependency_depths(blocks: &[String]) -> Vec<usize> {
+    let mut depth_of: HashMap<&str, usize> = HashMap::new();
+    let mut depths = Vec::with_capacity(blocks.len());
+    for block in blocks {
+        let name = declared_name(block);
+        let mut depth = 0;
+        for token in block
+            .split(|c: char| !(c.is_alphanumeric() || matches!(c, '_' | '.' | '\'')))
+            .filter(|t| !t.is_empty())
+        {
+            let mut head = token;
+            loop {
+                if Some(head) != name {
+                    if let Some(&d) = depth_of.get(head) {
+                        depth = depth.max(d + 1);
+                    }
+                }
+                let Some(dot) = head.rfind('.') else { break };
+                head = &head[..dot];
+            }
+        }
+        if let Some(name) = name {
+            depth_of.insert(name, depth);
+        }
+        depths.push(depth);
+    }
+    depths
 }
 
 fn lines_with(src: &str, prefix: &str) -> Vec<String> {
@@ -153,48 +232,17 @@ fn declaration_blocks(body: &str) -> Vec<String> {
     blocks
 }
 
-/// 0 copy-list defs, 1 circuit and other defs, 2 copy/const lemmas, 3 per-call facts,
-/// 4 the decode conjunction.
-fn decl_layer(block: &str) -> usize {
-    for line in block.lines() {
-        let rest = line
-            .strip_prefix("noncomputable def ")
-            .or_else(|| line.strip_prefix("def "))
-            .or_else(|| line.strip_prefix("theorem "))
-            .or_else(|| line.strip_prefix("lemma "));
-        let Some(rest) = rest else { continue };
-        let name = rest.split_whitespace().next().unwrap_or("");
-        if name.contains(".copies") {
-            return 0;
-        }
-        if name.contains("_copies") || name.ends_with("_consts") {
-            return 2;
-        }
-        if let Some(suffix) = name.rsplit("_f").next() {
-            if name.contains("_f")
-                && !suffix.is_empty()
-                && suffix.chars().all(|c| c.is_ascii_digit())
-                && line.starts_with("theorem ")
-            {
-                return 3;
-            }
-        }
-        if name.ends_with("_decode") {
-            return 4;
-        }
-        return 1;
-    }
-    1
-}
-
 fn pack(blocks: &[String], max_bytes: usize) -> Vec<String> {
     let mut parts = Vec::new();
     let mut cur = String::new();
+    let mut count = 0;
     for block in blocks {
-        if !cur.is_empty() && cur.len() + block.len() > max_bytes {
+        if !cur.is_empty() && (cur.len() + block.len() > max_bytes || count == MAX_PART_DECLS) {
             parts.push(std::mem::take(&mut cur));
+            count = 0;
         }
         cur.push_str(block);
+        count += 1;
     }
     if !cur.is_empty() {
         parts.push(cur);
@@ -202,7 +250,9 @@ fn pack(blocks: &[String], max_bytes: usize) -> Vec<String> {
     parts
 }
 
+#[allow(clippy::too_many_arguments)]
 fn render_part(
+    layout: &Layout,
     module: &str,
     imports: &[String],
     opens: &[String],
@@ -211,12 +261,13 @@ fn render_part(
     deps: &[String],
     body: &str,
 ) -> String {
+    let package = layout.package;
     let mut out = String::new();
     let _ = write!(
         out,
         "/-\n\
          \x20 AUTO-GENERATED — do not edit by hand.\n\n\
-         \x20 Part of `Plonky2Spec.Generated.{module}`, split out of the recorded wrapper\n\
+         \x20 Part of `{package}.{module}`, split out of the generated module\n\
          \x20 so each Lean module elaborates in bounded memory.\n\
          \x20 Regenerate with:\n\n\
          \x20     cargo run -p qp-plonky2-constraint-exporter --bin export-constraints\n\
@@ -226,7 +277,7 @@ fn render_part(
         let _ = writeln!(out, "import {import}");
     }
     for dep in deps {
-        let _ = writeln!(out, "import Plonky2Spec.Generated.{module}.{dep}");
+        let _ = writeln!(out, "import {package}.{module}.{dep}");
     }
     let _ = writeln!(out, "\n{namespace}\n");
     for open in opens {
@@ -237,36 +288,36 @@ fn render_part(
     }
     // A production circuit literal nests ~2^14 public inputs inside the same `where`
     // as the row list, and the verifier list is ~10^4 targets. Lean elaborates list
-    // syntax with one stack frame per element, past the default 1024, and reducing the
-    // chunked `copies` append exceeds the default heartbeat budget.
+    // syntax with one stack frame per element, past the default 1024, and reducing a
+    // chunked append or a `map` over 2^14 rows by `rfl` exceeds the default heartbeat
+    // budget. Elaborating checks as tasks retains some 12 MB per check until the file
+    // is done.
     let _ = writeln!(out, "set_option maxRecDepth 200000\n");
-    if body.contains(" : Circuit ") {
-        let _ = writeln!(out, "set_option maxHeartbeats 0\n");
-    }
+    let _ = writeln!(out, "set_option maxHeartbeats 0\n");
     let _ = writeln!(out, "set_option linter.all false\n");
+    let _ = writeln!(out, "set_option Elab.async false\n");
     let _ = writeln!(out, "{variable}\n");
     out.push_str(body);
     if !out.ends_with('\n') {
         out.push('\n');
     }
-    let end = namespace
-        .strip_prefix("namespace ")
-        .unwrap_or("Plonky2Spec.Generated");
+    let end = namespace.strip_prefix("namespace ").unwrap_or(package);
     let _ = writeln!(out, "end {end}");
     out
 }
 
-fn render_barrel(module: &str, parts: &[String]) -> String {
+fn render_barrel(layout: &Layout, module: &str, parts: &[String]) -> String {
+    let package = layout.package;
     let mut out = String::new();
     let _ = write!(
         out,
         "/-\n\
          \x20 AUTO-GENERATED — do not edit by hand.\n\n\
-         \x20 Re-exports one layer of `Plonky2Spec.Generated.{module}`.\n\
+         \x20 Re-exports one layer of `{package}.{module}`.\n\
          -/\n"
     );
     for part in parts {
-        let _ = writeln!(out, "import Plonky2Spec.Generated.{module}.{part}");
+        let _ = writeln!(out, "import {package}.{module}.{part}");
     }
     out
 }
@@ -363,16 +414,17 @@ pub fn sync_owned_files(
     Ok(removed)
 }
 
-fn render_root(module: &str, dep: &str) -> String {
+fn render_root(layout: &Layout, module: &str, dep: &str) -> String {
     format!(
         "/-\n\
          \x20 AUTO-GENERATED — do not edit by hand.\n\n\
-         \x20 The recorded wrapper `{module}` is split across `{module}/` so Lean can\n\
+         \x20 The generated module `{module}` is split across `{module}/` so Lean can\n\
          \x20 elaborate it. Importing this module brings every part into scope.\n\
          \x20 Regenerate with:\n\n\
          \x20     cargo run -p qp-plonky2-constraint-exporter --bin export-constraints\n\
          -/\n\
-         import Plonky2Spec.Generated.{module}.{dep}\n"
+         import {}.{module}.{dep}\n",
+        layout.package
     )
 }
 
@@ -401,7 +453,10 @@ mod tests {
                 "def demo.copies{i} : List (Target × Target) := [\n  (.virt {i}, .virt 0)\n  ]\n"
             );
         }
-        s.push_str("def demo (p : ℕ) : Circuit p where\n  rows := []\n\n");
+        s.push_str(
+            "def demo (p : ℕ) : Circuit p where\n  rows := []\n  \
+             copies := ((demo.copies0 ++ demo.copies1) ++ (demo.copies2 ++ demo.copies3))\n\n",
+        );
         s.push_str(
             "theorem demo_copies0 (a : Assignment p) (h : Satisfies (demo p) a) :\n    True := by\n  trivial\n\n",
         );
@@ -409,14 +464,17 @@ mod tests {
             "theorem demo_consts (a : Assignment p) (h : Satisfies (demo p) a) :\n    True := by\n  trivial\n\n",
         );
         s.push_str(
-            "theorem demo_f0 (a : Assignment p) (h : Satisfies (demo p) a) :\n    True := by\n  trivial\n\n",
+            "theorem demo_f0 (a : Assignment p) (h : Satisfies (demo p) a) :\n    True := by\n  \
+             have c0 := demo_copies0 a h\n  trivial\n\n",
         );
         s.push_str(
-            "theorem demo_f1 (a : Assignment p) (h : Satisfies (demo p) a) :\n    True := by\n  trivial\n\n",
+            "theorem demo_f1 (a : Assignment p) (h : Satisfies (demo p) a) :\n    True := by\n  \
+             have k0 := demo_consts a h\n  trivial\n\n",
         );
         s.push_str(
             "set_option maxHeartbeats 20 in\n\
-             theorem demo_decode (a : Assignment p) (h : Satisfies (demo p) a) :\n    True := by\n  trivial\n\n\
+             theorem demo_decode (a : Assignment p) (h : Satisfies (demo p) a) :\n    True := by\n  \
+             exact ⟨demo_f0 a h, demo_f1 a h⟩\n\n\
              end Plonky2Spec.Generated\n",
         );
         s
@@ -425,7 +483,7 @@ mod tests {
     #[test]
     fn small_module_is_kept_whole() {
         let src = "theorem t : True := trivial\n";
-        let files = split_module_max("Demo", src, 10_000);
+        let files = split_module_max(&SPEC, "Demo", src, 10_000);
         assert_eq!(files.len(), 1);
         assert_eq!(files[0].relative, "Demo.lean");
         assert_eq!(files[0].contents, src);
@@ -434,7 +492,7 @@ mod tests {
     #[test]
     fn large_module_splits_by_layer() {
         let src = sample();
-        let files = split_module_max("Demo", &src, 80);
+        let files = split_module_max(&SPEC, "Demo", &src, 120);
         let names: Vec<_> = files.iter().map(|f| f.relative.as_str()).collect();
         assert!(names.contains(&"Demo.lean"), "{names:?}");
         assert!(

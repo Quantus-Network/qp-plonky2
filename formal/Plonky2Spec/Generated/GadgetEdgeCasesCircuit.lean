@@ -141,7 +141,7 @@ theorem gadgetEdgeCases_copies (a : Assignment p) (h : Satisfies (gadgetEdgeCase
   exact hc
 
 theorem gadgetEdgeCases_consts (a : Assignment p) (h : Satisfies (gadgetEdgeCases p) a) :
-    a (.virt 2) = 0 ∧ a (.virt 3) = 1 := by
+    (a (.virt 2) = 0 ∧ a (.virt 3) = 1) := by
   have hconst := h.2.2
   simp only [gadgetEdgeCases, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hconst
   obtain ⟨k0, k1⟩ := hconst
@@ -383,7 +383,7 @@ theorem gadgetIdentityFold_copies (a : Assignment p) (h : Satisfies (gadgetIdent
   exact hc
 
 theorem gadgetIdentityFold_consts (a : Assignment p) (h : Satisfies (gadgetIdentityFold p) a) :
-    a (.virt 3) = 0 ∧ a (.virt 2) = 1 := by
+    (a (.virt 3) = 0 ∧ a (.virt 2) = 1) := by
   have hconst := h.2.2
   simp only [gadgetIdentityFold, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hconst
   obtain ⟨k0, k1⟩ := hconst
@@ -473,7 +473,7 @@ theorem gadgetPinnedIntermediate_copies (a : Assignment p) (h : Satisfies (gadge
   exact hc
 
 theorem gadgetPinnedIntermediate_consts (a : Assignment p) (h : Satisfies (gadgetPinnedIntermediate p) a) :
-    a (.virt 2) = 0 ∧ a (.virt 3) = 1 := by
+    (a (.virt 2) = 0 ∧ a (.virt 3) = 1) := by
   have hconst := h.2.2
   simp only [gadgetPinnedIntermediate, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hconst
   obtain ⟨k0, k1⟩ := hconst
@@ -588,7 +588,7 @@ def gadgetConstantFold.verifiers : List (String × List Target) :=
   []
 
 theorem gadgetConstantFold_consts (a : Assignment p) (h : Satisfies (gadgetConstantFold p) a) :
-    a (.virt 0) = 0 ∧ a (.virt 4) = 1 ∧ a (.virt 1) = 3 ∧ a (.virt 2) = 5 ∧ a (.virt 5) = 8 ∧ a (.virt 3) = 9 ∧ a (.virt 6) = -5 := by
+    (a (.virt 0) = 0 ∧ a (.virt 4) = 1 ∧ a (.virt 1) = 3 ∧ a (.virt 2) = 5 ∧ a (.virt 5) = 8 ∧ a (.virt 3) = 9 ∧ a (.virt 6) = -5) := by
   have hconst := h.2.2
   simp only [gadgetConstantFold, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hconst
   obtain ⟨k0, k1, k2, k3, k4, k5, k6⟩ := hconst
@@ -657,7 +657,7 @@ theorem gadgetSingleFact_copies (a : Assignment p) (h : Satisfies (gadgetSingleF
   exact hc
 
 theorem gadgetSingleFact_consts (a : Assignment p) (h : Satisfies (gadgetSingleFact p) a) :
-    a (.virt 3) = 0 ∧ a (.virt 2) = 1 := by
+    (a (.virt 3) = 0 ∧ a (.virt 2) = 1) := by
   have hconst := h.2.2
   simp only [gadgetSingleFact, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hconst
   obtain ⟨k0, k1⟩ := hconst

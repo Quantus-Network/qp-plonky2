@@ -21,7 +21,7 @@ use core::fmt::Write as _;
 use plonky2::field::types::PrimeField64;
 use plonky2::iop::target::Target;
 
-use crate::circuit::lean_target;
+use crate::circuit::{self, lean_target};
 use crate::gadget::{Call, Fact};
 use crate::trace::{check_verifiers, load, traces_dir, LoadedTrace};
 
@@ -748,7 +748,9 @@ fn digest_fun(ts: &[Target]) -> String {
 }
 
 /// Render the bridge module for a recorded private-batch wrapper.
-pub fn render(shape: &Shape) -> String {
+/// `exported_constants` is the length of the complete export's constant list, whose
+/// prefix is the trace's.
+pub fn render(shape: &Shape, exported_constants: usize) -> String {
     let n = shape.n;
     let m = shape.m;
     let pi_total = shape.public_inputs.len();
@@ -926,6 +928,10 @@ pub fn render(shape: &Shape) -> String {
     // Constants.
     w!("/-! ### Composition -/");
     w!("");
+    w!(
+        "/-- The trace's constants, the first {} of the export's `{circuit}_consts`. -/",
+        shape.constants.len()
+    );
     w!("theorem consts (a : Assignment p) (h : Satisfies ({circuit} p) a) :");
     let cs: Vec<String> = shape
         .constants
@@ -933,10 +939,21 @@ pub fn render(shape: &Shape) -> String {
         .map(|(t, c)| format!("{} = {c}", a(*t)))
         .collect();
     w!("    {} := by", cs.join(" ∧ "));
-    w!("  have hc := h.2.2");
-    w!("  simp only [{circuit}, List.forall_mem_cons, List.not_mem_nil, false_implies,");
-    w!("    implies_true, and_true] at hc");
-    w!("  exact hc");
+    let (first_group, group_len) = match circuit::chunks(exported_constants) {
+        Some(ranges) => (circuit::chunk_path(ranges.len(), 0), ranges[0].len()),
+        None => (String::new(), exported_constants),
+    };
+    w!("  have hk := ({circuit}_consts a h){first_group}");
+    let projections: Vec<String> = (0..shape.constants.len())
+        .map(|i| {
+            format!(
+                "hk{}{}",
+                ".2".repeat(i),
+                if i + 1 < group_len { ".1" } else { "" }
+            )
+        })
+        .collect();
+    w!("  exact ⟨{}⟩", projections.join(", "));
     w!("");
     let const_names: Vec<String> = shape
         .constants
@@ -1396,17 +1413,17 @@ pub fn render(shape: &Shape) -> String {
     w!("theorem out_eq (a : Assignment p) : out a = outOf (a ∘ pi) := rfl");
     w!("");
     w!("/-- **An accepted private-batch proof attests `RPrivateBatch`.** Through `proof_sound`");
-    w!("    on the certified `build_refines` and `build_hashes`, the good events `hg` for the");
-    w!("    wrapper's proofs and `hgl` for the leaf proofs: the accepted public inputs are those of");
-    w!("    an assignment satisfying the wrapper's exported wiring whose own recursion gadgets");
-    w!("    accepted every leaf proof, hence (`end_to_end_wired`) an `RPrivateBatch` instance. This");
-    w!("    is what `WormholeSpec.private_batch_proof_sound` used to assume. -/");
+    w!("    on the certified `build_refines`, `build_hashes` and `build_complete`, the good events");
+    w!("    `hg` for the wrapper's proofs and `hgl` for the leaf proofs: the accepted public inputs");
+    w!("    are those of an assignment satisfying the wrapper's exported wiring whose own recursion");
+    w!("    gadgets accepted every leaf proof, hence (`end_to_end_wired`) an `RPrivateBatch`");
+    w!("    instance. This is what `WormholeSpec.private_batch_proof_sound` used to assume. -/");
     w!("theorem accepted_sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)");
     w!("    (hg : GoodEvents perm tree) (hgl : GoodEvents perm LeafCircuit.tree)");
     w!("    {{ts : Fin {pi_total} → Target}} {{a : Assignment p}}");
     w!("    (h : ProofAccepted perm tree ((List.ofFn ts).map a)) :");
     w!("    ∃ leaves us, RPrivateBatch (spongeRO perm) leaves us (outOf (a ∘ ts)) := by");
-    w!("  obtain ⟨a', h', hp', hpis, hch⟩ := proof_sound perm _ _ _ _ hg build_refines build_hashes h");
+    w!("  obtain ⟨a', h', hp', hpis, hch⟩ := proof_sound perm _ _ _ _ hg build_refines build_hashes build_complete h");
     w!("  rw [publicInputs_eq] at hpis");
     w!("  have hacc : ∀ i : Fin {n}, ProofAccepted perm LeafCircuit.tree ((List.ofFn (leafPis i)).map a') := by");
     w!("    intro i");
@@ -1443,16 +1460,30 @@ fn scan_normal_form(
 }
 
 /// Build `formal/Plonky2Bridge/Generated/Wrapper{n}.lean` from the recorded `n` private-batch
-/// wrapper trace.
-pub fn generate_private_wrapper_bridge_lean(n: usize) -> Result<String, String> {
+/// wrapper trace; `complete` is the same trace completed to the whole builder
+/// (`built::complete`), whose circuit the bridge is stated on.
+pub fn generate_private_wrapper_bridge_lean(
+    n: usize,
+    complete: &LoadedTrace,
+) -> Result<String, String> {
     let circuit = format!("private_batch_wrapper_n{n}");
     let t = load(&traces_dir().join(format!("{circuit}.json")))?;
-    if t.circuit != circuit {
-        return Err(format!("unexpected trace circuit {:?}", t.circuit));
+    if t.circuit != circuit || complete.circuit != circuit {
+        return Err(format!(
+            "unexpected trace circuits {:?} and {:?}",
+            t.circuit, complete.circuit
+        ));
     }
     let shape = Shape::read(&t)?;
     if shape.n != n {
         return Err(format!("trace {circuit} has {} leaves", shape.n));
     }
-    Ok(render(&shape))
+    let traced: Vec<(Target, u64)> = complete.ex.constants[..shape.constants.len()]
+        .iter()
+        .map(|(x, v)| (*x, v.to_canonical_u64()))
+        .collect();
+    if traced != shape.constants {
+        return Err("the complete export's constants do not start with the trace's".into());
+    }
+    Ok(render(&shape, complete.ex.constants.len()))
 }

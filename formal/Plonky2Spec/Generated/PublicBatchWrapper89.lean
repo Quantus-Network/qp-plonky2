@@ -1,7 +1,7 @@
 /-
   AUTO-GENERATED — do not edit by hand.
 
-  The recorded wrapper `PublicBatchWrapper89` is split across `PublicBatchWrapper89/` so Lean can
+  The generated module `PublicBatchWrapper89` is split across `PublicBatchWrapper89/` so Lean can
   elaborate it. Importing this module brings every part into scope.
   Regenerate with:
 

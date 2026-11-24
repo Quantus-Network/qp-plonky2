@@ -1,5 +1,5 @@
 /-
-  The certified builds of the private-batch wrappers (PLAN.md §7, Step 19).
+  The certified builds of the private-batch wrappers (PLAN.md §7, Steps 19 and 21).
 
   `Plonky2Bridge/Generated/Wrapper{2,4,8}Built.lean` carry each wrapper's recursion tree
   (`tree`, with the leaf public inputs `leafPis` its `verify_proof` gadgets read) and its
@@ -9,17 +9,18 @@
   `PrivateBatchCircuit::new`'s builder. They prove `build_refines_of_agrees` and
   `build_hashes_of_agrees` by kernel evaluation of the certificate's checks against the
   export. What is left to trust is one declaration per wrapper below: that the deployed
-  build agrees with its certificate. `proof_sound` composes them, with the two child
-  obligations, into each wrapper's `accepted_sound`.
+  build agrees with its certificate. `proof_sound` composes them, with the child
+  obligation `recursive_verifier_transcript` on the complete export, into each wrapper's
+  `accepted_sound`.
 
   WHAT `Agrees` SAYS OF A WRAPPER.
-  A wrapper's export is its own part of the production builder: the rows its gadgets
-  added, the verifier rows whose free slots its arithmetic ops took, its virtual targets,
-  copies, constants and public inputs. `buildCert.rowAt` places each export row in the
-  build, and the `σ`-cycles the certificate lists are the whole copy classes those rows'
-  wires lie in — including the verifiers' classes of the constants `0` and `1`, which the
-  wrapper's wires join. `build_agrees` says the built system a wrapper verifier key
-  commits to has those rows, cycles, fixed wires and placements, as `built::verify_agrees`
+  A wrapper's export is the whole production builder before `build`: the wrapper's own
+  rows, virtual targets, copies, constants and public inputs first, then those of its
+  `verify_proof` gadgets (`built::complete`). `buildCert.rowAt` places each export row in
+  the build, and the `σ`-cycles the certificate lists are the whole copy classes those
+  rows' wires lie in. `build_agrees` says the built system a wrapper verifier key commits
+  to has those rows, cycles, fixed wires and placements (`Refines`, `HashesPublicInputs`),
+  and nothing else before the rows `build` appends (`Complete`), as `built::verify_agrees`
   checked on the replayed build (`constraint-exporter`), and that the trace is the
   production pre-`build` state (`state_digest`, checked in qp-zk-circuits against
   `PrivateBatchCircuit::new`) and `build` is deterministic.
@@ -49,6 +50,9 @@ theorem build_hashes (b : Built p) :
     BuildOf tree b → b.HashesPublicInputs (privateBatchWrapper2 p) :=
   fun h => build_hashes_of_agrees b (build_agrees b h)
 
+theorem build_complete (b : Built p) : BuildOf tree b → b.Complete (privateBatchWrapper2 p) :=
+  fun h => (build_agrees b h).complete
+
 end Wrapper2
 
 namespace Wrapper4
@@ -63,6 +67,9 @@ theorem build_refines (b : Built p) : BuildOf tree b → b.Refines (privateBatch
 theorem build_hashes (b : Built p) :
     BuildOf tree b → b.HashesPublicInputs (privateBatchWrapper4 p) :=
   fun h => build_hashes_of_agrees b (build_agrees b h)
+
+theorem build_complete (b : Built p) : BuildOf tree b → b.Complete (privateBatchWrapper4 p) :=
+  fun h => (build_agrees b h).complete
 
 end Wrapper4
 
@@ -79,6 +86,9 @@ theorem build_refines (b : Built p) : BuildOf tree b → b.Refines (privateBatch
 theorem build_hashes (b : Built p) :
     BuildOf tree b → b.HashesPublicInputs (privateBatchWrapper8 p) :=
   fun h => build_hashes_of_agrees b (build_agrees b h)
+
+theorem build_complete (b : Built p) : BuildOf tree b → b.Complete (privateBatchWrapper8 p) :=
+  fun h => (build_agrees b h).complete
 
 end Wrapper8
 
