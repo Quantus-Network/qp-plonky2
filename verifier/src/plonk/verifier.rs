@@ -19,6 +19,9 @@ pub fn verify<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D:
     verifier_data: &VerifierOnlyCircuitData<C, D>,
     common_data: &CommonCircuitData<F, D>,
 ) -> Result<()> {
+    // Common data may come from anywhere the caller trusts; revalidate it so a hand-built or
+    // tampered copy cannot steer verification even when it was never deserialized through `from_bytes`.
+    common_data.check_valid().map_err(anyhow::Error::msg)?;
     validate_proof_with_pis_shape(&proof_with_pis, common_data)?;
 
     let public_inputs_hash = proof_with_pis.get_public_inputs_hash();

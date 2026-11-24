@@ -427,6 +427,25 @@ fn mismatched_degree_bits_common_data_deserialization_rejected() {
     assert!(CommonCircuitData::<F, D>::from_bytes(bytes, &gate_serializer).is_err());
 }
 
+/// `verify` revalidates the common data it is handed, so a caller that pins only the verifier
+/// key and takes common data from elsewhere still cannot be steered by a weakened copy that
+/// never went through `from_bytes`.
+#[test]
+fn verify_rejects_tampered_in_memory_common_data() -> anyhow::Result<()> {
+    let data = simple_circuit_data();
+    let proof = data.prove(PartialWitness::new())?;
+    data.verify(proof.clone())?;
+
+    let mut fewer_queries = data.verifier_data();
+    fewer_queries.common.fri_params.config.num_query_rounds = 1;
+    assert!(fewer_queries.verify(proof.clone()).is_err());
+
+    let mut smaller_trace = data.verifier_data();
+    smaller_trace.common.trace_degree_bits -= 1;
+    assert!(smaller_trace.verify(proof).is_err());
+    Ok(())
+}
+
 #[test]
 fn matching_degree_bits_common_data_roundtrips() {
     let data = simple_circuit_data();
