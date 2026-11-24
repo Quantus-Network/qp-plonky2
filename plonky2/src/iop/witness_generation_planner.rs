@@ -525,12 +525,10 @@ mod tests {
         let table = builder.add_lookup_table_from_pairs(Arc::new(vec![(3, 11), (7, 19)]));
         builder.add_lookup_from_index(a, table);
         let proof_with_pis_target = builder.add_virtual_proof_with_pis(&inner.common);
-        let verifier_data_target = builder.add_virtual_verifier_data(config.fri_config.cap_height);
         builder.add_simple_generator(DummyProofGenerator {
             proof_with_pis_target,
             proof_with_pis: proof,
-            verifier_data_target,
-            verifier_data: inner.verifier_data(),
+            common_data: inner.common.clone(),
         });
         Ok(builder.build::<C>())
     }
