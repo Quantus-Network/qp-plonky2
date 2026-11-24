@@ -41,9 +41,15 @@ pub const BUILT: Layout = Layout {
 };
 
 /// Modules larger than this are split into parts of at most this size. A `lean` process
-/// holds some 2.5 GB per megabyte of table literals it elaborates, and `lake` runs one
-/// per core, so a megabyte keeps four of them inside a 16 GB runner.
+/// holds well over a gigabyte per megabyte of table literals it elaborates, and `lake`
+/// runs one per core, so a megabyte keeps four of them inside a 16 GB runner.
 const MAX_MODULE_BYTES: usize = 1_000_000;
+
+/// A part holds at most this many declarations, so a layer of thousands of small
+/// kernel checks is spread over parts `lake` elaborates in parallel: within a part they
+/// run one at a time (`Elab.async false`), since elaborating them as tasks retains some
+/// 12 MB per check until the file is done.
+const MAX_PART_DECLS: usize = 1_000;
 
 pub fn split_module(layout: &Layout, module: &str, src: &str) -> Vec<LeanModule> {
     split_module_max(layout, module, src, MAX_MODULE_BYTES)
@@ -229,11 +235,14 @@ fn declaration_blocks(body: &str) -> Vec<String> {
 fn pack(blocks: &[String], max_bytes: usize) -> Vec<String> {
     let mut parts = Vec::new();
     let mut cur = String::new();
+    let mut count = 0;
     for block in blocks {
-        if !cur.is_empty() && cur.len() + block.len() > max_bytes {
+        if !cur.is_empty() && (cur.len() + block.len() > max_bytes || count == MAX_PART_DECLS) {
             parts.push(std::mem::take(&mut cur));
+            count = 0;
         }
         cur.push_str(block);
+        count += 1;
     }
     if !cur.is_empty() {
         parts.push(cur);
@@ -279,13 +288,14 @@ fn render_part(
     }
     // A production circuit literal nests ~2^14 public inputs inside the same `where`
     // as the row list, and the verifier list is ~10^4 targets. Lean elaborates list
-    // syntax with one stack frame per element, past the default 1024, and reducing the
-    // chunked `copies` append exceeds the default heartbeat budget.
+    // syntax with one stack frame per element, past the default 1024, and reducing a
+    // chunked append or a `map` over 2^14 rows by `rfl` exceeds the default heartbeat
+    // budget. Elaborating checks as tasks retains some 12 MB per check until the file
+    // is done.
     let _ = writeln!(out, "set_option maxRecDepth 200000\n");
-    if body.contains(" : Circuit ") {
-        let _ = writeln!(out, "set_option maxHeartbeats 0\n");
-    }
+    let _ = writeln!(out, "set_option maxHeartbeats 0\n");
     let _ = writeln!(out, "set_option linter.all false\n");
+    let _ = writeln!(out, "set_option Elab.async false\n");
     let _ = writeln!(out, "{variable}\n");
     out.push_str(body);
     if !out.ends_with('\n') {

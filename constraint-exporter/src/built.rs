@@ -1051,6 +1051,8 @@ pub fn render_lean(t: &LoadedTrace, cert: &Cert) -> Result<String, String> {
     let _ = writeln!(o, "open Plonky2Spec.Generated\n");
     let _ = writeln!(o, "variable {{p : ℕ}}\n");
     let _ = writeln!(o, "set_option maxRecDepth 8192\n");
+    // Elaborating the checks as tasks retains some 12 MB per check until the file is done.
+    let _ = writeln!(o, "set_option Elab.async false\n");
 
     // The tree.
     let _ = writeln!(

@@ -1,7 +1,7 @@
 /-
   AUTO-GENERATED — do not edit by hand.
 
-  Part of `Plonky2Spec.Generated.PublicBatchWrapper89`, split out of the recorded wrapper
+  Part of `Plonky2Spec.Generated.PublicBatchWrapper89`, split out of the generated module
   so each Lean module elaborates in bounded memory.
   Regenerate with:
 
@@ -18,7 +18,11 @@ open Plonky2Spec.Wiring
 
 set_option maxRecDepth 200000
 
+set_option maxHeartbeats 0
+
 set_option linter.all false
+
+set_option Elab.async false
 
 variable {p : ℕ} [Fact p.Prime]
 

@@ -789,13 +789,9 @@ fn check_script(
     s
 }
 
-/// Bind `k<i>` to the `wanted` constants `i` of the circuit's `constants` list, flat or
-/// chunked as `render_lean` laid it out: a flat list is destructured whole, a chunked one
-/// chunk by chunk where a chunk has a wanted constant.
-fn destructure_constants(out: &mut String, name: &str, len: usize, wanted: &BTreeSet<usize>) {
-    if wanted.is_empty() {
-        return;
-    }
+/// Bind `k<i>` to constant `i` of the circuit's `constants` list, flat or chunked as
+/// `render_lean` laid it out.
+fn destructure_constants(out: &mut String, name: &str, len: usize) {
     let names =
         |r: Range<usize>| -> String { r.map(|i| format!("k{i}")).collect::<Vec<_>>().join(", ") };
     let cons = "List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true";
@@ -818,9 +814,6 @@ fn destructure_constants(out: &mut String, name: &str, len: usize, wanted: &BTre
                 "  simp only [{name}, List.forall_mem_append] at hconst"
             );
             for (k, r) in ranges.iter().enumerate() {
-                if wanted.range(r.clone()).next().is_none() {
-                    continue;
-                }
                 let m = format!("hconst{k}");
                 let _ = writeln!(
                     out,
@@ -831,6 +824,41 @@ fn destructure_constants(out: &mut String, name: &str, len: usize, wanted: &BTre
                 bind(out, &m, r.clone());
             }
         }
+    }
+}
+
+/// The constants lemma `<name>_consts` over `len` constants, as a statement or a proof
+/// term: constant `i` is `item(i)`, and `wrap` joins the members of a group. The groups
+/// are the rendered chunks of the constant list, in the balanced tree of `chunk_path`,
+/// or one flat group when the list is short.
+fn grouped_constants(
+    len: usize,
+    item: &dyn Fn(usize) -> String,
+    wrap: &dyn Fn(Vec<String>) -> String,
+) -> String {
+    fn tree(
+        lo: usize,
+        hi: usize,
+        leaf: &dyn Fn(usize) -> String,
+        wrap: &dyn Fn(Vec<String>) -> String,
+    ) -> String {
+        if hi - lo == 1 {
+            leaf(lo)
+        } else {
+            let mid = lo + (hi - lo) / 2;
+            wrap(vec![tree(lo, mid, leaf, wrap), tree(mid, hi, leaf, wrap)])
+        }
+    }
+    let group = |r: Range<usize>| {
+        if r.len() == 1 {
+            item(r.start)
+        } else {
+            wrap(r.map(item).collect())
+        }
+    };
+    match crate::circuit::chunks(len) {
+        None => group(0..len),
+        Some(ranges) => tree(0, ranges.len(), &|k| group(ranges[k].clone()), wrap),
     }
 }
 
@@ -1018,12 +1046,6 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
         })
         .collect();
     let used_copies: BTreeSet<usize> = bodies.iter().flat_map(|b| copy_refs(b)).collect();
-    let used_consts: BTreeSet<usize> = bodies
-        .iter()
-        .flat_map(|b| tokens(b, "k"))
-        .filter_map(|t| t[1..].parse().ok())
-        .collect();
-    let ks: Vec<String> = used_consts.iter().map(|k| format!("k{k}")).collect();
 
     if !ex.copies.is_empty() {
         for (k, r) in chunk_ranges.iter().enumerate() {
@@ -1084,27 +1106,61 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
         }
         format!("  have c{ci} := ({} a h){path}\n", chunk_lemma(k))
     };
-    // The constants the calls use, once.
-    if !ks.is_empty() {
-        let stmt: Vec<String> = used_consts
-            .iter()
-            .map(|&k| {
+    // Every constant, once, grouped by rendered chunk so a lemma opens only the groups
+    // it uses while a bridge can name them all.
+    let constant_groups = crate::circuit::chunks(ex.constants.len());
+    if !ex.constants.is_empty() {
+        let stmt = grouped_constants(
+            ex.constants.len(),
+            &|k| {
                 let (t, v) = ex.constants[k];
                 format!("a ({}) = {}", lean_target(t), lean_const_int(v))
-            })
-            .collect();
+            },
+            &|members| format!("({})", members.join(" ∧ ")),
+        );
+        let proof = grouped_constants(ex.constants.len(), &|k| format!("k{k}"), &|members| {
+            format!("⟨{}⟩", members.join(", "))
+        });
         let _ = writeln!(
             out,
-            "theorem {name}_consts (a : Assignment p) (h : Satisfies ({name} p) a) :\n    {} := by",
-            stmt.join(" ∧ ")
+            "theorem {name}_consts (a : Assignment p) (h : Satisfies ({name} p) a) :\n    {stmt} := by"
         );
-        destructure_constants(&mut out, name, ex.constants.len(), &used_consts);
-        if let [k0] = &ks[..] {
-            let _ = writeln!(out, "  exact {k0}\n");
-        } else {
-            let _ = writeln!(out, "  exact ⟨{}⟩\n", ks.join(", "));
-        }
+        destructure_constants(&mut out, name, ex.constants.len());
+        let _ = writeln!(out, "  exact {proof}\n");
     }
+    // `obtain` the constants a lemma's script mentions.
+    let constants_have = |body: &str| -> String {
+        let used: BTreeSet<usize> = tokens(body, "k")
+            .into_iter()
+            .filter_map(|t| t[1..].parse().ok())
+            .collect();
+        if used.is_empty() {
+            return String::new();
+        }
+        let names = |r: Range<usize>| r.map(|i| format!("k{i}")).collect::<Vec<_>>().join(", ");
+        let bind = |h: &str, r: Range<usize>| {
+            if r.len() > 1 {
+                format!("  obtain ⟨{}⟩ := {h}\n", names(r))
+            } else {
+                format!("  have k{} := {h}\n", r.start)
+            }
+        };
+        match &constant_groups {
+            None => bind(&format!("{name}_consts a h"), 0..ex.constants.len()),
+            Some(ranges) => {
+                let mut pre = format!("  have hk := {name}_consts a h\n");
+                for (k, r) in ranges.iter().enumerate() {
+                    if used.range(r.clone()).next().is_some() {
+                        pre.push_str(&bind(
+                            &format!("hk{}", crate::circuit::chunk_path(ranges.len(), k)),
+                            r.clone(),
+                        ));
+                    }
+                }
+                pre
+            }
+        }
+    };
 
     // One lemma per call.
     for (n, (call, body)) in calls.iter().zip(&bodies).enumerate() {
@@ -1114,13 +1170,7 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
         for ci in copy_refs(body) {
             pre.push_str(&copy_have(ci));
         }
-        if !tokens(body, "k").is_empty() {
-            if let [k0] = &ks[..] {
-                let _ = writeln!(pre, "  have {k0} := {name}_consts a h");
-            } else {
-                let _ = writeln!(pre, "  obtain ⟨{}⟩ := {name}_consts a h", ks.join(", "));
-            }
-        }
+        pre.push_str(&constants_have(body));
         let _ = writeln!(
             out,
             "theorem {name}_f{n} {} :\n    {what} := by",

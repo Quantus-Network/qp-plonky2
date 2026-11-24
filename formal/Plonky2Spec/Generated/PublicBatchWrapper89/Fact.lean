@@ -17,3 +17,16 @@ import Plonky2Spec.Generated.PublicBatchWrapper89.Fact10
 import Plonky2Spec.Generated.PublicBatchWrapper89.Fact11
 import Plonky2Spec.Generated.PublicBatchWrapper89.Fact12
 import Plonky2Spec.Generated.PublicBatchWrapper89.Fact13
+import Plonky2Spec.Generated.PublicBatchWrapper89.Fact14
+import Plonky2Spec.Generated.PublicBatchWrapper89.Fact15
+import Plonky2Spec.Generated.PublicBatchWrapper89.Fact16
+import Plonky2Spec.Generated.PublicBatchWrapper89.Fact17
+import Plonky2Spec.Generated.PublicBatchWrapper89.Fact18
+import Plonky2Spec.Generated.PublicBatchWrapper89.Fact19
+import Plonky2Spec.Generated.PublicBatchWrapper89.Fact20
+import Plonky2Spec.Generated.PublicBatchWrapper89.Fact21
+import Plonky2Spec.Generated.PublicBatchWrapper89.Fact22
+import Plonky2Spec.Generated.PublicBatchWrapper89.Fact23
+import Plonky2Spec.Generated.PublicBatchWrapper89.Fact24
+import Plonky2Spec.Generated.PublicBatchWrapper89.Fact25
+import Plonky2Spec.Generated.PublicBatchWrapper89.Fact26

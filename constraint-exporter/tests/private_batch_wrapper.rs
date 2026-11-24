@@ -294,7 +294,7 @@ fn wrapper_lean_is_current() {
             env!("CARGO_MANIFEST_DIR")
         );
         let on_disk = std::fs::read_to_string(&bridge_path).unwrap();
-        let generated = generate_private_wrapper_bridge_lean(n).unwrap();
+        let generated = generate_private_wrapper_bridge_lean(n, &complete.trace).unwrap();
         assert_eq!(on_disk, generated, "run export-constraints ({bridge_path})");
         assert!(generated.contains(&format!("namespace Plonky2Bridge.Wrapper{n}\n")));
         assert!(generated.contains("RPrivateBatch (spongeRO perm) (leaves a) (us a) (out a) := by"));

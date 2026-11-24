@@ -1,0 +1,26 @@
+/-
+  AUTO-GENERATED — do not edit by hand.
+
+  Re-exports one layer of `Plonky2Spec.Generated.PrivateBatchWrapper8`.
+-/
+import Plonky2Spec.Generated.PrivateBatchWrapper8.CopyData0
+import Plonky2Spec.Generated.PrivateBatchWrapper8.CopyData1
+import Plonky2Spec.Generated.PrivateBatchWrapper8.CopyData2
+import Plonky2Spec.Generated.PrivateBatchWrapper8.CopyData3
+import Plonky2Spec.Generated.PrivateBatchWrapper8.CopyData4
+import Plonky2Spec.Generated.PrivateBatchWrapper8.CopyData5
+import Plonky2Spec.Generated.PrivateBatchWrapper8.CopyData6
+import Plonky2Spec.Generated.PrivateBatchWrapper8.CopyData7
+import Plonky2Spec.Generated.PrivateBatchWrapper8.CopyData8
+import Plonky2Spec.Generated.PrivateBatchWrapper8.CopyData9
+import Plonky2Spec.Generated.PrivateBatchWrapper8.CopyData10
+import Plonky2Spec.Generated.PrivateBatchWrapper8.CopyData11
+import Plonky2Spec.Generated.PrivateBatchWrapper8.CopyData12
+import Plonky2Spec.Generated.PrivateBatchWrapper8.CopyData13
+import Plonky2Spec.Generated.PrivateBatchWrapper8.CopyData14
+import Plonky2Spec.Generated.PrivateBatchWrapper8.CopyData15
+import Plonky2Spec.Generated.PrivateBatchWrapper8.CopyData16
+import Plonky2Spec.Generated.PrivateBatchWrapper8.CopyData17
+import Plonky2Spec.Generated.PrivateBatchWrapper8.CopyData18
+import Plonky2Spec.Generated.PrivateBatchWrapper8.CopyData19
+import Plonky2Spec.Generated.PrivateBatchWrapper8.CopyData20

@@ -193,7 +193,7 @@ theorem gadgetZoo_copies2 (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
   exact hc
 
 theorem gadgetZoo_consts (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
-    a (.virt 4) = 0 ∧ a (.virt 6) = 1 ∧ a (.virt 8) = 10000 ∧ a (.virt 9) = 9223372036854775808 := by
+    (a (.virt 4) = 0 ∧ a (.virt 6) = 1 ∧ a (.virt 8) = 10000 ∧ a (.virt 9) = 9223372036854775808) := by
   have hconst := h.2.2
   simp only [gadgetZoo, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hconst
   obtain ⟨k0, k1, k2, k3⟩ := hconst

@@ -145,12 +145,13 @@ fn main() -> std::io::Result<()> {
         let trace = &certified[format!("private_batch_wrapper_n{n}").as_str()].trace;
         let decode = constraint_exporter::trace::generate_private_batch_wrapper_modules(n, trace)
             .map_err(std::io::Error::other)?;
-        let bridge = constraint_exporter::private_wrapper::generate_private_wrapper_bridge_lean(n)
-            .map_err(std::io::Error::other)?;
+        let bridge =
+            constraint_exporter::private_wrapper::generate_private_wrapper_bridge_lean(n, trace)
+                .map_err(std::io::Error::other)?;
         private_wrappers.push((n, decode, bridge));
     }
     let leaf =
-        constraint_exporter::trace::generate_leaf_circuit_lean(&certified["leaf_circuit"].trace)
+        constraint_exporter::trace::generate_leaf_circuit_modules(&certified["leaf_circuit"].trace)
             .map_err(std::io::Error::other)?;
     let leaf_bridge =
         constraint_exporter::leaf::generate_leaf_bridge_lean().map_err(std::io::Error::other)?;
@@ -201,7 +202,14 @@ fn main() -> std::io::Result<()> {
                 .collect::<Vec<_>>(),
         )?;
     }
-    write(&dir, "LeafCircuit.lean", &leaf)?;
+    write_split(
+        &dir,
+        "LeafCircuit",
+        &leaf
+            .iter()
+            .map(|m| (m.relative.as_str(), m.contents.as_str()))
+            .collect::<Vec<_>>(),
+    )?;
     write(&bridge_dir, "Leaf.lean", &leaf_bridge)?;
     for (module, modules) in &built {
         write_split(
@@ -257,8 +265,10 @@ fn main() -> std::io::Result<()> {
             print_exported(*n, &module.relative, &module.contents);
         }
     }
-    println!("\n-- ===== LeafCircuit.lean =====");
-    print!("{leaf}");
+    println!("\n-- ===== LeafCircuit ({} files) =====", leaf.len());
+    for module in &leaf {
+        print_exported(2, &module.relative, &module.contents);
+    }
     println!("\n-- ===== Plonky2Bridge/Generated/Leaf.lean =====");
     print!("{leaf_bridge}");
     for (module, modules) in &built {

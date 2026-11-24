@@ -582,9 +582,20 @@ pub fn generate_public_batch_wrapper_modules(
     ))
 }
 
-/// Build `formal/Plonky2Spec/Generated/LeafCircuit.lean` from the recorded leaf circuit:
-/// `t` is its trace, completed (`built::complete`), which for the leaf adds nothing.
-pub fn generate_leaf_circuit_lean(t: &LoadedTrace) -> Result<String, String> {
+/// Build `formal/Plonky2Spec/Generated/LeafCircuit.lean` from the recorded leaf circuit,
+/// split across `LeafCircuit/`: `t` is its trace, completed (`built::complete`), which for
+/// the leaf adds nothing.
+pub fn generate_leaf_circuit_modules(
+    t: &LoadedTrace,
+) -> Result<Vec<crate::lean_split::LeanModule>, String> {
+    Ok(crate::lean_split::split_module(
+        &crate::lean_split::SPEC,
+        "LeafCircuit",
+        &generate_leaf_circuit_lean(t)?,
+    ))
+}
+
+fn generate_leaf_circuit_lean(t: &LoadedTrace) -> Result<String, String> {
     generate_wrapper_lean(
         "leaf_circuit",
         "the leaf circuit trace\n\

@@ -125,10 +125,8 @@ fn identity_fold_is_proved_as_identity() {
     assert!(f1.starts_with(
         "theorem t_f1 (a : Assignment p) (h : Satisfies (t p) a) :
     a (.wire 0 3) = a (.wire 0 3) * a (.virt 2) := by
-  have k1 := t_consts a h
-  simp only [k1]
-  ring
-"
+  obtain ⟨k0, k1⟩ := t_consts a h
+  simp only [k"
     ));
     assert!(!f1.contains("hr"), "{f1}");
 
