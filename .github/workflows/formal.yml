@@ -154,22 +154,19 @@ jobs:
             Plonky2Bridge.fri_proximity_gap
             Plonky2Bridge.algebraic_sampling
           )
-          children=(
-            Plonky2Bridge.child_gadget_satisfied
-            Plonky2Bridge.recursive_verifier_transcript
-          )
+          children=(Plonky2Bridge.recursive_verifier_transcript)
           binding=(Plonky2Bridge.public_input_binding)
           algebra=("${children[@]}" "${binding[@]}")
           trusted=("${assumptions[@]}" "${algebra[@]}")
-          # The leaf's and the private wrappers' builds are certified (Steps 16, 17 and
-          # 19), each resting on one per-circuit trusted declaration
+          # The leaf's and the private wrappers' builds are certified (Steps 16, 17, 19
+          # and 21), each resting on one per-circuit trusted declaration
           # (`LeafCircuit.build_agrees`, `Wrapper{n}.build_agrees`). The leaf has no
-          # children, so its path through `proof_sound_leaf` has neither child obligation;
-          # the private-wrapper capstones on wiring read only leaf proofs, so they have the
+          # children, so its path through `proof_sound_leaf` has no child obligation; the
+          # private-wrapper capstones on wiring read only leaf proofs, so they have the
           # leaf's footprint too. Anything that reads an `n`-leaf wrapper proof
           # (`Wrapper{n}.accepted_sound`, the public-wrapper capstones) goes through
-          # `proof_sound` and is the assumptions, the binding, the two child obligations,
-          # and the leaf's and that wrapper's certificates.
+          # `proof_sound` and is the assumptions, the binding, the child obligation on the
+          # complete export, and the leaf's and that wrapper's certificates.
           leaf_trusted=("${assumptions[@]}" "${binding[@]}")
           leaf_cert=(Plonky2Bridge.LeafCircuit.build_agrees)
           wrapper_trusted=("${leaf_trusted[@]}" "${children[@]}" "${leaf_cert[@]}")
@@ -195,6 +192,7 @@ jobs:
             expect Plonky2Bridge.Wrapper$n.build_hashes_of_agrees propext Quot.sound
             expect Plonky2Bridge.Wrapper$n.build_refines propext Quot.sound Plonky2Bridge.Wrapper$n.build_agrees
             expect Plonky2Bridge.Wrapper$n.build_hashes propext Quot.sound Plonky2Bridge.Wrapper$n.build_agrees
+            expect Plonky2Bridge.Wrapper$n.build_complete Plonky2Bridge.Wrapper$n.build_agrees
           done
           expect Plonky2Bridge.private_batch_end_to_end "${base[@]}"
           expect Plonky2Bridge.public_batch_end_to_end "${base[@]}"

@@ -1,5 +1,5 @@
 /-
-  The certified build of the leaf circuit (PLAN.md §7, Steps 16 and 17).
+  The certified build of the leaf circuit (PLAN.md §7, Steps 16, 17 and 21).
 
   `Plonky2Bridge/Generated/LeafBuilt.lean` carries `LeafCircuit.tree`, the leaf as a
   recursion-tree node, and `LeafCircuit.buildCert`, the exporter's
@@ -8,8 +8,10 @@
   the leaf export; and `build_hashes_of_agrees`: it hashes the export's public inputs
   into its `PublicInputGate` (`Built.HashesPublicInputs`). The checks behind those proofs
   are kernel evaluations. What is left to trust is the one declaration below: that the
-  deployed leaf build agrees with the certificate. It is what the leaf supplies for the
-  builder hypotheses of `proof_sound_leaf`, which composes them.
+  deployed leaf build agrees with the certificate, which (`Built.Complete`, checked in
+  Rust) also says the export is the whole builder; the leaf has no recursion gadgets, so
+  nothing rests on that here. It is what the leaf supplies for the builder hypotheses of
+  `proof_sound_leaf`, which composes them.
 
   WHY THIS IS SMALL.
   Nothing is declared of `build` for every circuit (Step 20). `build_agrees`

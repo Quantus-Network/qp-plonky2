@@ -165,7 +165,7 @@ Poseidon2 instantiates `RandomOracle.H` (its felt outputs are `digest.val`s).
 
 `Plonky2Bridge/Trusted.lean` declares the generic assumptions and obligations;
 `Plonky2Bridge/LeafBuild.lean` and `PrivateWrapperBuild.lean` declare the one per-circuit
-fact of each certified build (Steps 16, 17, 19). No other file declares an `axiom`. `proof_sound`
+fact of each certified build (Steps 16, 17, 19, 21). No other file declares an `axiom`. `proof_sound`
 is a theorem, the composition of three assumptions and `verifier_algebra` (Steps 12, 13).
 Each assumption is an implication on its good event (Step 15): an opaque per-tree
 predicate (`OracleGood`, `ProximityGood`, `SamplingGood`, `BindingGood`), bundled as
@@ -206,11 +206,14 @@ unconditional on them.
   `Wrapper{2,4,8}.build_agrees`) — the deployed build is the one the certificate
   describes — checked in Rust against the build of the production builder's state (the
   leaf's by its circuit digest, the wrappers' by the pre-`build` state digest their
-  traces record). Two deterministic obligations remain as declarations:
-  - **`child_gadget_satisfied`** — the built system holds each child's `verify_proof`
-    gadget, on the targets the tree names.
-  - **`recursive_verifier_transcript`** — a satisfied gadget is `ProofAccepted`: the
-    recursive verifier implements the `TranscriptAccepted` the native one does.
+  traces record). Since Step 21 the export is the whole pre-`build` builder, the
+  children's `verify_proof` gadgets included, and `build_agrees` also says so
+  (`Built.Complete`). One deterministic obligation remains as a declaration:
+  - **`recursive_verifier_transcript`** — an assignment satisfying the complete export
+    of a node — `Satisfies` and the gate constraints of its `PoseidonGate` and `.other`
+    rows (`GateRows`) — is an accepted proof of each child on the public inputs its
+    gadget reads: the recursive verifier implements the `TranscriptAccepted` the native
+    one does.
 
   and one on the proof-system hash:
   - **`public_input_binding`** — the public inputs carried by what a transcript for
@@ -229,7 +232,7 @@ reduction against `spongeRO`. A break of `verify` does not produce a collision, 
 Each declaration says what would discharge it. A capstone that reads an `n`-leaf wrapper
 proof (`Wrapper{n}.accepted_sound`, `public_batch_end_to_end_wired*`) calls
 `proof_sound` on the wrapper's certified build; its axiom footprint is exactly the
-three assumptions, `public_input_binding`, the two child obligations,
+three assumptions, `public_input_binding`, `recursive_verifier_transcript`,
 `Wrapper{n}.build_agrees` and, through the leaf proofs under it,
 `LeafCircuit.build_agrees`. A capstone that reads only leaf proofs
 (`LeafCircuit.accepted_sound`, `private_batch_end_to_end_wired*`) calls
@@ -1469,6 +1472,42 @@ circuit that is not certified, of which there are none. They are deleted.
 - **Axiom gate.** `proof_sound`: the assumptions, the binding and the two child
   obligations. `verifier_algebra`: the binding and the two child obligations.
   `identical_constraints_satisfies`: bare. No capstone footprint changed.
+
+### Step 21 — The children's gadgets certified present  ✅ DONE
+`child_gadget_satisfied` said, of every node, that the built system holds its children's
+`verify_proof` gadgets on the targets the tree names — a fact about the deployed builder,
+stated for all circuits. A wrapper's export now is the whole builder, so that fact is
+checked in Rust, carried by `build_agrees`, and the one child obligation is stated on
+the export's own rows.
+- **Complete exports** (`constraint-exporter/src/built.rs`). `Prebuild::of` reads the
+  replayed builder before `build`; `complete` appends to the trace the builder rows it
+  did not list (the verifiers' rows, kinds from their gate ids, constants from the
+  built view, since `build` writes the spare constant wires' constants there), its
+  unlisted virtual targets, the copies laid down before tracing began and the constant
+  targets not already traced, all in export-local numbering after the trace's own, so
+  decode theorems keep their row indices. `verify_agrees` then checks `Built.Complete`
+  on the build: `rowAt` is a permutation of the builder's rows (`rows`), what follows
+  them is only what `build` appends — hash and `PublicInputGate` rows, `ConstantGate`
+  rows, `Noop` padding (`tail`) — and the build's `σ` and fixed wires come from the
+  export's copies and constants (`copies`, `fixed`), by union-find over the export's
+  copies and `build`'s joins of fixed wires to the constant target of their value.
+- **Lean.** `Built.Complete` is a field of `Built.Agrees`, Rust-checked, not carried by
+  the certificate; each `Wrapper{n}.build_complete` is `(build_agrees b h).complete`.
+  `Built.Hosts` is `RowAt` uniformly (a `ConstantGate` row is pinned); `GateRow`,
+  `UninterpretedRow` and `GateRows` are the constraints of the rows `rowConstraints`
+  does not read. `recursive_verifier_transcript` takes `BuildOf`, `Complete`,
+  `Satisfies c a` and `GateRows perm c a` and gives each child's `ProofAccepted`;
+  `Built.Refines.gateRows` supplies `GateRows` from the gate identities, and
+  `verifier_algebra`, `proof_sound` and `proof_sound'` take `hcomplete`.
+  `child_gadget_satisfied`, `GadgetSatisfied` and `children_accepted` are deleted.
+- **Size.** A complete `n = 2` export is 5211 rows, 133,707 copies and 20,207 virtual
+  targets; its certificate 165,983 positions on 51,790 `σ`-cycles. Both are generated
+  split (`lean_split`, now by dependency depth over the declarations, in parts of at
+  most 1 MB: a `lean` process holds some 2.5 GB per megabyte of table literals).
+  Constants chunks over `ZMod p` take `p` explicitly. The decode theorem's copy-chunk
+  lemmas and constants are emitted only where a call uses them.
+- **Axiom gate.** `children` is `recursive_verifier_transcript` alone;
+  `Wrapper{n}.build_complete`: `Wrapper{n}.build_agrees`. No capstone footprint grew.
 
 ## 9. Definition of done
 

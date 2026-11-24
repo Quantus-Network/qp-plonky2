@@ -6,18 +6,18 @@
   `{propext, Classical.choice, Quot.sound}` plus, where a theorem consumes accepted proofs,
   exactly the declarations `proof_sound` rests on: the three assumptions
   (`Plonky2Bridge.poseidon_transcript_oracle`, `Plonky2Bridge.fri_proximity_gap`,
-  `Plonky2Bridge.algebraic_sampling`) and the three declarations under `verifier_algebra`:
-  the two child obligations (`Plonky2Bridge.child_gadget_satisfied`,
-  `Plonky2Bridge.recursive_verifier_transcript`) and the binding assumption
+  `Plonky2Bridge.algebraic_sampling`) and the two declarations under `verifier_algebra`:
+  the child obligation on the complete export
+  (`Plonky2Bridge.recursive_verifier_transcript`) and the binding assumption
   `Plonky2Bridge.public_input_binding`. `proof_sound`, `verifier_algebra`,
   `poseidon2_gate_rows` and `poseidon_gate_rows` are theorems. The assumptions are
   implications on their good events (`GoodEvents`, opaque), which the capstones take as
   hypotheses; that changes no footprint. Nothing is declared of `build` for every circuit
-  (Step 20): `proof_sound` and `verifier_algebra` take the refinement and the public-input
-  hashing of the built system as hypotheses, and each certified circuit's `build_agrees`
-  is what supplies them.
+  (Step 20): `proof_sound` and `verifier_algebra` take the refinement, the public-input
+  hashing and the completeness of the built system as hypotheses, and each certified
+  circuit's `build_agrees` is what supplies them.
 
-  * `verifier_algebra` is gated on the allow-list plus those three,
+  * `verifier_algebra` is gated on the allow-list plus those two,
     `identical_constraints_satisfies` and
     `Built.Refines.satisfies`, the step from the domain identities to `Satisfies`,
     `poseidon2_gate_rows`, the Poseidon2 rows from `Poseidon2.gate_sound_complete`, and
@@ -42,16 +42,16 @@
     exporter-generated private-wrapper wiring (`n = 2` / `4` / `8`), which read only leaf
     proofs — are gated on the footprint of `proof_sound_leaf` plus
     `LeafCircuit.build_agrees`.
-  * The private wrappers' builds are certified too (Step 19). The generated
+  * The private wrappers' builds are certified too (Steps 19 and 21). The generated
     `Wrapper{2,4,8}.build_refines_of_agrees` / `build_hashes_of_agrees` are gated on the
-    bare allow-list and `Wrapper{n}.build_refines` / `build_hashes` on the allow-list plus
-    the one trusted declaration `Plonky2Bridge.Wrapper{n}.build_agrees`.
+    bare allow-list and `Wrapper{n}.build_refines` / `build_hashes` / `build_complete` on
+    the allow-list plus the one trusted declaration `Plonky2Bridge.Wrapper{n}.build_agrees`.
   * `Wrapper{2,4,8}.accepted_sound` — an accepted proof of the named tree attests its
     relation — and `public_batch_end_to_end_wired` / `_n4` — the capstones on the
     public-wrapper wiring (`n_inner = 2` / `4`), which read 2-leaf wrapper proofs — are
-    gated on the footprint of `proof_sound_leaf` plus the two child obligations
-    (`child_gadget_satisfied`, `recursive_verifier_transcript`), `LeafCircuit.build_agrees`
-    and the named wrapper's `build_agrees`.
+    gated on the footprint of `proof_sound_leaf` plus the child obligation
+    (`recursive_verifier_transcript`), `LeafCircuit.build_agrees` and the named wrapper's
+    `build_agrees`.
   * `Wrapper{2,4,8}.sound`, `PublicWrapper{2,4}.sound` and `leaf_wired`
     (`LeafCircuit.sound`), the wiring-to-relation steps underneath, use no trusted axiom.
   The production public wrapper (`n_inner = 89`, `Plonky2BridgeProduction`) is gated the
@@ -86,14 +86,17 @@ import Plonky2Bridge.Generated.PublicInputsHashVector
 #print axioms Plonky2Bridge.Wrapper2.build_hashes_of_agrees
 #print axioms Plonky2Bridge.Wrapper2.build_refines
 #print axioms Plonky2Bridge.Wrapper2.build_hashes
+#print axioms Plonky2Bridge.Wrapper2.build_complete
 #print axioms Plonky2Bridge.Wrapper4.build_refines_of_agrees
 #print axioms Plonky2Bridge.Wrapper4.build_hashes_of_agrees
 #print axioms Plonky2Bridge.Wrapper4.build_refines
 #print axioms Plonky2Bridge.Wrapper4.build_hashes
+#print axioms Plonky2Bridge.Wrapper4.build_complete
 #print axioms Plonky2Bridge.Wrapper8.build_refines_of_agrees
 #print axioms Plonky2Bridge.Wrapper8.build_hashes_of_agrees
 #print axioms Plonky2Bridge.Wrapper8.build_refines
 #print axioms Plonky2Bridge.Wrapper8.build_hashes
+#print axioms Plonky2Bridge.Wrapper8.build_complete
 #print axioms Plonky2Bridge.private_batch_end_to_end
 #print axioms Plonky2Bridge.public_batch_end_to_end
 #print axioms Plonky2Bridge.private_batch_end_to_end_wired
