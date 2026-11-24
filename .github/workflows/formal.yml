@@ -192,7 +192,7 @@ jobs:
             expect Plonky2Bridge.Wrapper$n.build_hashes_of_agrees propext Quot.sound
             expect Plonky2Bridge.Wrapper$n.build_refines propext Quot.sound Plonky2Bridge.Wrapper$n.build_agrees
             expect Plonky2Bridge.Wrapper$n.build_hashes propext Quot.sound Plonky2Bridge.Wrapper$n.build_agrees
-            expect Plonky2Bridge.Wrapper$n.build_complete Plonky2Bridge.Wrapper$n.build_agrees
+            expect Plonky2Bridge.Wrapper$n.build_complete propext Quot.sound Plonky2Bridge.Wrapper$n.build_agrees
           done
           expect Plonky2Bridge.private_batch_end_to_end "${base[@]}"
           expect Plonky2Bridge.public_batch_end_to_end "${base[@]}"

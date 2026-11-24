@@ -1503,11 +1503,19 @@ the export's own rows.
 - **Size.** A complete `n = 2` export is 5211 rows, 133,707 copies and 20,207 virtual
   targets; its certificate 165,983 positions on 51,790 `σ`-cycles. Both are generated
   split (`lean_split`, now by dependency depth over the declarations, in parts of at
-  most 1 MB: a `lean` process holds some 2.5 GB per megabyte of table literals).
-  Constants chunks over `ZMod p` take `p` explicitly. The decode theorem's copy-chunk
-  lemmas and constants are emitted only where a call uses them.
+  most 1 MB and 1000 declarations, elaborated with `Elab.async` off: a `lean` process
+  holds over a gigabyte per megabyte of table literals, and elaborating kernel checks
+  as tasks retains some 12 MB per check until the file is done). The leaf's decode
+  module is split the same way. Constants chunks over `ZMod p` take `p` explicitly. The
+  decode theorem's copy-chunk lemmas are emitted only where a call uses them, and its
+  constants lemma is grouped by chunk so a call opens only the groups it uses (the
+  wrappers' bridges read their four constants from it). Rebuilding every generated
+  module, as a pull request that regenerates them does, is some 60 minutes on a 4-core
+  runner, `n = 8` three fifths of it; `n = 8` stays in the pull-request lane because
+  `PrivateWrapperBuild` holds all three sizes.
 - **Axiom gate.** `children` is `recursive_verifier_transcript` alone;
-  `Wrapper{n}.build_complete`: `Wrapper{n}.build_agrees`. No capstone footprint grew.
+  `Wrapper{n}.build_complete`: `propext`, `Quot.sound` and `Wrapper{n}.build_agrees`, as
+  `build_refines`. No capstone footprint grew.
 
 ## 9. Definition of done
 
