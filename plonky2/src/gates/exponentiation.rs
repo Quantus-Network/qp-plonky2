@@ -87,10 +87,12 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for Exponentiation
     }
 
     fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
-        let config = &common_data.config;
-        let max_power_bits = Self::max_power_bits(config.num_wires, config.num_routed_wires);
-        let num_power_bits = src.read_usize_in(1..=max_power_bits)?;
-        Ok(Self::new(num_power_bits))
+        Self::new(src.read_usize()?).fitting(common_data)
+    }
+
+    fn parameters_fit(&self, config: &CircuitConfig) -> bool {
+        (1..=Self::max_power_bits(config.num_wires, config.num_routed_wires))
+            .contains(&self.num_power_bits)
     }
 
     fn eval_unfiltered(&self, vars: EvaluationVars<F, D>) -> Vec<F::Extension> {

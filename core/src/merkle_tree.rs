@@ -36,6 +36,15 @@ impl<F: RichField, H: Hasher<F>> MerkleCap<F, H> {
         log2_strict(self.len())
     }
 
+    /// Whether this cap has the `2^height` digests of a tree capped at `height`. Unlike
+    /// `height()`, this cannot panic on a cap or height that came from untrusted data.
+    pub fn has_height(&self, height: usize) -> bool {
+        u32::try_from(height)
+            .ok()
+            .and_then(|height| 1usize.checked_shl(height))
+            == Some(self.len())
+    }
+
     pub fn flatten(&self) -> Vec<F> {
         self.0.iter().flat_map(|&h| h.to_vec()).collect()
     }

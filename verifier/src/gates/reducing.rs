@@ -6,7 +6,7 @@ use crate::field::extension::{Extendable, FieldExtension};
 use crate::gates::gate::VerificationGate;
 use crate::gates::util::StridedConstraintConsumer;
 use crate::hash::hash_types::RichField;
-use crate::plonk::circuit_data::CommonCircuitData;
+use crate::plonk::circuit_data::{CircuitConfig, CommonCircuitData};
 use crate::plonk::vars::{EvaluationVars, EvaluationVarsBase};
 use crate::util::serialization::{Buffer, IoResult, Read, Write};
 
@@ -65,10 +65,15 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for Re
     where
         Self: Sized,
     {
-        let config = &common_data.config;
-        let max_coeffs = Self::max_coeffs_len(config.num_wires, config.num_routed_wires);
-        let num_coeffs = src.read_usize_in(1..=max_coeffs)?;
-        Ok(Self::new(num_coeffs))
+        Self {
+            num_coeffs: src.read_usize()?,
+        }
+        .fitting(common_data)
+    }
+
+    fn parameters_fit(&self, config: &CircuitConfig) -> bool {
+        (1..=Self::max_coeffs_len(config.num_wires, config.num_routed_wires))
+            .contains(&self.num_coeffs)
     }
 
     fn eval_unfiltered(&self, vars: EvaluationVars<F, D>) -> Vec<F::Extension> {

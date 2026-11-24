@@ -1,4 +1,5 @@
 use std::panic::{catch_unwind, AssertUnwindSafe};
+use std::sync::Arc;
 
 use plonky2::field::types::Field;
 use plonky2::field::zero_poly_coset::ZeroPolyOnCoset;
@@ -566,14 +567,15 @@ fn common_data_primitives_are_checked_on_load() {
     );
 }
 
-/// Gate parameters are bounded by the config as they are read, before any gate method can
-/// overflow, underflow or divide by zero on them and before the common-data validator (which
-/// trusts those methods) runs. The same bytes are rejected by both crates' deserializers.
+/// Gate parameters are checked against the config before any gate method can overflow,
+/// underflow or divide by zero on them and before the common data is derived from those methods.
+/// The same bounds apply to bytes read by either crate and to common data built in memory.
 #[test]
-fn hostile_gate_parameters_rejected_on_deserialization() {
+fn hostile_gate_parameters_rejected() {
     use plonky2::gates::arithmetic_base::ArithmeticGate;
     use plonky2::gates::base_sum::BaseSumGate;
     use plonky2::gates::gate::GateRef;
+    use plonky2::gates::random_access::RandomAccessGate;
     use plonky2::util::serialization::GateSerializer;
     use plonky2_verifier::util::serialization::{
         Buffer as VerifierBuffer, DefaultGateSerializer as VerifierGateSerializer,
@@ -600,6 +602,17 @@ fn hostile_gate_parameters_rejected_on_deserialization() {
             .read_gate(&mut VerifierBuffer::new(&bytes), &verifier_common)
             .is_ok();
         assert_eq!(prover_accepts, verifier_accepts, "{gate:?}");
+
+        let mut gates = common.gates.clone();
+        gates.push(gate.clone());
+        let in_memory_accepts = CommonCircuitData::<F, D>::new(
+            common.config.clone(),
+            common.trace_degree_bits,
+            gates,
+            common.num_public_inputs,
+            common.luts.clone(),
+        ) != Err("gate parameters do not fit within the circuit config");
+        assert_eq!(prover_accepts, in_memory_accepts, "{gate:?}");
         prover_accepts
     };
 
@@ -622,8 +635,16 @@ fn hostile_gate_parameters_rejected_on_deserialization() {
         common.config.num_wires
     ))));
 
-    assert!(accepted(GateRef::new(BaseSumGate::<2>::new(32))));
+    // 2^64 exceeds the field order, so 64 base-2 limbs cannot decompose uniquely.
+    assert!(accepted(GateRef::new(BaseSumGate::<2>::new(63))));
+    assert!(!accepted(GateRef::new(BaseSumGate::<2>::new(64))));
     assert!(!accepted(GateRef::new(BaseSumGate::<2>::new(usize::MAX))));
+
+    let widest = RandomAccessGate::<F, D>::new_from_config(&common.config, 4);
+    assert!(accepted(GateRef::new(widest)));
+    let mut too_many_constants = widest;
+    too_many_constants.num_extra_constants += 1;
+    assert!(!accepted(GateRef::new(too_many_constants)));
 
     assert!(accepted(GateRef::new(ReducingGate::<D>::new(4))));
     assert!(!accepted(GateRef::new(ReducingGate::<D>::new(
@@ -632,25 +653,101 @@ fn hostile_gate_parameters_rejected_on_deserialization() {
 }
 
 /// Proofs built in memory (or via serde) skip `from_bytes`, so the verifier's own shape checks
-/// must return errors on odd cap lengths and over-tall Merkle proofs rather than panic.
+/// must return errors rather than panic: on an odd cap, and on Merkle proofs that stop short of
+/// the cap or whose layer heights never match the leaf data.
 #[test]
 fn malformed_in_memory_proof_rejected_not_panicking() -> anyhow::Result<()> {
-    use plonky2::hash::merkle_proofs::verify_merkle_proof_to_cap;
+    use plonky2::hash::merkle_proofs::{
+        verify_batch_merkle_proof_to_cap, verify_merkle_proof_to_cap, MerkleProof,
+    };
     use plonky2::hash::merkle_tree::MerkleTree;
 
-    let data = simple_circuit_data();
-    let mut proof = data.prove(PartialWitness::new())?;
-    proof.proof.wires_cap.0.pop();
-    assert!(data.verify(proof).is_err());
-
     type H = <C as GenericConfig<D>>::Hasher;
+
+    let data = simple_circuit_data();
+    let mut odd_cap = data.prove(PartialWitness::new())?;
+    odd_cap.proof.wires_cap.0.pop();
+    assert!(data.verify(odd_cap).is_err());
+
     let leaves: Vec<Vec<F>> = (0..8u64).map(|i| vec![F::from_canonical_u64(i)]).collect();
     let tree = MerkleTree::<F, H>::new(leaves.clone(), 1);
-    let mut merkle_proof = tree.prove(3);
-    verify_merkle_proof_to_cap(leaves[3].clone(), 3, &tree.cap, &merkle_proof)?;
-    merkle_proof.siblings.push(merkle_proof.siblings[0]);
-    assert!(verify_merkle_proof_to_cap(leaves[3].clone(), 3, &tree.cap, &merkle_proof).is_err());
+    // With no siblings, leaf 7 would index the two-entry cap at 7.
+    let no_siblings = MerkleProof::<F, H> { siblings: vec![] };
+    assert!(verify_merkle_proof_to_cap(leaves[7].clone(), 7, &tree.cap, &no_siblings).is_err());
+
+    let merkle_proof = tree.prove(3);
+    assert!(
+        verify_batch_merkle_proof_to_cap::<F, H>(&[], &[], 3, &tree.cap, &merkle_proof).is_err()
+    );
+    // No layer has height 9, so the second leaf is never absorbed.
+    assert!(verify_batch_merkle_proof_to_cap::<F, H>(
+        &[leaves[3].clone(), leaves[0].clone()],
+        &[3, 9],
+        3,
+        &tree.cap,
+        &merkle_proof
+    )
+    .is_err());
     Ok(())
+}
+
+/// Generators are read from prover-only bytes, which this harness treats as untrusted: a lookup
+/// table index past `luts`, a slot count the gate cannot hold, or more limbs than a wire row has
+/// are errors rather than panics.
+#[test]
+fn hostile_generator_parameters_rejected_on_deserialization() {
+    use plonky2::util::serialization::WitnessGeneratorSerializer;
+
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let table_index = builder.add_lookup_table_from_pairs(Arc::new(vec![(0, 1), (1, 2)]));
+    let input = builder.add_virtual_target();
+    builder.register_public_input(input);
+    builder.add_lookup_from_index(input, table_index);
+    builder.split_le(input, 8);
+    let data = builder.build::<C>();
+    let serializer = DefaultGeneratorSerializer::<C, D>::default();
+
+    let generator_bytes = |id: &str| {
+        let generator = data
+            .prover_only
+            .generators
+            .iter()
+            .find(|generator| generator.0.id() == id)
+            .unwrap();
+        let mut bytes = Vec::new();
+        serializer
+            .write_generator(&mut bytes, generator, &data.common)
+            .unwrap();
+        bytes
+    };
+    let accepted = |bytes: &[u8]| {
+        serializer
+            .read_generator(&mut Buffer::new(bytes), &data.common)
+            .is_ok()
+    };
+    let word = 8;
+
+    // The lookup table index is each lookup generator's last field.
+    for id in ["LookupGenerator", "LookupTableGenerator"] {
+        let mut bytes = generator_bytes(id);
+        assert!(accepted(&bytes), "{id}");
+        let lut_index = bytes.len() - word;
+        bytes[lut_index..].copy_from_slice(&u64::MAX.to_le_bytes());
+        assert!(!accepted(&bytes), "{id}");
+    }
+
+    // `num_slots` is the third-last field; the generator divides by it.
+    let mut bytes = generator_bytes("LookupTableGenerator");
+    let num_slots = bytes.len() - 3 * word;
+    bytes[num_slots..num_slots + word].copy_from_slice(&0u64.to_le_bytes());
+    assert!(!accepted(&bytes));
+
+    let mut bytes = generator_bytes("BaseSplitGenerator + Base: 2");
+    assert!(accepted(&bytes));
+    let num_limbs = bytes.len() - word;
+    bytes[num_limbs..].copy_from_slice(&u64::MAX.to_le_bytes());
+    assert!(!accepted(&bytes));
 }
 
 /// Derived fields are not in the encoding, so altering one in memory changes nothing on the wire:

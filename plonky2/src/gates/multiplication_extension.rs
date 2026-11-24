@@ -63,8 +63,14 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for MulExtensionGa
     }
 
     fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
-        let num_ops = src.read_usize_in(0..=Self::num_ops(&common_data.config))?;
-        Ok(Self { num_ops })
+        Self {
+            num_ops: src.read_usize()?,
+        }
+        .fitting(common_data)
+    }
+
+    fn parameters_fit(&self, config: &CircuitConfig) -> bool {
+        self.num_ops <= Self::num_ops(config)
     }
 
     fn eval_unfiltered(&self, vars: EvaluationVars<F, D>) -> Vec<F::Extension> {

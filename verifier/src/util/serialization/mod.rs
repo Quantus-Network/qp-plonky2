@@ -113,11 +113,11 @@ pub trait Read {
     fn read_usize(&mut self) -> IoResult<usize> {
         let mut buf = [0; core::mem::size_of::<u64>()];
         self.read_exact(&mut buf)?;
-        Ok(u64::from_le_bytes(buf) as usize)
+        usize::try_from(u64::from_le_bytes(buf)).map_err(|_| IoError)
     }
 
-    /// Reads a `usize` that must lie within `allowed`, so that gate parameters read from
-    /// untrusted bytes cannot overflow or underflow the arithmetic the gate performs on them.
+    /// Reads a `usize` that must lie within `allowed`, so that a count read from untrusted bytes
+    /// cannot overflow, underflow or zero-divide the arithmetic performed on it.
     #[inline]
     fn read_usize_in(&mut self, allowed: RangeInclusive<usize>) -> IoResult<usize> {
         let value = self.read_usize()?;
