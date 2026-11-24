@@ -230,18 +230,28 @@ structure Built.Refines (b : Built p) (c : Circuit p) : Prop where
   constants : ∀ tc ∈ c.constants, b.Pins tc.1 tc.2
   publicInputs : b.numPublicInputs = c.publicInputs.length
 
+/-- `build` fixed a wire of `x` to the constant `y` carries. The copies `build` adds
+    among the export's targets are of this shape: from a constant target to the wire it
+    fixes to the constant, which may be a spare constant wire of an export row
+    (`Gate::extra_constant_wires`), one its gate holds at that constant. -/
+def Built.FixedTo (b : Built p) (c : Circuit p) (x y : Target) : Prop :=
+  ∃ k u, b.loc x = some u ∧ (u, k) ∈ b.fixed ∧ (y, k) ∈ c.constants
+
 /-- **The export `c` is the whole pre-`build` system.** The rows of the built system
     before what `build` appends — the first `c.rows.length` of them — each host a row
-    of the export; `σ` forces no equality among the export's placed targets beyond what
-    its copies generate; and every routed constant is pinned to one of its constant
-    targets. With `Refines`, the built system constrains the export's targets exactly
-    as the export does, so whatever the builder laid down — a wrapper's `verify_proof`
-    gadgets included — is in `c`. -/
+    of the export, and the rows after them are `build`'s: the public-input hash, the
+    `ConstantGate`s, the padding. `σ` joins the export's placed targets only as its
+    copies do, or through a wire `build` fixed to a constant (`FixedTo`); and every fixed
+    wire is pinned to one of the export's constant targets. With `Refines`, the built
+    system constrains the export's targets as the export does, so whatever the builder
+    laid down — a wrapper's `verify_proof` gadgets included — is in `c`. -/
 structure Built.Complete (b : Built p) (c : Circuit p) : Prop where
   rows : ∀ i' < c.rows.length, ∃ i r, c.rows[i]? = some r ∧ b.rows[i']? = some r ∧
     ∀ j, b.loc (.wire i j) = some (i', j)
+  tail : ∀ i' r, c.rows.length ≤ i' → b.rows[i']? = some r →
+    r.kind = .poseidon ∨ r.kind = .publicInput ∨ (∃ n, r.kind = .constant n) ∨ r.kind = .noop
   copies : ∀ x y u v, b.loc x = some u → b.loc y = some v → b.Chain u v →
-    Relation.EqvGen (fun x y => (x, y) ∈ c.copies) x y
+    Relation.EqvGen (fun x y => (x, y) ∈ c.copies ∨ b.FixedTo c x y) x y
   fixed : ∀ uk ∈ b.fixed, ∃ t v, (t, uk.2) ∈ c.constants ∧ b.loc t = some v ∧ b.Chain v uk.1
 
 theorem Built.witness_of_loc {b : Built p} {t : Target} {u : ℕ × ℕ} (o : Opened p)
