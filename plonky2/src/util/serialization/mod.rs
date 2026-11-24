@@ -187,7 +187,11 @@ pub trait Read {
     {
         let mut buf = [0; size_of::<u64>()];
         self.read_exact(&mut buf)?;
-        Ok(F::from_canonical_u64(u64::from_le_bytes(buf)))
+        let n = u64::from_le_bytes(buf);
+        if n >= F::ORDER {
+            return Err(IoError);
+        }
+        Ok(F::from_canonical_u64(n))
     }
 
     /// Reads a vector of elements from the field `F` from `self`.
@@ -1957,6 +1961,20 @@ impl<'a> Buffer<'a> {
     #[inline]
     pub fn unread_bytes(&self) -> &'a [u8] {
         &self.bytes()[self.pos()..]
+    }
+
+    /// Decodes the whole of `bytes` with `read`, rejecting trailing data.
+    pub fn decode_all<T>(
+        bytes: &'a [u8],
+        read: impl FnOnce(&mut Self) -> IoResult<T>,
+    ) -> IoResult<T> {
+        let mut buffer = Self::new(bytes);
+        let value = read(&mut buffer)?;
+        if buffer.is_empty() {
+            Ok(value)
+        } else {
+            Err(IoError)
+        }
     }
 }
 

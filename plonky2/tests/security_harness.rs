@@ -917,3 +917,59 @@ fn honest_leaf_hash_matches_in_circuit() -> anyhow::Result<()> {
     let proof = data.prove(pw)?;
     data.verify(proof)
 }
+
+/// Proof bytes must have exactly one accepted encoding: trailing data and non-canonical field
+/// elements are rejected by `from_bytes` in both crates rather than silently normalised.
+#[test]
+fn proof_bytes_are_canonical() -> anyhow::Result<()> {
+    use plonky2::field::types::{Field64, PrimeField64};
+    use plonky2::plonk::proof::ProofWithPublicInputs;
+    use plonky2_verifier::plonk::proof::ProofWithPublicInputs as VerifierProof;
+
+    let data = simple_circuit_data();
+    let proof = data.prove(PartialWitness::new())?;
+    let bytes = proof.to_bytes();
+    let common = &data.common;
+
+    let mut trailing = bytes.clone();
+    trailing.push(0);
+
+    // The single public input (the constant one) is the last field element written.
+    let mut non_canonical = bytes.clone();
+    let tail = non_canonical.len() - 8;
+    assert_eq!(u64::from_le_bytes(bytes[tail..].try_into()?), 1);
+    non_canonical[tail..].copy_from_slice(&(F::ORDER + 1).to_le_bytes());
+    assert_eq!(F::from_noncanonical_u64(F::ORDER + 1).to_canonical_u64(), 1);
+
+    assert!(ProofWithPublicInputs::<F, C, D>::from_bytes(bytes.clone(), common).is_ok());
+    assert!(ProofWithPublicInputs::<F, C, D>::from_bytes(trailing.clone(), common).is_err());
+    assert!(ProofWithPublicInputs::<F, C, D>::from_bytes(non_canonical.clone(), common).is_err());
+
+    let verifier_common =
+        plonky2_verifier::plonk::circuit_data::CommonCircuitData::<F, D>::from_bytes(
+            common.to_bytes(&DefaultGateSerializer).unwrap(),
+            &plonky2_verifier::util::serialization::DefaultGateSerializer,
+        )
+        .unwrap();
+    assert!(VerifierProof::<F, C, D>::from_bytes(bytes, &verifier_common).is_ok());
+    assert!(VerifierProof::<F, C, D>::from_bytes(trailing, &verifier_common).is_err());
+    assert!(VerifierProof::<F, C, D>::from_bytes(non_canonical, &verifier_common).is_err());
+    Ok(())
+}
+
+#[test]
+fn circuit_data_bytes_with_trailing_data_rejected() -> anyhow::Result<()> {
+    use plonky2::plonk::circuit_data::VerifierOnlyCircuitData;
+
+    let data = simple_circuit_data();
+    let gate_serializer = DefaultGateSerializer;
+
+    let mut common_bytes = data.common.to_bytes(&gate_serializer).unwrap();
+    common_bytes.push(0);
+    assert!(CommonCircuitData::<F, D>::from_bytes(common_bytes, &gate_serializer).is_err());
+
+    let mut verifier_only_bytes = data.verifier_only.to_bytes().unwrap();
+    verifier_only_bytes.push(0);
+    assert!(VerifierOnlyCircuitData::<C, D>::from_bytes(verifier_only_bytes).is_err());
+    Ok(())
+}
