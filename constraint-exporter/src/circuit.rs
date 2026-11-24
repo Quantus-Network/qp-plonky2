@@ -206,16 +206,16 @@ pub fn chunks(len: usize) -> Option<Vec<Range<usize>>> {
     })
 }
 
-/// The `++` tree over chunk definitions `prefix{k}` for `k` in `lo..hi`.
-pub(crate) fn chunk_tree(prefix: &str, lo: usize, hi: usize) -> String {
+/// The `++` tree over chunk definitions `prefix{k}{argument}` for `k` in `lo..hi`.
+pub(crate) fn chunk_tree(prefix: &str, argument: &str, lo: usize, hi: usize) -> String {
     if hi - lo == 1 {
-        format!("{prefix}{lo}")
+        format!("{prefix}{lo}{argument}")
     } else {
         let mid = lo + (hi - lo) / 2;
         format!(
             "({} ++ {})",
-            chunk_tree(prefix, lo, mid),
-            chunk_tree(prefix, mid, hi)
+            chunk_tree(prefix, argument, lo, mid),
+            chunk_tree(prefix, argument, mid, hi)
         )
     }
 }
@@ -256,16 +256,23 @@ fn render_list(defs: &mut String, name: &str, field: &str, ty: &str, items: &[St
     match chunks(items.len()) {
         None => flat(items),
         Some(ranges) => {
+            // A chunk over `ZMod p` takes `p` explicitly, as the circuit does, rather than
+            // the section's `[Fact p.Prime]`.
+            let (binder, argument) = if ty.contains("ZMod p") {
+                (" (p : ℕ)", " p")
+            } else {
+                ("", "")
+            };
             for (k, r) in ranges.iter().enumerate() {
                 let _ = writeln!(
                     defs,
-                    "/-- `{name}.{field}`, items `{}..{}`. -/\ndef {name}.{field}{k} : List ({ty}) := {}\n",
+                    "/-- `{name}.{field}`, items `{}..{}`. -/\ndef {name}.{field}{k}{binder} : List ({ty}) := {}\n",
                     r.start,
                     r.end,
                     flat(&items[r.clone()])
                 );
             }
-            chunk_tree(&format!("{name}.{field}"), 0, ranges.len())
+            chunk_tree(&format!("{name}.{field}"), argument, 0, ranges.len())
         }
     }
 }

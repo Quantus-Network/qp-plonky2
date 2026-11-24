@@ -14,6 +14,12 @@
 //! `FormalBuiltView` reads it: the rows of the padded domain, `σ`, the copy-class
 //! representatives, the fixed constant wires.
 //!
+//! `complete` then extends the trace's export to the whole builder (PLAN.md Step 21):
+//! the verifiers' rows, copies, constants and virtual targets are appended after the
+//! wrapper's own, so the export a certified circuit's Lean modules are generated from
+//! holds its `verify_proof` gadgets, and `recursive_verifier_transcript` is stated on
+//! their rows.
+//!
 //! From the view, `certify` writes the `BuildCert` the Lean side consumes
 //! (`Plonky2Bridge.BuildCert`): where each export row sits in the build, the `σ`-cycles
 //! the export's copies and constants run along, the place of every virtual target, the
@@ -24,11 +30,12 @@
 //! `Built.Agrees.hashesPublicInputs` proves `Built.HashesPublicInputs`, from the
 //! certificate, with the checks of certificate against export evaluated by the kernel.
 //! What is trusted of a certified circuit is `Built.Agrees`: that the deployed build has
-//! the rows, `σ`-cycles, fixed wires and placements the certificate lists.
-//! `verify_agrees` is that statement checked in Rust against the built view.
+//! the rows, `σ`-cycles, fixed wires and placements the certificate lists, and that the
+//! export is the whole pre-`build` system (`Built.Complete`). `verify_agrees` is that
+//! statement checked in Rust against the built view.
 
 use core::fmt::Write as _;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, HashMap, HashSet};
 
 use plonky2::field::goldilocks_field::GoldilocksField;
 use plonky2::field::types::{Field, PrimeField64};
@@ -228,6 +235,109 @@ pub fn digest(data: &CircuitData<F, C, D>) -> [u64; 4] {
         e[2].to_canonical_u64(),
         e[3].to_canonical_u64(),
     ]
+}
+
+/// What `complete` reads of the builder before `build` consumes it: its row count, its
+/// copies in order, and its constant targets.
+pub struct Prebuild {
+    pub rows: usize,
+    pub copies: Vec<(Target, Target)>,
+    pub constants: Vec<(Target, F)>,
+}
+
+impl Prebuild {
+    pub fn of(b: &CircuitBuilder<F, D>) -> Self {
+        let view = b.formal_export_view();
+        let mut constants: Vec<(Target, F)> = view
+            .constant_targets
+            .iter()
+            .map(|(&t, &c)| (t, c))
+            .collect();
+        constants.sort_by_key(|&(t, _)| crate::trace::encode_target(t));
+        Prebuild {
+            rows: view.gate_instances.len(),
+            copies: view.copy_constraints.iter().map(|c| c.pair).collect(),
+            constants,
+        }
+    }
+}
+
+/// The trace's export completed to the whole builder it was recorded in (PLAN.md Step
+/// 21). The trace lists the wrapper's own part; the builder's other rows, copies,
+/// constants and virtual targets — the recursive verifiers' — are appended after it in
+/// builder order, so the trace's numbering, which its decode theorems use, is a prefix
+/// of the export's. Rows carry the constants `build` leaves them: a gate's spare
+/// constant wires (`Gate::extra_constant_wires`, the `RandomAccessGate`'s) get their
+/// constants, and the wires fixed to them, at `build`.
+pub fn complete(
+    t: LoadedTrace,
+    pre: &Prebuild,
+    view: &FormalBuiltView<F, D>,
+) -> Result<LoadedTrace, String> {
+    if pre.copies.len() != t.start.copies + t.ex.copies.len() {
+        return Err(format!(
+            "the builder has {} copies, the verifiers' {} and the trace's {}",
+            pre.copies.len(),
+            t.start.copies,
+            t.ex.copies.len()
+        ));
+    }
+    let traced: HashSet<Target> =
+        t.ex.constants
+            .iter()
+            .map(|&(t_, _)| t.production(t_))
+            .collect();
+    let LoadedTrace {
+        circuit,
+        mut ex,
+        calls,
+        config,
+        digest,
+        start,
+        num_virtual_targets,
+        mut row_at,
+        mut virt_at,
+    } = t;
+    let listed: HashSet<usize> = row_at.iter().copied().collect();
+    row_at.extend((0..pre.rows).filter(|r| !listed.contains(r)));
+    let listed: HashSet<usize> = virt_at.iter().copied().collect();
+    virt_at.extend((0..num_virtual_targets).filter(|n| !listed.contains(n)));
+    let row_local: HashMap<usize, usize> =
+        row_at.iter().enumerate().map(|(i, &r)| (r, i)).collect();
+    let virt_local: HashMap<usize, usize> =
+        virt_at.iter().enumerate().map(|(n, &v)| (v, n)).collect();
+    let local = |t_: Target| match t_ {
+        Target::Wire(w) => Target::wire(row_local[&w.row], w.column),
+        Target::VirtualTarget { index } => Target::VirtualTarget {
+            index: virt_local[&index],
+        },
+    };
+    ex.rows.extend(row_at[ex.rows.len()..].iter().map(|&r| {
+        let gi = &view.gate_instances[r];
+        (classify(&gi.gate_ref.0.id()), gi.constants.clone())
+    }));
+    ex.copies.extend(
+        pre.copies[..start.copies]
+            .iter()
+            .map(|&(x, y)| (local(x), local(y))),
+    );
+    ex.constants.extend(
+        pre.constants
+            .iter()
+            .filter(|(t_, _)| !traced.contains(t_))
+            .map(|&(t_, c)| (local(t_), c)),
+    );
+    Ok(LoadedTrace {
+        circuit,
+        ex,
+        calls,
+        config,
+        digest,
+        start,
+        num_virtual_targets,
+        row_at,
+        virt_at,
+    })
 }
 
 /// `Plonky2Bridge.BuildCert` with the witnesses of its checks.
@@ -504,8 +614,11 @@ pub fn certify(t: &LoadedTrace, view: &FormalBuiltView<F, D>) -> Result<Cert, St
 /// the domain and is a cycle of `σ`; every pin is a fixed wire of the build with the
 /// export's constant; every target is placed where `loc` says: virtual target `n` at a
 /// routed wire of its copy class, or nowhere when the class has none; every listed zero
-/// is a wire fixed to `0`; and the `PublicInputGate` row and the `PoseidonGate` rows are
-/// where the certificate names them.
+/// is a wire fixed to `0`; the `PublicInputGate` row and the `PoseidonGate` rows are
+/// where the certificate names them; and the export is the whole pre-`build` system
+/// (`Built.Complete`): every build row before the export's length hosts an export row,
+/// export targets on one `σ`-cycle are joined by the export's copies, and every fixed
+/// wire is on the cycle of an export constant target of its constant.
 pub fn verify_agrees(
     cert: &Cert,
     t: &LoadedTrace,
@@ -598,6 +711,100 @@ pub fn verify_agrees(
     for &g in &cert.hash_rows {
         if kind_at(g) != Some(GateKind::Poseidon) {
             return Err(format!("Agrees.hashRows: row {g}"));
+        }
+    }
+
+    let mut hosted = vec![false; ex.rows.len()];
+    for &r in &cert.row_at {
+        if let Some(h) = hosted.get_mut(r) {
+            *h = true;
+        }
+    }
+    if let Some(r) = hosted.iter().position(|h| !h) {
+        return Err(format!("Complete.rows: build row {r} hosts no export row"));
+    }
+    for i in ex.rows.len()..degree {
+        if !matches!(
+            kind_at(i),
+            Some(
+                GateKind::Poseidon
+                    | GateKind::PublicInput
+                    | GateKind::Constant { .. }
+                    | GateKind::Noop
+            )
+        ) {
+            return Err(format!(
+                "Complete.tail: build row {i} is not one `build` adds"
+            ));
+        }
+    }
+    // Export targets placed on one `σ`-cycle must be joined by the export's copies, or
+    // by a wire `build` fixed to the constant target of its value: a union-find over the
+    // export's targets, the wires of the routed columns and the virtual targets, against
+    // the build's classes.
+    let wires = ex.rows.len() * routed;
+    let slot = |t_: Target| match t_ {
+        Target::Wire(w) => (w.column < routed).then(|| w.row * routed + w.column),
+        Target::VirtualTarget { index } => cert.virt[index].map(|_| wires + index),
+    };
+    let mut parent: Vec<usize> = (0..wires + cert.virt.len()).collect();
+    fn root(parent: &mut [usize], mut x: usize) -> usize {
+        while parent[x] != x {
+            parent[x] = parent[parent[x]];
+            x = parent[x];
+        }
+        x
+    }
+    let mut join = |x: Target, y: Target| {
+        if let (Some(a), Some(b)) = (slot(x), slot(y)) {
+            let (a, b) = (root(&mut parent, a), root(&mut parent, b));
+            parent[a] = b;
+        }
+    };
+    for &(x, y) in &ex.copies {
+        join(x, y);
+    }
+    let export_row: HashMap<usize, usize> = cert
+        .row_at
+        .iter()
+        .enumerate()
+        .map(|(i, &r)| (r, i))
+        .collect();
+    let constant_of: HashMap<u64, Target> = ex
+        .constants
+        .iter()
+        .map(|&(t_, c)| (c.to_canonical_u64(), t_))
+        .collect();
+    for &(r, c, v) in &view.fixed {
+        if let (Some(&i), Some(&t_)) = (export_row.get(&r), constant_of.get(&v.to_canonical_u64()))
+        {
+            join(Target::wire(i, c), t_);
+        }
+    }
+    let rep = |t_: Target| view.representatives[index(view, t.production(t_))];
+    let mut class_root: HashMap<usize, usize> = HashMap::new();
+    let targets = (0..ex.rows.len())
+        .flat_map(|i| (0..routed).map(move |j| Target::wire(i, j)))
+        .chain((0..cert.virt.len()).map(|n| Target::VirtualTarget { index: n }));
+    for t_ in targets {
+        let Some(s) = slot(t_) else { continue };
+        let r = root(&mut parent, s);
+        if *class_root.entry(rep(t_)).or_insert(r) != r {
+            return Err(format!(
+                "Complete.copies: {t_:?} is on a cycle its copies do not join"
+            ));
+        }
+    }
+    let mut pinned: HashMap<usize, Vec<F>> = HashMap::new();
+    for &(t_, c) in &ex.constants {
+        pinned.entry(rep(t_)).or_default().push(c);
+    }
+    for &(r, c, v) in &view.fixed {
+        let class = view.representatives[index(view, Target::wire(r, c))];
+        if !pinned.get(&class).is_some_and(|cs| cs.contains(&v)) {
+            return Err(format!(
+                "Complete.fixed: ({r}, {c}) is fixed to {v}, which no export constant on its cycle is"
+            ));
         }
     }
     Ok(())
@@ -810,7 +1017,8 @@ pub fn render_lean(t: &LoadedTrace, cert: &Cert) -> Result<String, String> {
         o,
         "/-\n  GENERATED by `constraint-exporter` (`built.rs`) — do not edit.\n\n  \
          The certified build of `{tag}`: its trace replayed into `CircuitBuilder` {prelude} and built,\n  \
-         to the state digest the trace records of the production builder.\n\n  \
+         to the state digest the trace records of the production builder. The export is the\n  \
+         whole of that builder (`built::complete`): the trace's part first, then the rest.\n\n  \
          `buildCert` is what the exporter read off `CircuitBuilder::build` of that builder:\n  \
          the export's {} rows at their places, {} positions on {} `σ`-cycles the export's {} copies\n  \
          and {} constants run along, over {} routed columns, the place of {} virtual targets, and\n  \
@@ -819,7 +1027,8 @@ pub fn render_lean(t: &LoadedTrace, cert: &Cert) -> Result<String, String> {
          The checks of the certificate against the export are kernel evaluations\n  \
          (`decide +kernel`); `build_refines_of_agrees` is `Built.Agrees.refines` on them and\n  \
          `build_hashes_of_agrees` is `Built.Agrees.hashesPublicInputs`. Nothing here is assumed:\n  \
-         that the deployed build `Agrees` with this certificate is `{namespace}.build_agrees`.\n-/",
+         that the deployed build `Agrees` with this certificate, and that the export is all of\n  \
+         it (`Built.Complete`), is `{namespace}.build_agrees`.\n-/",
         ex.rows.len(),
         positions,
         cert.cycles.len(),
@@ -1125,7 +1334,7 @@ def {name} : Tbl (ℕ × ℕ) := {expr}
                  /-- Every copy of the export is linked in the certificate. -/\n\
                  theorem copies_linked : ∀ xy ∈ ({circuit_name} p).copies, buildCert.Links xy.1 xy.2 := by\n  \
                  rw [copies_eq]\n  exact {}\n",
-                crate::circuit::chunk_tree(&format!("{circuit_name}.copies"), 0, ranges.len()),
+                crate::circuit::chunk_tree(&format!("{circuit_name}.copies"), "", 0, ranges.len()),
                 linked(0, ranges.len())
             );
         }
@@ -1163,7 +1372,8 @@ def {name} : Tbl (ℕ × ℕ) := {expr}
     Ok(o)
 }
 
-/// A certified build: the trace, the built view of its replay and the certificate.
+/// A certified build: the trace completed to the whole builder, the built view of its
+/// replay and the certificate.
 pub struct Certified {
     pub trace: LoadedTrace,
     pub view: FormalBuiltView<F, D>,
@@ -1187,16 +1397,32 @@ pub fn replay_circuit(name: &str) -> Result<(LoadedTrace, CircuitBuilder<F, D>),
     Ok((t, b))
 }
 
-/// The named circuit's certificate from its vendored trace: replayed, built, read.
+/// The named circuit's certificate from its vendored trace: replayed, built, completed,
+/// read.
 pub fn certify_circuit(name: &str) -> Result<Certified, String> {
     let (trace, b) = replay_circuit(name)?;
+    let pre = Prebuild::of(&b);
     let (_, view) = build(b, false)?;
+    let trace = complete(trace, &pre, &view)?;
     let cert = certify(&trace, &view)?;
     Ok(Certified { trace, view, cert })
 }
 
-/// `Plonky2Bridge/Generated/{Module}.lean` for the named circuit.
-pub fn generate_built_lean(name: &str) -> Result<String, String> {
+/// `Plonky2Bridge/Generated/{Module}.lean` for the named circuit, split across
+/// `{Module}/` when the certificate is too large for one Lean module.
+pub fn generate_built_modules(name: &str) -> Result<Vec<crate::lean_split::LeanModule>, String> {
     let Certified { trace, cert, .. } = certify_circuit(name)?;
-    render_lean(&trace, &cert)
+    built_modules(&trace, &cert)
+}
+
+pub fn built_modules(
+    trace: &LoadedTrace,
+    cert: &Cert,
+) -> Result<Vec<crate::lean_split::LeanModule>, String> {
+    let module = names(&trace.circuit)?.module;
+    Ok(crate::lean_split::split_module(
+        &crate::lean_split::BUILT,
+        &module,
+        &render_lean(trace, cert)?,
+    ))
 }

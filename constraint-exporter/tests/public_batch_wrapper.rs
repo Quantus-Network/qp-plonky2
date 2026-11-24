@@ -14,6 +14,8 @@ use constraint_exporter::trace::{
 };
 use plonky2::field::types::PrimeField64;
 
+mod common;
+
 /// Recorded `(n_inner, leaves, exit slots)`. `n_inner = 89` is the production public
 /// batch, over the production private batch (`8` leaves, `32` exit slots).
 const SIZES: [(usize, usize, usize); 3] = [(2, 2, 2), (4, 2, 2), (89, 8, 32)];
@@ -221,7 +223,7 @@ fn wrapper_lean_is_current() {
                 "run export-constraints ({decode_path})"
             );
         }
-        assert_split_manifest(
+        common::assert_split_manifest(
             &format!(
                 "{}/../formal/Plonky2Spec/Generated",
                 env!("CARGO_MANIFEST_DIR")
@@ -250,7 +252,7 @@ fn wrapper_lean_is_current() {
                 "run export-constraints ({bridge_path})"
             );
         }
-        assert_split_manifest(
+        common::assert_split_manifest(
             &format!(
                 "{}/../formal/Plonky2Bridge/Generated",
                 env!("CARGO_MANIFEST_DIR")
@@ -295,31 +297,5 @@ fn wrapper_lean_is_current() {
         )));
         assert!(!generated.contains("private_batch_proof_sound"));
         assert!(!generated.contains("PrivateBatchProofAccepted"));
-    }
-}
-
-/// A split wrapper's `.generated-files` manifest is exactly the basenames the
-/// generator owns in that directory. Regeneration deletes only those names.
-fn assert_split_manifest(root: &str, relatives: &[String]) {
-    let mut by_dir: std::collections::BTreeMap<String, std::collections::BTreeSet<String>> =
-        std::collections::BTreeMap::new();
-    for relative in relatives {
-        if let Some((dir, name)) = relative.split_once('/') {
-            assert!(!name.contains('/'), "{relative}");
-            by_dir
-                .entry(dir.to_string())
-                .or_default()
-                .insert(name.to_string());
-        }
-    }
-    for (dir, names) in by_dir {
-        let mut expected = names.into_iter().collect::<Vec<_>>().join("\n");
-        expected.push('\n');
-        let path = format!(
-            "{root}/{dir}/{}",
-            constraint_exporter::lean_split::GENERATED_MANIFEST
-        );
-        let on_disk = std::fs::read_to_string(&path).unwrap_or_default();
-        assert_eq!(on_disk, expected, "run export-constraints ({path})");
     }
 }

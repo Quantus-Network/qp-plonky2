@@ -789,49 +789,45 @@ fn check_script(
     s
 }
 
-/// Bind `prefix<i>` to item `i` of a rendered list field (`hyp := proj` is the
-/// `∀ x ∈ list, …` hypothesis), flat or chunked as `render_lean` laid it out.
-fn destructure(
-    out: &mut String,
-    name: &str,
-    field: &str,
-    hyp: &str,
-    proj: &str,
-    prefix: &str,
-    len: usize,
-) {
-    if len == 0 {
+/// Bind `k<i>` to the `wanted` constants `i` of the circuit's `constants` list, flat or
+/// chunked as `render_lean` laid it out: a flat list is destructured whole, a chunked one
+/// chunk by chunk where a chunk has a wanted constant.
+fn destructure_constants(out: &mut String, name: &str, len: usize, wanted: &BTreeSet<usize>) {
+    if wanted.is_empty() {
         return;
     }
-    let names = |r: Range<usize>| -> String {
-        r.map(|i| format!("{prefix}{i}"))
-            .collect::<Vec<_>>()
-            .join(", ")
-    };
+    let names =
+        |r: Range<usize>| -> String { r.map(|i| format!("k{i}")).collect::<Vec<_>>().join(", ") };
     let cons = "List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true";
     let bind = |out: &mut String, h: &str, r: Range<usize>| {
         if r.len() > 1 {
             let _ = writeln!(out, "  obtain ⟨{}⟩ := {h}", names(r));
         } else {
-            let _ = writeln!(out, "  have {}{} := {h}", prefix, r.start);
+            let _ = writeln!(out, "  have k{} := {h}", r.start);
         }
     };
-    let _ = writeln!(out, "  have {hyp} := {proj}");
+    let _ = writeln!(out, "  have hconst := h.2.2");
     match crate::circuit::chunks(len) {
         None => {
-            let _ = writeln!(out, "  simp only [{name}, {cons}] at {hyp}");
-            bind(out, hyp, 0..len);
+            let _ = writeln!(out, "  simp only [{name}, {cons}] at hconst");
+            bind(out, "hconst", 0..len);
         }
         Some(ranges) => {
-            let _ = writeln!(out, "  simp only [{name}, List.forall_mem_append] at {hyp}");
+            let _ = writeln!(
+                out,
+                "  simp only [{name}, List.forall_mem_append] at hconst"
+            );
             for (k, r) in ranges.iter().enumerate() {
-                let m = format!("{hyp}{k}");
+                if wanted.range(r.clone()).next().is_none() {
+                    continue;
+                }
+                let m = format!("hconst{k}");
                 let _ = writeln!(
                     out,
-                    "  have {m} := {hyp}{}",
+                    "  have {m} := hconst{}",
                     crate::circuit::chunk_path(ranges.len(), k)
                 );
-                let _ = writeln!(out, "  simp only [{name}.{field}{k}, {cons}] at {m}");
+                let _ = writeln!(out, "  simp only [{name}.constants{k}, {cons}] at {m}");
                 bind(out, &m, r.clone());
             }
         }
@@ -971,8 +967,69 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
             None => format!("{name}_copies"),
         }
     };
+    // The op equation of `(row, i)`: its input wires oriented to their sources and constant
+    // sources to their values. Output wires stay atoms; a pin on one is used only by the
+    // check that owns it.
+    let op_block = |(row, i): (usize, usize)| -> String {
+        let mut s = String::new();
+        let _ = writeln!(
+            s,
+            "  have {} := arithEq_of_rows h (row := {row}) (i := {i}) rfl (by decide)",
+            e((row, i))
+        );
+        let mut rules: Vec<String> = Vec::new();
+        for col in [4 * i, 4 * i + 1, 4 * i + 2] {
+            let Some(&(src, ci)) = ops.input_source.get(&(row, col)) else {
+                continue;
+            };
+            let (x, _) = ex.copies[ci];
+            // `connect(source, wire)`: rewrite `a wire` into `a source`.
+            rules.push(if x == Target::wire(row, col) {
+                format!("c{ci}")
+            } else {
+                format!("← c{ci}")
+            });
+            if let Some(&k) = ops.const_idx.get(&src) {
+                rules.push(format!("k{k}"));
+            }
+        }
+        rules.dedup();
+        let _ = writeln!(
+            s,
+            "  simp only [Nat.reduceMul, Nat.reduceAdd] at {}",
+            e((row, i))
+        );
+        s.push_str(&indent_lines(&simp_only(&rules, Some(&e((row, i)))), "  "));
+        s
+    };
+    // The tactic block of each call, and the copies and constants the blocks mention: a
+    // completed export (`built::complete`) carries the recursive verifiers' copies and
+    // constants too, of which the wrapper's calls use none.
+    let bodies: Vec<String> = calls
+        .iter()
+        .map(|call| {
+            let script = fact_script(&ops, ex, call);
+            let mut body = String::new();
+            for op in op_refs(&script) {
+                body.push_str(&op_block(op));
+            }
+            body.push_str(&script);
+            body
+        })
+        .collect();
+    let used_copies: BTreeSet<usize> = bodies.iter().flat_map(|b| copy_refs(b)).collect();
+    let used_consts: BTreeSet<usize> = bodies
+        .iter()
+        .flat_map(|b| tokens(b, "k"))
+        .filter_map(|t| t[1..].parse().ok())
+        .collect();
+    let ks: Vec<String> = used_consts.iter().map(|k| format!("k{k}")).collect();
+
     if !ex.copies.is_empty() {
         for (k, r) in chunk_ranges.iter().enumerate() {
+            if used_copies.range(r.clone()).next().is_none() {
+                continue;
+            }
             let cj = conj(r);
             let stmt: Vec<String> = cj
                 .iter()
@@ -1027,28 +1084,21 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
         }
         format!("  have c{ci} := ({} a h){path}\n", chunk_lemma(k))
     };
-    // Constants, once.
-    if !ex.constants.is_empty() {
-        let stmt: Vec<String> = ex
-            .constants
+    // The constants the calls use, once.
+    if !ks.is_empty() {
+        let stmt: Vec<String> = used_consts
             .iter()
-            .map(|(t, v)| format!("a ({}) = {}", lean_target(*t), lean_const_int(*v)))
+            .map(|&k| {
+                let (t, v) = ex.constants[k];
+                format!("a ({}) = {}", lean_target(t), lean_const_int(v))
+            })
             .collect();
         let _ = writeln!(
             out,
             "theorem {name}_consts (a : Assignment p) (h : Satisfies ({name} p) a) :\n    {} := by",
             stmt.join(" ∧ ")
         );
-        destructure(
-            &mut out,
-            name,
-            "constants",
-            "hconst",
-            "h.2.2",
-            "k",
-            ex.constants.len(),
-        );
-        let ks: Vec<String> = (0..ex.constants.len()).map(|k| format!("k{k}")).collect();
+        destructure_constants(&mut out, name, ex.constants.len(), &used_consts);
         if let [k0] = &ks[..] {
             let _ = writeln!(out, "  exact {k0}\n");
         } else {
@@ -1056,58 +1106,15 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
         }
     }
 
-    // The op equation of `(row, i)`: its input wires oriented to their sources and constant
-    // sources to their values. Output wires stay atoms; a pin on one is used only by the
-    // check that owns it.
-    let op_block = |(row, i): (usize, usize)| -> String {
-        let mut s = String::new();
-        let _ = writeln!(
-            s,
-            "  have {} := arithEq_of_rows h (row := {row}) (i := {i}) rfl (by decide)",
-            e((row, i))
-        );
-        let mut rules: Vec<String> = Vec::new();
-        for col in [4 * i, 4 * i + 1, 4 * i + 2] {
-            let Some(&(src, ci)) = ops.input_source.get(&(row, col)) else {
-                continue;
-            };
-            let (x, _) = ex.copies[ci];
-            // `connect(source, wire)`: rewrite `a wire` into `a source`.
-            rules.push(if x == Target::wire(row, col) {
-                format!("c{ci}")
-            } else {
-                format!("← c{ci}")
-            });
-            if let Some(&k) = ops.const_idx.get(&src) {
-                rules.push(format!("k{k}"));
-            }
-        }
-        rules.dedup();
-        let _ = writeln!(
-            s,
-            "  simp only [Nat.reduceMul, Nat.reduceAdd] at {}",
-            e((row, i))
-        );
-        s.push_str(&indent_lines(&simp_only(&rules, Some(&e((row, i)))), "  "));
-        s
-    };
-
     // One lemma per call.
-    for (n, call) in calls.iter().enumerate() {
+    for (n, (call, body)) in calls.iter().zip(&bodies).enumerate() {
         let f = &call.fact;
         let what = f.lean();
-        let script = fact_script(&ops, ex, call);
-        let mut body = String::new();
-        for op in op_refs(&script) {
-            body.push_str(&op_block(op));
-        }
-        body.push_str(&script);
         let mut pre = String::new();
-        for ci in copy_refs(&body) {
+        for ci in copy_refs(body) {
             pre.push_str(&copy_have(ci));
         }
-        if !tokens(&body, "k").is_empty() {
-            let ks: Vec<String> = (0..ex.constants.len()).map(|k| format!("k{k}")).collect();
+        if !tokens(body, "k").is_empty() {
             if let [k0] = &ks[..] {
                 let _ = writeln!(pre, "  have {k0} := {name}_consts a h");
             } else {
@@ -1120,7 +1127,7 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
             hyps(f.is_poseidon2())
         );
         out.push_str(&pre);
-        out.push_str(&body);
+        out.push_str(body);
         out.push('\n');
     }
 

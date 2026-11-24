@@ -6,14 +6,17 @@
 //! `Plonky2Bridge/Generated/Wrapper{N}.lean` are what they generate. See `../formal/PLAN.md`
 //! Steps 8c and 8e.
 
+use constraint_exporter::built::certify_circuit;
 use constraint_exporter::circuit::GateKind;
 use constraint_exporter::gadget::{Fact, FACT_GROUP};
 use constraint_exporter::private_wrapper::{generate_private_wrapper_bridge_lean, Shape};
 use constraint_exporter::trace::{
-    assert_vendored_trace_matches_pinned, generate_private_batch_wrapper_lean, load, parse,
+    assert_vendored_trace_matches_pinned, generate_private_batch_wrapper_modules, load, parse,
     traces_dir,
 };
 use plonky2::iop::target::Target;
+
+mod common;
 
 /// Recorded `(leaves, exit slots)`. `n = 8` is the production private batch.
 const SIZES: [(usize, usize); 3] = [(2, 2), (4, 4), (8, 32)];
@@ -243,13 +246,32 @@ fn shape_rejects_perturbed_traces() {
 #[test]
 fn wrapper_lean_is_current() {
     for (n, _) in SIZES {
-        let decode_path = format!(
-            "{}/../formal/Plonky2Spec/Generated/PrivateBatchWrapper{n}.lean",
+        let root = format!(
+            "{}/../formal/Plonky2Spec/Generated",
             env!("CARGO_MANIFEST_DIR")
         );
-        let on_disk = std::fs::read_to_string(&decode_path).unwrap();
-        let generated = generate_private_batch_wrapper_lean(n).unwrap();
-        assert_eq!(on_disk, generated, "run export-constraints ({decode_path})");
+        let complete = certify_circuit(&format!("private_batch_wrapper_n{n}")).unwrap();
+        let generated_modules = generate_private_batch_wrapper_modules(n, &complete.trace).unwrap();
+        for module in &generated_modules {
+            let decode_path = format!("{root}/{}", module.relative);
+            let on_disk = std::fs::read_to_string(&decode_path).unwrap_or_default();
+            assert_eq!(
+                on_disk, module.contents,
+                "run export-constraints ({decode_path})"
+            );
+        }
+        common::assert_split_manifest(
+            &root,
+            &generated_modules
+                .iter()
+                .map(|m| m.relative.clone())
+                .collect::<Vec<_>>(),
+        );
+        let generated = generated_modules
+            .iter()
+            .map(|m| m.contents.as_str())
+            .collect::<Vec<_>>()
+            .join("\n");
         assert!(generated.contains("import Plonky2Spec.WiringSponge\n"));
         assert!(generated.contains(&format!(
             "theorem privateBatchWrapper{n}_decode (perm : St p → St p) (a : Assignment p) \
@@ -307,7 +329,8 @@ fn wrapper_lean_is_current() {
         assert!(
             generated.contains("RPrivateBatch (spongeRO perm) leaves us (outOf (a ∘ ts)) := by")
         );
-        assert!(generated.contains("proof_sound perm _ _ _ _ hg build_refines build_hashes h"));
+        assert!(generated
+            .contains("proof_sound perm _ _ _ _ hg build_refines build_hashes build_complete h"));
         assert!(!generated.contains("leaf_proof_sound"));
         assert!(!generated.contains("LeafProofAccepted"));
     }

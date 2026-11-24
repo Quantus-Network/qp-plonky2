@@ -1,18 +1,22 @@
-//! The certified builds (`built.rs`, PLAN.md Steps 16, 17 and 19): each vendored trace
+//! The certified builds (`built.rs`, PLAN.md Steps 16, 17, 19 and 21): each vendored trace
 //! replays into a `CircuitBuilder` — over its child circuit built the same way — to the
-//! production builder's state digest and builds; the exporter's certificate of that build
-//! passes the Rust check of `Built.Agrees` and names the public-input hash `build` laid
-//! down. For the leaf and the private wrappers, whose proofs a bridge consumes, the
-//! checked-in `Plonky2Bridge/Generated/*Built.lean` is what the exporter generates.
+//! production builder's state digest, is completed to the whole builder and builds; the
+//! exporter's certificate of that build passes the Rust check of `Built.Agrees` and names
+//! the public-input hash `build` laid down. For the leaf and the private wrappers, whose
+//! proofs a bridge consumes, the checked-in `Plonky2Bridge/Generated/*Built.lean` is what
+//! the exporter generates.
 //!
 //! The production public batch (`public_batch_wrapper_n89`) is a 2^19-row build whose
 //! replay needs more than 14 GB even without the `σ` commitment; its test is `#[ignore]`d
 //! (`cargo test --release -- --ignored`).
 
 use constraint_exporter::built::{
-    build, certify, certify_circuit, digest, generate_built_lean, names, replay_circuit,
+    build, certify, certify_circuit, digest, generate_built_modules, names, replay_circuit,
     verify_agrees, Certified,
 };
+use constraint_exporter::trace::{load, traces_dir};
+
+mod common;
 use plonky2::field::goldilocks_field::GoldilocksField;
 use plonky2::field::types::Field;
 
@@ -115,14 +119,28 @@ fn check_certificate(circuit: &str) -> Certified {
 }
 
 fn check_lean_is_current(circuit: &str) {
-    let module = names(circuit).unwrap().module;
-    let path = format!(
-        "{}/../formal/Plonky2Bridge/Generated/{module}.lean",
+    let root = format!(
+        "{}/../formal/Plonky2Bridge/Generated",
         env!("CARGO_MANIFEST_DIR")
     );
-    let on_disk = std::fs::read_to_string(&path).unwrap();
-    let generated = generate_built_lean(circuit).unwrap();
-    assert_eq!(on_disk, generated, "run export-constraints ({path})");
+    let modules = generate_built_modules(circuit).unwrap();
+    for module in &modules {
+        let path = format!("{root}/{}", module.relative);
+        let on_disk = std::fs::read_to_string(&path).unwrap_or_default();
+        assert_eq!(on_disk, module.contents, "run export-constraints ({path})");
+    }
+    common::assert_split_manifest(
+        &root,
+        &modules
+            .iter()
+            .map(|m| m.relative.clone())
+            .collect::<Vec<_>>(),
+    );
+    let generated = modules
+        .iter()
+        .map(|m| m.contents.as_str())
+        .collect::<Vec<_>>()
+        .join("\n");
     assert!(generated.contains(&format!(
         "namespace {}\n",
         names(circuit).unwrap().namespace
@@ -161,22 +179,22 @@ fn leaf_built_lean_is_current() {
     check_lean_is_current("leaf_circuit");
 }
 
-/// A wrapper's export shares rows with its verifiers: the first export rows sit below
-/// `start.rows`, the rest are the rows the wrapper added, and the build keeps them all.
+/// A wrapper's complete export is the whole builder: the recorded trace first — the
+/// verifier rows whose free slots the wrapper's ops took, then the rows it added — then
+/// the verifier rows the trace did not list, so that every builder row is placed once
+/// and `build`'s hash rows follow them all.
 fn check_wrapper(circuit: &str) {
     let Certified { trace, cert, .. } = check_certificate(circuit);
-    let shared = cert
-        .row_at
+    let recorded = load(&traces_dir().join(format!("{circuit}.json"))).unwrap();
+    assert_eq!(&cert.row_at[..recorded.row_at.len()], &recorded.row_at[..]);
+    assert!(cert.row_at[recorded.row_at.len()..]
         .iter()
-        .filter(|&&r| r < trace.start.rows)
-        .count();
-    assert!(shared > 0, "{circuit}: no export row is a verifier row");
-    assert_eq!(
-        &cert.row_at[shared..],
-        &(trace.start.rows..trace.start.rows + cert.row_at.len() - shared).collect::<Vec<_>>()[..]
-    );
+        .all(|&r| r < trace.start.rows));
+    let mut placed = cert.row_at.clone();
+    placed.sort_unstable();
+    assert_eq!(placed, (0..cert.row_at.len()).collect::<Vec<_>>());
     assert!(cert.virt.iter().all(Option::is_some));
-    assert!(cert.hash_rows[0] >= trace.start.rows + cert.row_at.len() - shared);
+    assert_eq!(cert.hash_rows[0], cert.row_at.len());
 }
 
 #[test]

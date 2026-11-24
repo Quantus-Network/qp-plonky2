@@ -114,7 +114,8 @@ fn leaf_lean_is_current() {
         env!("CARGO_MANIFEST_DIR")
     );
     let on_disk = std::fs::read_to_string(&path).unwrap();
-    let generated = generate_leaf_circuit_lean().unwrap();
+    let complete = constraint_exporter::built::certify_circuit("leaf_circuit").unwrap();
+    let generated = generate_leaf_circuit_lean(&complete.trace).unwrap();
     assert_eq!(on_disk, generated, "run export-constraints ({path})");
     assert!(generated.contains(
         "theorem leafCircuit_decode (perm : St p → St p) (a : Assignment p) \
