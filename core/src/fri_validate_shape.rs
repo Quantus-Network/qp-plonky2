@@ -247,9 +247,10 @@ pub fn check_fri_proof_counts(
 }
 
 /// Batch FRI folds each instance in once the codeword has shrunk to that instance's degree, so
-/// the degrees must be heights the reduction schedule reaches, in fold order, starting at the FRI
-/// degree. Anything else would leave an instance unfolded or index a Merkle layer that is never
-/// opened.
+/// the degrees must be heights the reduction schedule reaches before its last step, in fold
+/// order, starting at the FRI degree. Anything else would leave an instance unfolded or index a
+/// Merkle layer that is never opened. (The prover does not fold after the last step, so the final
+/// degree is excluded too.)
 pub fn check_batch_fri_degree_bits(
     degree_bits: &[usize],
     instance_count: usize,
@@ -258,14 +259,16 @@ pub fn check_batch_fri_degree_bits(
     if degree_bits.len() != instance_count {
         return Err("Number of degree bits does not match the instance count.");
     }
-    let mut reached_degrees =
-        core::iter::once(params.degree_bits).chain(params.reduction_arity_bits.iter().scan(
-            Some(params.degree_bits),
-            |degree, &arity_bits| {
+    let steps_before_last =
+        &params.reduction_arity_bits[..params.reduction_arity_bits.len().saturating_sub(1)];
+    let mut reached_degrees = core::iter::once(params.degree_bits).chain(
+        steps_before_last
+            .iter()
+            .scan(Some(params.degree_bits), |degree, &arity_bits| {
                 *degree = degree.and_then(|degree| degree.checked_sub(arity_bits));
                 *degree
-            },
-        ));
+            }),
+    );
     let is_fold_subsequence = degree_bits.first() == Some(&params.degree_bits)
         && degree_bits
             .iter()
@@ -475,9 +478,12 @@ mod tests {
             Err("Batch FRI degree bits must be reached by the reduction schedule in fold order.");
         assert_eq!(check(&[6]), Ok(()));
         assert_eq!(check(&[6, 5]), Ok(()));
-        assert_eq!(check(&[6, 3, 2]), Ok(()));
-        assert_eq!(check(&[6, 2]), Ok(()));
+        assert_eq!(check(&[6, 3]), Ok(()));
+        assert_eq!(check(&[6, 5, 3]), Ok(()));
         assert_eq!(check(&[5]), not_reached);
+        // The prover never folds after the last step, so the final degree holds no instance.
+        assert_eq!(check(&[6, 2]), not_reached);
+        assert_eq!(check(&[6, 3, 2]), not_reached);
         assert_eq!(check(&[6, 6]), not_reached);
         assert_eq!(check(&[6, 4]), not_reached);
         assert_eq!(check(&[6, 2, 3]), not_reached);
