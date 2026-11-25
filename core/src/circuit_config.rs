@@ -9,9 +9,7 @@ use crate::field::cosets::get_unique_coset_shifts;
 use crate::field::extension::Extendable;
 use crate::field::types::Field;
 use crate::fri::{FriConfig, FriParams, FriReductionStrategy};
-use crate::plonk_common::{
-    num_lookup_polys, num_lookup_selectors, num_partial_products, LookupTable,
-};
+use crate::plonk_common::num_partial_products;
 use crate::selectors::SelectorsInfo;
 
 /// Configuration to be used when building a circuit. This defines the shape of the circuit
@@ -115,13 +113,6 @@ impl CircuitConfig {
             return Err("num_constants must not be 0 (causes infinite loop in circuit build)");
         }
 
-        // num_routed_wires must be at least 3 for LookupTableGate (which uses 3 wires per slot)
-        // and at least 2 for LookupGate (which uses 2 wires per slot).
-        // We check >= 3 as the stricter bound.
-        if self.num_routed_wires < 3 {
-            return Err("num_routed_wires must be >= 3 (required for lookup gates)");
-        }
-
         // Zero queries test nothing, leaving FRI with no soundness regardless of the other
         // parameters. (A rate of 1 is rejected below, since no quotient factor fits in it.)
         if self.fri_config.num_query_rounds == 0 {
@@ -138,10 +129,9 @@ impl CircuitConfig {
             return Err("num_wires and num_constants must not exceed 2^16");
         }
 
-        // The lookup argument batches `max_quotient_degree_factor - 1` slots per partial polynomial
-        // and the permutation argument `max_quotient_degree_factor` wires, so neither can be zero,
-        // and the prover computes no partial products at all unless the factor is below the
-        // routed width.
+        // The permutation argument multiplies `max_quotient_degree_factor` wires per partial
+        // product, and the prover computes no partial products at all unless the factor is below
+        // the routed width.
         if self.max_quotient_degree_factor < 2 {
             return Err("max_quotient_degree_factor must be at least 2");
         }
@@ -223,7 +213,6 @@ macro_rules! common_circuit_data_constructors {
             degree_bits: usize,
             gates: Vec<GateRef<F, D>>,
             num_public_inputs: usize,
-            luts: Vec<$crate::plonk_common::LookupTable>,
         ) -> Result<Self, &'static str> {
             // The fit checks take logarithms of the config's widths, so the config comes first.
             config.check_valid()?;
@@ -244,7 +233,6 @@ macro_rules! common_circuit_data_constructors {
                 &config,
                 degree_bits,
                 &gate_shapes,
-                &luts,
             )?;
             Ok(Self {
                 config,
@@ -257,19 +245,12 @@ macro_rules! common_circuit_data_constructors {
                 num_public_inputs,
                 k_is: derived.k_is,
                 num_partial_products: derived.num_partial_products,
-                num_lookup_polys: derived.num_lookup_polys,
-                num_lookup_selectors: derived.num_lookup_selectors,
-                luts,
             })
         }
 
-        /// Holds the config and lookup tables and nothing else, so gate readers can check their
-        /// parameters and resolve table indices before the gates, and with them the derived
-        /// fields, are known.
-        pub(crate) fn tables_only(
-            config: $crate::circuit_config::CircuitConfig,
-            luts: Vec<$crate::plonk_common::LookupTable>,
-        ) -> Self {
+        /// Holds the config and nothing else, so gate readers can check their parameters before
+        /// the gates, and with them the derived fields, are known.
+        pub(crate) fn config_only(config: $crate::circuit_config::CircuitConfig) -> Self {
             Self {
                 fri_params: $crate::fri::FriParams {
                     config: config.fri_config.clone(),
@@ -289,9 +270,6 @@ macro_rules! common_circuit_data_constructors {
                 num_public_inputs: 0,
                 k_is: Vec::new(),
                 num_partial_products: 0,
-                num_lookup_polys: 0,
-                num_lookup_selectors: 0,
-                luts,
             }
         }
     };
@@ -307,8 +285,8 @@ pub struct GateShape {
     pub num_constraints: usize,
 }
 
-/// The fields of a `CommonCircuitData` that follow from its config, degree, gates and lookup
-/// tables. Only those primitives are serialized; this is recomputed on load.
+/// The fields of a `CommonCircuitData` that follow from its config, degree and gates. Only those
+/// primitives are serialized; this is recomputed on load.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DerivedCommonData<F: Field> {
     pub fri_params: FriParams,
@@ -317,14 +295,12 @@ pub struct DerivedCommonData<F: Field> {
     pub num_constants: usize,
     pub k_is: Vec<F>,
     pub num_partial_products: usize,
-    pub num_lookup_polys: usize,
-    pub num_lookup_selectors: usize,
 }
 
 /// Derives the rest of a `CommonCircuitData` the way `CircuitBuilder::build` does, after
 /// checking that the primitives are ones the builder could have fixed: the config passes the
 /// builder's checks, the FRI domain and schedule exist for the degree, the gates are sorted by
-/// `(degree, id)` without repeats and fit the config, and no lookup table is empty.
+/// `(degree, id)` without repeats and fit the config.
 ///
 /// The gate methods behind [`GateShape`] are only meaningful on parameters the builder could
 /// have produced, so callers check every gate's `parameters_fit` before building the shapes.
@@ -335,7 +311,6 @@ pub fn derive_common_data<F: Field + Extendable<D>, const D: usize>(
     config: &CircuitConfig,
     degree_bits: usize,
     gates: &[GateShape],
-    luts: &[LookupTable],
 ) -> Result<DerivedCommonData<F>, &'static str> {
     config.check_valid()?;
     config.check_fri_security::<F, D>()?;
@@ -355,21 +330,12 @@ pub fn derive_common_data<F: Field + Extendable<D>, const D: usize>(
     {
         return Err("gate does not fit within the circuit config");
     }
-    if luts.iter().any(|lut| lut.is_empty()) {
-        return Err("lookup table is empty");
-    }
-    // The builder stores each table once and gates refer to it by index, so a repeated table
-    // would give the same gate two encodings.
-    if (1..luts.len()).any(|i| luts[..i].contains(&luts[i])) {
-        return Err("lookup tables must be distinct");
-    }
 
     let quotient_degree_factor = config.max_quotient_degree_factor;
     let degrees: Vec<usize> = gates.iter().map(|gate| gate.degree).collect();
     let selectors_info = SelectorsInfo::for_gate_degrees(&degrees, quotient_degree_factor + 1)?;
-    let num_lookup_selectors = num_lookup_selectors(luts.len());
     let max_gate_constants = gates.iter().map(|gate| gate.num_constants).max().unwrap();
-    let num_constants = selectors_info.num_selectors() + num_lookup_selectors + max_gate_constants;
+    let num_constants = selectors_info.num_selectors() + max_gate_constants;
 
     Ok(DerivedCommonData {
         fri_params,
@@ -378,21 +344,13 @@ pub fn derive_common_data<F: Field + Extendable<D>, const D: usize>(
         num_constants,
         k_is: get_unique_coset_shifts::<F>(1 << degree_bits, config.num_routed_wires),
         num_partial_products: num_partial_products(config.num_routed_wires, quotient_degree_factor),
-        num_lookup_polys: num_lookup_polys(
-            config.num_routed_wires,
-            quotient_degree_factor - 1,
-            luts.len(),
-        ),
-        num_lookup_selectors,
     })
 }
 
 #[cfg(test)]
 mod tests {
     #[cfg(not(feature = "std"))]
-    use alloc::{string::ToString, sync::Arc, vec, vec::Vec};
-    #[cfg(feature = "std")]
-    use std::sync::Arc;
+    use alloc::{string::ToString, vec, vec::Vec};
 
     use plonky2_field::goldilocks_field::GoldilocksField;
 
@@ -512,32 +470,20 @@ mod tests {
         config: &CircuitConfig,
         degree_bits: usize,
         gates: &[GateShape],
-        luts: &[LookupTable],
     ) -> Result<DerivedCommonData<GoldilocksField>, &'static str> {
-        derive_common_data::<GoldilocksField, 2>(config, degree_bits, gates, luts)
-    }
-
-    fn table(pairs: &[(u16, u16)]) -> LookupTable {
-        Arc::new(pairs.to_vec())
+        derive_common_data::<GoldilocksField, 2>(config, degree_bits, gates)
     }
 
     #[test]
     fn derive_common_data_matches_the_builder_formulas() {
         let config = CircuitConfig::standard_recursion_config();
-        let tables = [table(&[(0, 1), (1, 2)]), table(&[(0, 1)])];
-        let derived = derive(&config, 12, &gates(), &tables).unwrap();
+        let derived = derive(&config, 12, &gates()).unwrap();
         assert_eq!(derived.fri_params, config.fri_config.fri_params(12, false));
         assert_eq!(derived.selectors_info.groups, vec![0..4, 4..5, 5..6]);
         assert_eq!(derived.num_gate_constraints, 123);
-        assert_eq!(derived.num_lookup_selectors, 4 + 2);
-        assert_eq!(derived.num_constants, 3 + 6 + 2);
+        assert_eq!(derived.num_constants, 3 + 2);
         assert_eq!(derived.k_is.len(), config.num_routed_wires);
         assert_eq!(derived.num_partial_products, 9);
-        assert_eq!(derived.num_lookup_polys, 7);
-        assert_eq!(
-            derive(&config, 12, &gates(), &[]).unwrap().num_constants,
-            3 + 2
-        );
     }
 
     /// The loader applies the config rules the builder applies, so consistent-looking data with
@@ -548,28 +494,28 @@ mod tests {
         config.fri_config.num_query_rounds = 1;
         config.fri_config.proof_of_work_bits = 0;
         assert_eq!(
-            derive(&config, 12, &gates(), &[]),
+            derive(&config, 12, &gates()),
             Err("FRI params fall short of target security")
         );
         let mut config = CircuitConfig::standard_recursion_config();
         config.fri_config.rate_bits = 0;
-        assert!(derive(&config, 12, &gates(), &[]).is_err());
+        assert!(derive(&config, 12, &gates()).is_err());
     }
 
     #[test]
     fn derive_common_data_rejects_oversized_domains() {
         let config = CircuitConfig::standard_recursion_config();
         let too_large = Err("FRI LDE domain exceeds the field's two-adicity");
-        assert_eq!(derive(&config, 30, &gates(), &[]), too_large);
-        assert_eq!(derive(&config, usize::MAX, &gates(), &[]), too_large);
+        assert_eq!(derive(&config, 30, &gates()), too_large);
+        assert_eq!(derive(&config, usize::MAX, &gates()), too_large);
         let mut config = CircuitConfig::standard_recursion_config();
         config.fri_config.rate_bits = usize::MAX;
         config.fri_config.reduction_strategy = FriReductionStrategy::MinSize(None);
-        assert_eq!(derive(&config, 12, &gates(), &[]), too_large);
+        assert_eq!(derive(&config, 12, &gates()), too_large);
         let mut config = CircuitConfig::standard_recursion_config();
         config.fri_config.cap_height = 16;
         assert_eq!(
-            derive(&config, 12, &gates(), &[]),
+            derive(&config, 12, &gates()),
             Err("FRI cap height exceeds the LDE size")
         );
     }
@@ -607,46 +553,27 @@ mod tests {
     fn derive_common_data_rejects_gates_the_builder_never_emits() {
         let config = CircuitConfig::standard_recursion_config();
         let unsorted = Err("gates must be sorted by degree and id without duplicates");
-        assert_eq!(derive(&config, 12, &[], &[]), unsorted);
+        assert_eq!(derive(&config, 12, &[]), unsorted);
         let mut swapped = gates();
         swapped.swap(0, 1);
-        assert_eq!(derive(&config, 12, &swapped, &[]), unsorted);
+        assert_eq!(derive(&config, 12, &swapped), unsorted);
         let mut repeated = gates();
         repeated.insert(1, repeated[1].clone());
-        assert_eq!(derive(&config, 12, &repeated, &[]), unsorted);
+        assert_eq!(derive(&config, 12, &repeated), unsorted);
 
         let does_not_fit = Err("gate does not fit within the circuit config");
         let mut wide = gates();
         wide[3].num_wires = config.num_wires + 1;
-        assert_eq!(derive(&config, 12, &wide, &[]), does_not_fit);
+        assert_eq!(derive(&config, 12, &wide), does_not_fit);
         let mut many_constants = gates();
         many_constants[3].num_constants = config.num_constants + 1;
-        assert_eq!(derive(&config, 12, &many_constants, &[]), does_not_fit);
+        assert_eq!(derive(&config, 12, &many_constants), does_not_fit);
 
         let mut high_degree = gates();
         high_degree[5].degree = 9;
         assert_eq!(
-            derive(&config, 12, &high_degree, &[]),
+            derive(&config, 12, &high_degree),
             Err("gate degree too high for the quotient degree factor")
-        );
-    }
-
-    #[test]
-    fn derive_common_data_rejects_empty_or_repeated_lookup_tables() {
-        let config = CircuitConfig::standard_recursion_config();
-        let pairs = [(0, 1), (1, 2)];
-        assert_eq!(
-            derive(&config, 12, &gates(), &[table(&pairs), table(&[])]),
-            Err("lookup table is empty")
-        );
-        assert_eq!(
-            derive(
-                &config,
-                12,
-                &gates(),
-                &[table(&pairs), table(&pairs[..1]), table(&pairs)]
-            ),
-            Err("lookup tables must be distinct")
         );
     }
 }

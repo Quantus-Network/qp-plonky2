@@ -4,7 +4,7 @@
 
 #[cfg(not(feature = "std"))]
 use alloc::{vec, vec::Vec};
-use core::ops::{Range, RangeFrom};
+use core::ops::Range;
 
 use anyhow::{ensure, Result};
 // Re-export CircuitConfig from core
@@ -19,7 +19,6 @@ use crate::fri::structure::{
     FriBatchInfo, FriInstanceInfo, FriOpeningExpression, FriOracleInfo, FriPolynomialInfo,
 };
 use crate::gates::gate::GateRef;
-use crate::gates::lookup_table::LookupTable;
 use crate::gates::selectors::SelectorsInfo;
 use crate::hash::hash_types::{HashOut, RichField};
 use crate::plonk::config::{GenericConfig, Hasher};
@@ -209,15 +208,6 @@ pub struct CommonVerifierData<F: RichField + Extendable<D>, const D: usize> {
 
     /// The number of partial products needed to compute the `Z` polynomials.
     pub num_partial_products: usize,
-
-    /// The number of lookup polynomials.
-    pub num_lookup_polys: usize,
-
-    /// The number of lookup selectors.
-    pub num_lookup_selectors: usize,
-
-    /// The stored lookup tables.
-    pub luts: Vec<LookupTable>,
 }
 
 impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
@@ -276,12 +266,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
         self.quotient_degree_factor()
     }
 
-    /// Lookup running-sum accumulators consume one degree in the filtered constraints,
-    /// so their chunk size is one less than the quotient degree factor.
-    pub const fn lookup_accumulator_degree(&self) -> usize {
-        self.quotient_degree_factor() - 1
-    }
-
     /// Range of the constants polynomials in the `constants_sigmas_commitment`.
     pub const fn constants_range(&self) -> Range<usize> {
         0..self.num_constants
@@ -297,20 +281,9 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
         0..self.config.num_challenges
     }
 
-    /// Range of the partial products polynomials in the `zs_partial_products_lookup_commitment`.
+    /// Range of the partial products polynomials in the `zs_partial_products_commitment`.
     pub const fn partial_products_range(&self) -> Range<usize> {
         self.config.num_challenges..(self.num_partial_products + 1) * self.config.num_challenges
-    }
-
-    /// Range of lookup polynomials in the `zs_partial_products_lookup_commitment`.
-    pub const fn lookup_range(&self) -> RangeFrom<usize> {
-        self.num_zs_partial_products_polys()..
-    }
-
-    /// Range of lookup polynomials needed for evaluation at `g * zeta`.
-    pub const fn next_lookup_range(&self, i: usize) -> Range<usize> {
-        self.num_zs_partial_products_polys() + i * self.num_lookup_polys
-            ..self.num_zs_partial_products_polys() + i * self.num_lookup_polys + 2
     }
 
     pub(crate) fn get_fri_instance(&self, zeta: F::Extension) -> FriInstanceInfo<F, D> {
@@ -346,7 +319,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
                 blinding: PlonkOracle::WIRES.blinding,
             },
             FriOracleInfo {
-                num_polys: self.num_zs_partial_products_polys() + self.num_all_lookup_polys(),
+                num_polys: self.num_zs_partial_products_polys(),
                 blinding: PlonkOracle::ZS_PARTIAL_PRODUCTS.blinding,
             },
             FriOracleInfo {
@@ -401,31 +374,18 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
         )
     }
 
-    /// Returns the total number of lookup polynomials.
-    pub(crate) const fn num_all_lookup_polys(&self) -> usize {
-        self.config.num_challenges * self.num_lookup_polys
-    }
-
     fn fri_zs_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
         self.fri_oracle_openings(PlonkOracle::ZS_PARTIAL_PRODUCTS, self.zs_range())
     }
 
     fn fri_next_batch_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
-        [self.fri_zs_openings(), self.fri_lookup_openings()].concat()
+        self.fri_zs_openings()
     }
 
     fn fri_quotient_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
         self.fri_oracle_openings(PlonkOracle::QUOTIENT, 0..self.num_quotient_polys())
     }
 
-    /// Returns the information for lookup polynomials, i.e. the index within the oracle and the indices of the polynomials within the commitment.
-    fn fri_lookup_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
-        self.fri_oracle_openings(
-            PlonkOracle::ZS_PARTIAL_PRODUCTS,
-            self.num_zs_partial_products_polys()
-                ..self.num_zs_partial_products_polys() + self.num_all_lookup_polys(),
-        )
-    }
     pub(crate) const fn num_quotient_polys(&self) -> usize {
         self.config.num_challenges * self.quotient_degree_factor()
     }
@@ -436,7 +396,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
             self.fri_wire_openings(),
             self.fri_zs_partial_products_openings(),
             self.fri_quotient_openings(),
-            self.fri_lookup_openings(),
         ]
         .concat()
     }

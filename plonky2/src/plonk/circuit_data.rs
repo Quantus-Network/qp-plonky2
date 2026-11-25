@@ -14,7 +14,7 @@
 
 #[cfg(not(feature = "std"))]
 use alloc::{collections::BTreeMap, vec, vec::Vec};
-use core::ops::{Range, RangeFrom};
+use core::ops::Range;
 #[cfg(feature = "std")]
 use std::collections::BTreeMap;
 
@@ -22,7 +22,6 @@ use anyhow::Result;
 pub use qp_plonky2_core::CircuitConfig;
 use serde::Serialize;
 
-use super::circuit_builder::LookupWire;
 use crate::field::extension::Extendable;
 use crate::field::fft::FftRootTable;
 use crate::field::types::Field;
@@ -34,8 +33,6 @@ use crate::fri::structure::{
 use crate::fri::FriParams;
 // Re-export CircuitConfig from core
 use crate::gates::gate::GateRef;
-use crate::gates::lookup::Lookup;
-use crate::gates::lookup_table::LookupTable;
 use crate::gates::selectors::SelectorsInfo;
 use crate::hash::hash_types::{HashOutTarget, MerkleCapTarget, RichField};
 use crate::hash::merkle_tree::MerkleCap;
@@ -333,10 +330,6 @@ pub struct ProverOnlyCircuitData<
     /// A digest of the "circuit" (i.e. the instance, minus public inputs), which can be used to
     /// seed Fiat-Shamir.
     pub circuit_digest: <<C as GenericConfig<D>>::Hasher as Hasher<F>>::Hash,
-    ///The concrete placement of the lookup gates for each lookup table index.
-    pub lookup_rows: Vec<LookupWire>,
-    /// A vector of (looking_in, looking_out) pairs for each lookup table index.
-    pub lut_to_lookups: Vec<Lookup>,
 }
 
 impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
@@ -414,15 +407,6 @@ pub struct CommonCircuitData<F: RichField + Extendable<D>, const D: usize> {
 
     /// The number of partial products needed to compute the `Z` polynomials.
     pub num_partial_products: usize,
-
-    /// The number of lookup polynomials.
-    pub num_lookup_polys: usize,
-
-    /// The number of lookup selectors.
-    pub num_lookup_selectors: usize,
-
-    /// The stored lookup tables.
-    pub luts: Vec<LookupTable>,
 }
 
 impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
@@ -482,12 +466,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
         self.quotient_degree_factor()
     }
 
-    /// Lookup running-sum accumulators consume one degree in the filtered constraints,
-    /// so their chunk size is one less than the quotient degree factor.
-    pub const fn lookup_accumulator_degree(&self) -> usize {
-        self.quotient_degree_factor() - 1
-    }
-
     /// Range of the constants polynomials in the `constants_sigmas_commitment`.
     pub const fn constants_range(&self) -> Range<usize> {
         0..self.num_constants
@@ -503,20 +481,9 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
         0..self.config.num_challenges
     }
 
-    /// Range of the partial products polynomials in the `zs_partial_products_lookup_commitment`.
+    /// Range of the partial products polynomials in the `zs_partial_products_commitment`.
     pub const fn partial_products_range(&self) -> Range<usize> {
         self.config.num_challenges..(self.num_partial_products + 1) * self.config.num_challenges
-    }
-
-    /// Range of lookup polynomials in the `zs_partial_products_lookup_commitment`.
-    pub const fn lookup_range(&self) -> RangeFrom<usize> {
-        self.num_zs_partial_products_polys()..
-    }
-
-    /// Range of lookup polynomials needed for evaluation at `g * zeta`.
-    pub const fn next_lookup_range(&self, i: usize) -> Range<usize> {
-        self.num_zs_partial_products_polys() + i * self.num_lookup_polys
-            ..self.num_zs_partial_products_polys() + i * self.num_lookup_polys + 2
     }
 
     pub(crate) fn get_fri_instance(&self, zeta: F::Extension) -> FriInstanceInfo<F, D> {
@@ -578,7 +545,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
                 blinding: PlonkOracle::WIRES.blinding,
             },
             FriOracleInfo {
-                num_polys: self.num_zs_partial_products_polys() + self.num_all_lookup_polys(),
+                num_polys: self.num_zs_partial_products_polys(),
                 blinding: PlonkOracle::ZS_PARTIAL_PRODUCTS.blinding,
             },
             FriOracleInfo {
@@ -633,31 +600,17 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
         self.config.num_challenges * (1 + self.num_partial_products)
     }
 
-    /// Returns the total number of lookup polynomials.
-    pub(crate) const fn num_all_lookup_polys(&self) -> usize {
-        self.config.num_challenges * self.num_lookup_polys
-    }
-
     fn fri_zs_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
         self.fri_oracle_openings(PlonkOracle::ZS_PARTIAL_PRODUCTS, self.zs_range())
     }
 
     /// Returns polynomials that require evaluation at `zeta` and `g * zeta`.
     fn fri_next_batch_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
-        [self.fri_zs_openings(), self.fri_lookup_openings()].concat()
+        self.fri_zs_openings()
     }
 
     fn fri_quotient_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
         self.fri_oracle_openings(PlonkOracle::QUOTIENT, 0..self.num_quotient_polys())
-    }
-
-    /// Returns the information for lookup polynomials, i.e. the index within the oracle and the indices of the polynomials within the commitment.
-    fn fri_lookup_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
-        self.fri_oracle_openings(
-            PlonkOracle::ZS_PARTIAL_PRODUCTS,
-            self.num_zs_partial_products_polys()
-                ..self.num_zs_partial_products_polys() + self.num_all_lookup_polys(),
-        )
     }
 
     pub(crate) const fn num_quotient_polys(&self) -> usize {
@@ -670,7 +623,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
             self.fri_wire_openings(),
             self.fri_zs_partial_products_openings(),
             self.fri_quotient_openings(),
-            self.fri_lookup_openings(),
         ]
         .concat()
     }
@@ -691,17 +643,7 @@ pub struct VerifierCircuitTarget {
 
 #[cfg(test)]
 mod tests {
-    #[cfg(not(feature = "std"))]
-    use alloc::sync::Arc;
-    #[cfg(feature = "std")]
-    use std::sync::Arc;
-
-    use itertools::Itertools;
-
     use super::{CircuitConfig, CommonCircuitData};
-    use crate::field::types::Field;
-    use crate::gates::lookup::LookupGate;
-    use crate::gates::lookup_table::LookupTable;
     use crate::gates::noop::NoopGate;
     use crate::plonk::circuit_builder::CircuitBuilder;
     use crate::plonk::config::{GenericConfig, PoseidonGoldilocksConfig};
@@ -717,15 +659,6 @@ mod tests {
         builder.build::<C>().common
     }
 
-    fn build_lookup_common(config: CircuitConfig) -> CommonCircuitData<F, D> {
-        let table: LookupTable = Arc::new((0..4).zip_eq(1..5).collect());
-        let mut builder = CircuitBuilder::<F, D>::new(config);
-        let input = builder.constant(F::ONE);
-        let table_index = builder.add_lookup_table_from_pairs(table);
-        let _ = builder.add_lookup_from_index(input, table_index);
-        builder.build::<C>().common
-    }
-
     #[test]
     fn permutation_partial_product_degree_boundary() {
         let common = build_common(CircuitConfig::standard_recursion_config());
@@ -735,33 +668,6 @@ mod tests {
         assert_eq!(
             common.num_partial_products,
             num_partial_products(common.config.num_routed_wires, degree)
-        );
-    }
-
-    #[test]
-    fn lookup_accumulator_degree_boundary() {
-        let common = build_lookup_common(CircuitConfig::standard_recursion_config());
-        let degree = common.lookup_accumulator_degree();
-
-        assert!(common.num_lookup_polys > 0);
-        assert_eq!(degree, common.quotient_degree_factor() - 1);
-        assert_eq!(
-            common.num_lookup_polys,
-            LookupGate::num_slots(&common.config).div_ceil(degree) + 1,
-        );
-    }
-
-    #[test]
-    fn row_blinding_uses_same_degree_budgets() {
-        let common = build_lookup_common(CircuitConfig::standard_recursion_zk_config());
-
-        assert_eq!(
-            common.permutation_partial_product_degree(),
-            common.quotient_degree_factor()
-        );
-        assert_eq!(
-            common.lookup_accumulator_degree(),
-            common.quotient_degree_factor() - 1
         );
     }
 

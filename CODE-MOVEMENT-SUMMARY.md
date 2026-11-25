@@ -48,8 +48,6 @@ The refactoring created two new crates:
 | `gates/coset_interpolation.rs` | `CosetInterpolationGate` | `verifier/src/gates/coset_interpolation.rs:46` |
 | `gates/exponentiation.rs` | `ExponentiationGate` | `verifier/src/gates/exponentiation.rs:21` |
 | `gates/gate.rs` | `Gate` trait, `CurrentSlot` | `verifier/src/gates/gate.rs` |
-| `gates/lookup.rs` | `LookupGate` | `verifier/src/gates/lookup.rs:22` |
-| `gates/lookup_table.rs` | `LookupTableGate` | `verifier/src/gates/lookup_table.rs:25` |
 | `gates/multiplication_extension.rs` | `MulExtensionGate` | `verifier/src/gates/multiplication_extension.rs:16` |
 | `gates/noop.rs` | `NoopGate` | `verifier/src/gates/noop.rs:13` |
 | `gates/poseidon.rs` | `PoseidonGate` | `verifier/src/gates/poseidon.rs:22` |

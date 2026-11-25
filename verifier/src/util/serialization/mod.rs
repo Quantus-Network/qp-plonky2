@@ -2,13 +2,11 @@
 pub mod gate_serialization;
 
 #[cfg(not(feature = "std"))]
-use alloc::{sync::Arc, vec, vec::Vec};
+use alloc::{vec, vec::Vec};
 use core::convert::Infallible;
 use core::fmt::{Debug, Display, Formatter};
 use core::mem::size_of;
 use core::ops::RangeInclusive;
-#[cfg(feature = "std")]
-use std::sync::Arc;
 
 pub use gate_serialization::default::DefaultGateSerializer;
 pub use gate_serialization::GateSerializer;
@@ -245,8 +243,6 @@ pub trait Read {
         let wires = self.read_field_ext_vec::<F, D>(config.num_wires)?;
         let plonk_zs = self.read_field_ext_vec::<F, D>(config.num_challenges)?;
         let plonk_zs_next = self.read_field_ext_vec::<F, D>(config.num_challenges)?;
-        let lookup_zs = self.read_field_ext_vec::<F, D>(common_data.num_all_lookup_polys())?;
-        let lookup_zs_next = self.read_field_ext_vec::<F, D>(common_data.num_all_lookup_polys())?;
         let partial_products = self
             .read_field_ext_vec::<F, D>(common_data.num_partial_products * config.num_challenges)?;
         let quotient_polys = self.read_field_ext_vec::<F, D>(
@@ -260,8 +256,6 @@ pub trait Read {
             plonk_zs_next,
             partial_products,
             quotient_polys,
-            lookup_zs,
-            lookup_zs_next,
         })
     }
 
@@ -306,9 +300,8 @@ pub trait Read {
         let wires_p = self.read_merkle_proof()?;
         evals_proofs.push((wires_v, wires_p));
 
-        // ZS_PARTIAL_PRODUCTS: (num_challenges * (1 + num_partial_products) + num_all_lookup_polys) + salt
-        let zs_partial_count = config.num_challenges * (1 + common_data.num_partial_products)
-            + common_data.num_all_lookup_polys();
+        // ZS_PARTIAL_PRODUCTS: num_challenges * (1 + num_partial_products) + salt
+        let zs_partial_count = config.num_challenges * (1 + common_data.num_partial_products);
         let zs_partial_v = self.read_field_vec(zs_partial_count + salt)?;
         let zs_partial_p = self.read_merkle_proof()?;
         evals_proofs.push((zs_partial_v, zs_partial_p));
@@ -481,25 +474,14 @@ pub trait Read {
         let config = self.read_circuit_config()?;
         let degree_bits = self.read_usize()?;
         let num_public_inputs = self.read_usize()?;
-        let length = self.read_usize()?;
-        let mut luts = try_with_capacity(length)?;
-        for _ in 0..length {
-            luts.push(Arc::new(self.read_lut()?));
-        }
-        let tables = CommonCircuitData::<F, D>::tables_only(config, luts);
+        let shell = CommonCircuitData::<F, D>::config_only(config);
         let gates_len = self.read_usize()?;
         let mut gates = try_with_capacity(gates_len)?;
         for _ in 0..gates_len {
-            gates.push(self.read_gate::<F, D>(gate_serializer, &tables)?);
+            gates.push(self.read_gate::<F, D>(gate_serializer, &shell)?);
         }
-        CommonCircuitData::new(
-            tables.config,
-            degree_bits,
-            gates,
-            num_public_inputs,
-            tables.luts,
-        )
-        .map_err(rejected)
+        CommonCircuitData::new(shell.config, degree_bits, gates, num_public_inputs)
+            .map_err(rejected)
     }
 
     fn read_verifier_only_circuit_data<
@@ -584,21 +566,6 @@ pub trait Read {
             proof,
             public_inputs,
         })
-    }
-
-    /// Reads a lookup table stored as `Vec<(u16, u16)>` from `self`.
-    #[inline]
-    fn read_lut(&mut self) -> IoResult<Vec<(u16, u16)>> {
-        let length = self.read_usize()?;
-        if length == 0 {
-            return Err(IoError);
-        }
-        let mut lut = try_with_capacity(length)?;
-        for _ in 0..length {
-            lut.push((self.read_u16()?, self.read_u16()?));
-        }
-
-        Ok(lut)
     }
 }
 
@@ -730,8 +697,6 @@ pub trait Write {
         self.write_field_ext_vec::<F, D>(&os.wires)?;
         self.write_field_ext_vec::<F, D>(&os.plonk_zs)?;
         self.write_field_ext_vec::<F, D>(&os.plonk_zs_next)?;
-        self.write_field_ext_vec::<F, D>(&os.lookup_zs)?;
-        self.write_field_ext_vec::<F, D>(&os.lookup_zs_next)?;
         self.write_field_ext_vec::<F, D>(&os.partial_products)?;
         self.write_field_ext_vec::<F, D>(&os.quotient_polys)
     }
@@ -916,17 +881,12 @@ pub trait Write {
             trace_degree_bits,
             gates,
             num_public_inputs,
-            luts,
             ..
         } = common_data;
 
         self.write_circuit_config(config)?;
         self.write_usize(*trace_degree_bits)?;
         self.write_usize(*num_public_inputs)?;
-        self.write_usize(luts.len())?;
-        for lut in luts.iter() {
-            self.write_lut(lut)?;
-        }
         self.write_usize(gates.len())?;
         for gate in gates.iter() {
             self.write_gate::<F, D>(gate, gate_serializer, common_data)?;
@@ -999,18 +959,6 @@ pub trait Write {
         self.write_proof(proof)?;
         self.write_usize(public_inputs.len())?;
         self.write_field_vec(public_inputs)
-    }
-
-    /// Writes a lookup table to `self`.
-    #[inline]
-    fn write_lut(&mut self, lut: &[(u16, u16)]) -> IoResult<()> {
-        self.write_usize(lut.len())?;
-        for (a, b) in lut.iter() {
-            self.write_u16(*a)?;
-            self.write_u16(*b)?;
-        }
-
-        Ok(())
     }
 }
 

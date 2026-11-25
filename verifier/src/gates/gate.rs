@@ -63,7 +63,7 @@ pub trait VerificationGate<F: RichField + Extendable<D>, const D: usize>:
     /// Deserializes the bytes in the provided buffer into this custom gate.
     ///
     /// Gates are read before the fields derived from them exist, so `common_data` is a
-    /// placeholder in which only `config` and `luts` are the circuit's own.
+    /// placeholder in which only `config` is the circuit's own.
     fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self>
     where
         Self: Sized;
@@ -150,7 +150,6 @@ pub trait VerificationGate<F: RichField + Extendable<D>, const D: usize>:
         selector_index: usize,
         group_range: Range<usize>,
         num_selectors: usize,
-        num_lookup_selectors: usize,
     ) -> Vec<F::Extension> {
         let filter = compute_filter(
             row,
@@ -159,7 +158,6 @@ pub trait VerificationGate<F: RichField + Extendable<D>, const D: usize>:
             num_selectors > 1,
         );
         vars.remove_prefix(num_selectors);
-        vars.remove_prefix(num_lookup_selectors);
         self.eval_unfiltered(vars)
             .into_iter()
             .map(|c| filter * c)
@@ -175,7 +173,6 @@ pub trait VerificationGate<F: RichField + Extendable<D>, const D: usize>:
         selector_index: usize,
         group_range: Range<usize>,
         num_selectors: usize,
-        num_lookup_selectors: usize,
     ) -> Vec<F> {
         let filters: Vec<_> = vars_batch
             .iter()
@@ -188,7 +185,7 @@ pub trait VerificationGate<F: RichField + Extendable<D>, const D: usize>:
                 )
             })
             .collect();
-        vars_batch.remove_prefix(num_selectors + num_lookup_selectors);
+        vars_batch.remove_prefix(num_selectors);
         let mut res_batch = self.eval_unfiltered_base_batch(vars_batch);
         for res_chunk in res_batch.chunks_exact_mut(filters.len()) {
             batch_multiply_inplace(res_chunk, &filters);

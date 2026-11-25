@@ -18,9 +18,8 @@ use crate::iop::witness_generation_plan::{
     ExpectedOutputs, WitnessGenerationPlan, WitnessGenerationPlanning,
 };
 use crate::iop::witness_generation_schedule::GeneratorDependencies;
-use crate::plonk::circuit_data::{CircuitData, CommonCircuitData};
+use crate::plonk::circuit_data::CircuitData;
 use crate::plonk::config::GenericConfig;
-use crate::util::serialization::{Buffer, Read};
 
 /// Collects declared reads and discovers output targets of built-in generators.
 /// Discovery recognizes generator IDs. Each generator must be the corresponding
@@ -67,7 +66,7 @@ impl<'a, F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usiz
             digest.push_generator(&id, &resolved);
             reads.push(resolved);
             let discovered =
-                discover_outputs(generator.0.as_ref(), common, &mut probe).map_err(|error| {
+                discover_outputs(generator.0.as_ref(), &mut probe).map_err(|error| {
                     anyhow!(
                         "generator {generator_index} ({}): {error}",
                         generator.0.id()
@@ -235,7 +234,6 @@ where
 /// corresponding to its ID, with an input-independent output target sequence.
 fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
     generator: &dyn WitnessGenerator<F, D>,
-    common: &CommonCircuitData<F, D>,
     probe_witness: &mut PartitionWitness<'_, F>,
 ) -> Result<Vec<Target>> {
     let id = generator.id();
@@ -259,30 +257,6 @@ fn discover_outputs<F: RichField + Extendable<D>, const D: usize>(
                 .ok_or_else(|| anyhow!("missing shift input"))?,
             F::ONE,
         )),
-        DummyInputRule::Lookup => {
-            ensure!(
-                read_targets.len() == 1,
-                "expected one read target, got {}",
-                read_targets.len()
-            );
-            let mut parameters = Vec::new();
-            generator
-                .serialize(&mut parameters, common)
-                .map_err(|_| anyhow!("could not serialize lookup parameters"))?;
-            let mut reader = Buffer::new(&parameters);
-            let table = (|| {
-                reader.read_usize()?; // row
-                reader.read_usize()?; // slot within the row
-                reader.read_usize() // common lookup-table index
-            })()
-            .map_err(|_| anyhow!("invalid serialized lookup parameters"))?;
-            let &(key, _) = common
-                .luts
-                .get(table)
-                .and_then(|lut| lut.first())
-                .ok_or_else(|| anyhow!("lookup table {table} is missing or empty"))?;
-            Some((read_targets[0], F::from_canonical_u16(key)))
-        }
     };
     let rep_index_of = |target: Target| -> Result<usize> {
         let target_index = target.index(probe_witness.num_wires, probe_witness.degree);
@@ -343,14 +317,12 @@ enum DummyInputRule {
     Zero,
     Quotient,
     Interpolation,
-    Lookup,
 }
 
 fn dummy_input_rule(id: &str) -> Result<DummyInputRule> {
     match id {
         "QuotientGeneratorExtension" => Ok(DummyInputRule::Quotient),
         "InterpolationGenerator" => Ok(DummyInputRule::Interpolation),
-        "LookupGenerator" => Ok(DummyInputRule::Lookup),
         "ArithmeticBaseGenerator"
         | "ArithmeticExtensionGenerator"
         | "MulExtensionGenerator"
@@ -363,7 +335,6 @@ fn dummy_input_rule(id: &str) -> Result<DummyInputRule> {
         | "Poseidon2FullGen"
         | "Poseidon2MdsGenerator"
         | "Poseidon2IntMixGenerator"
-        | "LookupTableGenerator"
         | "DummyProofGenerator"
         | "SplitGenerator"
         | "WireSplitGenerator"
@@ -416,9 +387,9 @@ mod tests {
     use crate::iop::generator::{NonzeroTestGenerator, SimpleGenerator, WitnessGeneratorRef};
     use crate::iop::witness::{PartialWitness, Witness, WitnessWrite};
     use crate::plonk::circuit_builder::CircuitBuilder;
-    use crate::plonk::circuit_data::CircuitConfig;
+    use crate::plonk::circuit_data::{CircuitConfig, CommonCircuitData};
     use crate::recursion::dummy_circuit::DummyProofGenerator;
-    use crate::util::serialization::{IoError, IoResult, Write};
+    use crate::util::serialization::{Buffer, IoError, IoResult, Write};
     use crate::{C, D, F};
 
     #[derive(Debug)]
@@ -522,8 +493,6 @@ mod tests {
         .unwrap();
         builder.add_simple_generator(split);
 
-        let table = builder.add_lookup_table_from_pairs(Arc::new(vec![(3, 11), (7, 19)]));
-        builder.add_lookup_from_index(a, table);
         let proof_with_pis_target = builder.add_virtual_proof_with_pis(&inner.common);
         builder.add_simple_generator(DummyProofGenerator {
             proof_with_pis_target,
@@ -538,7 +507,7 @@ mod tests {
         data: &CircuitData<F, C, D>,
         probe: &mut PartitionWitness<'_, F>,
     ) -> Result<()> {
-        let discovered = discover_outputs(generator, &data.common, probe)
+        let discovered = discover_outputs(generator, probe)
             .map_err(|error| anyhow!("generator {}: {error}", generator.id()))?;
         let reads = generator.reads().unwrap();
         assert!(
@@ -574,14 +543,6 @@ mod tests {
             let special = match generator.id().as_str() {
                 "QuotientGeneratorExtension" => Some((reads[D], F::TWO)),
                 "InterpolationGenerator" => Some((reads[0], F::from_canonical_u64(3))),
-                "LookupGenerator" => Some((
-                    reads[0],
-                    if value == F::ZERO {
-                        F::from_canonical_u64(3)
-                    } else {
-                        F::from_canonical_u64(7)
-                    },
-                )),
                 "EqualityGenerator" if value == F::ZERO => Some((reads[1], F::ONE)),
                 _ => None,
             };
@@ -636,8 +597,6 @@ mod tests {
             "Poseidon2FullGen",
             "Poseidon2MdsGenerator",
             "Poseidon2IntMixGenerator",
-            "LookupGenerator",
-            "LookupTableGenerator",
             "DummyProofGenerator",
             "SplitGenerator",
             "WireSplitGenerator",

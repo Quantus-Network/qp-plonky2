@@ -70,8 +70,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         };
         let local_zs = &proof.openings.plonk_zs;
         let next_zs = &proof.openings.plonk_zs_next;
-        let local_lookup_zs = &proof.openings.lookup_zs;
-        let next_lookup_zs = &proof.openings.next_lookup_zs;
         let s_sigmas = &proof.openings.plonk_sigmas;
         let partial_products = &proof.openings.partial_products;
 
@@ -88,14 +86,11 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
                 vars,
                 local_zs,
                 next_zs,
-                local_lookup_zs,
-                next_lookup_zs,
                 partial_products,
                 s_sigmas,
                 &challenges.plonk_betas,
                 &challenges.plonk_gammas,
                 &challenges.plonk_alphas,
-                &challenges.plonk_deltas,
             )
         );
 
@@ -159,10 +154,8 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             common_data.num_constants + config.num_routed_wires,
             // WIRES: num_wires + salt (blinded)
             config.num_wires + salt,
-            // ZS_PARTIAL_PRODUCTS: num_challenges * (1 + num_partial_products) + num_all_lookup_polys + salt (blinded)
-            config.num_challenges * (1 + common_data.num_partial_products)
-                + common_data.num_all_lookup_polys()
-                + salt,
+            // ZS_PARTIAL_PRODUCTS: num_challenges * (1 + num_partial_products) + salt (blinded)
+            config.num_challenges * (1 + common_data.num_partial_products) + salt,
             // QUOTIENT: quotient_degree_factor * num_challenges + salt (blinded)
             common_data.quotient_degree_factor() * config.num_challenges + salt,
         ];
@@ -180,20 +173,12 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         let config = &common_data.config;
         let num_challenges = config.num_challenges;
         let total_partial_products = num_challenges * common_data.num_partial_products;
-        let has_lookup = common_data.num_lookup_polys != 0;
-        let num_lookups = if has_lookup {
-            common_data.num_all_lookup_polys()
-        } else {
-            0
-        };
         OpeningSetTarget {
             constants: self.add_virtual_extension_targets(common_data.num_constants),
             plonk_sigmas: self.add_virtual_extension_targets(config.num_routed_wires),
             wires: self.add_virtual_extension_targets(config.num_wires),
             plonk_zs: self.add_virtual_extension_targets(num_challenges),
             plonk_zs_next: self.add_virtual_extension_targets(num_challenges),
-            lookup_zs: self.add_virtual_extension_targets(num_lookups),
-            next_lookup_zs: self.add_virtual_extension_targets(num_lookups),
             partial_products: self.add_virtual_extension_targets(total_partial_products),
             quotient_polys: self.add_virtual_extension_targets(common_data.num_quotient_polys()),
         }
@@ -203,18 +188,13 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
 #[cfg(test)]
 mod tests {
     #[cfg(not(feature = "std"))]
-    use alloc::{sync::Arc, vec};
-    #[cfg(feature = "std")]
-    use std::sync::Arc;
+    use alloc::vec;
 
     use anyhow::Result;
-    use itertools::Itertools;
     use log::{info, Level};
 
     use super::*;
     use crate::fri::{FriConfig, FriReductionStrategy};
-    use crate::gadgets::lookup::{OTHER_TABLE, TIP5_TABLE};
-    use crate::gates::lookup_table::LookupTable;
     use crate::gates::noop::NoopGate;
     use crate::iop::witness::{PartialWitness, WitnessWrite};
     use crate::plonk::circuit_data::{CircuitConfig, VerifierOnlyCircuitData};
@@ -233,72 +213,6 @@ mod tests {
         let config = CircuitConfig::standard_recursion_config();
 
         let (proof, vd, common_data) = dummy_proof::<F, C, D>(&config, 4_000)?;
-        let (proof, _vd, common_data) =
-            recursive_proof::<F, C, C, D>(proof, vd, common_data, &config, None, true, true)?;
-        test_serialization(&proof, &common_data)?;
-
-        Ok(())
-    }
-
-    #[test]
-    #[cfg(feature = "rand")]
-    fn test_recursive_verifier_one_lookup() -> Result<()> {
-        init_logger();
-        const D: usize = 2;
-        type C = PoseidonGoldilocksConfig;
-        type F = <C as GenericConfig<D>>::F;
-        let config = CircuitConfig::standard_recursion_config();
-
-        let (proof, vd, common_data) = dummy_lookup_proof::<F, C, D>(&config, 10)?;
-        let (proof, _vd, common_data) =
-            recursive_proof::<F, C, C, D>(proof, vd, common_data, &config, None, true, true)?;
-        test_serialization(&proof, &common_data)?;
-
-        Ok(())
-    }
-
-    #[test]
-    #[cfg(feature = "rand")]
-    fn test_recursive_verifier_one_lookup_row_blinding() -> Result<()> {
-        init_logger();
-        const D: usize = 2;
-        type C = PoseidonGoldilocksConfig;
-        type F = <C as GenericConfig<D>>::F;
-        let config = CircuitConfig::standard_recursion_zk_config();
-
-        let (proof, vd, common_data) = dummy_lookup_proof::<F, C, D>(&config, 10)?;
-        let (proof, _vd, common_data) =
-            recursive_proof::<F, C, C, D>(proof, vd, common_data, &config, None, true, true)?;
-        test_serialization(&proof, &common_data)?;
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_recursive_verifier_two_luts() -> Result<()> {
-        init_logger();
-        const D: usize = 2;
-        type C = PoseidonGoldilocksConfig;
-        type F = <C as GenericConfig<D>>::F;
-        let config = CircuitConfig::standard_recursion_config();
-
-        let (proof, vd, common_data) = dummy_two_luts_proof::<F, C, D>(&config)?;
-        let (proof, _vd, common_data) =
-            recursive_proof::<F, C, C, D>(proof, vd, common_data, &config, None, true, true)?;
-        test_serialization(&proof, &common_data)?;
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_recursive_verifier_too_many_rows() -> Result<()> {
-        init_logger();
-        const D: usize = 2;
-        type C = PoseidonGoldilocksConfig;
-        type F = <C as GenericConfig<D>>::F;
-        let config = CircuitConfig::standard_recursion_config();
-
-        let (proof, vd, common_data) = dummy_too_many_rows_proof::<F, C, D>(&config)?;
         let (proof, _vd, common_data) =
             recursive_proof::<F, C, C, D>(proof, vd, common_data, &config, None, true, true)?;
         test_serialization(&proof, &common_data)?;
@@ -456,206 +370,6 @@ mod tests {
         let data = builder.build::<C>();
         let inputs = PartialWitness::new();
         let proof = data.prove(inputs)?;
-        data.verify(proof.clone())?;
-
-        Ok((proof, data.verifier_only, data.common))
-    }
-
-    /// Creates a dummy lookup proof which does one lookup to one LUT.
-    fn dummy_lookup_proof<
-        F: RichField + Extendable<D>,
-        C: GenericConfig<D, F = F>,
-        const D: usize,
-    >(
-        config: &CircuitConfig,
-        num_dummy_gates: u64,
-    ) -> Result<Proof<F, C, D>>
-    where
-        C::InnerHasher: AlgebraicHasher<F>,
-    {
-        let mut builder = CircuitBuilder::<F, D>::new(config.clone());
-        let initial_a = builder.add_virtual_target();
-        let initial_b = builder.add_virtual_target();
-
-        let look_val_a = 1;
-        let look_val_b = 2;
-
-        let tip5_table = TIP5_TABLE.to_vec();
-        let table: LookupTable = Arc::new((0..256).zip_eq(tip5_table).collect());
-
-        let out_a = table[look_val_a].1;
-        let out_b = table[look_val_b].1;
-
-        let tip5_index = builder.add_lookup_table_from_pairs(table);
-
-        let output_a = builder.add_lookup_from_index(initial_a, tip5_index);
-        let output_b = builder.add_lookup_from_index(initial_b, tip5_index);
-
-        for _ in 0..num_dummy_gates + 1 {
-            builder.add_gate(NoopGate, vec![]);
-        }
-
-        builder.register_public_input(initial_a);
-        builder.register_public_input(initial_b);
-        builder.register_public_input(output_a);
-        builder.register_public_input(output_b);
-
-        let data = builder.build::<C>();
-        let mut inputs = PartialWitness::new();
-        inputs.set_target(initial_a, F::from_canonical_usize(look_val_a))?;
-        inputs.set_target(initial_b, F::from_canonical_usize(look_val_b))?;
-
-        let proof = data.prove(inputs)?;
-        data.verify(proof.clone())?;
-
-        assert!(
-            proof.public_inputs[2] == F::from_canonical_u16(out_a),
-            "First lookup, at index {} in the Tip5 table gives an incorrect output.",
-            proof.public_inputs[0]
-        );
-        assert!(
-            proof.public_inputs[3] == F::from_canonical_u16(out_b),
-            "Second lookup, at index {} in the Tip5 table gives an incorrect output.",
-            proof.public_inputs[1]
-        );
-
-        Ok((proof, data.verifier_only, data.common))
-    }
-
-    /// Creates a dummy lookup proof which does one lookup to two different LUTs.
-    fn dummy_two_luts_proof<
-        F: RichField + Extendable<D>,
-        C: GenericConfig<D, F = F>,
-        const D: usize,
-    >(
-        config: &CircuitConfig,
-    ) -> Result<Proof<F, C, D>>
-    where
-        C::InnerHasher: AlgebraicHasher<F>,
-    {
-        let mut builder = CircuitBuilder::<F, D>::new(config.clone());
-        let initial_a = builder.add_virtual_target();
-        let initial_b = builder.add_virtual_target();
-
-        let look_val_a = 1;
-        let look_val_b = 2;
-
-        let tip5_table = TIP5_TABLE.to_vec();
-
-        let first_out = tip5_table[look_val_a];
-        let second_out = tip5_table[look_val_b];
-
-        let table: LookupTable = Arc::new((0..256).zip_eq(tip5_table).collect());
-
-        let other_table = OTHER_TABLE.to_vec();
-
-        let tip5_index = builder.add_lookup_table_from_pairs(table);
-        let output_a = builder.add_lookup_from_index(initial_a, tip5_index);
-
-        let output_b = builder.add_lookup_from_index(initial_b, tip5_index);
-        let sum = builder.add(output_a, output_b);
-
-        let s = first_out + second_out;
-        let final_out = other_table[s as usize];
-
-        let table2: LookupTable = Arc::new((0..256).zip_eq(other_table).collect());
-
-        let other_index = builder.add_lookup_table_from_pairs(table2);
-        let output_final = builder.add_lookup_from_index(sum, other_index);
-
-        builder.register_public_input(initial_a);
-        builder.register_public_input(initial_b);
-
-        builder.register_public_input(sum);
-        builder.register_public_input(output_a);
-        builder.register_public_input(output_b);
-        builder.register_public_input(output_final);
-
-        let mut pw = PartialWitness::new();
-        pw.set_target(initial_a, F::ONE)?;
-        pw.set_target(initial_b, F::TWO)?;
-
-        let data = builder.build::<C>();
-        let proof = data.prove(pw)?;
-        data.verify(proof.clone())?;
-
-        assert!(
-            proof.public_inputs[3] == F::from_canonical_u16(first_out),
-            "First lookup, at index {} in the Tip5 table gives an incorrect output.",
-            proof.public_inputs[0]
-        );
-        assert!(
-            proof.public_inputs[4] == F::from_canonical_u16(second_out),
-            "Second lookup, at index {} in the Tip5 table gives an incorrect output.",
-            proof.public_inputs[1]
-        );
-        assert!(
-            proof.public_inputs[2] == F::from_canonical_u16(s),
-            "Sum between the first two LUT outputs is incorrect."
-        );
-        assert!(
-            proof.public_inputs[5] == F::from_canonical_u16(final_out),
-            "Output of the second LUT at index {} is incorrect.",
-            s
-        );
-
-        Ok((proof, data.verifier_only, data.common))
-    }
-
-    /// Creates a dummy proof which has more than 256 lookups to one LUT.
-    fn dummy_too_many_rows_proof<
-        F: RichField + Extendable<D>,
-        C: GenericConfig<D, F = F>,
-        const D: usize,
-    >(
-        config: &CircuitConfig,
-    ) -> Result<Proof<F, C, D>>
-    where
-        C::InnerHasher: AlgebraicHasher<F>,
-    {
-        let mut builder = CircuitBuilder::<F, D>::new(config.clone());
-
-        let initial_a = builder.add_virtual_target();
-        let initial_b = builder.add_virtual_target();
-
-        let look_val_a = 1;
-        let look_val_b = 2;
-
-        let tip5_table = TIP5_TABLE.to_vec();
-        let table: LookupTable = Arc::new((0..256).zip_eq(tip5_table).collect());
-
-        let out_a = table[look_val_a].1;
-        let out_b = table[look_val_b].1;
-
-        let tip5_index = builder.add_lookup_table_from_pairs(table);
-        let output_b = builder.add_lookup_from_index(initial_b, tip5_index);
-        let mut output = builder.add_lookup_from_index(initial_a, tip5_index);
-        for _ in 0..514 {
-            output = builder.add_lookup_from_index(initial_a, tip5_index);
-        }
-
-        builder.register_public_input(initial_a);
-        builder.register_public_input(initial_b);
-        builder.register_public_input(output_b);
-        builder.register_public_input(output);
-
-        let mut pw = PartialWitness::new();
-
-        pw.set_target(initial_a, F::from_canonical_usize(look_val_a))?;
-        pw.set_target(initial_b, F::from_canonical_usize(look_val_b))?;
-
-        let data = builder.build::<C>();
-        let proof = data.prove(pw)?;
-        assert!(
-            proof.public_inputs[2] == F::from_canonical_u16(out_b),
-            "First lookup, at index {} in the Tip5 table gives an incorrect output.",
-            proof.public_inputs[1]
-        );
-        assert!(
-            proof.public_inputs[3] == F::from_canonical_u16(out_a),
-            "Lookups at index {} in the Tip5 table gives an incorrect output.",
-            proof.public_inputs[0]
-        );
         data.verify(proof.clone())?;
 
         Ok((proof, data.verifier_only, data.common))

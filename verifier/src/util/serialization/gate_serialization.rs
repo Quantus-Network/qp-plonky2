@@ -102,8 +102,6 @@ pub mod default {
     use crate::gates::constant::ConstantGate;
     use crate::gates::coset_interpolation::CosetInterpolationGate;
     use crate::gates::exponentiation::ExponentiationGate;
-    use crate::gates::lookup::LookupGate;
-    use crate::gates::lookup_table::LookupTableGate;
     use crate::gates::multiplication_extension::MulExtensionGate;
     use crate::gates::noop::NoopGate;
     use crate::gates::poseidon::PoseidonGate;
@@ -137,8 +135,6 @@ pub mod default {
             ConstantGate,
             CosetInterpolationGate<F, D>,
             ExponentiationGate<F, D>,
-            LookupGate,
-            LookupTableGate,
             MulExtensionGate<D>,
             NoopGate,
             PoseidonMdsGate<F, D>,
