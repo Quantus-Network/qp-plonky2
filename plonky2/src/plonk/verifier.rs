@@ -91,7 +91,7 @@ pub(crate) fn verify_with_challenges<
     // So to reconstruct `t(zeta)` we can compute `reduce_with_powers(chunk, zeta^n)` for each
     // `quotient_degree_factor`-sized chunk of the original evaluations.
     for (i, chunk) in quotient_polys_zeta
-        .chunks(common_data.quotient_degree_factor)
+        .chunks(common_data.quotient_degree_factor())
         .enumerate()
     {
         ensure!(vanishing_polys_zeta[i] == z_h_zeta * reduce_with_powers(chunk, zeta_pow_deg));

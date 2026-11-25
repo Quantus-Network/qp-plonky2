@@ -1,5 +1,4 @@
 use std::panic::{catch_unwind, AssertUnwindSafe};
-use std::sync::Arc;
 
 use plonky2::field::types::Field;
 use plonky2::field::zero_poly_coset::ZeroPolyOnCoset;
@@ -389,19 +388,24 @@ fn panic_message(payload: Box<dyn std::any::Any + Send>) -> String {
         .unwrap_or_default()
 }
 
-/// A `Fixed` schedule no degree in the field can hold is rejected by `CircuitBuilder::new`, before
-/// blinding tries to pad the trace to a size that matches it.
+/// A `Fixed` schedule that no trace in the field can carry would have blinding double its degree
+/// estimate past the field's largest domain; the estimate stops there instead.
 #[test]
 fn impossible_fixed_fri_schedule_rejected_before_blinding() {
-    let result = catch_unwind(AssertUnwindSafe(|| {
-        let mut config = CircuitConfig::standard_recursion_zk_config();
-        config.fri_config.reduction_strategy = FriReductionStrategy::Fixed(vec![40]);
-        CircuitBuilder::<F, D>::new(config)
-    }));
-    assert_eq!(
-        panic_message(result.unwrap_err()),
-        "FRI reductions exceed the field's two-adicity"
-    );
+    for arity_bits in [vec![40], vec![29]] {
+        let result = catch_unwind(AssertUnwindSafe(|| {
+            let mut config = CircuitConfig::standard_recursion_zk_config();
+            config.fri_config.reduction_strategy = FriReductionStrategy::Fixed(arity_bits);
+            let mut builder = CircuitBuilder::<F, D>::new(config);
+            let x = builder.add_virtual_target();
+            builder.register_public_input(x);
+            builder.build::<C>()
+        }));
+        assert_eq!(
+            panic_message(result.unwrap_err()),
+            "the FRI schedule needs more blinding rows than the field's largest domain holds"
+        );
+    }
 }
 
 /// Blinding sizes the trace from estimates below the final degree, so a `Fixed` schedule is only
@@ -507,17 +511,42 @@ fn common_data_primitives_are_checked_on_load() {
         "gate does not fit within the circuit config",
     );
     rejected(
-        |common| common.luts.push(Arc::new(Vec::new())),
-        "lookup table is empty",
+        |common| common.config.num_wires = CircuitConfig::MAX_WIDTH + 1,
+        "num_wires and num_constants must not exceed 2^16",
     );
 }
 
 /// Derived fields are not in the encoding, so altering one in memory changes nothing on the wire:
-/// the bytes decode to what the builder produced.
+/// the bytes decode to what the builder produced. Gates are read against the circuit's own
+/// config, so circuits wider than the default config round-trip too.
 #[test]
 fn common_data_roundtrips_from_its_primitives() {
-    let data = simple_circuit_data();
     let gate_serializer = DefaultGateSerializer;
+    for (num_wires, num_routed_wires) in [(143, 120), (234, 200)] {
+        let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig {
+            num_wires,
+            num_routed_wires,
+            ..CircuitConfig::standard_recursion_config()
+        });
+        let x = builder.add_virtual_target();
+        let y = builder.mul(x, x);
+        builder.register_public_input(y);
+        let common = builder.build::<C>().common;
+        let bytes = common.to_bytes(&gate_serializer).unwrap();
+        assert_eq!(
+            CommonCircuitData::<F, D>::from_bytes(bytes.clone(), &gate_serializer).unwrap(),
+            common
+        );
+        assert!(
+            plonky2_verifier::plonk::circuit_data::CommonCircuitData::<F, D>::from_bytes(
+                bytes,
+                &plonky2_verifier::util::serialization::DefaultGateSerializer,
+            )
+            .is_ok()
+        );
+    }
+
+    let data = simple_circuit_data();
     for mutate in [
         |_: &mut CommonCircuitData<F, D>| {},
         |common: &mut CommonCircuitData<F, D>| common.num_constants += 1,

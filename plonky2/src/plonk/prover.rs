@@ -245,7 +245,7 @@ where
     };
 
     assert!(
-        common_data.quotient_degree_factor < common_data.config.num_routed_wires,
+        common_data.quotient_degree_factor() < common_data.config.num_routed_wires,
         "When the number of routed wires is smaller that the degree, we should change the logic to avoid computing partial products."
     );
     let mut partial_products_and_zs = timed!(
@@ -657,7 +657,7 @@ fn compute_quotient_polys<
 
     let has_lookup = common_data.num_lookup_polys != 0;
 
-    let quotient_degree_bits = log2_ceil(common_data.quotient_degree_factor);
+    let quotient_degree_bits = log2_ceil(common_data.quotient_degree_factor());
     assert!(
         quotient_degree_bits <= common_data.config.fri_config.rate_bits,
         "Having constraints of degree higher than the rate is not supported yet. \

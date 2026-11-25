@@ -9,7 +9,9 @@ use crate::field::cosets::get_unique_coset_shifts;
 use crate::field::extension::Extendable;
 use crate::field::types::Field;
 use crate::fri::{FriConfig, FriParams, FriReductionStrategy};
-use crate::plonk_common::{num_lookup_polys, num_lookup_selectors, num_partial_products};
+use crate::plonk_common::{
+    num_lookup_polys, num_lookup_selectors, num_partial_products, LookupTable,
+};
 use crate::selectors::SelectorsInfo;
 
 /// Configuration to be used when building a circuit. This defines the shape of the circuit
@@ -51,6 +53,9 @@ impl Default for CircuitConfig {
 }
 
 impl CircuitConfig {
+    /// The widest row `check_valid` accepts, for `num_wires` and `num_constants`.
+    pub const MAX_WIDTH: usize = 1 << 16;
+
     pub const fn num_advice_wires(&self) -> usize {
         self.num_wires - self.num_routed_wires
     }
@@ -117,11 +122,8 @@ impl CircuitConfig {
             return Err("num_routed_wires must be >= 3 (required for lookup gates)");
         }
 
-        // A rate of 1 makes every codeword low-degree, and zero queries test nothing; either
-        // leaves FRI with no soundness regardless of the other parameters.
-        if self.fri_config.rate_bits == 0 {
-            return Err("fri_config.rate_bits must not be 0 (FRI has no redundancy to test)");
-        }
+        // Zero queries test nothing, leaving FRI with no soundness regardless of the other
+        // parameters. (A rate of 1 is rejected below, since no quotient factor fits in it.)
         if self.fri_config.num_query_rounds == 0 {
             return Err("fri_config.num_query_rounds must not be 0 (FRI is never queried)");
         }
@@ -129,11 +131,11 @@ impl CircuitConfig {
         if self.num_routed_wires > self.num_wires {
             return Err("num_routed_wires must not exceed num_wires");
         }
-        // Every row is opened at `num_wires` points, so wider rows are not circuits but attempts
-        // to overflow the arithmetic gates perform on their widths. (On a 32-bit target this
-        // bound is vacuous; the sums over widths are checked there instead.)
-        if self.num_wires > u32::MAX as usize || self.num_constants > u32::MAX as usize {
-            return Err("num_wires and num_constants must fit in 32 bits");
+        // Every row is opened at `num_wires` points and loading allocates per routed wire, so
+        // wider rows are not circuits but attempts to exhaust the loader. Standard configs use
+        // a few hundred.
+        if self.num_wires > Self::MAX_WIDTH || self.num_constants > Self::MAX_WIDTH {
+            return Err("num_wires and num_constants must not exceed 2^16");
         }
 
         // The lookup argument batches `max_quotient_degree_factor - 1` slots per partial polynomial
@@ -234,7 +236,7 @@ pub fn derive_common_data<F: Field + Extendable<D>, const D: usize>(
     config: &CircuitConfig,
     degree_bits: usize,
     gates: &[GateShape],
-    luts: &[&[(u16, u16)]],
+    luts: &[LookupTable],
 ) -> Result<DerivedCommonData<F>, &'static str> {
     config.check_valid()?;
     config.check_fri_security::<F, D>()?;
@@ -263,10 +265,7 @@ pub fn derive_common_data<F: Field + Extendable<D>, const D: usize>(
     let selectors_info = SelectorsInfo::for_gate_degrees(&degrees, quotient_degree_factor + 1)?;
     let num_lookup_selectors = num_lookup_selectors(luts.len());
     let max_gate_constants = gates.iter().map(|gate| gate.num_constants).max().unwrap();
-    // Checked so that a 32-bit target, where the config's width bound is vacuous, cannot wrap.
-    let num_constants = (selectors_info.num_selectors() + num_lookup_selectors)
-        .checked_add(max_gate_constants)
-        .ok_or("constant count overflows")?;
+    let num_constants = selectors_info.num_selectors() + num_lookup_selectors + max_gate_constants;
 
     Ok(DerivedCommonData {
         fri_params,
@@ -287,7 +286,9 @@ pub fn derive_common_data<F: Field + Extendable<D>, const D: usize>(
 #[cfg(test)]
 mod tests {
     #[cfg(not(feature = "std"))]
-    use alloc::{string::ToString, vec, vec::Vec};
+    use alloc::{string::ToString, sync::Arc, vec, vec::Vec};
+    #[cfg(feature = "std")]
+    use std::sync::Arc;
 
     use plonky2_field::goldilocks_field::GoldilocksField;
 
@@ -360,10 +361,10 @@ mod tests {
         );
 
         let mut config = CircuitConfig::standard_recursion_config();
-        config.num_wires = usize::MAX;
+        config.num_wires = CircuitConfig::MAX_WIDTH + 1;
         assert_eq!(
             config.check_valid(),
-            Err("num_wires and num_constants must fit in 32 bits")
+            Err("num_wires and num_constants must not exceed 2^16")
         );
 
         let mut config = CircuitConfig::standard_recursion_config();
@@ -407,16 +408,20 @@ mod tests {
         config: &CircuitConfig,
         degree_bits: usize,
         gates: &[GateShape],
-        luts: &[&[(u16, u16)]],
+        luts: &[LookupTable],
     ) -> Result<DerivedCommonData<GoldilocksField>, &'static str> {
         derive_common_data::<GoldilocksField, 2>(config, degree_bits, gates, luts)
+    }
+
+    fn table(pairs: &[(u16, u16)]) -> LookupTable {
+        Arc::new(pairs.to_vec())
     }
 
     #[test]
     fn derive_common_data_matches_the_builder_formulas() {
         let config = CircuitConfig::standard_recursion_config();
-        let table: &[(u16, u16)] = &[(0, 1), (1, 2)];
-        let derived = derive(&config, 12, &gates(), &[table, &table[..1]]).unwrap();
+        let tables = [table(&[(0, 1), (1, 2)]), table(&[(0, 1)])];
+        let derived = derive(&config, 12, &gates(), &tables).unwrap();
         assert_eq!(derived.fri_params, config.fri_config.fri_params(12, false));
         assert_eq!(derived.selectors_info.groups, vec![0..4, 4..5, 5..6]);
         assert_eq!(derived.num_gate_constraints, 123);
@@ -526,7 +531,7 @@ mod tests {
     fn derive_common_data_rejects_empty_lookup_tables() {
         let config = CircuitConfig::standard_recursion_config();
         assert_eq!(
-            derive(&config, 12, &gates(), &[&[]]),
+            derive(&config, 12, &gates(), &[table(&[])]),
             Err("lookup table is empty")
         );
     }

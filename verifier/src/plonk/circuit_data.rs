@@ -191,17 +191,11 @@ pub struct CommonVerifierData<F: RichField + Extendable<D>, const D: usize> {
 
     pub fri_params: FriParams,
 
-    /// Shared public degree bits for the initial phase-1 FRI oracle commitments.
-    pub public_initial_degree_bits: usize,
-
     /// The types of gates used in this circuit, along with their prefixes.
     pub gates: Vec<GateRef<F, D>>,
 
     /// Information on the circuit's selector polynomials.
     pub selectors_info: SelectorsInfo,
-
-    /// The degree of the PLONK quotient polynomial.
-    pub quotient_degree_factor: usize,
 
     /// The largest number of constraints imposed by any gate.
     pub num_gate_constraints: usize,
@@ -247,14 +241,11 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
                 num_constraints: gate.0.num_constraints(),
             })
             .collect();
-        let tables: Vec<&[(u16, u16)]> = luts.iter().map(|lut| lut.as_slice()).collect();
-        let derived = derive_common_data::<F, D>(&config, degree_bits, &gate_shapes, &tables)?;
+        let derived = derive_common_data::<F, D>(&config, degree_bits, &gate_shapes, &luts)?;
         Ok(Self {
-            quotient_degree_factor: config.max_quotient_degree_factor,
             config,
             trace_degree_bits: degree_bits,
             fri_params: derived.fri_params,
-            public_initial_degree_bits: degree_bits,
             gates,
             selectors_info: derived.selectors_info,
             num_gate_constraints: derived.num_gate_constraints,
@@ -268,10 +259,10 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
         })
     }
 
-    /// Holds the lookup tables and nothing else, so gate readers can resolve table indices
-    /// before the gates, and with them the derived fields, are known.
-    pub(crate) fn tables_only(luts: Vec<LookupTable>) -> Self {
-        let config = CircuitConfig::default();
+    /// Holds the config and lookup tables and nothing else, so gate readers can check their
+    /// parameters and resolve table indices before the gates, and with them the derived fields,
+    /// are known.
+    pub(crate) fn tables_only(config: CircuitConfig, luts: Vec<LookupTable>) -> Self {
         Self {
             fri_params: FriParams {
                 config: config.fri_config.clone(),
@@ -281,13 +272,11 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
             },
             config,
             trace_degree_bits: 0,
-            public_initial_degree_bits: 0,
             gates: Vec::new(),
             selectors_info: SelectorsInfo {
                 selector_indices: Vec::new(),
                 groups: Vec::new(),
             },
-            quotient_degree_factor: 0,
             num_gate_constraints: 0,
             num_constants: 0,
             num_public_inputs: 0,
@@ -317,9 +306,10 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
         self.trace_degree_bits
     }
 
-    /// Degree bits for the public initial FRI codeword used by masked phase-1 oracles.
+    /// Degree bits for the public initial FRI codeword used by masked phase-1 oracles; the
+    /// trace degree bits.
     pub const fn public_initial_degree_bits(&self) -> usize {
-        self.public_initial_degree_bits
+        self.trace_degree_bits
     }
 
     /// Degree of the public initial FRI codeword used by masked phase-1 oracles.
@@ -352,19 +342,24 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
             .expect("No gates?")
     }
 
+    /// The degree of the PLONK quotient polynomial, in multiples of the trace degree.
+    pub const fn quotient_degree_factor(&self) -> usize {
+        self.config.max_quotient_degree_factor
+    }
+
     pub const fn quotient_degree(&self) -> usize {
-        self.quotient_degree_factor * self.degree()
+        self.quotient_degree_factor() * self.degree()
     }
 
     /// The quotient degree factor determines partial-product chunk size.
-    pub fn permutation_partial_product_degree(&self) -> usize {
-        self.quotient_degree_factor
+    pub const fn permutation_partial_product_degree(&self) -> usize {
+        self.quotient_degree_factor()
     }
 
     /// Lookup running-sum accumulators consume one degree in the filtered constraints,
     /// so their chunk size is one less than the quotient degree factor.
-    pub fn lookup_accumulator_degree(&self) -> usize {
-        self.quotient_degree_factor - 1
+    pub const fn lookup_accumulator_degree(&self) -> usize {
+        self.quotient_degree_factor() - 1
     }
 
     /// Range of the constants polynomials in the `constants_sigmas_commitment`.
@@ -512,7 +507,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
         )
     }
     pub(crate) const fn num_quotient_polys(&self) -> usize {
-        self.config.num_challenges * self.quotient_degree_factor
+        self.config.num_challenges * self.quotient_degree_factor()
     }
 
     fn fri_all_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
