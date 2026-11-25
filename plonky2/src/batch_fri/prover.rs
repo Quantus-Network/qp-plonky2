@@ -320,8 +320,6 @@ mod tests {
             proof.pow_witness,
             k,
             &fri_params.config,
-            None,
-            None,
         );
 
         let fri_opening_batch = FriOpeningBatch {
@@ -446,8 +444,6 @@ mod tests {
             proof.pow_witness,
             k0,
             &fri_params.config,
-            None,
-            None,
         );
         let fri_opening_batch_0 = FriOpenings {
             batches: vec![FriOpeningBatch {
