@@ -9,8 +9,8 @@ use crate::field::cosets::get_unique_coset_shifts;
 use crate::field::extension::Extendable;
 use crate::field::types::Field;
 use crate::fri::{FriConfig, FriParams, FriReductionStrategy};
-use crate::plonk_common::{num_lookup_polys, num_partial_products};
-use crate::selectors::{LookupSelectors, SelectorsInfo};
+use crate::plonk_common::{num_lookup_polys, num_lookup_selectors, num_partial_products};
+use crate::selectors::SelectorsInfo;
 
 /// Configuration to be used when building a circuit. This defines the shape of the circuit
 /// as well as its targeted security level and sub-protocol (e.g. FRI) parameters.
@@ -146,6 +146,11 @@ impl CircuitConfig {
         if self.max_quotient_degree_factor >= self.num_routed_wires {
             return Err("max_quotient_degree_factor must be below num_routed_wires");
         }
+        // The quotient is split into `max_quotient_degree_factor` chunks, each committed at the
+        // trace degree, so the LDE must be at least that many times larger than the trace.
+        if crate::util::log2_ceil(self.max_quotient_degree_factor) > self.fri_config.rate_bits {
+            return Err("max_quotient_degree_factor exceeds FRI rate_bits");
+        }
 
         // A zero arity never folds: `Fixed` would yield a step that reduces nothing and
         // `ConstantArityBits` would loop forever while deriving the schedule.
@@ -202,65 +207,41 @@ pub struct GateShape {
     pub num_constraints: usize,
 }
 
-/// A view of a `CommonCircuitData` (from either crate) for [`check_common_data_valid`].
-pub struct CommonDataShape<'a, F: Field> {
-    pub config: &'a CircuitConfig,
-    pub trace_degree_bits: usize,
-    pub fri_params: &'a FriParams,
-    pub public_initial_degree_bits: usize,
-    pub gates: &'a [GateShape],
-    pub selectors_info: &'a SelectorsInfo,
-    pub quotient_degree_factor: usize,
+/// The fields of a `CommonCircuitData` that follow from its config, degree, gates and lookup
+/// tables. Only those primitives are serialized; this is recomputed on load.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DerivedCommonData<F: Field> {
+    pub fri_params: FriParams,
+    pub selectors_info: SelectorsInfo,
     pub num_gate_constraints: usize,
     pub num_constants: usize,
-    pub k_is: &'a [F],
+    pub k_is: Vec<F>,
     pub num_partial_products: usize,
     pub num_lookup_polys: usize,
     pub num_lookup_selectors: usize,
-    pub lut_lengths: &'a [usize],
 }
 
-/// Checks that common circuit data is internally consistent: the config passes the checks the
-/// builder applies, and every derived field is what `CircuitBuilder::build` produces from the
-/// primitive inputs (config, degree, gate set and lookup tables). This rejects corrupted or
-/// hand-assembled data, whether deserialized or built in memory; it cannot tell which circuit the
-/// primitives describe, so a verifier must pin the whole common data, not only the verifier key.
+/// Derives the rest of a `CommonCircuitData` the way `CircuitBuilder::build` does, after
+/// checking that the primitives are ones the builder could have fixed: the config passes the
+/// builder's checks, the FRI domain and schedule exist for the degree, the gates are sorted by
+/// `(degree, id)` without repeats and fit the config, and no lookup table is empty. The gate
+/// methods behind [`GateShape`] must already be safe to call, which each gate's deserializer
+/// guarantees by checking its own parameters.
 ///
-/// The gate methods behind [`GateShape`] are assumed not to panic, which each gate's
-/// deserializer guarantees by validating its own parameters.
-pub fn check_common_data_valid<F: Field + Extendable<D>, const D: usize>(
-    data: &CommonDataShape<F>,
-) -> Result<(), &'static str> {
-    let config = data.config;
+/// This cannot tell which circuit the primitives describe, so a verifier must pin the whole
+/// common data, not only the verifier key.
+pub fn derive_common_data<F: Field + Extendable<D>, const D: usize>(
+    config: &CircuitConfig,
+    degree_bits: usize,
+    gates: &[GateShape],
+    luts: &[&[(u16, u16)]],
+) -> Result<DerivedCommonData<F>, &'static str> {
     config.check_valid()?;
     config.check_fri_security::<F, D>()?;
+    let fri_params = config
+        .fri_config
+        .checked_fri_params::<F>(degree_bits, config.zero_knowledge)?;
 
-    // The builder derives all three degrees from the padded gate count. The verifier evaluates the
-    // vanishing polynomial over `trace_degree_bits`, samples FRI query indices from
-    // `public_initial_degree_bits` and checks the FRI proof over `fri_params.degree_bits`, so any
-    // disagreement lets a proof be checked against a different domain than it was committed to.
-    let degree_bits = data.trace_degree_bits;
-    if degree_bits != data.public_initial_degree_bits || degree_bits != data.fri_params.degree_bits
-    {
-        return Err("trace_degree_bits, public_initial_degree_bits and FRI degree_bits must agree");
-    }
-
-    // Bounds the domain before anything shifts by it, then confirms the schedule is the config's.
-    let fri_config = &config.fri_config;
-    data.fri_params.check_valid::<F>()?;
-    if *data.fri_params != fri_config.fri_params(degree_bits, config.zero_knowledge) {
-        return Err("fri_params must be derived from config");
-    }
-
-    let quotient_degree_factor = data.quotient_degree_factor;
-    if quotient_degree_factor != config.max_quotient_degree_factor {
-        return Err("quotient_degree_factor must equal config.max_quotient_degree_factor");
-    }
-    if crate::util::log2_ceil(quotient_degree_factor) > fri_config.rate_bits {
-        return Err("quotient_degree_factor exceeds FRI rate_bits");
-    }
-
-    let gates = data.gates;
     let sorted_without_duplicates = gates
         .windows(2)
         .all(|pair| (pair[0].degree, &pair[0].id) < (pair[1].degree, &pair[1].id));
@@ -273,59 +254,34 @@ pub fn check_common_data_valid<F: Field + Extendable<D>, const D: usize>(
     {
         return Err("gate does not fit within the circuit config");
     }
-
-    let degrees: Vec<usize> = gates.iter().map(|gate| gate.degree).collect();
-    if *data.selectors_info
-        != SelectorsInfo::for_gate_degrees(&degrees, quotient_degree_factor + 1)?
-    {
-        return Err("selectors_info must be derived from the gates");
-    }
-
-    let num_luts = data.lut_lengths.len();
-    if data.lut_lengths.contains(&0) {
+    if luts.iter().any(|lut| lut.is_empty()) {
         return Err("lookup table is empty");
     }
-    // The four shared lookup selectors plus one end selector per table.
-    let num_lookup_selectors = if num_luts == 0 {
-        0
-    } else {
-        LookupSelectors::StartEnd as usize + num_luts
-    };
-    if data.num_lookup_polys
-        != num_lookup_polys(
-            config.num_routed_wires,
-            quotient_degree_factor - 1,
-            num_luts,
-        )
-    {
-        return Err("num_lookup_polys must be derived from the config and lookup tables");
-    }
-    if data.num_lookup_selectors != num_lookup_selectors {
-        return Err("num_lookup_selectors must be derived from the lookup tables");
-    }
 
+    let quotient_degree_factor = config.max_quotient_degree_factor;
+    let degrees: Vec<usize> = gates.iter().map(|gate| gate.degree).collect();
+    let selectors_info = SelectorsInfo::for_gate_degrees(&degrees, quotient_degree_factor + 1)?;
+    let num_lookup_selectors = num_lookup_selectors(luts.len());
     let max_gate_constants = gates.iter().map(|gate| gate.num_constants).max().unwrap();
     // Checked so that a 32-bit target, where the config's width bound is vacuous, cannot wrap.
-    let derived_num_constants = (data.selectors_info.num_selectors() + num_lookup_selectors)
-        .checked_add(max_gate_constants);
-    if Some(data.num_constants) != derived_num_constants {
-        return Err("num_constants must be derived from the selectors and gates");
-    }
-    if data.num_gate_constraints != gates.iter().map(|gate| gate.num_constraints).max().unwrap() {
-        return Err("num_gate_constraints must be the maximum over the gates");
-    }
-    if data.num_partial_products
-        != num_partial_products(config.num_routed_wires, quotient_degree_factor)
-    {
-        return Err("num_partial_products must be derived from the config");
-    }
-    if data.k_is.len() != config.num_routed_wires
-        || data.k_is != get_unique_coset_shifts::<F>(1 << degree_bits, config.num_routed_wires)
-    {
-        return Err("k_is must be the unique coset shifts for the degree");
-    }
+    let num_constants = (selectors_info.num_selectors() + num_lookup_selectors)
+        .checked_add(max_gate_constants)
+        .ok_or("constant count overflows")?;
 
-    Ok(())
+    Ok(DerivedCommonData {
+        fri_params,
+        selectors_info,
+        num_gate_constraints: gates.iter().map(|gate| gate.num_constraints).max().unwrap(),
+        num_constants,
+        k_is: get_unique_coset_shifts::<F>(1 << degree_bits, config.num_routed_wires),
+        num_partial_products: num_partial_products(config.num_routed_wires, quotient_degree_factor),
+        num_lookup_polys: num_lookup_polys(
+            config.num_routed_wires,
+            quotient_degree_factor - 1,
+            luts.len(),
+        ),
+        num_lookup_selectors,
+    })
 }
 
 #[cfg(test)]
@@ -416,329 +372,162 @@ mod tests {
             config.check_valid(),
             Err("max_quotient_degree_factor must be below num_routed_wires")
         );
+
+        let mut config = CircuitConfig::standard_recursion_config();
+        config.fri_config.rate_bits = 2;
+        assert_eq!(
+            config.check_valid(),
+            Err("max_quotient_degree_factor exceeds FRI rate_bits")
+        );
     }
 
-    /// An owned `CommonCircuitData` stand-in derived the way the builder derives it, so tests can
-    /// corrupt a single field and check that exactly that corruption is reported.
-    struct CommonData {
-        config: CircuitConfig,
+    /// The gate set a small recursion circuit has, as the builder would sort it.
+    fn gates() -> Vec<GateShape> {
+        [
+            ("NoopGate", 0, 0, 0, 0),
+            ("ConstantGate", 1, 2, 2, 2),
+            ("PublicInputGate", 1, 4, 0, 4),
+            ("ArithmeticGate", 3, 80, 2, 20),
+            ("PoseidonGate", 7, 135, 0, 123),
+            ("CosetInterpolationGate", 8, 64, 0, 24),
+        ]
+        .map(
+            |(id, degree, num_wires, num_constants, num_constraints)| GateShape {
+                id: id.to_string(),
+                degree,
+                num_wires,
+                num_constants,
+                num_constraints,
+            },
+        )
+        .to_vec()
+    }
+
+    fn derive(
+        config: &CircuitConfig,
         degree_bits: usize,
-        fri_params: FriParams,
-        public_initial_degree_bits: usize,
-        gates: Vec<GateShape>,
-        selectors_info: SelectorsInfo,
-        quotient_degree_factor: usize,
-        num_gate_constraints: usize,
-        num_constants: usize,
-        k_is: Vec<GoldilocksField>,
-        num_partial_products: usize,
-        num_lookup_polys: usize,
-        num_lookup_selectors: usize,
-        lut_lengths: Vec<usize>,
-    }
-
-    impl CommonData {
-        fn new(num_luts: usize) -> Self {
-            let config = CircuitConfig::standard_recursion_config();
-            let degree_bits = 12;
-            let gates = [
-                ("NoopGate", 0, 0, 0, 0),
-                ("ConstantGate", 1, 2, 2, 2),
-                ("PublicInputGate", 1, 4, 0, 4),
-                ("ArithmeticGate", 3, 80, 2, 20),
-                ("PoseidonGate", 7, 135, 0, 123),
-                ("CosetInterpolationGate", 8, 64, 0, 24),
-            ]
-            .map(
-                |(id, degree, num_wires, num_constants, num_constraints)| GateShape {
-                    id: id.to_string(),
-                    degree,
-                    num_wires,
-                    num_constants,
-                    num_constraints,
-                },
-            )
-            .to_vec();
-            let quotient_degree_factor = config.max_quotient_degree_factor;
-            let degrees: Vec<usize> = gates.iter().map(|gate| gate.degree).collect();
-            let selectors_info =
-                SelectorsInfo::for_gate_degrees(&degrees, quotient_degree_factor + 1).unwrap();
-            let num_lookup_selectors = if num_luts == 0 { 0 } else { 4 + num_luts };
-            Self {
-                num_lookup_polys: num_lookup_polys(
-                    config.num_routed_wires,
-                    quotient_degree_factor - 1,
-                    num_luts,
-                ),
-                fri_params: config
-                    .fri_config
-                    .fri_params(degree_bits, config.zero_knowledge),
-                public_initial_degree_bits: degree_bits,
-                num_gate_constraints: gates.iter().map(|gate| gate.num_constraints).max().unwrap(),
-                num_constants: selectors_info.num_selectors() + num_lookup_selectors + 2,
-                k_is: get_unique_coset_shifts(1 << degree_bits, config.num_routed_wires),
-                num_partial_products: num_partial_products(
-                    config.num_routed_wires,
-                    quotient_degree_factor,
-                ),
-                lut_lengths: vec![16; num_luts],
-                config,
-                degree_bits,
-                gates,
-                selectors_info,
-                quotient_degree_factor,
-                num_lookup_selectors,
-            }
-        }
-
-        fn check(&self) -> Result<(), &'static str> {
-            check_common_data_valid::<GoldilocksField, 2>(&CommonDataShape {
-                config: &self.config,
-                trace_degree_bits: self.degree_bits,
-                fri_params: &self.fri_params,
-                public_initial_degree_bits: self.public_initial_degree_bits,
-                gates: &self.gates,
-                selectors_info: &self.selectors_info,
-                quotient_degree_factor: self.quotient_degree_factor,
-                num_gate_constraints: self.num_gate_constraints,
-                num_constants: self.num_constants,
-                k_is: &self.k_is,
-                num_partial_products: self.num_partial_products,
-                num_lookup_polys: self.num_lookup_polys,
-                num_lookup_selectors: self.num_lookup_selectors,
-                lut_lengths: &self.lut_lengths,
-            })
-        }
-    }
-
-    fn corrupted(mutate: impl FnOnce(&mut CommonData)) -> Result<(), &'static str> {
-        let mut data = CommonData::new(1);
-        mutate(&mut data);
-        data.check()
+        gates: &[GateShape],
+        luts: &[&[(u16, u16)]],
+    ) -> Result<DerivedCommonData<GoldilocksField>, &'static str> {
+        derive_common_data::<GoldilocksField, 2>(config, degree_bits, gates, luts)
     }
 
     #[test]
-    fn check_common_data_accepts_builder_output() {
-        assert_eq!(CommonData::new(0).check(), Ok(()));
-        assert_eq!(CommonData::new(3).check(), Ok(()));
-    }
-
-    /// #64700: FRI query indices are sampled from `public_initial_degree_bits` and the vanishing
-    /// polynomial is evaluated over `trace_degree_bits`, so both must equal the committed FRI
-    /// `degree_bits`; otherwise a proof is checked against a different domain than it was
-    /// committed to.
-    #[test]
-    fn check_common_data_rejects_mismatched_degree_bits() {
-        let degrees_disagree =
-            Err("trace_degree_bits, public_initial_degree_bits and FRI degree_bits must agree");
+    fn derive_common_data_matches_the_builder_formulas() {
+        let config = CircuitConfig::standard_recursion_config();
+        let table: &[(u16, u16)] = &[(0, 1), (1, 2)];
+        let derived = derive(&config, 12, &gates(), &[table, &table[..1]]).unwrap();
+        assert_eq!(derived.fri_params, config.fri_config.fri_params(12, false));
+        assert_eq!(derived.selectors_info.groups, vec![0..4, 4..5, 5..6]);
+        assert_eq!(derived.num_gate_constraints, 123);
+        assert_eq!(derived.num_lookup_selectors, 4 + 2);
+        assert_eq!(derived.num_constants, 3 + 6 + 2);
+        assert_eq!(derived.k_is.len(), config.num_routed_wires);
+        assert_eq!(derived.num_partial_products, 9);
+        assert_eq!(derived.num_lookup_polys, 7);
         assert_eq!(
-            corrupted(|data| data.public_initial_degree_bits -= 1),
-            degrees_disagree
-        );
-        assert_eq!(
-            corrupted(|data| data.fri_params.degree_bits += 1),
-            degrees_disagree
-        );
-        assert_eq!(
-            corrupted(|data| {
-                data.degree_bits += 1;
-                data.public_initial_degree_bits += 1;
-            }),
-            degrees_disagree
+            derive(&config, 12, &gates(), &[]).unwrap().num_constants,
+            3 + 2
         );
     }
 
+    /// The loader applies the config rules the builder applies, so consistent-looking data with
+    /// too few queries is rejected the same way `CircuitBuilder::new` rejects its config.
     #[test]
-    fn check_common_data_rejects_oversized_domains() {
-        let huge = |degree_bits: usize| {
-            corrupted(|data| {
-                data.degree_bits = degree_bits;
-                data.public_initial_degree_bits = degree_bits;
-                data.fri_params.degree_bits = degree_bits;
-            })
-        };
+    fn derive_common_data_rejects_configs_the_builder_rejects() {
+        let mut config = CircuitConfig::standard_recursion_config();
+        config.fri_config.num_query_rounds = 1;
+        config.fri_config.proof_of_work_bits = 0;
         assert_eq!(
-            huge(30),
-            Err("FRI LDE domain exceeds the field's two-adicity")
+            derive(&config, 12, &gates(), &[]),
+            Err("FRI params fall short of target security")
         );
+        let mut config = CircuitConfig::standard_recursion_config();
+        config.fri_config.rate_bits = 0;
+        assert!(derive(&config, 12, &gates(), &[]).is_err());
+    }
+
+    #[test]
+    fn derive_common_data_rejects_oversized_domains() {
+        let config = CircuitConfig::standard_recursion_config();
+        let too_large = Err("FRI LDE domain exceeds the field's two-adicity");
+        assert_eq!(derive(&config, 30, &gates(), &[]), too_large);
+        assert_eq!(derive(&config, usize::MAX, &gates(), &[]), too_large);
+        let mut config = CircuitConfig::standard_recursion_config();
+        config.fri_config.rate_bits = usize::MAX;
+        config.fri_config.reduction_strategy = FriReductionStrategy::MinSize(None);
+        assert_eq!(derive(&config, 12, &gates(), &[]), too_large);
+        let mut config = CircuitConfig::standard_recursion_config();
+        config.fri_config.cap_height = 16;
         assert_eq!(
-            huge(usize::MAX),
-            Err("FRI LDE domain exceeds the field's two-adicity")
-        );
-        assert_eq!(
-            corrupted(|data| {
-                data.config.fri_config.rate_bits = usize::MAX;
-                data.fri_params.config.rate_bits = usize::MAX;
-            }),
-            Err("FRI LDE domain exceeds the field's two-adicity")
-        );
-        assert_eq!(
-            corrupted(|data| {
-                data.config.fri_config.cap_height = 16;
-                data.fri_params.config.cap_height = 16;
-            }),
+            derive(&config, 12, &gates(), &[]),
             Err("FRI cap height exceeds the LDE size")
         );
     }
 
-    /// The verifier runs with `fri_params`, so they must be exactly what the validated config
-    /// derives and not a separately supplied copy with, say, zero query rounds or a reduction
-    /// schedule the config would never produce.
+    /// A `Fixed` schedule is whatever the config says, so it is bounded after derivation.
     #[test]
-    fn check_common_data_rejects_divergent_fri_params() {
-        let derived = Err("fri_params must be derived from config");
-        assert_eq!(
-            corrupted(|data| data.fri_params.config.num_query_rounds = 0),
-            derived
-        );
-        assert_eq!(
-            corrupted(|data| data.fri_params.leaf_hiding = true),
-            derived
-        );
-        assert_eq!(
-            corrupted(|data| data.fri_params.reduction_arity_bits.push(0)),
-            derived
-        );
-        assert_eq!(
-            corrupted(|data| data.fri_params.reduction_arity_bits = vec![6, 5]),
-            derived
-        );
-        assert_eq!(
-            corrupted(|data| data.fri_params.reduction_arity_bits = vec![4]),
-            derived
-        );
-    }
-
-    /// The builder and the loader share one FRI security rule, so consistent-looking data with
-    /// too few queries is rejected the same way `CircuitBuilder::new` rejects its config.
-    #[test]
-    fn check_common_data_rejects_insecure_fri() {
-        assert_eq!(
-            corrupted(|data| {
-                data.config.fri_config.num_query_rounds = 1;
-                data.config.fri_config.proof_of_work_bits = 0;
-                data.fri_params.config = data.config.fri_config.clone();
-            }),
-            Err("FRI params fall short of target security")
-        );
-    }
-
-    /// A `Fixed` schedule is whatever the config says, so the schedule bounds are checked on it
-    /// directly rather than through the derivation comparison.
-    #[test]
-    fn fri_params_reject_schedules_that_overrun_the_domain() {
-        let fixed = |arity_bits: Vec<usize>, cap_height| FriParams {
-            config: FriConfig {
+    fn checked_fri_params_reject_schedules_that_overrun_the_domain() {
+        let fixed = |arity_bits: Vec<usize>, cap_height| {
+            FriConfig {
                 cap_height,
-                reduction_strategy: FriReductionStrategy::Fixed(arity_bits.clone()),
+                reduction_strategy: FriReductionStrategy::Fixed(arity_bits),
                 ..CircuitConfig::standard_recursion_config().fri_config
-            },
-            leaf_hiding: false,
-            degree_bits: 12,
-            reduction_arity_bits: arity_bits,
+            }
+            .checked_fri_params::<GoldilocksField>(12, false)
         };
         assert_eq!(
-            fixed(vec![4, 4], 4).check_valid::<GoldilocksField>(),
-            Ok(())
+            fixed(vec![4, 4], 4).map(|params| params.reduction_arity_bits),
+            Ok(vec![4, 4])
         );
         assert_eq!(
-            fixed(vec![8, 8], 4).check_valid::<GoldilocksField>(),
+            fixed(vec![8, 8], 4),
             Err("FRI reductions exceed the degree")
         );
         assert_eq!(
-            fixed(vec![6, 6], 4).check_valid::<GoldilocksField>(),
+            fixed(vec![6, 6], 4),
             Err("FRI cap height plus reductions exceed the LDE size")
         );
         assert_eq!(
-            fixed(vec![usize::MAX, 1], 4).check_valid::<GoldilocksField>(),
+            fixed(vec![usize::MAX, 1], 4),
             Err("FRI reductions exceed the degree")
         );
     }
 
     #[test]
-    fn check_common_data_rejects_divergent_quotient_degree_factor() {
-        assert_eq!(
-            corrupted(|data| data.quotient_degree_factor = 4),
-            Err("quotient_degree_factor must equal config.max_quotient_degree_factor")
-        );
-        assert_eq!(
-            corrupted(|data| {
-                data.config.security_bits = 0;
-                data.config.fri_config.rate_bits = 2;
-                data.fri_params.config.rate_bits = 2;
-                data.fri_params.reduction_arity_bits = vec![4, 4];
-            }),
-            Err("quotient_degree_factor exceeds FRI rate_bits")
-        );
-    }
-
-    #[test]
-    fn check_common_data_rejects_divergent_gates() {
+    fn derive_common_data_rejects_gates_the_builder_never_emits() {
+        let config = CircuitConfig::standard_recursion_config();
         let unsorted = Err("gates must be sorted by degree and id without duplicates");
-        assert_eq!(corrupted(|data| data.gates.clear()), unsorted);
-        assert_eq!(corrupted(|data| data.gates.swap(0, 1)), unsorted);
+        assert_eq!(derive(&config, 12, &[], &[]), unsorted);
+        let mut swapped = gates();
+        swapped.swap(0, 1);
+        assert_eq!(derive(&config, 12, &swapped, &[]), unsorted);
+        let mut repeated = gates();
+        repeated.insert(1, repeated[1].clone());
+        assert_eq!(derive(&config, 12, &repeated, &[]), unsorted);
+
+        let does_not_fit = Err("gate does not fit within the circuit config");
+        let mut wide = gates();
+        wide[3].num_wires = config.num_wires + 1;
+        assert_eq!(derive(&config, 12, &wide, &[]), does_not_fit);
+        let mut many_constants = gates();
+        many_constants[3].num_constants = config.num_constants + 1;
+        assert_eq!(derive(&config, 12, &many_constants, &[]), does_not_fit);
+
+        let mut high_degree = gates();
+        high_degree[5].degree = 9;
         assert_eq!(
-            corrupted(|data| {
-                let duplicate = data.gates[1].clone();
-                data.gates.insert(1, duplicate);
-            }),
-            unsorted
-        );
-        assert_eq!(
-            corrupted(|data| data.gates[3].num_wires = data.config.num_wires + 1),
-            Err("gate does not fit within the circuit config")
-        );
-        assert_eq!(
-            corrupted(|data| data.gates[3].num_constants = data.config.num_constants + 1),
-            Err("gate does not fit within the circuit config")
-        );
-        assert_eq!(
-            corrupted(|data| data.gates[5].degree = 9),
+            derive(&config, 12, &high_degree, &[]),
             Err("gate degree too high for the quotient degree factor")
         );
-        assert_eq!(
-            corrupted(|data| data.selectors_info.groups.truncate(1)),
-            Err("selectors_info must be derived from the gates")
-        );
-        assert_eq!(
-            corrupted(|data| data.num_gate_constraints += 1),
-            Err("num_gate_constraints must be the maximum over the gates")
-        );
-        assert_eq!(
-            corrupted(|data| data.num_constants += 1),
-            Err("num_constants must be derived from the selectors and gates")
-        );
     }
 
     #[test]
-    fn check_common_data_rejects_divergent_lookup_counts() {
+    fn derive_common_data_rejects_empty_lookup_tables() {
+        let config = CircuitConfig::standard_recursion_config();
         assert_eq!(
-            corrupted(|data| data.lut_lengths[0] = 0),
+            derive(&config, 12, &gates(), &[&[]]),
             Err("lookup table is empty")
-        );
-        assert_eq!(
-            corrupted(|data| data.num_lookup_polys = 0),
-            Err("num_lookup_polys must be derived from the config and lookup tables")
-        );
-        assert_eq!(
-            corrupted(|data| data.num_lookup_selectors += 1),
-            Err("num_lookup_selectors must be derived from the lookup tables")
-        );
-    }
-
-    #[test]
-    fn check_common_data_rejects_divergent_permutation_data() {
-        assert_eq!(
-            corrupted(|data| data.num_partial_products += 1),
-            Err("num_partial_products must be derived from the config")
-        );
-        assert_eq!(
-            corrupted(|data| data.k_is.truncate(10)),
-            Err("k_is must be the unique coset shifts for the degree")
-        );
-        assert_eq!(
-            corrupted(|data| data.k_is[3] = data.k_is[2]),
-            Err("k_is must be the unique coset shifts for the degree")
         );
     }
 }

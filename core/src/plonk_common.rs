@@ -5,6 +5,7 @@ use alloc::{vec, vec::Vec};
 
 use crate::field::packed::PackedField;
 use crate::field::types::Field;
+use crate::selectors::LookupSelectors;
 
 /// Number of random values added to each polynomial for salting.
 pub const SALT_SIZE: usize = 4;
@@ -37,6 +38,7 @@ impl PlonkOracle {
 
 /// Number of partial-product polynomials the permutation argument needs over `num_routed_wires`
 /// wires multiplied `max_degree` at a time: one per chunk, the last chunk being `Z(gx)` itself.
+/// Needs `max_degree >= 2` and `num_routed_wires >= 1`, which `CircuitConfig::check_valid` ensures.
 pub const fn num_partial_products(num_routed_wires: usize, max_degree: usize) -> usize {
     num_routed_wires.div_ceil(max_degree) - 1
 }
@@ -57,6 +59,15 @@ pub const fn num_lookup_polys(
         0
     } else {
         lookup_gate_slots(num_routed_wires).div_ceil(lookup_degree) + 1
+    }
+}
+
+/// The four shared lookup selectors plus one end selector per table; none without tables.
+pub const fn num_lookup_selectors(num_luts: usize) -> usize {
+    if num_luts == 0 {
+        0
+    } else {
+        LookupSelectors::StartEnd as usize + num_luts
     }
 }
 

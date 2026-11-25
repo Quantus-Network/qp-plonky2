@@ -38,23 +38,17 @@ impl SelectorsInfo {
         }
 
         let mut groups = Vec::new();
+        let mut selector_indices = Vec::with_capacity(num_gates);
         let mut start = 0;
         while start < num_gates {
             let mut size = 0;
             while start + size < num_gates && size + degrees[start + size] < max_degree {
                 size += 1;
             }
+            selector_indices.resize(start + size, groups.len());
             groups.push(start..start + size);
             start += size;
         }
-        let selector_indices = (0..num_gates)
-            .map(|gate| {
-                groups
-                    .iter()
-                    .position(|group| group.contains(&gate))
-                    .unwrap()
-            })
-            .collect();
         Ok(Self {
             selector_indices,
             groups,

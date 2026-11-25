@@ -791,62 +791,21 @@ pub trait Read {
         gate_serializer: &dyn GateSerializer<F, D>,
     ) -> IoResult<CommonCircuitData<F, D>> {
         let config = self.read_circuit_config()?;
-        let trace_degree_bits = self.read_usize()?;
-        let fri_params = self.read_fri_params()?;
-        let public_initial_degree_bits = self.read_usize()?;
-
-        let selectors_info = self.read_selectors_info()?;
-        let quotient_degree_factor = self.read_usize()?;
-        let num_gate_constraints = self.read_usize()?;
-        let num_constants = self.read_usize()?;
+        let degree_bits = self.read_usize()?;
         let num_public_inputs = self.read_usize()?;
-
-        let k_is_len = self.read_usize()?;
-        let k_is = self.read_field_vec(k_is_len)?;
-
-        let num_partial_products = self.read_usize()?;
-
-        let num_lookup_polys = self.read_usize()?;
-        let num_lookup_selectors = self.read_usize()?;
         let length = self.read_usize()?;
         let mut luts = try_with_capacity(length)?;
-
         for _ in 0..length {
             luts.push(Arc::new(self.read_lut()?));
         }
-
+        let tables = CommonCircuitData::<F, D>::tables_only(luts);
         let gates_len = self.read_usize()?;
         let mut gates = try_with_capacity(gates_len)?;
-
-        // We construct the common data without gates first,
-        // to pass it as argument when reading the gates.
-        let mut common_data = CommonCircuitData {
-            config,
-            trace_degree_bits,
-            fri_params,
-            public_initial_degree_bits,
-            gates: vec![],
-            selectors_info,
-            quotient_degree_factor,
-            num_gate_constraints,
-            num_constants,
-            num_public_inputs,
-            k_is,
-            num_partial_products,
-            num_lookup_polys,
-            num_lookup_selectors,
-            luts,
-        };
-
         for _ in 0..gates_len {
-            let gate = self.read_gate::<F, D>(gate_serializer, &common_data)?;
-            gates.push(gate);
+            gates.push(self.read_gate::<F, D>(gate_serializer, &tables)?);
         }
-
-        common_data.gates = gates;
-        common_data.check_valid().map_err(rejected)?;
-
-        Ok(common_data)
+        CommonCircuitData::new(config, degree_bits, gates, num_public_inputs, tables.luts)
+            .map_err(rejected)
     }
 
     fn read_circuit_data<
@@ -1712,44 +1671,19 @@ pub trait Write {
         let CommonCircuitData {
             config,
             trace_degree_bits,
-            fri_params,
-            public_initial_degree_bits,
             gates,
-            selectors_info,
-            quotient_degree_factor,
-            num_gate_constraints,
-            num_constants,
             num_public_inputs,
-            k_is,
-            num_partial_products,
-            num_lookup_polys,
-            num_lookup_selectors,
             luts,
+            ..
         } = common_data;
 
         self.write_circuit_config(config)?;
         self.write_usize(*trace_degree_bits)?;
-        self.write_fri_params(fri_params)?;
-        self.write_usize(*public_initial_degree_bits)?;
-
-        self.write_selectors_info(selectors_info)?;
-        self.write_usize(*quotient_degree_factor)?;
-        self.write_usize(*num_gate_constraints)?;
-        self.write_usize(*num_constants)?;
         self.write_usize(*num_public_inputs)?;
-
-        self.write_usize(k_is.len())?;
-        self.write_field_vec(k_is.as_slice())?;
-
-        self.write_usize(*num_partial_products)?;
-
-        self.write_usize(*num_lookup_polys)?;
-        self.write_usize(*num_lookup_selectors)?;
         self.write_usize(luts.len())?;
         for lut in luts.iter() {
             self.write_lut(lut)?;
         }
-
         self.write_usize(gates.len())?;
         for gate in gates.iter() {
             self.write_gate::<F, D>(gate, gate_serializer, common_data)?;

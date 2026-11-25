@@ -19,7 +19,7 @@ use core::ops::{Range, RangeFrom};
 use std::collections::BTreeMap;
 
 use anyhow::Result;
-use qp_plonky2_core::circuit_config::{check_common_data_valid, CommonDataShape, GateShape};
+use qp_plonky2_core::circuit_config::{derive_common_data, GateShape};
 pub use qp_plonky2_core::CircuitConfig;
 use serde::Serialize;
 
@@ -394,8 +394,8 @@ pub struct CommonCircuitData<F: RichField + Extendable<D>, const D: usize> {
 
     pub fri_params: FriParams,
 
-    /// Shared public degree bits for the initial phase-1 FRI oracle commitments.
-    /// This may be larger than the trace degree for certain configurations.
+    /// Shared public degree bits for the initial phase-1 FRI oracle commitments; equal to the
+    /// trace degree bits.
     pub public_initial_degree_bits: usize,
 
     /// The types of gates used in this circuit, along with their prefixes.
@@ -432,11 +432,16 @@ pub struct CommonCircuitData<F: RichField + Extendable<D>, const D: usize> {
 }
 
 impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
-    /// Checks that every derived field is what `CircuitBuilder::build` would have produced from
-    /// the config, degree, gates and lookup tables.
-    pub fn check_valid(&self) -> Result<(), &'static str> {
-        let gates: Vec<GateShape> = self
-            .gates
+    /// Common data from the primitives `CircuitBuilder::build` fixes; every other field is
+    /// derived from them, so these are all that is serialized.
+    pub fn new(
+        config: CircuitConfig,
+        degree_bits: usize,
+        gates: Vec<GateRef<F, D>>,
+        num_public_inputs: usize,
+        luts: Vec<LookupTable>,
+    ) -> Result<Self, &'static str> {
+        let gate_shapes: Vec<GateShape> = gates
             .iter()
             .map(|gate| GateShape {
                 id: gate.0.id(),
@@ -446,23 +451,56 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
                 num_constraints: gate.0.num_constraints(),
             })
             .collect();
-        let lut_lengths: Vec<usize> = self.luts.iter().map(|lut| lut.len()).collect();
-        check_common_data_valid::<F, D>(&CommonDataShape {
-            config: &self.config,
-            trace_degree_bits: self.trace_degree_bits,
-            fri_params: &self.fri_params,
-            public_initial_degree_bits: self.public_initial_degree_bits,
-            gates: &gates,
-            selectors_info: &self.selectors_info,
-            quotient_degree_factor: self.quotient_degree_factor,
-            num_gate_constraints: self.num_gate_constraints,
-            num_constants: self.num_constants,
-            k_is: &self.k_is,
-            num_partial_products: self.num_partial_products,
-            num_lookup_polys: self.num_lookup_polys,
-            num_lookup_selectors: self.num_lookup_selectors,
-            lut_lengths: &lut_lengths,
+        let tables: Vec<&[(u16, u16)]> = luts.iter().map(|lut| lut.as_slice()).collect();
+        let derived = derive_common_data::<F, D>(&config, degree_bits, &gate_shapes, &tables)?;
+        Ok(Self {
+            quotient_degree_factor: config.max_quotient_degree_factor,
+            config,
+            trace_degree_bits: degree_bits,
+            fri_params: derived.fri_params,
+            public_initial_degree_bits: degree_bits,
+            gates,
+            selectors_info: derived.selectors_info,
+            num_gate_constraints: derived.num_gate_constraints,
+            num_constants: derived.num_constants,
+            num_public_inputs,
+            k_is: derived.k_is,
+            num_partial_products: derived.num_partial_products,
+            num_lookup_polys: derived.num_lookup_polys,
+            num_lookup_selectors: derived.num_lookup_selectors,
+            luts,
         })
+    }
+
+    /// Holds the lookup tables and nothing else, so gate readers can resolve table indices
+    /// before the gates, and with them the derived fields, are known.
+    pub(crate) fn tables_only(luts: Vec<LookupTable>) -> Self {
+        let config = CircuitConfig::default();
+        Self {
+            fri_params: FriParams {
+                config: config.fri_config.clone(),
+                leaf_hiding: false,
+                degree_bits: 0,
+                reduction_arity_bits: Vec::new(),
+            },
+            config,
+            trace_degree_bits: 0,
+            public_initial_degree_bits: 0,
+            gates: Vec::new(),
+            selectors_info: SelectorsInfo {
+                selector_indices: Vec::new(),
+                groups: Vec::new(),
+            },
+            quotient_degree_factor: 0,
+            num_gate_constraints: 0,
+            num_constants: 0,
+            num_public_inputs: 0,
+            k_is: Vec::new(),
+            num_partial_products: 0,
+            num_lookup_polys: 0,
+            num_lookup_selectors: 0,
+            luts,
+        }
     }
 
     pub fn to_bytes(&self, gate_serializer: &dyn GateSerializer<F, D>) -> IoResult<Vec<u8>> {
