@@ -163,9 +163,9 @@ The following remain in `plonky2/src/` (prover-only code):
 ```rust
 pub use plonky2_verifier::verify;
 pub use plonky2_verifier::{
-    CommonCircuitData, CompressedProofWithPublicInputs, GenericConfig, 
-    GenericHashOut, Hasher, PoseidonGoldilocksConfig, Proof, 
-    ProofWithPublicInputs, VerifierCircuitData, VerifierOnlyCircuitData,
+    CommonCircuitData, GenericConfig, GenericHashOut, Hasher,
+    PoseidonGoldilocksConfig, Proof, ProofWithPublicInputs,
+    VerifierCircuitData, VerifierOnlyCircuitData,
 };
 pub use plonky2_verifier::{C, D, F};
 ```

@@ -29,9 +29,6 @@ pub struct ProofChallenges<F: RichField + Extendable<D>, const D: usize> {
     pub fri_challenges: FriChallenges<F, D>,
 }
 
-/// Coset elements that can be inferred in the FRI reduction steps.
-pub struct FriInferredElements<F: RichField + Extendable<D>, const D: usize>(pub Vec<F::Extension>);
-
 /// Validate the serialized public-input length before allocating a proof's inputs.
 pub fn checked_public_input_len(
     encoded: [u8; 8],

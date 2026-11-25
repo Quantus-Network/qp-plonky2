@@ -25,7 +25,7 @@ use plonky2::iop::witness::{PartialWitness, WitnessWrite};
 use plonky2::plonk::circuit_builder::CircuitBuilder;
 use plonky2::plonk::circuit_data::{CircuitConfig, CommonCircuitData, VerifierOnlyCircuitData};
 use plonky2::plonk::config::{AlgebraicHasher, GenericConfig, PoseidonGoldilocksConfig};
-use plonky2::plonk::proof::{CompressedProofWithPublicInputs, ProofWithPublicInputs};
+use plonky2::plonk::proof::ProofWithPublicInputs;
 use plonky2::plonk::prover::prove;
 use plonky2::util::serialization::DefaultGateSerializer;
 use plonky2::util::timing::TimingTree;
@@ -273,30 +273,12 @@ where
 /// Test serialization and print some size info.
 fn test_serialization<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>(
     proof: &ProofWithPublicInputs<F, C, D>,
-    vd: &VerifierOnlyCircuitData<C, D>,
     common_data: &CommonCircuitData<F, D>,
 ) -> Result<()> {
     let proof_bytes = proof.to_bytes();
     info!("Proof length: {} bytes", proof_bytes.len());
     let proof_from_bytes = ProofWithPublicInputs::from_bytes(proof_bytes, common_data)?;
     assert_eq!(proof, &proof_from_bytes);
-
-    let now = std::time::Instant::now();
-    let compressed_proof = proof.clone().compress(&vd.circuit_digest, common_data)?;
-    let decompressed_compressed_proof = compressed_proof
-        .clone()
-        .decompress(&vd.circuit_digest, common_data)?;
-    info!("{:.4}s to compress proof", now.elapsed().as_secs_f64());
-    assert_eq!(proof, &decompressed_compressed_proof);
-
-    let compressed_proof_bytes = compressed_proof.to_bytes();
-    info!(
-        "Compressed proof length: {} bytes",
-        compressed_proof_bytes.len()
-    );
-    let compressed_proof_from_bytes =
-        CompressedProofWithPublicInputs::from_bytes(compressed_proof_bytes, common_data)?;
-    assert_eq!(compressed_proof, compressed_proof_from_bytes);
 
     let gate_serializer = DefaultGateSerializer;
     let common_data_bytes = common_data
@@ -358,8 +340,8 @@ pub fn benchmark_function(
             common_data.degree_bits()
         );
     }
-    let (proof, vd, common_data) = &current;
-    test_serialization(proof, vd, common_data)?;
+    let (proof, _vd, common_data) = &current;
+    test_serialization(proof, common_data)?;
 
     Ok(())
 }

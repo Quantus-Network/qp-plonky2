@@ -24,7 +24,6 @@ pub mod fri_proof;
 pub mod fri_structure;
 pub mod fri_validate_shape;
 pub mod fri_verifier;
-pub mod hash;
 pub mod hash_types;
 pub mod hashing;
 pub mod iop;
@@ -53,23 +52,16 @@ pub use fri::{
     FriChallenger, FriConfig, FriConfigObserve, FriParams, FriParamsObserve, FriReductionStrategy,
 };
 // FRI proof types
-pub use fri_proof::{
-    CompressedFriProof, CompressedFriQueryRounds, FriInitialTreeProof, FriProof, FriQueryRound,
-    FriQueryStep,
-};
+pub use fri_proof::{FriInitialTreeProof, FriProof, FriQueryRound, FriQueryStep};
 pub use fri_structure::{
     FriBatchInfo, FriChallenges, FriCoefficient, FriInstanceInfo, FriOpeningBatch,
     FriOpeningExpression, FriOpeningTerm, FriOpenings, FriOracleInfo, FriPolynomialInfo,
 };
-pub use fri_validate_shape::{
-    validate_batch_fri_proof_shape, validate_fri_initial_proof_shape, validate_fri_proof_shape,
-};
+pub use fri_validate_shape::{validate_batch_fri_proof_shape, validate_fri_proof_shape};
 pub use fri_verifier::{
     compute_evaluation, fri_combine_initial, fri_verify_proof_of_work, verify_fri_proof,
     PrecomputedReducedOpenings,
 };
-// Hash utilities
-pub use hash::path_compression::{compress_merkle_proofs, decompress_merkle_proofs};
 pub use hash_types::{BytesHash, HashOut, RichField, NUM_HASH_OUT_ELTS};
 pub use hashing::PlonkyPermutation;
 // IOP types
@@ -91,7 +83,7 @@ pub use poseidon::{
     N_FULL_ROUNDS_TOTAL, N_PARTIAL_ROUNDS, N_ROUNDS, SPONGE_CAPACITY, SPONGE_RATE, SPONGE_WIDTH,
 };
 // Proof challenge types
-pub use proof::{FriInferredElements, ProofChallenges};
+pub use proof::ProofChallenges;
 pub use selectors::{LookupSelectors, SelectorsInfo, UNUSED_SELECTOR};
 // Utility functions
 pub use util::{
