@@ -9,7 +9,9 @@ use crate::config::{GenericConfig, Hasher};
 use crate::field::extension::Extendable;
 use crate::fri::FriParams;
 use crate::fri_proof::{FriInitialTreeProof, FriProof, FriQueryRound, FriQueryStep};
-use crate::fri_structure::{FriChallenges, FriInstanceInfo, FriOpenings};
+use crate::fri_structure::{
+    FriChallenges, FriInstanceInfo, FriOpenings, FriOracleInfo, FriPolynomialInfo,
+};
 use crate::hash_types::RichField;
 use crate::merkle_tree::MerkleCap;
 use crate::plonk_common::salt_size;
@@ -26,57 +28,70 @@ where
     validate_batch_fri_proof_shape::<F, C, D>(proof, core::slice::from_ref(instance), params)
 }
 
-/// Validates that every opening term references an in-range oracle and polynomial index, and
+/// Validates that every opened polynomial references an in-range oracle and polynomial index, and
 /// returns the expected per-oracle leaf length each initial-tree-proof leaf must have.
 ///
 /// In batch FRI a single oracle's leaf concatenates polynomials from every instance, so both the
 /// polynomial-index bound and the leaf length sum `num_polys` (plus salt) across instances; this
-/// reduces to a single instance for plain FRI. Sharing this between full proof-shape validation and
-/// the compressed verifier's inference step (`validate_fri_initial_proof_shape`) ensures neither
-/// path can index an oracle leaf out of bounds and panic on malformed metadata (#64696).
-fn checked_leaf_lengths<F, const D: usize>(
+/// reduces to a single instance for plain FRI. Taking oracles and opened polynomials rather than
+/// instances lets the native and the in-circuit verifiers share it, so neither path can index an
+/// oracle leaf out of bounds and panic on malformed metadata (#64696).
+pub fn checked_leaf_lengths<'a>(
+    oracles_per_instance: &[&[FriOracleInfo]],
+    opened_polynomials: impl IntoIterator<Item = &'a FriPolynomialInfo>,
+    leaf_hiding: bool,
+) -> anyhow::Result<Vec<usize>> {
+    let Some(first) = oracles_per_instance.first() else {
+        return Ok(Vec::new());
+    };
+    let oracle_count = first.len();
+    let mut total_num_polys = vec![0usize; oracle_count];
+    let mut leaf_len = vec![0usize; oracle_count];
+    for oracles in oracles_per_instance {
+        ensure!(
+            oracles.len() == oracle_count,
+            "FRI instances disagree on oracle count"
+        );
+        for (i, oracle) in oracles.iter().enumerate() {
+            // The salt is trimmed per oracle, so every instance must agree on whether it exists.
+            let salt = salt_size(oracle.blinding && leaf_hiding);
+            ensure!(
+                salt == salt_size(first[i].blinding && leaf_hiding),
+                "FRI instances disagree on oracle blinding"
+            );
+            total_num_polys[i] += oracle.num_polys;
+            leaf_len[i] += oracle.num_polys + salt;
+        }
+    }
+    for polynomial in opened_polynomials {
+        let oracle_index = polynomial.oracle_index;
+        ensure!(oracle_index < oracle_count, "FRI oracle index out of range");
+        ensure!(
+            polynomial.polynomial_index < total_num_polys[oracle_index],
+            "FRI polynomial index out of range"
+        );
+    }
+    Ok(leaf_len)
+}
+
+fn instance_leaf_lengths<F, const D: usize>(
     instances: &[FriInstanceInfo<F, D>],
     leaf_hiding: bool,
 ) -> anyhow::Result<Vec<usize>>
 where
     F: RichField + Extendable<D>,
 {
-    let Some(first) = instances.first() else {
-        return Ok(Vec::new());
-    };
-    let oracle_count = first.oracles.len();
-    let mut total_num_polys = vec![0usize; oracle_count];
-    let mut leaf_len = vec![0usize; oracle_count];
-    for inst in instances {
-        ensure!(
-            inst.oracles.len() == oracle_count,
-            "FRI instances disagree on oracle count"
-        );
-        for (i, oracle) in inst.oracles.iter().enumerate() {
-            // The salt is trimmed per oracle, so every instance must agree on whether it exists.
-            ensure!(
-                oracle.blinding == first.oracles[i].blinding,
-                "FRI instances disagree on oracle blinding"
-            );
-            total_num_polys[i] += oracle.num_polys;
-            leaf_len[i] += oracle.num_polys + salt_size(oracle.blinding && leaf_hiding);
-        }
-    }
-    for inst in instances {
-        for batch in &inst.batches {
-            for expression in &batch.openings {
-                for term in &expression.terms {
-                    let oracle_index = term.polynomial.oracle_index;
-                    ensure!(oracle_index < oracle_count, "FRI oracle index out of range");
-                    ensure!(
-                        term.polynomial.polynomial_index < total_num_polys[oracle_index],
-                        "FRI polynomial index out of range"
-                    );
-                }
-            }
-        }
-    }
-    Ok(leaf_len)
+    let oracles_per_instance: Vec<&[FriOracleInfo]> = instances
+        .iter()
+        .map(|inst| inst.oracles.as_slice())
+        .collect();
+    let opened_polynomials = instances
+        .iter()
+        .flat_map(|inst| &inst.batches)
+        .flat_map(|batch| &batch.openings)
+        .flat_map(|expression| &expression.terms)
+        .map(|term| &term.polynomial);
+    checked_leaf_lengths(&oracles_per_instance, opened_polynomials, leaf_hiding)
 }
 
 /// Validates a single FRI initial-tree proof's leaf shapes against `instances`, so that later
@@ -95,7 +110,7 @@ where
     F: RichField + Extendable<D>,
     H: Hasher<F>,
 {
-    let leaf_len = checked_leaf_lengths(instances, leaf_hiding)?;
+    let leaf_len = instance_leaf_lengths(instances, leaf_hiding)?;
     ensure!(
         initial_trees_proof.evals_proofs.len() == leaf_len.len(),
         "FRI oracle count mismatch"
@@ -123,24 +138,19 @@ where
         pow_witness: _pow_witness,
     } = proof;
 
-    let leaf_len = checked_leaf_lengths(instances, params.leaf_hiding)?;
+    let leaf_len = instance_leaf_lengths(instances, params.leaf_hiding)?;
 
-    // Every commit-phase cap is absorbed into the transcript; a cap without a matching reduction
-    // step would be unbound by any query, handing the prover free Fiat–Shamir grinding.
-    ensure!(
-        commit_phase_merkle_caps.len() == params.reduction_arity_bits.len(),
-        "Number of commit-phase caps does not match the reduction schedule."
-    );
-    // Compare lengths rather than `height()`, which panics on a non-power-of-two cap.
+    check_fri_proof_counts(
+        commit_phase_merkle_caps.len(),
+        query_round_proofs.len(),
+        params,
+    )
+    .map_err(anyhow::Error::msg)?;
     let cap_height = params.config.cap_height;
     for cap in commit_phase_merkle_caps {
-        ensure!(cap.len() == 1 << cap_height);
+        ensure!(cap.has_height(cap_height));
     }
 
-    ensure!(
-        query_round_proofs.len() == params.config.num_query_rounds,
-        "Number of query rounds does not match config."
-    );
     for query_round in query_round_proofs {
         let FriQueryRound {
             initial_trees_proof,
@@ -172,6 +182,69 @@ where
     ensure!(final_poly.coeffs.len() == params.final_poly_len());
 
     Ok(())
+}
+
+/// Checks the proof's own list lengths against the parameters. Every commit-phase cap is absorbed
+/// into the transcript, so a cap without a matching reduction step would be unbound by any query,
+/// handing the prover free Fiat–Shamir grinding.
+pub fn check_fri_proof_counts(
+    commit_cap_count: usize,
+    query_round_count: usize,
+    params: &FriParams,
+) -> Result<(), &'static str> {
+    if commit_cap_count != params.reduction_arity_bits.len() {
+        return Err("Number of commit-phase caps does not match the reduction schedule.");
+    }
+    if query_round_count != params.config.num_query_rounds {
+        return Err("Number of query rounds does not match config.");
+    }
+    Ok(())
+}
+
+/// Batch FRI folds each instance in once the codeword has shrunk to that instance's degree, so
+/// the degrees must be heights the reduction schedule reaches, in fold order, starting at the FRI
+/// degree. Anything else would leave an instance unfolded or index a Merkle layer that is never
+/// opened.
+pub fn check_batch_fri_degree_bits(
+    degree_bits: &[usize],
+    instance_count: usize,
+    params: &FriParams,
+) -> Result<(), &'static str> {
+    if degree_bits.len() != instance_count {
+        return Err("Number of degree bits does not match the instance count.");
+    }
+    let mut reached_degrees =
+        core::iter::once(params.degree_bits).chain(params.reduction_arity_bits.iter().scan(
+            Some(params.degree_bits),
+            |degree, &arity_bits| {
+                *degree = degree.and_then(|degree| degree.checked_sub(arity_bits));
+                *degree
+            },
+        ));
+    let is_fold_subsequence = degree_bits.first() == Some(&params.degree_bits)
+        && degree_bits
+            .iter()
+            .all(|degree| reached_degrees.by_ref().any(|reached| reached == *degree));
+    if !is_fold_subsequence {
+        return Err(
+            "Batch FRI degree bits must be reached by the reduction schedule in fold order.",
+        );
+    }
+    Ok(())
+}
+
+/// The number of entries in each batch of each item: `openings.len()` per instance batch on the
+/// expected side and `values.len()` per opening batch on the claimed side, for either crate's
+/// native or target types.
+pub fn per_batch_counts<Item, Batch>(
+    items: &[Item],
+    batches: impl Fn(&Item) -> &[Batch],
+    count: impl Fn(&Batch) -> usize,
+) -> Vec<Vec<usize>> {
+    items
+        .iter()
+        .map(|item| batches(item).iter().map(&count).collect())
+        .collect()
 }
 
 /// Checks the list lengths that both the native and the in-circuit FRI verifiers zip against each
@@ -225,39 +298,27 @@ where
     F: RichField + Extendable<D>,
     H: Hasher<F>,
 {
-    let expected_opening_counts = instances
-        .iter()
-        .map(|instance| {
-            instance
-                .batches
-                .iter()
-                .map(|batch| batch.openings.len())
-                .collect()
-        })
-        .collect::<Vec<Vec<usize>>>();
-    let claimed_opening_counts = openings
-        .iter()
-        .map(|opening| {
-            opening
-                .batches
-                .iter()
-                .map(|batch| batch.values.len())
-                .collect()
-        })
-        .collect::<Vec<Vec<usize>>>();
     check_fri_verifier_input_counts(
         instances.first().map_or(0, |inst| inst.oracles.len()),
         initial_merkle_caps.len(),
         challenges.fri_betas.len(),
         challenges.fri_query_indices.len(),
-        &expected_opening_counts,
-        &claimed_opening_counts,
+        &per_batch_counts(
+            instances,
+            |inst| &inst.batches,
+            |batch| batch.openings.len(),
+        ),
+        &per_batch_counts(
+            openings,
+            |opening| &opening.batches,
+            |batch| batch.values.len(),
+        ),
         params,
     )
     .map_err(anyhow::Error::msg)?;
 
     for cap in initial_merkle_caps {
-        ensure!(cap.len() == 1 << params.config.cap_height);
+        ensure!(cap.has_height(params.config.cap_height));
     }
     ensure!(
         challenges
@@ -355,19 +416,87 @@ mod tests {
         let unsalted = single_oracle_instance(1, 0);
         let mut salted = single_oracle_instance(1, 1);
         salted.oracles[0].blinding = true;
-        let proof = single_oracle_proof(2 * (1 + salt_size(true)));
+        let mixed = [salted.clone(), unsalted];
+        // A leaf the mixed layout would size exactly, so only the blinding check can reject it.
+        let mixed_leaf = single_oracle_proof(1 + 1 + salt_size(true));
+        let error =
+            validate_fri_initial_proof_shape::<F, H, D>(&mixed_leaf, &mixed, true).unwrap_err();
+        assert_eq!(
+            error.downcast_ref::<&str>(),
+            Some(&"FRI instances disagree on oracle blinding")
+        );
+        // Without leaf hiding no oracle is salted, so blinding does not shape the leaf.
         assert!(validate_fri_initial_proof_shape::<F, H, D>(
-            &proof,
-            &[salted.clone(), unsalted],
-            true
+            &single_oracle_proof(2),
+            &mixed,
+            false
         )
-        .is_err());
+        .is_ok());
         assert!(validate_fri_initial_proof_shape::<F, H, D>(
-            &proof,
+            &single_oracle_proof(2 * (1 + salt_size(true))),
             &[salted.clone(), salted],
             true
         )
         .is_ok());
+    }
+
+    #[test]
+    fn batch_degree_bits_must_follow_the_fold_schedule() {
+        let params = FriParams {
+            config: FriConfig {
+                rate_bits: 1,
+                cap_height: 0,
+                proof_of_work_bits: 0,
+                reduction_strategy: FriReductionStrategy::Fixed(vec![1, 2, 1]),
+                num_query_rounds: 2,
+            },
+            leaf_hiding: false,
+            degree_bits: 6,
+            reduction_arity_bits: vec![1, 2, 1],
+        };
+        let check = |degree_bits: &[usize]| {
+            check_batch_fri_degree_bits(degree_bits, degree_bits.len(), &params)
+        };
+        let not_reached =
+            Err("Batch FRI degree bits must be reached by the reduction schedule in fold order.");
+        assert_eq!(check(&[6]), Ok(()));
+        assert_eq!(check(&[6, 5]), Ok(()));
+        assert_eq!(check(&[6, 3, 2]), Ok(()));
+        assert_eq!(check(&[6, 2]), Ok(()));
+        assert_eq!(check(&[5]), not_reached);
+        assert_eq!(check(&[6, 6]), not_reached);
+        assert_eq!(check(&[6, 4]), not_reached);
+        assert_eq!(check(&[6, 2, 3]), not_reached);
+        assert_eq!(check(&[6, 5, 5]), not_reached);
+        assert_eq!(
+            check_batch_fri_degree_bits(&[6], 2, &params),
+            Err("Number of degree bits does not match the instance count.")
+        );
+    }
+
+    #[test]
+    fn proof_counts_must_match_params() {
+        let params = FriParams {
+            config: FriConfig {
+                rate_bits: 1,
+                cap_height: 0,
+                proof_of_work_bits: 0,
+                reduction_strategy: FriReductionStrategy::Fixed(vec![1, 1]),
+                num_query_rounds: 3,
+            },
+            leaf_hiding: false,
+            degree_bits: 4,
+            reduction_arity_bits: vec![1, 1],
+        };
+        assert_eq!(check_fri_proof_counts(2, 3, &params), Ok(()));
+        assert_eq!(
+            check_fri_proof_counts(3, 3, &params),
+            Err("Number of commit-phase caps does not match the reduction schedule.")
+        );
+        assert_eq!(
+            check_fri_proof_counts(2, 2, &params),
+            Err("Number of query rounds does not match config.")
+        );
     }
 
     #[test]

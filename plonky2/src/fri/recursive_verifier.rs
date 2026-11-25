@@ -10,9 +10,11 @@ use crate::fri::proof::{
 };
 use crate::fri::structure::{
     FriBatchInfoTarget, FriCoefficientTarget, FriInstanceInfoTarget, FriOpeningExpressionTarget,
-    FriOpeningsTarget,
+    FriOpeningsTarget, FriOracleInfo,
 };
-use crate::fri::validate_shape::check_fri_verifier_input_counts;
+use crate::fri::validate_shape::{
+    check_fri_proof_counts, check_fri_verifier_input_counts, checked_leaf_lengths, per_batch_counts,
+};
 use crate::fri::{FriConfig, FriParams};
 use crate::gates::coset_interpolation::CosetInterpolationGate;
 use crate::gates::gate::Gate;
@@ -26,9 +28,10 @@ use crate::util::reducing::ReducingFactorTarget;
 use crate::util::{log2_strict, reverse_index_bits_in_place};
 use crate::with_context;
 
-/// Circuit-side twin of `validate_fri_verifier_inputs`: the recursive verifier zips these lists
-/// together, so a short one would silently leave part of the inner proof unverified. Shapes are
-/// fixed at build time, so a mismatch is a construction error.
+/// Circuit-side twin of `validate_batch_fri_proof_shape` and `validate_fri_verifier_inputs`: the
+/// recursive verifier zips these lists together and reads leaves by position, so a short list or
+/// a misshapen leaf would silently leave part of the inner proof unverified. Shapes are fixed at
+/// build time, so a mismatch is a construction error.
 pub(crate) fn assert_fri_verifier_target_shape<F: RichField + Extendable<D>, const D: usize>(
     instances: &[FriInstanceInfoTarget<F, D>],
     openings: &[FriOpeningsTarget<D>],
@@ -37,45 +40,54 @@ pub(crate) fn assert_fri_verifier_target_shape<F: RichField + Extendable<D>, con
     proof: &FriProofTarget<D>,
     params: &FriParams,
 ) {
-    assert_eq!(
+    let oracles_per_instance: Vec<&[FriOracleInfo]> = instances
+        .iter()
+        .map(|inst| inst.oracles.as_slice())
+        .collect();
+    let opened_polynomials = instances
+        .iter()
+        .flat_map(|inst| &inst.batches)
+        .flat_map(|batch| &batch.openings)
+        .flat_map(|expression| &expression.terms)
+        .map(|term| &term.polynomial);
+    let leaf_len = checked_leaf_lengths(
+        &oracles_per_instance,
+        opened_polynomials,
+        params.leaf_hiding,
+    )
+    .unwrap_or_else(|error| panic!("{error}"));
+    for query_round in &proof.query_round_proofs {
+        let leaves = &query_round.initial_trees_proof.evals_proofs;
+        assert_eq!(leaves.len(), leaf_len.len(), "FRI oracle count mismatch");
+        for ((leaf, _merkle_proof), expected) in leaves.iter().zip(&leaf_len) {
+            assert_eq!(leaf.len(), *expected, "FRI leaf length mismatch");
+        }
+    }
+
+    check_fri_proof_counts(
         proof.commit_phase_merkle_caps.len(),
-        params.reduction_arity_bits.len(),
-        "Number of commit-phase caps does not match the reduction schedule."
-    );
-    assert_eq!(
         proof.query_round_proofs.len(),
-        params.config.num_query_rounds,
-        "Number of query rounds does not match config."
-    );
-    let expected_opening_counts = instances
-        .iter()
-        .map(|instance| {
-            instance
-                .batches
-                .iter()
-                .map(|batch| batch.openings.len())
-                .collect()
-        })
-        .collect::<Vec<Vec<usize>>>();
-    let claimed_opening_counts = openings
-        .iter()
-        .map(|opening| {
-            opening
-                .batches
-                .iter()
-                .map(|batch| batch.values.len())
-                .collect()
-        })
-        .collect::<Vec<Vec<usize>>>();
-    check_fri_verifier_input_counts(
-        instances.first().map_or(0, |inst| inst.oracles.len()),
-        initial_merkle_caps.len(),
-        challenges.fri_betas.len(),
-        challenges.fri_query_indices.len(),
-        &expected_opening_counts,
-        &claimed_opening_counts,
         params,
     )
+    .and_then(|()| {
+        check_fri_verifier_input_counts(
+            leaf_len.len(),
+            initial_merkle_caps.len(),
+            challenges.fri_betas.len(),
+            challenges.fri_query_indices.len(),
+            &per_batch_counts(
+                instances,
+                |inst| &inst.batches,
+                |batch| batch.openings.len(),
+            ),
+            &per_batch_counts(
+                openings,
+                |opening| &opening.batches,
+                |batch| batch.values.len(),
+            ),
+            params,
+        )
+    })
     .unwrap_or_else(|error| panic!("{error}"));
 }
 

@@ -12,6 +12,7 @@ use crate::fri::recursive_verifier::{
     assert_fri_verifier_target_shape, PrecomputedReducedOpeningsTarget,
 };
 use crate::fri::structure::{FriBatchInfoTarget, FriInstanceInfoTarget, FriOpeningsTarget};
+use crate::fri::validate_shape::check_batch_fri_degree_bits;
 use crate::fri::FriParams;
 use crate::hash::hash_types::{MerkleCapTarget, RichField};
 use crate::iop::ext_target::{flatten_target, ExtensionTarget};
@@ -38,6 +39,8 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             self.check_recursion_config(max_arity_bits);
         }
 
+        check_batch_fri_degree_bits(degree_bits, instance.len(), params)
+            .unwrap_or_else(|error| panic!("{error}"));
         assert_eq!(
             params.final_poly_len(),
             proof.final_poly.len(),
@@ -50,16 +53,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             initial_merkle_caps,
             proof,
             params,
-        );
-        assert_eq!(
-            degree_bits.len(),
-            instance.len(),
-            "Number of degree bits does not match the instance count."
-        );
-        assert!(
-            degree_bits.first() == Some(&params.degree_bits)
-                && degree_bits.windows(2).all(|pair| pair[0] > pair[1]),
-            "Batch FRI degree bits must start at the FRI degree and strictly decrease."
         );
 
         with_context!(
@@ -353,12 +346,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
                 batch_index += 1;
             }
         }
-
-        assert_eq!(
-            batch_index,
-            instance.len(),
-            "Wrong number of folded instances."
-        );
 
         // Final check of FRI. After all the reductions, we check that the final polynomial is equal
         // to the one sent by the prover.

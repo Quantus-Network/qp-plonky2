@@ -751,9 +751,10 @@ mod test {
         }
     }
 
-    /// The fold loop pulls each instance in when the domain shrinks to its degree, so a repeated
-    /// or out-of-order degree would leave an instance (and its openings) unverified. The native
-    /// verifier must reject such degree lists rather than panic inside Merkle verification.
+    /// The fold loop pulls each instance in when the domain shrinks to its degree, so a repeated,
+    /// out-of-order or never-reached degree would leave an instance (and its openings) unverified
+    /// or index a Merkle layer that is never opened. The native verifier must reject such degree
+    /// lists up front rather than panic inside Merkle verification.
     #[test]
     fn native_batch_fri_rejects_misordered_degree_bits() {
         let k = 6;
@@ -777,11 +778,20 @@ mod test {
                 &honest.proof,
                 &honest.params,
             )
+            .map_err(|error| error.to_string())
         };
-        assert!(verify(&[k], 1).is_ok());
-        assert!(verify(&[k, k], 2).is_err());
-        assert!(verify(&[k - 1], 1).is_err());
-        assert!(verify(&[k, k - 1], 1).is_err());
+        let not_reached =
+            "Batch FRI degree bits must be reached by the reduction schedule in fold order.";
+        assert_eq!(verify(&[k], 1), Ok(()));
+        assert_eq!(verify(&[k, k], 2), Err(not_reached.into()));
+        assert_eq!(verify(&[k - 1], 1), Err(not_reached.into()));
+        // Arity `[1, 2, 1]` folds 6 to 5, 3 and 2, so a degree of 4 is skipped; `[k, k - 2]`
+        // would leave the second instance unfolded.
+        assert_eq!(verify(&[k, k - 2], 2), Err(not_reached.into()));
+        assert_eq!(
+            verify(&[k, k - 1], 1),
+            Err("Number of degree bits does not match the instance count.".into())
+        );
     }
 
     /// Test that the recursive batch FRI verifier rejects trailing instances with the same degree.
@@ -791,7 +801,7 @@ mod test {
     /// openings that are never verified.
     #[test]
     #[should_panic(
-        expected = "Batch FRI degree bits must start at the FRI degree and strictly decrease"
+        expected = "Batch FRI degree bits must be reached by the reduction schedule in fold order"
     )]
     fn recursive_batch_fri_rejects_trailing_same_degree_instance() {
         let k = 6;

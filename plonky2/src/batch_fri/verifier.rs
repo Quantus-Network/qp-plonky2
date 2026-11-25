@@ -9,7 +9,9 @@ use plonky2_field::types::Field;
 use crate::batch_fri::{openings_at_leaf_positions, BatchLeafLayout};
 use crate::fri::proof::{FriChallenges, FriInitialTreeProof, FriProof, FriQueryRound};
 use crate::fri::structure::{FriBatchInfo, FriInstanceInfo, FriOpenings};
-use crate::fri::validate_shape::{validate_batch_fri_proof_shape, validate_fri_verifier_inputs};
+use crate::fri::validate_shape::{
+    check_batch_fri_degree_bits, validate_batch_fri_proof_shape, validate_fri_verifier_inputs,
+};
 use crate::fri::verifier::{
     compute_evaluation, eval_opening_expression, fri_verify_proof_of_work,
     PrecomputedReducedOpenings,
@@ -35,19 +37,10 @@ pub fn verify_batch_fri_proof<
     proof: &FriProof<F, C::Hasher, D>,
     params: &FriParams,
 ) -> anyhow::Result<()> {
+    check_batch_fri_degree_bits(degree_bits, instances.len(), params)
+        .map_err(anyhow::Error::msg)?;
     validate_batch_fri_proof_shape::<F, C, D>(proof, instances, params)?;
     validate_fri_verifier_inputs(instances, openings, challenges, initial_merkle_cap, params)?;
-    ensure!(
-        degree_bits.len() == instances.len(),
-        "Number of degree bits does not match the instance count."
-    );
-    // The fold loop pulls each instance in as the domain shrinks to its degree, so degrees must
-    // start at the FRI degree and strictly decrease.
-    ensure!(
-        degree_bits.first() == Some(&params.degree_bits)
-            && degree_bits.windows(2).all(|pair| pair[0] > pair[1]),
-        "Batch FRI degree bits must start at the FRI degree and strictly decrease."
-    );
 
     // Check PoW.
     fri_verify_proof_of_work(challenges.fri_pow_response, &params.config)?;
@@ -252,11 +245,6 @@ fn batch_fri_verifier_query_round<
             batch_index += 1;
         }
     }
-    ensure!(
-        batch_index == instances.len(),
-        "Wrong number of folded instances."
-    );
-
     // Final check of FRI. After all the reductions, we check that the final polynomial is equal
     // to the one sent by the prover.
     ensure!(
