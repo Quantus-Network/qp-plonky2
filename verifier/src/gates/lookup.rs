@@ -12,6 +12,7 @@ use crate::gates::packed_util::PackedEvaluableBase;
 use crate::gates::util::StridedConstraintConsumer;
 use crate::hash::hash_types::RichField;
 use crate::plonk::circuit_data::{CircuitConfig, CommonCircuitData};
+use crate::plonk::plonk_common::lookup_gate_slots;
 use crate::plonk::vars::{
     EvaluationVars, EvaluationVarsBase, EvaluationVarsBaseBatch, EvaluationVarsBasePacked,
 };
@@ -42,8 +43,7 @@ impl LookupGate {
         }
     }
     pub(crate) const fn num_slots(config: &CircuitConfig) -> usize {
-        let wires_per_lookup = 2;
-        config.num_routed_wires / wires_per_lookup
+        lookup_gate_slots(config.num_routed_wires)
     }
 
     pub const fn wire_ith_looking_inp(i: usize) -> usize {

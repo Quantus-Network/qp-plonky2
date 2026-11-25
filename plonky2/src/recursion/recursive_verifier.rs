@@ -26,6 +26,9 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         C::Hasher: AlgebraicHasher<F>,
         C::InnerHasher: AlgebraicHasher<F>,
     {
+        inner_common_data
+            .check_valid()
+            .unwrap_or_else(|error| panic!("invalid inner common circuit data: {error}"));
         assert_eq!(
             proof_with_pis.public_inputs.len(),
             inner_common_data.num_public_inputs

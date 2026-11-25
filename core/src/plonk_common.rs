@@ -35,6 +35,31 @@ impl PlonkOracle {
     };
 }
 
+/// Number of partial-product polynomials the permutation argument needs over `num_routed_wires`
+/// wires multiplied `max_degree` at a time: one per chunk, the last chunk being `Z(gx)` itself.
+pub const fn num_partial_products(num_routed_wires: usize, max_degree: usize) -> usize {
+    num_routed_wires.div_ceil(max_degree) - 1
+}
+
+/// `LookupGate` holds one (input, output) pair per two routed wires.
+pub const fn lookup_gate_slots(num_routed_wires: usize) -> usize {
+    num_routed_wires / 2
+}
+
+/// One RE polynomial plus the partial Sum/LDC polynomials, each covering `lookup_degree` lookup
+/// slots; none when the circuit has no lookup tables.
+pub const fn num_lookup_polys(
+    num_routed_wires: usize,
+    lookup_degree: usize,
+    num_luts: usize,
+) -> usize {
+    if num_luts == 0 {
+        0
+    } else {
+        lookup_gate_slots(num_routed_wires).div_ceil(lookup_degree) + 1
+    }
+}
+
 pub const fn salt_size(salted: bool) -> usize {
     if salted {
         SALT_SIZE
