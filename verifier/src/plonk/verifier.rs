@@ -19,9 +19,6 @@ pub fn verify<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D:
     verifier_data: &VerifierOnlyCircuitData<C, D>,
     common_data: &CommonCircuitData<F, D>,
 ) -> Result<()> {
-    // Common data built in memory never passed through `from_bytes`, so check its consistency
-    // here; which circuit it describes is still the caller's to pin.
-    common_data.check_valid().map_err(anyhow::Error::msg)?;
     validate_proof_with_pis_shape(&proof_with_pis, common_data)?;
 
     let public_inputs_hash = proof_with_pis.get_public_inputs_hash();

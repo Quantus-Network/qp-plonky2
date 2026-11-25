@@ -13,12 +13,11 @@ use log::{debug, warn, Level};
 #[cfg(feature = "timing")]
 use web_time::Instant;
 
-use crate::field::cosets::get_unique_coset_shifts;
 use crate::field::extension::{Extendable, FieldExtension};
 use crate::field::fft::fft_root_table;
 use crate::field::polynomial::PolynomialValues;
 use crate::fri::oracle::PolynomialBatch;
-use crate::fri::FriParams;
+use crate::fri::{FriParams, FriReductionStrategy};
 use crate::gadgets::arithmetic::BaseArithmeticOperation;
 use crate::gadgets::arithmetic_extension::ExtensionArithmeticOperation;
 use crate::gadgets::polynomial::PolynomialCoeffsExtTarget;
@@ -49,7 +48,7 @@ use crate::plonk::circuit_data::{
 use crate::plonk::config::{AlgebraicHasher, GenericConfig, GenericHashOut, Hasher};
 use crate::plonk::copy_constraint::CopyConstraint;
 use crate::plonk::permutation_argument::{Forest, WirePartition};
-use crate::plonk::plonk_common::{num_lookup_polys, num_partial_products, PlonkOracle};
+use crate::plonk::plonk_common::PlonkOracle;
 use crate::timed;
 use crate::util::context_tree::ContextTree;
 use crate::util::timing::TimingTree;
@@ -289,6 +288,16 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         self.config
             .check_fri_security::<F, D>()
             .unwrap_or_else(|error| panic!("{error}"));
+        // A fixed schedule that no degree in the field can hold would otherwise be found only
+        // after blinding has sized the trace for it.
+        if let FriReductionStrategy::Fixed(arity_bits) = &self.config.fri_config.reduction_strategy
+        {
+            let total_arities: usize = arity_bits.iter().sum();
+            assert!(
+                total_arities + self.config.fri_config.rate_bits <= F::TWO_ADICITY,
+                "FRI reductions exceed the field's two-adicity"
+            );
+        }
     }
 
     pub fn set_domain_separator(&mut self, separator: Vec<F>) {
@@ -900,17 +909,12 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         (gate_idx, slot_idx)
     }
 
-    /// Fails as soon as the schedule is derived, before blinding or committing to a domain it
-    /// cannot fit.
+    /// The schedule for a degree estimate; the final degree's schedule is checked when the
+    /// common data is built.
     fn fri_params(&self, degree_bits: usize) -> FriParams {
-        let fri_params = self
-            .config
+        self.config
             .fri_config
-            .fri_params(degree_bits, self.config.zero_knowledge);
-        fri_params
-            .check_valid::<F>()
-            .unwrap_or_else(|error| panic!("{error}"));
-        fri_params
+            .fri_params(degree_bits, self.config.zero_knowledge)
     }
 
     /// The number of (base field) `arithmetic` operations that can be performed in a single gate.
@@ -1254,38 +1258,36 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         let degree = self.gate_instances.len();
         debug!("Degree after final padding: {}", degree);
         let degree_bits = log2_strict(degree);
-        let fri_params = self.fri_params(degree_bits);
-        let public_initial_degree_bits = fri_params.degree_bits;
-        let quotient_degree_factor = self.config.max_quotient_degree_factor;
         let mut gates = self.gates.iter().cloned().collect::<Vec<_>>();
         // Gates need to be sorted by their degrees (and ID to make the ordering deterministic) to compute the selector polynomials.
         gates.sort_unstable_by_key(|g| (g.0.degree(), g.0.id()));
-        let (mut constant_vecs, selectors_info) =
-            selector_polynomials(&gates, &self.gate_instances, quotient_degree_factor + 1);
+        let common = CommonCircuitData::new(
+            self.config.clone(),
+            degree_bits,
+            gates,
+            num_public_inputs,
+            self.luts.clone(),
+        )
+        .unwrap_or_else(|error| panic!("cannot build the circuit: {error}"));
+        let public_initial_degree_bits = common.public_initial_degree_bits;
 
-        // Get the lookup selectors.
-        let num_lookup_selectors = if num_luts != 0 {
+        let mut constant_vecs =
+            selector_polynomials(&common.gates, &self.gate_instances, &common.selectors_info);
+        if num_luts != 0 {
             let selector_lookups =
-                selectors_lookup(&gates, &self.gate_instances, &self.lookup_rows);
+                selectors_lookup(&common.gates, &self.gate_instances, &self.lookup_rows);
             let selector_ends = selector_ends_lookups(&self.lookup_rows, &self.gate_instances);
-            let all_lookup_selectors = [selector_lookups, selector_ends].concat();
-            let num_lookup_selectors = all_lookup_selectors.len();
-            constant_vecs.extend(all_lookup_selectors);
-            num_lookup_selectors
-        } else {
-            0
-        };
-
+            constant_vecs.extend([selector_lookups, selector_ends].concat());
+        }
         constant_vecs.extend(self.constant_polys());
-        let num_constants = constant_vecs.len();
+        assert_eq!(constant_vecs.len(), common.num_constants);
 
         let subgroup = F::two_adic_subgroup(degree_bits);
 
-        let k_is = get_unique_coset_shifts(degree, self.config.num_routed_wires);
         let (sigma_vecs, forest, wire_partition) = timed!(
             timing,
             "generate sigma polynomials",
-            self.sigma_vecs(&k_is, &subgroup)
+            self.sigma_vecs(&common.k_is, &subgroup)
         );
         let formal = formal_view.then(|| {
             let routed = self.config.num_routed_wires;
@@ -1364,23 +1366,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             indices.shrink_to_fit();
         }
 
-        let num_gate_constraints = gates
-            .iter()
-            .map(|gate| gate.0.num_constraints())
-            .max()
-            .expect("No gates?");
-
-        let permutation_partial_product_degree = quotient_degree_factor;
-        let num_partial_products = num_partial_products(
-            self.config.num_routed_wires,
-            permutation_partial_product_degree,
-        );
-
-        let num_lookup_polys = num_lookup_polys(
-            self.config.num_routed_wires,
-            self.config.max_quotient_degree_factor - 1,
-            num_luts,
-        );
         let constants_sigmas_cap = constants_sigmas_commitment.merkle_tree.cap.clone();
         let domain_separator = self.domain_separator.unwrap_or_default();
         let domain_separator_digest = C::Hasher::hash_pad(&domain_separator);
@@ -1394,30 +1379,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             ],
         ];
         let circuit_digest = C::Hasher::hash_no_pad(&circuit_digest_parts.concat());
-        let config = self.config;
-
-        let common = CommonCircuitData {
-            config,
-            trace_degree_bits: degree_bits,
-            fri_params,
-            public_initial_degree_bits,
-            gates,
-            selectors_info,
-            quotient_degree_factor,
-            num_gate_constraints,
-            num_constants,
-            num_public_inputs,
-            k_is,
-            num_partial_products,
-            num_lookup_polys,
-            num_lookup_selectors,
-            luts: self.luts,
-        };
-        // The same check the verifier applies to deserialized data, so that anything the builder
-        // produces is accepted there and the two never disagree on what a valid circuit is.
-        common
-            .check_valid()
-            .unwrap_or_else(|error| panic!("built invalid common circuit data: {error}"));
 
         // Precompute FFT roots for the phase-1 commitments. Trace-domain
         // batches compute exact FFT roots on demand so they are never coupled to the public size.

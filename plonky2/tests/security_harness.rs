@@ -1,4 +1,5 @@
 use std::panic::{catch_unwind, AssertUnwindSafe};
+use std::sync::Arc;
 
 use plonky2::field::types::Field;
 use plonky2::field::zero_poly_coset::ZeroPolyOnCoset;
@@ -380,24 +381,50 @@ fn degenerate_fri_config_rejected_at_build() {
     }
 }
 
-/// A `Fixed` schedule the domain cannot hold is rejected when the schedule is first derived, before
+fn panic_message(payload: Box<dyn std::any::Any + Send>) -> String {
+    payload
+        .downcast_ref::<String>()
+        .cloned()
+        .or_else(|| payload.downcast_ref::<&str>().map(|s| s.to_string()))
+        .unwrap_or_default()
+}
+
+/// A `Fixed` schedule no degree in the field can hold is rejected by `CircuitBuilder::new`, before
 /// blinding tries to pad the trace to a size that matches it.
 #[test]
 fn impossible_fixed_fri_schedule_rejected_before_blinding() {
     let result = catch_unwind(AssertUnwindSafe(|| {
         let mut config = CircuitConfig::standard_recursion_zk_config();
         config.fri_config.reduction_strategy = FriReductionStrategy::Fixed(vec![40]);
-        let mut builder = CircuitBuilder::<F, D>::new(config);
-        let x = builder.add_virtual_target();
-        builder.register_public_input(x);
-        builder.build::<C>()
+        CircuitBuilder::<F, D>::new(config)
     }));
-    let message = result.unwrap_err();
-    let message = message
-        .downcast_ref::<String>()
-        .cloned()
-        .unwrap_or_default();
-    assert_eq!(message, "FRI reductions exceed the degree");
+    assert_eq!(
+        panic_message(result.unwrap_err()),
+        "FRI reductions exceed the field's two-adicity"
+    );
+}
+
+/// Blinding sizes the trace from estimates below the final degree, so a `Fixed` schedule is only
+/// checked against the degree the circuit ends up with. With `cap_height < rate_bits` this
+/// schedule fits the final degree but not the first estimate.
+#[test]
+fn fixed_fri_schedule_that_fits_only_after_blinding_builds() -> anyhow::Result<()> {
+    let mut config = CircuitConfig::standard_recursion_zk_config();
+    config.fri_config.rate_bits = 8;
+    config.fri_config.cap_height = 0;
+    config.fri_config.num_query_rounds = 12;
+    config.fri_config.proof_of_work_bits = 20;
+    config.fri_config.reduction_strategy = FriReductionStrategy::Fixed(vec![4, 4]);
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let x = builder.add_virtual_target();
+    let y = builder.mul(x, x);
+    builder.register_public_input(y);
+    let data = builder.build::<C>();
+
+    let mut witness = PartialWitness::new();
+    witness.set_target(x, F::from_canonical_u64(3))?;
+    let proof = data.prove(witness)?;
+    data.verify(proof)
 }
 
 /// A config too narrow for a gate to hold a single operation must fail loudly when that gate
@@ -414,32 +441,33 @@ fn zero_slot_gate_rejected() {
         let x = builder.add_virtual_target();
         builder.add(x, x)
     }));
-    let message = result.unwrap_err();
-    let message = message
-        .downcast_ref::<String>()
-        .cloned()
-        .or_else(|| message.downcast_ref::<&str>().map(|s| s.to_string()))
-        .unwrap_or_default();
+    let message = panic_message(result.unwrap_err());
     assert!(message.contains("no operation slots"), "{message}");
 }
 
-/// Every derived field of `CommonCircuitData` is recomputed from the config, degree, gates and
-/// lookup tables and compared, so a tampered copy is reported whether it arrives through
-/// `from_bytes` or is built in memory and handed straight to `verify`.
+/// Only the config, degree, gates, public input count and lookup tables are serialized; the
+/// loader derives the rest the way the builder does, after checking those primitives are ones the
+/// builder could have fixed. Both crates reject the same bytes.
 #[test]
-fn tampered_common_data_is_reported_by_field() -> anyhow::Result<()> {
+fn common_data_primitives_are_checked_on_load() {
     let data = simple_circuit_data();
-    let proof = data.prove(PartialWitness::new())?;
-    data.verify(proof.clone())?;
-
-    let tampered = |mutate: fn(&mut CommonCircuitData<F, D>), error: &str| -> anyhow::Result<()> {
-        let mut verifier_data = data.verifier_data();
-        mutate(&mut verifier_data.common);
-        assert_eq!(verifier_data.common.check_valid(), Err(error));
-        assert!(verifier_data.verify(proof.clone()).is_err());
+    let rejected = |mutate: fn(&mut CommonCircuitData<F, D>), error: &str| {
+        let mut common = data.common.clone();
+        mutate(&mut common);
+        assert_eq!(
+            CommonCircuitData::<F, D>::new(
+                common.config.clone(),
+                common.trace_degree_bits,
+                common.gates.clone(),
+                common.num_public_inputs,
+                common.luts.clone(),
+            )
+            .err(),
+            Some(error)
+        );
 
         let gate_serializer = DefaultGateSerializer;
-        let bytes = verifier_data.common.to_bytes(&gate_serializer).unwrap();
+        let bytes = common.to_bytes(&gate_serializer).unwrap();
         assert!(CommonCircuitData::<F, D>::from_bytes(bytes.clone(), &gate_serializer).is_err());
         assert!(
             plonky2_verifier::plonk::circuit_data::CommonCircuitData::<F, D>::from_bytes(
@@ -448,106 +476,70 @@ fn tampered_common_data_is_reported_by_field() -> anyhow::Result<()> {
             )
             .is_err()
         );
-        Ok(())
     };
 
-    // #64700: FRI query indices are sampled from `public_initial_degree_bits`, so a smaller value
-    // than the committed `fri_params.degree_bits` would draw queries from a smaller domain.
-    tampered(
-        |common| common.public_initial_degree_bits -= 1,
-        "trace_degree_bits, public_initial_degree_bits and FRI degree_bits must agree",
-    )?;
-    tampered(
-        |common| common.trace_degree_bits -= 1,
-        "trace_degree_bits, public_initial_degree_bits and FRI degree_bits must agree",
-    )?;
-    // The verifier takes its query count and reduction schedule from `fri_params`, which is
-    // serialized separately from `config.fri_config`.
-    tampered(
-        |common| common.fri_params.config.num_query_rounds = 1,
-        "fri_params must be derived from config",
-    )?;
     // Consistent data that weakens FRI below `security_bits` fails the rule the builder applies.
-    tampered(
+    rejected(
         |common| {
             common.config.fri_config.num_query_rounds = 1;
             common.config.fri_config.proof_of_work_bits = 0;
-            common.fri_params.config = common.config.fri_config.clone();
         },
         "FRI params fall short of target security",
-    )?;
-    tampered(
-        |common| common.fri_params.reduction_arity_bits.push(1),
-        "fri_params must be derived from config",
-    )?;
-    tampered(
-        |common| common.quotient_degree_factor -= 1,
-        "quotient_degree_factor must equal config.max_quotient_degree_factor",
-    )?;
-    tampered(
+    );
+    rejected(
+        |common| common.trace_degree_bits = 40,
+        "FRI LDE domain exceeds the field's two-adicity",
+    );
+    // The schedule search would wrap on this rate; the domain is bounded before it runs.
+    rejected(
+        |common| {
+            common.config.fri_config.rate_bits = usize::MAX;
+            common.config.fri_config.reduction_strategy = FriReductionStrategy::MinSize(None);
+        },
+        "FRI LDE domain exceeds the field's two-adicity",
+    );
+    rejected(
         |common| common.gates.swap(0, 1),
         "gates must be sorted by degree and id without duplicates",
-    )?;
-    tampered(
-        |common| common.selectors_info.groups.truncate(1),
-        "selectors_info must be derived from the gates",
-    )?;
-    tampered(
-        |common| common.num_constants += 1,
-        "num_constants must be derived from the selectors and gates",
-    )?;
-    tampered(
-        |common| common.num_gate_constraints += 1,
-        "num_gate_constraints must be the maximum over the gates",
-    )?;
-    tampered(
-        |common| common.num_partial_products += 1,
-        "num_partial_products must be derived from the config",
-    )?;
-    tampered(
-        |common| common.k_is[1] = common.k_is[0],
-        "k_is must be the unique coset shifts for the degree",
-    )?;
-    tampered(
-        |common| common.num_lookup_polys += 1,
-        "num_lookup_polys must be derived from the config and lookup tables",
-    )?;
-    Ok(())
-}
-
-/// The recursive verifier builds its constraints from `inner_common_data`, so it applies the same
-/// consistency check as the native verifier rather than enforcing whatever it is handed.
-#[test]
-fn recursive_verifier_rejects_tampered_inner_common_data() {
-    let inner = simple_circuit_data();
-    let mut tampered = inner.common.clone();
-    tampered.fri_params.config.num_query_rounds = 1;
-
-    let result = catch_unwind(AssertUnwindSafe(|| {
-        let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
-        let proof = builder.add_virtual_proof_with_pis(&tampered);
-        let verifier_data =
-            builder.add_virtual_verifier_data(tampered.config.fri_config.cap_height);
-        builder.verify_proof::<C>(&proof, &verifier_data, &tampered);
-    }));
-    let message = result.unwrap_err();
-    let message = message
-        .downcast_ref::<String>()
-        .cloned()
-        .unwrap_or_default();
-    assert!(
-        message.contains("fri_params must be derived from config"),
-        "{message}"
+    );
+    rejected(
+        |common| common.config.num_wires = common.config.num_routed_wires,
+        "gate does not fit within the circuit config",
+    );
+    rejected(
+        |common| common.luts.push(Arc::new(Vec::new())),
+        "lookup table is empty",
     );
 }
 
+/// Derived fields are not in the encoding, so altering one in memory changes nothing on the wire:
+/// the bytes decode to what the builder produced.
 #[test]
-fn untampered_common_data_roundtrips() {
+fn common_data_roundtrips_from_its_primitives() {
     let data = simple_circuit_data();
     let gate_serializer = DefaultGateSerializer;
-    let bytes = data.common.to_bytes(&gate_serializer).unwrap();
-
-    assert!(CommonCircuitData::<F, D>::from_bytes(bytes, &gate_serializer).is_ok());
+    for mutate in [
+        |_: &mut CommonCircuitData<F, D>| {},
+        |common: &mut CommonCircuitData<F, D>| common.num_constants += 1,
+        |common: &mut CommonCircuitData<F, D>| common.fri_params.config.num_query_rounds = 1,
+        |common: &mut CommonCircuitData<F, D>| common.k_is[1] = common.k_is[0],
+        |common: &mut CommonCircuitData<F, D>| common.selectors_info.groups.truncate(1),
+    ] {
+        let mut common = data.common.clone();
+        mutate(&mut common);
+        let bytes = common.to_bytes(&gate_serializer).unwrap();
+        assert_eq!(
+            CommonCircuitData::<F, D>::from_bytes(bytes.clone(), &gate_serializer).unwrap(),
+            data.common
+        );
+        assert!(
+            plonky2_verifier::plonk::circuit_data::CommonCircuitData::<F, D>::from_bytes(
+                bytes,
+                &plonky2_verifier::util::serialization::DefaultGateSerializer,
+            )
+            .is_ok()
+        );
+    }
 }
 
 /// #64703: the in-circuit `hash_leaf` is length-binding, so a zero-suffixed leaf cannot be coerced
