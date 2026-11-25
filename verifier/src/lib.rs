@@ -45,7 +45,7 @@ pub use plonk::circuit_data::{
     VerifierOnlyCircuitData,
 };
 pub use plonk::config::{GenericConfig, GenericHashOut, Hasher, PoseidonGoldilocksConfig};
-pub use plonk::proof::{CompressedProofWithPublicInputs, Proof, ProofWithPublicInputs};
+pub use plonk::proof::{Proof, ProofWithPublicInputs};
 pub use plonk::verifier::verify;
 
 // Standard Plonky2 configuration type aliases

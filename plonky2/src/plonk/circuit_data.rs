@@ -46,7 +46,7 @@ use crate::iop::witness::{PartialWitness, PartitionWitness};
 use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::config::{AlgebraicHasher, GenericConfig, Hasher};
 use crate::plonk::plonk_common::PlonkOracle;
-use crate::plonk::proof::{CompressedProofWithPublicInputs, ProofWithPublicInputs};
+use crate::plonk::proof::ProofWithPublicInputs;
 use crate::plonk::prover::prove;
 use crate::plonk::verifier::verify;
 use crate::util::log2_ceil;
@@ -152,27 +152,6 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
             &self.verifier_only,
             &self.common,
         )
-    }
-
-    pub fn verify_compressed(
-        &self,
-        compressed_proof_with_pis: CompressedProofWithPublicInputs<F, C, D>,
-    ) -> Result<()> {
-        compressed_proof_with_pis.verify(&self.verifier_only, &self.common)
-    }
-
-    pub fn compress(
-        &self,
-        proof: ProofWithPublicInputs<F, C, D>,
-    ) -> Result<CompressedProofWithPublicInputs<F, C, D>> {
-        proof.compress(&self.verifier_only.circuit_digest, &self.common)
-    }
-
-    pub fn decompress(
-        &self,
-        proof: CompressedProofWithPublicInputs<F, C, D>,
-    ) -> Result<ProofWithPublicInputs<F, C, D>> {
-        proof.decompress(&self.verifier_only.circuit_digest, &self.common)
     }
 
     pub fn verifier_data(&self) -> VerifierCircuitData<F, C, D> {
@@ -322,13 +301,6 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
             &self.verifier_only,
             &self.common,
         )
-    }
-
-    pub fn verify_compressed(
-        &self,
-        compressed_proof_with_pis: CompressedProofWithPublicInputs<F, C, D>,
-    ) -> Result<()> {
-        compressed_proof_with_pis.verify(&self.verifier_only, &self.common)
     }
 }
 

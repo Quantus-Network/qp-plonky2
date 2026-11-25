@@ -6,10 +6,7 @@
 use alloc::vec::Vec;
 
 // Re-export all FRI proof types from core
-pub use qp_plonky2_core::fri_proof::{
-    CompressedFriProof, CompressedFriQueryRounds, FriInitialTreeProof, FriProof, FriQueryRound,
-    FriQueryStep,
-};
+pub use qp_plonky2_core::fri_proof::{FriInitialTreeProof, FriProof, FriQueryRound, FriQueryStep};
 // Re-export FriChallenges from core
 pub use qp_plonky2_core::FriChallenges;
 
