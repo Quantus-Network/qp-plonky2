@@ -831,8 +831,15 @@ pub trait Read {
         let map_len = self.read_usize()?;
         let mut generator_indices_by_watches = BTreeMap::new();
         for _ in 0..map_len {
-            let k = self.read_usize()?;
-            generator_indices_by_watches.insert(k, self.read_usize_vec()?);
+            let key = self.read_usize()?;
+            // The map is written in key order, so only strictly increasing keys are read back.
+            if generator_indices_by_watches
+                .last_key_value()
+                .is_some_and(|(last, _)| *last >= key)
+            {
+                return Err(IoError);
+            }
+            generator_indices_by_watches.insert(key, self.read_usize_vec()?);
         }
 
         let constants_sigmas_commitment = self.read_polynomial_batch()?;

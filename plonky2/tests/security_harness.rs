@@ -1026,3 +1026,94 @@ fn circuit_data_bytes_with_trailing_data_rejected() -> anyhow::Result<()> {
     );
     Ok(())
 }
+
+/// Prover data has one encoding per value too: the watch map must be in key order without
+/// repeats, and a serialized FFT root table must be the one the prover would recompute. The same
+/// bytes sit inside `CircuitData` and `ProverCircuitData`, which must reject them the same way.
+#[test]
+fn prover_only_bytes_are_canonical() {
+    use plonky2::field::types::PrimeField64;
+    use plonky2::plonk::circuit_data::{CircuitData, ProverCircuitData};
+    use plonky2::util::serialization::Write;
+
+    let gate_serializer = DefaultGateSerializer;
+    let generator_serializer = DefaultGeneratorSerializer::<C, D>::default();
+    let data = simple_circuit_data();
+    let prover_only_bytes = |data: &CircuitData<F, C, D>| {
+        data.prover_only
+            .to_bytes(&generator_serializer, &data.common)
+            .unwrap()
+    };
+    let bytes = prover_only_bytes(&data);
+    let decode = |bytes: &[u8]| {
+        ProverOnlyCircuitData::<F, C, D>::from_bytes(bytes, &generator_serializer, &data.common)
+    };
+    assert_eq!(decode(&bytes).unwrap(), data.prover_only);
+
+    // Serializing with a field cleared locates that field: the first differing byte.
+    let offset_of = |cleared: &[u8]| bytes.iter().zip(cleared).position(|(a, b)| a != b).unwrap();
+
+    let mut without_watches = simple_circuit_data();
+    without_watches
+        .prover_only
+        .generator_indices_by_watches
+        .clear();
+    let map_len_offset = offset_of(&prover_only_bytes(&without_watches));
+    let watches = &data.prover_only.generator_indices_by_watches;
+    let (first_key, first_watchers) = watches.first_key_value().unwrap();
+    let mut repeated_entry = bytes[..map_len_offset].to_vec();
+    repeated_entry.write_usize(watches.len() + 1).unwrap();
+    repeated_entry.write_usize(*first_key).unwrap();
+    repeated_entry.write_usize_vec(first_watchers).unwrap();
+    repeated_entry.extend_from_slice(&bytes[map_len_offset + 8..]);
+    assert!(decode(&repeated_entry).is_err());
+
+    let mut without_cache = simple_circuit_data();
+    without_cache.prover_only.fft_root_table = None;
+    let without_cache_bytes = prover_only_bytes(&without_cache);
+    // `None` is a different value, not a second spelling of the table.
+    assert_eq!(
+        decode(&without_cache_bytes).unwrap(),
+        without_cache.prover_only
+    );
+    // Skip the presence flag, the row count and the first row's length to reach its first limb.
+    let first_limb = offset_of(&without_cache_bytes) + 1 + 8 + 8;
+    let limb = F::from_canonical_u64(u64::from_le_bytes(
+        bytes[first_limb..][..8].try_into().unwrap(),
+    ));
+    let mut altered_limb = bytes.clone();
+    altered_limb[first_limb..][..8]
+        .copy_from_slice(&(limb + F::ONE).to_canonical_u64().to_le_bytes());
+    assert!(decode(&altered_limb).is_err());
+
+    // The other prover-holding entry points carry the same bytes verbatim.
+    let full_bytes = data
+        .to_bytes(&gate_serializer, &generator_serializer)
+        .unwrap();
+    let prover_full_bytes = simple_circuit_data()
+        .prover_data()
+        .to_bytes(&gate_serializer, &generator_serializer)
+        .unwrap();
+    let decodes_full = |bytes: &[u8]| {
+        CircuitData::<F, C, D>::from_bytes(bytes, &gate_serializer, &generator_serializer).is_ok()
+    };
+    let decodes_prover = |bytes: &[u8]| {
+        ProverCircuitData::<F, C, D>::from_bytes(bytes, &gate_serializer, &generator_serializer)
+            .is_ok()
+    };
+    let containers: [(&[u8], &dyn Fn(&[u8]) -> bool); 2] = [
+        (&full_bytes, &decodes_full),
+        (&prover_full_bytes, &decodes_prover),
+    ];
+    for (container, decodes) in containers {
+        let at = container
+            .windows(bytes.len())
+            .position(|window| window == bytes)
+            .unwrap();
+        let spliced =
+            |altered: &[u8]| [&container[..at], altered, &container[at + bytes.len()..]].concat();
+        assert!(decodes(&spliced(&bytes)));
+        assert!(!decodes(&spliced(&repeated_entry)));
+        assert!(!decodes(&spliced(&altered_limb)));
+    }
+}
