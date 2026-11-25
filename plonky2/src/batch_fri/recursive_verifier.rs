@@ -3,7 +3,6 @@ use alloc::{format, vec::Vec};
 
 use itertools::Itertools;
 
-use crate::batch_fri::{openings_at_leaf_positions, BatchLeafLayout};
 use crate::field::extension::Extendable;
 use crate::fri::proof::{
     FriChallengesTarget, FriInitialTreeProofTarget, FriProofTarget, FriQueryRoundTarget,
@@ -12,7 +11,9 @@ use crate::fri::recursive_verifier::{
     assert_fri_verifier_target_shape, PrecomputedReducedOpeningsTarget,
 };
 use crate::fri::structure::{FriBatchInfoTarget, FriInstanceInfoTarget, FriOpeningsTarget};
-use crate::fri::validate_shape::check_batch_fri_degree_bits;
+use crate::fri::validate_shape::{
+    check_batch_fri_degree_bits, openings_at_leaf_positions, BatchLeafLayout,
+};
 use crate::fri::FriParams;
 use crate::hash::hash_types::{MerkleCapTarget, RichField};
 use crate::iop::ext_target::{flatten_target, ExtensionTarget};
@@ -46,7 +47,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             proof.final_poly.len(),
             "Final polynomial has wrong coefficient count."
         );
-        assert_fri_verifier_target_shape(
+        let layouts = assert_fri_verifier_target_shape(
             instance,
             openings,
             challenges,
@@ -60,27 +61,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             "check PoW",
             self.fri_verify_proof_of_work(challenges.fri_pow_response, &params.config)
         );
-
-        let oracles_per_instance = instance
-            .iter()
-            .map(|inst| inst.oracles.as_slice())
-            .collect_vec();
-        let layouts = BatchLeafLayout::per_oracle(&oracles_per_instance, params.leaf_hiding);
-        let instance = instance
-            .iter()
-            .map(|inst| FriInstanceInfoTarget {
-                oracles: inst.oracles.clone(),
-                batches: inst
-                    .batches
-                    .iter()
-                    .map(|batch| FriBatchInfoTarget {
-                        point: batch.point,
-                        openings: openings_at_leaf_positions(&batch.openings, &layouts),
-                    })
-                    .collect(),
-            })
-            .collect_vec();
-        let instance = &instance;
 
         let mut precomputed_reduced_evals = Vec::with_capacity(openings.len());
         for opn in openings {
@@ -171,6 +151,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     fn batch_fri_combine_initial(
         &mut self,
         instance: &[FriInstanceInfoTarget<F, D>],
+        layouts: &[BatchLeafLayout],
         index: usize,
         proof: &FriInitialTreeProofTarget,
         alpha: ExtensionTarget<D>,
@@ -195,6 +176,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             .zip(&precomputed_reduced_evals.reduced_openings_at_point)
         {
             let FriBatchInfoTarget { point, openings } = batch;
+            let openings = openings_at_leaf_positions(openings, layouts);
             let evals = openings
                 .iter()
                 .map(|expression| {
@@ -272,6 +254,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             "combine initial oracles",
             self.batch_fri_combine_initial(
                 instance,
+                layouts,
                 batch_index,
                 &round_proof.initial_trees_proof,
                 challenges.fri_alpha,
@@ -334,6 +317,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
                 });
                 let eval = self.batch_fri_combine_initial(
                     instance,
+                    layouts,
                     batch_index,
                     &round_proof.initial_trees_proof,
                     challenges.fri_alpha,

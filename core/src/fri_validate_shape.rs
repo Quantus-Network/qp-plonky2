@@ -1,7 +1,7 @@
 //! FRI proof shape validation.
 
 #[cfg(not(feature = "std"))]
-use alloc::{vec, vec::Vec};
+use alloc::vec::Vec;
 
 use anyhow::ensure;
 
@@ -10,7 +10,8 @@ use crate::field::extension::Extendable;
 use crate::fri::FriParams;
 use crate::fri_proof::{FriProof, FriQueryRound, FriQueryStep};
 use crate::fri_structure::{
-    FriChallenges, FriInstanceInfo, FriOpenings, FriOracleInfo, FriPolynomialInfo,
+    FriChallenges, FriInstanceInfo, FriOpeningExpression, FriOpenings, FriOracleInfo,
+    FriPolynomialInfo,
 };
 use crate::hash_types::RichField;
 use crate::merkle_tree::MerkleCap;
@@ -25,59 +26,128 @@ where
     F: RichField + Extendable<D>,
     C: GenericConfig<D, F = F>,
 {
-    validate_batch_fri_proof_shape::<F, C, D>(proof, core::slice::from_ref(instance), params)
+    validate_batch_fri_proof_shape::<F, C, D>(proof, core::slice::from_ref(instance), params)?;
+    Ok(())
 }
 
-/// Validates that every opened polynomial references an in-range oracle and polynomial index, and
-/// returns the expected per-oracle leaf length each initial-tree-proof leaf must have.
-///
-/// In batch FRI a single oracle's leaf concatenates polynomials from every instance, so both the
-/// polynomial-index bound and the leaf length sum `num_polys` (plus salt) across instances; this
-/// reduces to a single instance for plain FRI. Taking oracles and opened polynomials rather than
-/// instances lets the native and the in-circuit verifiers share it, so neither path can index an
-/// oracle leaf out of bounds and panic on malformed metadata (#64696).
-pub fn checked_leaf_lengths<'a>(
+/// How an initial-tree leaf is laid out for one oracle: one `polys ‖ salt` group per instance, in
+/// instance order (a single group for plain FRI). Opening terms number polynomials globally
+/// across the groups, so a term's leaf position is its global index plus the salts of every
+/// preceding group.
+#[derive(Debug)]
+pub struct BatchLeafLayout {
+    /// `(num_polys, salt_len)` per instance.
+    groups: Vec<(usize, usize)>,
+}
+
+impl BatchLeafLayout {
+    /// The `(start, num_polys, salt_len)` of each instance's group within the leaf.
+    fn groups(&self) -> impl Iterator<Item = (usize, usize, usize)> + '_ {
+        self.groups.iter().scan(0, |start, &(num_polys, salt)| {
+            let group = (*start, num_polys, salt);
+            *start += num_polys + salt;
+            Some(group)
+        })
+    }
+
+    /// Polynomials across every group, which is what opening terms index.
+    fn num_polys(&self) -> usize {
+        self.groups.iter().map(|(num_polys, _)| num_polys).sum()
+    }
+
+    pub fn leaf_len(&self) -> usize {
+        self.groups
+            .iter()
+            .map(|(num_polys, salt)| num_polys + salt)
+            .sum()
+    }
+
+    /// The leaf slice holding each instance's group, salt included.
+    pub fn group_ranges(&self) -> impl Iterator<Item = core::ops::Range<usize>> + '_ {
+        self.groups()
+            .map(|(start, num_polys, salt)| start..start + num_polys + salt)
+    }
+
+    fn position(&self, polynomial_index: usize) -> usize {
+        let mut remaining = polynomial_index;
+        for (start, num_polys, _) in self.groups() {
+            if remaining < num_polys {
+                return start + remaining;
+            }
+            remaining -= num_polys;
+        }
+        panic!("polynomial index {polynomial_index} exceeds the batch leaf")
+    }
+}
+
+/// Re-indexes `openings` from global polynomial numbering to leaf positions (one layout per
+/// oracle), so the plain-FRI leaf accessors read the right evaluation even when groups are salted.
+pub fn openings_at_leaf_positions<F: RichField + Extendable<D>, const D: usize>(
+    openings: &[FriOpeningExpression<F, D>],
+    layouts: &[BatchLeafLayout],
+) -> Vec<FriOpeningExpression<F, D>> {
+    openings
+        .iter()
+        .map(|expression| {
+            let mut expression = expression.clone();
+            for term in &mut expression.terms {
+                let polynomial = &mut term.polynomial;
+                polynomial.polynomial_index =
+                    layouts[polynomial.oracle_index].position(polynomial.polynomial_index);
+            }
+            expression
+        })
+        .collect()
+}
+
+/// Builds the per-oracle leaf layouts and checks that every opened polynomial references an
+/// in-range oracle and polynomial index, so that no leaf read can go out of bounds on malformed
+/// metadata (#64696). Taking oracles and opened polynomials rather than instances lets the native
+/// and the in-circuit verifiers share it.
+pub fn checked_leaf_layouts<'a>(
     oracles_per_instance: &[&[FriOracleInfo]],
     opened_polynomials: impl IntoIterator<Item = &'a FriPolynomialInfo>,
     leaf_hiding: bool,
-) -> anyhow::Result<Vec<usize>> {
+) -> anyhow::Result<Vec<BatchLeafLayout>> {
     let Some(first) = oracles_per_instance.first() else {
         return Ok(Vec::new());
     };
     let oracle_count = first.len();
-    let mut total_num_polys = vec![0usize; oracle_count];
-    let mut leaf_len = vec![0usize; oracle_count];
+    let mut layouts: Vec<BatchLeafLayout> = (0..oracle_count)
+        .map(|_| BatchLeafLayout { groups: Vec::new() })
+        .collect();
     for oracles in oracles_per_instance {
         ensure!(
             oracles.len() == oracle_count,
             "FRI instances disagree on oracle count"
         );
-        for (i, oracle) in oracles.iter().enumerate() {
+        for (layout, (oracle, first_oracle)) in layouts.iter_mut().zip(oracles.iter().zip(*first)) {
             // The salt is trimmed per oracle, so every instance must agree on whether it exists.
             let salt = salt_size(oracle.blinding && leaf_hiding);
             ensure!(
-                salt == salt_size(first[i].blinding && leaf_hiding),
+                salt == salt_size(first_oracle.blinding && leaf_hiding),
                 "FRI instances disagree on oracle blinding"
             );
-            total_num_polys[i] += oracle.num_polys;
-            leaf_len[i] += oracle.num_polys + salt;
+            layout.groups.push((oracle.num_polys, salt));
         }
     }
     for polynomial in opened_polynomials {
-        let oracle_index = polynomial.oracle_index;
-        ensure!(oracle_index < oracle_count, "FRI oracle index out of range");
         ensure!(
-            polynomial.polynomial_index < total_num_polys[oracle_index],
+            polynomial.oracle_index < oracle_count,
+            "FRI oracle index out of range"
+        );
+        ensure!(
+            polynomial.polynomial_index < layouts[polynomial.oracle_index].num_polys(),
             "FRI polynomial index out of range"
         );
     }
-    Ok(leaf_len)
+    Ok(layouts)
 }
 
-fn instance_leaf_lengths<F, const D: usize>(
+fn instance_leaf_layouts<F, const D: usize>(
     instances: &[FriInstanceInfo<F, D>],
     leaf_hiding: bool,
-) -> anyhow::Result<Vec<usize>>
+) -> anyhow::Result<Vec<BatchLeafLayout>>
 where
     F: RichField + Extendable<D>,
 {
@@ -91,14 +161,16 @@ where
         .flat_map(|batch| &batch.openings)
         .flat_map(|expression| &expression.terms)
         .map(|term| &term.polynomial);
-    checked_leaf_lengths(&oracles_per_instance, opened_polynomials, leaf_hiding)
+    checked_leaf_layouts(&oracles_per_instance, opened_polynomials, leaf_hiding)
 }
 
+/// Checks every list length and leaf shape in `proof` against `instances` and `params`, and
+/// returns the per-oracle leaf layouts the leaves were checked against.
 pub fn validate_batch_fri_proof_shape<F, C, const D: usize>(
     proof: &FriProof<F, C::Hasher, D>,
     instances: &[FriInstanceInfo<F, D>],
     params: &FriParams,
-) -> anyhow::Result<()>
+) -> anyhow::Result<Vec<BatchLeafLayout>>
 where
     F: RichField + Extendable<D>,
     C: GenericConfig<D, F = F>,
@@ -110,7 +182,7 @@ where
         pow_witness: _pow_witness,
     } = proof;
 
-    let leaf_len = instance_leaf_lengths(instances, params.leaf_hiding)?;
+    let layouts = instance_leaf_layouts(instances, params.leaf_hiding)?;
 
     check_fri_proof_counts(
         commit_phase_merkle_caps.len(),
@@ -129,9 +201,10 @@ where
             steps,
         } = query_round;
 
-        ensure!(initial_trees_proof.evals_proofs.len() == leaf_len.len());
-        for (i, (leaf, merkle_proof)) in initial_trees_proof.evals_proofs.iter().enumerate() {
-            ensure!(leaf.len() == leaf_len[i]);
+        ensure!(initial_trees_proof.evals_proofs.len() == layouts.len());
+        for ((leaf, merkle_proof), layout) in initial_trees_proof.evals_proofs.iter().zip(&layouts)
+        {
+            ensure!(leaf.len() == layout.leaf_len());
             ensure!(merkle_proof.len() + cap_height == params.lde_bits());
         }
 
@@ -153,7 +226,7 @@ where
 
     ensure!(final_poly.coeffs.len() == params.final_poly_len());
 
-    Ok(())
+    Ok(layouts)
 }
 
 /// Checks the proof's own list lengths against the parameters. Every commit-phase cap is absorbed
@@ -336,26 +409,28 @@ mod tests {
         }
     }
 
+    fn leaf_lengths(instances: &[FriInstanceInfo<F, D>], leaf_hiding: bool) -> Vec<usize> {
+        instance_leaf_layouts(instances, leaf_hiding)
+            .unwrap()
+            .iter()
+            .map(BatchLeafLayout::leaf_len)
+            .collect()
+    }
+
     /// #64696: an opening term whose `polynomial_index` exceeds the oracle's `num_polys` must be
     /// rejected before `unsalted_eval` indexes the leaf out of bounds.
     #[test]
     fn rejects_out_of_range_polynomial_index() {
         let inst = single_oracle_instance(1, 5);
-        assert!(instance_leaf_lengths(core::slice::from_ref(&inst), false).is_err());
+        assert!(instance_leaf_layouts(core::slice::from_ref(&inst), false).is_err());
     }
 
     #[test]
     fn leaf_length_includes_salt_only_for_blinded_oracles() {
         let mut inst = single_oracle_instance(3, 2);
-        assert_eq!(
-            instance_leaf_lengths(core::slice::from_ref(&inst), true).unwrap(),
-            vec![3]
-        );
+        assert_eq!(leaf_lengths(&[inst.clone()], true), vec![3]);
         inst.oracles[0].blinding = true;
-        assert_eq!(
-            instance_leaf_lengths(core::slice::from_ref(&inst), true).unwrap(),
-            vec![3 + salt_size(true)]
-        );
+        assert_eq!(leaf_lengths(&[inst], true), vec![3 + salt_size(true)]);
     }
 
     /// The salt is trimmed per oracle by the current instance's `blinding`, so instances that
@@ -366,15 +441,15 @@ mod tests {
         let mut salted = single_oracle_instance(1, 1);
         salted.oracles[0].blinding = true;
         let mixed = [salted.clone(), unsalted];
-        let error = instance_leaf_lengths(&mixed, true).unwrap_err();
+        let error = instance_leaf_layouts(&mixed, true).unwrap_err();
         assert_eq!(
             error.downcast_ref::<&str>(),
             Some(&"FRI instances disagree on oracle blinding")
         );
         // Without leaf hiding no oracle is salted, so blinding does not shape the leaf.
-        assert_eq!(instance_leaf_lengths(&mixed, false).unwrap(), vec![2]);
+        assert_eq!(leaf_lengths(&mixed, false), vec![2]);
         assert_eq!(
-            instance_leaf_lengths(&[salted.clone(), salted], true).unwrap(),
+            leaf_lengths(&[salted.clone(), salted], true),
             vec![2 * (1 + salt_size(true))]
         );
     }

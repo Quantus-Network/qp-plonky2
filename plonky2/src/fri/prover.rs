@@ -1,6 +1,4 @@
 #[cfg(not(feature = "std"))]
-use alloc::vec;
-#[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
 
 use plonky2_maybe_rayon::*;

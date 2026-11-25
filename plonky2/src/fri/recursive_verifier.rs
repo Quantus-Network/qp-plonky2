@@ -13,7 +13,8 @@ use crate::fri::structure::{
     FriOpeningsTarget, FriOracleInfo,
 };
 use crate::fri::validate_shape::{
-    check_fri_proof_counts, check_fri_verifier_input_counts, checked_leaf_lengths, per_batch_counts,
+    check_fri_proof_counts, check_fri_verifier_input_counts, checked_leaf_layouts,
+    per_batch_counts, BatchLeafLayout,
 };
 use crate::fri::{FriConfig, FriParams};
 use crate::gates::coset_interpolation::CosetInterpolationGate;
@@ -28,10 +29,12 @@ use crate::util::reducing::ReducingFactorTarget;
 use crate::util::{log2_strict, reverse_index_bits_in_place};
 use crate::with_context;
 
-/// Circuit-side twin of `validate_batch_fri_proof_shape` and `validate_fri_verifier_inputs`: the
-/// recursive verifier zips these lists together and reads leaves by position, so a short list or
-/// a misshapen leaf would silently leave part of the inner proof unverified. Shapes are fixed at
-/// build time, so a mismatch is a construction error.
+/// Checks the list lengths the recursive verifier zips together and the leaf shapes it reads by
+/// position, as `validate_batch_fri_proof_shape` and `validate_fri_verifier_inputs` do natively,
+/// and returns the per-oracle leaf layouts. A short list or a misshapen leaf would silently leave
+/// part of the inner proof unverified. Merkle depths, step arities and cap sizes are not checked:
+/// they come from `add_virtual_fri_proof`, and the circuit would not build without them. Shapes
+/// are fixed at build time, so a mismatch is a construction error.
 pub(crate) fn assert_fri_verifier_target_shape<F: RichField + Extendable<D>, const D: usize>(
     instances: &[FriInstanceInfoTarget<F, D>],
     openings: &[FriOpeningsTarget<D>],
@@ -39,7 +42,7 @@ pub(crate) fn assert_fri_verifier_target_shape<F: RichField + Extendable<D>, con
     initial_merkle_caps: &[MerkleCapTarget],
     proof: &FriProofTarget<D>,
     params: &FriParams,
-) {
+) -> Vec<BatchLeafLayout> {
     let oracles_per_instance: Vec<&[FriOracleInfo]> = instances
         .iter()
         .map(|inst| inst.oracles.as_slice())
@@ -50,7 +53,7 @@ pub(crate) fn assert_fri_verifier_target_shape<F: RichField + Extendable<D>, con
         .flat_map(|batch| &batch.openings)
         .flat_map(|expression| &expression.terms)
         .map(|term| &term.polynomial);
-    let leaf_len = checked_leaf_lengths(
+    let layouts = checked_leaf_layouts(
         &oracles_per_instance,
         opened_polynomials,
         params.leaf_hiding,
@@ -58,9 +61,9 @@ pub(crate) fn assert_fri_verifier_target_shape<F: RichField + Extendable<D>, con
     .unwrap_or_else(|error| panic!("{error}"));
     for query_round in &proof.query_round_proofs {
         let leaves = &query_round.initial_trees_proof.evals_proofs;
-        assert_eq!(leaves.len(), leaf_len.len(), "FRI oracle count mismatch");
-        for ((leaf, _merkle_proof), expected) in leaves.iter().zip(&leaf_len) {
-            assert_eq!(leaf.len(), *expected, "FRI leaf length mismatch");
+        assert_eq!(leaves.len(), layouts.len(), "FRI oracle count mismatch");
+        for ((leaf, _merkle_proof), layout) in leaves.iter().zip(&layouts) {
+            assert_eq!(leaf.len(), layout.leaf_len(), "FRI leaf length mismatch");
         }
     }
 
@@ -71,7 +74,7 @@ pub(crate) fn assert_fri_verifier_target_shape<F: RichField + Extendable<D>, con
     )
     .and_then(|()| {
         check_fri_verifier_input_counts(
-            leaf_len.len(),
+            layouts.len(),
             initial_merkle_caps.len(),
             challenges.fri_betas.len(),
             challenges.fri_query_indices.len(),
@@ -89,6 +92,7 @@ pub(crate) fn assert_fri_verifier_target_shape<F: RichField + Extendable<D>, con
         )
     })
     .unwrap_or_else(|error| panic!("{error}"));
+    layouts
 }
 
 impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {

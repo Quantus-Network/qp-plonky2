@@ -6,11 +6,11 @@ use itertools::Itertools;
 use plonky2_field::extension::{flatten, Extendable, FieldExtension};
 use plonky2_field::types::Field;
 
-use crate::batch_fri::{openings_at_leaf_positions, BatchLeafLayout};
 use crate::fri::proof::{FriChallenges, FriInitialTreeProof, FriProof, FriQueryRound};
 use crate::fri::structure::{FriBatchInfo, FriInstanceInfo, FriOpenings};
 use crate::fri::validate_shape::{
-    check_batch_fri_degree_bits, validate_batch_fri_proof_shape, validate_fri_verifier_inputs,
+    check_batch_fri_degree_bits, openings_at_leaf_positions, validate_batch_fri_proof_shape,
+    validate_fri_verifier_inputs, BatchLeafLayout,
 };
 use crate::fri::verifier::{
     compute_evaluation, eval_opening_expression, fri_verify_proof_of_work,
@@ -39,31 +39,11 @@ pub fn verify_batch_fri_proof<
 ) -> anyhow::Result<()> {
     check_batch_fri_degree_bits(degree_bits, instances.len(), params)
         .map_err(anyhow::Error::msg)?;
-    validate_batch_fri_proof_shape::<F, C, D>(proof, instances, params)?;
+    let layouts = validate_batch_fri_proof_shape::<F, C, D>(proof, instances, params)?;
     validate_fri_verifier_inputs(instances, openings, challenges, initial_merkle_cap, params)?;
 
     // Check PoW.
     fri_verify_proof_of_work(challenges.fri_pow_response, &params.config)?;
-
-    let oracles_per_instance = instances
-        .iter()
-        .map(|inst| inst.oracles.as_slice())
-        .collect_vec();
-    let layouts = BatchLeafLayout::per_oracle(&oracles_per_instance, params.leaf_hiding);
-    let instances = instances
-        .iter()
-        .map(|inst| FriInstanceInfo {
-            oracles: inst.oracles.clone(),
-            batches: inst
-                .batches
-                .iter()
-                .map(|batch| FriBatchInfo {
-                    point: batch.point,
-                    openings: openings_at_leaf_positions(&batch.openings, &layouts),
-                })
-                .collect(),
-        })
-        .collect_vec();
 
     let mut precomputed_reduced_evals = Vec::with_capacity(openings.len());
     for opn in openings {
@@ -81,7 +61,7 @@ pub fn verify_batch_fri_proof<
     {
         batch_fri_verifier_query_round::<F, C, D>(
             &degree_bits,
-            &instances,
+            instances,
             &layouts,
             challenges,
             &precomputed_reduced_evals,
@@ -126,6 +106,7 @@ fn batch_fri_combine_initial<
     const D: usize,
 >(
     instances: &[FriInstanceInfo<F, D>],
+    layouts: &[BatchLeafLayout],
     index: usize,
     proof: &FriInitialTreeProof<F, C::Hasher>,
     alpha: F::Extension,
@@ -144,6 +125,7 @@ fn batch_fri_combine_initial<
         .zip(&precomputed_reduced_evals.reduced_openings_at_point)
     {
         let FriBatchInfo { point, openings } = batch;
+        let openings = openings_at_leaf_positions(openings, layouts);
         let evals = openings.iter().map(|expression| {
             eval_opening_expression(&instances[index], expression, proof, *point, params)
         });
@@ -190,6 +172,7 @@ fn batch_fri_verifier_query_round<
     // committed "parent" value in the next iteration.
     let mut old_eval = batch_fri_combine_initial::<F, C, D>(
         instances,
+        layouts,
         batch_index,
         &round_proof.initial_trees_proof,
         challenges.fri_alpha,
@@ -234,6 +217,7 @@ fn batch_fri_verifier_query_round<
                 * F::primitive_root_of_unity(n).exp_u64(reverse_bits(x_index, n) as u64);
             let eval = batch_fri_combine_initial::<F, C, D>(
                 instances,
+                layouts,
                 batch_index,
                 &round_proof.initial_trees_proof,
                 challenges.fri_alpha,
