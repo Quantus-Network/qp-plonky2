@@ -17,9 +17,8 @@ use crate::field::cosets::get_unique_coset_shifts;
 use crate::field::extension::{Extendable, FieldExtension};
 use crate::field::fft::fft_root_table;
 use crate::field::polynomial::PolynomialValues;
-use crate::field::types::Field;
 use crate::fri::oracle::PolynomialBatch;
-use crate::fri::{FriConfig, FriParams};
+use crate::fri::FriParams;
 use crate::gadgets::arithmetic::BaseArithmeticOperation;
 use crate::gadgets::arithmetic_extension::ExtensionArithmeticOperation;
 use crate::gadgets::polynomial::PolynomialCoeffsExtTarget;
@@ -27,7 +26,7 @@ use crate::gates::arithmetic_base::ArithmeticGate;
 use crate::gates::arithmetic_extension::ArithmeticExtensionGate;
 use crate::gates::constant::ConstantGate;
 use crate::gates::gate::{CurrentSlot, Gate, GateInstance, GateRef};
-use crate::gates::lookup::{Lookup, LookupGate};
+use crate::gates::lookup::Lookup;
 use crate::gates::lookup_table::LookupTable;
 use crate::gates::noop::NoopGate;
 use crate::gates::public_input::PublicInputGate;
@@ -50,10 +49,9 @@ use crate::plonk::circuit_data::{
 use crate::plonk::config::{AlgebraicHasher, GenericConfig, GenericHashOut, Hasher};
 use crate::plonk::copy_constraint::CopyConstraint;
 use crate::plonk::permutation_argument::{Forest, WirePartition};
-use crate::plonk::plonk_common::PlonkOracle;
+use crate::plonk::plonk_common::{num_lookup_polys, num_partial_products, PlonkOracle};
 use crate::timed;
 use crate::util::context_tree::ContextTree;
-use crate::util::partial_products::num_partial_products;
 use crate::util::timing::TimingTree;
 use crate::util::{log2_ceil, log2_strict, transpose, transpose_poly_values};
 
@@ -287,29 +285,10 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     /// Assert that the configuration used to create this `CircuitBuilder` is consistent,
     /// i.e. that the different parameters meet the targeted security level.
     fn check_config(&self) {
-        // Validate basic config invariants required for soundness.
         self.config.validate();
-
-        let &CircuitConfig {
-            security_bits,
-            fri_config:
-                FriConfig {
-                    rate_bits,
-                    proof_of_work_bits,
-                    num_query_rounds,
-                    ..
-                },
-            ..
-        } = &self.config;
-
-        // Conjectured FRI security; see the ethSTARK paper.
-        let fri_field_bits = F::Extension::order().bits() as usize;
-        let fri_query_security_bits = num_query_rounds * rate_bits + proof_of_work_bits as usize;
-        let fri_security_bits = fri_field_bits.min(fri_query_security_bits);
-        assert!(
-            fri_security_bits >= security_bits,
-            "FRI params fall short of target security"
-        );
+        self.config
+            .check_fri_security::<F, D>()
+            .unwrap_or_else(|error| panic!("{error}"));
     }
 
     pub fn set_domain_separator(&mut self, separator: Vec<F>) {
@@ -921,10 +900,17 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         (gate_idx, slot_idx)
     }
 
+    /// Fails as soon as the schedule is derived, before blinding or committing to a domain it
+    /// cannot fit.
     fn fri_params(&self, degree_bits: usize) -> FriParams {
-        self.config
+        let fri_params = self
+            .config
             .fri_config
-            .fri_params(degree_bits, self.config.zero_knowledge)
+            .fri_params(degree_bits, self.config.zero_knowledge);
+        fri_params
+            .check_valid::<F>()
+            .unwrap_or_else(|error| panic!("{error}"));
+        fri_params
     }
 
     /// The number of (base field) `arithmetic` operations that can be performed in a single gate.
@@ -1390,13 +1376,11 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             permutation_partial_product_degree,
         );
 
-        let lookup_degree = self.config.max_quotient_degree_factor - 1;
-        let num_lookup_polys = if num_luts == 0 {
-            0
-        } else {
-            // There is 1 RE polynomial and multiple Sum/LDC polynomials.
-            LookupGate::num_slots(&self.config).div_ceil(lookup_degree) + 1
-        };
+        let num_lookup_polys = num_lookup_polys(
+            self.config.num_routed_wires,
+            self.config.max_quotient_degree_factor - 1,
+            num_luts,
+        );
         let constants_sigmas_cap = constants_sigmas_commitment.merkle_tree.cap.clone();
         let domain_separator = self.domain_separator.unwrap_or_default();
         let domain_separator_digest = C::Hasher::hash_pad(&domain_separator);

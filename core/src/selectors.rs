@@ -27,6 +27,7 @@ impl SelectorsInfo {
         let num_gates = degrees.len();
         let max_gate_degree = *degrees.iter().max().ok_or("no gates")?;
         if max_gate_degree.saturating_add(num_gates - 1) <= max_degree {
+            #[allow(clippy::single_range_in_vec_init)]
             return Ok(Self {
                 selector_indices: vec![0; num_gates],
                 groups: vec![0..num_gates],

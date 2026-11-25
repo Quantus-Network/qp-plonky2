@@ -65,6 +65,12 @@ impl Display for IoError {
 /// A no_std compatible variant of `std::io::Result`
 pub type IoResult<T> = Result<T, IoError>;
 
+/// `IoError` carries no message, so the reason a decoded value was rejected is logged instead.
+fn rejected(reason: &'static str) -> IoError {
+    log::warn!("rejected deserialized circuit data: {reason}");
+    IoError
+}
+
 /// Creates a Vec with the requested capacity, returning IoError if allocation fails.
 /// This prevents panics from malicious/malformed input specifying huge lengths.
 #[inline]
@@ -706,7 +712,7 @@ pub trait Read {
             zero_knowledge,
             fri_config,
         };
-        config.check_valid().map_err(|_| IoError)?;
+        config.check_valid().map_err(rejected)?;
         Ok(config)
     }
 
@@ -838,7 +844,7 @@ pub trait Read {
         }
 
         common_data.gates = gates;
-        common_data.check_valid().map_err(|_| IoError)?;
+        common_data.check_valid().map_err(rejected)?;
 
         Ok(common_data)
     }

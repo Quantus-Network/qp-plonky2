@@ -447,7 +447,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
             })
             .collect();
         let lut_lengths: Vec<usize> = self.luts.iter().map(|lut| lut.len()).collect();
-        check_common_data_valid(&CommonDataShape {
+        check_common_data_valid::<F, D>(&CommonDataShape {
             config: &self.config,
             trace_degree_bits: self.trace_degree_bits,
             fri_params: &self.fri_params,
@@ -766,7 +766,7 @@ mod tests {
     use crate::gates::noop::NoopGate;
     use crate::plonk::circuit_builder::CircuitBuilder;
     use crate::plonk::config::{GenericConfig, PoseidonGoldilocksConfig};
-    use crate::util::partial_products::num_partial_products;
+    use crate::plonk::plonk_common::num_partial_products;
 
     const D: usize = 2;
     type C = PoseidonGoldilocksConfig;

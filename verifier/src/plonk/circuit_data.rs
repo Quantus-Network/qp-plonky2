@@ -243,7 +243,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
             })
             .collect();
         let lut_lengths: Vec<usize> = self.luts.iter().map(|lut| lut.len()).collect();
-        check_common_data_valid(&CommonDataShape {
+        check_common_data_valid::<F, D>(&CommonDataShape {
             config: &self.config,
             trace_degree_bits: self.trace_degree_bits,
             fri_params: &self.fri_params,

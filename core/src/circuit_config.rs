@@ -6,8 +6,10 @@ use alloc::{string::String, vec::Vec};
 use serde::{Deserialize, Serialize};
 
 use crate::field::cosets::get_unique_coset_shifts;
+use crate::field::extension::Extendable;
 use crate::field::types::Field;
 use crate::fri::{FriConfig, FriParams, FriReductionStrategy};
+use crate::plonk_common::{num_lookup_polys, num_partial_products};
 use crate::selectors::{LookupSelectors, SelectorsInfo};
 
 /// Configuration to be used when building a circuit. This defines the shape of the circuit
@@ -128,15 +130,21 @@ impl CircuitConfig {
             return Err("num_routed_wires must not exceed num_wires");
         }
         // Every row is opened at `num_wires` points, so wider rows are not circuits but attempts
-        // to overflow the arithmetic gates perform on their widths.
+        // to overflow the arithmetic gates perform on their widths. (On a 32-bit target this
+        // bound is vacuous; the sums over widths are checked there instead.)
         if self.num_wires > u32::MAX as usize || self.num_constants > u32::MAX as usize {
             return Err("num_wires and num_constants must fit in 32 bits");
         }
 
         // The lookup argument batches `max_quotient_degree_factor - 1` slots per partial polynomial
-        // and the permutation argument `max_quotient_degree_factor` wires, so neither can be zero.
+        // and the permutation argument `max_quotient_degree_factor` wires, so neither can be zero,
+        // and the prover computes no partial products at all unless the factor is below the
+        // routed width.
         if self.max_quotient_degree_factor < 2 {
             return Err("max_quotient_degree_factor must be at least 2");
+        }
+        if self.max_quotient_degree_factor >= self.num_routed_wires {
+            return Err("max_quotient_degree_factor must be below num_routed_wires");
         }
 
         // A zero arity never folds: `Fixed` would yield a step that reduces nothing and
@@ -159,6 +167,28 @@ impl CircuitConfig {
     /// Use `check_valid()` for deserialization where invalid data should return an error.
     pub fn validate(&self) {
         self.check_valid().expect("Invalid circuit config");
+    }
+
+    /// Checks the conjectured FRI security level (see the ethSTARK paper) against
+    /// `security_bits`: each query contributes `rate_bits`, grinding adds `proof_of_work_bits`,
+    /// and the challenges live in `F`'s degree-`D` extension, which caps the total.
+    pub fn check_fri_security<F: Field + Extendable<D>, const D: usize>(
+        &self,
+    ) -> Result<(), &'static str> {
+        let FriConfig {
+            rate_bits,
+            proof_of_work_bits,
+            num_query_rounds,
+            ..
+        } = self.fri_config;
+        let field_bits = F::Extension::order().bits() as usize;
+        let query_bits = num_query_rounds
+            .saturating_mul(rate_bits)
+            .saturating_add(proof_of_work_bits as usize);
+        if field_bits.min(query_bits) < self.security_bits {
+            return Err("FRI params fall short of target security");
+        }
+        Ok(())
     }
 }
 
@@ -190,16 +220,20 @@ pub struct CommonDataShape<'a, F: Field> {
     pub lut_lengths: &'a [usize],
 }
 
-/// Checks that common circuit data is exactly what `CircuitBuilder::build` produces from its
-/// primitive inputs: the config, the degree, the gate set and the lookup tables. Every derived
-/// field is recomputed and compared, so data that did not come from the builder is rejected
-/// whether it was deserialized or constructed in memory.
+/// Checks that common circuit data is internally consistent: the config passes the checks the
+/// builder applies, and every derived field is what `CircuitBuilder::build` produces from the
+/// primitive inputs (config, degree, gate set and lookup tables). This rejects corrupted or
+/// hand-assembled data, whether deserialized or built in memory; it cannot tell which circuit the
+/// primitives describe, so a verifier must pin the whole common data, not only the verifier key.
 ///
 /// The gate methods behind [`GateShape`] are assumed not to panic, which each gate's
 /// deserializer guarantees by validating its own parameters.
-pub fn check_common_data_valid<F: Field>(data: &CommonDataShape<F>) -> Result<(), &'static str> {
+pub fn check_common_data_valid<F: Field + Extendable<D>, const D: usize>(
+    data: &CommonDataShape<F>,
+) -> Result<(), &'static str> {
     let config = data.config;
     config.check_valid()?;
+    config.check_fri_security::<F, D>()?;
 
     // The builder derives all three degrees from the padded gate count. The verifier evaluates the
     // vanishing polynomial over `trace_degree_bits`, samples FRI query indices from
@@ -211,34 +245,11 @@ pub fn check_common_data_valid<F: Field>(data: &CommonDataShape<F>) -> Result<()
         return Err("trace_degree_bits, public_initial_degree_bits and FRI degree_bits must agree");
     }
 
-    // Bound every exponent before anything adds or shifts by it: these come straight from the
-    // bytes, and the release profile does not check arithmetic overflow.
+    // Bounds the domain before anything shifts by it, then confirms the schedule is the config's.
     let fri_config = &config.fri_config;
-    if degree_bits > F::TWO_ADICITY || fri_config.rate_bits > F::TWO_ADICITY - degree_bits {
-        return Err("FRI LDE domain exceeds the field's two-adicity");
-    }
-    let lde_bits = degree_bits + fri_config.rate_bits;
-    if lde_bits >= usize::BITS as usize {
-        return Err("FRI LDE domain exceeds the address space");
-    }
-    if fri_config.cap_height > lde_bits {
-        return Err("FRI cap height exceeds the LDE size");
-    }
-
+    data.fri_params.check_valid::<F>()?;
     if *data.fri_params != fri_config.fri_params(degree_bits, config.zero_knowledge) {
         return Err("fri_params must be derived from config");
-    }
-    // The reduction schedule must fit inside the domain: the folds do not exceed the degree, and
-    // the cap still fits beneath them.
-    let total_arities = data
-        .fri_params
-        .reduction_arity_bits
-        .iter()
-        .try_fold(0usize, |total, &arity_bits| total.checked_add(arity_bits))
-        .filter(|&total| total <= degree_bits)
-        .ok_or("FRI reductions exceed the degree")?;
-    if fri_config.cap_height + total_arities > lde_bits {
-        return Err("FRI cap height plus reductions exceed the LDE size");
     }
 
     let quotient_degree_factor = data.quotient_degree_factor;
@@ -274,18 +285,19 @@ pub fn check_common_data_valid<F: Field>(data: &CommonDataShape<F>) -> Result<()
     if data.lut_lengths.contains(&0) {
         return Err("lookup table is empty");
     }
-    let (num_lookup_polys, num_lookup_selectors) = if num_luts == 0 {
-        (0, 0)
+    // The four shared lookup selectors plus one end selector per table.
+    let num_lookup_selectors = if num_luts == 0 {
+        0
     } else {
-        // One RE polynomial plus the partial Sum/LDC polynomials over `LookupGate`'s two-wire
-        // slots; the four shared lookup selectors plus one end selector per table.
-        let lookup_slots = config.num_routed_wires / 2;
-        (
-            lookup_slots.div_ceil(quotient_degree_factor - 1) + 1,
-            LookupSelectors::StartEnd as usize + num_luts,
-        )
+        LookupSelectors::StartEnd as usize + num_luts
     };
-    if data.num_lookup_polys != num_lookup_polys {
+    if data.num_lookup_polys
+        != num_lookup_polys(
+            config.num_routed_wires,
+            quotient_degree_factor - 1,
+            num_luts,
+        )
+    {
         return Err("num_lookup_polys must be derived from the config and lookup tables");
     }
     if data.num_lookup_selectors != num_lookup_selectors {
@@ -293,15 +305,18 @@ pub fn check_common_data_valid<F: Field>(data: &CommonDataShape<F>) -> Result<()
     }
 
     let max_gate_constants = gates.iter().map(|gate| gate.num_constants).max().unwrap();
-    if data.num_constants
-        != data.selectors_info.num_selectors() + num_lookup_selectors + max_gate_constants
-    {
+    // Checked so that a 32-bit target, where the config's width bound is vacuous, cannot wrap.
+    let derived_num_constants = (data.selectors_info.num_selectors() + num_lookup_selectors)
+        .checked_add(max_gate_constants);
+    if Some(data.num_constants) != derived_num_constants {
         return Err("num_constants must be derived from the selectors and gates");
     }
     if data.num_gate_constraints != gates.iter().map(|gate| gate.num_constraints).max().unwrap() {
         return Err("num_gate_constraints must be the maximum over the gates");
     }
-    if data.num_partial_products != config.num_routed_wires.div_ceil(quotient_degree_factor) - 1 {
+    if data.num_partial_products
+        != num_partial_products(config.num_routed_wires, quotient_degree_factor)
+    {
         return Err("num_partial_products must be derived from the config");
     }
     if data.k_is.len() != config.num_routed_wires
@@ -394,6 +409,13 @@ mod tests {
             config.check_valid(),
             Err("num_wires and num_constants must fit in 32 bits")
         );
+
+        let mut config = CircuitConfig::standard_recursion_config();
+        config.num_routed_wires = config.max_quotient_degree_factor;
+        assert_eq!(
+            config.check_valid(),
+            Err("max_quotient_degree_factor must be below num_routed_wires")
+        );
     }
 
     /// An owned `CommonCircuitData` stand-in derived the way the builder derives it, so tests can
@@ -442,12 +464,12 @@ mod tests {
             let selectors_info =
                 SelectorsInfo::for_gate_degrees(&degrees, quotient_degree_factor + 1).unwrap();
             let num_lookup_selectors = if num_luts == 0 { 0 } else { 4 + num_luts };
-            let num_lookup_polys = if num_luts == 0 {
-                0
-            } else {
-                (config.num_routed_wires / 2).div_ceil(quotient_degree_factor - 1) + 1
-            };
             Self {
+                num_lookup_polys: num_lookup_polys(
+                    config.num_routed_wires,
+                    quotient_degree_factor - 1,
+                    num_luts,
+                ),
                 fri_params: config
                     .fri_config
                     .fri_params(degree_bits, config.zero_knowledge),
@@ -455,20 +477,22 @@ mod tests {
                 num_gate_constraints: gates.iter().map(|gate| gate.num_constraints).max().unwrap(),
                 num_constants: selectors_info.num_selectors() + num_lookup_selectors + 2,
                 k_is: get_unique_coset_shifts(1 << degree_bits, config.num_routed_wires),
-                num_partial_products: config.num_routed_wires.div_ceil(quotient_degree_factor) - 1,
+                num_partial_products: num_partial_products(
+                    config.num_routed_wires,
+                    quotient_degree_factor,
+                ),
                 lut_lengths: vec![16; num_luts],
                 config,
                 degree_bits,
                 gates,
                 selectors_info,
                 quotient_degree_factor,
-                num_lookup_polys,
                 num_lookup_selectors,
             }
         }
 
         fn check(&self) -> Result<(), &'static str> {
-            check_common_data_valid(&CommonDataShape {
+            check_common_data_valid::<GoldilocksField, 2>(&CommonDataShape {
                 config: &self.config,
                 trace_degree_bits: self.degree_bits,
                 fri_params: &self.fri_params,
@@ -585,6 +609,52 @@ mod tests {
         );
     }
 
+    /// The builder and the loader share one FRI security rule, so consistent-looking data with
+    /// too few queries is rejected the same way `CircuitBuilder::new` rejects its config.
+    #[test]
+    fn check_common_data_rejects_insecure_fri() {
+        assert_eq!(
+            corrupted(|data| {
+                data.config.fri_config.num_query_rounds = 1;
+                data.config.fri_config.proof_of_work_bits = 0;
+                data.fri_params.config = data.config.fri_config.clone();
+            }),
+            Err("FRI params fall short of target security")
+        );
+    }
+
+    /// A `Fixed` schedule is whatever the config says, so the schedule bounds are checked on it
+    /// directly rather than through the derivation comparison.
+    #[test]
+    fn fri_params_reject_schedules_that_overrun_the_domain() {
+        let fixed = |arity_bits: Vec<usize>, cap_height| FriParams {
+            config: FriConfig {
+                cap_height,
+                reduction_strategy: FriReductionStrategy::Fixed(arity_bits.clone()),
+                ..CircuitConfig::standard_recursion_config().fri_config
+            },
+            leaf_hiding: false,
+            degree_bits: 12,
+            reduction_arity_bits: arity_bits,
+        };
+        assert_eq!(
+            fixed(vec![4, 4], 4).check_valid::<GoldilocksField>(),
+            Ok(())
+        );
+        assert_eq!(
+            fixed(vec![8, 8], 4).check_valid::<GoldilocksField>(),
+            Err("FRI reductions exceed the degree")
+        );
+        assert_eq!(
+            fixed(vec![6, 6], 4).check_valid::<GoldilocksField>(),
+            Err("FRI cap height plus reductions exceed the LDE size")
+        );
+        assert_eq!(
+            fixed(vec![usize::MAX, 1], 4).check_valid::<GoldilocksField>(),
+            Err("FRI reductions exceed the degree")
+        );
+    }
+
     #[test]
     fn check_common_data_rejects_divergent_quotient_degree_factor() {
         assert_eq!(
@@ -593,6 +663,7 @@ mod tests {
         );
         assert_eq!(
             corrupted(|data| {
+                data.config.security_bits = 0;
                 data.config.fri_config.rate_bits = 2;
                 data.fri_params.config.rate_bits = 2;
                 data.fri_params.reduction_arity_bits = vec![4, 4];

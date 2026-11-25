@@ -184,8 +184,8 @@ fn relative_proof_size(
 
     // Add the final polynomial's coefficients.
     assert!(current_layer_bits >= rate_bits);
-    let final_poly_len = 1 << (current_layer_bits - rate_bits);
-    total_elems.saturating_add(D * final_poly_len)
+    let final_poly_len = 1usize << (current_layer_bits - rate_bits);
+    total_elems.saturating_add(final_poly_len.saturating_mul(D))
 }
 
 /// A configuration for the FRI protocol.
@@ -253,6 +253,35 @@ pub struct FriParams {
 }
 
 impl FriParams {
+    /// Checks that the LDE domain exists in `F` and fits the address space, and that the
+    /// reduction schedule fits inside it: the folds do not exceed the degree, and the cap still
+    /// fits beneath them. Every bound is checked before anything shifts or adds by it, since the
+    /// parameters may come from untrusted bytes.
+    pub fn check_valid<F: Field>(&self) -> Result<(), &'static str> {
+        let degree_bits = self.degree_bits;
+        let rate_bits = self.config.rate_bits;
+        if degree_bits > F::TWO_ADICITY || rate_bits > F::TWO_ADICITY - degree_bits {
+            return Err("FRI LDE domain exceeds the field's two-adicity");
+        }
+        let lde_bits = degree_bits + rate_bits;
+        if lde_bits >= usize::BITS as usize {
+            return Err("FRI LDE domain exceeds the address space");
+        }
+        if self.config.cap_height > lde_bits {
+            return Err("FRI cap height exceeds the LDE size");
+        }
+        let total_arities = self
+            .reduction_arity_bits
+            .iter()
+            .try_fold(0usize, |total, &arity_bits| total.checked_add(arity_bits))
+            .filter(|&total| total <= degree_bits)
+            .ok_or("FRI reductions exceed the degree")?;
+        if self.config.cap_height + total_arities > lde_bits {
+            return Err("FRI cap height plus reductions exceed the LDE size");
+        }
+        Ok(())
+    }
+
     pub fn total_arities(&self) -> usize {
         self.reduction_arity_bits.iter().sum()
     }

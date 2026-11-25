@@ -2,6 +2,7 @@ use std::panic::{catch_unwind, AssertUnwindSafe};
 
 use plonky2::field::types::Field;
 use plonky2::field::zero_poly_coset::ZeroPolyOnCoset;
+use plonky2::fri::FriReductionStrategy;
 use plonky2::gates::base_sum::BaseSumGate;
 use plonky2::gates::coset_interpolation::CosetInterpolationGate;
 use plonky2::gates::exponentiation::ExponentiationGate;
@@ -379,6 +380,26 @@ fn degenerate_fri_config_rejected_at_build() {
     }
 }
 
+/// A `Fixed` schedule the domain cannot hold is rejected when the schedule is first derived, before
+/// blinding tries to pad the trace to a size that matches it.
+#[test]
+fn impossible_fixed_fri_schedule_rejected_before_blinding() {
+    let result = catch_unwind(AssertUnwindSafe(|| {
+        let mut config = CircuitConfig::standard_recursion_zk_config();
+        config.fri_config.reduction_strategy = FriReductionStrategy::Fixed(vec![40]);
+        let mut builder = CircuitBuilder::<F, D>::new(config);
+        let x = builder.add_virtual_target();
+        builder.register_public_input(x);
+        builder.build::<C>()
+    }));
+    let message = result.unwrap_err();
+    let message = message
+        .downcast_ref::<String>()
+        .cloned()
+        .unwrap_or_default();
+    assert_eq!(message, "FRI reductions exceed the degree");
+}
+
 /// A config too narrow for a gate to hold a single operation must fail loudly when that gate
 /// is first needed, not misbehave in slot bookkeeping.
 #[test]
@@ -386,6 +407,7 @@ fn zero_slot_gate_rejected() {
     let result = catch_unwind(AssertUnwindSafe(|| {
         let config = CircuitConfig {
             num_routed_wires: 3,
+            max_quotient_degree_factor: 2,
             ..CircuitConfig::standard_recursion_config()
         };
         let mut builder = CircuitBuilder::<F, D>::new(config);
@@ -445,6 +467,15 @@ fn tampered_common_data_is_reported_by_field() -> anyhow::Result<()> {
         |common| common.fri_params.config.num_query_rounds = 1,
         "fri_params must be derived from config",
     )?;
+    // Consistent data that weakens FRI below `security_bits` fails the rule the builder applies.
+    tampered(
+        |common| {
+            common.config.fri_config.num_query_rounds = 1;
+            common.config.fri_config.proof_of_work_bits = 0;
+            common.fri_params.config = common.config.fri_config.clone();
+        },
+        "FRI params fall short of target security",
+    )?;
     tampered(
         |common| common.fri_params.reduction_arity_bits.push(1),
         "fri_params must be derived from config",
@@ -482,6 +513,32 @@ fn tampered_common_data_is_reported_by_field() -> anyhow::Result<()> {
         "num_lookup_polys must be derived from the config and lookup tables",
     )?;
     Ok(())
+}
+
+/// The recursive verifier builds its constraints from `inner_common_data`, so it applies the same
+/// consistency check as the native verifier rather than enforcing whatever it is handed.
+#[test]
+fn recursive_verifier_rejects_tampered_inner_common_data() {
+    let inner = simple_circuit_data();
+    let mut tampered = inner.common.clone();
+    tampered.fri_params.config.num_query_rounds = 1;
+
+    let result = catch_unwind(AssertUnwindSafe(|| {
+        let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+        let proof = builder.add_virtual_proof_with_pis(&tampered);
+        let verifier_data =
+            builder.add_virtual_verifier_data(tampered.config.fri_config.cap_height);
+        builder.verify_proof::<C>(&proof, &verifier_data, &tampered);
+    }));
+    let message = result.unwrap_err();
+    let message = message
+        .downcast_ref::<String>()
+        .cloned()
+        .unwrap_or_default();
+    assert!(
+        message.contains("fri_params must be derived from config"),
+        "{message}"
+    );
 }
 
 #[test]

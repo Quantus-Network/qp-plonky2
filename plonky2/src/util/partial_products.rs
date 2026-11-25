@@ -36,16 +36,6 @@ pub(crate) fn partial_products_and_z_gx<F: Field>(z_x: F, quotient_chunk_product
     res
 }
 
-/// Returns the length of the output of `partial_products()` on a vector of length `n`.
-pub(crate) fn num_partial_products(n: usize, max_degree: usize) -> usize {
-    debug_assert!(max_degree > 1);
-    let chunk_size = max_degree;
-    // We'll split the product into `n.div_ceil( chunk_size)` chunks, but the last chunk will
-    // be associated with Z(gx) itself. Thus we subtract one to get the chunks associated with
-    // partial products.
-    n.div_ceil(chunk_size) - 1
-}
-
 /// Checks the relationship between each pair of partial product accumulators. In particular, this
 /// sequence of accumulators starts with `Z(x)`, then contains each partial product polynomials
 /// `p_i(x)`, and finally `Z(g x)`. See the partial products section of the Plonky2 paper.
@@ -130,6 +120,7 @@ mod tests {
 
     use super::*;
     use crate::field::goldilocks_field::GoldilocksField;
+    use crate::plonk::plonk_common::num_partial_products;
 
     #[test]
     fn test_partial_products() {
