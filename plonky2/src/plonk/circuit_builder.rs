@@ -17,7 +17,7 @@ use crate::field::extension::{Extendable, FieldExtension};
 use crate::field::fft::fft_root_table;
 use crate::field::polynomial::PolynomialValues;
 use crate::fri::oracle::PolynomialBatch;
-use crate::fri::{FriParams, FriReductionStrategy};
+use crate::fri::FriParams;
 use crate::gadgets::arithmetic::BaseArithmeticOperation;
 use crate::gadgets::arithmetic_extension::ExtensionArithmeticOperation;
 use crate::gadgets::polynomial::PolynomialCoeffsExtTarget;
@@ -288,16 +288,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         self.config
             .check_fri_security::<F, D>()
             .unwrap_or_else(|error| panic!("{error}"));
-        // A fixed schedule that no degree in the field can hold would otherwise be found only
-        // after blinding has sized the trace for it.
-        if let FriReductionStrategy::Fixed(arity_bits) = &self.config.fri_config.reduction_strategy
-        {
-            let total_arities: usize = arity_bits.iter().sum();
-            assert!(
-                total_arities + self.config.fri_config.rate_bits <= F::TWO_ADICITY,
-                "FRI reductions exceed the field's two-adicity"
-            );
-        }
     }
 
     pub fn set_domain_separator(&mut self, separator: Vec<F>) {
@@ -962,6 +952,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     fn blinding_counts(&self) -> (usize, usize) {
         let num_gates = self.gate_instances.len();
         let mut degree_estimate = 1 << log2_ceil(num_gates);
+        let largest_degree = 1 << F::TWO_ADICITY.saturating_sub(self.config.fri_config.rate_bits);
 
         loop {
             let (regular_poly_openings, z_openings) = self.num_blinding_gates(degree_estimate);
@@ -976,6 +967,10 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             }
 
             // The blinding gates do not fit within our estimated degree; increase our estimate.
+            assert!(
+                degree_estimate < largest_degree,
+                "the FRI schedule needs more blinding rows than the field's largest domain holds"
+            );
             degree_estimate *= 2;
         }
     }
@@ -1269,7 +1264,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             self.luts.clone(),
         )
         .unwrap_or_else(|error| panic!("cannot build the circuit: {error}"));
-        let public_initial_degree_bits = common.public_initial_degree_bits;
+        let public_initial_degree_bits = common.public_initial_degree_bits();
 
         let mut constant_vecs =
             selector_polynomials(&common.gates, &self.gate_instances, &common.selectors_info);

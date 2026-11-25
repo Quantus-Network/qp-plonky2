@@ -1,10 +1,9 @@
 #[cfg(not(feature = "std"))]
-use alloc::{format, string::String, sync::Arc, vec, vec::Vec};
-#[cfg(feature = "std")]
-use std::sync::Arc;
+use alloc::{format, string::String, vec, vec::Vec};
 
 use itertools::Itertools;
 use qp_plonky2_core::keccak::keccak256;
+pub use qp_plonky2_core::plonk_common::LookupTable;
 
 use crate::field::extension::Extendable;
 use crate::field::packed::PackedField;
@@ -17,8 +16,6 @@ use crate::plonk::vars::{
     EvaluationVars, EvaluationVarsBase, EvaluationVarsBaseBatch, EvaluationVarsBasePacked,
 };
 use crate::util::serialization::{Buffer, IoResult, Read, Write};
-
-pub type LookupTable = Arc<Vec<(u16, u16)>>;
 
 /// A gate which stores the set of (input, output) value pairs of a lookup table, and their multiplicities.
 #[derive(Debug, Clone)]

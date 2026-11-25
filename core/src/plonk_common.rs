@@ -1,11 +1,16 @@
 //! Utility methods and constants for Plonk shared between prover and verifier.
 
 #[cfg(not(feature = "std"))]
-use alloc::{vec, vec::Vec};
+use alloc::{sync::Arc, vec, vec::Vec};
+#[cfg(feature = "std")]
+use std::sync::Arc;
 
 use crate::field::packed::PackedField;
 use crate::field::types::Field;
 use crate::selectors::LookupSelectors;
+
+/// A lookup table as `(input, output)` pairs, shared by the gates that use it.
+pub type LookupTable = Arc<Vec<(u16, u16)>>;
 
 /// Number of random values added to each polynomial for salting.
 pub const SALT_SIZE: usize = 4;
