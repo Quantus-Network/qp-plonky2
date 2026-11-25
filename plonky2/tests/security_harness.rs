@@ -652,6 +652,51 @@ fn hostile_gate_parameters_rejected() {
     ))));
 }
 
+/// Primitives may carry a config no honest gate fits; the config is rejected before the fit
+/// checks take logarithms of its widths.
+#[test]
+fn zero_width_config_rejected_before_gate_checks() {
+    let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+    builder.add_gate(CosetInterpolationGate::<F, D>::new(2), vec![]);
+    let index = builder.add_virtual_target();
+    let values = builder.add_virtual_targets(4);
+    builder.random_access(index, values);
+    let common = builder.build::<C>().common;
+    let serializer = DefaultGateSerializer;
+    let verifier_common =
+        plonky2_verifier::plonk::circuit_data::CommonCircuitData::<F, D>::from_bytes(
+            common.to_bytes(&serializer).unwrap(),
+            &plonky2_verifier::util::serialization::DefaultGateSerializer,
+        )
+        .unwrap();
+
+    for zero_width in [
+        |config: &mut CircuitConfig| config.num_wires = 0,
+        |config: &mut CircuitConfig| config.num_routed_wires = 0,
+    ] {
+        let mut config = common.config.clone();
+        zero_width(&mut config);
+        assert!(CommonCircuitData::<F, D>::new(
+            config.clone(),
+            common.trace_degree_bits,
+            common.gates.clone(),
+            common.num_public_inputs,
+            common.luts.clone(),
+        )
+        .is_err());
+        assert!(
+            plonky2_verifier::plonk::circuit_data::CommonCircuitData::<F, D>::new(
+                config,
+                verifier_common.trace_degree_bits,
+                verifier_common.gates.clone(),
+                verifier_common.num_public_inputs,
+                verifier_common.luts.clone(),
+            )
+            .is_err()
+        );
+    }
+}
+
 /// Proofs built in memory (or via serde) skip `from_bytes`, so the verifier's own shape checks
 /// must return errors rather than panic: on an odd cap, and on Merkle proofs that stop short of
 /// the cap or whose layer heights never match the leaf data.
