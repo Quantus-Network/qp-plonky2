@@ -1027,6 +1027,44 @@ fn circuit_data_bytes_with_trailing_data_rejected() -> anyhow::Result<()> {
     Ok(())
 }
 
+/// Lookup gates and generators name their table by index and are written back with the first
+/// content-equal table's index, so a repeated table would give them two encodings. The builder
+/// stores each table once, and common data that repeats one cannot be constructed or loaded.
+#[test]
+fn duplicate_lookup_tables_rejected() {
+    let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+    let table_index = builder.add_lookup_table_from_pairs(Arc::new(vec![(0, 1), (1, 2)]));
+    let input = builder.add_virtual_target();
+    builder.register_public_input(input);
+    builder.add_lookup_from_index(input, table_index);
+    let data = builder.build::<C>();
+    let gate_serializer = DefaultGateSerializer;
+
+    let mut repeated = data.common.clone();
+    repeated.luts.push(repeated.luts[0].clone());
+    assert_eq!(
+        CommonCircuitData::<F, D>::new(
+            repeated.config.clone(),
+            repeated.trace_degree_bits,
+            repeated.gates.clone(),
+            repeated.num_public_inputs,
+            repeated.luts.clone(),
+        )
+        .err(),
+        Some("lookup tables must be distinct")
+    );
+
+    let bytes = repeated.to_bytes(&gate_serializer).unwrap();
+    assert!(CommonCircuitData::<F, D>::from_bytes(bytes.clone(), &gate_serializer).is_err());
+    assert!(
+        plonky2_verifier::plonk::circuit_data::CommonCircuitData::<F, D>::from_bytes(
+            bytes,
+            &plonky2_verifier::util::serialization::DefaultGateSerializer,
+        )
+        .is_err()
+    );
+}
+
 /// Prover data has one encoding per value too: the watch map must be in key order without
 /// repeats, and a serialized FFT root table must be the one the prover would recompute. The same
 /// bytes sit inside `CircuitData` and `ProverCircuitData`, which must reject them the same way.

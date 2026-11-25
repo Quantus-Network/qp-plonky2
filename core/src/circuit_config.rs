@@ -358,6 +358,11 @@ pub fn derive_common_data<F: Field + Extendable<D>, const D: usize>(
     if luts.iter().any(|lut| lut.is_empty()) {
         return Err("lookup table is empty");
     }
+    // The builder stores each table once and gates refer to it by index, so a repeated table
+    // would give the same gate two encodings.
+    if (1..luts.len()).any(|i| luts[..i].contains(&luts[i])) {
+        return Err("lookup tables must be distinct");
+    }
 
     let quotient_degree_factor = config.max_quotient_degree_factor;
     let degrees: Vec<usize> = gates.iter().map(|gate| gate.degree).collect();
@@ -627,11 +632,21 @@ mod tests {
     }
 
     #[test]
-    fn derive_common_data_rejects_empty_lookup_tables() {
+    fn derive_common_data_rejects_empty_or_repeated_lookup_tables() {
         let config = CircuitConfig::standard_recursion_config();
+        let pairs = [(0, 1), (1, 2)];
         assert_eq!(
-            derive(&config, 12, &gates(), &[table(&[])]),
+            derive(&config, 12, &gates(), &[table(&pairs), table(&[])]),
             Err("lookup table is empty")
+        );
+        assert_eq!(
+            derive(
+                &config,
+                12,
+                &gates(),
+                &[table(&pairs), table(&pairs[..1]), table(&pairs)]
+            ),
+            Err("lookup tables must be distinct")
         );
     }
 }

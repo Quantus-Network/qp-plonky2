@@ -13,7 +13,7 @@ use serde::Serialize;
 use crate::field::extension::quadratic::QuadraticExtension;
 use crate::field::extension::{Extendable, FieldExtension};
 use crate::field::goldilocks_field::GoldilocksField;
-use crate::hash_types::{BytesHash, HashOut, RichField, NUM_HASH_OUT_ELTS};
+use crate::hash_types::{BytesHash, HashOut, RichField};
 use crate::hashing::PlonkyPermutation;
 use crate::keccak::KeccakHash;
 use crate::poseidon::PoseidonHash;
