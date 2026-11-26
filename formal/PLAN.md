@@ -191,10 +191,12 @@ unconditional on them.
   batch). The configs' `security_bits = 128` counted `rateBits` per query
   (`friQueryBits`: `114`, `108`), the capacity conjecture of ethSTARK and BCIKS'20,
   which is refuted (Crites–Stewart, ePrint 2025/2046; Krachun–Kazanin–Haböck, ePrint
-  2026/782, on FRI's own domains) with no quantified replacement standing. The best
-  proved exponent, Dao–Kominers–Thaler's first-order threshold (ePrint 2026/2056), is
-  `62` for the leaf and `59` for the wrappers before slack terms; Step 22 has the
-  literature. The grinding bits are a work factor against the oracle at the query
+  2026/782, on FRI's own domains) with no quantified replacement standing. The
+  first-order threshold of Dao–Kominers–Thaler (ePrint 2026/2056) would make a query
+  worth `3.28` and `1.65` bits, but its `n²/(q η⁴)` commit-phase term certifies at most
+  about `3` bits over Johnson on the leaf and private batch and nothing on the public
+  batch over `Goldilocks²`; Step 22 has the budget. The grinding bits are a work factor
+  against the oracle at the query
   round, not another statistical term, and they do not protect the earlier challenges.
 - **`algebraic_sampling`** — low degree plus the Fiat–Shamir checks imply identical
   constraints only on a good event of probability `1 − ε`. The failure probability
@@ -1555,26 +1557,35 @@ meantime. Nothing in the axiom's statement changes: it is an implication on the 
   (ECCC TR26-164) and Jeronimo (ECCC TR26-169) prove list decoding and mutual
   correlated agreement at radius `1 − ρ − γ` for every fixed `γ > 0`, on any set of
   evaluation points in a prime field of characteristic above the degree, with
-  `n^{O_γ(1)}` list size and error (smoothness neither needed nor used; the
-  refutations only rule out `γ → 0` as `1/log n`). Their constants are not usable at
-  deployed sizes. Dao–Kominers–Thaler (ePrint 2026/2056) make one hidden derivative
-  quantitative: agreement threshold `a₁(ρ) < √ρ` (`a₁ = (3ρ + 2√(ρ(5−ρ)(2−ρ)))/(8−ρ)`
-  for `ρ ≥ 11 − 3√13`, a trigonometric branch below), list size `O(n/η²)`, MCA error
-  `O(n²/(q η⁴))`, in characteristic above the degree; Goldilocks qualifies. Their
-  list-decoding and MCA bounds and concrete parameters are kernel-checked in ArkLib.
-  Beyond first order the counts grow as `n²`, `n³`, … and cancel the query saving at
-  practical sizes, so the quantitative radius at `2^{-128}` (the Proximity Prize's
-  grand challenges, Arnon–Boneh–Fenzi, ePrint 2026/680) is still open.
+  `n^{O_γ(1)}` list size and `n^{O_γ(1)} / q` MCA error over `F_q` (smoothness neither
+  needed nor used; the refutations only rule out `γ → 0` as `1/log n`). Their
+  constants are not usable at deployed sizes. Dao–Kominers–Thaler (ePrint 2026/2056)
+  make one hidden derivative quantitative: agreement threshold `a₁(ρ) < √ρ`
+  (`a₁ = (3ρ + 2√(ρ(5−ρ)(2−ρ)))/(8−ρ)` for `ρ ≥ 11 − 3√13`, a trigonometric branch
+  below), at agreement `a₁(ρ) + η` a list of size `O(n/η²)` and a line-MCA error of
+  `140 C_ρ⁶ n² / (q η⁴)` with `C_ρ ≥ 1` (ArkLib, `FirstOrder/Branchwise.lean`), in
+  characteristic above the degree; Goldilocks qualifies. Their list-decoding and MCA
+  bounds and concrete parameters are kernel-checked in ArkLib. Beyond first order the
+  counts grow as `n²`, `n³`, … and cancel the query saving at practical sizes, so the
+  quantitative radius at `2^{-128}` (the Proximity Prize's grand challenges,
+  Arnon–Boneh–Fenzi, ePrint 2026/680) is still open.
 - **Numbers.** Per query exponent and `security_bits` accounting. First-order bits per
-  query are `−log₂ a₁(ρ)`: `1.65` at `1/8` (`a₁ = 0.319`), `3.28` at `1/64`
-  (`0.103`), `3.81` at `1/128` (`0.071`), against `1.5`, `3`, `3.5` at the Johnson
-  radius; the `η` slack and the `O(n/η²)`, `O(n²/(qη⁴))` terms take a few bits off.
+  query at the threshold are `−log₂ a₁(ρ)`: `1.65` at `1/8` (`a₁ = 0.319`), `3.28` at
+  `1/64` (`0.103`), against `1.5` and `3` at the Johnson radius. These are query-only
+  ceilings: the theorem needs `η > 0`, which costs query bits, and its `n²/(q η⁴)` error
+  is a commit-phase term that grinding at the later query round does not protect, so
+  the two must be balanced. Over `F = Goldilocks²` (`q ≈ 2^{128}`) with `n` the first
+  FRI domain and `C_ρ` replaced by `1` (so an upper bound on what the theorem
+  certifies), the best balance is about `60` bits on the leaf (`n = 2^{14}`,
+  `η ≈ 0.006`), `57` on the private batch (`2^{18}`, `η ≈ 0.012`) and `54` on the
+  public batch (`2^{22}`): there the error bound alone is `≥ 2^{-57.4}` at any `η`
+  below the Johnson gap, so first order certifies nothing over Johnson.
 
-  | circuit | `friQueryBits` (+ grinding) | first order, proved (+ grinding) | `friJohnsonQueryBits` (+ grinding) |
+  | circuit | `friQueryBits` (+ grinding) | first order: query-only ceiling / balanced, `C_ρ = 1` (+ grinding) | `friJohnsonQueryBits` (+ grinding) |
   |---|---|---|---|
-  | leaf (`1/64`, 19, 16) | 114 (130) | 62 (78) before slack | 57 (73), ≈ 56 after commit-phase error |
-  | private batch (`1/8`, 36, 20) | 108 (128) | 59 (79) | 54 (74), ≈ 52 |
-  | public batch (`1/8`, 36, 20) | 108 (128) | 59 (79) | 54 (74), ≈ 51 |
+  | leaf (`1/64`, 19, 16) | 114 (130) | 62 / ≤ 60 (≤ 76) | 57 (73), ≈ 56 after commit-phase error |
+  | private batch (`1/8`, 36, 20) | 108 (128) | 59 / ≤ 57 (≤ 77) | 54 (74), ≈ 52 |
+  | public batch (`1/8`, 36, 20) | 108 (128) | 59 / ≤ 54 (≤ 74) | 54 (74), ≈ 51 |
 
   These are the FRI term alone. The sampling terms before it are not reached by
   grinding (`get_challenges` draws `β, γ, α` before the proof of work, and the sampling
@@ -1585,8 +1596,9 @@ meantime. Nothing in the axiom's statement changes: it is an implication on the 
   is `≈ 2^{-106}` there and cannot move; the proof-system hash is `128` bits. Errors
   add, so the system's soundness is the minimum over all of them: about `77` bits on
   the public batch under the capacity conjecture, set by `β, γ`, and about `71` bits of
-  classical work proved at the Johnson radius (`≈ 76` at first order, before its slack
-  terms), set by FRI with `β, γ` next at `77`. These are classical
+  classical work proved at the Johnson radius (first order adds nothing certified on
+  the public batch, at most about `3` bits on the others), set by FRI with `β, γ` next
+  at `77`. These are classical
   figures; no quantum (QROM) bound is claimed here, since quantum search applies to the
   Fiat–Shamir challenges as well as the grinding (Block et al., "Fiat-Shamir Security
   of FRI", ePrint 2023/1071, Cor. 4.3). More FRI queries alone therefore restore
@@ -1594,9 +1606,11 @@ meantime. Nothing in the axiom's statement changes: it is an implication on the 
   qp-zk-circuits#219 raises `num_challenges` to `3` on the leaf and private batch and
   `4` on the public batch (`150`, `129`, `152` bits), after which the public batch is
   capped by `ζ` at `≈ 106` under the capacity conjecture (`ζ` is sampled before the
-  proof of work too) and by FRI at `≈ 76`–`79` proved. `128` on the FRI term alone
-  would take about `66` queries on the wrappers and `35` on the leaf at first order,
-  `72` and `37` at the Johnson radius. Parameter changes are qp-zk-circuits decisions;
+  proof of work too) and by FRI at `≈ 71`–`74` proved. `128` on the FRI term alone
+  would take about `72` queries on the wrappers and `37` on the leaf at the Johnson
+  radius; the first-order query-only counts, `66` and `35`, are not reachable at these
+  field and domain sizes because the `n²/(q η⁴)` term is independent of the query
+  count. Parameter changes are qp-zk-circuits decisions;
   this step records the accounting.
 - **Axiom gate.** Unchanged; `FriParams` is a root of `Plonky2Bridge` so its `rfl`
   checks build.
