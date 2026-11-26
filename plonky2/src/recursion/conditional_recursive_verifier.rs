@@ -33,6 +33,8 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         C::Hasher: AlgebraicHasher<F>,
         C::InnerHasher: AlgebraicHasher<F>,
     {
+        // `select` is affine in the condition; a non-boolean value would blend the two proofs.
+        self.assert_bool(condition);
         let selected_proof =
             self.select_proof_with_pis(condition, proof_with_pis0, proof_with_pis1);
         let selected_verifier_data =
@@ -361,7 +363,7 @@ mod tests {
     use hashbrown::HashMap;
 
     use super::*;
-    use crate::field::types::Sample;
+    use crate::field::types::{Field, Sample};
     use crate::gates::noop::NoopGate;
     use crate::iop::witness::{PartialWitness, WitnessWrite};
     use crate::plonk::circuit_data::CircuitConfig;
@@ -421,6 +423,91 @@ mod tests {
         let data = builder.build::<C>();
         let proof = data.prove(pw)?;
         data.verify(proof)
+    }
+
+    /// With identical proofs on both branches the selected proof verifies for *any* condition
+    /// value, so only the boolean constraint on the condition can reject a non-boolean one.
+    #[test]
+    fn non_boolean_condition_is_rejected() -> Result<()> {
+        const D: usize = 2;
+        type C = PoseidonGoldilocksConfig;
+        type F = <C as GenericConfig<D>>::F;
+        let config = CircuitConfig::standard_recursion_config();
+
+        let mut builder = CircuitBuilder::<F, D>::new(config.clone());
+        let t = builder.add_virtual_target();
+        builder.register_public_input(t);
+        for _ in 0..64 {
+            builder.add_gate(NoopGate, vec![]);
+        }
+        let data = builder.build::<C>();
+        let mut pw = PartialWitness::new();
+        pw.set_target(t, F::rand())?;
+        let proof = data.prove(pw)?;
+
+        let mut builder = CircuitBuilder::<F, D>::new(config);
+        let mut pw = PartialWitness::new();
+        let pt = builder.add_virtual_proof_with_pis(&data.common);
+        pw.set_proof_with_pis_target(&pt, &proof)?;
+        let inner_data =
+            builder.add_virtual_verifier_data(data.common.config.fri_config.cap_height);
+        pw.set_verifier_data_target(&inner_data, &data.verifier_only)?;
+        let condition = builder.add_virtual_bool_target_unsafe();
+        pw.set_target(condition.target, F::TWO)?;
+        builder.conditionally_verify_proof::<C>(
+            condition,
+            &pt,
+            &inner_data,
+            &pt,
+            &inner_data,
+            &data.common,
+        );
+        let data = builder.build::<C>();
+
+        let rejected =
+            std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| match data.prove(pw) {
+                Ok(proof) => data.verify(proof).is_err(),
+                Err(_) => true,
+            }))
+            .unwrap_or(true);
+        assert!(rejected);
+        Ok(())
+    }
+
+    #[test]
+    fn dummy_verifier_data_is_constant() -> Result<()> {
+        const D: usize = 2;
+        type C = PoseidonGoldilocksConfig;
+        type F = <C as GenericConfig<D>>::F;
+        let config = CircuitConfig::standard_recursion_config();
+
+        let mut builder = CircuitBuilder::<F, D>::new(config.clone());
+        for _ in 0..64 {
+            builder.add_gate(NoopGate, vec![]);
+        }
+        let common = builder.build::<C>().common;
+        let dummy_verifier_only = dummy_circuit::<F, C, D>(&common).verifier_only;
+
+        let mut builder = CircuitBuilder::<F, D>::new(config);
+        let (_, vk) = builder.dummy_proof_and_vk::<C>(&common)?;
+
+        let constants = vk
+            .circuit_digest
+            .elements
+            .iter()
+            .chain(vk.constants_sigmas_cap.0.iter().flat_map(|h| &h.elements))
+            .map(|&t| builder.target_as_constant(t))
+            .collect::<Option<Vec<F>>>()
+            .expect("dummy verifier data must be built from constant targets");
+        let expected = dummy_verifier_only
+            .circuit_digest
+            .elements
+            .iter()
+            .chain(dummy_verifier_only.constants_sigmas_cap.flatten().iter())
+            .copied()
+            .collect::<Vec<F>>();
+        assert_eq!(constants, expected);
+        Ok(())
     }
 
     fn init_logger() {

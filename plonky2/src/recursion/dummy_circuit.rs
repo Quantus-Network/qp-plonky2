@@ -14,17 +14,16 @@ use crate::fri::proof::{FriProof, FriProofTarget};
 use crate::fri::{FriConfig, FriParams, FriReductionStrategy};
 use crate::gates::noop::NoopGate;
 use crate::gates::selectors::SelectorsInfo;
-use crate::hash::hash_types::{HashOutTarget, MerkleCapTarget, RichField};
+use crate::hash::hash_types::{MerkleCapTarget, RichField};
 use crate::hash::merkle_tree::MerkleCap;
 use crate::iop::generator::{GeneratedValues, SimpleGenerator};
 use crate::iop::target::Target;
 use crate::iop::witness::{PartialWitness, PartitionWitness, WitnessWrite};
 use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::circuit_data::{
-    CircuitConfig, CircuitData, CommonCircuitData, VerifierCircuitData, VerifierCircuitTarget,
-    VerifierOnlyCircuitData,
+    CircuitConfig, CircuitData, CommonCircuitData, VerifierCircuitTarget, VerifierOnlyCircuitData,
 };
-use crate::plonk::config::{AlgebraicHasher, GenericConfig, GenericHashOut, Hasher};
+use crate::plonk::config::{AlgebraicHasher, GenericConfig};
 use crate::plonk::proof::{
     OpeningSet, OpeningSetTarget, Proof, ProofTarget, ProofWithPublicInputs,
     ProofWithPublicInputsTarget,
@@ -116,6 +115,10 @@ where
 }
 
 impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
+    /// Adds a proof target filled in by a generator with a proof of the dummy circuit for
+    /// `common_data`, together with that circuit's verifier data as constants. Keeping the
+    /// verifier data constant means a prover cannot substitute a key of their own on the
+    /// "dummy" branch of a conditional verification.
     pub(crate) fn dummy_proof_and_vk<C: GenericConfig<D, F = F> + 'static>(
         &mut self,
         common_data: &CommonCircuitData<F, D>,
@@ -127,14 +130,12 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         let dummy_circuit = dummy_circuit::<F, C, D>(common_data);
         let dummy_proof_with_pis = dummy_proof::<F, C, D>(&dummy_circuit, HashMap::new())?;
         let dummy_proof_with_pis_target = self.add_virtual_proof_with_pis(common_data);
-        let dummy_verifier_data_target =
-            self.add_virtual_verifier_data(self.config.fri_config.cap_height);
+        let dummy_verifier_data_target = self.constant_verifier_data(&dummy_circuit.verifier_only);
 
         self.add_simple_generator(DummyProofGenerator {
             proof_with_pis_target: dummy_proof_with_pis_target.clone(),
             proof_with_pis: dummy_proof_with_pis,
-            verifier_data_target: dummy_verifier_data_target.clone(),
-            verifier_data: dummy_circuit.verifier_data(),
+            common_data: common_data.clone(),
         });
 
         Ok((dummy_proof_with_pis_target, dummy_verifier_data_target))
@@ -164,8 +165,8 @@ where
 {
     pub(crate) proof_with_pis_target: ProofWithPublicInputsTarget<D>,
     pub(crate) proof_with_pis: ProofWithPublicInputs<F, C, D>,
-    pub(crate) verifier_data_target: VerifierCircuitTarget,
-    pub(crate) verifier_data: VerifierCircuitData<F, C, D>,
+    /// Common data of the proved circuit, needed to deserialize `proof_with_pis`.
+    pub(crate) common_data: CommonCircuitData<F, D>,
 }
 
 impl<F, C, const D: usize> Default for DummyProofGenerator<F, C, D>
@@ -206,58 +207,42 @@ where
             public_inputs: vec![],
         };
 
-        let verifier_data_target = VerifierCircuitTarget {
-            constants_sigmas_cap: MerkleCapTarget(vec![]),
-            circuit_digest: HashOutTarget {
-                elements: [Target::default(); 4],
-            },
-        };
-
-        let verifier_data = VerifierCircuitData {
-            common: CommonCircuitData {
-                config: CircuitConfig::default(),
-                trace_degree_bits: 0,
-                fri_params: FriParams {
-                    config: FriConfig {
-                        rate_bits: 0,
-                        cap_height: 0,
-                        proof_of_work_bits: 0,
-                        reduction_strategy: FriReductionStrategy::MinSize(None),
-                        num_query_rounds: 0,
-                    },
-                    leaf_hiding: false,
-                    degree_bits: 0,
-                    reduction_arity_bits: vec![],
+        let common_data = CommonCircuitData {
+            config: CircuitConfig::default(),
+            trace_degree_bits: 0,
+            fri_params: FriParams {
+                config: FriConfig {
+                    rate_bits: 0,
+                    cap_height: 0,
+                    proof_of_work_bits: 0,
+                    reduction_strategy: FriReductionStrategy::MinSize(None),
+                    num_query_rounds: 0,
                 },
-                public_initial_degree_bits: 0,
-                gates: vec![],
-                selectors_info: SelectorsInfo {
-                    selector_indices: vec![],
-                    groups: vec![],
-                },
-                quotient_degree_factor: 0,
-                num_gate_constraints: 0,
-                num_constants: 0,
-                num_public_inputs: 0,
-                k_is: vec![],
-                num_partial_products: 0,
-                num_lookup_polys: 0,
-                num_lookup_selectors: 0,
-                luts: vec![],
+                leaf_hiding: false,
+                degree_bits: 0,
+                reduction_arity_bits: vec![],
             },
-            verifier_only: VerifierOnlyCircuitData {
-                constants_sigmas_cap: MerkleCap(vec![]),
-                circuit_digest: <<C as GenericConfig<D>>::Hasher as Hasher<C::F>>::Hash::from_bytes(
-                    &vec![0; <<C as GenericConfig<D>>::Hasher as Hasher<C::F>>::HASH_SIZE],
-                ),
+            public_initial_degree_bits: 0,
+            gates: vec![],
+            selectors_info: SelectorsInfo {
+                selector_indices: vec![],
+                groups: vec![],
             },
+            quotient_degree_factor: 0,
+            num_gate_constraints: 0,
+            num_constants: 0,
+            num_public_inputs: 0,
+            k_is: vec![],
+            num_partial_products: 0,
+            num_lookup_polys: 0,
+            num_lookup_selectors: 0,
+            luts: vec![],
         };
 
         Self {
             proof_with_pis_target,
             proof_with_pis,
-            verifier_data_target,
-            verifier_data,
+            common_data,
         }
     }
 }
@@ -281,30 +266,23 @@ where
         _witness: &PartitionWitness<F>,
         out_buffer: &mut GeneratedValues<F>,
     ) -> Result<()> {
-        out_buffer.set_proof_with_pis_target(&self.proof_with_pis_target, &self.proof_with_pis)?;
-        out_buffer.set_verifier_data_target(
-            &self.verifier_data_target,
-            &self.verifier_data.verifier_only,
-        )
+        out_buffer.set_proof_with_pis_target(&self.proof_with_pis_target, &self.proof_with_pis)
     }
 
     fn serialize(&self, dst: &mut Vec<u8>, _common_data: &CommonCircuitData<F, D>) -> IoResult<()> {
-        dst.write_target_verifier_circuit(&self.verifier_data_target)?;
-        dst.write_verifier_circuit_data(&self.verifier_data, &DefaultGateSerializer)?;
+        dst.write_common_circuit_data(&self.common_data, &DefaultGateSerializer)?;
         dst.write_target_proof_with_public_inputs(&self.proof_with_pis_target)?;
         dst.write_proof_with_public_inputs(&self.proof_with_pis)
     }
 
     fn deserialize(src: &mut Buffer, _common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
-        let verifier_data_target = src.read_target_verifier_circuit()?;
-        let verifier_data = src.read_verifier_circuit_data(&DefaultGateSerializer)?;
+        let common_data = src.read_common_circuit_data(&DefaultGateSerializer)?;
         let proof_with_pis_target = src.read_target_proof_with_public_inputs()?;
-        let proof_with_pis = src.read_proof_with_public_inputs(&verifier_data.common)?;
+        let proof_with_pis = src.read_proof_with_public_inputs(&common_data)?;
         Ok(Self {
             proof_with_pis_target,
             proof_with_pis,
-            verifier_data_target,
-            verifier_data,
+            common_data,
         })
     }
 }
