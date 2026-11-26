@@ -54,7 +54,7 @@
     `build_agrees`.
   * `Wrapper{2,4,8}.sound`, `PublicWrapper{2,4}.sound` and `leaf_wired`
     (`LeafCircuit.sound`), the wiring-to-relation steps underneath, use no trusted axiom.
-  The production public wrapper (`n_inner = 89`, `Plonky2BridgeProduction`) is gated the
+  The production public wrapper (`n_inner = 86`, `Plonky2BridgeProduction`) is gated the
   same way by `ci/AxiomsCheckProduction.lean`, on the runs that build it.
   It is not part of `defaultTargets` or `Plonky2Bridge`; import-only.
 -/

@@ -223,38 +223,38 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
   obtain ⟨hi1_0, hi1_1, hi1_2, hi1_3⟩ := privateBatchWrapper2_f86 perm a h hp
   obtain ⟨ho1_0, ho1_1, ho1_2, ho1_3⟩ := privateBatchWrapper2_f87 perm a h hp
 
-  have hd0 : a (.wire 1 55) = (row a 0).isDummy := by rw [e0m, e0a, e0b]; rfl
-  have hd1 : a (.wire 3 39) = (row a 1).isDummy := by rw [e1m, e1a, e1b]; rfl
+  have hd0 : a (.wire 3 31) = (row a 0).isDummy := by rw [e0m, e0a, e0b]; rfl
+  have hd1 : a (.wire 4 15) = (row a 1).isDummy := by rw [e1m, e1a, e1b]; rfl
   have hmem : ∀ r ∈ rows a, r = row a 0 ∨ r = row a 1 := by
     intro r hr
     simpa only [rows, List.mem_cons, List.not_mem_nil, or_false] using hr
   have hsel : ∀ x0 x1 : ZMod p,
-      bselect (a (.wire 3 43)) x1 (bselect (a (.wire 4 7)) x0 0)
+      bselect (a (.wire 4 19)) x1 (bselect (a (.wire 5 7)) x0 0)
         = bselect (band (bnot (row a 1).isDummy) (bnot (bnot (row a 0).isDummy))) x1 (bselect (bnot (row a 0).isDummy) x0 0) := by
     intro x0 x1
     rw [tk1, nf1, r1, r0, hd0, hd1]
-  have hblockRef : (fun j => a (![Target.wire 4 43, Target.wire 4 51, Target.wire 4 59, Target.wire 5 7] j)) = blockRefL (rows a) := by
+  have hblockRef : (fun j => a (![Target.wire 5 43, Target.wire 5 51, Target.wire 5 59, Target.wire 6 7] j)) = blockRefL (rows a) := by
     funext j
     simp only [blockRefL, rows, scanRefL_2]
     fin_cases j
-    · show a (.wire 4 43) = _
+    · show a (.wire 5 43) = _
       rw [sb1_0, sb0_0, hsel]; rfl
-    · show a (.wire 4 51) = _
+    · show a (.wire 5 51) = _
       rw [sb1_1, sb0_1, hsel]; rfl
-    · show a (.wire 4 59) = _
+    · show a (.wire 5 59) = _
       rw [sb1_2, sb0_2, hsel]; rfl
-    · show a (.wire 5 7) = _
+    · show a (.wire 6 7) = _
       rw [sb1_3, sb0_3, hsel]; rfl
-  have hnumRef : a (.wire 5 15) = scanRefL (rows a) fun r => r.blockNumber := by
+  have hnumRef : a (.wire 6 15) = scanRefL (rows a) fun r => r.blockNumber := by
     rw [rows, scanRefL_2, sn1, sn0, hsel]; rfl
   have hM0 : a (.wire 8 59) = bselect (row a 0).isDummy 0 (row a 0).inputAmount := by
     rw [mi0, hd0]; rfl
-  have hM1 : a (.wire 10 7) = bselect (row a 1).isDummy 0 (row a 1).inputAmount := by
+  have hM1 : a (.wire 11 7) = bselect (row a 1).isDummy 0 (row a 1).inputAmount := by
     rw [mi1, hd1]; rfl
-  have hin : a (.wire 0 59) = ((rows a).map fun r => bselect r.isDummy 0 r.inputAmount).sum := by
+  have hin : a (.wire 10 11) = ((rows a).map fun r => bselect r.isDummy 0 r.inputAmount).sum := by
     simp only [rows, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, add_zero]
     rw [ai1, hM0, hM1]
-  have hout : a (.wire 13 3) = ((slots a).map Prod.fst).sum := by
+  have hout : a (.wire 10 15) = ((slots a).map Prod.fst).sum := by
     simp only [slots, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, add_zero]
     rw [ao1]
   have hslots32 : ∀ s ∈ slots a, rangeCheck s.1 32 := by
@@ -263,19 +263,19 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     rcases hs with rfl | rfl
     · exact rc0
     · exact rc1
-  have hfc : FeeCheck (a (.virt 25)) (a (.wire 0 59)) (a (.wire 13 3)) := by
+  have hfc : FeeCheck (a (.virt 25)) (a (.wire 10 11)) (a (.wire 10 15)) := by
     refine ⟨ffr, ?_, ?_⟩
     · show rangeCheck (feeDen - a (.virt 25)) 14
       unfold feeDen; rw [Nat.cast_ofNat, ← kten, ← fc]; exact fcr
-    · show rangeCheck (a (.wire 0 59) * (feeDen - a (.virt 25)) - a (.wire 13 3) * feeDen) 52
+    · show rangeCheck (a (.wire 10 11) * (feeDen - a (.virt 25)) - a (.wire 10 15) * feeDen) 52
       unfold feeDen; rw [Nat.cast_ofNat, ← kten, ← fc, ← fl, ← fr, ← fd]; exact fdr
   have hnulls : (out a).nullifiers = ((rows a).map fun r => r.slot.sel).map valDigest := by
-    show ([⟨(a (.wire 17 11)).val, (a (.wire 17 19)).val, (a (.wire 17 27)).val, (a (.wire 17 35)).val⟩,
-      ⟨(a (.wire 17 43)).val, (a (.wire 17 51)).val, (a (.wire 17 59)).val, (a (.wire 23 7)).val⟩] : List Digest) = _
+    show ([⟨(a (.wire 18 11)).val, (a (.wire 18 19)).val, (a (.wire 18 27)).val, (a (.wire 18 35)).val⟩,
+      ⟨(a (.wire 18 43)).val, (a (.wire 18 51)).val, (a (.wire 18 59)).val, (a (.wire 23 7)).val⟩] : List Digest) = _
     rw [s0_0, s0_1, s0_2, s0_3, s1_0, s1_1, s1_2, s1_3, hd0, hd1]
     rfl
   have u0_1 : UniqCheck (row a 0).nullifier (row a 1).nullifier (row a 0).isDummy (row a 1).isDummy :=
-    ⟨a (.wire 18 7), ⟨![a (.virt 77), a (.virt 79), a (.virt 81), a (.virt 83)], ![a (.virt 78), a (.virt 80), a (.virt 82), a (.virt 84)], fun j => by fin_cases j <;> assumption, by rw [q0_1m, q0_1a, q0_1b]; rfl⟩, by
+    ⟨a (.wire 17 43), ⟨![a (.virt 77), a (.virt 79), a (.virt 81), a (.virt 83)], ![a (.virt 78), a (.virt 80), a (.virt 82), a (.virt 84)], fun j => by fin_cases j <;> assumption, by rw [q0_1m, q0_1a, q0_1b]; rfl⟩, by
       rw [← hd0, ← hd1, ← un0_1, ← um0_1, ← ub0_1, ← uc0_1]; exact uz0_1⟩
   have hcol : (rows a).Pairwise fun r s => UniqCheck r.nullifier s.nullifier r.isDummy s.isDummy := by
     unfold rows
@@ -288,8 +288,8 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
       nomatch hs
   have hR : RPrivateBatch (spongeRO perm) ((rows a).map LeafRow.leaf) ((rows a).map LeafRow.u) (out a) := by
     refine private_batch_val_rows perm hpg (rows a) (out := out a)
-      (fee := a (.virt 25)) (totalIn := a (.wire 0 59)) (totalOut := a (.wire 13 3))
-      (assetRef := a (.virt 0)) (numRef := a (.wire 5 15)) (blockRef := fun j => a (![Target.wire 4 43, Target.wire 4 51, Target.wire 4 59, Target.wire 5 7] j))
+      (fee := a (.virt 25)) (totalIn := a (.wire 10 11)) (totalOut := a (.wire 10 15))
+      (assetRef := a (.virt 0)) (numRef := a (.wire 6 15)) (blockRef := fun j => a (![Target.wire 5 43, Target.wire 5 51, Target.wire 5 59, Target.wire 6 7] j))
       (slots := slots a) ?_ ?_ (by show 2 ≤ 64; decide) h32 hblockRef hnumRef ?_ ?_
       rfl rfl rfl rfl ?_ hin hslots32 (by show 2 ≤ 64; decide) hout hfc rfl hnulls hcol
     · -- dummy checks
@@ -362,7 +362,7 @@ theorem end_to_end_wired (perm : St p → St p) (hpg : WormholeSpec.goldilocks �
 
 /-- The 26 public inputs in registration order. -/
 def pi : Fin 26 → Target :=
-  ![.virt 13, .virt 0, .virt 25, .wire 4 43, .wire 4 51, .wire 4 59, .wire 5 7, .wire 5 15, .virt 30, .virt 26, .virt 27, .virt 28, .virt 29, .virt 35, .virt 31, .virt 32, .virt 33, .virt 34, .wire 17 11, .wire 17 19, .wire 17 27, .wire 17 35, .wire 17 43, .wire 17 51, .wire 17 59, .wire 23 7]
+  ![.virt 13, .virt 0, .virt 25, .wire 5 43, .wire 5 51, .wire 5 59, .wire 6 7, .wire 6 15, .virt 30, .virt 26, .virt 27, .virt 28, .virt 29, .virt 35, .virt 31, .virt 32, .virt 33, .virt 34, .wire 18 11, .wire 18 19, .wire 18 27, .wire 18 35, .wire 18 43, .wire 18 51, .wire 18 59, .wire 23 7]
 
 omit [Fact p.Prime] in
 set_option maxRecDepth 8192 in

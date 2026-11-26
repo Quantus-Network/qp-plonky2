@@ -36,7 +36,7 @@ version = "git#v4.30.0"
 [[require]]
 name = "wormholeSpec"
 git = "https://github.com/Quantus-Network/qp-zk-circuits.git"
-rev = "8d610efe83a5940fcf84362bfa41770b79fc3c1c"
+rev = "cdc49918ee3f5ebb7be0f6260374f4055dbe2fa8"
 subDir = "formal"
 
 [[lean_lib]]
@@ -53,7 +53,7 @@ roots = ["Plonky2Bridge", "Plonky2Bridge.PublicBatch", "Plonky2Bridge.Complete",
   "Plonky2Bridge.Leaf", "Plonky2Bridge.LeafWired", "Plonky2Bridge.Trusted", "Plonky2Bridge.LeafBuild",
   "Plonky2Bridge.PrivateWrapperBuild", "Plonky2Bridge.Generated.PublicInputsHashVector"]
 
-# The production public-batch wrapper (`n_inner = 89`): the generated modules behind it
+# The production public-batch wrapper (`n_inner = 86`): the generated modules behind it
 # are most of a cold Lean build, so it is its own target. CI builds it on `main` and on
 # release pull requests (`lake build Plonky2BridgeProduction`); every pull request builds
 # `Plonky2Bridge`, which has the `n_inner = 2` and `4` shapes of the same capstone.

@@ -16,9 +16,9 @@ use plonky2::field::types::PrimeField64;
 
 mod common;
 
-/// Recorded `(n_inner, leaves, exit slots)`. `n_inner = 89` is the production public
+/// Recorded `(n_inner, leaves, exit slots)`. `n_inner = 86` is the production public
 /// batch, over the production private batch (`8` leaves, `32` exit slots).
-const SIZES: [(usize, usize, usize); 3] = [(2, 2, 2), (4, 2, 2), (89, 8, 32)];
+const SIZES: [(usize, usize, usize); 3] = [(2, 2, 2), (4, 2, 2), (86, 8, 32)];
 
 fn inner_pi_len(leaves: usize, slots: usize) -> usize {
     8 + 5 * slots + 4 * leaves

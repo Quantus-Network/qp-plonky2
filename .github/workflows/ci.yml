@@ -113,7 +113,7 @@ jobs:
   # The Lean side: `formal.yml`, one job building the spec, the bridge and the axiom
   # gate on a cached `.lake/build`, skipped for pull requests that leave the formal
   # inputs as `main` built them. `full` adds the production public wrapper
-  # (`n_inner = 89`, most of a cold build): on pushes to `main` and on release pull
+  # (`n_inner = 86`, most of a cold build): on pushes to `main` and on release pull
   # requests. Adding `formal-full` or `release-proposal` to an open pull request runs it
   # through `formal-full.yml`.
   formal:

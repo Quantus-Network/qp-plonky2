@@ -13,4 +13,3 @@ import Plonky2Spec.Generated.PrivateBatchWrapper4.CopyData6
 import Plonky2Spec.Generated.PrivateBatchWrapper4.CopyData7
 import Plonky2Spec.Generated.PrivateBatchWrapper4.CopyData8
 import Plonky2Spec.Generated.PrivateBatchWrapper4.CopyData9
-import Plonky2Spec.Generated.PrivateBatchWrapper4.CopyData10

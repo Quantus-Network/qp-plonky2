@@ -136,9 +136,9 @@ sound+complete) and compose up to the gadget. The gates our gadgets emit
   `.olean`s; the package's own `.lake/build` is cached between runs by content hash, so
   a pull request rebuilds only what it changes. No `nanoda` (crashes on v4.30 export
   format).
-- The production public wrapper (`n_inner = 89`) is its own target,
+- The production public wrapper (`n_inner = 86`) is its own target,
   `Plonky2BridgeProduction` (`Plonky2Bridge/PublicWrapperProduction.lean`, gated by
-  `ci/AxiomsCheckProduction.lean`): its 20,000 generated gadget facts and 89 forwarding
+  `ci/AxiomsCheckProduction.lean`): its 19,000 generated gadget facts and 86 forwarding
   modules are most of a cold build. CI builds it on pushes to `main`, on release pull
   requests, and on pull requests labelled `formal-full`; every pull request builds the
   `n_inner = 2` and `4` shapes of the same capstone.
@@ -898,10 +898,10 @@ it. Pieces:
   (~3 min), its bridge checks in ~16 s. `Plonky2Bridge/PublicWrapper.lean` aliases the
   capstones (`public_batch_end_to_end_wired`, `public_batch_end_to_end_wired_n4`) for the
   axiom gate; `wrapper_lean_is_current` covers all four generated files and CI diffs
-  `Plonky2Bridge/Generated/` too. The production trace (`n_inner = 89` over 8-leaf,
+  `Plonky2Bridge/Generated/` too. The production trace (`n_inner = 86` over 8-leaf,
   32-slot private batches, 20114 calls) is the same generator: its decode is split across
-  `PublicBatchWrapper89/` so each module stays under the elaborator budget, and
-  `public_batch_end_to_end_wired_production` aliases `PublicWrapper89.end_to_end_wired`.
+  `PublicBatchWrapper86/` so each module stays under the elaborator budget, and
+  `public_batch_end_to_end_wired_production` aliases `PublicWrapper86.end_to_end_wired`.
 - **8e — generated bridges, private wrapper (done).** `constraint-exporter/src/private_wrapper.rs`
   does the same for `privateBatchWrapper{N}`. `Shape::read` walks the recorded calls in the
   order `build_private_batch_constraints` emits them — per-leaf dummy checks, the first-real
@@ -1408,7 +1408,7 @@ builder's, and the private-batch wrappers are certified as the leaf is.
   virtual-target count). The trace tests build each wrapper over the canonical child
   verifier data as production does and assert the digest is the production
   constructor's (`PrivateBatchCircuit::new`, `PublicBatchCircuit::new`,
-  `WormholeCircuit::new`); so the `n_inner = 89` trace is checked without building its
+  `WormholeCircuit::new`); so the `n_inner = 86` trace is checked without building its
   2^19-row circuit.
 - **Replay** (`constraint-exporter/src/built.rs`). The exporter renumbers a trace to
   export-local rows and virtual targets (`LoadedTrace.row_at`, `virt_at`), so the Lean
@@ -1531,8 +1531,8 @@ the same way (`public_batch_end_to_end`, Step 7a). The remaining gap is exactly
 are exporter-backed and the wrapper *logic* is bridged, but the public-input
 **decode** that feeds the bridges its `hd`/`hnull`/`hexits`/… wire assignments
 was hand-modeled; Step 8 closes it for both wrappers at every recorded size (`n = 2, 4, 8`
-and `n_inner = 2, 4, 89`, bridges generated from the traces; 8 leaves / 32 slots and
-89 inners are the production shapes):
+and `n_inner = 2, 4, 86`, bridges generated from the traces; 8 leaves / 32 slots and
+86 inners are the production shapes):
 `private_batch_end_to_end_wired{,_n4,_production}` and
 `public_batch_end_to_end_wired{,_n4,_production}` are the
 capstones stated on the exported wiring, with no decode hypotheses; Step 9 closes it for

@@ -18,8 +18,8 @@
 # few of them evict everything else under the repository's 10 GB cap. A change to a module
 # everything imports (`Plonky2Spec/Wiring.lean`) still pays a cold build, once.
 #
-# The production public wrapper (`Plonky2BridgeProduction`, `n_inner = 89`) is most of a
-# cold build — some 20,000 generated gadget-fact theorems and 89 forwarding modules — and
+# The production public wrapper (`Plonky2BridgeProduction`, `n_inner = 86`) is most of a
+# cold build — some 19,000 generated gadget-fact theorems and 86 forwarding modules — and
 # is built only with `full`: `ci.yml` sets it on pushes to `main` and on pull requests
 # carrying `release-proposal` or `formal-full`; `formal-full.yml` sets it when one of
 # those labels is added to an open pull request. Every pull request builds the
@@ -30,7 +30,7 @@ on:
   workflow_call:
     inputs:
       full:
-        description: Also build and gate the production public wrapper (n_inner = 89).
+        description: Also build and gate the production public wrapper (n_inner = 86).
         required: true
         type: boolean
 
@@ -122,7 +122,7 @@ jobs:
       # e.g. `sorryAx`, `Lean.ofReduceBool`, or a silent compile failure.
       - name: Build Plonky2Bridge (cross-package capstone)
         run: cd formal && lake build Plonky2Bridge
-      - name: Build Plonky2BridgeProduction (n_inner = 89)
+      - name: Build Plonky2BridgeProduction (n_inner = 86)
         if: env.FORMAL_FULL == 'true'
         run: cd formal && lake build Plonky2BridgeProduction
       # Save whatever was built, even after a failure, so the next run resumes from it.
@@ -253,5 +253,5 @@ jobs:
           expect Plonky2Bridge.LeafCircuit.sound "${base[@]}"
           if [ "$FORMAL_FULL" = true ]; then
             expect Plonky2Bridge.public_batch_end_to_end_wired_production "${base[@]}" "${wrapper_trusted[@]}" Plonky2Bridge.Wrapper8.build_agrees
-            expect Plonky2Bridge.PublicWrapper89.sound "${base[@]}"
+            expect Plonky2Bridge.PublicWrapper86.sound "${base[@]}"
           fi

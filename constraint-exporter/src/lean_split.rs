@@ -528,8 +528,8 @@ mod tests {
     fn recorded_shapes_stay_on_stdout() {
         assert!(stdout_includes_source(2, 205_239));
         assert!(stdout_includes_source(4, 420_580));
-        assert!(stdout_includes_source(89, 367));
-        assert!(!stdout_includes_source(89, STDOUT_FULL_LIMIT + 1));
+        assert!(stdout_includes_source(86, 367));
+        assert!(!stdout_includes_source(86, STDOUT_FULL_LIMIT + 1));
     }
 
     struct Tmp(std::path::PathBuf);

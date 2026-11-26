@@ -1,8 +1,8 @@
 /-
   The public-batch wrapper capstones on the recorded wiring, at the tree sizes CI builds
-  on every pull request (`n_inner = 2`, `4`). The production size (`89`) is
+  on every pull request (`n_inner = 2`, `4`). The production size (`86`) is
   `Plonky2Bridge/PublicWrapperProduction.lean`, the `Plonky2BridgeProduction` target,
-  built on `main` and release pull requests: its 20,000 generated gadget facts take the
+  built on `main` and release pull requests: its 19,000 generated gadget facts take the
   bulk of a cold Lean build.
 
   Each `Generated/PublicWrapper{N}.lean` is emitted by the exporter (`src/public_wrapper.rs`)
