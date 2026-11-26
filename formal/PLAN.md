@@ -1557,14 +1557,23 @@ meantime. Nothing in the axiom's statement changes: it is an implication on the 
   | private batch (`1/8`, 36, 20) | 108 (128) | ≈ 90–98 (110–118) | 54 (74), ≈ 52 |
   | public batch (`1/8`, 36, 20) | 108 (128) | ≈ 90–98 (110–118) | 54 (74), ≈ 51 |
 
-  The other soundness terms sit above these: `β, γ` with `num_challenges = 2` at
-  `≈ 2^{-77}` for the production public batch (`(2^{19} · 80 / 2^{64})^2`), `ζ` in
-  `F^2` at `≈ 2^{-106}`, the proof-system hash at `128` bits. Errors add, so the
-  system's soundness is the minimum: `≈ 128` under the old conjecture, `≈ 110` under
-  the revised one, `≈ 71` bits of classical work proved (`≈ 61` quantum, Grover on the
-  grinding). Restoring `128` under the revised conjecture takes about `42` queries on
-  the wrappers and `21` on the leaf; proved, about `72` and `37`. A parameter change is
-  a qp-zk-circuits decision; this step records the accounting.
+  These are the FRI term alone. The sampling terms before it are not reached by
+  grinding (`get_challenges` draws `β, γ, α` before the proof of work, and the sampling
+  error in `Trusted.lean` is stated independently of it): `β, γ` are base-field
+  challenges, `≈ (rows · routedWires / 2^{64})^{numChallenges}`, which at the deployed
+  `num_challenges = 2` is `2^{-100}` on the leaf, `2^{-86}` on the private batch and
+  `2^{-77}` on the production public batch (`(2^{19} · 80 / 2^{64})^2`); `ζ` in `F^2`
+  is `≈ 2^{-106}` there and cannot move; the proof-system hash is `128` bits. Errors
+  add, so the system's soundness is the minimum over all of them: about `77` bits on
+  the public batch under either FRI conjecture, set by `β, γ`, and about `71` bits of
+  classical work proved (`≈ 61` quantum, Grover on the grinding), set by FRI with
+  `β, γ` next at `77`. More FRI queries alone therefore restore nothing above `77`;
+  qp-zk-circuits#219 raises `num_challenges` to `3` on the leaf and private batch and
+  `4` on the public batch (`150`, `129`, `152` bits), after which the public batch is
+  capped by `ζ` at `≈ 106` under the old conjecture and by FRI at `≈ 110` under the
+  revised one. Under the revised conjecture `128` on the FRI term would take about `42`
+  queries on the wrappers and `21` on the leaf; proved, about `72` and `37`. Parameter
+  changes are qp-zk-circuits decisions; this step records the accounting.
 - **Axiom gate.** Unchanged; `FriParams` is a root of `Plonky2Bridge` so its `rfl`
   checks build.
 
