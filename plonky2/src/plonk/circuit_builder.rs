@@ -282,11 +282,12 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     }
 
     /// Assert that the configuration used to create this `CircuitBuilder` is consistent,
-    /// i.e. that the different parameters meet the targeted security level.
+    /// i.e. that the different parameters meet the targeted security level and fit `F`.
     fn check_config(&self) {
         self.config.validate();
         self.config
-            .check_fri_security::<F, D>()
+            .check_fits_field::<F>()
+            .and_then(|()| self.config.check_fri_security::<F, D>())
             .unwrap_or_else(|error| panic!("{error}"));
     }
 
@@ -1256,6 +1257,17 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         let mut gates = self.gates.iter().cloned().collect::<Vec<_>>();
         // Gates need to be sorted by their degrees (and ID to make the ordering deterministic) to compute the selector polynomials.
         gates.sort_unstable_by_key(|g| (g.0.degree(), g.0.id()));
+        if let Some(gate) = gates
+            .last()
+            .filter(|gate| gate.0.degree() > self.config.max_quotient_degree_factor)
+        {
+            panic!(
+                "gate {} has degree {}, above max_quotient_degree_factor {}; raise it in the config",
+                gate.0.id(),
+                gate.0.degree(),
+                self.config.max_quotient_degree_factor
+            );
+        }
         let common = CommonCircuitData::new(
             self.config.clone(),
             degree_bits,
@@ -1264,7 +1276,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             self.luts.clone(),
         )
         .unwrap_or_else(|error| panic!("cannot build the circuit: {error}"));
-        let public_initial_degree_bits = common.public_initial_degree_bits();
 
         let mut constant_vecs =
             selector_polynomials(&common.gates, &self.gate_instances, &common.selectors_info);
@@ -1301,13 +1312,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             let constants_sigmas_vecs = [constant_vecs, sigma_vecs.clone()].concat();
             let constants_sigmas_coeffs = constants_sigmas_vecs
                 .into_iter()
-                .map(|poly| {
-                    let mut coeffs = poly.ifft();
-                    coeffs
-                        .pad(1 << public_initial_degree_bits)
-                        .expect("public_initial_degree must dominate the trace degree");
-                    coeffs
-                })
+                .map(|poly| poly.ifft())
                 .collect::<Vec<_>>();
             PolynomialBatch::<F, C, D>::from_coeffs(
                 constants_sigmas_coeffs,
@@ -1375,13 +1380,8 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         ];
         let circuit_digest = C::Hasher::hash_no_pad(&circuit_digest_parts.concat());
 
-        // Precompute FFT roots for the phase-1 commitments. Trace-domain
-        // batches compute exact FFT roots on demand so they are never coupled to the public size.
-        let fft_root_table = fft_root_table(
-            common
-                .max_fft_points()
-                .expect("FFT domain size overflows usize"),
-        );
+        // Precompute FFT roots for the LDE domain of the phase-1 commitments.
+        let fft_root_table = fft_root_table(common.fri_params.lde_size());
 
         let mut success = true;
 

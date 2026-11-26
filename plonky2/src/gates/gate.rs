@@ -59,7 +59,10 @@ pub trait Gate<F: RichField + Extendable<D>, const D: usize>: 'static + Send + S
     /// Serializes this custom gate to the targeted byte buffer, with the provided [`CommonCircuitData`].
     fn serialize(&self, dst: &mut Vec<u8>, common_data: &CommonCircuitData<F, D>) -> IoResult<()>;
 
-    /// Deserializes the bytes in the provided buffer into this custom gate, given some [`CommonCircuitData`].
+    /// Deserializes the bytes in the provided buffer into this custom gate.
+    ///
+    /// Gates are read before the fields derived from them exist, so `common_data` is a
+    /// placeholder in which only `config` and `luts` are the circuit's own.
     fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self>
     where
         Self: Sized;

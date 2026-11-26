@@ -154,17 +154,28 @@ impl CircuitConfig {
             return Err("max_quotient_degree_factor exceeds FRI rate_bits");
         }
 
-        // A zero arity never folds: `Fixed` would yield a step that reduces nothing and
-        // `ConstantArityBits` would loop forever while deriving the schedule.
-        let has_zero_arity = match &self.fri_config.reduction_strategy {
-            FriReductionStrategy::Fixed(arity_bits) => arity_bits.contains(&0),
-            FriReductionStrategy::ConstantArityBits(arity_bits, _) => *arity_bits == 0,
-            FriReductionStrategy::MinSize(_) => false,
-        };
-        if has_zero_arity {
+        if self.fri_config.reduction_strategy.has_zero_arity() {
             return Err("FRI reduction arity bits must be non-zero");
         }
 
+        Ok(())
+    }
+
+    /// Checks the parameters that only make sense inside `F`: the rate must leave room for a
+    /// trace in the field's largest two-adic domain, and a `Fixed` schedule must fold a degree
+    /// that domain can hold. The builder's blinding estimates shift and multiply by these before
+    /// any trace degree is known, so they are bounded up front rather than per degree.
+    pub fn check_fits_field<F: Field>(&self) -> Result<(), &'static str> {
+        let largest_degree_bits = F::TWO_ADICITY
+            .checked_sub(self.fri_config.rate_bits)
+            .ok_or("FRI rate_bits exceed the field's two-adicity")?;
+        if let FriReductionStrategy::Fixed(arity_bits) = &self.fri_config.reduction_strategy {
+            arity_bits
+                .iter()
+                .try_fold(0usize, |total, &bits| total.checked_add(bits))
+                .filter(|&total| total <= largest_degree_bits)
+                .ok_or("FRI total reduction arity exceeds the field's largest domain")?;
+        }
         Ok(())
     }
 
@@ -197,6 +208,88 @@ impl CircuitConfig {
         }
         Ok(())
     }
+}
+
+/// The constructors of a `CommonCircuitData`. Both crates declare the struct with the same
+/// fields over their own `GateRef`, so this expands inside each `impl` block and keeps one copy
+/// of the load path. The expansion site must have `GateRef<F, D>` and its `Gate` trait in scope.
+#[macro_export]
+macro_rules! common_circuit_data_constructors {
+    () => {
+        /// Common data from the primitives `CircuitBuilder::build` fixes; every other field is
+        /// derived from them, so these are all that is serialized.
+        pub fn new(
+            config: $crate::circuit_config::CircuitConfig,
+            degree_bits: usize,
+            gates: Vec<GateRef<F, D>>,
+            num_public_inputs: usize,
+            luts: Vec<$crate::plonk_common::LookupTable>,
+        ) -> Result<Self, &'static str> {
+            let gate_shapes: Vec<$crate::circuit_config::GateShape> = gates
+                .iter()
+                .map(|gate| $crate::circuit_config::GateShape {
+                    id: gate.0.id(),
+                    degree: gate.0.degree(),
+                    num_wires: gate.0.num_wires(),
+                    num_constants: gate.0.num_constants(),
+                    num_constraints: gate.0.num_constraints(),
+                })
+                .collect();
+            let derived = $crate::circuit_config::derive_common_data::<F, D>(
+                &config,
+                degree_bits,
+                &gate_shapes,
+                &luts,
+            )?;
+            Ok(Self {
+                config,
+                trace_degree_bits: degree_bits,
+                fri_params: derived.fri_params,
+                gates,
+                selectors_info: derived.selectors_info,
+                num_gate_constraints: derived.num_gate_constraints,
+                num_constants: derived.num_constants,
+                num_public_inputs,
+                k_is: derived.k_is,
+                num_partial_products: derived.num_partial_products,
+                num_lookup_polys: derived.num_lookup_polys,
+                num_lookup_selectors: derived.num_lookup_selectors,
+                luts,
+            })
+        }
+
+        /// Holds the config and lookup tables and nothing else, so gate readers can check their
+        /// parameters and resolve table indices before the gates, and with them the derived
+        /// fields, are known.
+        pub(crate) fn tables_only(
+            config: $crate::circuit_config::CircuitConfig,
+            luts: Vec<$crate::plonk_common::LookupTable>,
+        ) -> Self {
+            Self {
+                fri_params: $crate::fri::FriParams {
+                    config: config.fri_config.clone(),
+                    leaf_hiding: false,
+                    degree_bits: 0,
+                    reduction_arity_bits: Vec::new(),
+                },
+                config,
+                trace_degree_bits: 0,
+                gates: Vec::new(),
+                selectors_info: $crate::selectors::SelectorsInfo {
+                    selector_indices: Vec::new(),
+                    groups: Vec::new(),
+                },
+                num_gate_constraints: 0,
+                num_constants: 0,
+                num_public_inputs: 0,
+                k_is: Vec::new(),
+                num_partial_products: 0,
+                num_lookup_polys: 0,
+                num_lookup_selectors: 0,
+                luts,
+            }
+        }
+    };
 }
 
 /// The gate-derived quantities the builder folds into `CommonCircuitData`, for one gate.

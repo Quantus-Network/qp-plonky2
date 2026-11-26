@@ -38,6 +38,16 @@ pub enum FriReductionStrategy {
 }
 
 impl FriReductionStrategy {
+    /// A zero arity never folds: `Fixed` would yield a step that reduces nothing and
+    /// `ConstantArityBits` would loop forever while deriving the schedule.
+    pub fn has_zero_arity(&self) -> bool {
+        match self {
+            FriReductionStrategy::Fixed(arity_bits) => arity_bits.contains(&0),
+            FriReductionStrategy::ConstantArityBits(arity_bits, _) => *arity_bits == 0,
+            FriReductionStrategy::MinSize(_) => false,
+        }
+    }
+
     /// The arity of each FRI reduction step, expressed as the log2 of the actual arity.
     pub fn reduction_arity_bits(
         &self,
@@ -229,14 +239,17 @@ impl FriConfig {
     }
 
     /// [`Self::fri_params`] for parameters that may come from untrusted bytes: every bound is
-    /// checked before anything shifts or adds by it. The LDE domain must exist in `F` and fit the
-    /// address space, and the reduction schedule must fit inside it, with the cap beneath the
-    /// folds.
+    /// checked before anything shifts, adds or loops by it. The LDE domain must exist in `F` and
+    /// fit the address space, and the reduction schedule must fit inside it, with the cap beneath
+    /// the folds.
     pub fn checked_fri_params<F: Field>(
         &self,
         degree_bits: usize,
         leaf_hiding: bool,
     ) -> Result<FriParams, &'static str> {
+        if self.reduction_strategy.has_zero_arity() {
+            return Err("FRI reduction arity bits must be non-zero");
+        }
         if degree_bits > F::TWO_ADICITY || self.rate_bits > F::TWO_ADICITY - degree_bits {
             return Err("FRI LDE domain exceeds the field's two-adicity");
         }

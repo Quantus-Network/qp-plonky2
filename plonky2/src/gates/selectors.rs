@@ -74,7 +74,7 @@ pub(crate) fn selector_ends_lookups<F: RichField + Extendable<D>, const D: usize
     lookups_ends
 }
 
-/// Returns the selector polynomials and related information.
+/// Returns the selector polynomials.
 ///
 /// Selector polynomials are computed as follows:
 /// Build a selector polynomial `S_i` for each gate group `G_i` of `selectors_info` (see

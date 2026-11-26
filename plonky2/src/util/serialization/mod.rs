@@ -839,8 +839,7 @@ pub trait Read {
 
         // Discard any attacker-supplied FFT root table and rebuild it from the trusted circuit
         // shape, shape-checking the serialized table only to advance the buffer cursor.
-        let recomputed_fft_root_table =
-            fft_root_table::<F>(common_data.max_fft_points().ok_or(IoError)?);
+        let recomputed_fft_root_table = fft_root_table::<F>(common_data.fri_params.lde_size());
         let is_some = self.read_bool()?;
         if is_some {
             let table_len = self.read_usize()?;
