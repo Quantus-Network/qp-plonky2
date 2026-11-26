@@ -1570,10 +1570,11 @@ meantime. Nothing in the axiom's statement changes: it is an implication on the 
   `β, γ` next at `77`. More FRI queries alone therefore restore nothing above `77`;
   qp-zk-circuits#219 raises `num_challenges` to `3` on the leaf and private batch and
   `4` on the public batch (`150`, `129`, `152` bits), after which the public batch is
-  capped by `ζ` at `≈ 106` under the old conjecture and by FRI at `≈ 110` under the
-  revised one. Under the revised conjecture `128` on the FRI term would take about `42`
-  queries on the wrappers and `21` on the leaf; proved, about `72` and `37`. Parameter
-  changes are qp-zk-circuits decisions; this step records the accounting.
+  capped by `ζ` at `≈ 106` under either conjecture (the revised FRI term, `110`–`118`,
+  sits above it; `ζ` is sampled before the proof of work too). Under the revised
+  conjecture `128` on the FRI term alone would take about `42` queries on the wrappers
+  and `21` on the leaf; proved, about `72` and `37`. Parameter changes are
+  qp-zk-circuits decisions; this step records the accounting.
 - **Axiom gate.** Unchanged; `FriParams` is a root of `Plonky2Bridge` so its `rfl`
   checks build.
 
