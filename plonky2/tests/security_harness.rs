@@ -388,24 +388,57 @@ fn panic_message(payload: Box<dyn std::any::Any + Send>) -> String {
         .unwrap_or_default()
 }
 
-/// A `Fixed` schedule that no trace in the field can carry would have blinding double its degree
-/// estimate past the field's largest domain; the estimate stops there instead.
+/// Blinding shifts and multiplies by the `Fixed` arities before any trace degree is known, so a
+/// schedule the field cannot hold (`[32, 32]` wraps the product to zero; `[62]` wraps the opening
+/// count) is rejected when the builder is created, as is a rate with no room for a trace.
 #[test]
-fn impossible_fixed_fri_schedule_rejected_before_blinding() {
-    for arity_bits in [vec![40], vec![29]] {
+fn fixed_fri_schedule_beyond_the_field_rejected_at_new() {
+    let rejected = |mutate: &dyn Fn(&mut CircuitConfig), message: &str| {
         let result = catch_unwind(AssertUnwindSafe(|| {
             let mut config = CircuitConfig::standard_recursion_zk_config();
-            config.fri_config.reduction_strategy = FriReductionStrategy::Fixed(arity_bits);
-            let mut builder = CircuitBuilder::<F, D>::new(config);
-            let x = builder.add_virtual_target();
-            builder.register_public_input(x);
-            builder.build::<C>()
+            mutate(&mut config);
+            CircuitBuilder::<F, D>::new(config)
         }));
-        assert_eq!(
-            panic_message(result.unwrap_err()),
-            "the FRI schedule needs more blinding rows than the field's largest domain holds"
+        assert_eq!(panic_message(result.unwrap_err()), message);
+    };
+    // The standard rate of 3 leaves 29 bits of trace in Goldilocks.
+    for arity_bits in [
+        vec![30],
+        vec![40],
+        vec![32, 32],
+        vec![62],
+        vec![usize::MAX, 1],
+    ] {
+        rejected(
+            &|config| {
+                config.fri_config.reduction_strategy =
+                    FriReductionStrategy::Fixed(arity_bits.clone())
+            },
+            "FRI total reduction arity exceeds the field's largest domain",
         );
     }
+    rejected(
+        &|config| config.fri_config.rate_bits = 40,
+        "FRI rate_bits exceed the field's two-adicity",
+    );
+}
+
+/// A `Fixed` schedule that fits the field but that no trace can carry has blinding double its
+/// degree estimate past the field's largest domain; the estimate stops there instead.
+#[test]
+fn impossible_fixed_fri_schedule_rejected_before_blinding() {
+    let result = catch_unwind(AssertUnwindSafe(|| {
+        let mut config = CircuitConfig::standard_recursion_zk_config();
+        config.fri_config.reduction_strategy = FriReductionStrategy::Fixed(vec![29]);
+        let mut builder = CircuitBuilder::<F, D>::new(config);
+        let x = builder.add_virtual_target();
+        builder.register_public_input(x);
+        builder.build::<C>()
+    }));
+    assert_eq!(
+        panic_message(result.unwrap_err()),
+        "the FRI schedule needs more blinding rows than the field's largest domain holds"
+    );
 }
 
 /// Blinding sizes the trace from estimates below the final degree, so a `Fixed` schedule is only
@@ -518,7 +551,8 @@ fn common_data_primitives_are_checked_on_load() {
 
 /// Derived fields are not in the encoding, so altering one in memory changes nothing on the wire:
 /// the bytes decode to what the builder produced. Gates are read against the circuit's own
-/// config, so circuits wider than the default config round-trip too.
+/// config, so circuits wider than the default config round-trip too; that half only bites once
+/// gate readers check their parameters against the config (#145).
 #[test]
 fn common_data_roundtrips_from_its_primitives() {
     let gate_serializer = DefaultGateSerializer;

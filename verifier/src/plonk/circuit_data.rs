@@ -8,7 +8,6 @@ use core::ops::{Range, RangeFrom};
 
 use anyhow::{ensure, Result};
 // Re-export CircuitConfig from core
-use qp_plonky2_core::circuit_config::{derive_common_data, GateShape};
 use qp_plonky2_core::merkle_tree::MerkleCap;
 pub use qp_plonky2_core::CircuitConfig;
 use qp_plonky2_core::FriParams;
@@ -222,71 +221,7 @@ pub struct CommonVerifierData<F: RichField + Extendable<D>, const D: usize> {
 }
 
 impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
-    /// Common data from the primitives `CircuitBuilder::build` fixes; every other field is
-    /// derived from them, so these are all that is serialized.
-    pub fn new(
-        config: CircuitConfig,
-        degree_bits: usize,
-        gates: Vec<GateRef<F, D>>,
-        num_public_inputs: usize,
-        luts: Vec<LookupTable>,
-    ) -> Result<Self, &'static str> {
-        let gate_shapes: Vec<GateShape> = gates
-            .iter()
-            .map(|gate| GateShape {
-                id: gate.0.id(),
-                degree: gate.0.degree(),
-                num_wires: gate.0.num_wires(),
-                num_constants: gate.0.num_constants(),
-                num_constraints: gate.0.num_constraints(),
-            })
-            .collect();
-        let derived = derive_common_data::<F, D>(&config, degree_bits, &gate_shapes, &luts)?;
-        Ok(Self {
-            config,
-            trace_degree_bits: degree_bits,
-            fri_params: derived.fri_params,
-            gates,
-            selectors_info: derived.selectors_info,
-            num_gate_constraints: derived.num_gate_constraints,
-            num_constants: derived.num_constants,
-            num_public_inputs,
-            k_is: derived.k_is,
-            num_partial_products: derived.num_partial_products,
-            num_lookup_polys: derived.num_lookup_polys,
-            num_lookup_selectors: derived.num_lookup_selectors,
-            luts,
-        })
-    }
-
-    /// Holds the config and lookup tables and nothing else, so gate readers can check their
-    /// parameters and resolve table indices before the gates, and with them the derived fields,
-    /// are known.
-    pub(crate) fn tables_only(config: CircuitConfig, luts: Vec<LookupTable>) -> Self {
-        Self {
-            fri_params: FriParams {
-                config: config.fri_config.clone(),
-                leaf_hiding: false,
-                degree_bits: 0,
-                reduction_arity_bits: Vec::new(),
-            },
-            config,
-            trace_degree_bits: 0,
-            gates: Vec::new(),
-            selectors_info: SelectorsInfo {
-                selector_indices: Vec::new(),
-                groups: Vec::new(),
-            },
-            num_gate_constraints: 0,
-            num_constants: 0,
-            num_public_inputs: 0,
-            k_is: Vec::new(),
-            num_partial_products: 0,
-            num_lookup_polys: 0,
-            num_lookup_selectors: 0,
-            luts,
-        }
-    }
+    qp_plonky2_core::common_circuit_data_constructors!();
 
     pub fn to_bytes(&self, gate_serializer: &dyn GateSerializer<F, D>) -> IoResult<Vec<u8>> {
         let mut buffer = Vec::new();
@@ -304,22 +239,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
 
     pub const fn degree_bits(&self) -> usize {
         self.trace_degree_bits
-    }
-
-    /// Degree bits for the public initial FRI codeword used by masked phase-1 oracles; the
-    /// trace degree bits.
-    pub const fn public_initial_degree_bits(&self) -> usize {
-        self.trace_degree_bits
-    }
-
-    /// Degree of the public initial FRI codeword used by masked phase-1 oracles.
-    pub const fn public_initial_degree(&self) -> usize {
-        1 << self.public_initial_degree_bits()
-    }
-
-    /// LDE size of the public initial codeword used by masked phase-1 oracles.
-    pub const fn public_initial_lde_size(&self) -> usize {
-        self.public_initial_degree() << self.config.fri_config.rate_bits
     }
 
     pub const fn degree(&self) -> usize {
