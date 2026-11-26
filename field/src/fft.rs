@@ -12,24 +12,19 @@ use crate::types::Field;
 pub type FftRootTable<F> = Vec<Vec<F>>;
 
 pub fn fft_root_table<F: Field>(n: usize) -> FftRootTable<F> {
-    let lg_n = log2_strict(n);
-    // bases[i] = g^2^i, for i = 0, ..., lg_n - 1
-    let mut bases = Vec::with_capacity(lg_n);
-    let mut base = F::primitive_root_of_unity(lg_n);
-    bases.push(base);
-    for _ in 1..lg_n {
-        base = base.square(); // base = g^2^_
-        bases.push(base);
-    }
+    (1..=log2_strict(n))
+        .map(|lg_m| fft_root_table_row(lg_m).collect())
+        .collect()
+}
 
-    let mut root_table = Vec::with_capacity(lg_n);
-    for lg_m in 1..=lg_n {
-        let half_m = 1 << (lg_m - 1);
-        let base = bases[lg_n - lg_m];
-        let root_row = base.powers().take(half_m.max(2)).collect();
-        root_table.push(root_row);
-    }
-    root_table
+/// Row `lg_m` of [`fft_root_table`]: the first half of the powers of a primitive `2^lg_m`-th root
+/// of unity, and at least two of them. Rows are generated one at a time so that a reader can
+/// check a serialized table against them without materializing the whole table first.
+pub fn fft_root_table_row<F: Field>(lg_m: usize) -> impl Iterator<Item = F> {
+    let half_m = 1 << (lg_m - 1);
+    F::primitive_root_of_unity(lg_m)
+        .powers()
+        .take(half_m.max(2))
 }
 
 #[inline]

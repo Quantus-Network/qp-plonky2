@@ -179,13 +179,14 @@ fn relative_proof_size(
 
     let mut current_layer_bits = degree_bits + rate_bits;
 
-    // Saturating so that an absurd `num_queries` from untrusted parameters cannot overflow.
+    // Saturating so that absurd arities or `num_queries` from untrusted parameters cannot overflow.
     let mut total_elems: usize = 0;
     for arity_bits in arity_bits {
-        let arity = 1 << arity_bits;
+        let arity = 1usize << arity_bits;
 
         // Add neighboring evaluations, which are extension field elements.
-        total_elems = total_elems.saturating_add(((arity - 1) * D).saturating_mul(num_queries));
+        total_elems =
+            total_elems.saturating_add((arity - 1).saturating_mul(D).saturating_mul(num_queries));
         // Add siblings in the Merkle path.
         total_elems =
             total_elems.saturating_add((current_layer_bits * 4).saturating_mul(num_queries));

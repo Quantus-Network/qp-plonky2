@@ -19,7 +19,7 @@ pub use generator_serialization::WitnessGeneratorSerializer;
 use qp_plonky2_core::CircuitConfig;
 
 use crate::field::extension::{Extendable, FieldExtension};
-use crate::field::fft::fft_root_table;
+use crate::field::fft::fft_root_table_row;
 use crate::field::polynomial::PolynomialCoeffs;
 use crate::field::types::{Field64, PrimeField64};
 use crate::fri::oracle::PolynomialBatch;
@@ -837,24 +837,34 @@ pub trait Read {
 
         let representative_map = self.read_usize_vec()?;
 
-        // Discard any attacker-supplied FFT root table and rebuild it from the trusted circuit
-        // shape, shape-checking the serialized table only to advance the buffer cursor.
-        let recomputed_fft_root_table = fft_root_table::<F>(common_data.fri_params.lde_size());
-        let is_some = self.read_bool()?;
-        if is_some {
-            let table_len = self.read_usize()?;
-            if table_len != recomputed_fft_root_table.len() {
+        // The FFT root table is a cache of the circuit shape, so a serialized one must equal the
+        // table the prover would recompute; anything else would steer the prover's FFTs. It is
+        // checked a row at a time against the bytes, so a header claiming a field-sized domain
+        // cannot make the loader build the whole table before the bytes have paid for it.
+        let fft_root_table = if self.read_bool()? {
+            let lde_bits = common_data.fri_params.lde_bits();
+            if self.read_usize()? != lde_bits {
                 return Err(IoError);
             }
-            for expected_row in &recomputed_fft_root_table {
-                let len = self.read_usize()?;
-                if len != expected_row.len() {
+            let mut table = Vec::with_capacity(lde_bits);
+            for lg_m in 1..=lde_bits {
+                let row_len = self.read_usize()?;
+                let mut row = Vec::new();
+                for expected in fft_root_table_row::<F>(lg_m) {
+                    if self.read_field::<F>()? != expected {
+                        return Err(IoError);
+                    }
+                    row.push(expected);
+                }
+                if row_len != row.len() {
                     return Err(IoError);
                 }
-                let _ = self.read_field_vec::<F>(len)?;
+                table.push(row);
             }
-        }
-        let fft_root_table = Some(recomputed_fft_root_table);
+            Some(table)
+        } else {
+            None
+        };
 
         let circuit_digest = self.read_hash::<F, <C as GenericConfig<D>>::Hasher>()?;
 
