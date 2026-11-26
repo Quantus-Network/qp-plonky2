@@ -331,7 +331,24 @@ fn malformed_fft_root_table_rejected() {
 }
 
 #[test]
-fn valid_fft_root_table_roundtrip_recomputes() {
+fn fft_root_table_with_one_wrong_root_rejected() {
+    let mut data = simple_circuit_data();
+    let table = data.prover_only.fft_root_table.as_mut().unwrap();
+    table[1][1] += F::ONE;
+    let serializer = DefaultGeneratorSerializer::<C, D>::default();
+
+    let bytes = data
+        .prover_only
+        .to_bytes(&serializer, &data.common)
+        .unwrap();
+
+    assert!(
+        ProverOnlyCircuitData::<F, C, D>::from_bytes(&bytes, &serializer, &data.common).is_err()
+    );
+}
+
+#[test]
+fn valid_fft_root_table_roundtrips() {
     let data = simple_circuit_data();
     let serializer = DefaultGeneratorSerializer::<C, D>::default();
 
@@ -342,7 +359,7 @@ fn valid_fft_root_table_roundtrip_recomputes() {
     let decoded =
         ProverOnlyCircuitData::<F, C, D>::from_bytes(&bytes, &serializer, &data.common).unwrap();
 
-    assert!(decoded.fft_root_table.is_some());
+    assert_eq!(decoded.fft_root_table, data.prover_only.fft_root_table);
 }
 
 #[test]
