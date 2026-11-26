@@ -18,7 +18,7 @@ set_option maxHeartbeats 0
 
 /-- The wrapper with its recursion gadgets: `verify_proof` under the `8`-leaf private-batch
     verifier key on each `inner_pis_i`. -/
-def tree : Recursive p :=
+noncomputable def tree : Recursive p :=
   .node "public_batch_wrapper_n89" (publicBatchWrapper89 p)
     [(Wrapper8.tree, List.ofFn (innerPis 0)),
      (Wrapper8.tree, List.ofFn (innerPis 1)),

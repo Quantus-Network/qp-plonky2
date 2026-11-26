@@ -38,7 +38,7 @@ set_option linter.unusedSimpArgs false
 /-! ### Reading the spec objects off the wiring -/
 
 /-- The 4-felt dummy-nullifier preimage of leaf `i` (`dummy_pre_image_i`). -/
-def preimage : Fin 8 → Fin 4 → Target
+noncomputable def preimage : Fin 8 → Fin 4 → Target
   | 0 => privateBatchWrapper8.dummy_pre_image_0
   | 1 => privateBatchWrapper8.dummy_pre_image_1
   | 2 => privateBatchWrapper8.dummy_pre_image_2
@@ -51,7 +51,7 @@ def preimage : Fin 8 → Fin 4 → Target
 /-- The field wires of leaf `i` the wrapper reads, with the `is_equal` witnesses of its
     `bytes_digest_eq(block_hash, 0)` dummy check, its preimage and the outer dummy-hash
     output. -/
-def row (a : Assignment p) : Fin 8 → LeafRow p
+noncomputable def row (a : Assignment p) : Fin 8 → LeafRow p
   | 0 =>
     { assetId := a (leafPis 0 0), nullifier := fun j => a (leafPis 0 ⟨1 + j, by omega⟩),
       blockHash := fun j => a (leafPis 0 ⟨5 + j, by omega⟩),
@@ -109,12 +109,12 @@ def row (a : Assignment p) : Fin 8 → LeafRow p
       dummyInv := ![a (.virt 341), a (.virt 343), a (.virt 345), a (.virt 347)]
       pre := fun j => a (preimage 7 j), dnull := fun j => a (.wire 138 (12 + j)) }
 
-def rows (a : Assignment p) : List (LeafRow p) := [row a 0, row a 1, row a 2, row a 3, row a 4, row a 5, row a 6, row a 7]
+noncomputable def rows (a : Assignment p) : List (LeafRow p) := [row a 0, row a 1, row a 2, row a 3, row a 4, row a 5, row a 6, row a 7]
 
 /-- The 8 children, decoded through `.val`. -/
-def leaves (a : Assignment p) : List LeafPublic := [(row a 0).leaf, (row a 1).leaf, (row a 2).leaf, (row a 3).leaf, (row a 4).leaf, (row a 5).leaf, (row a 6).leaf, (row a 7).leaf]
+noncomputable def leaves (a : Assignment p) : List LeafPublic := [(row a 0).leaf, (row a 1).leaf, (row a 2).leaf, (row a 3).leaf, (row a 4).leaf, (row a 5).leaf, (row a 6).leaf, (row a 7).leaf]
 /-- The 8 dummy-nullifier preimages, decoded through `.val`. -/
-def us (a : Assignment p) : List (List Felt) := [(row a 0).u, (row a 1).u, (row a 2).u, (row a 3).u, (row a 4).u, (row a 5).u, (row a 6).u, (row a 7).u]
+noncomputable def us (a : Assignment p) : List (List Felt) := [(row a 0).u, (row a 1).u, (row a 2).u, (row a 3).u, (row a 4).u, (row a 5).u, (row a 6).u, (row a 7).u]
 
 omit [Fact p.Prime] in
 theorem rows_leaves (a : Assignment p) : (rows a).map LeafRow.leaf = leaves a := rfl
@@ -122,7 +122,7 @@ omit [Fact p.Prime] in
 theorem rows_us (a : Assignment p) : (rows a).map LeafRow.u = us a := rfl
 
 /-- The 32 witnessed exit slots `(exit_amount_k, exit_account_k)`. -/
-def slots (a : Assignment p) : List (SlotF p) :=
+noncomputable def slots (a : Assignment p) : List (SlotF p) :=
   [(a (.virt 95), fun j => a (![Target.virt 91, Target.virt 92, Target.virt 93, Target.virt 94] j)),
    (a (.virt 100), fun j => a (![Target.virt 96, Target.virt 97, Target.virt 98, Target.virt 99] j)),
    (a (.virt 105), fun j => a (![Target.virt 101, Target.virt 102, Target.virt 103, Target.virt 104] j)),
@@ -157,13 +157,13 @@ def slots (a : Assignment p) : List (SlotF p) :=
    (a (.virt 250), fun j => a (![Target.virt 246, Target.virt 247, Target.virt 248, Target.virt 249] j))]
 
 /-- Public input `k` of the wrapper, decoded through `.val`. -/
-def pv (a : Assignment p) (k : ℕ) : Felt :=
+noncomputable def pv (a : Assignment p) (k : ℕ) : Felt :=
   (a ((privateBatchWrapper8 p).publicInputs.getD k (.virt 0))).val
 
 /-- The aggregated output at the `aggregated_output` layout: header `[num_exit_slots,
     asset_id, volume_fee_bps, block_hash(4), block_number]`, `M = 32` exit slots
     `[amount, account(4)]`, `N = 8` nullifiers. -/
-def out (a : Assignment p) : PrivateBatchOutput :=
+noncomputable def out (a : Assignment p) : PrivateBatchOutput :=
   { numExitSlots := pv a 0, assetId := pv a 1, volumeFeeBps := pv a 2,
     blockHash := ⟨pv a 3, pv a 4, pv a 5, pv a 6⟩, blockNumber := pv a 7,
     exitSlots := [⟨pv a 8, ⟨pv a 9, pv a 10, pv a 11, pv a 12⟩⟩,
@@ -1350,7 +1350,7 @@ theorem end_to_end_wired (perm : St p → St p) (hpg : WormholeSpec.goldilocks �
   exact ⟨hR, RPrivateBatch_settlement_le_input hR, RPrivateBatch_settles_distinct_spends hR, hleaf⟩
 
 /-- The 200 public inputs in registration order. -/
-def pi : Fin 200 → Target :=
+noncomputable def pi : Fin 200 → Target :=
   ![.virt 283, .virt 0, .virt 90, .wire 20 43, .wire 20 51, .wire 20 59, .wire 21 7, .wire 21 15, .virt 95, .virt 91, .virt 92, .virt 93, .virt 94, .virt 100, .virt 96, .virt 97, .virt 98, .virt 99, .virt 105, .virt 101, .virt 102, .virt 103, .virt 104, .virt 110, .virt 106, .virt 107, .virt 108, .virt 109, .virt 115, .virt 111, .virt 112, .virt 113, .virt 114, .virt 120, .virt 116, .virt 117, .virt 118, .virt 119, .virt 125, .virt 121, .virt 122, .virt 123, .virt 124, .virt 130, .virt 126, .virt 127, .virt 128, .virt 129, .virt 135, .virt 131, .virt 132, .virt 133, .virt 134, .virt 140, .virt 136, .virt 137, .virt 138, .virt 139, .virt 145, .virt 141, .virt 142, .virt 143, .virt 144, .virt 150, .virt 146, .virt 147, .virt 148, .virt 149, .virt 155, .virt 151, .virt 152, .virt 153, .virt 154, .virt 160, .virt 156, .virt 157, .virt 158, .virt 159, .virt 165, .virt 161, .virt 162, .virt 163, .virt 164, .virt 170, .virt 166, .virt 167, .virt 168, .virt 169, .virt 175, .virt 171, .virt 172, .virt 173, .virt 174, .virt 180, .virt 176, .virt 177, .virt 178, .virt 179, .virt 185, .virt 181, .virt 182, .virt 183, .virt 184, .virt 190, .virt 186, .virt 187, .virt 188, .virt 189, .virt 195, .virt 191, .virt 192, .virt 193, .virt 194, .virt 200, .virt 196, .virt 197, .virt 198, .virt 199, .virt 205, .virt 201, .virt 202, .virt 203, .virt 204, .virt 210, .virt 206, .virt 207, .virt 208, .virt 209, .virt 215, .virt 211, .virt 212, .virt 213, .virt 214, .virt 220, .virt 216, .virt 217, .virt 218, .virt 219, .virt 225, .virt 221, .virt 222, .virt 223, .virt 224, .virt 230, .virt 226, .virt 227, .virt 228, .virt 229, .virt 235, .virt 231, .virt 232, .virt 233, .virt 234, .virt 240, .virt 236, .virt 237, .virt 238, .virt 239, .virt 245, .virt 241, .virt 242, .virt 243, .virt 244, .virt 250, .virt 246, .virt 247, .virt 248, .virt 249, .wire 118 23, .wire 118 31, .wire 118 39, .wire 118 47, .wire 118 55, .wire 124 3, .wire 124 11, .wire 124 19, .wire 124 27, .wire 124 35, .wire 124 43, .wire 124 51, .wire 124 59, .wire 129 7, .wire 129 15, .wire 129 23, .wire 129 31, .wire 129 39, .wire 129 47, .wire 129 55, .wire 134 3, .wire 134 11, .wire 134 19, .wire 134 27, .wire 134 35, .wire 134 43, .wire 134 51, .wire 134 59, .wire 139 7, .wire 139 15, .wire 139 23, .wire 139 31]
 
 omit [Fact p.Prime] in
@@ -1358,7 +1358,7 @@ set_option maxRecDepth 8192 in
 theorem publicInputs_eq : (privateBatchWrapper8 p).publicInputs = List.ofFn pi := rfl
 
 /-- `out` as a function of the public-input values alone. -/
-def outOf (v : Fin 200 → ZMod p) : PrivateBatchOutput :=
+noncomputable def outOf (v : Fin 200 → ZMod p) : PrivateBatchOutput :=
   { numExitSlots := (v 0).val, assetId := (v 1).val, volumeFeeBps := (v 2).val,
     blockHash := ⟨(v 3).val, (v 4).val, (v 5).val, (v 6).val⟩, blockNumber := (v 7).val,
     exitSlots := [⟨(v 8).val, ⟨(v 9).val, (v 10).val, (v 11).val, (v 12).val⟩⟩,

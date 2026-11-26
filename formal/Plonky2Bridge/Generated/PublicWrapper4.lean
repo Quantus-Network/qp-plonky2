@@ -31,7 +31,7 @@ variable {p : ℕ} [Fact p.Prime]
 
 /-- The 26 public inputs of inner proof `i` (`inner_pis_i`), at the private-batch
     `aggregated_output` layout. -/
-def innerPis : Fin 4 → Fin 26 → Target
+noncomputable def innerPis : Fin 4 → Fin 26 → Target
   | 0 => publicBatchWrapper4.inner_pis_0
   | 1 => publicBatchWrapper4.inner_pis_1
   | 2 => publicBatchWrapper4.inner_pis_2
@@ -40,7 +40,7 @@ def innerPis : Fin 4 → Fin 26 → Target
 
 /-- The field wires of inner `i` the wrapper reads, with the `is_equal` witnesses of its
     `bytes_digest_eq(block_hash, 0)` dummy check. -/
-def row (a : Assignment p) : Fin 4 → InnerRow p
+noncomputable def row (a : Assignment p) : Fin 4 → InnerRow p
   | 0 =>
     { blockHash := fun j => a (innerPis 0 ⟨3 + j, by omega⟩)
       dummyEq := ![a (.virt 112), a (.virt 114), a (.virt 116), a (.virt 118)]
@@ -88,27 +88,27 @@ def row (a : Assignment p) : Fin 4 → InnerRow p
         fun j => a (innerPis 0 ⟨22 + j, by omega⟩)] }
 
 /-- Inner `i`'s private-batch output, decoded through `.val`. -/
-def inner (a : Assignment p) (i : Fin 4) : PrivateBatchOutput :=
+noncomputable def inner (a : Assignment p) (i : Fin 4) : PrivateBatchOutput :=
   { numExitSlots := (a (innerPis i 0)).val, assetId := (a (innerPis i 1)).val,
     volumeFeeBps := (a (innerPis i 2)).val, blockHash := valDigest (row a i).blockHash,
     blockNumber := (a (innerPis i 7)).val, exitSlots := (row a i).slots.map valSlot,
     nullifiers := (row a i).nulls.map valDigest }
 
-def rows (a : Assignment p) : List (InnerPair p) := [(row a 0, inner a 0), (row a 1, inner a 1), (row a 2, inner a 2), (row a 3, inner a 3)]
-def inners (a : Assignment p) : List PrivateBatchOutput := [inner a 0, inner a 1, inner a 2, inner a 3]
+noncomputable def rows (a : Assignment p) : List (InnerPair p) := [(row a 0, inner a 0), (row a 1, inner a 1), (row a 2, inner a 2), (row a 3, inner a 3)]
+noncomputable def inners (a : Assignment p) : List PrivateBatchOutput := [inner a 0, inner a 1, inner a 2, inner a 3]
 
 omit [Fact p.Prime] in
 theorem rows_inners (a : Assignment p) : (rows a).map Prod.snd = inners a := rfl
 
 /-- The `aggregator_address` witness, decoded. -/
-def addr (a : Assignment p) : Digest := valDigest fun j => a (publicBatchWrapper4.aggregator_address j)
+noncomputable def addr (a : Assignment p) : Digest := valDigest fun j => a (publicBatchWrapper4.aggregator_address j)
 
 /-- Public input `k` of the wrapper, decoded through `.val`. -/
-def pv (a : Assignment p) (k : ℕ) : Felt :=
+noncomputable def pv (a : Assignment p) (k : ℕ) : Felt :=
   (a ((publicBatchWrapper4 p).publicInputs.getD k (.virt 0))).val
 
 /-- Inner `i`'s forwarded exit slots, read off the wiring. -/
-def exitChunk (a : Assignment p) : Fin 4 → List ExitSlot
+noncomputable def exitChunk (a : Assignment p) : Fin 4 → List ExitSlot
   | 0 => [⟨(a (.wire 17 7)).val, ⟨(a (.wire 17 15)).val, (a (.wire 17 23)).val, (a (.wire 17 31)).val, (a (.wire 17 39)).val⟩⟩,
       ⟨(a (.wire 17 47)).val, ⟨(a (.wire 17 55)).val, (a (.wire 17 63)).val, (a (.wire 17 71)).val, (a (.wire 17 79)).val⟩⟩]
   | 1 => [⟨(a (.wire 18 7)).val, ⟨(a (.wire 18 15)).val, (a (.wire 18 23)).val, (a (.wire 18 31)).val, (a (.wire 18 39)).val⟩⟩,
@@ -120,7 +120,7 @@ def exitChunk (a : Assignment p) : Fin 4 → List ExitSlot
   | _ => []
 
 /-- Inner `i`'s forwarded nullifiers, read off the wiring. -/
-def nullChunk (a : Assignment p) : Fin 4 → List Digest
+noncomputable def nullChunk (a : Assignment p) : Fin 4 → List Digest
   | 0 => [⟨(a (.wire 21 7)).val, (a (.wire 21 15)).val, (a (.wire 21 23)).val, (a (.wire 21 31)).val⟩,
       ⟨(a (.wire 21 39)).val, (a (.wire 21 47)).val, (a (.wire 21 55)).val, (a (.wire 21 63)).val⟩]
   | 1 => [⟨(a (.wire 21 71)).val, (a (.wire 21 79)).val, (a (.wire 22 7)).val, (a (.wire 22 15)).val⟩,
@@ -134,7 +134,7 @@ def nullChunk (a : Assignment p) : Fin 4 → List Digest
 /-- The aggregated output at the public-batch layout: `[aggregator_address(4), asset_id,
     volume_fee_bps, block_hash(4), block_number, total_exit_slots]`, `4 · 2` forwarded exit
     slots `[sum, account(4)]`, `4 · 2` forwarded nullifiers. -/
-def out (a : Assignment p) : PublicBatchOutput :=
+noncomputable def out (a : Assignment p) : PublicBatchOutput :=
   { aggregatorAddress := ⟨pv a 0, pv a 1, pv a 2, pv a 3⟩, assetId := pv a 4, volumeFeeBps := pv a 5,
     blockHash := ⟨pv a 6, pv a 7, pv a 8, pv a 9⟩, blockNumber := pv a 10, totalExitSlots := pv a 11,
     exitSlots := exitChunk a 0 ++ (exitChunk a 1 ++ (exitChunk a 2 ++ (exitChunk a 3 ++ ([])))),
@@ -232,7 +232,7 @@ theorem nullChunk_eq_3 (a : Assignment p) (h : Satisfies (publicBatchWrapper4 p)
   rfl
 
 /-- The take wire of inner `i` (`is_real` for inner 0, where the scan folds). -/
-def takeWire : Fin 4 → Target
+noncomputable def takeWire : Fin 4 → Target
   | 0 => .wire 4 51
   | 1 => .wire 5 35
   | 2 => .wire 5 39
@@ -760,7 +760,7 @@ theorem sound (ro : RandomOracle) (hpg : WormholeSpec.goldilocks ≤ p)
 
 /-- The wrapper with its recursion gadgets: `verify_proof` under the `2`-leaf private-batch
     verifier key on each `inner_pis_i`. -/
-def tree : Recursive p :=
+noncomputable def tree : Recursive p :=
   .node "public_batch_wrapper_n4" (publicBatchWrapper4 p)
     [(Wrapper2.tree, List.ofFn (innerPis 0)),
      (Wrapper2.tree, List.ofFn (innerPis 1)),
