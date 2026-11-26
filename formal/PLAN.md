@@ -1566,8 +1566,11 @@ meantime. Nothing in the axiom's statement changes: it is an implication on the 
   is `≈ 2^{-106}` there and cannot move; the proof-system hash is `128` bits. Errors
   add, so the system's soundness is the minimum over all of them: about `77` bits on
   the public batch under either FRI conjecture, set by `β, γ`, and about `71` bits of
-  classical work proved (`≈ 61` quantum, Grover on the grinding), set by FRI with
-  `β, γ` next at `77`. More FRI queries alone therefore restore nothing above `77`;
+  classical work proved, set by FRI with `β, γ` next at `77`. These are classical
+  figures; no quantum (QROM) bound is claimed here, since quantum search applies to the
+  Fiat–Shamir challenges as well as the grinding (Block et al., "Fiat-Shamir Security
+  of FRI", ePrint 2023/1071, Cor. 4.3). More FRI queries alone therefore restore
+  nothing above `77`;
   qp-zk-circuits#219 raises `num_challenges` to `3` on the leaf and private batch and
   `4` on the public batch (`150`, `129`, `152` bits), after which the public batch is
   capped by `ζ` at `≈ 106` under either conjecture (the revised FRI term, `110`–`118`,
