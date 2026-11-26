@@ -778,11 +778,11 @@ pub fn render(shape: &Shape, exported_constants: usize) -> String {
     w!("  is restated on the wiring (`end_to_end_wired`), with the children's `Rleaf` recovered from");
     w!("  their accepted proofs through `proof_sound` and the leaf bridge");
     w!("  (Step 10). `accepted_sound` is the wrapper's own `proof_sound` consequence, on its");
-    w!("  certified build (`Plonky2Bridge/PrivateWrapperBuild.lean`), for the public-batch");
+    w!("  certified build (`Plonky2Bridge/PrivateWrapperBuild/Wrapper{n}.lean`), for the public-batch");
     w!("  wrapper above it.");
     w!("-/");
     w!("import Plonky2Bridge.PrivateBatch");
-    w!("import Plonky2Bridge.PrivateWrapperBuild");
+    w!("import Plonky2Bridge.PrivateWrapperBuild.Wrapper{n}");
     w!("import Plonky2Bridge.Generated.Leaf");
     w!("import Plonky2Spec.Generated.PrivateBatchWrapper{n}");
     w!("");

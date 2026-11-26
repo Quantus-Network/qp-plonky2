@@ -18,12 +18,13 @@
 # few of them evict everything else under the repository's 10 GB cap. A change to a module
 # everything imports (`Plonky2Spec/Wiring.lean`) still pays a cold build, once.
 #
-# The production public wrapper (`Plonky2BridgeProduction`, `n_inner = 89`) is most of a
-# cold build — some 20,000 generated gadget-fact theorems and 89 forwarding modules — and
-# is built only with `full`: `ci.yml` sets it on pushes to `main` and on pull requests
-# carrying `release-proposal` or `formal-full`; `formal-full.yml` sets it when one of
-# those labels is added to an open pull request. Every pull request builds the
-# `n_inner = 2` and `4` shapes of the same capstone.
+# The production wrappers (`Plonky2BridgeProduction`: the `n_inner = 89` public wrapper,
+# some 20,000 generated gadget-fact theorems and 89 forwarding modules, and the 8-leaf
+# private wrapper, whose build certificate is over half of a cold build) are built only
+# with `full`: `ci.yml` sets it on pushes to `main` and on pull requests carrying
+# `release-proposal` or `formal-full`; `formal-full.yml` sets it when one of those labels
+# is added to an open pull request. Every pull request builds the `n_inner = 2` and `4`
+# and `n = 2` and `4` shapes of the same capstones.
 name: Formal
 
 on:
@@ -226,32 +227,32 @@ jobs:
           expect Plonky2Bridge.Built.Agrees.hashesPublicInputs propext Quot.sound
           expect Plonky2Bridge.LeafCircuit.build_hashes_of_agrees propext Quot.sound
           expect Plonky2Bridge.LeafCircuit.build_hashes propext Quot.sound "${leaf_cert[@]}"
-          for n in 2 4 8; do
+          wrapper_sizes=(2 4)
+          if [ "$FORMAL_FULL" = true ]; then
+            wrapper_sizes+=(8)
+          fi
+          for n in "${wrapper_sizes[@]}"; do
             expect Plonky2Bridge.Wrapper$n.build_refines_of_agrees propext Quot.sound
             expect Plonky2Bridge.Wrapper$n.build_hashes_of_agrees propext Quot.sound
             expect Plonky2Bridge.Wrapper$n.build_refines propext Quot.sound Plonky2Bridge.Wrapper$n.build_agrees
             expect Plonky2Bridge.Wrapper$n.build_hashes propext Quot.sound Plonky2Bridge.Wrapper$n.build_agrees
             expect Plonky2Bridge.Wrapper$n.build_complete propext Quot.sound Plonky2Bridge.Wrapper$n.build_agrees
+            expect Plonky2Bridge.Wrapper$n.sound "${base[@]}"
+            expect Plonky2Bridge.Wrapper$n.accepted_sound "${base[@]}" "${wrapper_trusted[@]}" Plonky2Bridge.Wrapper$n.build_agrees
           done
           expect Plonky2Bridge.private_batch_end_to_end "${base[@]}"
           expect Plonky2Bridge.public_batch_end_to_end "${base[@]}"
           expect Plonky2Bridge.private_batch_end_to_end_wired "${base[@]}" "${leaf_trusted[@]}" "${leaf_cert[@]}"
           expect Plonky2Bridge.private_batch_end_to_end_wired_n4 "${base[@]}" "${leaf_trusted[@]}" "${leaf_cert[@]}"
-          expect Plonky2Bridge.private_batch_end_to_end_wired_production "${base[@]}" "${leaf_trusted[@]}" "${leaf_cert[@]}"
           expect Plonky2Bridge.public_batch_end_to_end_wired "${base[@]}" "${wrapper_trusted[@]}" Plonky2Bridge.Wrapper2.build_agrees
           expect Plonky2Bridge.public_batch_end_to_end_wired_n4 "${base[@]}" "${wrapper_trusted[@]}" Plonky2Bridge.Wrapper2.build_agrees
           expect Plonky2Bridge.LeafCircuit.accepted_sound "${base[@]}" "${leaf_trusted[@]}" "${leaf_cert[@]}"
-          expect Plonky2Bridge.Wrapper2.accepted_sound "${base[@]}" "${wrapper_trusted[@]}" Plonky2Bridge.Wrapper2.build_agrees
-          expect Plonky2Bridge.Wrapper4.accepted_sound "${base[@]}" "${wrapper_trusted[@]}" Plonky2Bridge.Wrapper4.build_agrees
-          expect Plonky2Bridge.Wrapper8.accepted_sound "${base[@]}" "${wrapper_trusted[@]}" Plonky2Bridge.Wrapper8.build_agrees
-          expect Plonky2Bridge.Wrapper2.sound "${base[@]}"
-          expect Plonky2Bridge.Wrapper4.sound "${base[@]}"
-          expect Plonky2Bridge.Wrapper8.sound "${base[@]}"
           expect Plonky2Bridge.PublicWrapper2.sound "${base[@]}"
           expect Plonky2Bridge.PublicWrapper4.sound "${base[@]}"
           expect Plonky2Bridge.leaf_wired "${base[@]}"
           expect Plonky2Bridge.LeafCircuit.sound "${base[@]}"
           if [ "$FORMAL_FULL" = true ]; then
+            expect Plonky2Bridge.private_batch_end_to_end_wired_production "${base[@]}" "${leaf_trusted[@]}" "${leaf_cert[@]}"
             expect Plonky2Bridge.public_batch_end_to_end_wired_production "${base[@]}" "${wrapper_trusted[@]}" Plonky2Bridge.Wrapper8.build_agrees
             expect Plonky2Bridge.PublicWrapper89.sound "${base[@]}"
           fi

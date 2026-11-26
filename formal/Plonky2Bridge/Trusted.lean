@@ -35,7 +35,7 @@
     proves `Built.Refines` from it and kernel-evaluated checks of the certificate against
     the export. `verifier_algebra` and `proof_sound` take the refinement and the
     completeness as hypotheses, which every traced circuit supplies from its certificate
-    (`Plonky2Bridge/LeafBuild.lean`, `PrivateWrapperBuild.lean`): nothing is declared of
+    (`Plonky2Bridge/LeafBuild.lean`, `PrivateWrapperBuild/Wrapper{n}.lean`): nothing is declared of
     `build` for every circuit. `proof_sound_leaf` is the instance for a certified circuit
     with no children, without the child obligation in its footprint.
   * The public-input hash (Steps 17, 18). `Built.HashesPublicInputs` is the in-circuit

@@ -12,11 +12,11 @@
   is restated on the wiring (`end_to_end_wired`), with the children's `Rleaf` recovered from
   their accepted proofs through `proof_sound` and the leaf bridge
   (Step 10). `accepted_sound` is the wrapper's own `proof_sound` consequence, on its
-  certified build (`Plonky2Bridge/PrivateWrapperBuild.lean`), for the public-batch
+  certified build (`Plonky2Bridge/PrivateWrapperBuild/Wrapper2.lean`), for the public-batch
   wrapper above it.
 -/
 import Plonky2Bridge.PrivateBatch
-import Plonky2Bridge.PrivateWrapperBuild
+import Plonky2Bridge.PrivateWrapperBuild.Wrapper2
 import Plonky2Bridge.Generated.Leaf
 import Plonky2Spec.Generated.PrivateBatchWrapper2
 
