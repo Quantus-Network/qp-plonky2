@@ -266,7 +266,7 @@ fn render_list(defs: &mut String, name: &str, field: &str, ty: &str, items: &[St
             for (k, r) in ranges.iter().enumerate() {
                 let _ = writeln!(
                     defs,
-                    "/-- `{name}.{field}`, items `{}..{}`. -/\ndef {name}.{field}{k}{binder} : List ({ty}) := {}\n",
+                    "/-- `{name}.{field}`, items `{}..{}`. -/\nnoncomputable def {name}.{field}{k}{binder} : List ({ty}) := {}\n",
                     r.start,
                     r.end,
                     flat(&items[r.clone()])
@@ -298,7 +298,7 @@ pub fn render_lean(name: &str, doc: &str, ex: &CircuitExport) -> String {
         out.push_str(&defs);
     }
     let _ = writeln!(out, "/-- {doc} -/");
-    let _ = writeln!(out, "def {name} (p : ℕ) : Circuit p where");
+    let _ = writeln!(out, "noncomputable def {name} (p : ℕ) : Circuit p where");
     out.push_str("  rows := [\n");
     for (i, (k, consts)) in ex.rows.iter().enumerate() {
         let cs: Vec<String> = consts.iter().map(|&c| lean_const(c)).collect();
@@ -351,7 +351,7 @@ pub fn render_lean(name: &str, doc: &str, ex: &CircuitExport) -> String {
         out,
         "/-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace\n    \
          name and the targets carrying its public inputs (`Recursive.children`). -/\n\
-         def {name}.verifiers : List (String × List Target) :=\n  [{}]\n",
+         noncomputable def {name}.verifiers : List (String × List Target) :=\n  [{}]\n",
         if verifiers.is_empty() {
             String::new()
         } else {

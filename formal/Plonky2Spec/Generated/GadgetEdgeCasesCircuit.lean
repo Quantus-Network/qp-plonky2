@@ -22,7 +22,7 @@ set_option linter.all false
 variable {p : ℕ} [Fact p.Prime]
 
 /-- Builder folding and re-pinning edge cases: `sum = add x y; connect sum zero`, `is_equal zero zero`, `is_equal one zero`, `is_equal x x`, `eq_xy = is_equal x y; diff = sub x y; check = mul eq_xy diff; connect check zero`; public inputs the four `equal` targets. -/
-def gadgetEdgeCases (p : ℕ) : Circuit p where
+noncomputable def gadgetEdgeCases (p : ℕ) : Circuit p where
   rows := [
     ⟨.arithmetic 20, [1, 1]⟩,  -- row 0
     ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 1
@@ -131,7 +131,7 @@ def gadgetEdgeCases.check : Target := .wire 2 11
 
 /-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
     name and the targets carrying its public inputs (`Recursive.children`). -/
-def gadgetEdgeCases.verifiers : List (String × List Target) :=
+noncomputable def gadgetEdgeCases.verifiers : List (String × List Target) :=
   []
 
 theorem gadgetEdgeCases_copies (a : Assignment p) (h : Satisfies (gadgetEdgeCases p) a) :
@@ -340,7 +340,7 @@ theorem gadgetEdgeCases_decode (a : Assignment p) (h : Satisfies (gadgetEdgeCase
   ⟨gadgetEdgeCases_f0 a h, gadgetEdgeCases_f1 a h, gadgetEdgeCases_f2 a h, gadgetEdgeCases_f3 a h, gadgetEdgeCases_f4 a h, gadgetEdgeCases_f5 a h, gadgetEdgeCases_f6 a h, gadgetEdgeCases_f7 a h, gadgetEdgeCases_f8 a h⟩
 
 /-- `sum = add x y; prod = mul sum one`: the product folds onto `sum`. -/
-def gadgetIdentityFold (p : ℕ) : Circuit p where
+noncomputable def gadgetIdentityFold (p : ℕ) : Circuit p where
   rows := [
     ⟨.arithmetic 20, [1, 1]⟩  -- row 0
   ]
@@ -373,7 +373,7 @@ def gadgetIdentityFold.prod : Target := .wire 0 3
 
 /-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
     name and the targets carrying its public inputs (`Recursive.children`). -/
-def gadgetIdentityFold.verifiers : List (String × List Target) :=
+noncomputable def gadgetIdentityFold.verifiers : List (String × List Target) :=
   []
 
 theorem gadgetIdentityFold_copies (a : Assignment p) (h : Satisfies (gadgetIdentityFold p) a) :
@@ -414,7 +414,7 @@ theorem gadgetIdentityFold_decode (a : Assignment p) (h : Satisfies (gadgetIdent
   ⟨gadgetIdentityFold_f0 a h, gadgetIdentityFold_f1 a h⟩
 
 /-- `diff = sub x y; eq = is_equal x y; connect diff zero`: `is_equal` reuses `diff`, which is then pinned to zero. -/
-def gadgetPinnedIntermediate (p : ℕ) : Circuit p where
+noncomputable def gadgetPinnedIntermediate (p : ℕ) : Circuit p where
   rows := [
     ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 0
     ⟨.arithmetic 20, [1, 0]⟩  -- row 1
@@ -463,7 +463,7 @@ def gadgetPinnedIntermediate.equal : Target := .virt 4
 
 /-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
     name and the targets carrying its public inputs (`Recursive.children`). -/
-def gadgetPinnedIntermediate.verifiers : List (String × List Target) :=
+noncomputable def gadgetPinnedIntermediate.verifiers : List (String × List Target) :=
   []
 
 theorem gadgetPinnedIntermediate_copies (a : Assignment p) (h : Satisfies (gadgetPinnedIntermediate p) a) :
@@ -547,7 +547,7 @@ theorem gadgetPinnedIntermediate_decode (a : Assignment p) (h : Satisfies (gadge
   ⟨gadgetPinnedIntermediate_f0 a h, gadgetPinnedIntermediate_f1 a h, gadgetPinnedIntermediate_f2 a h⟩
 
 /-- Constant folds that hold over `ℤ`: `nine = mul three three`, `eight = add three five`, `neg5 = sub zero five`. -/
-def gadgetConstantFold (p : ℕ) : Circuit p where
+noncomputable def gadgetConstantFold (p : ℕ) : Circuit p where
   rows := [
   ]
   copies := [
@@ -584,7 +584,7 @@ def gadgetConstantFold.neg5 : Target := .virt 6
 
 /-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
     name and the targets carrying its public inputs (`Recursive.children`). -/
-def gadgetConstantFold.verifiers : List (String × List Target) :=
+noncomputable def gadgetConstantFold.verifiers : List (String × List Target) :=
   []
 
 theorem gadgetConstantFold_consts (a : Assignment p) (h : Satisfies (gadgetConstantFold p) a) :
@@ -620,7 +620,7 @@ theorem gadgetConstantFold_decode (a : Assignment p) (h : Satisfies (gadgetConst
   ⟨gadgetConstantFold_f0 a h, gadgetConstantFold_f1 a h, gadgetConstantFold_f2 a h⟩
 
 /-- One recorded call, `sum = add x y`. -/
-def gadgetSingleFact (p : ℕ) : Circuit p where
+noncomputable def gadgetSingleFact (p : ℕ) : Circuit p where
   rows := [
     ⟨.arithmetic 20, [1, 1]⟩  -- row 0
   ]
@@ -647,7 +647,7 @@ def gadgetSingleFact.sum : Target := .wire 0 3
 
 /-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
     name and the targets carrying its public inputs (`Recursive.children`). -/
-def gadgetSingleFact.verifiers : List (String × List Target) :=
+noncomputable def gadgetSingleFact.verifiers : List (String × List Target) :=
   []
 
 theorem gadgetSingleFact_copies (a : Assignment p) (h : Satisfies (gadgetSingleFact p) a) :
@@ -681,7 +681,7 @@ theorem gadgetSingleFact_decode (a : Assignment p) (h : Satisfies (gadgetSingleF
   gadgetSingleFact_f0 a h
 
 /-- No recorded calls. -/
-def gadgetNoFacts (p : ℕ) : Circuit p where
+noncomputable def gadgetNoFacts (p : ℕ) : Circuit p where
   rows := [
   ]
   copies := [
@@ -699,7 +699,7 @@ def gadgetNoFacts.y : Target := .virt 1
 
 /-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
     name and the targets carrying its public inputs (`Recursive.children`). -/
-def gadgetNoFacts.verifiers : List (String × List Target) :=
+noncomputable def gadgetNoFacts.verifiers : List (String × List Target) :=
   []
 
 /-- Every satisfying assignment of `gadgetNoFacts` has the meaning of each recorded gadget call. Generated at gadget-call granularity; see `gadget.rs`. -/
@@ -707,7 +707,7 @@ theorem gadgetNoFacts_decode (a : Assignment p) (h : Satisfies (gadgetNoFacts p)
   trivial
 
 /-- `FACT_GROUP + 1` recorded calls (`connect x y` repeated): the last fact group of the decode theorem is a single fact. -/
-def gadgetFactGroupBoundary (p : ℕ) : Circuit p where
+noncomputable def gadgetFactGroupBoundary (p : ℕ) : Circuit p where
   rows := [
   ]
   copies := [
@@ -758,7 +758,7 @@ def gadgetFactGroupBoundary.y : Target := .virt 1
 
 /-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
     name and the targets carrying its public inputs (`Recursive.children`). -/
-def gadgetFactGroupBoundary.verifiers : List (String × List Target) :=
+noncomputable def gadgetFactGroupBoundary.verifiers : List (String × List Target) :=
   []
 
 theorem gadgetFactGroupBoundary_copies (a : Assignment p) (h : Satisfies (gadgetFactGroupBoundary p) a) :

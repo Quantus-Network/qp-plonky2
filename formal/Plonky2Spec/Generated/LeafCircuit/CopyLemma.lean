@@ -145,7 +145,7 @@ def leafCircuit.header_digest : Fin 28 → Target :=
 
 /-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
     name and the targets carrying its public inputs (`Recursive.children`). -/
-def leafCircuit.verifiers : List (String × List Target) :=
+noncomputable def leafCircuit.verifiers : List (String × List Target) :=
   []
 
 theorem leafCircuit_copies0 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :

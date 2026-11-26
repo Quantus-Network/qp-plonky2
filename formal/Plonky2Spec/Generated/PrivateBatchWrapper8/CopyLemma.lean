@@ -322,7 +322,7 @@ def privateBatchWrapper8.dummy_pre_image_7 : Fin 4 → Target :=
 
 /-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
     name and the targets carrying its public inputs (`Recursive.children`). -/
-def privateBatchWrapper8.verifiers : List (String × List Target) :=
+noncomputable def privateBatchWrapper8.verifiers : List (String × List Target) :=
   [
     ("leaf_circuit", [.virt 0, .virt 1, .virt 2, .virt 3, .virt 4, .virt 5, .virt 6, .virt 7, .virt 8, .virt 9, .virt 10]),
     ("leaf_circuit", [.virt 13, .virt 14, .virt 15, .virt 16, .virt 17, .virt 18, .virt 19, .virt 20, .virt 21, .virt 22, .virt 23]),

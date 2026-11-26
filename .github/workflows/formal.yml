@@ -9,14 +9,12 @@
 # `*_lean_is_current` tests fail if the Rust gates drift from the checked-in Lean. `scope`
 # skips the Lean job for such pull requests (a skipped job satisfies a required check).
 #
-# The package's own `.lake/build` is cached between runs (mathlib's comes from
-# `lake exe cache get`). Lake rebuilds by content hash, so a restored cache skips every
-# module whose sources are unchanged; the key is exact on the sources, with a fallback to
-# the most recent cache for the same toolchain and manifest — on a pull request, `main`'s,
-# since a branch sees only its own entries and `main`'s. This is the only cache the job
-# writes: `lean-action`'s own, keyed by commit and 3 GB a piece, is turned off because a
-# few of them evict everything else under the repository's 10 GB cap. A change to a module
-# everything imports (`Plonky2Spec/Wiring.lean`) still pays a cold build, once.
+# Nothing of the package's own build is cached between runs; only mathlib's `.olean`s are
+# fetched (`lake exe cache get`). Every run is a cold build, and the generated data
+# definitions are `noncomputable` so that it fits the runner: Lean's compiler on a
+# `def` holding a 10^5-entry table costs more time than the proofs that use it and
+# 20× its `.olean` size, and nothing executes those definitions (the proofs are
+# `decide +kernel` and `rfl`, which the kernel reduces itself).
 #
 # The production wrappers (`Plonky2BridgeProduction`: the `n_inner = 89` public wrapper,
 # some 20,000 generated gadget-fact theorems and 89 forwarding modules, and the 8-leaf
@@ -75,16 +73,6 @@ jobs:
       FORMAL_FULL: ${{ inputs.full }}
     steps:
       - uses: actions/checkout@v4
-      - name: Restore Lean build cache
-        id: lean-cache
-        uses: actions/cache/restore@v4
-        with:
-          path: |
-            formal/.lake/build
-            formal/.lake/packages/wormholeSpec/formal/.lake/build
-          key: lean-${{ runner.os }}-${{ hashFiles('formal/lean-toolchain', 'formal/lake-manifest.json') }}-${{ hashFiles('formal/**/*.lean') }}
-          restore-keys: |
-            lean-${{ runner.os }}-${{ hashFiles('formal/lean-toolchain', 'formal/lake-manifest.json') }}-
       # Builds the Lean 4 gadget→constraint model under `formal/` (see formal/PLAN.md).
       # `lake build` type-checks every proof in the kernel, so a later edit that
       # breaks a proof fails CI instead of rotting silently. elan/lake come from
@@ -126,16 +114,6 @@ jobs:
       - name: Build Plonky2BridgeProduction (n_inner = 89)
         if: env.FORMAL_FULL == 'true'
         run: cd formal && lake build Plonky2BridgeProduction
-      # Save whatever was built, even after a failure, so the next run resumes from it.
-      # An exact hit needs no save; a save on an existing key is a no-op with a warning.
-      - name: Save Lean build cache
-        if: always() && steps.lean-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            formal/.lake/build
-            formal/.lake/packages/wormholeSpec/formal/.lake/build
-          key: ${{ steps.lean-cache.outputs.cache-primary-key }}
       # The exporter's `Generated/*Wrapper*.lean` are produced from the vendored copies of
       # the qp-zk-circuits gadget-call traces in `constraint-exporter/traces/`. The only job
       # with the pinned `wormholeSpec` package on disk is this one (after `lake build`), so

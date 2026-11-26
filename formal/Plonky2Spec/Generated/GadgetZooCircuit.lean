@@ -22,7 +22,7 @@ set_option linter.all false
 variable {p : ℕ} [Fact p.Prime]
 
 /-- `gadgetZoo.copies`, items `0..32`. -/
-def gadgetZoo.copies0 : List (Target × Target) := [
+noncomputable def gadgetZoo.copies0 : List (Target × Target) := [
     (.virt 3, .wire 0 0),
     (.virt 3, .wire 0 1),
     (.virt 3, .wire 0 2),
@@ -58,7 +58,7 @@ def gadgetZoo.copies0 : List (Target × Target) := [
   ]
 
 /-- `gadgetZoo.copies`, items `32..64`. -/
-def gadgetZoo.copies1 : List (Target × Target) := [
+noncomputable def gadgetZoo.copies1 : List (Target × Target) := [
     (.virt 3, .wire 3 2),
     (.virt 6, .wire 0 24),
     (.virt 6, .wire 0 25),
@@ -94,7 +94,7 @@ def gadgetZoo.copies1 : List (Target × Target) := [
   ]
 
 /-- `gadgetZoo.copies`, items `64..93`. -/
-def gadgetZoo.copies2 : List (Target × Target) := [
+noncomputable def gadgetZoo.copies2 : List (Target × Target) := [
     (.wire 4 37, .virt 4),
     (.wire 4 38, .virt 4),
     (.wire 4 39, .virt 4),
@@ -127,7 +127,7 @@ def gadgetZoo.copies2 : List (Target × Target) := [
   ]
 
 /-- The gadget zoo: `assert_bool flag`, `eq = is_equal x y`, `sel = select flag x y`, `either = or eq flag`, `nflag = not flag`, `both = and eq nflag`, `head = sub 10000 fee`, `range_check head 14`, `connect sel either`; public inputs `x`, `sel`, `both`. -/
-def gadgetZoo (p : ℕ) : Circuit p where
+noncomputable def gadgetZoo (p : ℕ) : Circuit p where
   rows := [
     ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 0
     ⟨.arithmetic 20, [1, 0]⟩,  -- row 1
@@ -171,7 +171,7 @@ def gadgetZoo.head : Target := .wire 0 31
 
 /-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
     name and the targets carrying its public inputs (`Recursive.children`). -/
-def gadgetZoo.verifiers : List (String × List Target) :=
+noncomputable def gadgetZoo.verifiers : List (String × List Target) :=
   []
 
 theorem gadgetZoo_copies0 (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
