@@ -4,12 +4,19 @@
 # lake-manifest.json), the vendored-trace check, and the axiom-footprint gate. The bridge
 # build reuses the spec's `.olean`s, so one job is half the CPU of two.
 #
+# A pull request that leaves `formal/`, the vendored traces and this file as they are at
+# its merge base has nothing for Lean to check: `main` built that tree, and the cargo job's
+# `*_lean_is_current` tests fail if the Rust gates drift from the checked-in Lean. `scope`
+# skips the Lean job for such pull requests (a skipped job satisfies a required check).
+#
 # The package's own `.lake/build` is cached between runs (mathlib's comes from
 # `lake exe cache get`). Lake rebuilds by content hash, so a restored cache skips every
 # module whose sources are unchanged; the key is exact on the sources, with a fallback to
-# the most recent cache for the same toolchain and manifest — on a pull request, `main`'s.
-# A change to a module everything imports (`Plonky2Spec/Wiring.lean`) still pays a cold
-# build, once.
+# the most recent cache for the same toolchain and manifest — on a pull request, `main`'s,
+# since a branch sees only its own entries and `main`'s. This is the only cache the job
+# writes: `lean-action`'s own, keyed by commit and 3 GB a piece, is turned off because a
+# few of them evict everything else under the repository's 10 GB cap. A change to a module
+# everything imports (`Plonky2Spec/Wiring.lean`) still pays a cold build, once.
 #
 # The production public wrapper (`Plonky2BridgeProduction`, `n_inner = 89`) is most of a
 # cold build — some 20,000 generated gadget-fact theorems and 89 forwarding modules — and
@@ -28,8 +35,39 @@ on:
         type: boolean
 
 jobs:
+  scope:
+    name: Scope
+    runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.scope.outputs.build }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: scope
+        env:
+          FULL: ${{ inputs.full }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          if [ "$FULL" = true ] || [ "$GITHUB_EVENT_NAME" != pull_request ]; then
+            echo build=true >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          merge_base=$(git merge-base "origin/$BASE_REF" "$HEAD_SHA")
+          if git diff --quiet "$merge_base" "$HEAD_SHA" -- \
+              formal constraint-exporter/traces .github/workflows/formal.yml; then
+            echo "formal inputs are those of $merge_base, which main has built; nothing to check"
+            echo build=false >> "$GITHUB_OUTPUT"
+          else
+            echo build=true >> "$GITHUB_OUTPUT"
+          fi
+
   formal:
     name: Lean
+    needs: scope
+    if: needs.scope.outputs.build == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 240
     env:
@@ -61,6 +99,7 @@ jobs:
         with:
           lake-package-directory: "formal"
           use-mathlib-cache: "true"
+          use-github-cache: "false"
           leanchecker: "true"
       # No-`sorry` gate: the model must stay gap-free. Fail if any proof term uses a
       # `sorry`/`admit`/`sorryAx` placeholder. Exclude `.lake/` — after `lake build`
