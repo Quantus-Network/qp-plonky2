@@ -313,6 +313,17 @@ fn simple_circuit_data() -> plonky2::plonk::circuit_data::CircuitData<F, C, D> {
     builder.build::<C>()
 }
 
+/// Proofs built in memory (or via serde) skip `from_bytes`, so the verifier's own shape checks
+/// must return an error, not panic, on a cap whose length is not a power of two.
+#[test]
+fn short_cap_rejected_not_panicking() -> anyhow::Result<()> {
+    let data = simple_circuit_data();
+    let mut proof = data.prove(PartialWitness::new())?;
+    proof.proof.wires_cap.0.pop();
+    assert!(data.verify(proof).is_err());
+    Ok(())
+}
+
 #[test]
 fn malformed_fft_root_table_rejected() {
     let mut data = simple_circuit_data();

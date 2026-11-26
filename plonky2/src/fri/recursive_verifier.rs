@@ -10,7 +10,11 @@ use crate::fri::proof::{
 };
 use crate::fri::structure::{
     FriBatchInfoTarget, FriCoefficientTarget, FriInstanceInfoTarget, FriOpeningExpressionTarget,
-    FriOpeningsTarget,
+    FriOpeningsTarget, FriOracleInfo,
+};
+use crate::fri::validate_shape::{
+    check_fri_proof_counts, check_fri_verifier_input_counts, checked_leaf_layouts,
+    per_batch_counts, BatchLeafLayout,
 };
 use crate::fri::{FriConfig, FriParams};
 use crate::gates::coset_interpolation::CosetInterpolationGate;
@@ -24,6 +28,72 @@ use crate::plonk::config::{AlgebraicHasher, GenericConfig};
 use crate::util::reducing::ReducingFactorTarget;
 use crate::util::{log2_strict, reverse_index_bits_in_place};
 use crate::with_context;
+
+/// Checks the list lengths the recursive verifier zips together and the leaf shapes it reads by
+/// position, as `validate_batch_fri_proof_shape` and `validate_fri_verifier_inputs` do natively,
+/// and returns the per-oracle leaf layouts. A short list or a misshapen leaf would silently leave
+/// part of the inner proof unverified. Merkle depths, step arities and cap sizes are not checked:
+/// they come from `add_virtual_fri_proof`, and the circuit would not build without them. Shapes
+/// are fixed at build time, so a mismatch is a construction error.
+pub(crate) fn assert_fri_verifier_target_shape<F: RichField + Extendable<D>, const D: usize>(
+    instances: &[FriInstanceInfoTarget<F, D>],
+    openings: &[FriOpeningsTarget<D>],
+    challenges: &FriChallengesTarget<D>,
+    initial_merkle_caps: &[MerkleCapTarget],
+    proof: &FriProofTarget<D>,
+    params: &FriParams,
+) -> Vec<BatchLeafLayout> {
+    let oracles_per_instance: Vec<&[FriOracleInfo]> = instances
+        .iter()
+        .map(|inst| inst.oracles.as_slice())
+        .collect();
+    let opened_polynomials = instances
+        .iter()
+        .flat_map(|inst| &inst.batches)
+        .flat_map(|batch| &batch.openings)
+        .flat_map(|expression| &expression.terms)
+        .map(|term| &term.polynomial);
+    let layouts = checked_leaf_layouts(
+        &oracles_per_instance,
+        opened_polynomials,
+        params.leaf_hiding,
+    )
+    .unwrap_or_else(|error| panic!("{error}"));
+    for query_round in &proof.query_round_proofs {
+        let leaves = &query_round.initial_trees_proof.evals_proofs;
+        assert_eq!(leaves.len(), layouts.len(), "FRI oracle count mismatch");
+        for ((leaf, _merkle_proof), layout) in leaves.iter().zip(&layouts) {
+            assert_eq!(leaf.len(), layout.leaf_len(), "FRI leaf length mismatch");
+        }
+    }
+
+    check_fri_proof_counts(
+        proof.commit_phase_merkle_caps.len(),
+        proof.query_round_proofs.len(),
+        params,
+    )
+    .and_then(|()| {
+        check_fri_verifier_input_counts(
+            layouts.len(),
+            initial_merkle_caps.len(),
+            challenges.fri_betas.len(),
+            challenges.fri_query_indices.len(),
+            &per_batch_counts(
+                instances,
+                |inst| &inst.batches,
+                |batch| batch.openings.len(),
+            ),
+            &per_batch_counts(
+                openings,
+                |opening| &opening.batches,
+                |batch| batch.values.len(),
+            ),
+            params,
+        )
+    })
+    .unwrap_or_else(|error| panic!("{error}"));
+    layouts
+}
 
 impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     /// Computes P'(x^arity) from {P(x*g^i)}_(i=0..arity), where g is a `arity`-th root of unity
@@ -123,10 +193,18 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             self.check_recursion_config(max_arity_bits);
         }
 
-        debug_assert_eq!(
+        assert_eq!(
             params.final_poly_len(),
             proof.final_poly.0.len(),
             "Final polynomial has wrong length."
+        );
+        assert_fri_verifier_target_shape(
+            core::slice::from_ref(instance),
+            core::slice::from_ref(openings),
+            challenges,
+            initial_merkle_caps,
+            proof,
+            params,
         );
 
         // Size of the LDE domain.
@@ -136,13 +214,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             self,
             "check PoW",
             self.fri_verify_proof_of_work(challenges.fri_pow_response, &params.config)
-        );
-
-        // Check that parameters are coherent.
-        debug_assert_eq!(
-            params.config.num_query_rounds,
-            proof.query_round_proofs.len(),
-            "Number of query rounds does not match config."
         );
 
         let precomputed_reduced_evals = with_context!(
@@ -570,5 +641,80 @@ impl<const D: usize> PrecomputedReducedOpeningsTarget<D> {
         Self {
             reduced_openings_at_point,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::field::types::Field;
+    use crate::fri::proof::FriChallengesTarget;
+    use crate::iop::witness::PartialWitness;
+    use crate::plonk::circuit_data::CircuitConfig;
+    use crate::plonk::config::PoseidonGoldilocksConfig;
+
+    const D: usize = 2;
+    type C = PoseidonGoldilocksConfig;
+    type F = <C as GenericConfig<D>>::F;
+
+    /// The recursive verifier zips caller-supplied target lists against the proof target, so a
+    /// short list is a construction error that must stop the build, not a circuit that silently
+    /// skips part of the inner proof.
+    #[test]
+    #[should_panic(expected = "Number of initial Merkle caps does not match the oracle count")]
+    fn short_initial_cap_list_stops_the_build() {
+        let inner = {
+            let mut builder =
+                CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+            let one = builder.one();
+            builder.register_public_input(one);
+            builder.build::<C>()
+        };
+        let inner_proof = inner.prove(PartialWitness::new()).unwrap();
+        let challenges = inner_proof
+            .get_challenges(
+                inner_proof.get_public_inputs_hash(),
+                &inner.verifier_only.circuit_digest,
+                &inner.common,
+            )
+            .unwrap();
+
+        let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+        let proof_target = builder.add_virtual_proof_with_pis(&inner.common);
+        let zeta = builder.constant_extension(challenges.plonk_zeta);
+        let instance = inner.common.get_fri_instance_target(&mut builder, zeta);
+        let openings = proof_target.proof.openings.to_fri_openings();
+        let fri_challenges = FriChallengesTarget {
+            fri_alpha: builder.constant_extension(challenges.fri_challenges.fri_alpha),
+            fri_betas: challenges
+                .fri_challenges
+                .fri_betas
+                .iter()
+                .map(|&beta| builder.constant_extension(beta))
+                .collect(),
+            fri_pow_response: builder.constant(challenges.fri_challenges.fri_pow_response),
+            fri_query_indices: challenges
+                .fri_challenges
+                .fri_query_indices
+                .iter()
+                .map(|&index| builder.constant(F::from_canonical_usize(index)))
+                .collect(),
+        };
+        let cap_height = inner.common.fri_params.config.cap_height;
+        // Three caps for four oracles.
+        let initial_merkle_caps = [
+            builder.add_virtual_cap(cap_height),
+            proof_target.proof.wires_cap.clone(),
+            proof_target.proof.plonk_zs_partial_products_cap.clone(),
+        ];
+
+        builder.verify_fri_proof::<C>(
+            &instance,
+            &openings,
+            &fri_challenges,
+            &initial_merkle_caps,
+            &proof_target.proof.opening_proof,
+            &inner.common.fri_params,
+        );
     }
 }

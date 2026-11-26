@@ -322,8 +322,6 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         oracles: &[&Self],
         challenger: &mut Challenger<F, C::Hasher>,
         fri_params: &FriParams,
-        final_poly_coeff_len: Option<usize>,
-        max_num_query_steps: Option<usize>,
         timing: &mut TimingTree,
     ) -> FriProof<F, C::Hasher, D> {
         let final_poly_coeffs =
@@ -351,8 +349,6 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
             lde_values,
             challenger,
             fri_params,
-            final_poly_coeff_len,
-            max_num_query_steps,
             timing,
         )
     }
@@ -463,8 +459,6 @@ mod tests {
             proof.pow_witness,
             fri_params.degree_bits,
             &fri_params.config,
-            None,
-            None,
         )
     }
 
@@ -483,8 +477,6 @@ mod tests {
             &[&oracle],
             &mut prover_challenger,
             &fri_params,
-            None,
-            None,
             &mut timing,
         );
         let fri_challenges = compute_fri_challenges(&oracle, &openings, &proof, &fri_params);
