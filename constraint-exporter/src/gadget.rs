@@ -923,6 +923,8 @@ fn chunk_mem(n: usize, k: usize) -> String {
 
 /// Facts per parenthesised group in a decode theorem's conclusion.
 pub const FACT_GROUP: usize = 32;
+/// Facts per part theorem of a decode theorem with more facts than this.
+const DECODE_PART: usize = 1024;
 /// Heartbeat budget for decode theorems with more than one fact group.
 const LARGE_HEARTBEATS: usize = 4_000_000;
 /// Heartbeat budget for a production-sized decode (tens of thousands of facts).
@@ -1193,33 +1195,11 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
         out.push('\n');
     }
 
-    // The conjunction, grouped `FACT_GROUP` to a parenthesised conjunction: a flat `∧`
-    // chain hundreds deep is superlinear to elaborate.
-    if facts.len() > 4_000 {
-        let _ = writeln!(out, "set_option maxHeartbeats {HUGE_HEARTBEATS} in");
-    } else if facts.len() > FACT_GROUP {
-        let _ = writeln!(out, "set_option maxHeartbeats {LARGE_HEARTBEATS} in");
-    }
-    let _ = writeln!(out, "{doc}");
-    let groups: Vec<&[String]> = facts.chunks(FACT_GROUP).collect();
-    let _ = writeln!(out, "theorem {name}_decode {} :", hyps(sponge));
-    for (g, group) in groups.iter().enumerate() {
-        let (open, close) = if groups.len() > 1 {
-            ("(", ")")
-        } else {
-            ("", "")
-        };
-        for (i, f) in group.iter().enumerate() {
-            let pre = if i == 0 { open } else { "" };
-            let sep = match (i + 1 == group.len(), g + 1 == groups.len()) {
-                (false, _) => " ∧",
-                (true, false) => &*format!("{close} ∧"),
-                (true, true) => &*format!("{close} :="),
-            };
-            let _ = writeln!(out, "    {pre}{f}{sep}");
-        }
-    }
-    let fs: Vec<String> = calls
+    // The conjunction, `FACT_GROUP` facts to a parenthesised group: a flat `∧` chain
+    // hundreds deep is superlinear to elaborate. Past `DECODE_PART` facts the groups are
+    // proved a part at a time: one declaration naming every fact takes minutes to index
+    // (`.ilean`) where the same facts over twenty take seconds.
+    let proofs: Vec<String> = calls
         .iter()
         .enumerate()
         .map(|(i, c)| {
@@ -1230,21 +1210,102 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
             }
         })
         .collect();
-    if let [f0] = &fs[..] {
-        let _ = writeln!(out, "  {f0}");
-    } else if fs.len() <= FACT_GROUP {
-        let _ = writeln!(out, "  ⟨{}⟩", fs.join(", "));
-    } else {
-        let gs: Vec<String> = fs
-            .chunks(FACT_GROUP)
-            .map(|g| match g {
-                [f] => f.clone(),
-                _ => format!("⟨{}⟩", g.join(", ")),
-            })
-            .collect();
-        let _ = writeln!(out, "  ⟨{}⟩", gs.join(", "));
+    let budget = |n: usize| -> String {
+        if n > 4_000 {
+            format!("set_option maxHeartbeats {HUGE_HEARTBEATS} in\n")
+        } else if n > FACT_GROUP {
+            format!("set_option maxHeartbeats {LARGE_HEARTBEATS} in\n")
+        } else {
+            String::new()
+        }
+    };
+    if facts.len() <= DECODE_PART {
+        let _ = write!(
+            out,
+            "{}{doc}\ntheorem {name}_decode {} :\n{} :=\n  {}\n",
+            budget(facts.len()),
+            hyps(sponge),
+            grouped_conjunction(&facts),
+            grouped_constructor(&proofs)
+        );
+        return out;
     }
+    let parts: Vec<Range<usize>> = (0..facts.len())
+        .step_by(DECODE_PART)
+        .map(|lo| lo..(lo + DECODE_PART).min(facts.len()))
+        .collect();
+    let part_proofs: Vec<String> = parts
+        .iter()
+        .enumerate()
+        .map(|(k, r)| {
+            let poseidon = calls[r.clone()].iter().any(|c| c.fact.is_poseidon2());
+            let _ = write!(
+                out,
+                "{}theorem {name}_decode{k} {} :\n{} :=\n  {}\n\n",
+                budget(r.len()),
+                hyps(poseidon),
+                grouped_conjunction(&facts[r.clone()]),
+                grouped_constructor(&proofs[r.clone()])
+            );
+            if poseidon {
+                format!("{name}_decode{k} perm a h hp")
+            } else {
+                format!("{name}_decode{k} a h")
+            }
+        })
+        .collect();
+    let statement: Vec<String> = parts
+        .iter()
+        .map(|r| {
+            let conj = grouped_conjunction(&facts[r.clone()]);
+            format!("({})", conj.trim_start())
+        })
+        .collect();
+    let _ = write!(
+        out,
+        "{}{doc}\ntheorem {name}_decode {} :\n    {} :=\n  ⟨{}⟩\n",
+        budget(facts.len()),
+        hyps(sponge),
+        statement.join(" ∧\n    "),
+        part_proofs.join(", ")
+    );
     out
+}
+
+/// `facts` as a conjunction, `FACT_GROUP` to a parenthesised group, one fact per line.
+fn grouped_conjunction(facts: &[String]) -> String {
+    let groups: Vec<&[String]> = facts.chunks(FACT_GROUP).collect();
+    let (open, close) = if groups.len() > 1 {
+        ("(", ")")
+    } else {
+        ("", "")
+    };
+    let mut s = String::new();
+    for (g, group) in groups.iter().enumerate() {
+        for (i, f) in group.iter().enumerate() {
+            let pre = if i == 0 { open } else { "" };
+            let sep = match (i + 1 == group.len(), g + 1 == groups.len()) {
+                (false, _) => " ∧\n",
+                (true, false) => &*format!("{close} ∧\n"),
+                (true, true) => close,
+            };
+            let _ = write!(s, "    {pre}{f}{sep}");
+        }
+    }
+    s
+}
+
+/// The anonymous constructor proving `grouped_conjunction` from the facts' proofs.
+fn grouped_constructor(proofs: &[String]) -> String {
+    let tuple = |g: &[String]| match g {
+        [p] => p.clone(),
+        _ => format!("⟨{}⟩", g.join(", ")),
+    };
+    if proofs.len() <= FACT_GROUP {
+        return tuple(proofs);
+    }
+    let groups: Vec<String> = proofs.chunks(FACT_GROUP).map(tuple).collect();
+    format!("⟨{}⟩", groups.join(", "))
 }
 
 /// The tactic block closing one recorded call's fact, at two-space indentation, referring

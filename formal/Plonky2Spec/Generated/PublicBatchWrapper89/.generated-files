@@ -17,6 +17,10 @@ CopyLemma7.lean
 CopyLemma8.lean
 CopyLemma9.lean
 Decode.lean
+Decode0.lean
+Decode1.lean
+Decode2.lean
+DecodeAll.lean
 Fact.lean
 Fact0.lean
 Fact1.lean

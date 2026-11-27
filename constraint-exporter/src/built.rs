@@ -865,6 +865,9 @@ fn pos(u: (usize, usize)) -> String {
 /// Positions per chunk definition of a table.
 const TBL_CHUNK: usize = 256;
 
+/// `copies_linked` is combined from lemmas over at most this many copy chunks each.
+const LINKED_GROUP: usize = 512;
+
 /// A balanced `Tbl` literal over `leaves`.
 fn tbl_lit(leaves: &[String]) -> String {
     match leaves {
@@ -1330,14 +1333,35 @@ noncomputable def {name} : Tbl (ℕ × ℕ) := {expr}
                     )
                 }
             }
+            // The tree over the chunks, as a lemma per subtree of at most `LINKED_GROUP`
+            // chunks: a single declaration naming every chunk's check takes minutes to
+            // index (`.ilean`), where the same references over many take seconds.
+            fn linked_groups(o: &mut String, chunks: &str, lo: usize, hi: usize) -> String {
+                if hi - lo <= LINKED_GROUP {
+                    let _ = writeln!(
+                        o,
+                        "theorem linked_{lo} : ∀ xy ∈ {}, buildCert.Links xy.1 xy.2 :=\n  {}\n",
+                        crate::circuit::chunk_tree(chunks, "", lo, hi),
+                        linked(lo, hi)
+                    );
+                    return format!("linked_{lo}");
+                }
+                let mid = lo + (hi - lo) / 2;
+                format!(
+                    "(BuildCert.links_append {} {})",
+                    linked_groups(o, chunks, lo, mid),
+                    linked_groups(o, chunks, mid, hi)
+                )
+            }
+            let chunks = format!("{circuit_name}.copies");
+            let all_linked = linked_groups(&mut o, &chunks, 0, ranges.len());
             let _ = writeln!(
                 o,
                 "theorem copies_eq : ({circuit_name} p).copies = {} := rfl\n\n\
                  /-- Every copy of the export is linked in the certificate. -/\n\
                  theorem copies_linked : ∀ xy ∈ ({circuit_name} p).copies, buildCert.Links xy.1 xy.2 := by\n  \
-                 rw [copies_eq]\n  exact {}\n",
-                crate::circuit::chunk_tree(&format!("{circuit_name}.copies"), "", 0, ranges.len()),
-                linked(0, ranges.len())
+                 rw [copies_eq]\n  exact {all_linked}\n",
+                crate::circuit::chunk_tree(&chunks, "", 0, ranges.len())
             );
         }
     }
