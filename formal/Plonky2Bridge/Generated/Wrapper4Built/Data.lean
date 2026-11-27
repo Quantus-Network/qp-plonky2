@@ -26,4 +26,3 @@ import Plonky2Bridge.Generated.Wrapper4Built.Data19
 import Plonky2Bridge.Generated.Wrapper4Built.Data20
 import Plonky2Bridge.Generated.Wrapper4Built.Data21
 import Plonky2Bridge.Generated.Wrapper4Built.Data22
-import Plonky2Bridge.Generated.Wrapper4Built.Data23

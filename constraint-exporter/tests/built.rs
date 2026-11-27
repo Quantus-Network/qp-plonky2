@@ -6,7 +6,7 @@
 //! proofs a bridge consumes, the checked-in `Plonky2Bridge/Generated/*Built.lean` is what
 //! the exporter generates.
 //!
-//! The production public batch (`public_batch_wrapper_n89`) is a 2^19-row build whose
+//! The production public batch (`public_batch_wrapper_n86`) is a 2^19-row build whose
 //! replay needs more than 14 GB even without the `σ` commitment; its test is `#[ignore]`d
 //! (`cargo test --release -- --ignored`).
 
@@ -23,10 +23,10 @@ use plonky2::field::types::Field;
 /// The deployed leaf's `circuit_digest`: `WormholeCircuit::new(wormhole_leaf_circuit_config())
 /// .build_circuit()` in qp-zk-circuits over the published `qp-plonky2 1.6.0`.
 const LEAF_CIRCUIT_DIGEST: [u64; 4] = [
-    15101204307867406391,
-    4984110629781477994,
-    15964602978973519077,
-    1260699525966399192,
+    6052411223672614601,
+    4214351698844490910,
+    8847923367378525337,
+    1857083164786743061,
 ];
 
 #[test]
@@ -234,6 +234,6 @@ fn public_batch_wrapper_n4_certificate_agrees_with_build() {
 
 #[test]
 #[ignore = "the production public batch is 2^19 rows and over 14 GB; run with --release --ignored"]
-fn public_batch_wrapper_n89_certificate_agrees_with_build() {
-    check_wrapper("public_batch_wrapper_n89");
+fn public_batch_wrapper_n86_certificate_agrees_with_build() {
+    check_wrapper("public_batch_wrapper_n86");
 }

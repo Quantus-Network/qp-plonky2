@@ -33,8 +33,8 @@ use std::path::{Path, PathBuf};
 /// (`NUM_EXIT_SLOTS = 32`), read off the trace.
 const PRIVATE_WRAPPER_SIZES: [usize; 3] = [2, 4, 8];
 /// The public-batch wrapper arities with recorded traces. `n = 2` and `4` are over
-/// 2-leaf private batches; `n = 89` is the production arity over the `n = 8` one.
-const PUBLIC_WRAPPER_SIZES: [usize; 3] = [2, 4, 89];
+/// 2-leaf private batches; `n = 86` is the production arity over the `n = 8` one.
+const PUBLIC_WRAPPER_SIZES: [usize; 3] = [2, 4, 86];
 /// The circuits whose builds are certified (`Plonky2Bridge/Generated/*Built.lean`, Steps 16
 /// and 19): those whose proofs a bridge consumes through `proof_sound` or
 /// `proof_sound_leaf`. The public-batch wrappers' capstones take their inner proofs as
@@ -282,7 +282,7 @@ fn main() -> std::io::Result<()> {
             modules.len()
         );
         for part in modules {
-            print_exported(89, &part.relative, &part.contents);
+            print_exported(86, &part.relative, &part.contents);
         }
     }
     println!("\n-- ===== Plonky2Bridge/Generated/FriParams.lean =====");

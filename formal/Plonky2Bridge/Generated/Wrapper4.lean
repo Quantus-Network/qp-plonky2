@@ -392,15 +392,15 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
   obtain ⟨hi3_0, hi3_1, hi3_2, hi3_3⟩ := privateBatchWrapper4_f215 perm a h hp
   obtain ⟨ho3_0, ho3_1, ho3_2, ho3_3⟩ := privateBatchWrapper4_f216 perm a h hp
 
-  have hd0 : a (.wire 3 7) = (row a 0).isDummy := by rw [e0m, e0a, e0b]; rfl
-  have hd1 : a (.wire 3 51) = (row a 1).isDummy := by rw [e1m, e1a, e1b]; rfl
-  have hd2 : a (.wire 5 35) = (row a 2).isDummy := by rw [e2m, e2a, e2b]; rfl
-  have hd3 : a (.wire 7 19) = (row a 3).isDummy := by rw [e3m, e3a, e3b]; rfl
+  have hd0 : a (.wire 3 19) = (row a 0).isDummy := by rw [e0m, e0a, e0b]; rfl
+  have hd1 : a (.wire 5 3) = (row a 1).isDummy := by rw [e1m, e1a, e1b]; rfl
+  have hd2 : a (.wire 5 47) = (row a 2).isDummy := by rw [e2m, e2a, e2b]; rfl
+  have hd3 : a (.wire 6 31) = (row a 3).isDummy := by rw [e3m, e3a, e3b]; rfl
   have hmem : ∀ r ∈ rows a, r = row a 0 ∨ r = row a 1 ∨ r = row a 2 ∨ r = row a 3 := by
     intro r hr
     simpa only [rows, List.mem_cons, List.not_mem_nil, or_false] using hr
   have hsel : ∀ x0 x1 x2 x3 : ZMod p,
-      bselect (a (.wire 7 31)) x3 (bselect (a (.wire 7 27)) x2 (bselect (a (.wire 7 23)) x1 (bselect (a (.wire 6 11)) x0 0)))
+      bselect (a (.wire 6 43)) x3 (bselect (a (.wire 6 39)) x2 (bselect (a (.wire 6 35)) x1 (bselect (a (.wire 7 11)) x0 0)))
         = bselect (band (bnot (row a 3).isDummy) (bnot (bor (bor (bnot (row a 0).isDummy) (bnot (row a 1).isDummy)) (bnot (row a 2).isDummy)))) x3 (bselect (band (bnot (row a 2).isDummy) (bnot (bor (bnot (row a 0).isDummy) (bnot (row a 1).isDummy)))) x2 (bselect (band (bnot (row a 1).isDummy) (bnot (bnot (row a 0).isDummy))) x1 (bselect (bnot (row a 0).isDummy) x0 0))) := by
     intro x0 x1 x2 x3
     rw [tk3, tk2, tk1, nf3, nf2, nf1, fo2, fo1, r3, r2, r1, r0, hd0, hd1, hd2, hd3]
@@ -418,19 +418,19 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
       rw [sb3_3, sb2_3, sb1_3, sb0_3, hsel]; rfl
   have hnumRef : a (.wire 10 55) = scanRefL (rows a) fun r => r.blockNumber := by
     rw [rows, scanRefL_4, sn3, sn2, sn1, sn0, hsel]; rfl
-  have hM0 : a (.wire 17 15) = bselect (row a 0).isDummy 0 (row a 0).inputAmount := by
+  have hM0 : a (.wire 18 15) = bselect (row a 0).isDummy 0 (row a 0).inputAmount := by
     rw [mi0, hd0]; rfl
-  have hM1 : a (.wire 17 23) = bselect (row a 1).isDummy 0 (row a 1).inputAmount := by
+  have hM1 : a (.wire 18 23) = bselect (row a 1).isDummy 0 (row a 1).inputAmount := by
     rw [mi1, hd1]; rfl
-  have hM2 : a (.wire 17 31) = bselect (row a 2).isDummy 0 (row a 2).inputAmount := by
+  have hM2 : a (.wire 18 31) = bselect (row a 2).isDummy 0 (row a 2).inputAmount := by
     rw [mi2, hd2]; rfl
-  have hM3 : a (.wire 17 39) = bselect (row a 3).isDummy 0 (row a 3).inputAmount := by
+  have hM3 : a (.wire 18 39) = bselect (row a 3).isDummy 0 (row a 3).inputAmount := by
     rw [mi3, hd3]; rfl
-  have hin : a (.wire 18 7) = ((rows a).map fun r => bselect r.isDummy 0 r.inputAmount).sum := by
+  have hin : a (.wire 11 31) = ((rows a).map fun r => bselect r.isDummy 0 r.inputAmount).sum := by
     simp only [rows, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, add_zero]
     rw [ai3, ai2, ai1, hM0, hM1, hM2, hM3]
     ring
-  have hout : a (.wire 18 19) = ((slots a).map Prod.fst).sum := by
+  have hout : a (.wire 11 43) = ((slots a).map Prod.fst).sum := by
     simp only [slots, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, add_zero]
     rw [ao3, ao2, ao1]
     ring
@@ -442,11 +442,11 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     · exact rc1
     · exact rc2
     · exact rc3
-  have hfc : FeeCheck (a (.virt 47)) (a (.wire 18 7)) (a (.wire 18 19)) := by
+  have hfc : FeeCheck (a (.virt 47)) (a (.wire 11 31)) (a (.wire 11 43)) := by
     refine ⟨ffr, ?_, ?_⟩
     · show rangeCheck (feeDen - a (.virt 47)) 14
       unfold feeDen; rw [Nat.cast_ofNat, ← kten, ← fc]; exact fcr
-    · show rangeCheck (a (.wire 18 7) * (feeDen - a (.virt 47)) - a (.wire 18 19) * feeDen) 52
+    · show rangeCheck (a (.wire 11 31) * (feeDen - a (.virt 47)) - a (.wire 11 43) * feeDen) 52
       unfold feeDen; rw [Nat.cast_ofNat, ← kten, ← fc, ← fl, ← fr, ← fd]; exact fdr
   have hnulls : (out a).nullifiers = ((rows a).map fun r => r.slot.sel).map valDigest := by
     show ([⟨(a (.wire 35 43)).val, (a (.wire 35 51)).val, (a (.wire 35 59)).val, (a (.wire 38 7)).val⟩,
@@ -456,22 +456,22 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
     rw [s0_0, s0_1, s0_2, s0_3, s1_0, s1_1, s1_2, s1_3, s2_0, s2_1, s2_2, s2_3, s3_0, s3_1, s3_2, s3_3, hd0, hd1, hd2, hd3]
     rfl
   have u0_1 : UniqCheck (row a 0).nullifier (row a 1).nullifier (row a 0).isDummy (row a 1).isDummy :=
-    ⟨a (.wire 27 23), ⟨![a (.virt 149), a (.virt 151), a (.virt 153), a (.virt 155)], ![a (.virt 150), a (.virt 152), a (.virt 154), a (.virt 156)], fun j => by fin_cases j <;> assumption, by rw [q0_1m, q0_1a, q0_1b]; rfl⟩, by
+    ⟨a (.wire 27 35), ⟨![a (.virt 149), a (.virt 151), a (.virt 153), a (.virt 155)], ![a (.virt 150), a (.virt 152), a (.virt 154), a (.virt 156)], fun j => by fin_cases j <;> assumption, by rw [q0_1m, q0_1a, q0_1b]; rfl⟩, by
       rw [← hd0, ← hd1, ← un0_1, ← um0_1, ← ub0_1, ← uc0_1]; exact uz0_1⟩
   have u0_2 : UniqCheck (row a 0).nullifier (row a 2).nullifier (row a 0).isDummy (row a 2).isDummy :=
-    ⟨a (.wire 29 15), ⟨![a (.virt 157), a (.virt 159), a (.virt 161), a (.virt 163)], ![a (.virt 158), a (.virt 160), a (.virt 162), a (.virt 164)], fun j => by fin_cases j <;> assumption, by rw [q0_2m, q0_2a, q0_2b]; rfl⟩, by
+    ⟨a (.wire 29 27), ⟨![a (.virt 157), a (.virt 159), a (.virt 161), a (.virt 163)], ![a (.virt 158), a (.virt 160), a (.virt 162), a (.virt 164)], fun j => by fin_cases j <;> assumption, by rw [q0_2m, q0_2a, q0_2b]; rfl⟩, by
       rw [← hd0, ← hd2, ← un0_2, ← um0_2, ← ub0_2, ← uc0_2]; exact uz0_2⟩
   have u0_3 : UniqCheck (row a 0).nullifier (row a 3).nullifier (row a 0).isDummy (row a 3).isDummy :=
-    ⟨a (.wire 31 7), ⟨![a (.virt 165), a (.virt 167), a (.virt 169), a (.virt 171)], ![a (.virt 166), a (.virt 168), a (.virt 170), a (.virt 172)], fun j => by fin_cases j <;> assumption, by rw [q0_3m, q0_3a, q0_3b]; rfl⟩, by
+    ⟨a (.wire 31 19), ⟨![a (.virt 165), a (.virt 167), a (.virt 169), a (.virt 171)], ![a (.virt 166), a (.virt 168), a (.virt 170), a (.virt 172)], fun j => by fin_cases j <;> assumption, by rw [q0_3m, q0_3a, q0_3b]; rfl⟩, by
       rw [← hd0, ← hd3, ← un0_3, ← um0_3, ← ub0_3, ← uc0_3]; exact uz0_3⟩
   have u1_2 : UniqCheck (row a 1).nullifier (row a 2).nullifier (row a 1).isDummy (row a 2).isDummy :=
-    ⟨a (.wire 31 59), ⟨![a (.virt 173), a (.virt 175), a (.virt 177), a (.virt 179)], ![a (.virt 174), a (.virt 176), a (.virt 178), a (.virt 180)], fun j => by fin_cases j <;> assumption, by rw [q1_2m, q1_2a, q1_2b]; rfl⟩, by
+    ⟨a (.wire 32 11), ⟨![a (.virt 173), a (.virt 175), a (.virt 177), a (.virt 179)], ![a (.virt 174), a (.virt 176), a (.virt 178), a (.virt 180)], fun j => by fin_cases j <;> assumption, by rw [q1_2m, q1_2a, q1_2b]; rfl⟩, by
       rw [← hd1, ← hd2, ← un1_2, ← um1_2, ← ub1_2, ← uc1_2]; exact uz1_2⟩
   have u1_3 : UniqCheck (row a 1).nullifier (row a 3).nullifier (row a 1).isDummy (row a 3).isDummy :=
-    ⟨a (.wire 32 51), ⟨![a (.virt 181), a (.virt 183), a (.virt 185), a (.virt 187)], ![a (.virt 182), a (.virt 184), a (.virt 186), a (.virt 188)], fun j => by fin_cases j <;> assumption, by rw [q1_3m, q1_3a, q1_3b]; rfl⟩, by
+    ⟨a (.wire 34 3), ⟨![a (.virt 181), a (.virt 183), a (.virt 185), a (.virt 187)], ![a (.virt 182), a (.virt 184), a (.virt 186), a (.virt 188)], fun j => by fin_cases j <;> assumption, by rw [q1_3m, q1_3a, q1_3b]; rfl⟩, by
       rw [← hd1, ← hd3, ← un1_3, ← um1_3, ← ub1_3, ← uc1_3]; exact uz1_3⟩
   have u2_3 : UniqCheck (row a 2).nullifier (row a 3).nullifier (row a 2).isDummy (row a 3).isDummy :=
-    ⟨a (.wire 34 43), ⟨![a (.virt 189), a (.virt 191), a (.virt 193), a (.virt 195)], ![a (.virt 190), a (.virt 192), a (.virt 194), a (.virt 196)], fun j => by fin_cases j <;> assumption, by rw [q2_3m, q2_3a, q2_3b]; rfl⟩, by
+    ⟨a (.wire 34 55), ⟨![a (.virt 189), a (.virt 191), a (.virt 193), a (.virt 195)], ![a (.virt 190), a (.virt 192), a (.virt 194), a (.virt 196)], fun j => by fin_cases j <;> assumption, by rw [q2_3m, q2_3a, q2_3b]; rfl⟩, by
       rw [← hd2, ← hd3, ← un2_3, ← um2_3, ← ub2_3, ← uc2_3]; exact uz2_3⟩
   have hcol : (rows a).Pairwise fun r s => UniqCheck r.nullifier s.nullifier r.isDummy s.isDummy := by
     unfold rows
@@ -495,7 +495,7 @@ theorem sound (perm : St p → St p) (hpg : WormholeSpec.goldilocks ≤ p)
       nomatch hs
   have hR : RPrivateBatch (spongeRO perm) ((rows a).map LeafRow.leaf) ((rows a).map LeafRow.u) (out a) := by
     refine private_batch_val_rows perm hpg (rows a) (out := out a)
-      (fee := a (.virt 47)) (totalIn := a (.wire 18 7)) (totalOut := a (.wire 18 19))
+      (fee := a (.virt 47)) (totalIn := a (.wire 11 31)) (totalOut := a (.wire 11 43))
       (assetRef := a (.virt 0)) (numRef := a (.wire 10 55)) (blockRef := fun j => a (![Target.wire 10 23, Target.wire 10 31, Target.wire 10 39, Target.wire 10 47] j))
       (slots := slots a) ?_ ?_ (by show 4 ≤ 64; decide) h32 hblockRef hnumRef ?_ ?_
       rfl rfl rfl rfl ?_ hin hslots32 (by show 4 ≤ 64; decide) hout hfc rfl hnulls hcol

@@ -90,8 +90,8 @@ open Plonky2Spec.Sponge (rate squeeze4)
     bound: the proof trades a slack `η` in the radius against a commit-phase term linear
     in the domain size, which takes a few bits off the larger circuits. Beyond it,
     Dao–Kominers–Thaler (ePrint 2026/2056, Lean-checked in ArkLib) reach agreement
-    `a₁(ρ) + η` with `a₁(ρ) < √ρ` (`0.319` against `0.354` at rate `1/8`, `0.103`
-    against `0.125` at `1/64`) in characteristic above the degree, at a commit-phase
+    `a₁(ρ) + η` with `a₁(ρ) < √ρ` (`0.319` against `0.354` at rate `1/8`, `0.071`
+    against `0.088` at `1/128`) in characteristic above the degree, at a commit-phase
     error of `140 C_ρ⁶ n² / (q η⁴)`, `C_ρ ≥ 1`. Over `Goldilocks²` that term certifies
     at most about `3` bits over Johnson on the leaf and private batch and nothing on
     the public batch; the budget is in `PLAN.md` Step 22.
@@ -1103,15 +1103,15 @@ axiom poseidon_transcript_oracle (perm : St p → St p) (tag : String) (c : Circ
     circuit whose verifier accepted, not a property of either hash. What is proved
     (BCIKS'20, ePrint 2025/2055) reaches the Johnson radius `1 − √ρ`: a query then
     fails with probability at most `√ρ`, so the query exponent is `friJohnsonQueryBits`
-    — `54` for the batch wrappers (`36` queries at rate `1/8`), `57` for the leaf (`19`
-    at `1/64`), less a few bits of commit-phase error on the larger domains. The
+    — `54` for the batch wrappers (`36` queries at rate `1/8`), `56` for the leaf (`16`
+    at `1/128`), less a few bits of commit-phase error on the larger domains. The
     `security_bits = 128` of the deployed configs counted `friQueryBits` instead
-    (`108` and `114`), a query failing with probability at most `ρ`, which is the
+    (`108` and `112`), a query failing with probability at most `ρ`, which is the
     capacity conjecture of ethSTARK and BCIKS'20. That conjecture is refuted
     (Crites–Stewart, ePrint 2025/2046; Krachun–Kazanin–Haböck, ePrint 2026/782, on
     FRI's own domains), and no quantified conjecture has replaced it (the S-two one,
     ePrint 2026/532, is undercut by ePrint 2026/2245). Dao–Kominers–Thaler's
-    first-order threshold (ePrint 2026/2056) would give `59` and `62` from the queries
+    first-order threshold (ePrint 2026/2056) would give `59` and `61` from the queries
     alone, but its `n²/(q η⁴)` commit-phase error, which the grinding does not reach,
     leaves at most about `3` bits over Johnson on the leaf and private batch and
     nothing on the public batch over `Goldilocks²`. The grinding bits (`20`, `16`) are

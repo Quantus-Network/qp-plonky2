@@ -183,17 +183,17 @@ unconditional on them.
   (QROM for the post-quantum reading). Merkle binding is a corollary. This is not
   collision resistance, and it is not the wormhole Poseidon2.
 - **`fri_proximity_gap`** — FRI proximity gaps at the circuit's FRI parameters, pinned
-  from the traces in `Generated/FriParams.lean` (Step 22): the leaf at rate `1/64` with
-  `19` queries and `16` grinding bits, both batch wrappers at rate `1/8` with `36` and
+  from the traces in `Generated/FriParams.lean` (Step 22): the leaf at rate `1/128` with
+  `16` queries and `16` grinding bits, both batch wrappers at rate `1/8` with `36` and
   `20`. What is proved (BCIKS'20, Johnson radius) makes a query worth `rateBits / 2`
-  bits: `friJohnsonQueryBits` is `57` for the leaf and `54` for the wrappers, less a few
+  bits: `friJohnsonQueryBits` is `56` for the leaf and `54` for the wrappers, less a few
   bits of commit-phase error on the larger domains (about `51` for the production public
   batch). The configs' `security_bits = 128` counted `rateBits` per query
-  (`friQueryBits`: `114`, `108`), the capacity conjecture of ethSTARK and BCIKS'20,
+  (`friQueryBits`: `112`, `108`), the capacity conjecture of ethSTARK and BCIKS'20,
   which is refuted (Crites–Stewart, ePrint 2025/2046; Krachun–Kazanin–Haböck, ePrint
   2026/782, on FRI's own domains) with no quantified replacement standing. The
   first-order threshold of Dao–Kominers–Thaler (ePrint 2026/2056) would make a query
-  worth `3.28` and `1.65` bits, but its `n²/(q η⁴)` commit-phase term certifies at most
+  worth `3.81` and `1.65` bits, but its `n²/(q η⁴)` commit-phase term certifies at most
   about `3` bits over Johnson on the leaf and private batch and nothing on the public
   batch over `Goldilocks²`; Step 22 has the budget. The grinding bits are a work factor
   against the oracle at the query
@@ -1539,7 +1539,7 @@ meantime. Nothing in the axiom's statement changes: it is an implication on the 
 
 - **Pins.** `Generated/FriParams.lean` (exporter: `generate_fri_params_lean`) reads each
   family's `FriConfig` off its traces, checks the sizes agree, and defines `leafFri`
-  (`6, 19, 16`), `privateBatchFri` and `publicBatchFri` (`3, 36, 20`) as
+  (`7, 16, 16`), `privateBatchFri` and `publicBatchFri` (`3, 36, 20`) as
   `FriQueryParams`, with the three exponents as `rfl` checks. `friJohnsonQueryBits`
   (`numQueries * rateBits / 2`) joins `friQueryBits` and `friConjecturedBits` in
   `Trusted.lean`; `standardRecursionFri` stays as plonky2's default, for comparison.
@@ -1570,28 +1570,28 @@ meantime. Nothing in the axiom's statement changes: it is an implication on the 
   quantitative radius at `2^{-128}` (the Proximity Prize's grand challenges,
   Arnon–Boneh–Fenzi, ePrint 2026/680) is still open.
 - **Numbers.** Per query exponent and `security_bits` accounting. First-order bits per
-  query at the threshold are `−log₂ a₁(ρ)`: `1.65` at `1/8` (`a₁ = 0.319`), `3.28` at
-  `1/64` (`0.103`), against `1.5` and `3` at the Johnson radius. These are query-only
+  query at the threshold are `−log₂ a₁(ρ)`: `1.65` at `1/8` (`a₁ = 0.319`), `3.81` at
+  `1/128` (`0.071`), against `1.5` and `3.5` at the Johnson radius. These are query-only
   ceilings: the theorem needs `η > 0`, which costs query bits, and its `n²/(q η⁴)` error
   is a commit-phase term that grinding at the later query round does not protect, so
   the two must be balanced. Over `F = Goldilocks²` (`q ≈ 2^{128}`) with `n` the first
   FRI domain and `C_ρ` replaced by `1` (so an upper bound on what the theorem
-  certifies), the best balance is about `60` bits on the leaf (`n = 2^{14}`,
+  certifies), the best balance is about `59` bits on the leaf (`n = 2^{15}`,
   `η ≈ 0.006`), `57` on the private batch (`2^{18}`, `η ≈ 0.012`) and `54` on the
   public batch (`2^{22}`): there the error bound alone is `≥ 2^{-57.4}` at any `η`
   below the Johnson gap, so first order certifies nothing over Johnson.
 
   | circuit | `friQueryBits` (+ grinding) | first order: query-only ceiling / balanced, `C_ρ = 1` (+ grinding) | `friJohnsonQueryBits` (+ grinding) |
   |---|---|---|---|
-  | leaf (`1/64`, 19, 16) | 114 (130) | 62 / ≤ 60 (≤ 76) | 57 (73), ≈ 56 after commit-phase error |
+  | leaf (`1/128`, 16, 16) | 112 (128) | 61 / ≤ 59 (≤ 75) | 56 (72), ≈ 55 after commit-phase error |
   | private batch (`1/8`, 36, 20) | 108 (128) | 59 / ≤ 57 (≤ 77) | 54 (74), ≈ 52 |
   | public batch (`1/8`, 36, 20) | 108 (128) | 59 / ≤ 54 (≤ 74) | 54 (74), ≈ 51 |
 
   These are the FRI term alone. The sampling terms before it are not reached by
   grinding (`get_challenges` draws `β, γ, α` before the proof of work, and the sampling
   error in `Trusted.lean` is stated independently of it): `β, γ` are base-field
-  challenges, `≈ (rows · routedWires / 2^{64})^{numChallenges}`, which at the deployed
-  `num_challenges = 2` is `2^{-100}` on the leaf, `2^{-86}` on the private batch and
+  challenges, `≈ (rows · routedWires / 2^{64})^{numChallenges}`, which at the
+  pre-#219 `num_challenges = 2` is `2^{-100}` on the leaf, `2^{-86}` on the private batch and
   `2^{-77}` on the production public batch (`(2^{19} · 80 / 2^{64})^2`); `ζ` in `F^2`
   is `≈ 2^{-106}` there and cannot move; the proof-system hash is `128` bits. Errors
   add, so the system's soundness is the minimum over all of them: about `77` bits on
@@ -1603,12 +1603,12 @@ meantime. Nothing in the axiom's statement changes: it is an implication on the 
   Fiat–Shamir challenges as well as the grinding (Block et al., "Fiat-Shamir Security
   of FRI", ePrint 2023/1071, Cor. 4.3). More FRI queries alone therefore restore
   nothing above `77`;
-  qp-zk-circuits#219 raises `num_challenges` to `3` on the leaf and private batch and
-  `4` on the public batch (`150`, `129`, `152` bits), after which the public batch is
+  qp-zk-circuits#219 (the traces vendored here) raises `num_challenges` to `3` on all
+  three (`150`, `129`, `116` bits), after which the public batch is
   capped by `ζ` at `≈ 106` under the capacity conjecture (`ζ` is sampled before the
   proof of work too) and by FRI at `≈ 71`–`74` proved. `128` on the FRI term alone
-  would take about `72` queries on the wrappers and `37` on the leaf at the Johnson
-  radius; the first-order query-only counts, `66` and `35`, are not reachable at these
+  would take about `72` queries on the wrappers and `32` on the leaf at the Johnson
+  radius; the first-order query-only counts, `66` and `30`, are not reachable at these
   field and domain sizes because the `n²/(q η⁴)` term is independent of the query
   count. Parameter changes are qp-zk-circuits decisions;
   this step records the accounting.

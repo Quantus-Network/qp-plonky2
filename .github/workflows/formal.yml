@@ -16,8 +16,8 @@
 # 20× its `.olean` size, and nothing executes those definitions (the proofs are
 # `decide +kernel` and `rfl`, which the kernel reduces itself).
 #
-# The production wrappers (`Plonky2BridgeProduction`: the `n_inner = 89` public wrapper,
-# some 20,000 generated gadget-fact theorems and 89 forwarding modules, and the 8-leaf
+# The production wrappers (`Plonky2BridgeProduction`: the `n_inner = 86` public wrapper,
+# some 19,000 generated gadget-fact theorems and 86 forwarding modules, and the 8-leaf
 # private wrapper, whose build certificate is over half of a cold build) are built only
 # with `full`: `ci.yml` sets it on pushes to `main` and on pull requests carrying
 # `release-proposal` or `formal-full`; `formal-full.yml` sets it when one of those labels
@@ -29,7 +29,7 @@ on:
   workflow_call:
     inputs:
       full:
-        description: Also build and gate the production public wrapper (n_inner = 89).
+        description: Also build and gate the production public wrapper (n_inner = 86).
         required: true
         type: boolean
 
@@ -111,7 +111,7 @@ jobs:
       # e.g. `sorryAx`, `Lean.ofReduceBool`, or a silent compile failure.
       - name: Build Plonky2Bridge (cross-package capstone)
         run: cd formal && lake build Plonky2Bridge
-      - name: Build Plonky2BridgeProduction (n_inner = 89)
+      - name: Build Plonky2BridgeProduction (n_inner = 86)
         if: env.FORMAL_FULL == 'true'
         run: cd formal && lake build Plonky2BridgeProduction
       # The exporter's `Generated/*Wrapper*.lean` are produced from the vendored copies of
@@ -232,5 +232,5 @@ jobs:
           if [ "$FORMAL_FULL" = true ]; then
             expect Plonky2Bridge.private_batch_end_to_end_wired_production "${base[@]}" "${leaf_trusted[@]}" "${leaf_cert[@]}"
             expect Plonky2Bridge.public_batch_end_to_end_wired_production "${base[@]}" "${wrapper_trusted[@]}" Plonky2Bridge.Wrapper8.build_agrees
-            expect Plonky2Bridge.PublicWrapper89.sound "${base[@]}"
+            expect Plonky2Bridge.PublicWrapper86.sound "${base[@]}"
           fi

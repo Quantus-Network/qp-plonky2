@@ -30,6 +30,6 @@ variable {p : ℕ}
 /-- Every copy of the export is linked in the certificate. -/
 theorem copies_linked : ∀ xy ∈ (privateBatchWrapper2 p).copies, buildCert.Links xy.1 xy.2 := by
   rw [copies_eq]
-  exact (BuildCert.links_append (BuildCert.links_append (BuildCert.links_append (BuildCert.links_append linked_0 linked_261) (BuildCert.links_append linked_522 linked_783)) (BuildCert.links_append (BuildCert.links_append linked_1044 linked_1305) (BuildCert.links_append linked_1566 linked_1827))) (BuildCert.links_append (BuildCert.links_append (BuildCert.links_append linked_2089 linked_2350) (BuildCert.links_append linked_2611 linked_2872)) (BuildCert.links_append (BuildCert.links_append linked_3134 linked_3395) (BuildCert.links_append linked_3656 linked_3917))))
+  exact (BuildCert.links_append (BuildCert.links_append (BuildCert.links_append linked_0 linked_505) (BuildCert.links_append linked_1010 linked_1515)) (BuildCert.links_append (BuildCert.links_append linked_2021 linked_2526) (BuildCert.links_append linked_3032 linked_3537)))
 
 end Plonky2Bridge.Wrapper2

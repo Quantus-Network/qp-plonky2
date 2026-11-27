@@ -762,7 +762,7 @@ pub fn render(shape: &Shape) -> String {
     w!("");
     // One list per inner. `out` concatenates them in the same right-nested shape as
     // `List.flatten`, so the forwarding proof rewrites one inner at a time instead of
-    // a single goal the size of every forwarded limb (production is 89 · 32 slots).
+    // a single goal the size of every forwarded limb (production is 86 · 32 slots).
     let v = |t: Target| format!("({}).val", a(t));
     let slot_lits: Vec<String> = inners
         .iter()

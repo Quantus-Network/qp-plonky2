@@ -50,4 +50,3 @@ import Plonky2Bridge.Generated.Wrapper8Built.Data43
 import Plonky2Bridge.Generated.Wrapper8Built.Data44
 import Plonky2Bridge.Generated.Wrapper8Built.Data45
 import Plonky2Bridge.Generated.Wrapper8Built.Data46
-import Plonky2Bridge.Generated.Wrapper8Built.Data47

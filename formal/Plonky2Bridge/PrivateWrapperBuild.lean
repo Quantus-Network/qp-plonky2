@@ -17,7 +17,7 @@
   This module gathers the `n = 2` and `4` sizes, which every pull request builds. The
   production size, `n = 8`, is over half of a cold Lean build and reaches CI through
   `PrivateWrapperProduction.lean` (the `Plonky2BridgeProduction` target) with the
-  `n_inner = 89` public wrapper: pushes to `main`, release pull requests and pull requests
+  `n_inner = 86` public wrapper: pushes to `main`, release pull requests and pull requests
   labelled `formal-full`.
 
   WHAT `Agrees` SAYS OF A WRAPPER.

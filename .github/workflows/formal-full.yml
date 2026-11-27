@@ -1,6 +1,6 @@
 ---
 # The full Lean build on demand: adding `formal-full` (or `release-proposal`) to an open
-# pull request runs `formal.yml` with the production public wrapper (`n_inner = 89`),
+# pull request runs `formal.yml` with the production public wrapper (`n_inner = 86`),
 # which `ci.yml` builds on pull requests only when they carry one of those labels at
 # push time. A separate workflow so that other labels never create check runs under
 # CI's names: for them the one job here is skipped, and they fall into a concurrency
