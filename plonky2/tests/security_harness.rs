@@ -928,3 +928,258 @@ fn honest_leaf_hash_matches_in_circuit() -> anyhow::Result<()> {
     let proof = data.prove(pw)?;
     data.verify(proof)
 }
+
+/// Proof bytes must have exactly one accepted encoding: trailing data and non-canonical field
+/// elements are rejected by `from_bytes` in both crates rather than silently normalised.
+#[test]
+fn proof_bytes_are_canonical() -> anyhow::Result<()> {
+    use plonky2::field::types::{Field64, PrimeField64};
+    use plonky2::plonk::proof::ProofWithPublicInputs;
+    use plonky2_verifier::plonk::proof::ProofWithPublicInputs as VerifierProof;
+
+    let data = simple_circuit_data();
+    let proof = data.prove(PartialWitness::new())?;
+    let bytes = proof.to_bytes();
+    let common = &data.common;
+
+    let mut trailing = bytes.clone();
+    trailing.push(0);
+
+    // The single public input (the constant one) is the last field element written.
+    let mut non_canonical = bytes.clone();
+    let tail = non_canonical.len() - 8;
+    assert_eq!(u64::from_le_bytes(bytes[tail..].try_into()?), 1);
+    non_canonical[tail..].copy_from_slice(&(F::ORDER + 1).to_le_bytes());
+    assert_eq!(F::from_noncanonical_u64(F::ORDER + 1).to_canonical_u64(), 1);
+
+    // Hash limbs are field elements too; the first limb of `wires_cap` opens the proof. Poseidon
+    // hashes `p + x` as `x`, so an unchecked limb would be a second encoding of the same proof.
+    let mut non_canonical_cap = bytes.clone();
+    non_canonical_cap[..8].copy_from_slice(&u64::MAX.to_le_bytes());
+
+    let plonky2_rejects =
+        |bytes: Vec<u8>| ProofWithPublicInputs::<F, C, D>::from_bytes(bytes, common).is_err();
+    assert!(!plonky2_rejects(bytes.clone()));
+    assert!(plonky2_rejects(trailing.clone()));
+    assert!(plonky2_rejects(non_canonical.clone()));
+    assert!(plonky2_rejects(non_canonical_cap.clone()));
+
+    let verifier_common =
+        plonky2_verifier::plonk::circuit_data::CommonCircuitData::<F, D>::from_bytes(
+            common.to_bytes(&DefaultGateSerializer).unwrap(),
+            &plonky2_verifier::util::serialization::DefaultGateSerializer,
+        )
+        .unwrap();
+    let verifier_rejects =
+        |bytes: Vec<u8>| VerifierProof::<F, C, D>::from_bytes(bytes, &verifier_common).is_err();
+    assert!(!verifier_rejects(bytes));
+    assert!(verifier_rejects(trailing));
+    assert!(verifier_rejects(non_canonical));
+    assert!(verifier_rejects(non_canonical_cap));
+    Ok(())
+}
+
+#[test]
+fn circuit_data_bytes_with_trailing_data_rejected() -> anyhow::Result<()> {
+    use plonky2::plonk::circuit_data::VerifierOnlyCircuitData;
+
+    let data = simple_circuit_data();
+    let gate_serializer = DefaultGateSerializer;
+
+    let mut common_bytes = data.common.to_bytes(&gate_serializer).unwrap();
+    common_bytes.push(0);
+    assert!(CommonCircuitData::<F, D>::from_bytes(common_bytes, &gate_serializer).is_err());
+
+    let mut verifier_only_bytes = data.verifier_only.to_bytes().unwrap();
+    verifier_only_bytes.push(0);
+    assert!(VerifierOnlyCircuitData::<C, D>::from_bytes(verifier_only_bytes.clone()).is_err());
+
+    let generator_serializer = DefaultGeneratorSerializer::<C, D>::default();
+    let mut prover_only_bytes = data
+        .prover_only
+        .to_bytes(&generator_serializer, &data.common)
+        .unwrap();
+    prover_only_bytes.push(0);
+    assert!(ProverOnlyCircuitData::<F, C, D>::from_bytes(
+        &prover_only_bytes,
+        &generator_serializer,
+        &data.common
+    )
+    .is_err());
+
+    let mut circuit_data_bytes = data
+        .to_bytes(&gate_serializer, &generator_serializer)
+        .unwrap();
+    circuit_data_bytes.push(0);
+    assert!(
+        plonky2::plonk::circuit_data::CircuitData::<F, C, D>::from_bytes(
+            &circuit_data_bytes,
+            &gate_serializer,
+            &generator_serializer
+        )
+        .is_err()
+    );
+
+    let mut verifier_common_bytes = data.common.to_bytes(&gate_serializer).unwrap();
+    verifier_common_bytes.push(0);
+    assert!(
+        plonky2_verifier::plonk::circuit_data::CommonCircuitData::<F, D>::from_bytes(
+            verifier_common_bytes,
+            &plonky2_verifier::util::serialization::DefaultGateSerializer,
+        )
+        .is_err()
+    );
+    assert!(
+        plonky2_verifier::plonk::circuit_data::VerifierOnlyCircuitData::<C, D>::from_bytes(
+            verifier_only_bytes
+        )
+        .is_err()
+    );
+    Ok(())
+}
+
+/// Lookup gates and generators name their table by index and are written back with the first
+/// content-equal table's index, so a repeated table would give them two encodings. The builder
+/// stores each table once, and common data that repeats one cannot be constructed or loaded.
+#[test]
+fn duplicate_lookup_tables_rejected() {
+    let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+    let table_index = builder.add_lookup_table_from_pairs(Arc::new(vec![(0, 1), (1, 2)]));
+    let input = builder.add_virtual_target();
+    builder.register_public_input(input);
+    builder.add_lookup_from_index(input, table_index);
+    let data = builder.build::<C>();
+    let gate_serializer = DefaultGateSerializer;
+
+    let mut repeated = data.common.clone();
+    repeated.luts.push(repeated.luts[0].clone());
+    assert_eq!(
+        CommonCircuitData::<F, D>::new(
+            repeated.config.clone(),
+            repeated.trace_degree_bits,
+            repeated.gates.clone(),
+            repeated.num_public_inputs,
+            repeated.luts.clone(),
+        )
+        .err(),
+        Some("lookup tables must be distinct")
+    );
+
+    let bytes = repeated.to_bytes(&gate_serializer).unwrap();
+    assert!(CommonCircuitData::<F, D>::from_bytes(bytes.clone(), &gate_serializer).is_err());
+    assert!(
+        plonky2_verifier::plonk::circuit_data::CommonCircuitData::<F, D>::from_bytes(
+            bytes,
+            &plonky2_verifier::util::serialization::DefaultGateSerializer,
+        )
+        .is_err()
+    );
+
+    // `luts` is a public field, so the common data handed to the prover-data reader is checked
+    // too: with a repeated table, the lookup and lookup-table generators could name either index.
+    let generator_serializer = DefaultGeneratorSerializer::<C, D>::default();
+    let prover_only_bytes = data
+        .prover_only
+        .to_bytes(&generator_serializer, &data.common)
+        .unwrap();
+    let decode = |common: &CommonCircuitData<F, D>| {
+        ProverOnlyCircuitData::<F, C, D>::from_bytes(
+            &prover_only_bytes,
+            &generator_serializer,
+            common,
+        )
+    };
+    assert_eq!(decode(&data.common).unwrap(), data.prover_only);
+    assert!(decode(&repeated).is_err());
+}
+
+/// Prover data has one encoding per value too: the watch map must be in key order without
+/// repeats, and a serialized FFT root table must be the one the prover would recompute. The same
+/// bytes sit inside `CircuitData` and `ProverCircuitData`, which must reject them the same way.
+#[test]
+fn prover_only_bytes_are_canonical() {
+    use plonky2::field::types::PrimeField64;
+    use plonky2::plonk::circuit_data::{CircuitData, ProverCircuitData};
+    use plonky2::util::serialization::Write;
+
+    let gate_serializer = DefaultGateSerializer;
+    let generator_serializer = DefaultGeneratorSerializer::<C, D>::default();
+    let data = simple_circuit_data();
+    let prover_only_bytes = |data: &CircuitData<F, C, D>| {
+        data.prover_only
+            .to_bytes(&generator_serializer, &data.common)
+            .unwrap()
+    };
+    let bytes = prover_only_bytes(&data);
+    let decode = |bytes: &[u8]| {
+        ProverOnlyCircuitData::<F, C, D>::from_bytes(bytes, &generator_serializer, &data.common)
+    };
+    assert_eq!(decode(&bytes).unwrap(), data.prover_only);
+
+    // Serializing with a field cleared locates that field: the first differing byte.
+    let offset_of = |cleared: &[u8]| bytes.iter().zip(cleared).position(|(a, b)| a != b).unwrap();
+
+    let mut without_watches = simple_circuit_data();
+    without_watches
+        .prover_only
+        .generator_indices_by_watches
+        .clear();
+    let map_len_offset = offset_of(&prover_only_bytes(&without_watches));
+    let watches = &data.prover_only.generator_indices_by_watches;
+    let (first_key, first_watchers) = watches.first_key_value().unwrap();
+    let mut repeated_entry = bytes[..map_len_offset].to_vec();
+    repeated_entry.write_usize(watches.len() + 1).unwrap();
+    repeated_entry.write_usize(*first_key).unwrap();
+    repeated_entry.write_usize_vec(first_watchers).unwrap();
+    repeated_entry.extend_from_slice(&bytes[map_len_offset + 8..]);
+    assert!(decode(&repeated_entry).is_err());
+
+    let mut without_cache = simple_circuit_data();
+    without_cache.prover_only.fft_root_table = None;
+    let without_cache_bytes = prover_only_bytes(&without_cache);
+    // `None` is a different value, not a second spelling of the table.
+    assert_eq!(
+        decode(&without_cache_bytes).unwrap(),
+        without_cache.prover_only
+    );
+    // Skip the presence flag, the row count and the first row's length to reach its first limb.
+    let first_limb = offset_of(&without_cache_bytes) + 1 + 8 + 8;
+    let limb = F::from_canonical_u64(u64::from_le_bytes(
+        bytes[first_limb..][..8].try_into().unwrap(),
+    ));
+    let mut altered_limb = bytes.clone();
+    altered_limb[first_limb..][..8]
+        .copy_from_slice(&(limb + F::ONE).to_canonical_u64().to_le_bytes());
+    assert!(decode(&altered_limb).is_err());
+
+    // The other prover-holding entry points carry the same bytes verbatim.
+    let full_bytes = data
+        .to_bytes(&gate_serializer, &generator_serializer)
+        .unwrap();
+    let prover_full_bytes = simple_circuit_data()
+        .prover_data()
+        .to_bytes(&gate_serializer, &generator_serializer)
+        .unwrap();
+    let decodes_full = |bytes: &[u8]| {
+        CircuitData::<F, C, D>::from_bytes(bytes, &gate_serializer, &generator_serializer).is_ok()
+    };
+    let decodes_prover = |bytes: &[u8]| {
+        ProverCircuitData::<F, C, D>::from_bytes(bytes, &gate_serializer, &generator_serializer)
+            .is_ok()
+    };
+    let containers: [(&[u8], &dyn Fn(&[u8]) -> bool); 2] = [
+        (&full_bytes, &decodes_full),
+        (&prover_full_bytes, &decodes_prover),
+    ];
+    for (container, decodes) in containers {
+        let at = container
+            .windows(bytes.len())
+            .position(|window| window == bytes)
+            .unwrap();
+        let spliced =
+            |altered: &[u8]| [&container[..at], altered, &container[at + bytes.len()..]].concat();
+        assert!(decodes(&spliced(&bytes)));
+        assert!(!decodes(&spliced(&repeated_entry)));
+        assert!(!decodes(&spliced(&altered_limb)));
+    }
+}

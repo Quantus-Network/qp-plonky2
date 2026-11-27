@@ -44,7 +44,7 @@ pub type IoResult<T> = Result<T, IoError>;
 
 /// `IoError` carries no message, so the reason a decoded value was rejected is logged instead.
 fn rejected(reason: &'static str) -> IoError {
-    log::warn!("rejected deserialized circuit data: {reason}");
+    log::warn!("rejected deserialized data: {reason}");
     IoError
 }
 
@@ -148,7 +148,8 @@ pub trait Read {
     {
         let mut buf = [0; size_of::<u64>()];
         self.read_exact(&mut buf)?;
-        Ok(F::from_canonical_u64(u64::from_le_bytes(buf)))
+        F::try_from_canonical_u64(u64::from_le_bytes(buf))
+            .ok_or_else(|| rejected("non-canonical field element"))
     }
 
     /// Reads a vector of elements from the field `F` from `self`.
@@ -204,7 +205,7 @@ pub trait Read {
     {
         let mut buf = vec![0; H::HASH_SIZE];
         self.read_exact(&mut buf)?;
-        Ok(H::Hash::from_bytes(&buf))
+        H::Hash::from_bytes(&buf).ok_or_else(|| rejected("non-canonical hash"))
     }
 
     /// Reads a value of type [`MerkleCap`] from `self` with the given `cap_height`.
@@ -1063,6 +1064,20 @@ impl<'a> Buffer<'a> {
     #[inline]
     pub fn unread_bytes(&self) -> &'a [u8] {
         &self.bytes()[self.pos()..]
+    }
+
+    /// Decodes the whole of `bytes` with `read`, rejecting trailing data.
+    pub fn decode_all<T>(
+        bytes: &'a [u8],
+        read: impl FnOnce(&mut Self) -> IoResult<T>,
+    ) -> IoResult<T> {
+        let mut buffer = Self::new(bytes);
+        let value = read(&mut buffer)?;
+        if buffer.is_empty() {
+            Ok(value)
+        } else {
+            Err(rejected("trailing bytes"))
+        }
     }
 }
 
