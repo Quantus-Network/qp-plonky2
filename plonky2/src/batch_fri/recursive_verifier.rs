@@ -7,8 +7,13 @@ use crate::field::extension::Extendable;
 use crate::fri::proof::{
     FriChallengesTarget, FriInitialTreeProofTarget, FriProofTarget, FriQueryRoundTarget,
 };
-use crate::fri::recursive_verifier::PrecomputedReducedOpeningsTarget;
+use crate::fri::recursive_verifier::{
+    assert_fri_verifier_target_shape, PrecomputedReducedOpeningsTarget,
+};
 use crate::fri::structure::{FriBatchInfoTarget, FriInstanceInfoTarget, FriOpeningsTarget};
+use crate::fri::validate_shape::{
+    check_batch_fri_degree_bits, openings_at_leaf_positions, BatchLeafLayout,
+};
 use crate::fri::FriParams;
 use crate::hash::hash_types::{MerkleCapTarget, RichField};
 use crate::iop::ext_target::{flatten_target, ExtensionTarget};
@@ -35,23 +40,26 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             self.check_recursion_config(max_arity_bits);
         }
 
-        debug_assert_eq!(
+        check_batch_fri_degree_bits(degree_bits, instance.len(), params)
+            .unwrap_or_else(|error| panic!("{error}"));
+        assert_eq!(
             params.final_poly_len(),
             proof.final_poly.len(),
             "Final polynomial has wrong coefficient count."
+        );
+        let layouts = assert_fri_verifier_target_shape(
+            instance,
+            openings,
+            challenges,
+            initial_merkle_caps,
+            proof,
+            params,
         );
 
         with_context!(
             self,
             "check PoW",
             self.fri_verify_proof_of_work(challenges.fri_pow_response, &params.config)
-        );
-
-        // Check that parameters are coherent.
-        debug_assert_eq!(
-            params.config.num_query_rounds,
-            proof.query_round_proofs.len(),
-            "Number of query rounds does not match config."
         );
 
         let mut precomputed_reduced_evals = Vec::with_capacity(openings.len());
@@ -90,6 +98,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
                 self.batch_fri_verifier_query_round::<C>(
                     &degree_bits,
                     instance,
+                    &layouts,
                     challenges,
                     &precomputed_reduced_evals,
                     initial_merkle_caps,
@@ -106,28 +115,22 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     fn batch_fri_verify_initial_proof<H: AlgebraicHasher<F>>(
         &mut self,
         degree_bits: &[usize],
-        instances: &[FriInstanceInfoTarget<F, D>],
+        layouts: &[BatchLeafLayout],
         x_index_bits: &[BoolTarget],
         proof: &FriInitialTreeProofTarget,
         initial_merkle_caps: &[MerkleCapTarget],
         cap_index: Target,
     ) {
-        for (i, ((evals, merkle_proof), cap)) in proof
+        for (i, (((evals, merkle_proof), cap), layout)) in proof
             .evals_proofs
             .iter()
             .zip(initial_merkle_caps)
+            .zip(layouts)
             .enumerate()
         {
-            let leaves = instances
-                .iter()
-                .scan(0, |leaf_index, inst| {
-                    let num_polys = inst.oracles[i].num_polys;
-                    let leaves = (*leaf_index..*leaf_index + num_polys)
-                        .map(|idx| evals[idx])
-                        .collect::<Vec<_>>();
-                    *leaf_index += num_polys;
-                    Some(leaves)
-                })
+            let leaves = layout
+                .group_ranges()
+                .map(|range| evals[range].to_vec())
                 .collect::<Vec<_>>();
 
             with_context!(
@@ -148,6 +151,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
     fn batch_fri_combine_initial(
         &mut self,
         instance: &[FriInstanceInfoTarget<F, D>],
+        layouts: &[BatchLeafLayout],
         index: usize,
         proof: &FriInitialTreeProofTarget,
         alpha: ExtensionTarget<D>,
@@ -172,6 +176,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             .zip(&precomputed_reduced_evals.reduced_openings_at_point)
         {
             let FriBatchInfoTarget { point, openings } = batch;
+            let openings = openings_at_leaf_positions(openings, layouts);
             let evals = openings
                 .iter()
                 .map(|expression| {
@@ -198,6 +203,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         &mut self,
         degree_bits: &[usize],
         instance: &[FriInstanceInfoTarget<F, D>],
+        layouts: &[BatchLeafLayout],
         challenges: &FriChallengesTarget<D>,
         precomputed_reduced_evals: &[PrecomputedReducedOpeningsTarget<D>],
         initial_merkle_caps: &[MerkleCapTarget],
@@ -223,7 +229,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             "check FRI initial proof",
             self.batch_fri_verify_initial_proof::<C::Hasher>(
                 degree_bits,
-                instance,
+                layouts,
                 &x_index_bits,
                 &round_proof.initial_trees_proof,
                 initial_merkle_caps,
@@ -248,6 +254,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             "combine initial oracles",
             self.batch_fri_combine_initial(
                 instance,
+                layouts,
                 batch_index,
                 &round_proof.initial_trees_proof,
                 challenges.fri_alpha,
@@ -310,6 +317,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
                 });
                 let eval = self.batch_fri_combine_initial(
                     instance,
+                    layouts,
                     batch_index,
                     &round_proof.initial_trees_proof,
                     challenges.fri_alpha,
@@ -322,12 +330,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
                 batch_index += 1;
             }
         }
-
-        assert_eq!(
-            batch_index,
-            instance.len(),
-            "Wrong number of folded instances."
-        );
 
         // Final check of FRI. After all the reductions, we check that the final polynomial is equal
         // to the one sent by the prover.

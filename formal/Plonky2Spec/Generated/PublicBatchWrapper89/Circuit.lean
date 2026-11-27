@@ -27,7 +27,7 @@ set_option Elab.async false
 variable {p : ℕ} [Fact p.Prime]
 
 /-- The public-batch aggregation wrapper at `n_inner = 89` over the inner private-batch shape named by its recursion gadgets, without the inner verifiers (`wormhole/aggregator/src/public_batch/circuit/circuit_logic.rs`): inner public inputs `inner_pis_0..88`, the `aggregator_address` witness, and the aggregated public inputs. -/
-def publicBatchWrapper89 (p : ℕ) : Circuit p where
+noncomputable def publicBatchWrapper89 (p : ℕ) : Circuit p where
   rows := [
     ⟨.arithmetic 20, [1, 1]⟩,  -- row 0
     ⟨.arithmetic 20, [1, 0]⟩,  -- row 1

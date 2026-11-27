@@ -12,11 +12,11 @@
   is restated on the wiring (`end_to_end_wired`), with the children's `Rleaf` recovered from
   their accepted proofs through `proof_sound` and the leaf bridge
   (Step 10). `accepted_sound` is the wrapper's own `proof_sound` consequence, on its
-  certified build (`Plonky2Bridge/PrivateWrapperBuild.lean`), for the public-batch
+  certified build (`Plonky2Bridge/PrivateWrapperBuild/Wrapper4.lean`), for the public-batch
   wrapper above it.
 -/
 import Plonky2Bridge.PrivateBatch
-import Plonky2Bridge.PrivateWrapperBuild
+import Plonky2Bridge.PrivateWrapperBuild.Wrapper4
 import Plonky2Bridge.Generated.Leaf
 import Plonky2Spec.Generated.PrivateBatchWrapper4
 
@@ -38,7 +38,7 @@ set_option linter.unusedSimpArgs false
 /-! ### Reading the spec objects off the wiring -/
 
 /-- The 4-felt dummy-nullifier preimage of leaf `i` (`dummy_pre_image_i`). -/
-def preimage : Fin 4 → Fin 4 → Target
+noncomputable def preimage : Fin 4 → Fin 4 → Target
   | 0 => privateBatchWrapper4.dummy_pre_image_0
   | 1 => privateBatchWrapper4.dummy_pre_image_1
   | 2 => privateBatchWrapper4.dummy_pre_image_2
@@ -47,7 +47,7 @@ def preimage : Fin 4 → Fin 4 → Target
 /-- The field wires of leaf `i` the wrapper reads, with the `is_equal` witnesses of its
     `bytes_digest_eq(block_hash, 0)` dummy check, its preimage and the outer dummy-hash
     output. -/
-def row (a : Assignment p) : Fin 4 → LeafRow p
+noncomputable def row (a : Assignment p) : Fin 4 → LeafRow p
   | 0 =>
     { assetId := a (leafPis 0 0), nullifier := fun j => a (leafPis 0 ⟨1 + j, by omega⟩),
       blockHash := fun j => a (leafPis 0 ⟨5 + j, by omega⟩),
@@ -77,12 +77,12 @@ def row (a : Assignment p) : Fin 4 → LeafRow p
       dummyInv := ![a (.virt 109), a (.virt 111), a (.virt 113), a (.virt 115)]
       pre := fun j => a (preimage 3 j), dnull := fun j => a (.wire 45 (12 + j)) }
 
-def rows (a : Assignment p) : List (LeafRow p) := [row a 0, row a 1, row a 2, row a 3]
+noncomputable def rows (a : Assignment p) : List (LeafRow p) := [row a 0, row a 1, row a 2, row a 3]
 
 /-- The 4 children, decoded through `.val`. -/
-def leaves (a : Assignment p) : List LeafPublic := [(row a 0).leaf, (row a 1).leaf, (row a 2).leaf, (row a 3).leaf]
+noncomputable def leaves (a : Assignment p) : List LeafPublic := [(row a 0).leaf, (row a 1).leaf, (row a 2).leaf, (row a 3).leaf]
 /-- The 4 dummy-nullifier preimages, decoded through `.val`. -/
-def us (a : Assignment p) : List (List Felt) := [(row a 0).u, (row a 1).u, (row a 2).u, (row a 3).u]
+noncomputable def us (a : Assignment p) : List (List Felt) := [(row a 0).u, (row a 1).u, (row a 2).u, (row a 3).u]
 
 omit [Fact p.Prime] in
 theorem rows_leaves (a : Assignment p) : (rows a).map LeafRow.leaf = leaves a := rfl
@@ -90,20 +90,20 @@ omit [Fact p.Prime] in
 theorem rows_us (a : Assignment p) : (rows a).map LeafRow.u = us a := rfl
 
 /-- The 4 witnessed exit slots `(exit_amount_k, exit_account_k)`. -/
-def slots (a : Assignment p) : List (SlotF p) :=
+noncomputable def slots (a : Assignment p) : List (SlotF p) :=
   [(a (.virt 52), fun j => a (![Target.virt 48, Target.virt 49, Target.virt 50, Target.virt 51] j)),
    (a (.virt 57), fun j => a (![Target.virt 53, Target.virt 54, Target.virt 55, Target.virt 56] j)),
    (a (.virt 62), fun j => a (![Target.virt 58, Target.virt 59, Target.virt 60, Target.virt 61] j)),
    (a (.virt 67), fun j => a (![Target.virt 63, Target.virt 64, Target.virt 65, Target.virt 66] j))]
 
 /-- Public input `k` of the wrapper, decoded through `.val`. -/
-def pv (a : Assignment p) (k : ℕ) : Felt :=
+noncomputable def pv (a : Assignment p) (k : ℕ) : Felt :=
   (a ((privateBatchWrapper4 p).publicInputs.getD k (.virt 0))).val
 
 /-- The aggregated output at the `aggregated_output` layout: header `[num_exit_slots,
     asset_id, volume_fee_bps, block_hash(4), block_number]`, `M = 4` exit slots
     `[amount, account(4)]`, `N = 4` nullifiers. -/
-def out (a : Assignment p) : PrivateBatchOutput :=
+noncomputable def out (a : Assignment p) : PrivateBatchOutput :=
   { numExitSlots := pv a 0, assetId := pv a 1, volumeFeeBps := pv a 2,
     blockHash := ⟨pv a 3, pv a 4, pv a 5, pv a 6⟩, blockNumber := pv a 7,
     exitSlots := [⟨pv a 8, ⟨pv a 9, pv a 10, pv a 11, pv a 12⟩⟩,
@@ -584,7 +584,7 @@ theorem end_to_end_wired (perm : St p → St p) (hpg : WormholeSpec.goldilocks �
   exact ⟨hR, RPrivateBatch_settlement_le_input hR, RPrivateBatch_settles_distinct_spends hR, hleaf⟩
 
 /-- The 44 public inputs in registration order. -/
-def pi : Fin 44 → Target :=
+noncomputable def pi : Fin 44 → Target :=
   ![.virt 12, .virt 0, .virt 47, .wire 10 23, .wire 10 31, .wire 10 39, .wire 10 47, .wire 10 55, .virt 52, .virt 48, .virt 49, .virt 50, .virt 51, .virt 57, .virt 53, .virt 54, .virt 55, .virt 56, .virt 62, .virt 58, .virt 59, .virt 60, .virt 61, .virt 67, .virt 63, .virt 64, .virt 65, .virt 66, .wire 35 43, .wire 35 51, .wire 35 59, .wire 38 7, .wire 38 15, .wire 38 23, .wire 38 31, .wire 38 39, .wire 38 47, .wire 38 55, .wire 43 3, .wire 43 11, .wire 43 19, .wire 43 27, .wire 43 35, .wire 43 43]
 
 omit [Fact p.Prime] in
@@ -592,7 +592,7 @@ set_option maxRecDepth 8192 in
 theorem publicInputs_eq : (privateBatchWrapper4 p).publicInputs = List.ofFn pi := rfl
 
 /-- `out` as a function of the public-input values alone. -/
-def outOf (v : Fin 44 → ZMod p) : PrivateBatchOutput :=
+noncomputable def outOf (v : Fin 44 → ZMod p) : PrivateBatchOutput :=
   { numExitSlots := (v 0).val, assetId := (v 1).val, volumeFeeBps := (v 2).val,
     blockHash := ⟨(v 3).val, (v 4).val, (v 5).val, (v 6).val⟩, blockNumber := (v 7).val,
     exitSlots := [⟨(v 8).val, ⟨(v 9).val, (v 10).val, (v 11).val, (v 12).val⟩⟩,

@@ -28,7 +28,7 @@ set_option Elab.async false
 variable {p : ℕ}
 
 /-- The certificate of the deployed build against `privateBatchWrapper2`. -/
-def buildCert : BuildCert where
+noncomputable def buildCert : BuildCert where
   rowAt := (Tbl.node 2560 (Tbl.node 1280 (Tbl.node 512 (Tbl.node 256 buildCert.rowAt0 buildCert.rowAt1) (Tbl.node 256 buildCert.rowAt2 (Tbl.node 256 buildCert.rowAt3 buildCert.rowAt4))) (Tbl.node 512 (Tbl.node 256 buildCert.rowAt5 buildCert.rowAt6) (Tbl.node 256 buildCert.rowAt7 (Tbl.node 256 buildCert.rowAt8 buildCert.rowAt9)))) (Tbl.node 1280 (Tbl.node 512 (Tbl.node 256 buildCert.rowAt10 buildCert.rowAt11) (Tbl.node 256 buildCert.rowAt12 (Tbl.node 256 buildCert.rowAt13 buildCert.rowAt14))) (Tbl.node 768 (Tbl.node 256 buildCert.rowAt15 (Tbl.node 256 buildCert.rowAt16 buildCert.rowAt17)) (Tbl.node 256 buildCert.rowAt18 (Tbl.node 256 buildCert.rowAt19 buildCert.rowAt20)))))
   routed := 60
   numPublicInputs := 26

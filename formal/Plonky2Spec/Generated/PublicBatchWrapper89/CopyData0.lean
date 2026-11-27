@@ -27,7 +27,7 @@ variable {p : ℕ} [Fact p.Prime]
 
 
 /-- `publicBatchWrapper89.copies`, items `0..32`. -/
-def publicBatchWrapper89.copies0 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies0 : List (Target × Target) := [
     (.virt 0, .virt 17806),
     (.virt 202, .virt 17806),
     (.virt 402, .virt 17806),
@@ -63,7 +63,7 @@ def publicBatchWrapper89.copies0 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `32..64`. -/
-def publicBatchWrapper89.copies1 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies1 : List (Target × Target) := [
     (.virt 6402, .virt 17806),
     (.virt 6602, .virt 17806),
     (.virt 6802, .virt 17806),
@@ -99,7 +99,7 @@ def publicBatchWrapper89.copies1 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `64..96`. -/
-def publicBatchWrapper89.copies2 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies2 : List (Target × Target) := [
     (.virt 12802, .virt 17806),
     (.virt 13002, .virt 17806),
     (.virt 13202, .virt 17806),
@@ -135,7 +135,7 @@ def publicBatchWrapper89.copies2 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `96..128`. -/
-def publicBatchWrapper89.copies3 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies3 : List (Target × Target) := [
     (.virt 17808, .wire 1 21),
     (.virt 3, .wire 1 22),
     (.wire 1 23, .wire 2 4),
@@ -171,7 +171,7 @@ def publicBatchWrapper89.copies3 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `128..160`. -/
-def publicBatchWrapper89.copies4 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies4 : List (Target × Target) := [
     (.wire 2 19, .wire 2 22),
     (.wire 1 35, .virt 200),
     (.wire 2 23, .virt 200),
@@ -207,7 +207,7 @@ def publicBatchWrapper89.copies4 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `160..192`. -/
-def publicBatchWrapper89.copies5 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies5 : List (Target × Target) := [
     (.virt 205, .wire 1 64),
     (.virt 17816, .wire 1 65),
     (.virt 205, .wire 1 66),
@@ -243,7 +243,7 @@ def publicBatchWrapper89.copies5 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `192..224`. -/
-def publicBatchWrapper89.copies6 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies6 : List (Target × Target) := [
     (.virt 201, .wire 2 53),
     (.wire 2 51, .wire 2 54),
     (.wire 1 79, .virt 200),
@@ -279,7 +279,7 @@ def publicBatchWrapper89.copies6 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `224..256`. -/
-def publicBatchWrapper89.copies7 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies7 : List (Target × Target) := [
     (.virt 17823, .wire 3 26),
     (.virt 405, .wire 3 28),
     (.virt 17824, .wire 3 29),
@@ -315,7 +315,7 @@ def publicBatchWrapper89.copies7 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `256..288`. -/
-def publicBatchWrapper89.copies8 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies8 : List (Target × Target) := [
     (.wire 3 47, .wire 4 4),
     (.virt 201, .wire 4 5),
     (.wire 4 3, .wire 4 6),
@@ -351,7 +351,7 @@ def publicBatchWrapper89.copies8 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `288..320`. -/
-def publicBatchWrapper89.copies9 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies9 : List (Target × Target) := [
     (.virt 605, .wire 3 69),
     (.virt 17831, .wire 3 70),
     (.virt 605, .wire 3 72),
@@ -387,7 +387,7 @@ def publicBatchWrapper89.copies9 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `320..352`. -/
-def publicBatchWrapper89.copies10 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies10 : List (Target × Target) := [
     (.virt 607, .wire 5 10),
     (.wire 5 11, .wire 4 36),
     (.virt 201, .wire 4 37),
@@ -423,7 +423,7 @@ def publicBatchWrapper89.copies10 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `352..384`. -/
-def publicBatchWrapper89.copies11 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies11 : List (Target × Target) := [
     (.virt 17839, .wire 5 32),
     (.virt 805, .wire 5 33),
     (.virt 17839, .wire 5 34),
@@ -459,7 +459,7 @@ def publicBatchWrapper89.copies11 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `384..416`. -/
-def publicBatchWrapper89.copies12 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies12 : List (Target × Target) := [
     (.virt 17844, .wire 5 53),
     (.virt 807, .wire 5 54),
     (.wire 5 55, .wire 4 68),
@@ -495,7 +495,7 @@ def publicBatchWrapper89.copies12 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `416..448`. -/
-def publicBatchWrapper89.copies13 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies13 : List (Target × Target) := [
     (.virt 17847, .wire 6 2),
     (.virt 17847, .wire 5 76),
     (.virt 1005, .wire 5 77),
@@ -531,7 +531,7 @@ def publicBatchWrapper89.copies13 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `448..480`. -/
-def publicBatchWrapper89.copies14 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies14 : List (Target × Target) := [
     (.virt 1007, .wire 7 16),
     (.virt 17852, .wire 7 17),
     (.virt 1007, .wire 7 18),
@@ -567,7 +567,7 @@ def publicBatchWrapper89.copies14 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `480..512`. -/
-def publicBatchWrapper89.copies15 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies15 : List (Target × Target) := [
     (.virt 201, .wire 6 33),
     (.virt 17855, .wire 6 34),
     (.virt 17855, .wire 7 40),
@@ -603,7 +603,7 @@ def publicBatchWrapper89.copies15 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `512..544`. -/
-def publicBatchWrapper89.copies16 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies16 : List (Target × Target) := [
     (.virt 17859, .wire 7 58),
     (.virt 1207, .wire 7 60),
     (.virt 17860, .wire 7 61),
@@ -639,7 +639,7 @@ def publicBatchWrapper89.copies16 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `544..576`. -/
-def publicBatchWrapper89.copies17 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies17 : List (Target × Target) := [
     (.virt 201, .wire 6 64),
     (.virt 201, .wire 6 65),
     (.virt 17863, .wire 6 66),
@@ -675,7 +675,7 @@ def publicBatchWrapper89.copies17 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `576..608`. -/
-def publicBatchWrapper89.copies18 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies18 : List (Target × Target) := [
     (.virt 1407, .wire 8 21),
     (.virt 17867, .wire 8 22),
     (.virt 1407, .wire 8 24),
@@ -711,7 +711,7 @@ def publicBatchWrapper89.copies18 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `608..640`. -/
-def publicBatchWrapper89.copies19 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies19 : List (Target × Target) := [
     (.wire 8 39, .wire 8 46),
     (.virt 201, .wire 9 16),
     (.virt 201, .wire 9 17),
@@ -747,7 +747,7 @@ def publicBatchWrapper89.copies19 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `640..672`. -/
-def publicBatchWrapper89.copies20 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies20 : List (Target × Target) := [
     (.virt 17875, .wire 8 64),
     (.virt 1607, .wire 8 65),
     (.virt 17875, .wire 8 66),
@@ -783,7 +783,7 @@ def publicBatchWrapper89.copies20 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `672..704`. -/
-def publicBatchWrapper89.copies21 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies21 : List (Target × Target) := [
     (.wire 10 7, .wire 10 9),
     (.wire 10 3, .wire 10 10),
     (.virt 201, .wire 9 48),
@@ -819,7 +819,7 @@ def publicBatchWrapper89.copies21 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `704..736`. -/
-def publicBatchWrapper89.copies22 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies22 : List (Target × Target) := [
     (.virt 17883, .wire 9 66),
     (.virt 17883, .wire 10 28),
     (.virt 1807, .wire 10 29),
@@ -855,7 +855,7 @@ def publicBatchWrapper89.copies22 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `736..768`. -/
-def publicBatchWrapper89.copies23 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies23 : List (Target × Target) := [
     (.wire 10 47, .wire 10 52),
     (.wire 10 51, .wire 10 53),
     (.wire 10 47, .wire 10 54),
@@ -891,7 +891,7 @@ def publicBatchWrapper89.copies23 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `768..800`. -/
-def publicBatchWrapper89.copies24 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies24 : List (Target × Target) := [
     (.virt 201, .wire 11 17),
     (.virt 17891, .wire 11 18),
     (.virt 17891, .wire 10 72),
@@ -927,7 +927,7 @@ def publicBatchWrapper89.copies24 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `800..832`. -/
-def publicBatchWrapper89.copies25 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies25 : List (Target × Target) := [
     (.virt 17891, .wire 12 14),
     (.wire 12 11, .wire 12 16),
     (.wire 12 15, .wire 12 17),
@@ -963,7 +963,7 @@ def publicBatchWrapper89.copies25 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `832..864`. -/
-def publicBatchWrapper89.copies26 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies26 : List (Target × Target) := [
     (.virt 201, .wire 11 48),
     (.virt 201, .wire 11 49),
     (.virt 17899, .wire 11 50),
@@ -999,7 +999,7 @@ def publicBatchWrapper89.copies26 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `864..896`. -/
-def publicBatchWrapper89.copies27 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies27 : List (Target × Target) := [
     (.virt 17901, .wire 12 57),
     (.virt 17899, .wire 12 58),
     (.wire 12 55, .wire 12 60),
@@ -1035,7 +1035,7 @@ def publicBatchWrapper89.copies27 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `896..928`. -/
-def publicBatchWrapper89.copies28 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies28 : List (Target × Target) := [
     (.wire 11 79, .virt 200),
     (.virt 201, .wire 13 0),
     (.virt 201, .wire 13 1),
@@ -1071,7 +1071,7 @@ def publicBatchWrapper89.copies28 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `928..960`. -/
-def publicBatchWrapper89.copies29 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies29 : List (Target × Target) := [
     (.virt 17907, .wire 14 20),
     (.virt 17909, .wire 14 21),
     (.virt 17907, .wire 14 22),
@@ -1107,7 +1107,7 @@ def publicBatchWrapper89.copies29 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `960..992`. -/
-def publicBatchWrapper89.copies30 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies30 : List (Target × Target) := [
     (.wire 14 39, .virt 200),
     (.wire 13 31, .virt 200),
     (.virt 201, .wire 13 32),
@@ -1143,7 +1143,7 @@ def publicBatchWrapper89.copies30 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `992..1024`. -/
-def publicBatchWrapper89.copies31 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies31 : List (Target × Target) := [
     (.virt 17911, .wire 14 62),
     (.virt 17915, .wire 14 64),
     (.virt 17917, .wire 14 65),
@@ -1179,7 +1179,7 @@ def publicBatchWrapper89.copies31 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1024..1056`. -/
-def publicBatchWrapper89.copies32 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies32 : List (Target × Target) := [
     (.wire 13 59, .wire 13 62),
     (.wire 15 3, .virt 200),
     (.wire 13 63, .virt 200),
@@ -1215,7 +1215,7 @@ def publicBatchWrapper89.copies32 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1056..1088`. -/
-def publicBatchWrapper89.copies33 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies33 : List (Target × Target) := [
     (.virt 17921, .wire 15 25),
     (.virt 17919, .wire 15 26),
     (.virt 17923, .wire 15 28),
@@ -1251,7 +1251,7 @@ def publicBatchWrapper89.copies33 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1088..1120`. -/
-def publicBatchWrapper89.copies34 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies34 : List (Target × Target) := [
     (.virt 201, .wire 16 13),
     (.wire 16 11, .wire 16 14),
     (.wire 15 47, .virt 200),
@@ -1287,7 +1287,7 @@ def publicBatchWrapper89.copies34 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1120..1152`. -/
-def publicBatchWrapper89.copies35 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies35 : List (Target × Target) := [
     (.virt 17927, .wire 15 68),
     (.virt 17929, .wire 15 69),
     (.virt 17927, .wire 15 70),
@@ -1323,7 +1323,7 @@ def publicBatchWrapper89.copies35 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1152..1184`. -/
-def publicBatchWrapper89.copies36 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies36 : List (Target × Target) := [
     (.wire 17 15, .wire 16 44),
     (.virt 201, .wire 16 45),
     (.wire 16 43, .wire 16 46),
@@ -1359,7 +1359,7 @@ def publicBatchWrapper89.copies36 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1184..1216`. -/
-def publicBatchWrapper89.copies37 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies37 : List (Target × Target) := [
     (.wire 16 63, .virt 200),
     (.virt 17935, .wire 17 32),
     (.virt 17937, .wire 17 33),
@@ -1395,7 +1395,7 @@ def publicBatchWrapper89.copies37 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1216..1248`. -/
-def publicBatchWrapper89.copies38 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies38 : List (Target × Target) := [
     (.virt 3406, .wire 17 58),
     (.wire 17 59, .wire 16 76),
     (.virt 201, .wire 16 77),
@@ -1431,7 +1431,7 @@ def publicBatchWrapper89.copies38 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1248..1280`. -/
-def publicBatchWrapper89.copies39 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies39 : List (Target × Target) := [
     (.wire 17 71, .virt 200),
     (.wire 18 15, .virt 200),
     (.virt 17943, .wire 17 76),
@@ -1467,7 +1467,7 @@ def publicBatchWrapper89.copies39 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1280..1312`. -/
-def publicBatchWrapper89.copies40 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies40 : List (Target × Target) := [
     (.virt 17954, .wire 19 21),
     (.virt 3606, .wire 19 22),
     (.wire 19 23, .wire 18 28),
@@ -1503,7 +1503,7 @@ def publicBatchWrapper89.copies40 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1312..1344`. -/
-def publicBatchWrapper89.copies41 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies41 : List (Target × Target) := [
     (.wire 18 43, .wire 18 46),
     (.wire 19 35, .virt 200),
     (.wire 18 47, .virt 200),
@@ -1539,7 +1539,7 @@ def publicBatchWrapper89.copies41 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1344..1376`. -/
-def publicBatchWrapper89.copies42 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies42 : List (Target × Target) := [
     (.virt 3806, .wire 19 64),
     (.virt 17962, .wire 19 65),
     (.virt 3806, .wire 19 66),
@@ -1575,7 +1575,7 @@ def publicBatchWrapper89.copies42 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1376..1408`. -/
-def publicBatchWrapper89.copies43 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies43 : List (Target × Target) := [
     (.virt 201, .wire 18 77),
     (.wire 18 75, .wire 18 78),
     (.wire 19 79, .virt 200),
@@ -1611,7 +1611,7 @@ def publicBatchWrapper89.copies43 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1408..1440`. -/
-def publicBatchWrapper89.copies44 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies44 : List (Target × Target) := [
     (.virt 17969, .wire 20 26),
     (.virt 4006, .wire 20 28),
     (.virt 17970, .wire 20 29),
@@ -1647,7 +1647,7 @@ def publicBatchWrapper89.copies44 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1440..1472`. -/
-def publicBatchWrapper89.copies45 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies45 : List (Target × Target) := [
     (.wire 20 47, .wire 21 28),
     (.virt 201, .wire 21 29),
     (.wire 21 27, .wire 21 30),
@@ -1683,7 +1683,7 @@ def publicBatchWrapper89.copies45 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1472..1504`. -/
-def publicBatchWrapper89.copies46 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies46 : List (Target × Target) := [
     (.virt 4206, .wire 20 69),
     (.virt 17977, .wire 20 70),
     (.virt 4206, .wire 20 72),
@@ -1719,7 +1719,7 @@ def publicBatchWrapper89.copies46 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1504..1536`. -/
-def publicBatchWrapper89.copies47 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies47 : List (Target × Target) := [
     (.virt 4208, .wire 22 10),
     (.wire 22 11, .wire 21 60),
     (.virt 201, .wire 21 61),
@@ -1755,7 +1755,7 @@ def publicBatchWrapper89.copies47 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1536..1568`. -/
-def publicBatchWrapper89.copies48 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies48 : List (Target × Target) := [
     (.virt 17985, .wire 22 32),
     (.virt 4406, .wire 22 33),
     (.virt 17985, .wire 22 34),
@@ -1791,7 +1791,7 @@ def publicBatchWrapper89.copies48 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1568..1600`. -/
-def publicBatchWrapper89.copies49 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies49 : List (Target × Target) := [
     (.virt 17990, .wire 22 53),
     (.virt 4408, .wire 22 54),
     (.wire 22 55, .wire 23 12),
@@ -1827,7 +1827,7 @@ def publicBatchWrapper89.copies49 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1600..1632`. -/
-def publicBatchWrapper89.copies50 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies50 : List (Target × Target) := [
     (.virt 17993, .wire 23 26),
     (.virt 17993, .wire 22 76),
     (.virt 4606, .wire 22 77),
@@ -1863,7 +1863,7 @@ def publicBatchWrapper89.copies50 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1632..1664`. -/
-def publicBatchWrapper89.copies51 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies51 : List (Target × Target) := [
     (.virt 4608, .wire 24 16),
     (.virt 17998, .wire 24 17),
     (.virt 4608, .wire 24 18),
@@ -1899,7 +1899,7 @@ def publicBatchWrapper89.copies51 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1664..1696`. -/
-def publicBatchWrapper89.copies52 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies52 : List (Target × Target) := [
     (.virt 201, .wire 23 57),
     (.virt 18001, .wire 23 58),
     (.virt 18001, .wire 24 40),
@@ -1935,7 +1935,7 @@ def publicBatchWrapper89.copies52 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1696..1728`. -/
-def publicBatchWrapper89.copies53 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies53 : List (Target × Target) := [
     (.virt 18005, .wire 24 58),
     (.virt 4808, .wire 24 60),
     (.virt 18006, .wire 24 61),
@@ -1971,7 +1971,7 @@ def publicBatchWrapper89.copies53 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1728..1760`. -/
-def publicBatchWrapper89.copies54 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies54 : List (Target × Target) := [
     (.virt 201, .wire 25 8),
     (.virt 201, .wire 25 9),
     (.virt 18009, .wire 25 10),
@@ -2007,7 +2007,7 @@ def publicBatchWrapper89.copies54 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1760..1792`. -/
-def publicBatchWrapper89.copies55 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies55 : List (Target × Target) := [
     (.virt 5008, .wire 26 21),
     (.virt 18013, .wire 26 22),
     (.virt 5008, .wire 26 24),
@@ -2043,7 +2043,7 @@ def publicBatchWrapper89.copies55 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1792..1824`. -/
-def publicBatchWrapper89.copies56 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies56 : List (Target × Target) := [
     (.wire 25 39, .virt 200),
     (.virt 201, .wire 25 40),
     (.virt 201, .wire 25 41),
@@ -2079,7 +2079,7 @@ def publicBatchWrapper89.copies56 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1824..1856`. -/
-def publicBatchWrapper89.copies57 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies57 : List (Target × Target) := [
     (.virt 18021, .wire 26 64),
     (.virt 5208, .wire 26 65),
     (.virt 18021, .wire 26 66),
@@ -2115,7 +2115,7 @@ def publicBatchWrapper89.copies57 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1856..1888`. -/
-def publicBatchWrapper89.copies58 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies58 : List (Target × Target) := [
     (.wire 27 7, .virt 200),
     (.wire 25 71, .virt 200),
     (.virt 201, .wire 25 72),
@@ -2151,7 +2151,7 @@ def publicBatchWrapper89.copies58 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1888..1920`. -/
-def publicBatchWrapper89.copies59 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies59 : List (Target × Target) := [
     (.virt 18029, .wire 28 10),
     (.virt 18029, .wire 27 28),
     (.virt 5408, .wire 27 29),
@@ -2187,7 +2187,7 @@ def publicBatchWrapper89.copies59 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1920..1952`. -/
-def publicBatchWrapper89.copies60 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies60 : List (Target × Target) := [
     (.wire 28 19, .wire 28 22),
     (.wire 27 51, .virt 200),
     (.wire 28 23, .virt 200),
@@ -2223,7 +2223,7 @@ def publicBatchWrapper89.copies60 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1952..1984`. -/
-def publicBatchWrapper89.copies61 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies61 : List (Target × Target) := [
     (.virt 201, .wire 28 41),
     (.virt 18037, .wire 28 42),
     (.virt 18037, .wire 27 72),
@@ -2259,7 +2259,7 @@ def publicBatchWrapper89.copies61 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `1984..2016`. -/
-def publicBatchWrapper89.copies62 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies62 : List (Target × Target) := [
     (.virt 201, .wire 28 53),
     (.wire 28 51, .wire 28 54),
     (.wire 29 15, .virt 200),
@@ -2295,7 +2295,7 @@ def publicBatchWrapper89.copies62 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2016..2048`. -/
-def publicBatchWrapper89.copies63 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies63 : List (Target × Target) := [
     (.virt 201, .wire 28 72),
     (.virt 201, .wire 28 73),
     (.virt 18045, .wire 28 74),
@@ -2331,7 +2331,7 @@ def publicBatchWrapper89.copies63 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2048..2080`. -/
-def publicBatchWrapper89.copies64 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies64 : List (Target × Target) := [
     (.wire 29 63, .wire 30 4),
     (.virt 201, .wire 30 5),
     (.wire 30 3, .wire 30 6),
@@ -2367,7 +2367,7 @@ def publicBatchWrapper89.copies64 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2080..2112`. -/
-def publicBatchWrapper89.copies65 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies65 : List (Target × Target) := [
     (.wire 30 23, .virt 200),
     (.virt 201, .wire 30 24),
     (.virt 201, .wire 30 25),
@@ -2403,7 +2403,7 @@ def publicBatchWrapper89.copies65 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2112..2144`. -/
-def publicBatchWrapper89.copies66 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies66 : List (Target × Target) := [
     (.virt 6205, .wire 31 26),
     (.wire 31 27, .wire 30 36),
     (.virt 201, .wire 30 37),
@@ -2439,7 +2439,7 @@ def publicBatchWrapper89.copies66 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2144..2176`. -/
-def publicBatchWrapper89.copies67 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies67 : List (Target × Target) := [
     (.wire 31 39, .virt 200),
     (.wire 30 55, .virt 200),
     (.virt 201, .wire 30 56),
@@ -2475,7 +2475,7 @@ def publicBatchWrapper89.copies67 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2176..2208`. -/
-def publicBatchWrapper89.copies68 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies68 : List (Target × Target) := [
     (.virt 18064, .wire 31 69),
     (.virt 6405, .wire 31 70),
     (.wire 31 71, .wire 30 68),
@@ -2511,7 +2511,7 @@ def publicBatchWrapper89.copies68 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2208..2240`. -/
-def publicBatchWrapper89.copies69 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies69 : List (Target × Target) := [
     (.wire 32 3, .wire 32 6),
     (.wire 33 3, .virt 200),
     (.wire 32 7, .virt 200),
@@ -2547,7 +2547,7 @@ def publicBatchWrapper89.copies69 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2240..2272`. -/
-def publicBatchWrapper89.copies70 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies70 : List (Target × Target) := [
     (.virt 6605, .wire 33 32),
     (.virt 18072, .wire 33 33),
     (.virt 6605, .wire 33 34),
@@ -2583,7 +2583,7 @@ def publicBatchWrapper89.copies70 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2272..2304`. -/
-def publicBatchWrapper89.copies71 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies71 : List (Target × Target) := [
     (.virt 201, .wire 32 37),
     (.wire 32 35, .wire 32 38),
     (.wire 33 47, .virt 200),
@@ -2619,7 +2619,7 @@ def publicBatchWrapper89.copies71 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2304..2336`. -/
-def publicBatchWrapper89.copies72 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies72 : List (Target × Target) := [
     (.virt 18079, .wire 33 74),
     (.virt 6805, .wire 33 76),
     (.virt 18080, .wire 33 77),
@@ -2655,7 +2655,7 @@ def publicBatchWrapper89.copies72 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2336..2368`. -/
-def publicBatchWrapper89.copies73 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies73 : List (Target × Target) := [
     (.wire 34 15, .wire 32 68),
     (.virt 201, .wire 32 69),
     (.wire 32 67, .wire 32 70),
@@ -2691,7 +2691,7 @@ def publicBatchWrapper89.copies73 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2368..2400`. -/
-def publicBatchWrapper89.copies74 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies74 : List (Target × Target) := [
     (.virt 7005, .wire 34 37),
     (.virt 18087, .wire 34 38),
     (.virt 7005, .wire 34 40),
@@ -2727,7 +2727,7 @@ def publicBatchWrapper89.copies74 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2400..2432`. -/
-def publicBatchWrapper89.copies75 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies75 : List (Target × Target) := [
     (.virt 7007, .wire 34 58),
     (.wire 34 59, .wire 35 20),
     (.virt 201, .wire 35 21),
@@ -2763,7 +2763,7 @@ def publicBatchWrapper89.copies75 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2432..2464`. -/
-def publicBatchWrapper89.copies76 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies76 : List (Target × Target) := [
     (.virt 18095, .wire 36 0),
     (.virt 7205, .wire 36 1),
     (.virt 18095, .wire 36 2),
@@ -2799,7 +2799,7 @@ def publicBatchWrapper89.copies76 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2464..2496`. -/
-def publicBatchWrapper89.copies77 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies77 : List (Target × Target) := [
     (.virt 18100, .wire 36 21),
     (.virt 7207, .wire 36 22),
     (.wire 36 23, .wire 35 52),
@@ -2835,7 +2835,7 @@ def publicBatchWrapper89.copies77 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2496..2528`. -/
-def publicBatchWrapper89.copies78 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies78 : List (Target × Target) := [
     (.virt 18103, .wire 35 66),
     (.virt 18103, .wire 36 44),
     (.virt 7405, .wire 36 45),
@@ -2871,7 +2871,7 @@ def publicBatchWrapper89.copies78 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2528..2560`. -/
-def publicBatchWrapper89.copies79 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies79 : List (Target × Target) := [
     (.virt 7407, .wire 36 64),
     (.virt 18108, .wire 36 65),
     (.virt 7407, .wire 36 66),
@@ -2907,7 +2907,7 @@ def publicBatchWrapper89.copies79 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2560..2592`. -/
-def publicBatchWrapper89.copies80 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies80 : List (Target × Target) := [
     (.virt 201, .wire 37 17),
     (.virt 18111, .wire 37 18),
     (.virt 18111, .wire 38 8),
@@ -2943,7 +2943,7 @@ def publicBatchWrapper89.copies80 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2592..2624`. -/
-def publicBatchWrapper89.copies81 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies81 : List (Target × Target) := [
     (.virt 18115, .wire 38 26),
     (.virt 7607, .wire 38 28),
     (.virt 18116, .wire 38 29),
@@ -2979,7 +2979,7 @@ def publicBatchWrapper89.copies81 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2624..2656`. -/
-def publicBatchWrapper89.copies82 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies82 : List (Target × Target) := [
     (.virt 201, .wire 37 48),
     (.virt 201, .wire 37 49),
     (.virt 18119, .wire 37 50),
@@ -3015,7 +3015,7 @@ def publicBatchWrapper89.copies82 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2656..2688`. -/
-def publicBatchWrapper89.copies83 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies83 : List (Target × Target) := [
     (.virt 7807, .wire 38 69),
     (.virt 18123, .wire 38 70),
     (.virt 7807, .wire 38 72),
@@ -3051,7 +3051,7 @@ def publicBatchWrapper89.copies83 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2688..2720`. -/
-def publicBatchWrapper89.copies84 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies84 : List (Target × Target) := [
     (.wire 39 7, .wire 39 14),
     (.virt 201, .wire 40 0),
     (.virt 201, .wire 40 1),
@@ -3087,7 +3087,7 @@ def publicBatchWrapper89.copies84 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2720..2752`. -/
-def publicBatchWrapper89.copies85 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies85 : List (Target × Target) := [
     (.virt 18131, .wire 39 32),
     (.virt 8007, .wire 39 33),
     (.virt 18131, .wire 39 34),
@@ -3123,7 +3123,7 @@ def publicBatchWrapper89.copies85 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2752..2784`. -/
-def publicBatchWrapper89.copies86 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies86 : List (Target × Target) := [
     (.wire 39 55, .wire 39 57),
     (.wire 39 51, .wire 39 58),
     (.virt 201, .wire 40 32),
@@ -3159,7 +3159,7 @@ def publicBatchWrapper89.copies86 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2784..2816`. -/
-def publicBatchWrapper89.copies87 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies87 : List (Target × Target) := [
     (.virt 18139, .wire 40 50),
     (.virt 18139, .wire 39 76),
     (.virt 8207, .wire 39 77),
@@ -3195,7 +3195,7 @@ def publicBatchWrapper89.copies87 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2816..2848`. -/
-def publicBatchWrapper89.copies88 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies88 : List (Target × Target) := [
     (.wire 41 15, .wire 41 20),
     (.wire 41 19, .wire 41 21),
     (.wire 41 15, .wire 41 22),
@@ -3231,7 +3231,7 @@ def publicBatchWrapper89.copies88 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2848..2880`. -/
-def publicBatchWrapper89.copies89 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies89 : List (Target × Target) := [
     (.virt 201, .wire 42 1),
     (.virt 18147, .wire 42 2),
     (.virt 18147, .wire 41 40),
@@ -3267,7 +3267,7 @@ def publicBatchWrapper89.copies89 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2880..2912`. -/
-def publicBatchWrapper89.copies90 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies90 : List (Target × Target) := [
     (.virt 18147, .wire 41 62),
     (.wire 41 59, .wire 41 64),
     (.wire 41 63, .wire 41 65),
@@ -3303,7 +3303,7 @@ def publicBatchWrapper89.copies90 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2912..2944`. -/
-def publicBatchWrapper89.copies91 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies91 : List (Target × Target) := [
     (.virt 201, .wire 42 32),
     (.virt 201, .wire 42 33),
     (.virt 18155, .wire 42 34),
@@ -3339,7 +3339,7 @@ def publicBatchWrapper89.copies91 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2944..2976`. -/
-def publicBatchWrapper89.copies92 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies92 : List (Target × Target) := [
     (.virt 18157, .wire 43 25),
     (.virt 18155, .wire 43 26),
     (.wire 43 23, .wire 43 28),
@@ -3375,7 +3375,7 @@ def publicBatchWrapper89.copies92 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `2976..3008`. -/
-def publicBatchWrapper89.copies93 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies93 : List (Target × Target) := [
     (.wire 42 63, .virt 200),
     (.virt 201, .wire 42 64),
     (.virt 201, .wire 42 65),
@@ -3411,7 +3411,7 @@ def publicBatchWrapper89.copies93 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3008..3040`. -/
-def publicBatchWrapper89.copies94 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies94 : List (Target × Target) := [
     (.virt 18163, .wire 43 68),
     (.virt 18165, .wire 43 69),
     (.virt 18163, .wire 43 70),
@@ -3447,7 +3447,7 @@ def publicBatchWrapper89.copies94 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3040..3072`. -/
-def publicBatchWrapper89.copies95 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies95 : List (Target × Target) := [
     (.wire 45 7, .virt 200),
     (.wire 44 15, .virt 200),
     (.virt 201, .wire 44 16),
@@ -3483,7 +3483,7 @@ def publicBatchWrapper89.copies95 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3072..3104`. -/
-def publicBatchWrapper89.copies96 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies96 : List (Target × Target) := [
     (.virt 18167, .wire 45 30),
     (.virt 18171, .wire 45 32),
     (.virt 18173, .wire 45 33),
@@ -3519,7 +3519,7 @@ def publicBatchWrapper89.copies96 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3104..3136`. -/
-def publicBatchWrapper89.copies97 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies97 : List (Target × Target) := [
     (.wire 44 43, .wire 44 46),
     (.wire 45 51, .virt 200),
     (.wire 44 47, .virt 200),
@@ -3555,7 +3555,7 @@ def publicBatchWrapper89.copies97 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3136..3168`. -/
-def publicBatchWrapper89.copies98 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies98 : List (Target × Target) := [
     (.virt 18177, .wire 45 73),
     (.virt 18175, .wire 45 74),
     (.virt 18179, .wire 45 76),
@@ -3591,7 +3591,7 @@ def publicBatchWrapper89.copies98 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3168..3200`. -/
-def publicBatchWrapper89.copies99 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies99 : List (Target × Target) := [
     (.virt 201, .wire 44 77),
     (.wire 44 75, .wire 44 78),
     (.wire 46 15, .virt 200),
@@ -3627,7 +3627,7 @@ def publicBatchWrapper89.copies99 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3200..3232`. -/
-def publicBatchWrapper89.copies100 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies100 : List (Target × Target) := [
     (.virt 18183, .wire 46 36),
     (.virt 18185, .wire 46 37),
     (.virt 18183, .wire 46 38),
@@ -3663,7 +3663,7 @@ def publicBatchWrapper89.copies100 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3232..3264`. -/
-def publicBatchWrapper89.copies101 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies101 : List (Target × Target) := [
     (.wire 46 63, .wire 47 28),
     (.virt 201, .wire 47 29),
     (.wire 47 27, .wire 47 30),
@@ -3699,7 +3699,7 @@ def publicBatchWrapper89.copies101 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3264..3296`. -/
-def publicBatchWrapper89.copies102 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies102 : List (Target × Target) := [
     (.wire 47 47, .virt 200),
     (.virt 18191, .wire 48 0),
     (.virt 18193, .wire 48 1),
@@ -3735,7 +3735,7 @@ def publicBatchWrapper89.copies102 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3296..3328`. -/
-def publicBatchWrapper89.copies103 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies103 : List (Target × Target) := [
     (.virt 9806, .wire 48 26),
     (.wire 48 27, .wire 47 60),
     (.virt 201, .wire 47 61),
@@ -3771,7 +3771,7 @@ def publicBatchWrapper89.copies103 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3328..3360`. -/
-def publicBatchWrapper89.copies104 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies104 : List (Target × Target) := [
     (.wire 48 39, .virt 200),
     (.wire 47 79, .virt 200),
     (.virt 18199, .wire 48 44),
@@ -3807,7 +3807,7 @@ def publicBatchWrapper89.copies104 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3360..3392`. -/
-def publicBatchWrapper89.copies105 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies105 : List (Target × Target) := [
     (.virt 18210, .wire 48 69),
     (.virt 10006, .wire 48 70),
     (.wire 48 71, .wire 49 12),
@@ -3843,7 +3843,7 @@ def publicBatchWrapper89.copies105 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3392..3424`. -/
-def publicBatchWrapper89.copies106 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies106 : List (Target × Target) := [
     (.wire 49 27, .wire 49 30),
     (.wire 50 3, .virt 200),
     (.wire 49 31, .virt 200),
@@ -3879,7 +3879,7 @@ def publicBatchWrapper89.copies106 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3424..3456`. -/
-def publicBatchWrapper89.copies107 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies107 : List (Target × Target) := [
     (.virt 10206, .wire 50 32),
     (.virt 18218, .wire 50 33),
     (.virt 10206, .wire 50 34),
@@ -3915,7 +3915,7 @@ def publicBatchWrapper89.copies107 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3456..3488`. -/
-def publicBatchWrapper89.copies108 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies108 : List (Target × Target) := [
     (.virt 201, .wire 49 61),
     (.wire 49 59, .wire 49 62),
     (.wire 50 47, .virt 200),
@@ -3951,7 +3951,7 @@ def publicBatchWrapper89.copies108 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3488..3520`. -/
-def publicBatchWrapper89.copies109 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies109 : List (Target × Target) := [
     (.virt 18225, .wire 50 74),
     (.virt 10406, .wire 50 76),
     (.virt 18226, .wire 50 77),
@@ -3987,7 +3987,7 @@ def publicBatchWrapper89.copies109 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3520..3552`. -/
-def publicBatchWrapper89.copies110 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies110 : List (Target × Target) := [
     (.wire 52 15, .wire 51 12),
     (.virt 201, .wire 51 13),
     (.wire 51 11, .wire 51 14),
@@ -4023,7 +4023,7 @@ def publicBatchWrapper89.copies110 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3552..3584`. -/
-def publicBatchWrapper89.copies111 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies111 : List (Target × Target) := [
     (.virt 10606, .wire 52 37),
     (.virt 18233, .wire 52 38),
     (.virt 10606, .wire 52 40),
@@ -4059,7 +4059,7 @@ def publicBatchWrapper89.copies111 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3584..3616`. -/
-def publicBatchWrapper89.copies112 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies112 : List (Target × Target) := [
     (.virt 10608, .wire 52 58),
     (.wire 52 59, .wire 51 44),
     (.virt 201, .wire 51 45),
@@ -4095,7 +4095,7 @@ def publicBatchWrapper89.copies112 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3616..3648`. -/
-def publicBatchWrapper89.copies113 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies113 : List (Target × Target) := [
     (.virt 18241, .wire 53 0),
     (.virt 10806, .wire 53 1),
     (.virt 18241, .wire 53 2),
@@ -4131,7 +4131,7 @@ def publicBatchWrapper89.copies113 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3648..3680`. -/
-def publicBatchWrapper89.copies114 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies114 : List (Target × Target) := [
     (.virt 18246, .wire 53 21),
     (.virt 10808, .wire 53 22),
     (.wire 53 23, .wire 51 76),
@@ -4167,7 +4167,7 @@ def publicBatchWrapper89.copies114 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3680..3712`. -/
-def publicBatchWrapper89.copies115 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies115 : List (Target × Target) := [
     (.virt 18249, .wire 54 10),
     (.virt 18249, .wire 53 44),
     (.virt 11006, .wire 53 45),
@@ -4203,7 +4203,7 @@ def publicBatchWrapper89.copies115 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3712..3744`. -/
-def publicBatchWrapper89.copies116 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies116 : List (Target × Target) := [
     (.virt 11008, .wire 53 64),
     (.virt 18254, .wire 53 65),
     (.virt 11008, .wire 53 66),
@@ -4239,7 +4239,7 @@ def publicBatchWrapper89.copies116 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3744..3776`. -/
-def publicBatchWrapper89.copies117 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies117 : List (Target × Target) := [
     (.virt 201, .wire 54 41),
     (.virt 18257, .wire 54 42),
     (.virt 18257, .wire 55 8),
@@ -4275,7 +4275,7 @@ def publicBatchWrapper89.copies117 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3776..3808`. -/
-def publicBatchWrapper89.copies118 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies118 : List (Target × Target) := [
     (.virt 18261, .wire 55 26),
     (.virt 11208, .wire 55 28),
     (.virt 18262, .wire 55 29),
@@ -4311,7 +4311,7 @@ def publicBatchWrapper89.copies118 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3808..3840`. -/
-def publicBatchWrapper89.copies119 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies119 : List (Target × Target) := [
     (.virt 201, .wire 54 72),
     (.virt 201, .wire 54 73),
     (.virt 18265, .wire 54 74),
@@ -4347,7 +4347,7 @@ def publicBatchWrapper89.copies119 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3840..3872`. -/
-def publicBatchWrapper89.copies120 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies120 : List (Target × Target) := [
     (.virt 11408, .wire 55 69),
     (.virt 18269, .wire 55 70),
     (.virt 11408, .wire 55 72),
@@ -4383,7 +4383,7 @@ def publicBatchWrapper89.copies120 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3872..3904`. -/
-def publicBatchWrapper89.copies121 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies121 : List (Target × Target) := [
     (.wire 56 23, .virt 200),
     (.virt 201, .wire 56 24),
     (.virt 201, .wire 56 25),
@@ -4419,7 +4419,7 @@ def publicBatchWrapper89.copies121 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3904..3936`. -/
-def publicBatchWrapper89.copies122 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies122 : List (Target × Target) := [
     (.virt 18277, .wire 57 32),
     (.virt 11608, .wire 57 33),
     (.virt 18277, .wire 57 34),
@@ -4455,7 +4455,7 @@ def publicBatchWrapper89.copies122 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3936..3968`. -/
-def publicBatchWrapper89.copies123 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies123 : List (Target × Target) := [
     (.wire 57 55, .virt 200),
     (.wire 56 55, .virt 200),
     (.virt 201, .wire 56 56),
@@ -4491,7 +4491,7 @@ def publicBatchWrapper89.copies123 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `3968..4000`. -/
-def publicBatchWrapper89.copies124 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies124 : List (Target × Target) := [
     (.virt 18285, .wire 56 74),
     (.virt 18285, .wire 57 76),
     (.virt 11808, .wire 57 77),
@@ -4527,7 +4527,7 @@ def publicBatchWrapper89.copies124 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4000..4032`. -/
-def publicBatchWrapper89.copies125 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies125 : List (Target × Target) := [
     (.wire 59 3, .wire 59 6),
     (.wire 58 19, .virt 200),
     (.wire 59 7, .virt 200),
@@ -4563,7 +4563,7 @@ def publicBatchWrapper89.copies125 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4032..4064`. -/
-def publicBatchWrapper89.copies126 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies126 : List (Target × Target) := [
     (.virt 201, .wire 59 25),
     (.virt 18293, .wire 59 26),
     (.virt 18293, .wire 58 40),
@@ -4599,7 +4599,7 @@ def publicBatchWrapper89.copies126 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4064..4096`. -/
-def publicBatchWrapper89.copies127 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies127 : List (Target × Target) := [
     (.virt 201, .wire 59 37),
     (.wire 59 35, .wire 59 38),
     (.wire 58 63, .virt 200),
@@ -4635,7 +4635,7 @@ def publicBatchWrapper89.copies127 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4096..4128`. -/
-def publicBatchWrapper89.copies128 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies128 : List (Target × Target) := [
     (.virt 201, .wire 59 56),
     (.virt 201, .wire 59 57),
     (.virt 18301, .wire 59 58),
@@ -4671,7 +4671,7 @@ def publicBatchWrapper89.copies128 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4128..4160`. -/
-def publicBatchWrapper89.copies129 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies129 : List (Target × Target) := [
     (.wire 60 31, .wire 59 68),
     (.virt 201, .wire 59 69),
     (.wire 59 67, .wire 59 70),
@@ -4707,7 +4707,7 @@ def publicBatchWrapper89.copies129 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4160..4192`. -/
-def publicBatchWrapper89.copies130 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies130 : List (Target × Target) := [
     (.wire 61 7, .virt 200),
     (.virt 201, .wire 61 8),
     (.virt 201, .wire 61 9),
@@ -4743,7 +4743,7 @@ def publicBatchWrapper89.copies130 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4192..4224`. -/
-def publicBatchWrapper89.copies131 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies131 : List (Target × Target) := [
     (.virt 12605, .wire 60 74),
     (.wire 60 75, .wire 61 20),
     (.virt 201, .wire 61 21),
@@ -4779,7 +4779,7 @@ def publicBatchWrapper89.copies131 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4224..4256`. -/
-def publicBatchWrapper89.copies132 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies132 : List (Target × Target) := [
     (.wire 62 7, .virt 200),
     (.wire 61 39, .virt 200),
     (.virt 201, .wire 61 40),
@@ -4815,7 +4815,7 @@ def publicBatchWrapper89.copies132 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4256..4288`. -/
-def publicBatchWrapper89.copies133 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies133 : List (Target × Target) := [
     (.virt 18320, .wire 62 37),
     (.virt 12805, .wire 62 38),
     (.wire 62 39, .wire 61 52),
@@ -4851,7 +4851,7 @@ def publicBatchWrapper89.copies133 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4288..4320`. -/
-def publicBatchWrapper89.copies134 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies134 : List (Target × Target) := [
     (.wire 61 67, .wire 61 70),
     (.wire 62 51, .virt 200),
     (.wire 61 71, .virt 200),
@@ -4887,7 +4887,7 @@ def publicBatchWrapper89.copies134 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4320..4352`. -/
-def publicBatchWrapper89.copies135 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies135 : List (Target × Target) := [
     (.virt 13005, .wire 64 0),
     (.virt 18328, .wire 64 1),
     (.virt 13005, .wire 64 2),
@@ -4923,7 +4923,7 @@ def publicBatchWrapper89.copies135 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4352..4384`. -/
-def publicBatchWrapper89.copies136 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies136 : List (Target × Target) := [
     (.virt 201, .wire 63 21),
     (.wire 63 19, .wire 63 22),
     (.wire 64 15, .virt 200),
@@ -4959,7 +4959,7 @@ def publicBatchWrapper89.copies136 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4384..4416`. -/
-def publicBatchWrapper89.copies137 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies137 : List (Target × Target) := [
     (.virt 18335, .wire 64 42),
     (.virt 13205, .wire 64 44),
     (.virt 18336, .wire 64 45),
@@ -4995,7 +4995,7 @@ def publicBatchWrapper89.copies137 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4416..4448`. -/
-def publicBatchWrapper89.copies138 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies138 : List (Target × Target) := [
     (.wire 64 63, .wire 63 52),
     (.virt 201, .wire 63 53),
     (.wire 63 51, .wire 63 54),
@@ -5031,7 +5031,7 @@ def publicBatchWrapper89.copies138 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4448..4480`. -/
-def publicBatchWrapper89.copies139 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies139 : List (Target × Target) := [
     (.virt 13405, .wire 65 5),
     (.virt 18343, .wire 65 6),
     (.virt 13405, .wire 65 8),
@@ -5067,7 +5067,7 @@ def publicBatchWrapper89.copies139 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4480..4512`. -/
-def publicBatchWrapper89.copies140 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies140 : List (Target × Target) := [
     (.virt 13407, .wire 65 26),
     (.wire 65 27, .wire 66 4),
     (.virt 201, .wire 66 5),
@@ -5103,7 +5103,7 @@ def publicBatchWrapper89.copies140 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4512..4544`. -/
-def publicBatchWrapper89.copies141 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies141 : List (Target × Target) := [
     (.virt 18351, .wire 65 48),
     (.virt 13605, .wire 65 49),
     (.virt 18351, .wire 65 50),
@@ -5139,7 +5139,7 @@ def publicBatchWrapper89.copies141 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4544..4576`. -/
-def publicBatchWrapper89.copies142 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies142 : List (Target × Target) := [
     (.virt 18356, .wire 65 69),
     (.virt 13607, .wire 65 70),
     (.wire 65 71, .wire 66 36),
@@ -5175,7 +5175,7 @@ def publicBatchWrapper89.copies142 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4576..4608`. -/
-def publicBatchWrapper89.copies143 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies143 : List (Target × Target) := [
     (.virt 18359, .wire 66 50),
     (.virt 18359, .wire 67 12),
     (.virt 13805, .wire 67 13),
@@ -5211,7 +5211,7 @@ def publicBatchWrapper89.copies143 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4608..4640`. -/
-def publicBatchWrapper89.copies144 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies144 : List (Target × Target) := [
     (.virt 13807, .wire 67 32),
     (.virt 18364, .wire 67 33),
     (.virt 13807, .wire 67 34),
@@ -5247,7 +5247,7 @@ def publicBatchWrapper89.copies144 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4640..4672`. -/
-def publicBatchWrapper89.copies145 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies145 : List (Target × Target) := [
     (.virt 201, .wire 68 1),
     (.virt 18367, .wire 68 2),
     (.virt 18367, .wire 67 56),
@@ -5283,7 +5283,7 @@ def publicBatchWrapper89.copies145 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4672..4704`. -/
-def publicBatchWrapper89.copies146 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies146 : List (Target × Target) := [
     (.virt 18371, .wire 67 74),
     (.virt 14007, .wire 67 76),
     (.virt 18372, .wire 67 77),
@@ -5319,7 +5319,7 @@ def publicBatchWrapper89.copies146 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4704..4736`. -/
-def publicBatchWrapper89.copies147 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies147 : List (Target × Target) := [
     (.virt 201, .wire 68 32),
     (.virt 201, .wire 68 33),
     (.virt 18375, .wire 68 34),
@@ -5355,7 +5355,7 @@ def publicBatchWrapper89.copies147 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4736..4768`. -/
-def publicBatchWrapper89.copies148 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies148 : List (Target × Target) := [
     (.virt 14207, .wire 69 37),
     (.virt 18379, .wire 69 38),
     (.virt 14207, .wire 69 40),
@@ -5391,7 +5391,7 @@ def publicBatchWrapper89.copies148 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4768..4800`. -/
-def publicBatchWrapper89.copies149 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies149 : List (Target × Target) := [
     (.wire 69 55, .wire 69 62),
     (.virt 201, .wire 68 64),
     (.virt 201, .wire 68 65),
@@ -5427,7 +5427,7 @@ def publicBatchWrapper89.copies149 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4800..4832`. -/
-def publicBatchWrapper89.copies150 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies150 : List (Target × Target) := [
     (.virt 18387, .wire 71 0),
     (.virt 14407, .wire 71 1),
     (.virt 18387, .wire 71 2),
@@ -5463,7 +5463,7 @@ def publicBatchWrapper89.copies150 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4832..4864`. -/
-def publicBatchWrapper89.copies151 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies151 : List (Target × Target) := [
     (.wire 71 23, .wire 71 25),
     (.wire 71 19, .wire 71 26),
     (.virt 201, .wire 70 16),
@@ -5499,7 +5499,7 @@ def publicBatchWrapper89.copies151 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4864..4896`. -/
-def publicBatchWrapper89.copies152 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies152 : List (Target × Target) := [
     (.virt 18395, .wire 70 34),
     (.virt 18395, .wire 71 44),
     (.virt 14607, .wire 71 45),
@@ -5535,7 +5535,7 @@ def publicBatchWrapper89.copies152 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4896..4928`. -/
-def publicBatchWrapper89.copies153 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies153 : List (Target × Target) := [
     (.wire 71 63, .wire 71 68),
     (.wire 71 67, .wire 71 69),
     (.wire 71 63, .wire 71 70),
@@ -5571,7 +5571,7 @@ def publicBatchWrapper89.copies153 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4928..4960`. -/
-def publicBatchWrapper89.copies154 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies154 : List (Target × Target) := [
     (.virt 201, .wire 70 65),
     (.virt 18403, .wire 70 66),
     (.virt 18403, .wire 72 8),
@@ -5607,7 +5607,7 @@ def publicBatchWrapper89.copies154 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4960..4992`. -/
-def publicBatchWrapper89.copies155 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies155 : List (Target × Target) := [
     (.virt 18403, .wire 72 30),
     (.wire 72 27, .wire 72 32),
     (.wire 72 31, .wire 72 33),
@@ -5643,7 +5643,7 @@ def publicBatchWrapper89.copies155 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `4992..5024`. -/
-def publicBatchWrapper89.copies156 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies156 : List (Target × Target) := [
     (.virt 201, .wire 73 16),
     (.virt 201, .wire 73 17),
     (.virt 18411, .wire 73 18),
@@ -5679,7 +5679,7 @@ def publicBatchWrapper89.copies156 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5024..5056`. -/
-def publicBatchWrapper89.copies157 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies157 : List (Target × Target) := [
     (.virt 18413, .wire 72 73),
     (.virt 18411, .wire 72 74),
     (.wire 72 71, .wire 72 76),
@@ -5715,7 +5715,7 @@ def publicBatchWrapper89.copies157 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5056..5088`. -/
-def publicBatchWrapper89.copies158 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies158 : List (Target × Target) := [
     (.wire 73 47, .virt 200),
     (.virt 201, .wire 73 48),
     (.virt 201, .wire 73 49),
@@ -5751,7 +5751,7 @@ def publicBatchWrapper89.copies158 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5088..5120`. -/
-def publicBatchWrapper89.copies159 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies159 : List (Target × Target) := [
     (.virt 18419, .wire 74 36),
     (.virt 18421, .wire 74 37),
     (.virt 18419, .wire 74 38),
@@ -5787,7 +5787,7 @@ def publicBatchWrapper89.copies159 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5120..5152`. -/
-def publicBatchWrapper89.copies160 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies160 : List (Target × Target) := [
     (.wire 74 55, .virt 200),
     (.wire 73 79, .virt 200),
     (.virt 201, .wire 75 0),
@@ -5823,7 +5823,7 @@ def publicBatchWrapper89.copies160 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5152..5184`. -/
-def publicBatchWrapper89.copies161 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies161 : List (Target × Target) := [
     (.virt 18423, .wire 74 78),
     (.virt 18427, .wire 76 0),
     (.virt 18429, .wire 76 1),
@@ -5859,7 +5859,7 @@ def publicBatchWrapper89.copies161 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5184..5216`. -/
-def publicBatchWrapper89.copies162 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies162 : List (Target × Target) := [
     (.wire 75 27, .wire 75 30),
     (.wire 76 19, .virt 200),
     (.wire 75 31, .virt 200),
@@ -5895,7 +5895,7 @@ def publicBatchWrapper89.copies162 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5216..5248`. -/
-def publicBatchWrapper89.copies163 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies163 : List (Target × Target) := [
     (.virt 18433, .wire 76 41),
     (.virt 18431, .wire 76 42),
     (.virt 18435, .wire 76 44),
@@ -5931,7 +5931,7 @@ def publicBatchWrapper89.copies163 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5248..5280`. -/
-def publicBatchWrapper89.copies164 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies164 : List (Target × Target) := [
     (.virt 201, .wire 75 61),
     (.wire 75 59, .wire 75 62),
     (.wire 76 63, .virt 200),
@@ -5967,7 +5967,7 @@ def publicBatchWrapper89.copies164 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5280..5312`. -/
-def publicBatchWrapper89.copies165 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies165 : List (Target × Target) := [
     (.virt 18439, .wire 77 4),
     (.virt 18441, .wire 77 5),
     (.virt 18439, .wire 77 6),
@@ -6003,7 +6003,7 @@ def publicBatchWrapper89.copies165 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5312..5344`. -/
-def publicBatchWrapper89.copies166 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies166 : List (Target × Target) := [
     (.wire 77 31, .wire 78 12),
     (.virt 201, .wire 78 13),
     (.wire 78 11, .wire 78 14),
@@ -6039,7 +6039,7 @@ def publicBatchWrapper89.copies166 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5344..5376`. -/
-def publicBatchWrapper89.copies167 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies167 : List (Target × Target) := [
     (.wire 78 31, .virt 200),
     (.virt 18447, .wire 77 48),
     (.virt 18449, .wire 77 49),
@@ -6075,7 +6075,7 @@ def publicBatchWrapper89.copies167 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5376..5408`. -/
-def publicBatchWrapper89.copies168 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies168 : List (Target × Target) := [
     (.virt 16206, .wire 77 74),
     (.wire 77 75, .wire 78 44),
     (.virt 201, .wire 78 45),
@@ -6111,7 +6111,7 @@ def publicBatchWrapper89.copies168 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5408..5440`. -/
-def publicBatchWrapper89.copies169 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies169 : List (Target × Target) := [
     (.wire 79 7, .virt 200),
     (.wire 78 63, .virt 200),
     (.virt 18455, .wire 79 12),
@@ -6147,7 +6147,7 @@ def publicBatchWrapper89.copies169 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5440..5472`. -/
-def publicBatchWrapper89.copies170 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies170 : List (Target × Target) := [
     (.virt 18466, .wire 79 37),
     (.virt 16406, .wire 79 38),
     (.wire 79 39, .wire 78 76),
@@ -6183,7 +6183,7 @@ def publicBatchWrapper89.copies170 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5472..5504`. -/
-def publicBatchWrapper89.copies171 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies171 : List (Target × Target) := [
     (.wire 80 11, .wire 80 14),
     (.wire 79 51, .virt 200),
     (.wire 80 15, .virt 200),
@@ -6219,7 +6219,7 @@ def publicBatchWrapper89.copies171 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5504..5536`. -/
-def publicBatchWrapper89.copies172 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies172 : List (Target × Target) := [
     (.virt 16606, .wire 81 0),
     (.virt 18474, .wire 81 1),
     (.virt 16606, .wire 81 2),
@@ -6255,7 +6255,7 @@ def publicBatchWrapper89.copies172 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5536..5568`. -/
-def publicBatchWrapper89.copies173 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies173 : List (Target × Target) := [
     (.virt 201, .wire 80 45),
     (.wire 80 43, .wire 80 46),
     (.wire 81 15, .virt 200),
@@ -6291,7 +6291,7 @@ def publicBatchWrapper89.copies173 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5568..5600`. -/
-def publicBatchWrapper89.copies174 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies174 : List (Target × Target) := [
     (.virt 18481, .wire 81 42),
     (.virt 16806, .wire 81 44),
     (.virt 18482, .wire 81 45),
@@ -6327,7 +6327,7 @@ def publicBatchWrapper89.copies174 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5600..5632`. -/
-def publicBatchWrapper89.copies175 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies175 : List (Target × Target) := [
     (.wire 81 63, .wire 80 76),
     (.virt 201, .wire 80 77),
     (.wire 80 75, .wire 80 78),
@@ -6363,7 +6363,7 @@ def publicBatchWrapper89.copies175 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5632..5664`. -/
-def publicBatchWrapper89.copies176 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies176 : List (Target × Target) := [
     (.virt 17006, .wire 83 5),
     (.virt 18489, .wire 83 6),
     (.virt 17006, .wire 83 8),
@@ -6399,7 +6399,7 @@ def publicBatchWrapper89.copies176 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5664..5696`. -/
-def publicBatchWrapper89.copies177 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies177 : List (Target × Target) := [
     (.virt 17008, .wire 83 26),
     (.wire 83 27, .wire 82 28),
     (.virt 201, .wire 82 29),
@@ -6435,7 +6435,7 @@ def publicBatchWrapper89.copies177 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5696..5728`. -/
-def publicBatchWrapper89.copies178 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies178 : List (Target × Target) := [
     (.virt 18497, .wire 83 48),
     (.virt 17206, .wire 83 49),
     (.virt 18497, .wire 83 50),
@@ -6471,7 +6471,7 @@ def publicBatchWrapper89.copies178 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5728..5760`. -/
-def publicBatchWrapper89.copies179 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies179 : List (Target × Target) := [
     (.virt 18502, .wire 83 69),
     (.virt 17208, .wire 83 70),
     (.wire 83 71, .wire 82 60),
@@ -6507,7 +6507,7 @@ def publicBatchWrapper89.copies179 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5760..5792`. -/
-def publicBatchWrapper89.copies180 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies180 : List (Target × Target) := [
     (.virt 18505, .wire 82 74),
     (.virt 18505, .wire 84 12),
     (.virt 17406, .wire 84 13),
@@ -6543,7 +6543,7 @@ def publicBatchWrapper89.copies180 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5792..5824`. -/
-def publicBatchWrapper89.copies181 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies181 : List (Target × Target) := [
     (.virt 17408, .wire 84 32),
     (.virt 18510, .wire 84 33),
     (.virt 17408, .wire 84 34),
@@ -6579,7 +6579,7 @@ def publicBatchWrapper89.copies181 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5824..5856`. -/
-def publicBatchWrapper89.copies182 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies182 : List (Target × Target) := [
     (.virt 201, .wire 85 25),
     (.virt 18513, .wire 85 26),
     (.virt 18513, .wire 84 56),
@@ -6615,7 +6615,7 @@ def publicBatchWrapper89.copies182 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5856..5888`. -/
-def publicBatchWrapper89.copies183 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies183 : List (Target × Target) := [
     (.virt 18517, .wire 84 74),
     (.virt 17608, .wire 84 76),
     (.virt 18518, .wire 84 77),
@@ -6651,7 +6651,7 @@ def publicBatchWrapper89.copies183 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5888..5920`. -/
-def publicBatchWrapper89.copies184 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies184 : List (Target × Target) := [
     (.virt 200, .wire 85 66),
     (.wire 85 51, .wire 85 68),
     (.virt 7, .wire 85 69),
@@ -6687,7 +6687,7 @@ def publicBatchWrapper89.copies184 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5920..5952`. -/
-def publicBatchWrapper89.copies185 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies185 : List (Target × Target) := [
     (.wire 85 63, .wire 87 25),
     (.wire 85 63, .wire 87 26),
     (.wire 86 15, .wire 87 28),
@@ -6723,7 +6723,7 @@ def publicBatchWrapper89.copies185 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5952..5984`. -/
-def publicBatchWrapper89.copies186 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies186 : List (Target × Target) := [
     (.wire 88 3, .wire 0 48),
     (.virt 201, .wire 0 49),
     (.wire 87 3, .wire 0 50),
@@ -6759,7 +6759,7 @@ def publicBatchWrapper89.copies186 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `5984..6016`. -/
-def publicBatchWrapper89.copies187 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies187 : List (Target × Target) := [
     (.wire 87 39, .wire 89 18),
     (.wire 86 19, .wire 89 20),
     (.virt 408, .wire 89 21),
@@ -6795,7 +6795,7 @@ def publicBatchWrapper89.copies187 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6016..6048`. -/
-def publicBatchWrapper89.copies188 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies188 : List (Target × Target) := [
     (.virt 201, .wire 89 53),
     (.wire 0 55, .wire 89 54),
     (.wire 89 51, .wire 86 20),
@@ -6831,7 +6831,7 @@ def publicBatchWrapper89.copies188 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6048..6080`. -/
-def publicBatchWrapper89.copies189 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies189 : List (Target × Target) := [
     (.wire 86 23, .wire 90 12),
     (.virt 609, .wire 90 13),
     (.wire 90 11, .wire 90 14),
@@ -6867,7 +6867,7 @@ def publicBatchWrapper89.copies189 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6080..6112`. -/
-def publicBatchWrapper89.copies190 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies190 : List (Target × Target) := [
     (.wire 89 63, .wire 90 42),
     (.wire 86 27, .wire 90 44),
     (.virt 805, .wire 90 45),
@@ -6903,7 +6903,7 @@ def publicBatchWrapper89.copies190 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6112..6144`. -/
-def publicBatchWrapper89.copies191 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies191 : List (Target × Target) := [
     (.virt 803, .wire 91 5),
     (.wire 91 3, .wire 91 6),
     (.wire 86 27, .wire 91 8),
@@ -6939,7 +6939,7 @@ def publicBatchWrapper89.copies191 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6144..6176`. -/
-def publicBatchWrapper89.copies192 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies192 : List (Target × Target) := [
     (.wire 86 31, .wire 91 36),
     (.virt 1006, .wire 91 37),
     (.wire 91 35, .wire 91 38),
@@ -6975,7 +6975,7 @@ def publicBatchWrapper89.copies192 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6176..6208`. -/
-def publicBatchWrapper89.copies193 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies193 : List (Target × Target) := [
     (.wire 91 75, .wire 91 78),
     (.wire 0 63, .wire 88 16),
     (.wire 91 19, .wire 88 17),
@@ -7011,7 +7011,7 @@ def publicBatchWrapper89.copies193 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6208..6240`. -/
-def publicBatchWrapper89.copies194 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies194 : List (Target × Target) := [
     (.virt 1207, .wire 92 29),
     (.wire 92 27, .wire 92 30),
     (.wire 86 35, .wire 92 32),
@@ -7047,7 +7047,7 @@ def publicBatchWrapper89.copies194 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6240..6272`. -/
-def publicBatchWrapper89.copies195 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies195 : List (Target × Target) := [
     (.virt 201, .wire 92 64),
     (.virt 201, .wire 92 65),
     (.wire 8 47, .wire 92 66),
@@ -7083,7 +7083,7 @@ def publicBatchWrapper89.copies195 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6272..6304`. -/
-def publicBatchWrapper89.copies196 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies196 : List (Target × Target) := [
     (.wire 93 19, .wire 93 22),
     (.wire 86 39, .wire 93 24),
     (.wire 92 47, .wire 93 25),
@@ -7119,7 +7119,7 @@ def publicBatchWrapper89.copies196 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6304..6336`. -/
-def publicBatchWrapper89.copies197 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies197 : List (Target × Target) := [
     (.wire 93 55, .wire 86 41),
     (.wire 93 51, .wire 86 42),
     (.wire 86 43, .wire 93 56),
@@ -7155,7 +7155,7 @@ def publicBatchWrapper89.copies197 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6336..6368`. -/
-def publicBatchWrapper89.copies198 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies198 : List (Target × Target) := [
     (.wire 86 43, .wire 94 16),
     (.wire 93 39, .wire 94 17),
     (.wire 93 39, .wire 94 18),
@@ -7191,7 +7191,7 @@ def publicBatchWrapper89.copies198 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6368..6400`. -/
-def publicBatchWrapper89.copies199 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies199 : List (Target × Target) := [
     (.wire 94 43, .wire 94 46),
     (.wire 86 47, .wire 94 48),
     (.wire 93 71, .wire 94 49),
@@ -7227,7 +7227,7 @@ def publicBatchWrapper89.copies199 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6400..6432`. -/
-def publicBatchWrapper89.copies200 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies200 : List (Target × Target) := [
     (.wire 94 31, .wire 95 9),
     (.wire 94 31, .wire 95 10),
     (.wire 86 47, .wire 95 12),
@@ -7263,7 +7263,7 @@ def publicBatchWrapper89.copies200 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6432..6464`. -/
-def publicBatchWrapper89.copies201 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies201 : List (Target × Target) := [
     (.wire 86 51, .wire 95 40),
     (.wire 94 63, .wire 95 41),
     (.wire 94 63, .wire 95 42),
@@ -7299,7 +7299,7 @@ def publicBatchWrapper89.copies201 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6464..6496`. -/
-def publicBatchWrapper89.copies202 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies202 : List (Target × Target) := [
     (.wire 96 3, .wire 88 38),
     (.wire 88 39, .wire 96 4),
     (.virt 201, .wire 96 5),
@@ -7335,7 +7335,7 @@ def publicBatchWrapper89.copies202 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6496..6528`. -/
-def publicBatchWrapper89.copies203 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies203 : List (Target × Target) := [
     (.wire 95 55, .wire 97 33),
     (.wire 95 55, .wire 97 34),
     (.wire 86 55, .wire 97 36),
@@ -7371,7 +7371,7 @@ def publicBatchWrapper89.copies203 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6528..6560`. -/
-def publicBatchWrapper89.copies204 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies204 : List (Target × Target) := [
     (.virt 201, .wire 97 68),
     (.virt 201, .wire 97 69),
     (.wire 96 11, .wire 97 70),
@@ -7407,7 +7407,7 @@ def publicBatchWrapper89.copies204 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6560..6592`. -/
-def publicBatchWrapper89.copies205 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies205 : List (Target × Target) := [
     (.wire 97 47, .wire 98 26),
     (.wire 86 59, .wire 98 28),
     (.virt 2409, .wire 98 29),
@@ -7443,7 +7443,7 @@ def publicBatchWrapper89.copies205 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6592..6624`. -/
-def publicBatchWrapper89.copies206 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies206 : List (Target × Target) := [
     (.wire 97 79, .wire 98 57),
     (.wire 97 79, .wire 98 58),
     (.wire 86 63, .wire 98 60),
@@ -7479,7 +7479,7 @@ def publicBatchWrapper89.copies206 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6624..6656`. -/
-def publicBatchWrapper89.copies207 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies207 : List (Target × Target) := [
     (.wire 86 63, .wire 99 20),
     (.virt 2603, .wire 99 21),
     (.wire 99 19, .wire 99 22),
@@ -7515,7 +7515,7 @@ def publicBatchWrapper89.copies207 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6656..6688`. -/
-def publicBatchWrapper89.copies208 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies208 : List (Target × Target) := [
     (.wire 98 71, .wire 99 50),
     (.wire 86 67, .wire 99 52),
     (.virt 2806, .wire 99 53),
@@ -7551,7 +7551,7 @@ def publicBatchWrapper89.copies208 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6688..6720`. -/
-def publicBatchWrapper89.copies209 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies209 : List (Target × Target) := [
     (.virt 2804, .wire 100 13),
     (.wire 100 11, .wire 100 14),
     (.wire 96 19, .wire 88 52),
@@ -7587,7 +7587,7 @@ def publicBatchWrapper89.copies209 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6720..6752`. -/
-def publicBatchWrapper89.copies210 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies210 : List (Target × Target) := [
     (.wire 86 71, .wire 100 44),
     (.virt 3007, .wire 100 45),
     (.wire 100 43, .wire 100 46),
@@ -7623,7 +7623,7 @@ def publicBatchWrapper89.copies210 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6752..6784`. -/
-def publicBatchWrapper89.copies211 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies211 : List (Target × Target) := [
     (.wire 100 19, .wire 96 26),
     (.virt 201, .wire 101 0),
     (.virt 201, .wire 101 1),
@@ -7659,7 +7659,7 @@ def publicBatchWrapper89.copies211 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6784..6816`. -/
-def publicBatchWrapper89.copies212 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies212 : List (Target × Target) := [
     (.virt 3208, .wire 101 37),
     (.wire 101 35, .wire 101 38),
     (.wire 86 75, .wire 101 40),
@@ -7695,7 +7695,7 @@ def publicBatchWrapper89.copies212 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6816..6848`. -/
-def publicBatchWrapper89.copies213 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies213 : List (Target × Target) := [
     (.wire 101 67, .wire 86 76),
     (.wire 101 71, .wire 86 77),
     (.wire 101 67, .wire 86 78),
@@ -7731,7 +7731,7 @@ def publicBatchWrapper89.copies213 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6848..6880`. -/
-def publicBatchWrapper89.copies214 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies214 : List (Target × Target) := [
     (.wire 102 27, .wire 102 30),
     (.wire 86 79, .wire 102 32),
     (.wire 101 55, .wire 102 33),
@@ -7767,7 +7767,7 @@ def publicBatchWrapper89.copies214 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6880..6912`. -/
-def publicBatchWrapper89.copies215 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies215 : List (Target × Target) := [
     (.virt 3605, .wire 102 61),
     (.wire 102 59, .wire 102 62),
     (.wire 103 3, .wire 102 64),
@@ -7803,7 +7803,7 @@ def publicBatchWrapper89.copies215 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6912..6944`. -/
-def publicBatchWrapper89.copies216 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies216 : List (Target × Target) := [
     (.wire 103 3, .wire 104 24),
     (.wire 102 47, .wire 104 25),
     (.wire 102 47, .wire 104 26),
@@ -7839,7 +7839,7 @@ def publicBatchWrapper89.copies216 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6944..6976`. -/
-def publicBatchWrapper89.copies217 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies217 : List (Target × Target) := [
     (.wire 104 51, .wire 104 54),
     (.wire 103 7, .wire 104 56),
     (.wire 102 79, .wire 104 57),
@@ -7875,7 +7875,7 @@ def publicBatchWrapper89.copies217 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `6976..7008`. -/
-def publicBatchWrapper89.copies218 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies218 : List (Target × Target) := [
     (.wire 104 35, .wire 88 73),
     (.wire 96 39, .wire 88 74),
     (.wire 88 75, .wire 96 40),
@@ -7911,7 +7911,7 @@ def publicBatchWrapper89.copies218 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7008..7040`. -/
-def publicBatchWrapper89.copies219 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies219 : List (Target × Target) := [
     (.wire 103 11, .wire 105 48),
     (.wire 104 71, .wire 105 49),
     (.wire 104 71, .wire 105 50),
@@ -7947,7 +7947,7 @@ def publicBatchWrapper89.copies219 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7040..7072`. -/
-def publicBatchWrapper89.copies220 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies220 : List (Target × Target) := [
     (.wire 22 23, .wire 106 2),
     (.virt 201, .wire 106 4),
     (.virt 201, .wire 106 5),
@@ -7983,7 +7983,7 @@ def publicBatchWrapper89.copies220 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7072..7104`. -/
-def publicBatchWrapper89.copies221 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies221 : List (Target × Target) := [
     (.wire 105 63, .wire 106 41),
     (.wire 105 63, .wire 106 42),
     (.wire 103 15, .wire 106 44),
@@ -8019,7 +8019,7 @@ def publicBatchWrapper89.copies221 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7104..7136`. -/
-def publicBatchWrapper89.copies222 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies222 : List (Target × Target) := [
     (.wire 103 19, .wire 106 72),
     (.wire 106 15, .wire 106 73),
     (.wire 106 15, .wire 106 74),
@@ -8055,7 +8055,7 @@ def publicBatchWrapper89.copies222 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7136..7168`. -/
-def publicBatchWrapper89.copies223 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies223 : List (Target × Target) := [
     (.wire 106 55, .wire 108 34),
     (.wire 103 19, .wire 108 36),
     (.virt 4403, .wire 108 37),
@@ -8091,7 +8091,7 @@ def publicBatchWrapper89.copies223 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7168..7200`. -/
-def publicBatchWrapper89.copies224 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies224 : List (Target × Target) := [
     (.wire 108 7, .wire 108 65),
     (.wire 108 7, .wire 108 66),
     (.wire 103 23, .wire 108 68),
@@ -8127,7 +8127,7 @@ def publicBatchWrapper89.copies224 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7200..7232`. -/
-def publicBatchWrapper89.copies225 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies225 : List (Target × Target) := [
     (.wire 103 23, .wire 109 28),
     (.virt 4604, .wire 109 29),
     (.wire 109 27, .wire 109 30),
@@ -8163,7 +8163,7 @@ def publicBatchWrapper89.copies225 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7232..7264`. -/
-def publicBatchWrapper89.copies226 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies226 : List (Target × Target) := [
     (.wire 108 79, .wire 109 58),
     (.wire 103 27, .wire 109 60),
     (.virt 4807, .wire 109 61),
@@ -8199,7 +8199,7 @@ def publicBatchWrapper89.copies226 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7264..7296`. -/
-def publicBatchWrapper89.copies227 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies227 : List (Target × Target) := [
     (.virt 201, .wire 96 61),
     (.wire 109 35, .wire 96 62),
     (.virt 201, .wire 110 16),
@@ -8235,7 +8235,7 @@ def publicBatchWrapper89.copies227 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7296..7328`. -/
-def publicBatchWrapper89.copies228 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies228 : List (Target × Target) := [
     (.wire 103 31, .wire 110 52),
     (.virt 5008, .wire 110 53),
     (.wire 110 51, .wire 110 54),
@@ -8271,7 +8271,7 @@ def publicBatchWrapper89.copies228 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7328..7360`. -/
-def publicBatchWrapper89.copies229 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies229 : List (Target × Target) := [
     (.wire 96 67, .wire 111 6),
     (.wire 111 3, .wire 103 32),
     (.wire 111 7, .wire 103 33),
@@ -8307,7 +8307,7 @@ def publicBatchWrapper89.copies229 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7360..7392`. -/
-def publicBatchWrapper89.copies230 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies230 : List (Target × Target) := [
     (.virt 5209, .wire 111 45),
     (.wire 111 43, .wire 111 46),
     (.wire 103 35, .wire 111 48),
@@ -8343,7 +8343,7 @@ def publicBatchWrapper89.copies230 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7392..7424`. -/
-def publicBatchWrapper89.copies231 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies231 : List (Target × Target) := [
     (.wire 103 39, .wire 111 76),
     (.virt 5405, .wire 111 77),
     (.wire 111 75, .wire 111 78),
@@ -8379,7 +8379,7 @@ def publicBatchWrapper89.copies231 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7424..7456`. -/
-def publicBatchWrapper89.copies232 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies232 : List (Target × Target) := [
     (.wire 112 35, .wire 112 38),
     (.wire 103 39, .wire 112 40),
     (.wire 111 63, .wire 112 41),
@@ -8415,7 +8415,7 @@ def publicBatchWrapper89.copies232 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7456..7488`. -/
-def publicBatchWrapper89.copies233 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies233 : List (Target × Target) := [
     (.virt 5606, .wire 112 69),
     (.wire 112 67, .wire 112 70),
     (.wire 103 43, .wire 112 72),
@@ -8451,7 +8451,7 @@ def publicBatchWrapper89.copies233 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7488..7520`. -/
-def publicBatchWrapper89.copies234 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies234 : List (Target × Target) := [
     (.wire 96 75, .wire 107 28),
     (.wire 112 51, .wire 107 29),
     (.wire 96 75, .wire 107 30),
@@ -8487,7 +8487,7 @@ def publicBatchWrapper89.copies234 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7520..7552`. -/
-def publicBatchWrapper89.copies235 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies235 : List (Target × Target) := [
     (.wire 113 59, .wire 113 62),
     (.wire 103 47, .wire 113 64),
     (.wire 113 7, .wire 113 65),
@@ -8523,7 +8523,7 @@ def publicBatchWrapper89.copies235 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7552..7584`. -/
-def publicBatchWrapper89.copies236 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies236 : List (Target × Target) := [
     (.virt 201, .wire 114 17),
     (.wire 31 19, .wire 114 18),
     (.virt 201, .wire 114 20),
@@ -8559,7 +8559,7 @@ def publicBatchWrapper89.copies236 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7584..7616`. -/
-def publicBatchWrapper89.copies237 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies237 : List (Target × Target) := [
     (.wire 103 51, .wire 114 56),
     (.wire 113 79, .wire 114 57),
     (.wire 113 79, .wire 114 58),
@@ -8595,7 +8595,7 @@ def publicBatchWrapper89.copies237 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7616..7648`. -/
-def publicBatchWrapper89.copies238 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies238 : List (Target × Target) := [
     (.wire 116 3, .wire 103 54),
     (.wire 103 55, .wire 116 8),
     (.wire 114 31, .wire 116 9),
@@ -8631,7 +8631,7 @@ def publicBatchWrapper89.copies238 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7648..7680`. -/
-def publicBatchWrapper89.copies239 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies239 : List (Target × Target) := [
     (.wire 114 71, .wire 116 49),
     (.wire 114 71, .wire 116 50),
     (.wire 103 55, .wire 116 52),
@@ -8667,7 +8667,7 @@ def publicBatchWrapper89.copies239 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7680..7712`. -/
-def publicBatchWrapper89.copies240 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies240 : List (Target × Target) := [
     (.wire 103 59, .wire 117 0),
     (.wire 116 23, .wire 117 1),
     (.wire 116 23, .wire 117 2),
@@ -8703,7 +8703,7 @@ def publicBatchWrapper89.copies240 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7712..7744`. -/
-def publicBatchWrapper89.copies241 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies241 : List (Target × Target) := [
     (.wire 116 63, .wire 117 42),
     (.wire 103 59, .wire 117 44),
     (.virt 6404, .wire 117 45),
@@ -8739,7 +8739,7 @@ def publicBatchWrapper89.copies241 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7744..7776`. -/
-def publicBatchWrapper89.copies242 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies242 : List (Target × Target) := [
     (.wire 117 15, .wire 117 73),
     (.wire 117 15, .wire 117 74),
     (.wire 103 63, .wire 117 76),
@@ -8775,7 +8775,7 @@ def publicBatchWrapper89.copies242 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7776..7808`. -/
-def publicBatchWrapper89.copies243 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies243 : List (Target × Target) := [
     (.wire 107 51, .wire 115 16),
     (.virt 201, .wire 115 17),
     (.wire 117 51, .wire 115 18),
@@ -8811,7 +8811,7 @@ def publicBatchWrapper89.copies243 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7808..7840`. -/
-def publicBatchWrapper89.copies244 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies244 : List (Target × Target) := [
     (.wire 118 7, .wire 118 66),
     (.wire 103 67, .wire 118 68),
     (.virt 6808, .wire 118 69),
@@ -8847,7 +8847,7 @@ def publicBatchWrapper89.copies244 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7840..7872`. -/
-def publicBatchWrapper89.copies245 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies245 : List (Target × Target) := [
     (.virt 201, .wire 119 21),
     (.wire 115 23, .wire 119 22),
     (.wire 119 19, .wire 103 68),
@@ -8883,7 +8883,7 @@ def publicBatchWrapper89.copies245 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7872..7904`. -/
-def publicBatchWrapper89.copies246 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies246 : List (Target × Target) := [
     (.wire 103 71, .wire 119 60),
     (.virt 7009, .wire 119 61),
     (.wire 119 59, .wire 119 62),
@@ -8919,7 +8919,7 @@ def publicBatchWrapper89.copies246 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7904..7936`. -/
-def publicBatchWrapper89.copies247 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies247 : List (Target × Target) := [
     (.wire 119 31, .wire 120 10),
     (.wire 103 75, .wire 120 12),
     (.virt 7205, .wire 120 13),
@@ -8955,7 +8955,7 @@ def publicBatchWrapper89.copies247 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7936..7968`. -/
-def publicBatchWrapper89.copies248 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies248 : List (Target × Target) := [
     (.virt 7203, .wire 120 53),
     (.wire 120 51, .wire 120 54),
     (.wire 103 75, .wire 120 56),
@@ -8991,7 +8991,7 @@ def publicBatchWrapper89.copies248 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `7968..8000`. -/
-def publicBatchWrapper89.copies249 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies249 : List (Target × Target) := [
     (.wire 103 79, .wire 121 4),
     (.virt 7406, .wire 121 5),
     (.wire 121 3, .wire 121 6),
@@ -9027,7 +9027,7 @@ def publicBatchWrapper89.copies249 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8000..8032`. -/
-def publicBatchWrapper89.copies250 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies250 : List (Target × Target) := [
     (.wire 121 43, .wire 121 46),
     (.wire 115 31, .wire 107 64),
     (.wire 120 67, .wire 107 65),
@@ -9063,7 +9063,7 @@ def publicBatchWrapper89.copies250 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8032..8064`. -/
-def publicBatchWrapper89.copies251 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies251 : List (Target × Target) := [
     (.virt 7607, .wire 121 77),
     (.wire 121 75, .wire 121 78),
     (.wire 122 3, .wire 123 0),
@@ -9099,7 +9099,7 @@ def publicBatchWrapper89.copies251 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8064..8096`. -/
-def publicBatchWrapper89.copies252 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies252 : List (Target × Target) := [
     (.virt 201, .wire 123 32),
     (.virt 201, .wire 123 33),
     (.wire 39 15, .wire 123 34),
@@ -9135,7 +9135,7 @@ def publicBatchWrapper89.copies252 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8096..8128`. -/
-def publicBatchWrapper89.copies253 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies253 : List (Target × Target) := [
     (.wire 123 67, .wire 123 70),
     (.wire 122 7, .wire 123 72),
     (.wire 123 15, .wire 123 73),
@@ -9171,7 +9171,7 @@ def publicBatchWrapper89.copies253 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8128..8160`. -/
-def publicBatchWrapper89.copies254 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies254 : List (Target × Target) := [
     (.wire 124 23, .wire 122 9),
     (.wire 124 19, .wire 122 10),
     (.wire 122 11, .wire 124 24),
@@ -9207,7 +9207,7 @@ def publicBatchWrapper89.copies254 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8160..8192`. -/
-def publicBatchWrapper89.copies255 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies255 : List (Target × Target) := [
     (.wire 122 11, .wire 124 64),
     (.wire 124 7, .wire 124 65),
     (.wire 124 7, .wire 124 66),
@@ -9243,7 +9243,7 @@ def publicBatchWrapper89.copies255 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8192..8224`. -/
-def publicBatchWrapper89.copies256 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies256 : List (Target × Target) := [
     (.wire 125 11, .wire 125 14),
     (.wire 122 15, .wire 125 16),
     (.wire 124 39, .wire 125 17),
@@ -9279,7 +9279,7 @@ def publicBatchWrapper89.copies256 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8224..8256`. -/
-def publicBatchWrapper89.copies257 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies257 : List (Target × Target) := [
     (.wire 124 79, .wire 125 57),
     (.wire 124 79, .wire 125 58),
     (.wire 122 15, .wire 125 60),
@@ -9315,7 +9315,7 @@ def publicBatchWrapper89.copies257 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8256..8288`. -/
-def publicBatchWrapper89.copies258 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies258 : List (Target × Target) := [
     (.wire 122 19, .wire 127 8),
     (.wire 125 31, .wire 127 9),
     (.wire 125 31, .wire 127 10),
@@ -9351,7 +9351,7 @@ def publicBatchWrapper89.copies258 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8288..8320`. -/
-def publicBatchWrapper89.copies259 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies259 : List (Target × Target) := [
     (.wire 115 51, .wire 126 6),
     (.wire 126 7, .wire 115 52),
     (.virt 201, .wire 115 53),
@@ -9387,7 +9387,7 @@ def publicBatchWrapper89.copies259 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8320..8352`. -/
-def publicBatchWrapper89.copies260 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies260 : List (Target × Target) := [
     (.wire 127 23, .wire 128 1),
     (.wire 127 23, .wire 128 2),
     (.wire 122 23, .wire 128 4),
@@ -9423,7 +9423,7 @@ def publicBatchWrapper89.copies260 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8352..8384`. -/
-def publicBatchWrapper89.copies261 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies261 : List (Target × Target) := [
     (.virt 201, .wire 128 36),
     (.virt 201, .wire 128 37),
     (.wire 115 59, .wire 128 38),
@@ -9459,7 +9459,7 @@ def publicBatchWrapper89.copies261 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8384..8416`. -/
-def publicBatchWrapper89.copies262 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies262 : List (Target × Target) := [
     (.wire 128 15, .wire 128 74),
     (.wire 122 27, .wire 128 76),
     (.virt 8809, .wire 128 77),
@@ -9495,7 +9495,7 @@ def publicBatchWrapper89.copies262 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8416..8448`. -/
-def publicBatchWrapper89.copies263 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies263 : List (Target × Target) := [
     (.wire 128 47, .wire 129 25),
     (.wire 128 47, .wire 129 26),
     (.wire 122 31, .wire 129 28),
@@ -9531,7 +9531,7 @@ def publicBatchWrapper89.copies263 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8448..8480`. -/
-def publicBatchWrapper89.copies264 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies264 : List (Target × Target) := [
     (.wire 122 31, .wire 129 68),
     (.virt 9003, .wire 129 69),
     (.wire 129 67, .wire 129 70),
@@ -9567,7 +9567,7 @@ def publicBatchWrapper89.copies264 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8480..8512`. -/
-def publicBatchWrapper89.copies265 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies265 : List (Target × Target) := [
     (.wire 129 39, .wire 130 18),
     (.wire 122 35, .wire 130 20),
     (.virt 9206, .wire 130 21),
@@ -9603,7 +9603,7 @@ def publicBatchWrapper89.copies265 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8512..8544`. -/
-def publicBatchWrapper89.copies266 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies266 : List (Target × Target) := [
     (.virt 9204, .wire 130 61),
     (.wire 130 59, .wire 130 62),
     (.wire 115 67, .wire 126 20),
@@ -9639,7 +9639,7 @@ def publicBatchWrapper89.copies266 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8544..8576`. -/
-def publicBatchWrapper89.copies267 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies267 : List (Target × Target) := [
     (.wire 122 39, .wire 131 12),
     (.virt 9407, .wire 131 13),
     (.wire 131 11, .wire 131 14),
@@ -9675,7 +9675,7 @@ def publicBatchWrapper89.copies267 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8576..8608`. -/
-def publicBatchWrapper89.copies268 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies268 : List (Target × Target) := [
     (.wire 130 67, .wire 115 74),
     (.virt 201, .wire 131 48),
     (.virt 201, .wire 131 49),
@@ -9711,7 +9711,7 @@ def publicBatchWrapper89.copies268 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8608..8640`. -/
-def publicBatchWrapper89.copies269 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies269 : List (Target × Target) := [
     (.virt 9608, .wire 132 5),
     (.wire 132 3, .wire 132 6),
     (.wire 122 43, .wire 132 8),
@@ -9747,7 +9747,7 @@ def publicBatchWrapper89.copies269 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8640..8672`. -/
-def publicBatchWrapper89.copies270 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies270 : List (Target × Target) := [
     (.wire 132 35, .wire 122 44),
     (.wire 132 39, .wire 122 45),
     (.wire 132 35, .wire 122 46),
@@ -9783,7 +9783,7 @@ def publicBatchWrapper89.copies270 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8672..8704`. -/
-def publicBatchWrapper89.copies271 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies271 : List (Target × Target) := [
     (.wire 132 75, .wire 132 78),
     (.wire 122 47, .wire 133 0),
     (.wire 132 23, .wire 133 1),
@@ -9819,7 +9819,7 @@ def publicBatchWrapper89.copies271 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8704..8736`. -/
-def publicBatchWrapper89.copies272 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies272 : List (Target × Target) := [
     (.virt 10005, .wire 133 29),
     (.wire 133 27, .wire 133 30),
     (.wire 122 51, .wire 133 32),
@@ -9855,7 +9855,7 @@ def publicBatchWrapper89.copies272 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8736..8768`. -/
-def publicBatchWrapper89.copies273 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies273 : List (Target × Target) := [
     (.wire 122 51, .wire 133 72),
     (.wire 133 15, .wire 133 73),
     (.wire 133 15, .wire 133 74),
@@ -9891,7 +9891,7 @@ def publicBatchWrapper89.copies273 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8768..8800`. -/
-def publicBatchWrapper89.copies274 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies274 : List (Target × Target) := [
     (.wire 135 19, .wire 135 22),
     (.wire 122 55, .wire 135 24),
     (.wire 133 47, .wire 135 25),
@@ -9927,7 +9927,7 @@ def publicBatchWrapper89.copies274 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8800..8832`. -/
-def publicBatchWrapper89.copies275 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies275 : List (Target × Target) := [
     (.wire 135 3, .wire 126 41),
     (.wire 134 7, .wire 126 42),
     (.wire 126 43, .wire 134 8),
@@ -9963,7 +9963,7 @@ def publicBatchWrapper89.copies275 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8832..8864`. -/
-def publicBatchWrapper89.copies276 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies276 : List (Target × Target) := [
     (.wire 122 59, .wire 136 16),
     (.wire 135 39, .wire 136 17),
     (.wire 135 39, .wire 136 18),
@@ -9999,7 +9999,7 @@ def publicBatchWrapper89.copies276 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8864..8896`. -/
-def publicBatchWrapper89.copies277 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies277 : List (Target × Target) := [
     (.wire 52 71, .wire 136 50),
     (.virt 201, .wire 136 52),
     (.virt 201, .wire 136 53),
@@ -10035,7 +10035,7 @@ def publicBatchWrapper89.copies277 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8896..8928`. -/
-def publicBatchWrapper89.copies278 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies278 : List (Target × Target) := [
     (.wire 136 31, .wire 137 9),
     (.wire 136 31, .wire 137 10),
     (.wire 122 63, .wire 137 12),
@@ -10071,7 +10071,7 @@ def publicBatchWrapper89.copies278 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8928..8960`. -/
-def publicBatchWrapper89.copies279 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies279 : List (Target × Target) := [
     (.wire 122 67, .wire 137 40),
     (.wire 136 63, .wire 137 41),
     (.wire 136 63, .wire 137 42),
@@ -10107,7 +10107,7 @@ def publicBatchWrapper89.copies279 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8960..8992`. -/
-def publicBatchWrapper89.copies280 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies280 : List (Target × Target) := [
     (.wire 137 23, .wire 138 2),
     (.wire 122 67, .wire 138 4),
     (.virt 10803, .wire 138 5),
@@ -10143,7 +10143,7 @@ def publicBatchWrapper89.copies280 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `8992..9024`. -/
-def publicBatchWrapper89.copies281 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies281 : List (Target × Target) := [
     (.wire 137 55, .wire 138 33),
     (.wire 137 55, .wire 138 34),
     (.wire 122 71, .wire 138 36),
@@ -10179,7 +10179,7 @@ def publicBatchWrapper89.copies281 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9024..9056`. -/
-def publicBatchWrapper89.copies282 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies282 : List (Target × Target) := [
     (.wire 122 71, .wire 138 76),
     (.virt 11004, .wire 138 77),
     (.wire 138 75, .wire 138 78),
@@ -10215,7 +10215,7 @@ def publicBatchWrapper89.copies282 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9056..9088`. -/
-def publicBatchWrapper89.copies283 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies283 : List (Target × Target) := [
     (.wire 138 47, .wire 139 26),
     (.wire 122 75, .wire 139 28),
     (.virt 11207, .wire 139 29),
@@ -10251,7 +10251,7 @@ def publicBatchWrapper89.copies283 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9088..9120`. -/
-def publicBatchWrapper89.copies284 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies284 : List (Target × Target) := [
     (.virt 201, .wire 134 29),
     (.wire 139 3, .wire 134 30),
     (.virt 201, .wire 139 64),
@@ -10287,7 +10287,7 @@ def publicBatchWrapper89.copies284 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9120..9152`. -/
-def publicBatchWrapper89.copies285 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies285 : List (Target × Target) := [
     (.wire 122 79, .wire 140 20),
     (.virt 11408, .wire 140 21),
     (.wire 140 19, .wire 140 22),
@@ -10323,7 +10323,7 @@ def publicBatchWrapper89.copies285 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9152..9184`. -/
-def publicBatchWrapper89.copies286 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies286 : List (Target × Target) := [
     (.wire 134 35, .wire 140 54),
     (.wire 140 51, .wire 141 0),
     (.wire 140 55, .wire 141 1),
@@ -10359,7 +10359,7 @@ def publicBatchWrapper89.copies286 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9184..9216`. -/
-def publicBatchWrapper89.copies287 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies287 : List (Target × Target) := [
     (.virt 11609, .wire 142 13),
     (.wire 142 11, .wire 142 14),
     (.wire 141 3, .wire 142 16),
@@ -10395,7 +10395,7 @@ def publicBatchWrapper89.copies287 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9216..9248`. -/
-def publicBatchWrapper89.copies288 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies288 : List (Target × Target) := [
     (.wire 141 7, .wire 142 44),
     (.virt 11805, .wire 142 45),
     (.wire 142 43, .wire 142 46),
@@ -10431,7 +10431,7 @@ def publicBatchWrapper89.copies288 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9248..9280`. -/
-def publicBatchWrapper89.copies289 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies289 : List (Target × Target) := [
     (.wire 143 3, .wire 143 6),
     (.wire 141 7, .wire 143 8),
     (.wire 142 31, .wire 143 9),
@@ -10467,7 +10467,7 @@ def publicBatchWrapper89.copies289 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9280..9312`. -/
-def publicBatchWrapper89.copies290 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies290 : List (Target × Target) := [
     (.virt 12006, .wire 143 37),
     (.wire 143 35, .wire 143 38),
     (.wire 141 11, .wire 143 40),
@@ -10503,7 +10503,7 @@ def publicBatchWrapper89.copies290 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9312..9344`. -/
-def publicBatchWrapper89.copies291 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies291 : List (Target × Target) := [
     (.wire 134 43, .wire 126 76),
     (.wire 143 19, .wire 126 77),
     (.wire 134 43, .wire 126 78),
@@ -10539,7 +10539,7 @@ def publicBatchWrapper89.copies291 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9344..9376`. -/
-def publicBatchWrapper89.copies292 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies292 : List (Target × Target) := [
     (.wire 144 27, .wire 144 30),
     (.wire 141 15, .wire 144 32),
     (.wire 143 55, .wire 144 33),
@@ -10575,7 +10575,7 @@ def publicBatchWrapper89.copies292 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9376..9408`. -/
-def publicBatchWrapper89.copies293 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies293 : List (Target × Target) := [
     (.virt 201, .wire 144 65),
     (.wire 60 67, .wire 144 66),
     (.virt 201, .wire 144 68),
@@ -10611,7 +10611,7 @@ def publicBatchWrapper89.copies293 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9408..9440`. -/
-def publicBatchWrapper89.copies294 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies294 : List (Target × Target) := [
     (.wire 141 19, .wire 146 24),
     (.wire 144 47, .wire 146 25),
     (.wire 144 47, .wire 146 26),
@@ -10647,7 +10647,7 @@ def publicBatchWrapper89.copies294 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9440..9472`. -/
-def publicBatchWrapper89.copies295 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies295 : List (Target × Target) := [
     (.wire 146 51, .wire 141 22),
     (.wire 141 23, .wire 146 56),
     (.wire 144 79, .wire 146 57),
@@ -10683,7 +10683,7 @@ def publicBatchWrapper89.copies295 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9472..9504`. -/
-def publicBatchWrapper89.copies296 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies296 : List (Target × Target) := [
     (.wire 146 39, .wire 147 17),
     (.wire 146 39, .wire 147 18),
     (.wire 141 23, .wire 147 20),
@@ -10719,7 +10719,7 @@ def publicBatchWrapper89.copies296 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9504..9536`. -/
-def publicBatchWrapper89.copies297 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies297 : List (Target × Target) := [
     (.wire 141 27, .wire 147 48),
     (.wire 146 71, .wire 147 49),
     (.wire 146 71, .wire 147 50),
@@ -10755,7 +10755,7 @@ def publicBatchWrapper89.copies297 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9536..9568`. -/
-def publicBatchWrapper89.copies298 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies298 : List (Target × Target) := [
     (.wire 147 31, .wire 148 10),
     (.wire 141 27, .wire 148 12),
     (.virt 12804, .wire 148 13),
@@ -10791,7 +10791,7 @@ def publicBatchWrapper89.copies298 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9568..9600`. -/
-def publicBatchWrapper89.copies299 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies299 : List (Target × Target) := [
     (.wire 147 63, .wire 148 41),
     (.wire 147 63, .wire 148 42),
     (.wire 141 31, .wire 148 44),
@@ -10827,7 +10827,7 @@ def publicBatchWrapper89.copies299 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9600..9632`. -/
-def publicBatchWrapper89.copies300 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies300 : List (Target × Target) := [
     (.wire 145 19, .wire 134 64),
     (.virt 201, .wire 134 65),
     (.wire 148 19, .wire 134 66),
@@ -10863,7 +10863,7 @@ def publicBatchWrapper89.copies300 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9632..9664`. -/
-def publicBatchWrapper89.copies301 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies301 : List (Target × Target) := [
     (.wire 148 55, .wire 149 34),
     (.wire 141 35, .wire 149 36),
     (.virt 13208, .wire 149 37),
@@ -10899,7 +10899,7 @@ def publicBatchWrapper89.copies301 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9664..9696`. -/
-def publicBatchWrapper89.copies302 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies302 : List (Target × Target) := [
     (.virt 201, .wire 149 69),
     (.wire 134 71, .wire 149 70),
     (.wire 149 67, .wire 141 36),
@@ -10935,7 +10935,7 @@ def publicBatchWrapper89.copies302 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9696..9728`. -/
-def publicBatchWrapper89.copies303 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies303 : List (Target × Target) := [
     (.wire 141 39, .wire 150 28),
     (.virt 13409, .wire 150 29),
     (.wire 150 27, .wire 150 30),
@@ -10971,7 +10971,7 @@ def publicBatchWrapper89.copies303 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9728..9760`. -/
-def publicBatchWrapper89.copies304 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies304 : List (Target × Target) := [
     (.wire 149 79, .wire 150 58),
     (.wire 141 43, .wire 150 60),
     (.virt 13605, .wire 150 61),
@@ -11007,7 +11007,7 @@ def publicBatchWrapper89.copies304 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9760..9792`. -/
-def publicBatchWrapper89.copies305 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies305 : List (Target × Target) := [
     (.virt 13603, .wire 151 21),
     (.wire 151 19, .wire 151 22),
     (.wire 141 43, .wire 151 24),
@@ -11043,7 +11043,7 @@ def publicBatchWrapper89.copies305 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9792..9824`. -/
-def publicBatchWrapper89.copies306 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies306 : List (Target × Target) := [
     (.wire 141 47, .wire 151 52),
     (.virt 13806, .wire 151 53),
     (.wire 151 51, .wire 151 54),
@@ -11079,7 +11079,7 @@ def publicBatchWrapper89.copies306 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9824..9856`. -/
-def publicBatchWrapper89.copies307 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies307 : List (Target × Target) := [
     (.wire 152 11, .wire 152 14),
     (.wire 134 79, .wire 145 32),
     (.wire 151 35, .wire 145 33),
@@ -11115,7 +11115,7 @@ def publicBatchWrapper89.copies307 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9856..9888`. -/
-def publicBatchWrapper89.copies308 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies308 : List (Target × Target) := [
     (.virt 14007, .wire 152 45),
     (.wire 152 43, .wire 152 46),
     (.wire 141 51, .wire 152 48),
@@ -11151,7 +11151,7 @@ def publicBatchWrapper89.copies308 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9888..9920`. -/
-def publicBatchWrapper89.copies309 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies309 : List (Target × Target) := [
     (.virt 201, .wire 154 0),
     (.virt 201, .wire 154 1),
     (.wire 69 63, .wire 154 2),
@@ -11187,7 +11187,7 @@ def publicBatchWrapper89.copies309 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9920..9952`. -/
-def publicBatchWrapper89.copies310 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies310 : List (Target × Target) := [
     (.wire 154 35, .wire 154 38),
     (.wire 141 55, .wire 154 40),
     (.wire 152 63, .wire 154 41),
@@ -11223,7 +11223,7 @@ def publicBatchWrapper89.copies310 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9952..9984`. -/
-def publicBatchWrapper89.copies311 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies311 : List (Target × Target) := [
     (.wire 154 71, .wire 141 57),
     (.wire 154 67, .wire 141 58),
     (.wire 141 59, .wire 154 72),
@@ -11259,7 +11259,7 @@ def publicBatchWrapper89.copies311 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `9984..10016`. -/
-def publicBatchWrapper89.copies312 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies312 : List (Target × Target) := [
     (.wire 141 59, .wire 155 32),
     (.wire 154 55, .wire 155 33),
     (.wire 154 55, .wire 155 34),
@@ -11295,7 +11295,7 @@ def publicBatchWrapper89.copies312 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10016..10048`. -/
-def publicBatchWrapper89.copies313 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies313 : List (Target × Target) := [
     (.wire 155 59, .wire 155 62),
     (.wire 141 63, .wire 155 64),
     (.wire 155 7, .wire 155 65),
@@ -11331,7 +11331,7 @@ def publicBatchWrapper89.copies313 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10048..10080`. -/
-def publicBatchWrapper89.copies314 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies314 : List (Target × Target) := [
     (.wire 155 47, .wire 156 25),
     (.wire 155 47, .wire 156 26),
     (.wire 141 63, .wire 156 28),
@@ -11367,7 +11367,7 @@ def publicBatchWrapper89.copies314 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10080..10112`. -/
-def publicBatchWrapper89.copies315 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies315 : List (Target × Target) := [
     (.wire 141 67, .wire 156 56),
     (.wire 155 79, .wire 156 57),
     (.wire 155 79, .wire 156 58),
@@ -11403,7 +11403,7 @@ def publicBatchWrapper89.copies315 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10112..10144`. -/
-def publicBatchWrapper89.copies316 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies316 : List (Target × Target) := [
     (.wire 153 19, .wire 145 54),
     (.wire 145 55, .wire 153 20),
     (.virt 201, .wire 153 21),
@@ -11439,7 +11439,7 @@ def publicBatchWrapper89.copies316 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10144..10176`. -/
-def publicBatchWrapper89.copies317 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies317 : List (Target × Target) := [
     (.wire 156 71, .wire 157 49),
     (.wire 156 71, .wire 157 50),
     (.wire 141 71, .wire 157 52),
@@ -11475,7 +11475,7 @@ def publicBatchWrapper89.copies317 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10176..10208`. -/
-def publicBatchWrapper89.copies318 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies318 : List (Target × Target) := [
     (.virt 201, .wire 158 4),
     (.virt 201, .wire 158 5),
     (.wire 153 27, .wire 158 6),
@@ -11511,7 +11511,7 @@ def publicBatchWrapper89.copies318 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10208..10240`. -/
-def publicBatchWrapper89.copies319 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies319 : List (Target × Target) := [
     (.wire 157 63, .wire 158 42),
     (.wire 141 75, .wire 158 44),
     (.virt 15209, .wire 158 45),
@@ -11547,7 +11547,7 @@ def publicBatchWrapper89.copies319 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10240..10272`. -/
-def publicBatchWrapper89.copies320 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies320 : List (Target × Target) := [
     (.wire 158 15, .wire 158 73),
     (.wire 158 15, .wire 158 74),
     (.wire 141 79, .wire 158 76),
@@ -11583,7 +11583,7 @@ def publicBatchWrapper89.copies320 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10272..10304`. -/
-def publicBatchWrapper89.copies321 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies321 : List (Target × Target) := [
     (.wire 141 79, .wire 159 36),
     (.virt 15403, .wire 159 37),
     (.wire 159 35, .wire 159 38),
@@ -11619,7 +11619,7 @@ def publicBatchWrapper89.copies321 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10304..10336`. -/
-def publicBatchWrapper89.copies322 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies322 : List (Target × Target) := [
     (.wire 159 7, .wire 159 66),
     (.wire 160 3, .wire 159 68),
     (.virt 15606, .wire 159 69),
@@ -11655,7 +11655,7 @@ def publicBatchWrapper89.copies322 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10336..10368`. -/
-def publicBatchWrapper89.copies323 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies323 : List (Target × Target) := [
     (.virt 15604, .wire 161 29),
     (.wire 161 27, .wire 161 30),
     (.wire 153 35, .wire 145 68),
@@ -11691,7 +11691,7 @@ def publicBatchWrapper89.copies323 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10368..10400`. -/
-def publicBatchWrapper89.copies324 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies324 : List (Target × Target) := [
     (.wire 160 7, .wire 161 60),
     (.virt 15807, .wire 161 61),
     (.wire 161 59, .wire 161 62),
@@ -11727,7 +11727,7 @@ def publicBatchWrapper89.copies324 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10400..10432`. -/
-def publicBatchWrapper89.copies325 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies325 : List (Target × Target) := [
     (.wire 161 35, .wire 153 42),
     (.virt 201, .wire 162 16),
     (.virt 201, .wire 162 17),
@@ -11763,7 +11763,7 @@ def publicBatchWrapper89.copies325 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10432..10464`. -/
-def publicBatchWrapper89.copies326 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies326 : List (Target × Target) := [
     (.virt 16008, .wire 162 53),
     (.wire 162 51, .wire 162 54),
     (.wire 160 11, .wire 162 56),
@@ -11799,7 +11799,7 @@ def publicBatchWrapper89.copies326 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10464..10496`. -/
-def publicBatchWrapper89.copies327 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies327 : List (Target × Target) := [
     (.wire 163 3, .wire 160 12),
     (.wire 163 7, .wire 160 13),
     (.wire 163 3, .wire 160 14),
@@ -11835,7 +11835,7 @@ def publicBatchWrapper89.copies327 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10496..10528`. -/
-def publicBatchWrapper89.copies328 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies328 : List (Target × Target) := [
     (.wire 163 43, .wire 163 46),
     (.wire 160 15, .wire 163 48),
     (.wire 162 71, .wire 163 49),
@@ -11871,7 +11871,7 @@ def publicBatchWrapper89.copies328 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10528..10560`. -/
-def publicBatchWrapper89.copies329 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies329 : List (Target × Target) := [
     (.virt 16405, .wire 163 77),
     (.wire 163 75, .wire 163 78),
     (.wire 160 19, .wire 165 0),
@@ -11907,7 +11907,7 @@ def publicBatchWrapper89.copies329 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10560..10592`. -/
-def publicBatchWrapper89.copies330 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies330 : List (Target × Target) := [
     (.wire 160 19, .wire 165 40),
     (.wire 163 63, .wire 165 41),
     (.wire 163 63, .wire 165 42),
@@ -11943,7 +11943,7 @@ def publicBatchWrapper89.copies330 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10592..10624`. -/
-def publicBatchWrapper89.copies331 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies331 : List (Target × Target) := [
     (.wire 165 67, .wire 165 70),
     (.wire 160 23, .wire 165 72),
     (.wire 165 15, .wire 165 73),
@@ -11979,7 +11979,7 @@ def publicBatchWrapper89.copies331 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10624..10656`. -/
-def publicBatchWrapper89.copies332 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies332 : List (Target × Target) := [
     (.wire 165 51, .wire 164 9),
     (.wire 153 55, .wire 164 10),
     (.wire 164 11, .wire 153 56),
@@ -12015,7 +12015,7 @@ def publicBatchWrapper89.copies332 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10656..10688`. -/
-def publicBatchWrapper89.copies333 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies333 : List (Target × Target) := [
     (.wire 160 27, .wire 166 64),
     (.wire 166 7, .wire 166 65),
     (.wire 166 7, .wire 166 66),
@@ -12051,7 +12051,7 @@ def publicBatchWrapper89.copies333 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10688..10720`. -/
-def publicBatchWrapper89.copies334 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies334 : List (Target × Target) := [
     (.wire 83 39, .wire 167 18),
     (.virt 201, .wire 167 20),
     (.virt 201, .wire 167 21),
@@ -12087,7 +12087,7 @@ def publicBatchWrapper89.copies334 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10720..10752`. -/
-def publicBatchWrapper89.copies335 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies335 : List (Target × Target) := [
     (.wire 166 79, .wire 167 57),
     (.wire 166 79, .wire 167 58),
     (.wire 160 31, .wire 167 60),
@@ -12123,7 +12123,7 @@ def publicBatchWrapper89.copies335 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10752..10784`. -/
-def publicBatchWrapper89.copies336 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies336 : List (Target × Target) := [
     (.wire 160 35, .wire 168 8),
     (.wire 167 31, .wire 168 9),
     (.wire 167 31, .wire 168 10),
@@ -12159,7 +12159,7 @@ def publicBatchWrapper89.copies336 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10784..10816`. -/
-def publicBatchWrapper89.copies337 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies337 : List (Target × Target) := [
     (.wire 167 71, .wire 168 50),
     (.wire 160 35, .wire 168 52),
     (.virt 17203, .wire 168 53),
@@ -12195,7 +12195,7 @@ def publicBatchWrapper89.copies337 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10816..10848`. -/
-def publicBatchWrapper89.copies338 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies338 : List (Target × Target) := [
     (.wire 168 23, .wire 169 1),
     (.wire 168 23, .wire 169 2),
     (.wire 160 39, .wire 169 4),
@@ -12231,7 +12231,7 @@ def publicBatchWrapper89.copies338 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10848..10880`. -/
-def publicBatchWrapper89.copies339 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies339 : List (Target × Target) := [
     (.wire 160 39, .wire 169 44),
     (.virt 17404, .wire 169 45),
     (.wire 169 43, .wire 169 46),
@@ -12267,7 +12267,7 @@ def publicBatchWrapper89.copies339 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10880..10912`. -/
-def publicBatchWrapper89.copies340 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies340 : List (Target × Target) := [
     (.wire 169 15, .wire 169 74),
     (.wire 160 43, .wire 169 76),
     (.virt 17607, .wire 169 77),
@@ -12303,7 +12303,7 @@ def publicBatchWrapper89.copies340 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10912..10944`. -/
-def publicBatchWrapper89.copies341 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies341 : List (Target × Target) := [
     (.virt 201, .wire 153 77),
     (.wire 169 51, .wire 153 78),
     (.virt 201, .wire 170 32),
@@ -12339,7 +12339,7 @@ def publicBatchWrapper89.copies341 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10944..10976`. -/
-def publicBatchWrapper89.copies342 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies342 : List (Target × Target) := [
     (.virt 18521, .wire 160 52),
     (.wire 170 51, .wire 160 53),
     (.virt 18521, .wire 160 54),
@@ -12375,7 +12375,7 @@ def publicBatchWrapper89.copies342 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `10976..11008`. -/
-def publicBatchWrapper89.copies343 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies343 : List (Target × Target) := [
     (.wire 170 59, .wire 170 66),
     (.wire 160 63, .virt 200),
     (.wire 170 67, .virt 200),
@@ -12411,7 +12411,7 @@ def publicBatchWrapper89.copies343 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11008..11040`. -/
-def publicBatchWrapper89.copies344 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies344 : List (Target × Target) := [
     (.wire 173 3, .wire 172 8),
     (.virt 201, .wire 172 9),
     (.wire 172 3, .wire 172 10),
@@ -12447,7 +12447,7 @@ def publicBatchWrapper89.copies344 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11040..11072`. -/
-def publicBatchWrapper89.copies345 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies345 : List (Target × Target) := [
     (.wire 173 23, .wire 164 41),
     (.wire 1 59, .wire 164 42),
     (.wire 164 43, .wire 171 8),
@@ -12483,7 +12483,7 @@ def publicBatchWrapper89.copies345 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11072..11104`. -/
-def publicBatchWrapper89.copies346 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies346 : List (Target × Target) := [
     (.virt 18533, .wire 172 38),
     (.virt 204, .wire 172 40),
     (.virt 201, .wire 172 41),
@@ -12519,7 +12519,7 @@ def publicBatchWrapper89.copies346 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11104..11136`. -/
-def publicBatchWrapper89.copies347 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies347 : List (Target × Target) := [
     (.virt 18536, .wire 173 45),
     (.wire 172 55, .wire 173 46),
     (.wire 173 47, .wire 172 56),
@@ -12555,7 +12555,7 @@ def publicBatchWrapper89.copies347 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11136..11168`. -/
-def publicBatchWrapper89.copies348 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies348 : List (Target × Target) := [
     (.virt 18539, .wire 173 58),
     (.wire 172 79, .wire 173 60),
     (.virt 18540, .wire 173 61),
@@ -12591,7 +12591,7 @@ def publicBatchWrapper89.copies348 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11168..11200`. -/
-def publicBatchWrapper89.copies349 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies349 : List (Target × Target) := [
     (.wire 173 75, .wire 175 0),
     (.wire 173 79, .wire 175 1),
     (.wire 173 75, .wire 175 2),
@@ -12627,7 +12627,7 @@ def publicBatchWrapper89.copies349 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11200..11232`. -/
-def publicBatchWrapper89.copies350 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies350 : List (Target × Target) := [
     (.virt 18543, .wire 171 26),
     (.wire 171 27, .virt 201),
     (.virt 201, .wire 174 28),
@@ -12663,7 +12663,7 @@ def publicBatchWrapper89.copies350 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11232..11264`. -/
-def publicBatchWrapper89.copies351 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies351 : List (Target × Target) := [
     (.virt 18547, .wire 175 20),
     (.wire 174 47, .wire 175 21),
     (.virt 18547, .wire 175 22),
@@ -12699,7 +12699,7 @@ def publicBatchWrapper89.copies351 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11264..11296`. -/
-def publicBatchWrapper89.copies352 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies352 : List (Target × Target) := [
     (.virt 201, .wire 174 69),
     (.wire 169 79, .wire 174 70),
     (.virt 18551, .wire 175 36),
@@ -12735,7 +12735,7 @@ def publicBatchWrapper89.copies352 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11296..11328`. -/
-def publicBatchWrapper89.copies353 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies353 : List (Target × Target) := [
     (.virt 18547, .wire 175 54),
     (.virt 18551, .wire 175 56),
     (.virt 18553, .wire 175 57),
@@ -12771,7 +12771,7 @@ def publicBatchWrapper89.copies353 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11328..11360`. -/
-def publicBatchWrapper89.copies354 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies354 : List (Target × Target) := [
     (.virt 18555, .wire 164 69),
     (.wire 5 31, .wire 164 70),
     (.wire 164 71, .wire 171 36),
@@ -12807,7 +12807,7 @@ def publicBatchWrapper89.copies354 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11360..11392`. -/
-def publicBatchWrapper89.copies355 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies355 : List (Target × Target) := [
     (.virt 18559, .wire 176 34),
     (.virt 605, .wire 176 36),
     (.virt 201, .wire 176 37),
@@ -12843,7 +12843,7 @@ def publicBatchWrapper89.copies355 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11392..11424`. -/
-def publicBatchWrapper89.copies356 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies356 : List (Target × Target) := [
     (.virt 201, .wire 176 56),
     (.virt 201, .wire 176 57),
     (.virt 18563, .wire 176 58),
@@ -12879,7 +12879,7 @@ def publicBatchWrapper89.copies356 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11424..11456`. -/
-def publicBatchWrapper89.copies357 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies357 : List (Target × Target) := [
     (.wire 177 27, .virt 200),
     (.wire 176 79, .virt 200),
     (.virt 18559, .wire 177 32),
@@ -12915,7 +12915,7 @@ def publicBatchWrapper89.copies357 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11456..11488`. -/
-def publicBatchWrapper89.copies358 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies358 : List (Target × Target) := [
     (.wire 178 3, .wire 178 10),
     (.wire 177 47, .virt 200),
     (.wire 178 11, .virt 200),
@@ -12951,7 +12951,7 @@ def publicBatchWrapper89.copies358 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11488..11520`. -/
-def publicBatchWrapper89.copies359 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies359 : List (Target × Target) := [
     (.virt 18569, .wire 171 54),
     (.wire 171 55, .virt 201),
     (.virt 201, .wire 178 24),
@@ -12987,7 +12987,7 @@ def publicBatchWrapper89.copies359 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11520..11552`. -/
-def publicBatchWrapper89.copies360 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies360 : List (Target × Target) := [
     (.virt 201, .wire 178 45),
     (.wire 178 39, .wire 178 46),
     (.wire 177 71, .virt 200),
@@ -13023,7 +13023,7 @@ def publicBatchWrapper89.copies360 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11552..11584`. -/
-def publicBatchWrapper89.copies361 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies361 : List (Target × Target) := [
     (.wire 178 67, .wire 180 10),
     (.wire 180 11, .wire 178 68),
     (.virt 201, .wire 178 69),
@@ -13059,7 +13059,7 @@ def publicBatchWrapper89.copies361 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11584..11616`. -/
-def publicBatchWrapper89.copies362 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies362 : List (Target × Target) := [
     (.virt 18580, .wire 180 29),
     (.wire 178 79, .wire 180 30),
     (.wire 180 31, .wire 181 0),
@@ -13095,7 +13095,7 @@ def publicBatchWrapper89.copies362 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11616..11648`. -/
-def publicBatchWrapper89.copies363 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies363 : List (Target × Target) := [
     (.virt 18581, .wire 179 17),
     (.wire 7 39, .wire 179 18),
     (.wire 179 19, .wire 171 64),
@@ -13131,7 +13131,7 @@ def publicBatchWrapper89.copies363 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11648..11680`. -/
-def publicBatchWrapper89.copies364 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies364 : List (Target × Target) := [
     (.wire 181 35, .wire 180 52),
     (.virt 18586, .wire 180 53),
     (.wire 181 35, .wire 180 54),
@@ -13167,7 +13167,7 @@ def publicBatchWrapper89.copies364 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11680..11712`. -/
-def publicBatchWrapper89.copies365 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies365 : List (Target × Target) := [
     (.wire 181 59, .wire 180 65),
     (.virt 18589, .wire 180 66),
     (.wire 181 59, .wire 180 68),
@@ -13203,7 +13203,7 @@ def publicBatchWrapper89.copies365 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11712..11744`. -/
-def publicBatchWrapper89.copies366 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies366 : List (Target × Target) := [
     (.virt 18591, .wire 182 4),
     (.wire 181 71, .wire 182 5),
     (.virt 18591, .wire 182 6),
@@ -13239,7 +13239,7 @@ def publicBatchWrapper89.copies366 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11744..11776`. -/
-def publicBatchWrapper89.copies367 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies367 : List (Target × Target) := [
     (.wire 181 79, .wire 183 6),
     (.wire 182 15, .virt 200),
     (.wire 183 7, .virt 200),
@@ -13275,7 +13275,7 @@ def publicBatchWrapper89.copies367 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11776..11808`. -/
-def publicBatchWrapper89.copies368 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies368 : List (Target × Target) := [
     (.wire 169 71, .wire 183 26),
     (.virt 18597, .wire 182 28),
     (.wire 183 27, .wire 182 29),
@@ -13311,7 +13311,7 @@ def publicBatchWrapper89.copies368 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11808..11840`. -/
-def publicBatchWrapper89.copies369 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies369 : List (Target × Target) := [
     (.virt 1208, .wire 183 48),
     (.virt 201, .wire 183 49),
     (.wire 170 7, .wire 183 50),
@@ -13347,7 +13347,7 @@ def publicBatchWrapper89.copies369 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11840..11872`. -/
-def publicBatchWrapper89.copies370 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies370 : List (Target × Target) := [
     (.virt 18603, .wire 183 58),
     (.virt 1403, .wire 183 60),
     (.virt 201, .wire 183 61),
@@ -13383,7 +13383,7 @@ def publicBatchWrapper89.copies370 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11872..11904`. -/
-def publicBatchWrapper89.copies371 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies371 : List (Target × Target) := [
     (.virt 18606, .wire 182 77),
     (.wire 183 75, .wire 182 78),
     (.wire 182 79, .wire 183 76),
@@ -13419,7 +13419,7 @@ def publicBatchWrapper89.copies371 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11904..11936`. -/
-def publicBatchWrapper89.copies372 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies372 : List (Target × Target) := [
     (.virt 201, .wire 185 13),
     (.virt 18609, .wire 185 14),
     (.virt 1406, .wire 185 16),
@@ -13455,7 +13455,7 @@ def publicBatchWrapper89.copies372 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11936..11968`. -/
-def publicBatchWrapper89.copies373 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies373 : List (Target × Target) := [
     (.wire 185 35, .virt 200),
     (.virt 201, .wire 185 36),
     (.virt 201, .wire 185 37),
@@ -13491,7 +13491,7 @@ def publicBatchWrapper89.copies373 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `11968..12000`. -/
-def publicBatchWrapper89.copies374 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies374 : List (Target × Target) := [
     (.wire 186 43, .wire 184 14),
     (.wire 184 15, .virt 201),
     (.virt 201, .wire 185 48),
@@ -13527,7 +13527,7 @@ def publicBatchWrapper89.copies374 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12000..12032`. -/
-def publicBatchWrapper89.copies375 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies375 : List (Target × Target) := [
     (.virt 18617, .wire 186 52),
     (.wire 185 67, .wire 186 53),
     (.virt 18617, .wire 186 54),
@@ -13563,7 +13563,7 @@ def publicBatchWrapper89.copies375 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12032..12064`. -/
-def publicBatchWrapper89.copies376 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies376 : List (Target × Target) := [
     (.wire 185 75, .wire 187 2),
     (.wire 186 63, .virt 200),
     (.wire 187 3, .virt 200),
@@ -13599,7 +13599,7 @@ def publicBatchWrapper89.copies376 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12064..12096`. -/
-def publicBatchWrapper89.copies377 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies377 : List (Target × Target) := [
     (.wire 188 3, .wire 187 24),
     (.virt 201, .wire 187 25),
     (.wire 187 19, .wire 187 26),
@@ -13635,7 +13635,7 @@ def publicBatchWrapper89.copies377 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12096..12128`. -/
-def publicBatchWrapper89.copies378 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies378 : List (Target × Target) := [
     (.wire 188 23, .wire 179 57),
     (.wire 10 11, .wire 179 58),
     (.wire 179 59, .wire 184 24),
@@ -13671,7 +13671,7 @@ def publicBatchWrapper89.copies378 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12128..12160`. -/
-def publicBatchWrapper89.copies379 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies379 : List (Target × Target) := [
     (.virt 18629, .wire 187 54),
     (.virt 1804, .wire 187 56),
     (.virt 201, .wire 187 57),
@@ -13707,7 +13707,7 @@ def publicBatchWrapper89.copies379 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12160..12192`. -/
-def publicBatchWrapper89.copies380 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies380 : List (Target × Target) := [
     (.virt 18632, .wire 188 45),
     (.wire 187 71, .wire 188 46),
     (.wire 188 47, .wire 187 72),
@@ -13743,7 +13743,7 @@ def publicBatchWrapper89.copies380 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12192..12224`. -/
-def publicBatchWrapper89.copies381 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies381 : List (Target × Target) := [
     (.virt 18635, .wire 188 58),
     (.wire 189 15, .wire 188 60),
     (.virt 18636, .wire 188 61),
@@ -13779,7 +13779,7 @@ def publicBatchWrapper89.copies381 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12224..12256`. -/
-def publicBatchWrapper89.copies382 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies382 : List (Target × Target) := [
     (.wire 188 75, .wire 190 0),
     (.wire 188 79, .wire 190 1),
     (.wire 188 75, .wire 190 2),
@@ -13815,7 +13815,7 @@ def publicBatchWrapper89.copies382 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12256..12288`. -/
-def publicBatchWrapper89.copies383 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies383 : List (Target × Target) := [
     (.virt 18639, .wire 184 42),
     (.wire 184 43, .virt 201),
     (.virt 201, .wire 189 44),
@@ -13851,7 +13851,7 @@ def publicBatchWrapper89.copies383 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12288..12320`. -/
-def publicBatchWrapper89.copies384 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies384 : List (Target × Target) := [
     (.virt 18643, .wire 190 20),
     (.wire 189 63, .wire 190 21),
     (.virt 18643, .wire 190 22),
@@ -13887,7 +13887,7 @@ def publicBatchWrapper89.copies384 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12320..12352`. -/
-def publicBatchWrapper89.copies385 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies385 : List (Target × Target) := [
     (.virt 201, .wire 191 5),
     (.wire 169 79, .wire 191 6),
     (.virt 18647, .wire 190 36),
@@ -13923,7 +13923,7 @@ def publicBatchWrapper89.copies385 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12352..12384`. -/
-def publicBatchWrapper89.copies386 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies386 : List (Target × Target) := [
     (.virt 18643, .wire 190 54),
     (.virt 18647, .wire 190 56),
     (.virt 18649, .wire 190 57),
@@ -13959,7 +13959,7 @@ def publicBatchWrapper89.copies386 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12384..12416`. -/
-def publicBatchWrapper89.copies387 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies387 : List (Target × Target) := [
     (.virt 18651, .wire 192 5),
     (.wire 12 63, .wire 192 6),
     (.wire 192 7, .wire 184 52),
@@ -13995,7 +13995,7 @@ def publicBatchWrapper89.copies387 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12416..12448`. -/
-def publicBatchWrapper89.copies388 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies388 : List (Target × Target) := [
     (.virt 18655, .wire 191 50),
     (.virt 2205, .wire 191 52),
     (.virt 201, .wire 191 53),
@@ -14031,7 +14031,7 @@ def publicBatchWrapper89.copies388 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12448..12480`. -/
-def publicBatchWrapper89.copies389 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies389 : List (Target × Target) := [
     (.virt 201, .wire 191 72),
     (.virt 201, .wire 191 73),
     (.virt 18659, .wire 191 74),
@@ -14067,7 +14067,7 @@ def publicBatchWrapper89.copies389 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12480..12512`. -/
-def publicBatchWrapper89.copies390 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies390 : List (Target × Target) := [
     (.wire 193 27, .virt 200),
     (.wire 194 15, .virt 200),
     (.virt 18655, .wire 193 32),
@@ -14103,7 +14103,7 @@ def publicBatchWrapper89.copies390 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12512..12544`. -/
-def publicBatchWrapper89.copies391 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies391 : List (Target × Target) := [
     (.wire 194 19, .wire 194 26),
     (.wire 193 47, .virt 200),
     (.wire 194 27, .virt 200),
@@ -14139,7 +14139,7 @@ def publicBatchWrapper89.copies391 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12544..12576`. -/
-def publicBatchWrapper89.copies392 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies392 : List (Target × Target) := [
     (.virt 18665, .wire 184 70),
     (.wire 184 71, .virt 201),
     (.virt 201, .wire 194 40),
@@ -14175,7 +14175,7 @@ def publicBatchWrapper89.copies392 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12576..12608`. -/
-def publicBatchWrapper89.copies393 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies393 : List (Target × Target) := [
     (.virt 201, .wire 194 61),
     (.wire 194 55, .wire 194 62),
     (.wire 193 71, .virt 200),
@@ -14211,7 +14211,7 @@ def publicBatchWrapper89.copies393 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12608..12640`. -/
-def publicBatchWrapper89.copies394 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies394 : List (Target × Target) := [
     (.wire 196 3, .wire 195 10),
     (.wire 195 11, .wire 196 4),
     (.virt 201, .wire 196 5),
@@ -14247,7 +14247,7 @@ def publicBatchWrapper89.copies394 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12640..12672`. -/
-def publicBatchWrapper89.copies395 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies395 : List (Target × Target) := [
     (.virt 18676, .wire 195 29),
     (.wire 196 15, .wire 195 30),
     (.wire 195 31, .wire 196 16),
@@ -14283,7 +14283,7 @@ def publicBatchWrapper89.copies395 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12672..12704`. -/
-def publicBatchWrapper89.copies396 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies396 : List (Target × Target) := [
     (.virt 18677, .wire 192 33),
     (.wire 14 71, .wire 192 34),
     (.wire 192 35, .wire 197 0),
@@ -14319,7 +14319,7 @@ def publicBatchWrapper89.copies396 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12704..12736`. -/
-def publicBatchWrapper89.copies397 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies397 : List (Target × Target) := [
     (.wire 196 51, .wire 195 52),
     (.virt 18682, .wire 195 53),
     (.wire 196 51, .wire 195 54),
@@ -14355,7 +14355,7 @@ def publicBatchWrapper89.copies397 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12736..12768`. -/
-def publicBatchWrapper89.copies398 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies398 : List (Target × Target) := [
     (.wire 196 75, .wire 195 65),
     (.virt 18685, .wire 195 66),
     (.wire 196 75, .wire 195 68),
@@ -14391,7 +14391,7 @@ def publicBatchWrapper89.copies398 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12768..12800`. -/
-def publicBatchWrapper89.copies399 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies399 : List (Target × Target) := [
     (.virt 18687, .wire 198 4),
     (.wire 199 7, .wire 198 5),
     (.virt 18687, .wire 198 6),
@@ -14427,7 +14427,7 @@ def publicBatchWrapper89.copies399 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12800..12832`. -/
-def publicBatchWrapper89.copies400 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies400 : List (Target × Target) := [
     (.wire 199 15, .wire 199 22),
     (.wire 198 15, .virt 200),
     (.wire 199 23, .virt 200),
@@ -14463,7 +14463,7 @@ def publicBatchWrapper89.copies400 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12832..12864`. -/
-def publicBatchWrapper89.copies401 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies401 : List (Target × Target) := [
     (.wire 169 71, .wire 199 42),
     (.virt 18693, .wire 198 28),
     (.wire 199 43, .wire 198 29),
@@ -14499,7 +14499,7 @@ def publicBatchWrapper89.copies401 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12864..12896`. -/
-def publicBatchWrapper89.copies402 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies402 : List (Target × Target) := [
     (.virt 2808, .wire 199 64),
     (.virt 201, .wire 199 65),
     (.wire 170 7, .wire 199 66),
@@ -14535,7 +14535,7 @@ def publicBatchWrapper89.copies402 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12896..12928`. -/
-def publicBatchWrapper89.copies403 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies403 : List (Target × Target) := [
     (.virt 18699, .wire 199 74),
     (.virt 3003, .wire 199 76),
     (.virt 201, .wire 199 77),
@@ -14571,7 +14571,7 @@ def publicBatchWrapper89.copies403 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12928..12960`. -/
-def publicBatchWrapper89.copies404 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies404 : List (Target × Target) := [
     (.virt 18702, .wire 198 77),
     (.wire 200 11, .wire 198 78),
     (.wire 198 79, .wire 200 12),
@@ -14607,7 +14607,7 @@ def publicBatchWrapper89.copies404 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12960..12992`. -/
-def publicBatchWrapper89.copies405 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies405 : List (Target × Target) := [
     (.virt 201, .wire 200 29),
     (.virt 18705, .wire 200 30),
     (.virt 3006, .wire 200 32),
@@ -14643,7 +14643,7 @@ def publicBatchWrapper89.copies405 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `12992..13024`. -/
-def publicBatchWrapper89.copies406 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies406 : List (Target × Target) := [
     (.wire 200 51, .virt 200),
     (.virt 201, .wire 200 52),
     (.virt 201, .wire 200 53),
@@ -14679,7 +14679,7 @@ def publicBatchWrapper89.copies406 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13024..13056`. -/
-def publicBatchWrapper89.copies407 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies407 : List (Target × Target) := [
     (.wire 201 43, .wire 197 30),
     (.wire 197 31, .virt 201),
     (.virt 201, .wire 200 64),
@@ -14715,7 +14715,7 @@ def publicBatchWrapper89.copies407 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13056..13088`. -/
-def publicBatchWrapper89.copies408 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies408 : List (Target × Target) := [
     (.virt 18713, .wire 201 52),
     (.wire 202 3, .wire 201 53),
     (.virt 18713, .wire 201 54),
@@ -14751,7 +14751,7 @@ def publicBatchWrapper89.copies408 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13088..13120`. -/
-def publicBatchWrapper89.copies409 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies409 : List (Target × Target) := [
     (.wire 202 11, .wire 202 18),
     (.wire 201 63, .virt 200),
     (.wire 202 19, .virt 200),
@@ -14787,7 +14787,7 @@ def publicBatchWrapper89.copies409 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13120..13152`. -/
-def publicBatchWrapper89.copies410 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies410 : List (Target × Target) := [
     (.wire 203 3, .wire 202 40),
     (.virt 201, .wire 202 41),
     (.wire 202 35, .wire 202 42),
@@ -14823,7 +14823,7 @@ def publicBatchWrapper89.copies410 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13152..13184`. -/
-def publicBatchWrapper89.copies411 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies411 : List (Target × Target) := [
     (.wire 203 23, .wire 192 73),
     (.wire 17 43, .wire 192 74),
     (.wire 192 75, .wire 197 40),
@@ -14859,7 +14859,7 @@ def publicBatchWrapper89.copies411 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13184..13216`. -/
-def publicBatchWrapper89.copies412 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies412 : List (Target × Target) := [
     (.virt 18725, .wire 202 70),
     (.virt 3404, .wire 202 72),
     (.virt 201, .wire 202 73),
@@ -14895,7 +14895,7 @@ def publicBatchWrapper89.copies412 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13216..13248`. -/
-def publicBatchWrapper89.copies413 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies413 : List (Target × Target) := [
     (.virt 18728, .wire 203 45),
     (.wire 205 7, .wire 203 46),
     (.wire 203 47, .wire 205 8),
@@ -14931,7 +14931,7 @@ def publicBatchWrapper89.copies413 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13248..13280`. -/
-def publicBatchWrapper89.copies414 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies414 : List (Target × Target) := [
     (.virt 18731, .wire 203 58),
     (.wire 205 31, .wire 203 60),
     (.virt 18732, .wire 203 61),
@@ -14967,7 +14967,7 @@ def publicBatchWrapper89.copies414 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13280..13312`. -/
-def publicBatchWrapper89.copies415 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies415 : List (Target × Target) := [
     (.wire 203 75, .wire 206 0),
     (.wire 203 79, .wire 206 1),
     (.wire 203 75, .wire 206 2),
@@ -15003,7 +15003,7 @@ def publicBatchWrapper89.copies415 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13312..13344`. -/
-def publicBatchWrapper89.copies416 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies416 : List (Target × Target) := [
     (.virt 18735, .wire 197 58),
     (.wire 197 59, .virt 201),
     (.virt 201, .wire 205 60),
@@ -15039,7 +15039,7 @@ def publicBatchWrapper89.copies416 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13344..13376`. -/
-def publicBatchWrapper89.copies417 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies417 : List (Target × Target) := [
     (.virt 18739, .wire 206 20),
     (.wire 205 79, .wire 206 21),
     (.virt 18739, .wire 206 22),
@@ -15075,7 +15075,7 @@ def publicBatchWrapper89.copies417 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13376..13408`. -/
-def publicBatchWrapper89.copies418 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies418 : List (Target × Target) := [
     (.virt 201, .wire 207 21),
     (.wire 169 79, .wire 207 22),
     (.virt 18743, .wire 206 36),
@@ -15111,7 +15111,7 @@ def publicBatchWrapper89.copies418 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13408..13440`. -/
-def publicBatchWrapper89.copies419 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies419 : List (Target × Target) := [
     (.virt 18739, .wire 206 54),
     (.virt 18743, .wire 206 56),
     (.virt 18745, .wire 206 57),
@@ -15147,7 +15147,7 @@ def publicBatchWrapper89.copies419 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13440..13472`. -/
-def publicBatchWrapper89.copies420 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies420 : List (Target × Target) := [
     (.virt 18747, .wire 204 21),
     (.wire 20 15, .wire 204 22),
     (.wire 204 23, .wire 197 68),
@@ -15183,7 +15183,7 @@ def publicBatchWrapper89.copies420 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13472..13504`. -/
-def publicBatchWrapper89.copies421 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies421 : List (Target × Target) := [
     (.virt 18751, .wire 207 66),
     (.virt 3805, .wire 207 68),
     (.virt 201, .wire 207 69),
@@ -15219,7 +15219,7 @@ def publicBatchWrapper89.copies421 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13504..13536`. -/
-def publicBatchWrapper89.copies422 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies422 : List (Target × Target) := [
     (.virt 201, .wire 209 8),
     (.virt 201, .wire 209 9),
     (.virt 18755, .wire 209 10),
@@ -15255,7 +15255,7 @@ def publicBatchWrapper89.copies422 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13536..13568`. -/
-def publicBatchWrapper89.copies423 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies423 : List (Target × Target) := [
     (.wire 208 27, .virt 200),
     (.wire 209 31, .virt 200),
     (.virt 18751, .wire 208 32),
@@ -15291,7 +15291,7 @@ def publicBatchWrapper89.copies423 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13568..13600`. -/
-def publicBatchWrapper89.copies424 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies424 : List (Target × Target) := [
     (.wire 209 35, .wire 209 42),
     (.wire 208 47, .virt 200),
     (.wire 209 43, .virt 200),
@@ -15327,7 +15327,7 @@ def publicBatchWrapper89.copies424 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13600..13632`. -/
-def publicBatchWrapper89.copies425 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies425 : List (Target × Target) := [
     (.virt 18761, .wire 210 6),
     (.wire 210 7, .virt 201),
     (.virt 201, .wire 209 56),
@@ -15363,7 +15363,7 @@ def publicBatchWrapper89.copies425 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13632..13664`. -/
-def publicBatchWrapper89.copies426 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies426 : List (Target × Target) := [
     (.virt 201, .wire 209 77),
     (.wire 209 71, .wire 209 78),
     (.wire 208 71, .virt 200),
@@ -15399,7 +15399,7 @@ def publicBatchWrapper89.copies426 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13664..13696`. -/
-def publicBatchWrapper89.copies427 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies427 : List (Target × Target) := [
     (.wire 211 19, .wire 212 10),
     (.wire 212 11, .wire 211 20),
     (.virt 201, .wire 211 21),
@@ -15435,7 +15435,7 @@ def publicBatchWrapper89.copies427 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13696..13728`. -/
-def publicBatchWrapper89.copies428 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies428 : List (Target × Target) := [
     (.virt 18772, .wire 212 29),
     (.wire 211 31, .wire 212 30),
     (.wire 212 31, .wire 211 32),
@@ -15471,7 +15471,7 @@ def publicBatchWrapper89.copies428 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13728..13760`. -/
-def publicBatchWrapper89.copies429 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies429 : List (Target × Target) := [
     (.virt 18773, .wire 204 49),
     (.wire 22 23, .wire 204 50),
     (.wire 204 51, .wire 210 16),
@@ -15507,7 +15507,7 @@ def publicBatchWrapper89.copies429 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13760..13792`. -/
-def publicBatchWrapper89.copies430 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies430 : List (Target × Target) := [
     (.wire 211 67, .wire 212 52),
     (.virt 18778, .wire 212 53),
     (.wire 211 67, .wire 212 54),
@@ -15543,7 +15543,7 @@ def publicBatchWrapper89.copies430 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13792..13824`. -/
-def publicBatchWrapper89.copies431 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies431 : List (Target × Target) := [
     (.wire 213 11, .wire 212 65),
     (.virt 18781, .wire 212 66),
     (.wire 213 11, .wire 212 68),
@@ -15579,7 +15579,7 @@ def publicBatchWrapper89.copies431 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13824..13856`. -/
-def publicBatchWrapper89.copies432 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies432 : List (Target × Target) := [
     (.virt 18783, .wire 214 4),
     (.wire 213 23, .wire 214 5),
     (.virt 18783, .wire 214 6),
@@ -15615,7 +15615,7 @@ def publicBatchWrapper89.copies432 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13856..13888`. -/
-def publicBatchWrapper89.copies433 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies433 : List (Target × Target) := [
     (.wire 213 31, .wire 213 38),
     (.wire 214 15, .virt 200),
     (.wire 213 39, .virt 200),
@@ -15651,7 +15651,7 @@ def publicBatchWrapper89.copies433 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13888..13920`. -/
-def publicBatchWrapper89.copies434 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies434 : List (Target × Target) := [
     (.wire 169 71, .wire 213 58),
     (.virt 18789, .wire 214 28),
     (.wire 213 59, .wire 214 29),
@@ -15687,7 +15687,7 @@ def publicBatchWrapper89.copies434 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13920..13952`. -/
-def publicBatchWrapper89.copies435 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies435 : List (Target × Target) := [
     (.virt 4408, .wire 215 0),
     (.virt 201, .wire 215 1),
     (.wire 170 7, .wire 215 2),
@@ -15723,7 +15723,7 @@ def publicBatchWrapper89.copies435 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13952..13984`. -/
-def publicBatchWrapper89.copies436 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies436 : List (Target × Target) := [
     (.virt 18795, .wire 215 10),
     (.virt 4603, .wire 215 12),
     (.virt 201, .wire 215 13),
@@ -15759,7 +15759,7 @@ def publicBatchWrapper89.copies436 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `13984..14016`. -/
-def publicBatchWrapper89.copies437 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies437 : List (Target × Target) := [
     (.virt 18798, .wire 214 77),
     (.wire 215 27, .wire 214 78),
     (.wire 214 79, .wire 215 28),
@@ -15795,7 +15795,7 @@ def publicBatchWrapper89.copies437 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14016..14048`. -/
-def publicBatchWrapper89.copies438 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies438 : List (Target × Target) := [
     (.virt 201, .wire 215 45),
     (.virt 18801, .wire 215 46),
     (.virt 4606, .wire 215 48),
@@ -15831,7 +15831,7 @@ def publicBatchWrapper89.copies438 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14048..14080`. -/
-def publicBatchWrapper89.copies439 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies439 : List (Target × Target) := [
     (.wire 215 67, .virt 200),
     (.virt 201, .wire 215 68),
     (.virt 201, .wire 215 69),
@@ -15867,7 +15867,7 @@ def publicBatchWrapper89.copies439 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14080..14112`. -/
-def publicBatchWrapper89.copies440 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies440 : List (Target × Target) := [
     (.wire 216 43, .wire 210 46),
     (.wire 210 47, .virt 201),
     (.virt 201, .wire 217 0),
@@ -15903,7 +15903,7 @@ def publicBatchWrapper89.copies440 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14112..14144`. -/
-def publicBatchWrapper89.copies441 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies441 : List (Target × Target) := [
     (.virt 18809, .wire 216 52),
     (.wire 217 19, .wire 216 53),
     (.virt 18809, .wire 216 54),
@@ -15939,7 +15939,7 @@ def publicBatchWrapper89.copies441 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14144..14176`. -/
-def publicBatchWrapper89.copies442 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies442 : List (Target × Target) := [
     (.wire 217 27, .wire 217 34),
     (.wire 216 63, .virt 200),
     (.wire 217 35, .virt 200),
@@ -15975,7 +15975,7 @@ def publicBatchWrapper89.copies442 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14176..14208`. -/
-def publicBatchWrapper89.copies443 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies443 : List (Target × Target) := [
     (.wire 219 3, .wire 217 56),
     (.virt 201, .wire 217 57),
     (.wire 217 51, .wire 217 58),
@@ -16011,7 +16011,7 @@ def publicBatchWrapper89.copies443 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14208..14240`. -/
-def publicBatchWrapper89.copies444 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies444 : List (Target × Target) := [
     (.wire 219 23, .wire 218 9),
     (.wire 24 75, .wire 218 10),
     (.wire 218 11, .wire 210 56),
@@ -16047,7 +16047,7 @@ def publicBatchWrapper89.copies444 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14240..14272`. -/
-def publicBatchWrapper89.copies445 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies445 : List (Target × Target) := [
     (.virt 18821, .wire 220 6),
     (.virt 5004, .wire 220 8),
     (.virt 201, .wire 220 9),
@@ -16083,7 +16083,7 @@ def publicBatchWrapper89.copies445 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14272..14304`. -/
-def publicBatchWrapper89.copies446 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies446 : List (Target × Target) := [
     (.virt 18824, .wire 219 45),
     (.wire 220 23, .wire 219 46),
     (.wire 219 47, .wire 220 24),
@@ -16119,7 +16119,7 @@ def publicBatchWrapper89.copies446 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14304..14336`. -/
-def publicBatchWrapper89.copies447 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies447 : List (Target × Target) := [
     (.virt 18827, .wire 219 58),
     (.wire 220 47, .wire 219 60),
     (.virt 18828, .wire 219 61),
@@ -16155,7 +16155,7 @@ def publicBatchWrapper89.copies447 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14336..14368`. -/
-def publicBatchWrapper89.copies448 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies448 : List (Target × Target) := [
     (.wire 219 75, .wire 221 0),
     (.wire 219 79, .wire 221 1),
     (.wire 219 75, .wire 221 2),
@@ -16191,7 +16191,7 @@ def publicBatchWrapper89.copies448 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14368..14400`. -/
-def publicBatchWrapper89.copies449 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies449 : List (Target × Target) := [
     (.virt 18831, .wire 210 74),
     (.wire 210 75, .virt 201),
     (.virt 201, .wire 220 76),
@@ -16227,7 +16227,7 @@ def publicBatchWrapper89.copies449 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14400..14432`. -/
-def publicBatchWrapper89.copies450 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies450 : List (Target × Target) := [
     (.virt 18835, .wire 221 20),
     (.wire 222 15, .wire 221 21),
     (.virt 18835, .wire 221 22),
@@ -16263,7 +16263,7 @@ def publicBatchWrapper89.copies450 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14432..14464`. -/
-def publicBatchWrapper89.copies451 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies451 : List (Target × Target) := [
     (.virt 201, .wire 222 37),
     (.wire 169 79, .wire 222 38),
     (.virt 18839, .wire 221 36),
@@ -16299,7 +16299,7 @@ def publicBatchWrapper89.copies451 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14464..14496`. -/
-def publicBatchWrapper89.copies452 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies452 : List (Target × Target) := [
     (.virt 18835, .wire 221 54),
     (.virt 18839, .wire 221 56),
     (.virt 18841, .wire 221 57),
@@ -16335,7 +16335,7 @@ def publicBatchWrapper89.copies452 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14496..14528`. -/
-def publicBatchWrapper89.copies453 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies453 : List (Target × Target) := [
     (.virt 18843, .wire 218 37),
     (.wire 27 47, .wire 218 38),
     (.wire 218 39, .wire 223 4),
@@ -16371,7 +16371,7 @@ def publicBatchWrapper89.copies453 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14528..14560`. -/
-def publicBatchWrapper89.copies454 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies454 : List (Target × Target) := [
     (.virt 18847, .wire 224 2),
     (.virt 5405, .wire 224 4),
     (.virt 201, .wire 224 5),
@@ -16407,7 +16407,7 @@ def publicBatchWrapper89.copies454 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14560..14592`. -/
-def publicBatchWrapper89.copies455 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies455 : List (Target × Target) := [
     (.virt 201, .wire 224 24),
     (.virt 201, .wire 224 25),
     (.virt 18851, .wire 224 26),
@@ -16443,7 +16443,7 @@ def publicBatchWrapper89.copies455 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14592..14624`. -/
-def publicBatchWrapper89.copies456 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies456 : List (Target × Target) := [
     (.wire 225 27, .virt 200),
     (.wire 224 47, .virt 200),
     (.virt 18847, .wire 225 32),
@@ -16479,7 +16479,7 @@ def publicBatchWrapper89.copies456 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14624..14656`. -/
-def publicBatchWrapper89.copies457 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies457 : List (Target × Target) := [
     (.wire 224 51, .wire 224 58),
     (.wire 225 47, .virt 200),
     (.wire 224 59, .virt 200),
@@ -16515,7 +16515,7 @@ def publicBatchWrapper89.copies457 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14656..14688`. -/
-def publicBatchWrapper89.copies458 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies458 : List (Target × Target) := [
     (.virt 18857, .wire 223 22),
     (.wire 223 23, .virt 201),
     (.virt 201, .wire 224 72),
@@ -16551,7 +16551,7 @@ def publicBatchWrapper89.copies458 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14688..14720`. -/
-def publicBatchWrapper89.copies459 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies459 : List (Target × Target) := [
     (.virt 201, .wire 226 13),
     (.wire 226 7, .wire 226 14),
     (.wire 225 71, .virt 200),
@@ -16587,7 +16587,7 @@ def publicBatchWrapper89.copies459 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14720..14752`. -/
-def publicBatchWrapper89.copies460 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies460 : List (Target × Target) := [
     (.wire 226 35, .wire 227 10),
     (.wire 227 11, .wire 226 36),
     (.virt 201, .wire 226 37),
@@ -16623,7 +16623,7 @@ def publicBatchWrapper89.copies460 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14752..14784`. -/
-def publicBatchWrapper89.copies461 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies461 : List (Target × Target) := [
     (.virt 18868, .wire 227 29),
     (.wire 226 47, .wire 227 30),
     (.wire 227 31, .wire 226 48),
@@ -16659,7 +16659,7 @@ def publicBatchWrapper89.copies461 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14784..14816`. -/
-def publicBatchWrapper89.copies462 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies462 : List (Target × Target) := [
     (.virt 18869, .wire 218 65),
     (.wire 29 55, .wire 218 66),
     (.wire 218 67, .wire 223 32),
@@ -16695,7 +16695,7 @@ def publicBatchWrapper89.copies462 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14816..14848`. -/
-def publicBatchWrapper89.copies463 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies463 : List (Target × Target) := [
     (.wire 228 3, .wire 227 52),
     (.virt 18874, .wire 227 53),
     (.wire 228 3, .wire 227 54),
@@ -16731,7 +16731,7 @@ def publicBatchWrapper89.copies463 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14848..14880`. -/
-def publicBatchWrapper89.copies464 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies464 : List (Target × Target) := [
     (.wire 228 27, .wire 227 65),
     (.virt 18877, .wire 227 66),
     (.wire 228 27, .wire 227 68),
@@ -16767,7 +16767,7 @@ def publicBatchWrapper89.copies464 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14880..14912`. -/
-def publicBatchWrapper89.copies465 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies465 : List (Target × Target) := [
     (.virt 18879, .wire 229 4),
     (.wire 228 39, .wire 229 5),
     (.virt 18879, .wire 229 6),
@@ -16803,7 +16803,7 @@ def publicBatchWrapper89.copies465 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14912..14944`. -/
-def publicBatchWrapper89.copies466 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies466 : List (Target × Target) := [
     (.wire 228 47, .wire 228 54),
     (.wire 229 15, .virt 200),
     (.wire 228 55, .virt 200),
@@ -16839,7 +16839,7 @@ def publicBatchWrapper89.copies466 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14944..14976`. -/
-def publicBatchWrapper89.copies467 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies467 : List (Target × Target) := [
     (.wire 169 71, .wire 228 74),
     (.virt 18885, .wire 229 28),
     (.wire 228 75, .wire 229 29),
@@ -16875,7 +16875,7 @@ def publicBatchWrapper89.copies467 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `14976..15008`. -/
-def publicBatchWrapper89.copies468 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies468 : List (Target × Target) := [
     (.virt 6008, .wire 230 16),
     (.virt 201, .wire 230 17),
     (.wire 170 7, .wire 230 18),
@@ -16911,7 +16911,7 @@ def publicBatchWrapper89.copies468 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15008..15040`. -/
-def publicBatchWrapper89.copies469 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies469 : List (Target × Target) := [
     (.virt 18891, .wire 230 26),
     (.virt 6203, .wire 230 28),
     (.virt 201, .wire 230 29),
@@ -16947,7 +16947,7 @@ def publicBatchWrapper89.copies469 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15040..15072`. -/
-def publicBatchWrapper89.copies470 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies470 : List (Target × Target) := [
     (.virt 18894, .wire 229 77),
     (.wire 230 43, .wire 229 78),
     (.wire 229 79, .wire 230 44),
@@ -16983,7 +16983,7 @@ def publicBatchWrapper89.copies470 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15072..15104`. -/
-def publicBatchWrapper89.copies471 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies471 : List (Target × Target) := [
     (.virt 201, .wire 230 61),
     (.virt 18897, .wire 230 62),
     (.virt 6206, .wire 230 64),
@@ -17019,7 +17019,7 @@ def publicBatchWrapper89.copies471 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15104..15136`. -/
-def publicBatchWrapper89.copies472 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies472 : List (Target × Target) := [
     (.wire 233 3, .virt 200),
     (.virt 201, .wire 233 4),
     (.virt 201, .wire 233 5),
@@ -17055,7 +17055,7 @@ def publicBatchWrapper89.copies472 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15136..15168`. -/
-def publicBatchWrapper89.copies473 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies473 : List (Target × Target) := [
     (.wire 232 43, .wire 223 62),
     (.wire 223 63, .virt 201),
     (.virt 201, .wire 233 16),
@@ -17091,7 +17091,7 @@ def publicBatchWrapper89.copies473 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15168..15200`. -/
-def publicBatchWrapper89.copies474 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies474 : List (Target × Target) := [
     (.virt 18905, .wire 232 52),
     (.wire 233 35, .wire 232 53),
     (.virt 18905, .wire 232 54),
@@ -17127,7 +17127,7 @@ def publicBatchWrapper89.copies474 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15200..15232`. -/
-def publicBatchWrapper89.copies475 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies475 : List (Target × Target) := [
     (.wire 233 43, .wire 233 50),
     (.wire 232 63, .virt 200),
     (.wire 233 51, .virt 200),
@@ -17163,7 +17163,7 @@ def publicBatchWrapper89.copies475 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15232..15264`. -/
-def publicBatchWrapper89.copies476 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies476 : List (Target × Target) := [
     (.wire 234 3, .wire 233 72),
     (.virt 201, .wire 233 73),
     (.wire 233 67, .wire 233 74),
@@ -17199,7 +17199,7 @@ def publicBatchWrapper89.copies476 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15264..15296`. -/
-def publicBatchWrapper89.copies477 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies477 : List (Target × Target) := [
     (.wire 234 23, .wire 231 25),
     (.wire 33 27, .wire 231 26),
     (.wire 231 27, .wire 223 72),
@@ -17235,7 +17235,7 @@ def publicBatchWrapper89.copies477 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15296..15328`. -/
-def publicBatchWrapper89.copies478 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies478 : List (Target × Target) := [
     (.virt 18917, .wire 235 22),
     (.virt 6604, .wire 235 24),
     (.virt 201, .wire 235 25),
@@ -17271,7 +17271,7 @@ def publicBatchWrapper89.copies478 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15328..15360`. -/
-def publicBatchWrapper89.copies479 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies479 : List (Target × Target) := [
     (.virt 18920, .wire 234 45),
     (.wire 235 39, .wire 234 46),
     (.wire 234 47, .wire 235 40),
@@ -17307,7 +17307,7 @@ def publicBatchWrapper89.copies479 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15360..15392`. -/
-def publicBatchWrapper89.copies480 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies480 : List (Target × Target) := [
     (.virt 18923, .wire 234 58),
     (.wire 235 63, .wire 234 60),
     (.virt 18924, .wire 234 61),
@@ -17343,7 +17343,7 @@ def publicBatchWrapper89.copies480 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15392..15424`. -/
-def publicBatchWrapper89.copies481 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies481 : List (Target × Target) := [
     (.wire 234 75, .wire 237 0),
     (.wire 234 79, .wire 237 1),
     (.wire 234 75, .wire 237 2),
@@ -17379,7 +17379,7 @@ def publicBatchWrapper89.copies481 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15424..15456`. -/
-def publicBatchWrapper89.copies482 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies482 : List (Target × Target) := [
     (.virt 18927, .wire 236 10),
     (.wire 236 11, .virt 201),
     (.virt 201, .wire 238 12),
@@ -17415,7 +17415,7 @@ def publicBatchWrapper89.copies482 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15456..15488`. -/
-def publicBatchWrapper89.copies483 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies483 : List (Target × Target) := [
     (.virt 18931, .wire 237 20),
     (.wire 238 31, .wire 237 21),
     (.virt 18931, .wire 237 22),
@@ -17451,7 +17451,7 @@ def publicBatchWrapper89.copies483 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15488..15520`. -/
-def publicBatchWrapper89.copies484 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies484 : List (Target × Target) := [
     (.virt 201, .wire 238 53),
     (.wire 169 79, .wire 238 54),
     (.virt 18935, .wire 237 36),
@@ -17487,7 +17487,7 @@ def publicBatchWrapper89.copies484 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15520..15552`. -/
-def publicBatchWrapper89.copies485 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies485 : List (Target × Target) := [
     (.virt 18931, .wire 237 54),
     (.virt 18935, .wire 237 56),
     (.virt 18937, .wire 237 57),
@@ -17523,7 +17523,7 @@ def publicBatchWrapper89.copies485 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15552..15584`. -/
-def publicBatchWrapper89.copies486 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies486 : List (Target × Target) := [
     (.virt 18939, .wire 231 53),
     (.wire 34 79, .wire 231 54),
     (.wire 231 55, .wire 236 20),
@@ -17559,7 +17559,7 @@ def publicBatchWrapper89.copies486 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15584..15616`. -/
-def publicBatchWrapper89.copies487 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies487 : List (Target × Target) := [
     (.virt 18943, .wire 239 18),
     (.virt 7005, .wire 239 20),
     (.virt 201, .wire 239 21),
@@ -17595,7 +17595,7 @@ def publicBatchWrapper89.copies487 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15616..15648`. -/
-def publicBatchWrapper89.copies488 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies488 : List (Target × Target) := [
     (.virt 201, .wire 239 40),
     (.virt 201, .wire 239 41),
     (.virt 18947, .wire 239 42),
@@ -17631,7 +17631,7 @@ def publicBatchWrapper89.copies488 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15648..15680`. -/
-def publicBatchWrapper89.copies489 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies489 : List (Target × Target) := [
     (.wire 240 27, .virt 200),
     (.wire 239 63, .virt 200),
     (.virt 18943, .wire 240 32),
@@ -17667,7 +17667,7 @@ def publicBatchWrapper89.copies489 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15680..15712`. -/
-def publicBatchWrapper89.copies490 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies490 : List (Target × Target) := [
     (.wire 239 67, .wire 239 74),
     (.wire 240 47, .virt 200),
     (.wire 239 75, .virt 200),
@@ -17703,7 +17703,7 @@ def publicBatchWrapper89.copies490 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15712..15744`. -/
-def publicBatchWrapper89.copies491 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies491 : List (Target × Target) := [
     (.virt 18953, .wire 236 38),
     (.wire 236 39, .virt 201),
     (.virt 201, .wire 241 8),
@@ -17739,7 +17739,7 @@ def publicBatchWrapper89.copies491 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15744..15776`. -/
-def publicBatchWrapper89.copies492 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies492 : List (Target × Target) := [
     (.virt 201, .wire 241 29),
     (.wire 241 23, .wire 241 30),
     (.wire 240 71, .virt 200),
@@ -17775,7 +17775,7 @@ def publicBatchWrapper89.copies492 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15776..15808`. -/
-def publicBatchWrapper89.copies493 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies493 : List (Target × Target) := [
     (.wire 241 51, .wire 242 10),
     (.wire 242 11, .wire 241 52),
     (.virt 201, .wire 241 53),
@@ -17811,7 +17811,7 @@ def publicBatchWrapper89.copies493 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15808..15840`. -/
-def publicBatchWrapper89.copies494 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies494 : List (Target × Target) := [
     (.virt 18964, .wire 242 29),
     (.wire 241 63, .wire 242 30),
     (.wire 242 31, .wire 241 64),
@@ -17847,7 +17847,7 @@ def publicBatchWrapper89.copies494 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15840..15872`. -/
-def publicBatchWrapper89.copies495 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies495 : List (Target × Target) := [
     (.virt 18965, .wire 243 1),
     (.wire 38 7, .wire 243 2),
     (.wire 243 3, .wire 236 48),
@@ -17883,7 +17883,7 @@ def publicBatchWrapper89.copies495 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15872..15904`. -/
-def publicBatchWrapper89.copies496 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies496 : List (Target × Target) := [
     (.wire 244 19, .wire 242 52),
     (.virt 18970, .wire 242 53),
     (.wire 244 19, .wire 242 54),
@@ -17919,7 +17919,7 @@ def publicBatchWrapper89.copies496 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15904..15936`. -/
-def publicBatchWrapper89.copies497 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies497 : List (Target × Target) := [
     (.wire 244 43, .wire 242 65),
     (.virt 18973, .wire 242 66),
     (.wire 244 43, .wire 242 68),
@@ -17955,7 +17955,7 @@ def publicBatchWrapper89.copies497 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15936..15968`. -/
-def publicBatchWrapper89.copies498 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies498 : List (Target × Target) := [
     (.virt 18975, .wire 245 4),
     (.wire 244 55, .wire 245 5),
     (.virt 18975, .wire 245 6),
@@ -17991,7 +17991,7 @@ def publicBatchWrapper89.copies498 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `15968..16000`. -/
-def publicBatchWrapper89.copies499 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies499 : List (Target × Target) := [
     (.wire 244 63, .wire 244 70),
     (.wire 245 15, .virt 200),
     (.wire 244 71, .virt 200),
@@ -18027,7 +18027,7 @@ def publicBatchWrapper89.copies499 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16000..16032`. -/
-def publicBatchWrapper89.copies500 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies500 : List (Target × Target) := [
     (.wire 169 71, .wire 246 10),
     (.virt 18981, .wire 245 28),
     (.wire 246 11, .wire 245 29),
@@ -18063,7 +18063,7 @@ def publicBatchWrapper89.copies500 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16032..16064`. -/
-def publicBatchWrapper89.copies501 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies501 : List (Target × Target) := [
     (.virt 7608, .wire 246 32),
     (.virt 201, .wire 246 33),
     (.wire 170 7, .wire 246 34),
@@ -18099,7 +18099,7 @@ def publicBatchWrapper89.copies501 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16064..16096`. -/
-def publicBatchWrapper89.copies502 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies502 : List (Target × Target) := [
     (.virt 18987, .wire 246 42),
     (.virt 7803, .wire 246 44),
     (.virt 201, .wire 246 45),
@@ -18135,7 +18135,7 @@ def publicBatchWrapper89.copies502 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16096..16128`. -/
-def publicBatchWrapper89.copies503 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies503 : List (Target × Target) := [
     (.virt 18990, .wire 245 77),
     (.wire 246 59, .wire 245 78),
     (.wire 245 79, .wire 246 60),
@@ -18171,7 +18171,7 @@ def publicBatchWrapper89.copies503 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16128..16160`. -/
-def publicBatchWrapper89.copies504 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies504 : List (Target × Target) := [
     (.virt 201, .wire 246 77),
     (.virt 18993, .wire 246 78),
     (.virt 7806, .wire 248 0),
@@ -18207,7 +18207,7 @@ def publicBatchWrapper89.copies504 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16160..16192`. -/
-def publicBatchWrapper89.copies505 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies505 : List (Target × Target) := [
     (.wire 248 19, .virt 200),
     (.virt 201, .wire 248 20),
     (.virt 201, .wire 248 21),
@@ -18243,7 +18243,7 @@ def publicBatchWrapper89.copies505 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16192..16224`. -/
-def publicBatchWrapper89.copies506 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies506 : List (Target × Target) := [
     (.wire 247 43, .wire 236 78),
     (.wire 236 79, .virt 201),
     (.virt 201, .wire 248 32),
@@ -18279,7 +18279,7 @@ def publicBatchWrapper89.copies506 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16224..16256`. -/
-def publicBatchWrapper89.copies507 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies507 : List (Target × Target) := [
     (.virt 19001, .wire 247 52),
     (.wire 248 51, .wire 247 53),
     (.virt 19001, .wire 247 54),
@@ -18315,7 +18315,7 @@ def publicBatchWrapper89.copies507 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16256..16288`. -/
-def publicBatchWrapper89.copies508 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies508 : List (Target × Target) := [
     (.wire 248 59, .wire 248 66),
     (.wire 247 63, .virt 200),
     (.wire 248 67, .virt 200),
@@ -18351,7 +18351,7 @@ def publicBatchWrapper89.copies508 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16288..16320`. -/
-def publicBatchWrapper89.copies509 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies509 : List (Target × Target) := [
     (.wire 251 3, .wire 250 8),
     (.virt 201, .wire 250 9),
     (.wire 250 3, .wire 250 10),
@@ -18387,7 +18387,7 @@ def publicBatchWrapper89.copies509 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16320..16352`. -/
-def publicBatchWrapper89.copies510 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies510 : List (Target × Target) := [
     (.wire 251 23, .wire 243 41),
     (.wire 39 59, .wire 243 42),
     (.wire 243 43, .wire 249 8),
@@ -18423,7 +18423,7 @@ def publicBatchWrapper89.copies510 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16352..16384`. -/
-def publicBatchWrapper89.copies511 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies511 : List (Target × Target) := [
     (.virt 19013, .wire 250 38),
     (.virt 8204, .wire 250 40),
     (.virt 201, .wire 250 41),
@@ -18459,7 +18459,7 @@ def publicBatchWrapper89.copies511 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16384..16416`. -/
-def publicBatchWrapper89.copies512 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies512 : List (Target × Target) := [
     (.virt 19016, .wire 251 45),
     (.wire 250 55, .wire 251 46),
     (.wire 251 47, .wire 250 56),
@@ -18495,7 +18495,7 @@ def publicBatchWrapper89.copies512 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16416..16448`. -/
-def publicBatchWrapper89.copies513 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies513 : List (Target × Target) := [
     (.virt 19019, .wire 251 58),
     (.wire 250 79, .wire 251 60),
     (.virt 19020, .wire 251 61),
@@ -18531,7 +18531,7 @@ def publicBatchWrapper89.copies513 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16448..16480`. -/
-def publicBatchWrapper89.copies514 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies514 : List (Target × Target) := [
     (.wire 251 75, .wire 253 0),
     (.wire 251 79, .wire 253 1),
     (.wire 251 75, .wire 253 2),
@@ -18567,7 +18567,7 @@ def publicBatchWrapper89.copies514 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16480..16512`. -/
-def publicBatchWrapper89.copies515 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies515 : List (Target × Target) := [
     (.virt 19023, .wire 249 26),
     (.wire 249 27, .virt 201),
     (.virt 201, .wire 252 28),
@@ -18603,7 +18603,7 @@ def publicBatchWrapper89.copies515 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16512..16544`. -/
-def publicBatchWrapper89.copies516 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies516 : List (Target × Target) := [
     (.virt 19027, .wire 253 20),
     (.wire 252 47, .wire 253 21),
     (.virt 19027, .wire 253 22),
@@ -18639,7 +18639,7 @@ def publicBatchWrapper89.copies516 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16544..16576`. -/
-def publicBatchWrapper89.copies517 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies517 : List (Target × Target) := [
     (.virt 201, .wire 252 69),
     (.wire 169 79, .wire 252 70),
     (.virt 19031, .wire 253 36),
@@ -18675,7 +18675,7 @@ def publicBatchWrapper89.copies517 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16576..16608`. -/
-def publicBatchWrapper89.copies518 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies518 : List (Target × Target) := [
     (.virt 19027, .wire 253 54),
     (.virt 19031, .wire 253 56),
     (.virt 19033, .wire 253 57),
@@ -18711,7 +18711,7 @@ def publicBatchWrapper89.copies518 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16608..16640`. -/
-def publicBatchWrapper89.copies519 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies519 : List (Target × Target) := [
     (.virt 19035, .wire 243 69),
     (.wire 43 31, .wire 243 70),
     (.wire 243 71, .wire 249 36),
@@ -18747,7 +18747,7 @@ def publicBatchWrapper89.copies519 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16640..16672`. -/
-def publicBatchWrapper89.copies520 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies520 : List (Target × Target) := [
     (.virt 19039, .wire 254 34),
     (.virt 8605, .wire 254 36),
     (.virt 201, .wire 254 37),
@@ -18783,7 +18783,7 @@ def publicBatchWrapper89.copies520 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16672..16704`. -/
-def publicBatchWrapper89.copies521 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies521 : List (Target × Target) := [
     (.virt 201, .wire 254 56),
     (.virt 201, .wire 254 57),
     (.virt 19043, .wire 254 58),
@@ -18819,7 +18819,7 @@ def publicBatchWrapper89.copies521 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16704..16736`. -/
-def publicBatchWrapper89.copies522 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies522 : List (Target × Target) := [
     (.wire 255 27, .virt 200),
     (.wire 254 79, .virt 200),
     (.virt 19039, .wire 255 32),
@@ -18855,7 +18855,7 @@ def publicBatchWrapper89.copies522 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16736..16768`. -/
-def publicBatchWrapper89.copies523 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies523 : List (Target × Target) := [
     (.wire 256 3, .wire 256 10),
     (.wire 255 47, .virt 200),
     (.wire 256 11, .virt 200),
@@ -18891,7 +18891,7 @@ def publicBatchWrapper89.copies523 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16768..16800`. -/
-def publicBatchWrapper89.copies524 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies524 : List (Target × Target) := [
     (.virt 19049, .wire 249 54),
     (.wire 249 55, .virt 201),
     (.virt 201, .wire 256 24),
@@ -18927,7 +18927,7 @@ def publicBatchWrapper89.copies524 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16800..16832`. -/
-def publicBatchWrapper89.copies525 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies525 : List (Target × Target) := [
     (.virt 201, .wire 256 45),
     (.wire 256 39, .wire 256 46),
     (.wire 255 71, .virt 200),
@@ -18963,7 +18963,7 @@ def publicBatchWrapper89.copies525 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16832..16864`. -/
-def publicBatchWrapper89.copies526 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies526 : List (Target × Target) := [
     (.wire 256 67, .wire 258 10),
     (.wire 258 11, .wire 256 68),
     (.virt 201, .wire 256 69),
@@ -18999,7 +18999,7 @@ def publicBatchWrapper89.copies526 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16864..16896`. -/
-def publicBatchWrapper89.copies527 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies527 : List (Target × Target) := [
     (.virt 19060, .wire 258 29),
     (.wire 256 79, .wire 258 30),
     (.wire 258 31, .wire 259 0),
@@ -19035,7 +19035,7 @@ def publicBatchWrapper89.copies527 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16896..16928`. -/
-def publicBatchWrapper89.copies528 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies528 : List (Target × Target) := [
     (.virt 19061, .wire 257 17),
     (.wire 45 39, .wire 257 18),
     (.wire 257 19, .wire 249 64),
@@ -19071,7 +19071,7 @@ def publicBatchWrapper89.copies528 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16928..16960`. -/
-def publicBatchWrapper89.copies529 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies529 : List (Target × Target) := [
     (.wire 259 35, .wire 258 52),
     (.virt 19066, .wire 258 53),
     (.wire 259 35, .wire 258 54),
@@ -19107,7 +19107,7 @@ def publicBatchWrapper89.copies529 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16960..16992`. -/
-def publicBatchWrapper89.copies530 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies530 : List (Target × Target) := [
     (.wire 259 59, .wire 258 65),
     (.virt 19069, .wire 258 66),
     (.wire 259 59, .wire 258 68),
@@ -19143,7 +19143,7 @@ def publicBatchWrapper89.copies530 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `16992..17024`. -/
-def publicBatchWrapper89.copies531 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies531 : List (Target × Target) := [
     (.virt 19071, .wire 260 4),
     (.wire 259 71, .wire 260 5),
     (.virt 19071, .wire 260 6),
@@ -19179,7 +19179,7 @@ def publicBatchWrapper89.copies531 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17024..17056`. -/
-def publicBatchWrapper89.copies532 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies532 : List (Target × Target) := [
     (.wire 259 79, .wire 261 6),
     (.wire 260 15, .virt 200),
     (.wire 261 7, .virt 200),
@@ -19215,7 +19215,7 @@ def publicBatchWrapper89.copies532 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17056..17088`. -/
-def publicBatchWrapper89.copies533 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies533 : List (Target × Target) := [
     (.wire 169 71, .wire 261 26),
     (.virt 19077, .wire 260 28),
     (.wire 261 27, .wire 260 29),
@@ -19251,7 +19251,7 @@ def publicBatchWrapper89.copies533 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17088..17120`. -/
-def publicBatchWrapper89.copies534 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies534 : List (Target × Target) := [
     (.virt 9208, .wire 261 48),
     (.virt 201, .wire 261 49),
     (.wire 170 7, .wire 261 50),
@@ -19287,7 +19287,7 @@ def publicBatchWrapper89.copies534 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17120..17152`. -/
-def publicBatchWrapper89.copies535 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies535 : List (Target × Target) := [
     (.virt 19083, .wire 261 58),
     (.virt 9403, .wire 261 60),
     (.virt 201, .wire 261 61),
@@ -19323,7 +19323,7 @@ def publicBatchWrapper89.copies535 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17152..17184`. -/
-def publicBatchWrapper89.copies536 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies536 : List (Target × Target) := [
     (.virt 19086, .wire 260 77),
     (.wire 261 75, .wire 260 78),
     (.wire 260 79, .wire 261 76),
@@ -19359,7 +19359,7 @@ def publicBatchWrapper89.copies536 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17184..17216`. -/
-def publicBatchWrapper89.copies537 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies537 : List (Target × Target) := [
     (.virt 201, .wire 263 13),
     (.virt 19089, .wire 263 14),
     (.virt 9406, .wire 263 16),
@@ -19395,7 +19395,7 @@ def publicBatchWrapper89.copies537 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17216..17248`. -/
-def publicBatchWrapper89.copies538 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies538 : List (Target × Target) := [
     (.wire 263 35, .virt 200),
     (.virt 201, .wire 263 36),
     (.virt 201, .wire 263 37),
@@ -19431,7 +19431,7 @@ def publicBatchWrapper89.copies538 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17248..17280`. -/
-def publicBatchWrapper89.copies539 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies539 : List (Target × Target) := [
     (.wire 264 43, .wire 262 14),
     (.wire 262 15, .virt 201),
     (.virt 201, .wire 263 48),
@@ -19467,7 +19467,7 @@ def publicBatchWrapper89.copies539 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17280..17312`. -/
-def publicBatchWrapper89.copies540 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies540 : List (Target × Target) := [
     (.virt 19097, .wire 264 52),
     (.wire 263 67, .wire 264 53),
     (.virt 19097, .wire 264 54),
@@ -19503,7 +19503,7 @@ def publicBatchWrapper89.copies540 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17312..17344`. -/
-def publicBatchWrapper89.copies541 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies541 : List (Target × Target) := [
     (.wire 263 75, .wire 265 2),
     (.wire 264 63, .virt 200),
     (.wire 265 3, .virt 200),
@@ -19539,7 +19539,7 @@ def publicBatchWrapper89.copies541 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17344..17376`. -/
-def publicBatchWrapper89.copies542 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies542 : List (Target × Target) := [
     (.wire 266 3, .wire 265 24),
     (.virt 201, .wire 265 25),
     (.wire 265 19, .wire 265 26),
@@ -19575,7 +19575,7 @@ def publicBatchWrapper89.copies542 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17376..17408`. -/
-def publicBatchWrapper89.copies543 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies543 : List (Target × Target) := [
     (.wire 266 23, .wire 257 57),
     (.wire 48 11, .wire 257 58),
     (.wire 257 59, .wire 262 24),
@@ -19611,7 +19611,7 @@ def publicBatchWrapper89.copies543 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17408..17440`. -/
-def publicBatchWrapper89.copies544 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies544 : List (Target × Target) := [
     (.virt 19109, .wire 265 54),
     (.virt 9804, .wire 265 56),
     (.virt 201, .wire 265 57),
@@ -19647,7 +19647,7 @@ def publicBatchWrapper89.copies544 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17440..17472`. -/
-def publicBatchWrapper89.copies545 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies545 : List (Target × Target) := [
     (.virt 19112, .wire 266 45),
     (.wire 265 71, .wire 266 46),
     (.wire 266 47, .wire 265 72),
@@ -19683,7 +19683,7 @@ def publicBatchWrapper89.copies545 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17472..17504`. -/
-def publicBatchWrapper89.copies546 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies546 : List (Target × Target) := [
     (.virt 19115, .wire 266 58),
     (.wire 267 15, .wire 266 60),
     (.virt 19116, .wire 266 61),
@@ -19719,7 +19719,7 @@ def publicBatchWrapper89.copies546 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17504..17536`. -/
-def publicBatchWrapper89.copies547 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies547 : List (Target × Target) := [
     (.wire 266 75, .wire 268 0),
     (.wire 266 79, .wire 268 1),
     (.wire 266 75, .wire 268 2),
@@ -19755,7 +19755,7 @@ def publicBatchWrapper89.copies547 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17536..17568`. -/
-def publicBatchWrapper89.copies548 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies548 : List (Target × Target) := [
     (.virt 19119, .wire 262 42),
     (.wire 262 43, .virt 201),
     (.virt 201, .wire 267 44),
@@ -19791,7 +19791,7 @@ def publicBatchWrapper89.copies548 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17568..17600`. -/
-def publicBatchWrapper89.copies549 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies549 : List (Target × Target) := [
     (.virt 19123, .wire 268 20),
     (.wire 267 63, .wire 268 21),
     (.virt 19123, .wire 268 22),
@@ -19827,7 +19827,7 @@ def publicBatchWrapper89.copies549 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17600..17632`. -/
-def publicBatchWrapper89.copies550 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies550 : List (Target × Target) := [
     (.virt 201, .wire 269 5),
     (.wire 169 79, .wire 269 6),
     (.virt 19127, .wire 268 36),
@@ -19863,7 +19863,7 @@ def publicBatchWrapper89.copies550 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17632..17664`. -/
-def publicBatchWrapper89.copies551 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies551 : List (Target × Target) := [
     (.virt 19123, .wire 268 54),
     (.virt 19127, .wire 268 56),
     (.virt 19129, .wire 268 57),
@@ -19899,7 +19899,7 @@ def publicBatchWrapper89.copies551 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17664..17696`. -/
-def publicBatchWrapper89.copies552 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies552 : List (Target × Target) := [
     (.virt 19131, .wire 270 5),
     (.wire 50 63, .wire 270 6),
     (.wire 270 7, .wire 262 52),
@@ -19935,7 +19935,7 @@ def publicBatchWrapper89.copies552 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17696..17728`. -/
-def publicBatchWrapper89.copies553 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies553 : List (Target × Target) := [
     (.virt 19135, .wire 269 50),
     (.virt 10205, .wire 269 52),
     (.virt 201, .wire 269 53),
@@ -19971,7 +19971,7 @@ def publicBatchWrapper89.copies553 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17728..17760`. -/
-def publicBatchWrapper89.copies554 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies554 : List (Target × Target) := [
     (.virt 201, .wire 269 72),
     (.virt 201, .wire 269 73),
     (.virt 19139, .wire 269 74),
@@ -20007,7 +20007,7 @@ def publicBatchWrapper89.copies554 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17760..17792`. -/
-def publicBatchWrapper89.copies555 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies555 : List (Target × Target) := [
     (.wire 271 27, .virt 200),
     (.wire 272 15, .virt 200),
     (.virt 19135, .wire 271 32),
@@ -20043,7 +20043,7 @@ def publicBatchWrapper89.copies555 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17792..17824`. -/
-def publicBatchWrapper89.copies556 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies556 : List (Target × Target) := [
     (.wire 272 19, .wire 272 26),
     (.wire 271 47, .virt 200),
     (.wire 272 27, .virt 200),
@@ -20079,7 +20079,7 @@ def publicBatchWrapper89.copies556 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17824..17856`. -/
-def publicBatchWrapper89.copies557 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies557 : List (Target × Target) := [
     (.virt 19145, .wire 262 70),
     (.wire 262 71, .virt 201),
     (.virt 201, .wire 272 40),
@@ -20115,7 +20115,7 @@ def publicBatchWrapper89.copies557 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17856..17888`. -/
-def publicBatchWrapper89.copies558 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies558 : List (Target × Target) := [
     (.virt 201, .wire 272 61),
     (.wire 272 55, .wire 272 62),
     (.wire 271 71, .virt 200),
@@ -20151,7 +20151,7 @@ def publicBatchWrapper89.copies558 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17888..17920`. -/
-def publicBatchWrapper89.copies559 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies559 : List (Target × Target) := [
     (.wire 274 3, .wire 273 10),
     (.wire 273 11, .wire 274 4),
     (.virt 201, .wire 274 5),
@@ -20187,7 +20187,7 @@ def publicBatchWrapper89.copies559 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17920..17952`. -/
-def publicBatchWrapper89.copies560 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies560 : List (Target × Target) := [
     (.virt 19156, .wire 273 29),
     (.wire 274 15, .wire 273 30),
     (.wire 273 31, .wire 274 16),
@@ -20223,7 +20223,7 @@ def publicBatchWrapper89.copies560 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17952..17984`. -/
-def publicBatchWrapper89.copies561 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies561 : List (Target × Target) := [
     (.virt 19157, .wire 270 33),
     (.wire 52 71, .wire 270 34),
     (.wire 270 35, .wire 275 0),
@@ -20259,7 +20259,7 @@ def publicBatchWrapper89.copies561 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `17984..18016`. -/
-def publicBatchWrapper89.copies562 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies562 : List (Target × Target) := [
     (.wire 274 51, .wire 273 52),
     (.virt 19162, .wire 273 53),
     (.wire 274 51, .wire 273 54),
@@ -20295,7 +20295,7 @@ def publicBatchWrapper89.copies562 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18016..18048`. -/
-def publicBatchWrapper89.copies563 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies563 : List (Target × Target) := [
     (.wire 274 75, .wire 273 65),
     (.virt 19165, .wire 273 66),
     (.wire 274 75, .wire 273 68),
@@ -20331,7 +20331,7 @@ def publicBatchWrapper89.copies563 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18048..18080`. -/
-def publicBatchWrapper89.copies564 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies564 : List (Target × Target) := [
     (.virt 19167, .wire 276 4),
     (.wire 277 7, .wire 276 5),
     (.virt 19167, .wire 276 6),
@@ -20367,7 +20367,7 @@ def publicBatchWrapper89.copies564 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18080..18112`. -/
-def publicBatchWrapper89.copies565 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies565 : List (Target × Target) := [
     (.wire 277 15, .wire 277 22),
     (.wire 276 15, .virt 200),
     (.wire 277 23, .virt 200),
@@ -20403,7 +20403,7 @@ def publicBatchWrapper89.copies565 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18112..18144`. -/
-def publicBatchWrapper89.copies566 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies566 : List (Target × Target) := [
     (.wire 169 71, .wire 277 42),
     (.virt 19173, .wire 276 28),
     (.wire 277 43, .wire 276 29),
@@ -20439,7 +20439,7 @@ def publicBatchWrapper89.copies566 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18144..18176`. -/
-def publicBatchWrapper89.copies567 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies567 : List (Target × Target) := [
     (.virt 10808, .wire 277 64),
     (.virt 201, .wire 277 65),
     (.wire 170 7, .wire 277 66),
@@ -20475,7 +20475,7 @@ def publicBatchWrapper89.copies567 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18176..18208`. -/
-def publicBatchWrapper89.copies568 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies568 : List (Target × Target) := [
     (.virt 19179, .wire 277 74),
     (.virt 11003, .wire 277 76),
     (.virt 201, .wire 277 77),
@@ -20511,7 +20511,7 @@ def publicBatchWrapper89.copies568 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18208..18240`. -/
-def publicBatchWrapper89.copies569 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies569 : List (Target × Target) := [
     (.virt 19182, .wire 276 77),
     (.wire 278 11, .wire 276 78),
     (.wire 276 79, .wire 278 12),
@@ -20547,7 +20547,7 @@ def publicBatchWrapper89.copies569 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18240..18272`. -/
-def publicBatchWrapper89.copies570 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies570 : List (Target × Target) := [
     (.virt 201, .wire 278 29),
     (.virt 19185, .wire 278 30),
     (.virt 11006, .wire 278 32),
@@ -20583,7 +20583,7 @@ def publicBatchWrapper89.copies570 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18272..18304`. -/
-def publicBatchWrapper89.copies571 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies571 : List (Target × Target) := [
     (.wire 278 51, .virt 200),
     (.virt 201, .wire 278 52),
     (.virt 201, .wire 278 53),
@@ -20619,7 +20619,7 @@ def publicBatchWrapper89.copies571 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18304..18336`. -/
-def publicBatchWrapper89.copies572 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies572 : List (Target × Target) := [
     (.wire 279 43, .wire 275 30),
     (.wire 275 31, .virt 201),
     (.virt 201, .wire 278 64),
@@ -20655,7 +20655,7 @@ def publicBatchWrapper89.copies572 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18336..18368`. -/
-def publicBatchWrapper89.copies573 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies573 : List (Target × Target) := [
     (.virt 19193, .wire 279 52),
     (.wire 280 3, .wire 279 53),
     (.virt 19193, .wire 279 54),
@@ -20691,7 +20691,7 @@ def publicBatchWrapper89.copies573 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18368..18400`. -/
-def publicBatchWrapper89.copies574 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies574 : List (Target × Target) := [
     (.wire 280 11, .wire 280 18),
     (.wire 279 63, .virt 200),
     (.wire 280 19, .virt 200),
@@ -20727,7 +20727,7 @@ def publicBatchWrapper89.copies574 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18400..18432`. -/
-def publicBatchWrapper89.copies575 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies575 : List (Target × Target) := [
     (.wire 281 3, .wire 280 40),
     (.virt 201, .wire 280 41),
     (.wire 280 35, .wire 280 42),
@@ -20763,7 +20763,7 @@ def publicBatchWrapper89.copies575 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18432..18464`. -/
-def publicBatchWrapper89.copies576 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies576 : List (Target × Target) := [
     (.wire 281 23, .wire 270 73),
     (.wire 55 43, .wire 270 74),
     (.wire 270 75, .wire 275 40),
@@ -20799,7 +20799,7 @@ def publicBatchWrapper89.copies576 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18464..18496`. -/
-def publicBatchWrapper89.copies577 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies577 : List (Target × Target) := [
     (.virt 19205, .wire 280 70),
     (.virt 11404, .wire 280 72),
     (.virt 201, .wire 280 73),
@@ -20835,7 +20835,7 @@ def publicBatchWrapper89.copies577 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18496..18528`. -/
-def publicBatchWrapper89.copies578 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies578 : List (Target × Target) := [
     (.virt 19208, .wire 281 45),
     (.wire 283 7, .wire 281 46),
     (.wire 281 47, .wire 283 8),
@@ -20871,7 +20871,7 @@ def publicBatchWrapper89.copies578 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18528..18560`. -/
-def publicBatchWrapper89.copies579 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies579 : List (Target × Target) := [
     (.virt 19211, .wire 281 58),
     (.wire 283 31, .wire 281 60),
     (.virt 19212, .wire 281 61),
@@ -20907,7 +20907,7 @@ def publicBatchWrapper89.copies579 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18560..18592`. -/
-def publicBatchWrapper89.copies580 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies580 : List (Target × Target) := [
     (.wire 281 75, .wire 284 0),
     (.wire 281 79, .wire 284 1),
     (.wire 281 75, .wire 284 2),
@@ -20943,7 +20943,7 @@ def publicBatchWrapper89.copies580 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18592..18624`. -/
-def publicBatchWrapper89.copies581 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies581 : List (Target × Target) := [
     (.virt 19215, .wire 275 58),
     (.wire 275 59, .virt 201),
     (.virt 201, .wire 283 60),
@@ -20979,7 +20979,7 @@ def publicBatchWrapper89.copies581 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18624..18656`. -/
-def publicBatchWrapper89.copies582 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies582 : List (Target × Target) := [
     (.virt 19219, .wire 284 20),
     (.wire 283 79, .wire 284 21),
     (.virt 19219, .wire 284 22),
@@ -21015,7 +21015,7 @@ def publicBatchWrapper89.copies582 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18656..18688`. -/
-def publicBatchWrapper89.copies583 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies583 : List (Target × Target) := [
     (.virt 201, .wire 285 21),
     (.wire 169 79, .wire 285 22),
     (.virt 19223, .wire 284 36),
@@ -21051,7 +21051,7 @@ def publicBatchWrapper89.copies583 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18688..18720`. -/
-def publicBatchWrapper89.copies584 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies584 : List (Target × Target) := [
     (.virt 19219, .wire 284 54),
     (.virt 19223, .wire 284 56),
     (.virt 19225, .wire 284 57),
@@ -21087,7 +21087,7 @@ def publicBatchWrapper89.copies584 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18720..18752`. -/
-def publicBatchWrapper89.copies585 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies585 : List (Target × Target) := [
     (.virt 19227, .wire 282 21),
     (.wire 58 15, .wire 282 22),
     (.wire 282 23, .wire 275 68),
@@ -21123,7 +21123,7 @@ def publicBatchWrapper89.copies585 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18752..18784`. -/
-def publicBatchWrapper89.copies586 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies586 : List (Target × Target) := [
     (.virt 19231, .wire 285 66),
     (.virt 11805, .wire 285 68),
     (.virt 201, .wire 285 69),
@@ -21159,7 +21159,7 @@ def publicBatchWrapper89.copies586 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18784..18816`. -/
-def publicBatchWrapper89.copies587 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies587 : List (Target × Target) := [
     (.virt 201, .wire 287 8),
     (.virt 201, .wire 287 9),
     (.virt 19235, .wire 287 10),
@@ -21195,7 +21195,7 @@ def publicBatchWrapper89.copies587 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18816..18848`. -/
-def publicBatchWrapper89.copies588 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies588 : List (Target × Target) := [
     (.wire 286 27, .virt 200),
     (.wire 287 31, .virt 200),
     (.virt 19231, .wire 286 32),
@@ -21231,7 +21231,7 @@ def publicBatchWrapper89.copies588 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18848..18880`. -/
-def publicBatchWrapper89.copies589 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies589 : List (Target × Target) := [
     (.wire 287 35, .wire 287 42),
     (.wire 286 47, .virt 200),
     (.wire 287 43, .virt 200),
@@ -21267,7 +21267,7 @@ def publicBatchWrapper89.copies589 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18880..18912`. -/
-def publicBatchWrapper89.copies590 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies590 : List (Target × Target) := [
     (.virt 19241, .wire 288 6),
     (.wire 288 7, .virt 201),
     (.virt 201, .wire 287 56),
@@ -21303,7 +21303,7 @@ def publicBatchWrapper89.copies590 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18912..18944`. -/
-def publicBatchWrapper89.copies591 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies591 : List (Target × Target) := [
     (.virt 201, .wire 287 77),
     (.wire 287 71, .wire 287 78),
     (.wire 286 71, .virt 200),
@@ -21339,7 +21339,7 @@ def publicBatchWrapper89.copies591 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18944..18976`. -/
-def publicBatchWrapper89.copies592 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies592 : List (Target × Target) := [
     (.wire 289 19, .wire 290 10),
     (.wire 290 11, .wire 289 20),
     (.virt 201, .wire 289 21),
@@ -21375,7 +21375,7 @@ def publicBatchWrapper89.copies592 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `18976..19008`. -/
-def publicBatchWrapper89.copies593 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies593 : List (Target × Target) := [
     (.virt 19252, .wire 290 29),
     (.wire 289 31, .wire 290 30),
     (.wire 290 31, .wire 289 32),
@@ -21411,7 +21411,7 @@ def publicBatchWrapper89.copies593 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19008..19040`. -/
-def publicBatchWrapper89.copies594 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies594 : List (Target × Target) := [
     (.virt 19253, .wire 282 49),
     (.wire 60 23, .wire 282 50),
     (.wire 282 51, .wire 288 16),
@@ -21447,7 +21447,7 @@ def publicBatchWrapper89.copies594 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19040..19072`. -/
-def publicBatchWrapper89.copies595 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies595 : List (Target × Target) := [
     (.wire 289 67, .wire 290 52),
     (.virt 19258, .wire 290 53),
     (.wire 289 67, .wire 290 54),
@@ -21483,7 +21483,7 @@ def publicBatchWrapper89.copies595 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19072..19104`. -/
-def publicBatchWrapper89.copies596 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies596 : List (Target × Target) := [
     (.wire 291 11, .wire 290 65),
     (.virt 19261, .wire 290 66),
     (.wire 291 11, .wire 290 68),
@@ -21519,7 +21519,7 @@ def publicBatchWrapper89.copies596 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19104..19136`. -/
-def publicBatchWrapper89.copies597 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies597 : List (Target × Target) := [
     (.virt 19263, .wire 292 4),
     (.wire 291 23, .wire 292 5),
     (.virt 19263, .wire 292 6),
@@ -21555,7 +21555,7 @@ def publicBatchWrapper89.copies597 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19136..19168`. -/
-def publicBatchWrapper89.copies598 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies598 : List (Target × Target) := [
     (.wire 291 31, .wire 291 38),
     (.wire 292 15, .virt 200),
     (.wire 291 39, .virt 200),
@@ -21591,7 +21591,7 @@ def publicBatchWrapper89.copies598 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19168..19200`. -/
-def publicBatchWrapper89.copies599 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies599 : List (Target × Target) := [
     (.wire 169 71, .wire 291 58),
     (.virt 19269, .wire 292 28),
     (.wire 291 59, .wire 292 29),
@@ -21627,7 +21627,7 @@ def publicBatchWrapper89.copies599 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19200..19232`. -/
-def publicBatchWrapper89.copies600 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies600 : List (Target × Target) := [
     (.virt 12408, .wire 293 0),
     (.virt 201, .wire 293 1),
     (.wire 170 7, .wire 293 2),
@@ -21663,7 +21663,7 @@ def publicBatchWrapper89.copies600 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19232..19264`. -/
-def publicBatchWrapper89.copies601 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies601 : List (Target × Target) := [
     (.virt 19275, .wire 293 10),
     (.virt 12603, .wire 293 12),
     (.virt 201, .wire 293 13),
@@ -21699,7 +21699,7 @@ def publicBatchWrapper89.copies601 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19264..19296`. -/
-def publicBatchWrapper89.copies602 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies602 : List (Target × Target) := [
     (.virt 19278, .wire 292 77),
     (.wire 293 27, .wire 292 78),
     (.wire 292 79, .wire 293 28),
@@ -21735,7 +21735,7 @@ def publicBatchWrapper89.copies602 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19296..19328`. -/
-def publicBatchWrapper89.copies603 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies603 : List (Target × Target) := [
     (.virt 201, .wire 293 45),
     (.virt 19281, .wire 293 46),
     (.virt 12606, .wire 293 48),
@@ -21771,7 +21771,7 @@ def publicBatchWrapper89.copies603 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19328..19360`. -/
-def publicBatchWrapper89.copies604 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies604 : List (Target × Target) := [
     (.wire 293 67, .virt 200),
     (.virt 201, .wire 293 68),
     (.virt 201, .wire 293 69),
@@ -21807,7 +21807,7 @@ def publicBatchWrapper89.copies604 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19360..19392`. -/
-def publicBatchWrapper89.copies605 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies605 : List (Target × Target) := [
     (.wire 294 43, .wire 288 46),
     (.wire 288 47, .virt 201),
     (.virt 201, .wire 295 0),
@@ -21843,7 +21843,7 @@ def publicBatchWrapper89.copies605 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19392..19424`. -/
-def publicBatchWrapper89.copies606 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies606 : List (Target × Target) := [
     (.virt 19289, .wire 294 52),
     (.wire 295 19, .wire 294 53),
     (.virt 19289, .wire 294 54),
@@ -21879,7 +21879,7 @@ def publicBatchWrapper89.copies606 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19424..19456`. -/
-def publicBatchWrapper89.copies607 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies607 : List (Target × Target) := [
     (.wire 295 27, .wire 295 34),
     (.wire 294 63, .virt 200),
     (.wire 295 35, .virt 200),
@@ -21915,7 +21915,7 @@ def publicBatchWrapper89.copies607 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19456..19488`. -/
-def publicBatchWrapper89.copies608 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies608 : List (Target × Target) := [
     (.wire 297 3, .wire 295 56),
     (.virt 201, .wire 295 57),
     (.wire 295 51, .wire 295 58),
@@ -21951,7 +21951,7 @@ def publicBatchWrapper89.copies608 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19488..19520`. -/
-def publicBatchWrapper89.copies609 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies609 : List (Target × Target) := [
     (.wire 297 23, .wire 296 9),
     (.wire 62 75, .wire 296 10),
     (.wire 296 11, .wire 288 56),
@@ -21987,7 +21987,7 @@ def publicBatchWrapper89.copies609 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19520..19552`. -/
-def publicBatchWrapper89.copies610 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies610 : List (Target × Target) := [
     (.virt 19301, .wire 298 6),
     (.virt 13004, .wire 298 8),
     (.virt 201, .wire 298 9),
@@ -22023,7 +22023,7 @@ def publicBatchWrapper89.copies610 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19552..19584`. -/
-def publicBatchWrapper89.copies611 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies611 : List (Target × Target) := [
     (.virt 19304, .wire 297 45),
     (.wire 298 23, .wire 297 46),
     (.wire 297 47, .wire 298 24),
@@ -22059,7 +22059,7 @@ def publicBatchWrapper89.copies611 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19584..19616`. -/
-def publicBatchWrapper89.copies612 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies612 : List (Target × Target) := [
     (.virt 19307, .wire 297 58),
     (.wire 298 47, .wire 297 60),
     (.virt 19308, .wire 297 61),
@@ -22095,7 +22095,7 @@ def publicBatchWrapper89.copies612 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19616..19648`. -/
-def publicBatchWrapper89.copies613 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies613 : List (Target × Target) := [
     (.wire 297 75, .wire 299 0),
     (.wire 297 79, .wire 299 1),
     (.wire 297 75, .wire 299 2),
@@ -22131,7 +22131,7 @@ def publicBatchWrapper89.copies613 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19648..19680`. -/
-def publicBatchWrapper89.copies614 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies614 : List (Target × Target) := [
     (.virt 19311, .wire 288 74),
     (.wire 288 75, .virt 201),
     (.virt 201, .wire 298 76),
@@ -22167,7 +22167,7 @@ def publicBatchWrapper89.copies614 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19680..19712`. -/
-def publicBatchWrapper89.copies615 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies615 : List (Target × Target) := [
     (.virt 19315, .wire 299 20),
     (.wire 300 15, .wire 299 21),
     (.virt 19315, .wire 299 22),
@@ -22203,7 +22203,7 @@ def publicBatchWrapper89.copies615 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19712..19744`. -/
-def publicBatchWrapper89.copies616 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies616 : List (Target × Target) := [
     (.virt 201, .wire 300 37),
     (.wire 169 79, .wire 300 38),
     (.virt 19319, .wire 299 36),
@@ -22239,7 +22239,7 @@ def publicBatchWrapper89.copies616 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19744..19776`. -/
-def publicBatchWrapper89.copies617 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies617 : List (Target × Target) := [
     (.virt 19315, .wire 299 54),
     (.virt 19319, .wire 299 56),
     (.virt 19321, .wire 299 57),
@@ -22275,7 +22275,7 @@ def publicBatchWrapper89.copies617 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19776..19808`. -/
-def publicBatchWrapper89.copies618 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies618 : List (Target × Target) := [
     (.virt 19323, .wire 296 37),
     (.wire 65 47, .wire 296 38),
     (.wire 296 39, .wire 301 4),
@@ -22311,7 +22311,7 @@ def publicBatchWrapper89.copies618 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19808..19840`. -/
-def publicBatchWrapper89.copies619 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies619 : List (Target × Target) := [
     (.virt 19327, .wire 302 2),
     (.virt 13405, .wire 302 4),
     (.virt 201, .wire 302 5),
@@ -22347,7 +22347,7 @@ def publicBatchWrapper89.copies619 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19840..19872`. -/
-def publicBatchWrapper89.copies620 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies620 : List (Target × Target) := [
     (.virt 201, .wire 302 24),
     (.virt 201, .wire 302 25),
     (.virt 19331, .wire 302 26),
@@ -22383,7 +22383,7 @@ def publicBatchWrapper89.copies620 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19872..19904`. -/
-def publicBatchWrapper89.copies621 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies621 : List (Target × Target) := [
     (.wire 303 27, .virt 200),
     (.wire 302 47, .virt 200),
     (.virt 19327, .wire 303 32),
@@ -22419,7 +22419,7 @@ def publicBatchWrapper89.copies621 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19904..19936`. -/
-def publicBatchWrapper89.copies622 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies622 : List (Target × Target) := [
     (.wire 302 51, .wire 302 58),
     (.wire 303 47, .virt 200),
     (.wire 302 59, .virt 200),
@@ -22455,7 +22455,7 @@ def publicBatchWrapper89.copies622 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19936..19968`. -/
-def publicBatchWrapper89.copies623 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies623 : List (Target × Target) := [
     (.virt 19337, .wire 301 22),
     (.wire 301 23, .virt 201),
     (.virt 201, .wire 302 72),
@@ -22491,7 +22491,7 @@ def publicBatchWrapper89.copies623 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `19968..20000`. -/
-def publicBatchWrapper89.copies624 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies624 : List (Target × Target) := [
     (.virt 201, .wire 304 13),
     (.wire 304 7, .wire 304 14),
     (.wire 303 71, .virt 200),
@@ -22527,7 +22527,7 @@ def publicBatchWrapper89.copies624 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20000..20032`. -/
-def publicBatchWrapper89.copies625 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies625 : List (Target × Target) := [
     (.wire 304 35, .wire 305 10),
     (.wire 305 11, .wire 304 36),
     (.virt 201, .wire 304 37),
@@ -22563,7 +22563,7 @@ def publicBatchWrapper89.copies625 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20032..20064`. -/
-def publicBatchWrapper89.copies626 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies626 : List (Target × Target) := [
     (.virt 19348, .wire 305 29),
     (.wire 304 47, .wire 305 30),
     (.wire 305 31, .wire 304 48),
@@ -22599,7 +22599,7 @@ def publicBatchWrapper89.copies626 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20064..20096`. -/
-def publicBatchWrapper89.copies627 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies627 : List (Target × Target) := [
     (.virt 19349, .wire 296 65),
     (.wire 67 55, .wire 296 66),
     (.wire 296 67, .wire 301 32),
@@ -22635,7 +22635,7 @@ def publicBatchWrapper89.copies627 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20096..20128`. -/
-def publicBatchWrapper89.copies628 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies628 : List (Target × Target) := [
     (.wire 306 3, .wire 305 52),
     (.virt 19354, .wire 305 53),
     (.wire 306 3, .wire 305 54),
@@ -22671,7 +22671,7 @@ def publicBatchWrapper89.copies628 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20128..20160`. -/
-def publicBatchWrapper89.copies629 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies629 : List (Target × Target) := [
     (.wire 306 27, .wire 305 65),
     (.virt 19357, .wire 305 66),
     (.wire 306 27, .wire 305 68),
@@ -22707,7 +22707,7 @@ def publicBatchWrapper89.copies629 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20160..20192`. -/
-def publicBatchWrapper89.copies630 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies630 : List (Target × Target) := [
     (.virt 19359, .wire 307 4),
     (.wire 306 39, .wire 307 5),
     (.virt 19359, .wire 307 6),
@@ -22743,7 +22743,7 @@ def publicBatchWrapper89.copies630 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20192..20224`. -/
-def publicBatchWrapper89.copies631 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies631 : List (Target × Target) := [
     (.wire 306 47, .wire 306 54),
     (.wire 307 15, .virt 200),
     (.wire 306 55, .virt 200),
@@ -22779,7 +22779,7 @@ def publicBatchWrapper89.copies631 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20224..20256`. -/
-def publicBatchWrapper89.copies632 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies632 : List (Target × Target) := [
     (.wire 169 71, .wire 306 74),
     (.virt 19365, .wire 307 28),
     (.wire 306 75, .wire 307 29),
@@ -22815,7 +22815,7 @@ def publicBatchWrapper89.copies632 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20256..20288`. -/
-def publicBatchWrapper89.copies633 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies633 : List (Target × Target) := [
     (.virt 14008, .wire 308 16),
     (.virt 201, .wire 308 17),
     (.wire 170 7, .wire 308 18),
@@ -22851,7 +22851,7 @@ def publicBatchWrapper89.copies633 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20288..20320`. -/
-def publicBatchWrapper89.copies634 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies634 : List (Target × Target) := [
     (.virt 19371, .wire 308 26),
     (.virt 14203, .wire 308 28),
     (.virt 201, .wire 308 29),
@@ -22887,7 +22887,7 @@ def publicBatchWrapper89.copies634 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20320..20352`. -/
-def publicBatchWrapper89.copies635 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies635 : List (Target × Target) := [
     (.virt 19374, .wire 307 77),
     (.wire 308 43, .wire 307 78),
     (.wire 307 79, .wire 308 44),
@@ -22923,7 +22923,7 @@ def publicBatchWrapper89.copies635 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20352..20384`. -/
-def publicBatchWrapper89.copies636 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies636 : List (Target × Target) := [
     (.virt 201, .wire 308 61),
     (.virt 19377, .wire 308 62),
     (.virt 14206, .wire 308 64),
@@ -22959,7 +22959,7 @@ def publicBatchWrapper89.copies636 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20384..20416`. -/
-def publicBatchWrapper89.copies637 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies637 : List (Target × Target) := [
     (.wire 311 3, .virt 200),
     (.virt 201, .wire 311 4),
     (.virt 201, .wire 311 5),
@@ -22995,7 +22995,7 @@ def publicBatchWrapper89.copies637 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20416..20448`. -/
-def publicBatchWrapper89.copies638 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies638 : List (Target × Target) := [
     (.wire 310 43, .wire 301 62),
     (.wire 301 63, .virt 201),
     (.virt 201, .wire 311 16),
@@ -23031,7 +23031,7 @@ def publicBatchWrapper89.copies638 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20448..20480`. -/
-def publicBatchWrapper89.copies639 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies639 : List (Target × Target) := [
     (.virt 19385, .wire 310 52),
     (.wire 311 35, .wire 310 53),
     (.virt 19385, .wire 310 54),
@@ -23067,7 +23067,7 @@ def publicBatchWrapper89.copies639 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20480..20512`. -/
-def publicBatchWrapper89.copies640 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies640 : List (Target × Target) := [
     (.wire 311 43, .wire 311 50),
     (.wire 310 63, .virt 200),
     (.wire 311 51, .virt 200),
@@ -23103,7 +23103,7 @@ def publicBatchWrapper89.copies640 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20512..20544`. -/
-def publicBatchWrapper89.copies641 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies641 : List (Target × Target) := [
     (.wire 312 3, .wire 311 72),
     (.virt 201, .wire 311 73),
     (.wire 311 67, .wire 311 74),
@@ -23139,7 +23139,7 @@ def publicBatchWrapper89.copies641 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20544..20576`. -/
-def publicBatchWrapper89.copies642 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies642 : List (Target × Target) := [
     (.wire 312 23, .wire 309 25),
     (.wire 71 27, .wire 309 26),
     (.wire 309 27, .wire 301 72),
@@ -23175,7 +23175,7 @@ def publicBatchWrapper89.copies642 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20576..20608`. -/
-def publicBatchWrapper89.copies643 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies643 : List (Target × Target) := [
     (.virt 19397, .wire 313 22),
     (.virt 14604, .wire 313 24),
     (.virt 201, .wire 313 25),
@@ -23211,7 +23211,7 @@ def publicBatchWrapper89.copies643 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20608..20640`. -/
-def publicBatchWrapper89.copies644 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies644 : List (Target × Target) := [
     (.virt 19400, .wire 312 45),
     (.wire 313 39, .wire 312 46),
     (.wire 312 47, .wire 313 40),
@@ -23247,7 +23247,7 @@ def publicBatchWrapper89.copies644 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20640..20672`. -/
-def publicBatchWrapper89.copies645 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies645 : List (Target × Target) := [
     (.virt 19403, .wire 312 58),
     (.wire 313 63, .wire 312 60),
     (.virt 19404, .wire 312 61),
@@ -23283,7 +23283,7 @@ def publicBatchWrapper89.copies645 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20672..20704`. -/
-def publicBatchWrapper89.copies646 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies646 : List (Target × Target) := [
     (.wire 312 75, .wire 315 0),
     (.wire 312 79, .wire 315 1),
     (.wire 312 75, .wire 315 2),
@@ -23319,7 +23319,7 @@ def publicBatchWrapper89.copies646 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20704..20736`. -/
-def publicBatchWrapper89.copies647 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies647 : List (Target × Target) := [
     (.virt 19407, .wire 314 10),
     (.wire 314 11, .virt 201),
     (.virt 201, .wire 316 12),
@@ -23355,7 +23355,7 @@ def publicBatchWrapper89.copies647 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20736..20768`. -/
-def publicBatchWrapper89.copies648 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies648 : List (Target × Target) := [
     (.virt 19411, .wire 315 20),
     (.wire 316 31, .wire 315 21),
     (.virt 19411, .wire 315 22),
@@ -23391,7 +23391,7 @@ def publicBatchWrapper89.copies648 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20768..20800`. -/
-def publicBatchWrapper89.copies649 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies649 : List (Target × Target) := [
     (.virt 201, .wire 316 53),
     (.wire 169 79, .wire 316 54),
     (.virt 19415, .wire 315 36),
@@ -23427,7 +23427,7 @@ def publicBatchWrapper89.copies649 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20800..20832`. -/
-def publicBatchWrapper89.copies650 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies650 : List (Target × Target) := [
     (.virt 19411, .wire 315 54),
     (.virt 19415, .wire 315 56),
     (.virt 19417, .wire 315 57),
@@ -23463,7 +23463,7 @@ def publicBatchWrapper89.copies650 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20832..20864`. -/
-def publicBatchWrapper89.copies651 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies651 : List (Target × Target) := [
     (.virt 19419, .wire 309 53),
     (.wire 72 79, .wire 309 54),
     (.wire 309 55, .wire 314 20),
@@ -23499,7 +23499,7 @@ def publicBatchWrapper89.copies651 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20864..20896`. -/
-def publicBatchWrapper89.copies652 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies652 : List (Target × Target) := [
     (.virt 19423, .wire 317 18),
     (.virt 15005, .wire 317 20),
     (.virt 201, .wire 317 21),
@@ -23535,7 +23535,7 @@ def publicBatchWrapper89.copies652 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20896..20928`. -/
-def publicBatchWrapper89.copies653 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies653 : List (Target × Target) := [
     (.virt 201, .wire 317 40),
     (.virt 201, .wire 317 41),
     (.virt 19427, .wire 317 42),
@@ -23571,7 +23571,7 @@ def publicBatchWrapper89.copies653 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20928..20960`. -/
-def publicBatchWrapper89.copies654 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies654 : List (Target × Target) := [
     (.wire 318 27, .virt 200),
     (.wire 317 63, .virt 200),
     (.virt 19423, .wire 318 32),
@@ -23607,7 +23607,7 @@ def publicBatchWrapper89.copies654 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20960..20992`. -/
-def publicBatchWrapper89.copies655 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies655 : List (Target × Target) := [
     (.wire 317 67, .wire 317 74),
     (.wire 318 47, .virt 200),
     (.wire 317 75, .virt 200),
@@ -23643,7 +23643,7 @@ def publicBatchWrapper89.copies655 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `20992..21024`. -/
-def publicBatchWrapper89.copies656 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies656 : List (Target × Target) := [
     (.virt 19433, .wire 314 38),
     (.wire 314 39, .virt 201),
     (.virt 201, .wire 319 8),
@@ -23679,7 +23679,7 @@ def publicBatchWrapper89.copies656 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21024..21056`. -/
-def publicBatchWrapper89.copies657 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies657 : List (Target × Target) := [
     (.virt 201, .wire 319 29),
     (.wire 319 23, .wire 319 30),
     (.wire 318 71, .virt 200),
@@ -23715,7 +23715,7 @@ def publicBatchWrapper89.copies657 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21056..21088`. -/
-def publicBatchWrapper89.copies658 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies658 : List (Target × Target) := [
     (.wire 319 51, .wire 320 10),
     (.wire 320 11, .wire 319 52),
     (.virt 201, .wire 319 53),
@@ -23751,7 +23751,7 @@ def publicBatchWrapper89.copies658 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21088..21120`. -/
-def publicBatchWrapper89.copies659 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies659 : List (Target × Target) := [
     (.virt 19444, .wire 320 29),
     (.wire 319 63, .wire 320 30),
     (.wire 320 31, .wire 319 64),
@@ -23787,7 +23787,7 @@ def publicBatchWrapper89.copies659 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21120..21152`. -/
-def publicBatchWrapper89.copies660 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies660 : List (Target × Target) := [
     (.virt 19445, .wire 321 1),
     (.wire 76 7, .wire 321 2),
     (.wire 321 3, .wire 314 48),
@@ -23823,7 +23823,7 @@ def publicBatchWrapper89.copies660 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21152..21184`. -/
-def publicBatchWrapper89.copies661 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies661 : List (Target × Target) := [
     (.wire 322 19, .wire 320 52),
     (.virt 19450, .wire 320 53),
     (.wire 322 19, .wire 320 54),
@@ -23859,7 +23859,7 @@ def publicBatchWrapper89.copies661 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21184..21216`. -/
-def publicBatchWrapper89.copies662 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies662 : List (Target × Target) := [
     (.wire 322 43, .wire 320 65),
     (.virt 19453, .wire 320 66),
     (.wire 322 43, .wire 320 68),
@@ -23895,7 +23895,7 @@ def publicBatchWrapper89.copies662 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21216..21248`. -/
-def publicBatchWrapper89.copies663 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies663 : List (Target × Target) := [
     (.virt 19455, .wire 323 4),
     (.wire 322 55, .wire 323 5),
     (.virt 19455, .wire 323 6),
@@ -23931,7 +23931,7 @@ def publicBatchWrapper89.copies663 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21248..21280`. -/
-def publicBatchWrapper89.copies664 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies664 : List (Target × Target) := [
     (.wire 322 63, .wire 322 70),
     (.wire 323 15, .virt 200),
     (.wire 322 71, .virt 200),
@@ -23967,7 +23967,7 @@ def publicBatchWrapper89.copies664 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21280..21312`. -/
-def publicBatchWrapper89.copies665 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies665 : List (Target × Target) := [
     (.wire 169 71, .wire 324 10),
     (.virt 19461, .wire 323 28),
     (.wire 324 11, .wire 323 29),
@@ -24003,7 +24003,7 @@ def publicBatchWrapper89.copies665 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21312..21344`. -/
-def publicBatchWrapper89.copies666 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies666 : List (Target × Target) := [
     (.virt 15608, .wire 324 32),
     (.virt 201, .wire 324 33),
     (.wire 170 7, .wire 324 34),
@@ -24039,7 +24039,7 @@ def publicBatchWrapper89.copies666 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21344..21376`. -/
-def publicBatchWrapper89.copies667 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies667 : List (Target × Target) := [
     (.virt 19467, .wire 324 42),
     (.virt 15803, .wire 324 44),
     (.virt 201, .wire 324 45),
@@ -24075,7 +24075,7 @@ def publicBatchWrapper89.copies667 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21376..21408`. -/
-def publicBatchWrapper89.copies668 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies668 : List (Target × Target) := [
     (.virt 19470, .wire 323 77),
     (.wire 324 59, .wire 323 78),
     (.wire 323 79, .wire 324 60),
@@ -24111,7 +24111,7 @@ def publicBatchWrapper89.copies668 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21408..21440`. -/
-def publicBatchWrapper89.copies669 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies669 : List (Target × Target) := [
     (.virt 201, .wire 324 77),
     (.virt 19473, .wire 324 78),
     (.virt 15806, .wire 326 0),
@@ -24147,7 +24147,7 @@ def publicBatchWrapper89.copies669 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21440..21472`. -/
-def publicBatchWrapper89.copies670 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies670 : List (Target × Target) := [
     (.wire 326 19, .virt 200),
     (.virt 201, .wire 326 20),
     (.virt 201, .wire 326 21),
@@ -24183,7 +24183,7 @@ def publicBatchWrapper89.copies670 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21472..21504`. -/
-def publicBatchWrapper89.copies671 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies671 : List (Target × Target) := [
     (.wire 325 43, .wire 314 78),
     (.wire 314 79, .virt 201),
     (.virt 201, .wire 326 32),
@@ -24219,7 +24219,7 @@ def publicBatchWrapper89.copies671 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21504..21536`. -/
-def publicBatchWrapper89.copies672 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies672 : List (Target × Target) := [
     (.virt 19481, .wire 325 52),
     (.wire 326 51, .wire 325 53),
     (.virt 19481, .wire 325 54),
@@ -24255,7 +24255,7 @@ def publicBatchWrapper89.copies672 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21536..21568`. -/
-def publicBatchWrapper89.copies673 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies673 : List (Target × Target) := [
     (.wire 326 59, .wire 326 66),
     (.wire 325 63, .virt 200),
     (.wire 326 67, .virt 200),
@@ -24291,7 +24291,7 @@ def publicBatchWrapper89.copies673 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21568..21600`. -/
-def publicBatchWrapper89.copies674 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies674 : List (Target × Target) := [
     (.wire 329 3, .wire 328 8),
     (.virt 201, .wire 328 9),
     (.wire 328 3, .wire 328 10),
@@ -24327,7 +24327,7 @@ def publicBatchWrapper89.copies674 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21600..21632`. -/
-def publicBatchWrapper89.copies675 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies675 : List (Target × Target) := [
     (.wire 329 23, .wire 321 41),
     (.wire 77 59, .wire 321 42),
     (.wire 321 43, .wire 327 8),
@@ -24363,7 +24363,7 @@ def publicBatchWrapper89.copies675 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21632..21664`. -/
-def publicBatchWrapper89.copies676 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies676 : List (Target × Target) := [
     (.virt 19493, .wire 328 38),
     (.virt 16204, .wire 328 40),
     (.virt 201, .wire 328 41),
@@ -24399,7 +24399,7 @@ def publicBatchWrapper89.copies676 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21664..21696`. -/
-def publicBatchWrapper89.copies677 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies677 : List (Target × Target) := [
     (.virt 19496, .wire 329 45),
     (.wire 328 55, .wire 329 46),
     (.wire 329 47, .wire 328 56),
@@ -24435,7 +24435,7 @@ def publicBatchWrapper89.copies677 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21696..21728`. -/
-def publicBatchWrapper89.copies678 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies678 : List (Target × Target) := [
     (.virt 19499, .wire 329 58),
     (.wire 328 79, .wire 329 60),
     (.virt 19500, .wire 329 61),
@@ -24471,7 +24471,7 @@ def publicBatchWrapper89.copies678 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21728..21760`. -/
-def publicBatchWrapper89.copies679 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies679 : List (Target × Target) := [
     (.wire 329 75, .wire 331 0),
     (.wire 329 79, .wire 331 1),
     (.wire 329 75, .wire 331 2),
@@ -24507,7 +24507,7 @@ def publicBatchWrapper89.copies679 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21760..21792`. -/
-def publicBatchWrapper89.copies680 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies680 : List (Target × Target) := [
     (.virt 19503, .wire 327 26),
     (.wire 327 27, .virt 201),
     (.virt 201, .wire 330 28),
@@ -24543,7 +24543,7 @@ def publicBatchWrapper89.copies680 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21792..21824`. -/
-def publicBatchWrapper89.copies681 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies681 : List (Target × Target) := [
     (.virt 19507, .wire 331 20),
     (.wire 330 47, .wire 331 21),
     (.virt 19507, .wire 331 22),
@@ -24579,7 +24579,7 @@ def publicBatchWrapper89.copies681 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21824..21856`. -/
-def publicBatchWrapper89.copies682 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies682 : List (Target × Target) := [
     (.virt 201, .wire 330 69),
     (.wire 169 79, .wire 330 70),
     (.virt 19511, .wire 331 36),
@@ -24615,7 +24615,7 @@ def publicBatchWrapper89.copies682 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21856..21888`. -/
-def publicBatchWrapper89.copies683 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies683 : List (Target × Target) := [
     (.virt 19507, .wire 331 54),
     (.virt 19511, .wire 331 56),
     (.virt 19513, .wire 331 57),
@@ -24651,7 +24651,7 @@ def publicBatchWrapper89.copies683 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21888..21920`. -/
-def publicBatchWrapper89.copies684 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies684 : List (Target × Target) := [
     (.virt 19515, .wire 321 69),
     (.wire 81 31, .wire 321 70),
     (.wire 321 71, .wire 327 36),
@@ -24687,7 +24687,7 @@ def publicBatchWrapper89.copies684 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21920..21952`. -/
-def publicBatchWrapper89.copies685 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies685 : List (Target × Target) := [
     (.virt 19519, .wire 332 34),
     (.virt 16605, .wire 332 36),
     (.virt 201, .wire 332 37),
@@ -24723,7 +24723,7 @@ def publicBatchWrapper89.copies685 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21952..21984`. -/
-def publicBatchWrapper89.copies686 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies686 : List (Target × Target) := [
     (.virt 201, .wire 332 56),
     (.virt 201, .wire 332 57),
     (.virt 19523, .wire 332 58),
@@ -24759,7 +24759,7 @@ def publicBatchWrapper89.copies686 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `21984..22016`. -/
-def publicBatchWrapper89.copies687 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies687 : List (Target × Target) := [
     (.wire 333 27, .virt 200),
     (.wire 332 79, .virt 200),
     (.virt 19519, .wire 333 32),
@@ -24795,7 +24795,7 @@ def publicBatchWrapper89.copies687 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22016..22048`. -/
-def publicBatchWrapper89.copies688 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies688 : List (Target × Target) := [
     (.wire 334 3, .wire 334 10),
     (.wire 333 47, .virt 200),
     (.wire 334 11, .virt 200),
@@ -24831,7 +24831,7 @@ def publicBatchWrapper89.copies688 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22048..22080`. -/
-def publicBatchWrapper89.copies689 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies689 : List (Target × Target) := [
     (.virt 19529, .wire 327 54),
     (.wire 327 55, .virt 201),
     (.virt 201, .wire 334 24),
@@ -24867,7 +24867,7 @@ def publicBatchWrapper89.copies689 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22080..22112`. -/
-def publicBatchWrapper89.copies690 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies690 : List (Target × Target) := [
     (.virt 201, .wire 334 45),
     (.wire 334 39, .wire 334 46),
     (.wire 333 71, .virt 200),
@@ -24903,7 +24903,7 @@ def publicBatchWrapper89.copies690 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22112..22144`. -/
-def publicBatchWrapper89.copies691 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies691 : List (Target × Target) := [
     (.wire 334 67, .wire 336 10),
     (.wire 336 11, .wire 334 68),
     (.virt 201, .wire 334 69),
@@ -24939,7 +24939,7 @@ def publicBatchWrapper89.copies691 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22144..22176`. -/
-def publicBatchWrapper89.copies692 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies692 : List (Target × Target) := [
     (.virt 19540, .wire 336 29),
     (.wire 334 79, .wire 336 30),
     (.wire 336 31, .wire 337 0),
@@ -24975,7 +24975,7 @@ def publicBatchWrapper89.copies692 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22176..22208`. -/
-def publicBatchWrapper89.copies693 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies693 : List (Target × Target) := [
     (.virt 19541, .wire 335 17),
     (.wire 83 39, .wire 335 18),
     (.wire 335 19, .wire 327 64),
@@ -25011,7 +25011,7 @@ def publicBatchWrapper89.copies693 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22208..22240`. -/
-def publicBatchWrapper89.copies694 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies694 : List (Target × Target) := [
     (.wire 337 35, .wire 336 52),
     (.virt 19546, .wire 336 53),
     (.wire 337 35, .wire 336 54),
@@ -25047,7 +25047,7 @@ def publicBatchWrapper89.copies694 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22240..22272`. -/
-def publicBatchWrapper89.copies695 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies695 : List (Target × Target) := [
     (.wire 337 59, .wire 336 65),
     (.virt 19549, .wire 336 66),
     (.wire 337 59, .wire 336 68),
@@ -25083,7 +25083,7 @@ def publicBatchWrapper89.copies695 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22272..22304`. -/
-def publicBatchWrapper89.copies696 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies696 : List (Target × Target) := [
     (.virt 19551, .wire 338 4),
     (.wire 337 71, .wire 338 5),
     (.virt 19551, .wire 338 6),
@@ -25119,7 +25119,7 @@ def publicBatchWrapper89.copies696 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22304..22336`. -/
-def publicBatchWrapper89.copies697 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies697 : List (Target × Target) := [
     (.wire 337 79, .wire 339 6),
     (.wire 338 15, .virt 200),
     (.wire 339 7, .virt 200),
@@ -25155,7 +25155,7 @@ def publicBatchWrapper89.copies697 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22336..22368`. -/
-def publicBatchWrapper89.copies698 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies698 : List (Target × Target) := [
     (.wire 169 71, .wire 339 26),
     (.virt 19557, .wire 338 28),
     (.wire 339 27, .wire 338 29),
@@ -25191,7 +25191,7 @@ def publicBatchWrapper89.copies698 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22368..22400`. -/
-def publicBatchWrapper89.copies699 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies699 : List (Target × Target) := [
     (.virt 17208, .wire 339 48),
     (.virt 201, .wire 339 49),
     (.wire 170 7, .wire 339 50),
@@ -25227,7 +25227,7 @@ def publicBatchWrapper89.copies699 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22400..22432`. -/
-def publicBatchWrapper89.copies700 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies700 : List (Target × Target) := [
     (.virt 19563, .wire 339 58),
     (.virt 17403, .wire 339 60),
     (.virt 201, .wire 339 61),
@@ -25263,7 +25263,7 @@ def publicBatchWrapper89.copies700 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22432..22464`. -/
-def publicBatchWrapper89.copies701 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies701 : List (Target × Target) := [
     (.virt 19566, .wire 338 77),
     (.wire 339 75, .wire 338 78),
     (.wire 338 79, .wire 339 76),
@@ -25299,7 +25299,7 @@ def publicBatchWrapper89.copies701 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22464..22496`. -/
-def publicBatchWrapper89.copies702 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies702 : List (Target × Target) := [
     (.virt 201, .wire 341 13),
     (.virt 19569, .wire 341 14),
     (.virt 17406, .wire 341 16),
@@ -25335,7 +25335,7 @@ def publicBatchWrapper89.copies702 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22496..22528`. -/
-def publicBatchWrapper89.copies703 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies703 : List (Target × Target) := [
     (.wire 341 35, .virt 200),
     (.virt 201, .wire 341 36),
     (.virt 201, .wire 341 37),
@@ -25371,7 +25371,7 @@ def publicBatchWrapper89.copies703 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22528..22560`. -/
-def publicBatchWrapper89.copies704 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies704 : List (Target × Target) := [
     (.wire 342 43, .wire 340 14),
     (.wire 340 15, .virt 201),
     (.virt 201, .wire 341 48),
@@ -25407,7 +25407,7 @@ def publicBatchWrapper89.copies704 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22560..22592`. -/
-def publicBatchWrapper89.copies705 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies705 : List (Target × Target) := [
     (.virt 19577, .wire 342 52),
     (.wire 341 67, .wire 342 53),
     (.virt 19577, .wire 342 54),
@@ -25443,7 +25443,7 @@ def publicBatchWrapper89.copies705 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22592..22624`. -/
-def publicBatchWrapper89.copies706 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies706 : List (Target × Target) := [
     (.wire 341 75, .wire 343 2),
     (.wire 342 63, .virt 200),
     (.wire 343 3, .virt 200),
@@ -25479,7 +25479,7 @@ def publicBatchWrapper89.copies706 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22624..22656`. -/
-def publicBatchWrapper89.copies707 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies707 : List (Target × Target) := [
     (.wire 344 3, .wire 343 24),
     (.virt 201, .wire 343 25),
     (.wire 343 19, .wire 343 26),
@@ -25515,7 +25515,7 @@ def publicBatchWrapper89.copies707 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22656..22688`. -/
-def publicBatchWrapper89.copies708 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies708 : List (Target × Target) := [
     (.wire 344 23, .wire 335 57),
     (.wire 86 11, .wire 335 58),
     (.wire 335 59, .wire 340 24),
@@ -25551,7 +25551,7 @@ def publicBatchWrapper89.copies708 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22688..22720`. -/
-def publicBatchWrapper89.copies709 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies709 : List (Target × Target) := [
     (.virt 12, .wire 343 74),
     (.wire 1 59, .wire 343 76),
     (.virt 200, .wire 343 77),
@@ -25587,7 +25587,7 @@ def publicBatchWrapper89.copies709 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22720..22752`. -/
-def publicBatchWrapper89.copies710 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies710 : List (Target × Target) := [
     (.virt 200, .wire 345 37),
     (.wire 345 35, .wire 345 38),
     (.wire 1 59, .wire 345 40),
@@ -25623,7 +25623,7 @@ def publicBatchWrapper89.copies710 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22752..22784`. -/
-def publicBatchWrapper89.copies711 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies711 : List (Target × Target) := [
     (.wire 1 59, .wire 346 0),
     (.virt 23, .wire 346 1),
     (.virt 23, .wire 346 2),
@@ -25659,7 +25659,7 @@ def publicBatchWrapper89.copies711 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22784..22816`. -/
-def publicBatchWrapper89.copies712 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies712 : List (Target × Target) := [
     (.virt 28, .wire 346 42),
     (.wire 1 59, .wire 346 44),
     (.virt 200, .wire 346 45),
@@ -25695,7 +25695,7 @@ def publicBatchWrapper89.copies712 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22816..22848`. -/
-def publicBatchWrapper89.copies713 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies713 : List (Target × Target) := [
     (.virt 200, .wire 347 5),
     (.wire 347 3, .wire 347 6),
     (.wire 1 59, .wire 347 8),
@@ -25731,7 +25731,7 @@ def publicBatchWrapper89.copies713 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22848..22880`. -/
-def publicBatchWrapper89.copies714 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies714 : List (Target × Target) := [
     (.wire 1 59, .wire 347 48),
     (.virt 39, .wire 347 49),
     (.virt 39, .wire 347 50),
@@ -25767,7 +25767,7 @@ def publicBatchWrapper89.copies714 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22880..22912`. -/
-def publicBatchWrapper89.copies715 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies715 : List (Target × Target) := [
     (.virt 44, .wire 348 10),
     (.wire 1 59, .wire 348 12),
     (.virt 200, .wire 348 13),
@@ -25803,7 +25803,7 @@ def publicBatchWrapper89.copies715 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22912..22944`. -/
-def publicBatchWrapper89.copies716 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies716 : List (Target × Target) := [
     (.virt 200, .wire 348 53),
     (.wire 348 51, .wire 348 54),
     (.wire 1 59, .wire 348 56),
@@ -25839,7 +25839,7 @@ def publicBatchWrapper89.copies716 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22944..22976`. -/
-def publicBatchWrapper89.copies717 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies717 : List (Target × Target) := [
     (.wire 1 59, .wire 349 16),
     (.virt 55, .wire 349 17),
     (.virt 55, .wire 349 18),
@@ -25875,7 +25875,7 @@ def publicBatchWrapper89.copies717 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `22976..23008`. -/
-def publicBatchWrapper89.copies718 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies718 : List (Target × Target) := [
     (.virt 60, .wire 349 58),
     (.wire 1 59, .wire 349 60),
     (.virt 200, .wire 349 61),
@@ -25911,7 +25911,7 @@ def publicBatchWrapper89.copies718 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23008..23040`. -/
-def publicBatchWrapper89.copies719 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies719 : List (Target × Target) := [
     (.virt 200, .wire 350 21),
     (.wire 350 19, .wire 350 22),
     (.wire 1 59, .wire 350 24),
@@ -25947,7 +25947,7 @@ def publicBatchWrapper89.copies719 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23040..23072`. -/
-def publicBatchWrapper89.copies720 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies720 : List (Target × Target) := [
     (.wire 1 59, .wire 350 64),
     (.virt 71, .wire 350 65),
     (.virt 71, .wire 350 66),
@@ -25983,7 +25983,7 @@ def publicBatchWrapper89.copies720 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23072..23104`. -/
-def publicBatchWrapper89.copies721 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies721 : List (Target × Target) := [
     (.virt 76, .wire 351 26),
     (.wire 1 59, .wire 351 28),
     (.virt 200, .wire 351 29),
@@ -26019,7 +26019,7 @@ def publicBatchWrapper89.copies721 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23104..23136`. -/
-def publicBatchWrapper89.copies722 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies722 : List (Target × Target) := [
     (.virt 200, .wire 351 69),
     (.wire 351 67, .wire 351 70),
     (.wire 1 59, .wire 351 72),
@@ -26055,7 +26055,7 @@ def publicBatchWrapper89.copies722 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23136..23168`. -/
-def publicBatchWrapper89.copies723 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies723 : List (Target × Target) := [
     (.wire 1 59, .wire 352 32),
     (.virt 87, .wire 352 33),
     (.virt 87, .wire 352 34),
@@ -26091,7 +26091,7 @@ def publicBatchWrapper89.copies723 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23168..23200`. -/
-def publicBatchWrapper89.copies724 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies724 : List (Target × Target) := [
     (.virt 92, .wire 352 74),
     (.wire 1 59, .wire 352 76),
     (.virt 200, .wire 352 77),
@@ -26127,7 +26127,7 @@ def publicBatchWrapper89.copies724 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23200..23232`. -/
-def publicBatchWrapper89.copies725 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies725 : List (Target × Target) := [
     (.virt 200, .wire 353 37),
     (.wire 353 35, .wire 353 38),
     (.wire 1 59, .wire 353 40),
@@ -26163,7 +26163,7 @@ def publicBatchWrapper89.copies725 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23232..23264`. -/
-def publicBatchWrapper89.copies726 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies726 : List (Target × Target) := [
     (.wire 1 59, .wire 354 0),
     (.virt 103, .wire 354 1),
     (.virt 103, .wire 354 2),
@@ -26199,7 +26199,7 @@ def publicBatchWrapper89.copies726 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23264..23296`. -/
-def publicBatchWrapper89.copies727 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies727 : List (Target × Target) := [
     (.virt 108, .wire 354 42),
     (.wire 1 59, .wire 354 44),
     (.virt 200, .wire 354 45),
@@ -26235,7 +26235,7 @@ def publicBatchWrapper89.copies727 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23296..23328`. -/
-def publicBatchWrapper89.copies728 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies728 : List (Target × Target) := [
     (.virt 200, .wire 355 5),
     (.wire 355 3, .wire 355 6),
     (.wire 1 59, .wire 355 8),
@@ -26271,7 +26271,7 @@ def publicBatchWrapper89.copies728 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23328..23360`. -/
-def publicBatchWrapper89.copies729 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies729 : List (Target × Target) := [
     (.wire 1 59, .wire 355 48),
     (.virt 119, .wire 355 49),
     (.virt 119, .wire 355 50),
@@ -26307,7 +26307,7 @@ def publicBatchWrapper89.copies729 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23360..23392`. -/
-def publicBatchWrapper89.copies730 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies730 : List (Target × Target) := [
     (.virt 124, .wire 356 10),
     (.wire 1 59, .wire 356 12),
     (.virt 200, .wire 356 13),
@@ -26343,7 +26343,7 @@ def publicBatchWrapper89.copies730 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23392..23424`. -/
-def publicBatchWrapper89.copies731 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies731 : List (Target × Target) := [
     (.virt 200, .wire 356 53),
     (.wire 356 51, .wire 356 54),
     (.wire 1 59, .wire 356 56),
@@ -26379,7 +26379,7 @@ def publicBatchWrapper89.copies731 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23424..23456`. -/
-def publicBatchWrapper89.copies732 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies732 : List (Target × Target) := [
     (.wire 1 59, .wire 357 16),
     (.virt 135, .wire 357 17),
     (.virt 135, .wire 357 18),
@@ -26415,7 +26415,7 @@ def publicBatchWrapper89.copies732 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23456..23488`. -/
-def publicBatchWrapper89.copies733 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies733 : List (Target × Target) := [
     (.virt 140, .wire 357 58),
     (.wire 1 59, .wire 357 60),
     (.virt 200, .wire 357 61),
@@ -26451,7 +26451,7 @@ def publicBatchWrapper89.copies733 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23488..23520`. -/
-def publicBatchWrapper89.copies734 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies734 : List (Target × Target) := [
     (.virt 200, .wire 358 21),
     (.wire 358 19, .wire 358 22),
     (.wire 1 59, .wire 358 24),
@@ -26487,7 +26487,7 @@ def publicBatchWrapper89.copies734 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23520..23552`. -/
-def publicBatchWrapper89.copies735 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies735 : List (Target × Target) := [
     (.wire 1 59, .wire 358 64),
     (.virt 151, .wire 358 65),
     (.virt 151, .wire 358 66),
@@ -26523,7 +26523,7 @@ def publicBatchWrapper89.copies735 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23552..23584`. -/
-def publicBatchWrapper89.copies736 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies736 : List (Target × Target) := [
     (.virt 156, .wire 359 26),
     (.wire 1 59, .wire 359 28),
     (.virt 200, .wire 359 29),
@@ -26559,7 +26559,7 @@ def publicBatchWrapper89.copies736 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23584..23616`. -/
-def publicBatchWrapper89.copies737 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies737 : List (Target × Target) := [
     (.virt 200, .wire 359 69),
     (.wire 359 67, .wire 359 70),
     (.wire 1 59, .wire 359 72),
@@ -26595,7 +26595,7 @@ def publicBatchWrapper89.copies737 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23616..23648`. -/
-def publicBatchWrapper89.copies738 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies738 : List (Target × Target) := [
     (.wire 1 59, .wire 360 32),
     (.virt 167, .wire 360 33),
     (.virt 167, .wire 360 34),
@@ -26631,7 +26631,7 @@ def publicBatchWrapper89.copies738 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23648..23680`. -/
-def publicBatchWrapper89.copies739 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies739 : List (Target × Target) := [
     (.virt 214, .wire 360 74),
     (.wire 3 23, .wire 360 76),
     (.virt 200, .wire 360 77),
@@ -26667,7 +26667,7 @@ def publicBatchWrapper89.copies739 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23680..23712`. -/
-def publicBatchWrapper89.copies740 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies740 : List (Target × Target) := [
     (.virt 200, .wire 361 37),
     (.wire 361 35, .wire 361 38),
     (.wire 3 23, .wire 361 40),
@@ -26703,7 +26703,7 @@ def publicBatchWrapper89.copies740 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23712..23744`. -/
-def publicBatchWrapper89.copies741 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies741 : List (Target × Target) := [
     (.wire 3 23, .wire 362 0),
     (.virt 225, .wire 362 1),
     (.virt 225, .wire 362 2),
@@ -26739,7 +26739,7 @@ def publicBatchWrapper89.copies741 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23744..23776`. -/
-def publicBatchWrapper89.copies742 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies742 : List (Target × Target) := [
     (.virt 230, .wire 362 42),
     (.wire 3 23, .wire 362 44),
     (.virt 200, .wire 362 45),
@@ -26775,7 +26775,7 @@ def publicBatchWrapper89.copies742 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23776..23808`. -/
-def publicBatchWrapper89.copies743 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies743 : List (Target × Target) := [
     (.virt 200, .wire 363 5),
     (.wire 363 3, .wire 363 6),
     (.wire 3 23, .wire 363 8),
@@ -26811,7 +26811,7 @@ def publicBatchWrapper89.copies743 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23808..23840`. -/
-def publicBatchWrapper89.copies744 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies744 : List (Target × Target) := [
     (.wire 3 23, .wire 363 48),
     (.virt 241, .wire 363 49),
     (.virt 241, .wire 363 50),
@@ -26847,7 +26847,7 @@ def publicBatchWrapper89.copies744 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23840..23872`. -/
-def publicBatchWrapper89.copies745 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies745 : List (Target × Target) := [
     (.virt 246, .wire 364 10),
     (.wire 3 23, .wire 364 12),
     (.virt 200, .wire 364 13),
@@ -26883,7 +26883,7 @@ def publicBatchWrapper89.copies745 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23872..23904`. -/
-def publicBatchWrapper89.copies746 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies746 : List (Target × Target) := [
     (.virt 200, .wire 364 53),
     (.wire 364 51, .wire 364 54),
     (.wire 3 23, .wire 364 56),
@@ -26919,7 +26919,7 @@ def publicBatchWrapper89.copies746 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23904..23936`. -/
-def publicBatchWrapper89.copies747 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies747 : List (Target × Target) := [
     (.wire 3 23, .wire 365 16),
     (.virt 257, .wire 365 17),
     (.virt 257, .wire 365 18),
@@ -26955,7 +26955,7 @@ def publicBatchWrapper89.copies747 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23936..23968`. -/
-def publicBatchWrapper89.copies748 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies748 : List (Target × Target) := [
     (.virt 262, .wire 365 58),
     (.wire 3 23, .wire 365 60),
     (.virt 200, .wire 365 61),
@@ -26991,7 +26991,7 @@ def publicBatchWrapper89.copies748 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `23968..24000`. -/
-def publicBatchWrapper89.copies749 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies749 : List (Target × Target) := [
     (.virt 200, .wire 366 21),
     (.wire 366 19, .wire 366 22),
     (.wire 3 23, .wire 366 24),
@@ -27027,7 +27027,7 @@ def publicBatchWrapper89.copies749 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24000..24032`. -/
-def publicBatchWrapper89.copies750 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies750 : List (Target × Target) := [
     (.wire 3 23, .wire 366 64),
     (.virt 273, .wire 366 65),
     (.virt 273, .wire 366 66),
@@ -27063,7 +27063,7 @@ def publicBatchWrapper89.copies750 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24032..24064`. -/
-def publicBatchWrapper89.copies751 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies751 : List (Target × Target) := [
     (.virt 278, .wire 367 26),
     (.wire 3 23, .wire 367 28),
     (.virt 200, .wire 367 29),
@@ -27099,7 +27099,7 @@ def publicBatchWrapper89.copies751 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24064..24096`. -/
-def publicBatchWrapper89.copies752 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies752 : List (Target × Target) := [
     (.virt 200, .wire 367 69),
     (.wire 367 67, .wire 367 70),
     (.wire 3 23, .wire 367 72),
@@ -27135,7 +27135,7 @@ def publicBatchWrapper89.copies752 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24096..24128`. -/
-def publicBatchWrapper89.copies753 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies753 : List (Target × Target) := [
     (.wire 3 23, .wire 368 32),
     (.virt 289, .wire 368 33),
     (.virt 289, .wire 368 34),
@@ -27171,7 +27171,7 @@ def publicBatchWrapper89.copies753 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24128..24160`. -/
-def publicBatchWrapper89.copies754 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies754 : List (Target × Target) := [
     (.virt 294, .wire 368 74),
     (.wire 3 23, .wire 368 76),
     (.virt 200, .wire 368 77),
@@ -27207,7 +27207,7 @@ def publicBatchWrapper89.copies754 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24160..24192`. -/
-def publicBatchWrapper89.copies755 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies755 : List (Target × Target) := [
     (.virt 200, .wire 369 37),
     (.wire 369 35, .wire 369 38),
     (.wire 3 23, .wire 369 40),
@@ -27243,7 +27243,7 @@ def publicBatchWrapper89.copies755 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24192..24224`. -/
-def publicBatchWrapper89.copies756 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies756 : List (Target × Target) := [
     (.wire 3 23, .wire 370 0),
     (.virt 305, .wire 370 1),
     (.virt 305, .wire 370 2),
@@ -27279,7 +27279,7 @@ def publicBatchWrapper89.copies756 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24224..24256`. -/
-def publicBatchWrapper89.copies757 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies757 : List (Target × Target) := [
     (.virt 310, .wire 370 42),
     (.wire 3 23, .wire 370 44),
     (.virt 200, .wire 370 45),
@@ -27315,7 +27315,7 @@ def publicBatchWrapper89.copies757 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24256..24288`. -/
-def publicBatchWrapper89.copies758 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies758 : List (Target × Target) := [
     (.virt 200, .wire 371 5),
     (.wire 371 3, .wire 371 6),
     (.wire 3 23, .wire 371 8),
@@ -27351,7 +27351,7 @@ def publicBatchWrapper89.copies758 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24288..24320`. -/
-def publicBatchWrapper89.copies759 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies759 : List (Target × Target) := [
     (.wire 3 23, .wire 371 48),
     (.virt 321, .wire 371 49),
     (.virt 321, .wire 371 50),
@@ -27387,7 +27387,7 @@ def publicBatchWrapper89.copies759 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24320..24352`. -/
-def publicBatchWrapper89.copies760 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies760 : List (Target × Target) := [
     (.virt 326, .wire 372 10),
     (.wire 3 23, .wire 372 12),
     (.virt 200, .wire 372 13),
@@ -27423,7 +27423,7 @@ def publicBatchWrapper89.copies760 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24352..24384`. -/
-def publicBatchWrapper89.copies761 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies761 : List (Target × Target) := [
     (.virt 200, .wire 372 53),
     (.wire 372 51, .wire 372 54),
     (.wire 3 23, .wire 372 56),
@@ -27459,7 +27459,7 @@ def publicBatchWrapper89.copies761 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24384..24416`. -/
-def publicBatchWrapper89.copies762 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies762 : List (Target × Target) := [
     (.wire 3 23, .wire 373 16),
     (.virt 337, .wire 373 17),
     (.virt 337, .wire 373 18),
@@ -27495,7 +27495,7 @@ def publicBatchWrapper89.copies762 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24416..24448`. -/
-def publicBatchWrapper89.copies763 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies763 : List (Target × Target) := [
     (.virt 342, .wire 373 58),
     (.wire 3 23, .wire 373 60),
     (.virt 200, .wire 373 61),
@@ -27531,7 +27531,7 @@ def publicBatchWrapper89.copies763 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24448..24480`. -/
-def publicBatchWrapper89.copies764 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies764 : List (Target × Target) := [
     (.virt 200, .wire 374 21),
     (.wire 374 19, .wire 374 22),
     (.wire 3 23, .wire 374 24),
@@ -27567,7 +27567,7 @@ def publicBatchWrapper89.copies764 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24480..24512`. -/
-def publicBatchWrapper89.copies765 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies765 : List (Target × Target) := [
     (.wire 3 23, .wire 374 64),
     (.virt 353, .wire 374 65),
     (.virt 353, .wire 374 66),
@@ -27603,7 +27603,7 @@ def publicBatchWrapper89.copies765 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24512..24544`. -/
-def publicBatchWrapper89.copies766 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies766 : List (Target × Target) := [
     (.virt 358, .wire 375 26),
     (.wire 3 23, .wire 375 28),
     (.virt 200, .wire 375 29),
@@ -27639,7 +27639,7 @@ def publicBatchWrapper89.copies766 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24544..24576`. -/
-def publicBatchWrapper89.copies767 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies767 : List (Target × Target) := [
     (.virt 200, .wire 375 69),
     (.wire 375 67, .wire 375 70),
     (.wire 3 23, .wire 375 72),
@@ -27675,7 +27675,7 @@ def publicBatchWrapper89.copies767 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24576..24608`. -/
-def publicBatchWrapper89.copies768 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies768 : List (Target × Target) := [
     (.wire 3 23, .wire 376 32),
     (.virt 369, .wire 376 33),
     (.virt 369, .wire 376 34),
@@ -27711,7 +27711,7 @@ def publicBatchWrapper89.copies768 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24608..24640`. -/
-def publicBatchWrapper89.copies769 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies769 : List (Target × Target) := [
     (.virt 414, .wire 376 74),
     (.wire 3 67, .wire 376 76),
     (.virt 200, .wire 376 77),
@@ -27747,7 +27747,7 @@ def publicBatchWrapper89.copies769 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24640..24672`. -/
-def publicBatchWrapper89.copies770 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies770 : List (Target × Target) := [
     (.virt 200, .wire 377 37),
     (.wire 377 35, .wire 377 38),
     (.wire 3 67, .wire 377 40),
@@ -27783,7 +27783,7 @@ def publicBatchWrapper89.copies770 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24672..24704`. -/
-def publicBatchWrapper89.copies771 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies771 : List (Target × Target) := [
     (.wire 3 67, .wire 378 0),
     (.virt 425, .wire 378 1),
     (.virt 425, .wire 378 2),
@@ -27819,7 +27819,7 @@ def publicBatchWrapper89.copies771 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24704..24736`. -/
-def publicBatchWrapper89.copies772 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies772 : List (Target × Target) := [
     (.virt 430, .wire 378 42),
     (.wire 3 67, .wire 378 44),
     (.virt 200, .wire 378 45),
@@ -27855,7 +27855,7 @@ def publicBatchWrapper89.copies772 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24736..24768`. -/
-def publicBatchWrapper89.copies773 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies773 : List (Target × Target) := [
     (.virt 200, .wire 379 5),
     (.wire 379 3, .wire 379 6),
     (.wire 3 67, .wire 379 8),
@@ -27891,7 +27891,7 @@ def publicBatchWrapper89.copies773 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24768..24800`. -/
-def publicBatchWrapper89.copies774 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies774 : List (Target × Target) := [
     (.wire 3 67, .wire 379 48),
     (.virt 441, .wire 379 49),
     (.virt 441, .wire 379 50),
@@ -27927,7 +27927,7 @@ def publicBatchWrapper89.copies774 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24800..24832`. -/
-def publicBatchWrapper89.copies775 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies775 : List (Target × Target) := [
     (.virt 446, .wire 380 10),
     (.wire 3 67, .wire 380 12),
     (.virt 200, .wire 380 13),
@@ -27963,7 +27963,7 @@ def publicBatchWrapper89.copies775 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24832..24864`. -/
-def publicBatchWrapper89.copies776 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies776 : List (Target × Target) := [
     (.virt 200, .wire 380 53),
     (.wire 380 51, .wire 380 54),
     (.wire 3 67, .wire 380 56),
@@ -27999,7 +27999,7 @@ def publicBatchWrapper89.copies776 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24864..24896`. -/
-def publicBatchWrapper89.copies777 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies777 : List (Target × Target) := [
     (.wire 3 67, .wire 381 16),
     (.virt 457, .wire 381 17),
     (.virt 457, .wire 381 18),
@@ -28035,7 +28035,7 @@ def publicBatchWrapper89.copies777 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24896..24928`. -/
-def publicBatchWrapper89.copies778 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies778 : List (Target × Target) := [
     (.virt 462, .wire 381 58),
     (.wire 3 67, .wire 381 60),
     (.virt 200, .wire 381 61),
@@ -28071,7 +28071,7 @@ def publicBatchWrapper89.copies778 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24928..24960`. -/
-def publicBatchWrapper89.copies779 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies779 : List (Target × Target) := [
     (.virt 200, .wire 382 21),
     (.wire 382 19, .wire 382 22),
     (.wire 3 67, .wire 382 24),
@@ -28107,7 +28107,7 @@ def publicBatchWrapper89.copies779 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24960..24992`. -/
-def publicBatchWrapper89.copies780 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies780 : List (Target × Target) := [
     (.wire 3 67, .wire 382 64),
     (.virt 473, .wire 382 65),
     (.virt 473, .wire 382 66),
@@ -28143,7 +28143,7 @@ def publicBatchWrapper89.copies780 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `24992..25024`. -/
-def publicBatchWrapper89.copies781 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies781 : List (Target × Target) := [
     (.virt 478, .wire 383 26),
     (.wire 3 67, .wire 383 28),
     (.virt 200, .wire 383 29),
@@ -28179,7 +28179,7 @@ def publicBatchWrapper89.copies781 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25024..25056`. -/
-def publicBatchWrapper89.copies782 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies782 : List (Target × Target) := [
     (.virt 200, .wire 383 69),
     (.wire 383 67, .wire 383 70),
     (.wire 3 67, .wire 383 72),
@@ -28215,7 +28215,7 @@ def publicBatchWrapper89.copies782 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25056..25088`. -/
-def publicBatchWrapper89.copies783 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies783 : List (Target × Target) := [
     (.wire 3 67, .wire 384 32),
     (.virt 489, .wire 384 33),
     (.virt 489, .wire 384 34),
@@ -28251,7 +28251,7 @@ def publicBatchWrapper89.copies783 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25088..25120`. -/
-def publicBatchWrapper89.copies784 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies784 : List (Target × Target) := [
     (.virt 494, .wire 384 74),
     (.wire 3 67, .wire 384 76),
     (.virt 200, .wire 384 77),
@@ -28287,7 +28287,7 @@ def publicBatchWrapper89.copies784 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25120..25152`. -/
-def publicBatchWrapper89.copies785 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies785 : List (Target × Target) := [
     (.virt 200, .wire 385 37),
     (.wire 385 35, .wire 385 38),
     (.wire 3 67, .wire 385 40),
@@ -28323,7 +28323,7 @@ def publicBatchWrapper89.copies785 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25152..25184`. -/
-def publicBatchWrapper89.copies786 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies786 : List (Target × Target) := [
     (.wire 3 67, .wire 386 0),
     (.virt 505, .wire 386 1),
     (.virt 505, .wire 386 2),
@@ -28359,7 +28359,7 @@ def publicBatchWrapper89.copies786 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25184..25216`. -/
-def publicBatchWrapper89.copies787 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies787 : List (Target × Target) := [
     (.virt 510, .wire 386 42),
     (.wire 3 67, .wire 386 44),
     (.virt 200, .wire 386 45),
@@ -28395,7 +28395,7 @@ def publicBatchWrapper89.copies787 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25216..25248`. -/
-def publicBatchWrapper89.copies788 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies788 : List (Target × Target) := [
     (.virt 200, .wire 387 5),
     (.wire 387 3, .wire 387 6),
     (.wire 3 67, .wire 387 8),
@@ -28431,7 +28431,7 @@ def publicBatchWrapper89.copies788 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25248..25280`. -/
-def publicBatchWrapper89.copies789 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies789 : List (Target × Target) := [
     (.wire 3 67, .wire 387 48),
     (.virt 521, .wire 387 49),
     (.virt 521, .wire 387 50),
@@ -28467,7 +28467,7 @@ def publicBatchWrapper89.copies789 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25280..25312`. -/
-def publicBatchWrapper89.copies790 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies790 : List (Target × Target) := [
     (.virt 526, .wire 388 10),
     (.wire 3 67, .wire 388 12),
     (.virt 200, .wire 388 13),
@@ -28503,7 +28503,7 @@ def publicBatchWrapper89.copies790 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25312..25344`. -/
-def publicBatchWrapper89.copies791 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies791 : List (Target × Target) := [
     (.virt 200, .wire 388 53),
     (.wire 388 51, .wire 388 54),
     (.wire 3 67, .wire 388 56),
@@ -28539,7 +28539,7 @@ def publicBatchWrapper89.copies791 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25344..25376`. -/
-def publicBatchWrapper89.copies792 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies792 : List (Target × Target) := [
     (.wire 3 67, .wire 389 16),
     (.virt 537, .wire 389 17),
     (.virt 537, .wire 389 18),
@@ -28575,7 +28575,7 @@ def publicBatchWrapper89.copies792 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25376..25408`. -/
-def publicBatchWrapper89.copies793 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies793 : List (Target × Target) := [
     (.virt 542, .wire 389 58),
     (.wire 3 67, .wire 389 60),
     (.virt 200, .wire 389 61),
@@ -28611,7 +28611,7 @@ def publicBatchWrapper89.copies793 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25408..25440`. -/
-def publicBatchWrapper89.copies794 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies794 : List (Target × Target) := [
     (.virt 200, .wire 390 21),
     (.wire 390 19, .wire 390 22),
     (.wire 3 67, .wire 390 24),
@@ -28647,7 +28647,7 @@ def publicBatchWrapper89.copies794 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25440..25472`. -/
-def publicBatchWrapper89.copies795 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies795 : List (Target × Target) := [
     (.wire 3 67, .wire 390 64),
     (.virt 553, .wire 390 65),
     (.virt 553, .wire 390 66),
@@ -28683,7 +28683,7 @@ def publicBatchWrapper89.copies795 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25472..25504`. -/
-def publicBatchWrapper89.copies796 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies796 : List (Target × Target) := [
     (.virt 558, .wire 391 26),
     (.wire 3 67, .wire 391 28),
     (.virt 200, .wire 391 29),
@@ -28719,7 +28719,7 @@ def publicBatchWrapper89.copies796 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25504..25536`. -/
-def publicBatchWrapper89.copies797 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies797 : List (Target × Target) := [
     (.virt 200, .wire 391 69),
     (.wire 391 67, .wire 391 70),
     (.wire 3 67, .wire 391 72),
@@ -28755,7 +28755,7 @@ def publicBatchWrapper89.copies797 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25536..25568`. -/
-def publicBatchWrapper89.copies798 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies798 : List (Target × Target) := [
     (.wire 3 67, .wire 392 32),
     (.virt 569, .wire 392 33),
     (.virt 569, .wire 392 34),
@@ -28791,7 +28791,7 @@ def publicBatchWrapper89.copies798 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25568..25600`. -/
-def publicBatchWrapper89.copies799 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies799 : List (Target × Target) := [
     (.virt 614, .wire 392 74),
     (.wire 5 31, .wire 392 76),
     (.virt 200, .wire 392 77),
@@ -28827,7 +28827,7 @@ def publicBatchWrapper89.copies799 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25600..25632`. -/
-def publicBatchWrapper89.copies800 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies800 : List (Target × Target) := [
     (.virt 200, .wire 393 37),
     (.wire 393 35, .wire 393 38),
     (.wire 5 31, .wire 393 40),
@@ -28863,7 +28863,7 @@ def publicBatchWrapper89.copies800 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25632..25664`. -/
-def publicBatchWrapper89.copies801 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies801 : List (Target × Target) := [
     (.wire 5 31, .wire 394 0),
     (.virt 625, .wire 394 1),
     (.virt 625, .wire 394 2),
@@ -28899,7 +28899,7 @@ def publicBatchWrapper89.copies801 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25664..25696`. -/
-def publicBatchWrapper89.copies802 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies802 : List (Target × Target) := [
     (.virt 630, .wire 394 42),
     (.wire 5 31, .wire 394 44),
     (.virt 200, .wire 394 45),
@@ -28935,7 +28935,7 @@ def publicBatchWrapper89.copies802 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25696..25728`. -/
-def publicBatchWrapper89.copies803 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies803 : List (Target × Target) := [
     (.virt 200, .wire 395 5),
     (.wire 395 3, .wire 395 6),
     (.wire 5 31, .wire 395 8),
@@ -28971,7 +28971,7 @@ def publicBatchWrapper89.copies803 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25728..25760`. -/
-def publicBatchWrapper89.copies804 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies804 : List (Target × Target) := [
     (.wire 5 31, .wire 395 48),
     (.virt 641, .wire 395 49),
     (.virt 641, .wire 395 50),
@@ -29007,7 +29007,7 @@ def publicBatchWrapper89.copies804 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25760..25792`. -/
-def publicBatchWrapper89.copies805 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies805 : List (Target × Target) := [
     (.virt 646, .wire 396 10),
     (.wire 5 31, .wire 396 12),
     (.virt 200, .wire 396 13),
@@ -29043,7 +29043,7 @@ def publicBatchWrapper89.copies805 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25792..25824`. -/
-def publicBatchWrapper89.copies806 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies806 : List (Target × Target) := [
     (.virt 200, .wire 396 53),
     (.wire 396 51, .wire 396 54),
     (.wire 5 31, .wire 396 56),
@@ -29079,7 +29079,7 @@ def publicBatchWrapper89.copies806 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25824..25856`. -/
-def publicBatchWrapper89.copies807 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies807 : List (Target × Target) := [
     (.wire 5 31, .wire 397 16),
     (.virt 657, .wire 397 17),
     (.virt 657, .wire 397 18),
@@ -29115,7 +29115,7 @@ def publicBatchWrapper89.copies807 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25856..25888`. -/
-def publicBatchWrapper89.copies808 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies808 : List (Target × Target) := [
     (.virt 662, .wire 397 58),
     (.wire 5 31, .wire 397 60),
     (.virt 200, .wire 397 61),
@@ -29151,7 +29151,7 @@ def publicBatchWrapper89.copies808 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25888..25920`. -/
-def publicBatchWrapper89.copies809 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies809 : List (Target × Target) := [
     (.virt 200, .wire 398 21),
     (.wire 398 19, .wire 398 22),
     (.wire 5 31, .wire 398 24),
@@ -29187,7 +29187,7 @@ def publicBatchWrapper89.copies809 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25920..25952`. -/
-def publicBatchWrapper89.copies810 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies810 : List (Target × Target) := [
     (.wire 5 31, .wire 398 64),
     (.virt 673, .wire 398 65),
     (.virt 673, .wire 398 66),
@@ -29223,7 +29223,7 @@ def publicBatchWrapper89.copies810 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25952..25984`. -/
-def publicBatchWrapper89.copies811 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies811 : List (Target × Target) := [
     (.virt 678, .wire 399 26),
     (.wire 5 31, .wire 399 28),
     (.virt 200, .wire 399 29),
@@ -29259,7 +29259,7 @@ def publicBatchWrapper89.copies811 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `25984..26016`. -/
-def publicBatchWrapper89.copies812 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies812 : List (Target × Target) := [
     (.virt 200, .wire 399 69),
     (.wire 399 67, .wire 399 70),
     (.wire 5 31, .wire 399 72),
@@ -29295,7 +29295,7 @@ def publicBatchWrapper89.copies812 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26016..26048`. -/
-def publicBatchWrapper89.copies813 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies813 : List (Target × Target) := [
     (.wire 5 31, .wire 400 32),
     (.virt 689, .wire 400 33),
     (.virt 689, .wire 400 34),
@@ -29331,7 +29331,7 @@ def publicBatchWrapper89.copies813 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26048..26080`. -/
-def publicBatchWrapper89.copies814 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies814 : List (Target × Target) := [
     (.virt 694, .wire 400 74),
     (.wire 5 31, .wire 400 76),
     (.virt 200, .wire 400 77),
@@ -29367,7 +29367,7 @@ def publicBatchWrapper89.copies814 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26080..26112`. -/
-def publicBatchWrapper89.copies815 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies815 : List (Target × Target) := [
     (.virt 200, .wire 401 37),
     (.wire 401 35, .wire 401 38),
     (.wire 5 31, .wire 401 40),
@@ -29403,7 +29403,7 @@ def publicBatchWrapper89.copies815 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26112..26144`. -/
-def publicBatchWrapper89.copies816 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies816 : List (Target × Target) := [
     (.wire 5 31, .wire 402 0),
     (.virt 705, .wire 402 1),
     (.virt 705, .wire 402 2),
@@ -29439,7 +29439,7 @@ def publicBatchWrapper89.copies816 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26144..26176`. -/
-def publicBatchWrapper89.copies817 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies817 : List (Target × Target) := [
     (.virt 710, .wire 402 42),
     (.wire 5 31, .wire 402 44),
     (.virt 200, .wire 402 45),
@@ -29475,7 +29475,7 @@ def publicBatchWrapper89.copies817 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26176..26208`. -/
-def publicBatchWrapper89.copies818 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies818 : List (Target × Target) := [
     (.virt 200, .wire 403 5),
     (.wire 403 3, .wire 403 6),
     (.wire 5 31, .wire 403 8),
@@ -29511,7 +29511,7 @@ def publicBatchWrapper89.copies818 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26208..26240`. -/
-def publicBatchWrapper89.copies819 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies819 : List (Target × Target) := [
     (.wire 5 31, .wire 403 48),
     (.virt 721, .wire 403 49),
     (.virt 721, .wire 403 50),
@@ -29547,7 +29547,7 @@ def publicBatchWrapper89.copies819 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26240..26272`. -/
-def publicBatchWrapper89.copies820 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies820 : List (Target × Target) := [
     (.virt 726, .wire 404 10),
     (.wire 5 31, .wire 404 12),
     (.virt 200, .wire 404 13),
@@ -29583,7 +29583,7 @@ def publicBatchWrapper89.copies820 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26272..26304`. -/
-def publicBatchWrapper89.copies821 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies821 : List (Target × Target) := [
     (.virt 200, .wire 404 53),
     (.wire 404 51, .wire 404 54),
     (.wire 5 31, .wire 404 56),
@@ -29619,7 +29619,7 @@ def publicBatchWrapper89.copies821 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26304..26336`. -/
-def publicBatchWrapper89.copies822 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies822 : List (Target × Target) := [
     (.wire 5 31, .wire 405 16),
     (.virt 737, .wire 405 17),
     (.virt 737, .wire 405 18),
@@ -29655,7 +29655,7 @@ def publicBatchWrapper89.copies822 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26336..26368`. -/
-def publicBatchWrapper89.copies823 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies823 : List (Target × Target) := [
     (.virt 742, .wire 405 58),
     (.wire 5 31, .wire 405 60),
     (.virt 200, .wire 405 61),
@@ -29691,7 +29691,7 @@ def publicBatchWrapper89.copies823 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26368..26400`. -/
-def publicBatchWrapper89.copies824 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies824 : List (Target × Target) := [
     (.virt 200, .wire 406 21),
     (.wire 406 19, .wire 406 22),
     (.wire 5 31, .wire 406 24),
@@ -29727,7 +29727,7 @@ def publicBatchWrapper89.copies824 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26400..26432`. -/
-def publicBatchWrapper89.copies825 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies825 : List (Target × Target) := [
     (.wire 5 31, .wire 406 64),
     (.virt 753, .wire 406 65),
     (.virt 753, .wire 406 66),
@@ -29763,7 +29763,7 @@ def publicBatchWrapper89.copies825 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26432..26464`. -/
-def publicBatchWrapper89.copies826 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies826 : List (Target × Target) := [
     (.virt 758, .wire 407 26),
     (.wire 5 31, .wire 407 28),
     (.virt 200, .wire 407 29),
@@ -29799,7 +29799,7 @@ def publicBatchWrapper89.copies826 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26464..26496`. -/
-def publicBatchWrapper89.copies827 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies827 : List (Target × Target) := [
     (.virt 200, .wire 407 69),
     (.wire 407 67, .wire 407 70),
     (.wire 5 31, .wire 407 72),
@@ -29835,7 +29835,7 @@ def publicBatchWrapper89.copies827 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26496..26528`. -/
-def publicBatchWrapper89.copies828 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies828 : List (Target × Target) := [
     (.wire 5 31, .wire 408 32),
     (.virt 769, .wire 408 33),
     (.virt 769, .wire 408 34),
@@ -29871,7 +29871,7 @@ def publicBatchWrapper89.copies828 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26528..26560`. -/
-def publicBatchWrapper89.copies829 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies829 : List (Target × Target) := [
     (.virt 814, .wire 408 74),
     (.wire 5 75, .wire 408 76),
     (.virt 200, .wire 408 77),
@@ -29907,7 +29907,7 @@ def publicBatchWrapper89.copies829 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26560..26592`. -/
-def publicBatchWrapper89.copies830 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies830 : List (Target × Target) := [
     (.virt 200, .wire 409 37),
     (.wire 409 35, .wire 409 38),
     (.wire 5 75, .wire 409 40),
@@ -29943,7 +29943,7 @@ def publicBatchWrapper89.copies830 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26592..26624`. -/
-def publicBatchWrapper89.copies831 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies831 : List (Target × Target) := [
     (.wire 5 75, .wire 410 0),
     (.virt 825, .wire 410 1),
     (.virt 825, .wire 410 2),
@@ -29979,7 +29979,7 @@ def publicBatchWrapper89.copies831 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26624..26656`. -/
-def publicBatchWrapper89.copies832 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies832 : List (Target × Target) := [
     (.virt 830, .wire 410 42),
     (.wire 5 75, .wire 410 44),
     (.virt 200, .wire 410 45),
@@ -30015,7 +30015,7 @@ def publicBatchWrapper89.copies832 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26656..26688`. -/
-def publicBatchWrapper89.copies833 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies833 : List (Target × Target) := [
     (.virt 200, .wire 411 5),
     (.wire 411 3, .wire 411 6),
     (.wire 5 75, .wire 411 8),
@@ -30051,7 +30051,7 @@ def publicBatchWrapper89.copies833 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26688..26720`. -/
-def publicBatchWrapper89.copies834 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies834 : List (Target × Target) := [
     (.wire 5 75, .wire 411 48),
     (.virt 841, .wire 411 49),
     (.virt 841, .wire 411 50),
@@ -30087,7 +30087,7 @@ def publicBatchWrapper89.copies834 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26720..26752`. -/
-def publicBatchWrapper89.copies835 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies835 : List (Target × Target) := [
     (.virt 846, .wire 412 10),
     (.wire 5 75, .wire 412 12),
     (.virt 200, .wire 412 13),
@@ -30123,7 +30123,7 @@ def publicBatchWrapper89.copies835 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26752..26784`. -/
-def publicBatchWrapper89.copies836 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies836 : List (Target × Target) := [
     (.virt 200, .wire 412 53),
     (.wire 412 51, .wire 412 54),
     (.wire 5 75, .wire 412 56),
@@ -30159,7 +30159,7 @@ def publicBatchWrapper89.copies836 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26784..26816`. -/
-def publicBatchWrapper89.copies837 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies837 : List (Target × Target) := [
     (.wire 5 75, .wire 413 16),
     (.virt 857, .wire 413 17),
     (.virt 857, .wire 413 18),
@@ -30195,7 +30195,7 @@ def publicBatchWrapper89.copies837 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26816..26848`. -/
-def publicBatchWrapper89.copies838 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies838 : List (Target × Target) := [
     (.virt 862, .wire 413 58),
     (.wire 5 75, .wire 413 60),
     (.virt 200, .wire 413 61),
@@ -30231,7 +30231,7 @@ def publicBatchWrapper89.copies838 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26848..26880`. -/
-def publicBatchWrapper89.copies839 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies839 : List (Target × Target) := [
     (.virt 200, .wire 414 21),
     (.wire 414 19, .wire 414 22),
     (.wire 5 75, .wire 414 24),
@@ -30267,7 +30267,7 @@ def publicBatchWrapper89.copies839 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26880..26912`. -/
-def publicBatchWrapper89.copies840 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies840 : List (Target × Target) := [
     (.wire 5 75, .wire 414 64),
     (.virt 873, .wire 414 65),
     (.virt 873, .wire 414 66),
@@ -30303,7 +30303,7 @@ def publicBatchWrapper89.copies840 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26912..26944`. -/
-def publicBatchWrapper89.copies841 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies841 : List (Target × Target) := [
     (.virt 878, .wire 415 26),
     (.wire 5 75, .wire 415 28),
     (.virt 200, .wire 415 29),
@@ -30339,7 +30339,7 @@ def publicBatchWrapper89.copies841 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26944..26976`. -/
-def publicBatchWrapper89.copies842 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies842 : List (Target × Target) := [
     (.virt 200, .wire 415 69),
     (.wire 415 67, .wire 415 70),
     (.wire 5 75, .wire 415 72),
@@ -30375,7 +30375,7 @@ def publicBatchWrapper89.copies842 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `26976..27008`. -/
-def publicBatchWrapper89.copies843 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies843 : List (Target × Target) := [
     (.wire 5 75, .wire 416 32),
     (.virt 889, .wire 416 33),
     (.virt 889, .wire 416 34),
@@ -30411,7 +30411,7 @@ def publicBatchWrapper89.copies843 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `27008..27040`. -/
-def publicBatchWrapper89.copies844 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies844 : List (Target × Target) := [
     (.virt 894, .wire 416 74),
     (.wire 5 75, .wire 416 76),
     (.virt 200, .wire 416 77),
@@ -30447,7 +30447,7 @@ def publicBatchWrapper89.copies844 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `27040..27072`. -/
-def publicBatchWrapper89.copies845 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies845 : List (Target × Target) := [
     (.virt 200, .wire 417 37),
     (.wire 417 35, .wire 417 38),
     (.wire 5 75, .wire 417 40),
@@ -30483,7 +30483,7 @@ def publicBatchWrapper89.copies845 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `27072..27104`. -/
-def publicBatchWrapper89.copies846 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies846 : List (Target × Target) := [
     (.wire 5 75, .wire 418 0),
     (.virt 905, .wire 418 1),
     (.virt 905, .wire 418 2),
@@ -30519,7 +30519,7 @@ def publicBatchWrapper89.copies846 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `27104..27136`. -/
-def publicBatchWrapper89.copies847 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies847 : List (Target × Target) := [
     (.virt 910, .wire 418 42),
     (.wire 5 75, .wire 418 44),
     (.virt 200, .wire 418 45),
@@ -30555,7 +30555,7 @@ def publicBatchWrapper89.copies847 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `27136..27168`. -/
-def publicBatchWrapper89.copies848 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies848 : List (Target × Target) := [
     (.virt 200, .wire 419 5),
     (.wire 419 3, .wire 419 6),
     (.wire 5 75, .wire 419 8),
@@ -30591,7 +30591,7 @@ def publicBatchWrapper89.copies848 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `27168..27200`. -/
-def publicBatchWrapper89.copies849 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies849 : List (Target × Target) := [
     (.wire 5 75, .wire 419 48),
     (.virt 921, .wire 419 49),
     (.virt 921, .wire 419 50),
@@ -30627,7 +30627,7 @@ def publicBatchWrapper89.copies849 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `27200..27232`. -/
-def publicBatchWrapper89.copies850 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies850 : List (Target × Target) := [
     (.virt 926, .wire 420 10),
     (.wire 5 75, .wire 420 12),
     (.virt 200, .wire 420 13),
@@ -30663,7 +30663,7 @@ def publicBatchWrapper89.copies850 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `27232..27264`. -/
-def publicBatchWrapper89.copies851 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies851 : List (Target × Target) := [
     (.virt 200, .wire 420 53),
     (.wire 420 51, .wire 420 54),
     (.wire 5 75, .wire 420 56),
@@ -30699,7 +30699,7 @@ def publicBatchWrapper89.copies851 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `27264..27296`. -/
-def publicBatchWrapper89.copies852 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies852 : List (Target × Target) := [
     (.wire 5 75, .wire 421 16),
     (.virt 937, .wire 421 17),
     (.virt 937, .wire 421 18),
@@ -30735,7 +30735,7 @@ def publicBatchWrapper89.copies852 : List (Target × Target) := [
   ]
 
 /-- `publicBatchWrapper89.copies`, items `27296..27328`. -/
-def publicBatchWrapper89.copies853 : List (Target × Target) := [
+noncomputable def publicBatchWrapper89.copies853 : List (Target × Target) := [
     (.virt 942, .wire 421 58),
     (.wire 5 75, .wire 421 60),
     (.virt 200, .wire 421 61),
@@ -30768,366 +30768,6 @@ def publicBatchWrapper89.copies853 : List (Target × Target) := [
     (.virt 947, .wire 422 17),
     (.virt 947, .wire 422 18),
     (.wire 5 75, .wire 422 20)
-  ]
-
-/-- `publicBatchWrapper89.copies`, items `27328..27360`. -/
-def publicBatchWrapper89.copies854 : List (Target × Target) := [
-    (.virt 200, .wire 422 21),
-    (.wire 422 19, .wire 422 22),
-    (.wire 5 75, .wire 422 24),
-    (.virt 948, .wire 422 25),
-    (.virt 948, .wire 422 26),
-    (.wire 5 75, .wire 422 28),
-    (.virt 200, .wire 422 29),
-    (.wire 422 27, .wire 422 30),
-    (.wire 5 75, .wire 422 32),
-    (.virt 949, .wire 422 33),
-    (.virt 949, .wire 422 34),
-    (.wire 5 75, .wire 422 36),
-    (.virt 200, .wire 422 37),
-    (.wire 422 35, .wire 422 38),
-    (.wire 5 75, .wire 422 40),
-    (.virt 950, .wire 422 41),
-    (.virt 950, .wire 422 42),
-    (.wire 5 75, .wire 422 44),
-    (.virt 200, .wire 422 45),
-    (.wire 422 43, .wire 422 46),
-    (.wire 5 75, .wire 422 48),
-    (.virt 951, .wire 422 49),
-    (.virt 951, .wire 422 50),
-    (.wire 5 75, .wire 422 52),
-    (.virt 200, .wire 422 53),
-    (.wire 422 51, .wire 422 54),
-    (.wire 5 75, .wire 422 56),
-    (.virt 952, .wire 422 57),
-    (.virt 952, .wire 422 58),
-    (.wire 5 75, .wire 422 60),
-    (.virt 200, .wire 422 61),
-    (.wire 422 59, .wire 422 62)
-  ]
-
-/-- `publicBatchWrapper89.copies`, items `27360..27392`. -/
-def publicBatchWrapper89.copies855 : List (Target × Target) := [
-    (.wire 5 75, .wire 422 64),
-    (.virt 953, .wire 422 65),
-    (.virt 953, .wire 422 66),
-    (.wire 5 75, .wire 422 68),
-    (.virt 200, .wire 422 69),
-    (.wire 422 67, .wire 422 70),
-    (.wire 5 75, .wire 422 72),
-    (.virt 954, .wire 422 73),
-    (.virt 954, .wire 422 74),
-    (.wire 5 75, .wire 422 76),
-    (.virt 200, .wire 422 77),
-    (.wire 422 75, .wire 422 78),
-    (.wire 5 75, .wire 423 0),
-    (.virt 955, .wire 423 1),
-    (.virt 955, .wire 423 2),
-    (.wire 5 75, .wire 423 4),
-    (.virt 200, .wire 423 5),
-    (.wire 423 3, .wire 423 6),
-    (.wire 5 75, .wire 423 8),
-    (.virt 956, .wire 423 9),
-    (.virt 956, .wire 423 10),
-    (.wire 5 75, .wire 423 12),
-    (.virt 200, .wire 423 13),
-    (.wire 423 11, .wire 423 14),
-    (.wire 5 75, .wire 423 16),
-    (.virt 957, .wire 423 17),
-    (.virt 957, .wire 423 18),
-    (.wire 5 75, .wire 423 20),
-    (.virt 200, .wire 423 21),
-    (.wire 423 19, .wire 423 22),
-    (.wire 5 75, .wire 423 24),
-    (.virt 958, .wire 423 25)
-  ]
-
-/-- `publicBatchWrapper89.copies`, items `27392..27424`. -/
-def publicBatchWrapper89.copies856 : List (Target × Target) := [
-    (.virt 958, .wire 423 26),
-    (.wire 5 75, .wire 423 28),
-    (.virt 200, .wire 423 29),
-    (.wire 423 27, .wire 423 30),
-    (.wire 5 75, .wire 423 32),
-    (.virt 959, .wire 423 33),
-    (.virt 959, .wire 423 34),
-    (.wire 5 75, .wire 423 36),
-    (.virt 200, .wire 423 37),
-    (.wire 423 35, .wire 423 38),
-    (.wire 5 75, .wire 423 40),
-    (.virt 960, .wire 423 41),
-    (.virt 960, .wire 423 42),
-    (.wire 5 75, .wire 423 44),
-    (.virt 200, .wire 423 45),
-    (.wire 423 43, .wire 423 46),
-    (.wire 5 75, .wire 423 48),
-    (.virt 961, .wire 423 49),
-    (.virt 961, .wire 423 50),
-    (.wire 5 75, .wire 423 52),
-    (.virt 200, .wire 423 53),
-    (.wire 423 51, .wire 423 54),
-    (.wire 5 75, .wire 423 56),
-    (.virt 962, .wire 423 57),
-    (.virt 962, .wire 423 58),
-    (.wire 5 75, .wire 423 60),
-    (.virt 200, .wire 423 61),
-    (.wire 423 59, .wire 423 62),
-    (.wire 5 75, .wire 423 64),
-    (.virt 963, .wire 423 65),
-    (.virt 963, .wire 423 66),
-    (.wire 5 75, .wire 423 68)
-  ]
-
-/-- `publicBatchWrapper89.copies`, items `27424..27456`. -/
-def publicBatchWrapper89.copies857 : List (Target × Target) := [
-    (.virt 200, .wire 423 69),
-    (.wire 423 67, .wire 423 70),
-    (.wire 5 75, .wire 423 72),
-    (.virt 964, .wire 423 73),
-    (.virt 964, .wire 423 74),
-    (.wire 5 75, .wire 423 76),
-    (.virt 200, .wire 423 77),
-    (.wire 423 75, .wire 423 78),
-    (.wire 5 75, .wire 424 0),
-    (.virt 965, .wire 424 1),
-    (.virt 965, .wire 424 2),
-    (.wire 5 75, .wire 424 4),
-    (.virt 200, .wire 424 5),
-    (.wire 424 3, .wire 424 6),
-    (.wire 5 75, .wire 424 8),
-    (.virt 966, .wire 424 9),
-    (.virt 966, .wire 424 10),
-    (.wire 5 75, .wire 424 12),
-    (.virt 200, .wire 424 13),
-    (.wire 424 11, .wire 424 14),
-    (.wire 5 75, .wire 424 16),
-    (.virt 967, .wire 424 17),
-    (.virt 967, .wire 424 18),
-    (.wire 5 75, .wire 424 20),
-    (.virt 200, .wire 424 21),
-    (.wire 424 19, .wire 424 22),
-    (.wire 5 75, .wire 424 24),
-    (.virt 968, .wire 424 25),
-    (.virt 968, .wire 424 26),
-    (.wire 5 75, .wire 424 28),
-    (.virt 200, .wire 424 29),
-    (.wire 424 27, .wire 424 30)
-  ]
-
-/-- `publicBatchWrapper89.copies`, items `27456..27488`. -/
-def publicBatchWrapper89.copies858 : List (Target × Target) := [
-    (.wire 5 75, .wire 424 32),
-    (.virt 969, .wire 424 33),
-    (.virt 969, .wire 424 34),
-    (.wire 5 75, .wire 424 36),
-    (.virt 200, .wire 424 37),
-    (.wire 424 35, .wire 424 38),
-    (.wire 7 39, .wire 424 40),
-    (.virt 1010, .wire 424 41),
-    (.virt 1010, .wire 424 42),
-    (.wire 7 39, .wire 424 44),
-    (.virt 200, .wire 424 45),
-    (.wire 424 43, .wire 424 46),
-    (.wire 7 39, .wire 424 48),
-    (.virt 1011, .wire 424 49),
-    (.virt 1011, .wire 424 50),
-    (.wire 7 39, .wire 424 52),
-    (.virt 200, .wire 424 53),
-    (.wire 424 51, .wire 424 54),
-    (.wire 7 39, .wire 424 56),
-    (.virt 1012, .wire 424 57),
-    (.virt 1012, .wire 424 58),
-    (.wire 7 39, .wire 424 60),
-    (.virt 200, .wire 424 61),
-    (.wire 424 59, .wire 424 62),
-    (.wire 7 39, .wire 424 64),
-    (.virt 1013, .wire 424 65),
-    (.virt 1013, .wire 424 66),
-    (.wire 7 39, .wire 424 68),
-    (.virt 200, .wire 424 69),
-    (.wire 424 67, .wire 424 70),
-    (.wire 7 39, .wire 424 72),
-    (.virt 1014, .wire 424 73)
-  ]
-
-/-- `publicBatchWrapper89.copies`, items `27488..27520`. -/
-def publicBatchWrapper89.copies859 : List (Target × Target) := [
-    (.virt 1014, .wire 424 74),
-    (.wire 7 39, .wire 424 76),
-    (.virt 200, .wire 424 77),
-    (.wire 424 75, .wire 424 78),
-    (.wire 7 39, .wire 425 0),
-    (.virt 1015, .wire 425 1),
-    (.virt 1015, .wire 425 2),
-    (.wire 7 39, .wire 425 4),
-    (.virt 200, .wire 425 5),
-    (.wire 425 3, .wire 425 6),
-    (.wire 7 39, .wire 425 8),
-    (.virt 1016, .wire 425 9),
-    (.virt 1016, .wire 425 10),
-    (.wire 7 39, .wire 425 12),
-    (.virt 200, .wire 425 13),
-    (.wire 425 11, .wire 425 14),
-    (.wire 7 39, .wire 425 16),
-    (.virt 1017, .wire 425 17),
-    (.virt 1017, .wire 425 18),
-    (.wire 7 39, .wire 425 20),
-    (.virt 200, .wire 425 21),
-    (.wire 425 19, .wire 425 22),
-    (.wire 7 39, .wire 425 24),
-    (.virt 1018, .wire 425 25),
-    (.virt 1018, .wire 425 26),
-    (.wire 7 39, .wire 425 28),
-    (.virt 200, .wire 425 29),
-    (.wire 425 27, .wire 425 30),
-    (.wire 7 39, .wire 425 32),
-    (.virt 1019, .wire 425 33),
-    (.virt 1019, .wire 425 34),
-    (.wire 7 39, .wire 425 36)
-  ]
-
-/-- `publicBatchWrapper89.copies`, items `27520..27552`. -/
-def publicBatchWrapper89.copies860 : List (Target × Target) := [
-    (.virt 200, .wire 425 37),
-    (.wire 425 35, .wire 425 38),
-    (.wire 7 39, .wire 425 40),
-    (.virt 1020, .wire 425 41),
-    (.virt 1020, .wire 425 42),
-    (.wire 7 39, .wire 425 44),
-    (.virt 200, .wire 425 45),
-    (.wire 425 43, .wire 425 46),
-    (.wire 7 39, .wire 425 48),
-    (.virt 1021, .wire 425 49),
-    (.virt 1021, .wire 425 50),
-    (.wire 7 39, .wire 425 52),
-    (.virt 200, .wire 425 53),
-    (.wire 425 51, .wire 425 54),
-    (.wire 7 39, .wire 425 56),
-    (.virt 1022, .wire 425 57),
-    (.virt 1022, .wire 425 58),
-    (.wire 7 39, .wire 425 60),
-    (.virt 200, .wire 425 61),
-    (.wire 425 59, .wire 425 62),
-    (.wire 7 39, .wire 425 64),
-    (.virt 1023, .wire 425 65),
-    (.virt 1023, .wire 425 66),
-    (.wire 7 39, .wire 425 68),
-    (.virt 200, .wire 425 69),
-    (.wire 425 67, .wire 425 70),
-    (.wire 7 39, .wire 425 72),
-    (.virt 1024, .wire 425 73),
-    (.virt 1024, .wire 425 74),
-    (.wire 7 39, .wire 425 76),
-    (.virt 200, .wire 425 77),
-    (.wire 425 75, .wire 425 78)
-  ]
-
-/-- `publicBatchWrapper89.copies`, items `27552..27584`. -/
-def publicBatchWrapper89.copies861 : List (Target × Target) := [
-    (.wire 7 39, .wire 426 0),
-    (.virt 1025, .wire 426 1),
-    (.virt 1025, .wire 426 2),
-    (.wire 7 39, .wire 426 4),
-    (.virt 200, .wire 426 5),
-    (.wire 426 3, .wire 426 6),
-    (.wire 7 39, .wire 426 8),
-    (.virt 1026, .wire 426 9),
-    (.virt 1026, .wire 426 10),
-    (.wire 7 39, .wire 426 12),
-    (.virt 200, .wire 426 13),
-    (.wire 426 11, .wire 426 14),
-    (.wire 7 39, .wire 426 16),
-    (.virt 1027, .wire 426 17),
-    (.virt 1027, .wire 426 18),
-    (.wire 7 39, .wire 426 20),
-    (.virt 200, .wire 426 21),
-    (.wire 426 19, .wire 426 22),
-    (.wire 7 39, .wire 426 24),
-    (.virt 1028, .wire 426 25),
-    (.virt 1028, .wire 426 26),
-    (.wire 7 39, .wire 426 28),
-    (.virt 200, .wire 426 29),
-    (.wire 426 27, .wire 426 30),
-    (.wire 7 39, .wire 426 32),
-    (.virt 1029, .wire 426 33),
-    (.virt 1029, .wire 426 34),
-    (.wire 7 39, .wire 426 36),
-    (.virt 200, .wire 426 37),
-    (.wire 426 35, .wire 426 38),
-    (.wire 7 39, .wire 426 40),
-    (.virt 1030, .wire 426 41)
-  ]
-
-/-- `publicBatchWrapper89.copies`, items `27584..27616`. -/
-def publicBatchWrapper89.copies862 : List (Target × Target) := [
-    (.virt 1030, .wire 426 42),
-    (.wire 7 39, .wire 426 44),
-    (.virt 200, .wire 426 45),
-    (.wire 426 43, .wire 426 46),
-    (.wire 7 39, .wire 426 48),
-    (.virt 1031, .wire 426 49),
-    (.virt 1031, .wire 426 50),
-    (.wire 7 39, .wire 426 52),
-    (.virt 200, .wire 426 53),
-    (.wire 426 51, .wire 426 54),
-    (.wire 7 39, .wire 426 56),
-    (.virt 1032, .wire 426 57),
-    (.virt 1032, .wire 426 58),
-    (.wire 7 39, .wire 426 60),
-    (.virt 200, .wire 426 61),
-    (.wire 426 59, .wire 426 62),
-    (.wire 7 39, .wire 426 64),
-    (.virt 1033, .wire 426 65),
-    (.virt 1033, .wire 426 66),
-    (.wire 7 39, .wire 426 68),
-    (.virt 200, .wire 426 69),
-    (.wire 426 67, .wire 426 70),
-    (.wire 7 39, .wire 426 72),
-    (.virt 1034, .wire 426 73),
-    (.virt 1034, .wire 426 74),
-    (.wire 7 39, .wire 426 76),
-    (.virt 200, .wire 426 77),
-    (.wire 426 75, .wire 426 78),
-    (.wire 7 39, .wire 427 0),
-    (.virt 1035, .wire 427 1),
-    (.virt 1035, .wire 427 2),
-    (.wire 7 39, .wire 427 4)
-  ]
-
-/-- `publicBatchWrapper89.copies`, items `27616..27648`. -/
-def publicBatchWrapper89.copies863 : List (Target × Target) := [
-    (.virt 200, .wire 427 5),
-    (.wire 427 3, .wire 427 6),
-    (.wire 7 39, .wire 427 8),
-    (.virt 1036, .wire 427 9),
-    (.virt 1036, .wire 427 10),
-    (.wire 7 39, .wire 427 12),
-    (.virt 200, .wire 427 13),
-    (.wire 427 11, .wire 427 14),
-    (.wire 7 39, .wire 427 16),
-    (.virt 1037, .wire 427 17),
-    (.virt 1037, .wire 427 18),
-    (.wire 7 39, .wire 427 20),
-    (.virt 200, .wire 427 21),
-    (.wire 427 19, .wire 427 22),
-    (.wire 7 39, .wire 427 24),
-    (.virt 1038, .wire 427 25),
-    (.virt 1038, .wire 427 26),
-    (.wire 7 39, .wire 427 28),
-    (.virt 200, .wire 427 29),
-    (.wire 427 27, .wire 427 30),
-    (.wire 7 39, .wire 427 32),
-    (.virt 1039, .wire 427 33),
-    (.virt 1039, .wire 427 34),
-    (.wire 7 39, .wire 427 36),
-    (.virt 200, .wire 427 37),
-    (.wire 427 35, .wire 427 38),
-    (.wire 7 39, .wire 427 40),
-    (.virt 1040, .wire 427 41),
-    (.virt 1040, .wire 427 42),
-    (.wire 7 39, .wire 427 44),
-    (.virt 200, .wire 427 45),
-    (.wire 427 43, .wire 427 46)
   ]
 
 end Plonky2Spec.Generated
