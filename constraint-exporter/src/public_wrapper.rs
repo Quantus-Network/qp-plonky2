@@ -956,7 +956,7 @@ pub fn render(shape: &Shape) -> String {
         w!("  {obtain}");
         w!("  {hd}");
         if !slot_rules.is_empty() {
-            w!("  rw [{}]", slot_rules.join(", "));
+            w!("  simp only [{}]", slot_rules.join(", "));
         }
         w!("  rw [kzero, hd]");
         w!("  rfl");
@@ -970,7 +970,7 @@ pub fn render(shape: &Shape) -> String {
         w!("  {obtain}");
         w!("  {hd}");
         if !null_rules.is_empty() {
-            w!("  rw [{}]", null_rules.join(", "));
+            w!("  simp only [{}]", null_rules.join(", "));
         }
         w!("  rw [kzero, hd]");
         w!("  rfl");
@@ -1317,14 +1317,14 @@ pub fn render(shape: &Shape) -> String {
     w!("    (out a).exitSlots = (forwardedSlotsF (rows a)).map valSlot := by");
     w!("  simp only [out, forwardedSlotsF, rows, List.map_cons, List.map_nil,");
     w!("    List.flatten_cons, List.flatten_nil]");
-    w!("  rw [{}]", exit_eqs.join(", "));
+    w!("  simp only [{}]", exit_eqs.join(", "));
     w!("  rfl");
     w!("");
     w!("theorem nullFwd (a : Assignment p) (h : Satisfies ({circuit} p) a) :");
     w!("    (out a).nullifiers = (forwardedNullsF (rows a)).map valDigest := by");
     w!("  simp only [out, forwardedNullsF, rows, List.map_cons, List.map_nil,");
     w!("    List.flatten_cons, List.flatten_nil]");
-    w!("  rw [{}]", null_eqs.join(", "));
+    w!("  simp only [{}]", null_eqs.join(", "));
     w!("  rfl");
     w!("");
     if shape.calls.len() > 1000 {

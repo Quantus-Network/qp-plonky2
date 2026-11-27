@@ -136,7 +136,7 @@ theorem exitChunk_eq_0 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p)
   unfold exitChunk
   obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
   have hd : a (.wire 3 11) = (row a 0).isDummy := by rw [(publicBatchWrapper2_f8 a h), (publicBatchWrapper2_f6 a h), (publicBatchWrapper2_f7 a h)]; rfl
-  rw [(publicBatchWrapper2_f68 a h), (publicBatchWrapper2_f69 a h), (publicBatchWrapper2_f70 a h), (publicBatchWrapper2_f71 a h), (publicBatchWrapper2_f72 a h), (publicBatchWrapper2_f73 a h), (publicBatchWrapper2_f74 a h), (publicBatchWrapper2_f75 a h), (publicBatchWrapper2_f76 a h), (publicBatchWrapper2_f77 a h)]
+  simp only [(publicBatchWrapper2_f68 a h), (publicBatchWrapper2_f69 a h), (publicBatchWrapper2_f70 a h), (publicBatchWrapper2_f71 a h), (publicBatchWrapper2_f72 a h), (publicBatchWrapper2_f73 a h), (publicBatchWrapper2_f74 a h), (publicBatchWrapper2_f75 a h), (publicBatchWrapper2_f76 a h), (publicBatchWrapper2_f77 a h)]
   rw [kzero, hd]
   rfl
 
@@ -145,7 +145,7 @@ theorem nullChunk_eq_0 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p)
   unfold nullChunk
   obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
   have hd : a (.wire 3 11) = (row a 0).isDummy := by rw [(publicBatchWrapper2_f8 a h), (publicBatchWrapper2_f6 a h), (publicBatchWrapper2_f7 a h)]; rfl
-  rw [(publicBatchWrapper2_f88 a h), (publicBatchWrapper2_f89 a h), (publicBatchWrapper2_f90 a h), (publicBatchWrapper2_f91 a h), (publicBatchWrapper2_f92 a h), (publicBatchWrapper2_f93 a h), (publicBatchWrapper2_f94 a h), (publicBatchWrapper2_f95 a h)]
+  simp only [(publicBatchWrapper2_f88 a h), (publicBatchWrapper2_f89 a h), (publicBatchWrapper2_f90 a h), (publicBatchWrapper2_f91 a h), (publicBatchWrapper2_f92 a h), (publicBatchWrapper2_f93 a h), (publicBatchWrapper2_f94 a h), (publicBatchWrapper2_f95 a h)]
   rw [kzero, hd]
   rfl
 
@@ -154,7 +154,7 @@ theorem exitChunk_eq_1 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p)
   unfold exitChunk
   obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
   have hd : a (.wire 3 55) = (row a 1).isDummy := by rw [(publicBatchWrapper2_f15 a h), (publicBatchWrapper2_f13 a h), (publicBatchWrapper2_f14 a h)]; rfl
-  rw [(publicBatchWrapper2_f78 a h), (publicBatchWrapper2_f79 a h), (publicBatchWrapper2_f80 a h), (publicBatchWrapper2_f81 a h), (publicBatchWrapper2_f82 a h), (publicBatchWrapper2_f83 a h), (publicBatchWrapper2_f84 a h), (publicBatchWrapper2_f85 a h), (publicBatchWrapper2_f86 a h), (publicBatchWrapper2_f87 a h)]
+  simp only [(publicBatchWrapper2_f78 a h), (publicBatchWrapper2_f79 a h), (publicBatchWrapper2_f80 a h), (publicBatchWrapper2_f81 a h), (publicBatchWrapper2_f82 a h), (publicBatchWrapper2_f83 a h), (publicBatchWrapper2_f84 a h), (publicBatchWrapper2_f85 a h), (publicBatchWrapper2_f86 a h), (publicBatchWrapper2_f87 a h)]
   rw [kzero, hd]
   rfl
 
@@ -163,7 +163,7 @@ theorem nullChunk_eq_1 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p)
   unfold nullChunk
   obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
   have hd : a (.wire 3 55) = (row a 1).isDummy := by rw [(publicBatchWrapper2_f15 a h), (publicBatchWrapper2_f13 a h), (publicBatchWrapper2_f14 a h)]; rfl
-  rw [(publicBatchWrapper2_f96 a h), (publicBatchWrapper2_f97 a h), (publicBatchWrapper2_f98 a h), (publicBatchWrapper2_f99 a h), (publicBatchWrapper2_f100 a h), (publicBatchWrapper2_f101 a h), (publicBatchWrapper2_f102 a h), (publicBatchWrapper2_f103 a h)]
+  simp only [(publicBatchWrapper2_f96 a h), (publicBatchWrapper2_f97 a h), (publicBatchWrapper2_f98 a h), (publicBatchWrapper2_f99 a h), (publicBatchWrapper2_f100 a h), (publicBatchWrapper2_f101 a h), (publicBatchWrapper2_f102 a h), (publicBatchWrapper2_f103 a h)]
   rw [kzero, hd]
   rfl
 
@@ -467,14 +467,14 @@ theorem exitFwd (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
     (out a).exitSlots = (forwardedSlotsF (rows a)).map valSlot := by
   simp only [out, forwardedSlotsF, rows, List.map_cons, List.map_nil,
     List.flatten_cons, List.flatten_nil]
-  rw [exitChunk_eq_0 a h, exitChunk_eq_1 a h]
+  simp only [exitChunk_eq_0 a h, exitChunk_eq_1 a h]
   rfl
 
 theorem nullFwd (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
     (out a).nullifiers = (forwardedNullsF (rows a)).map valDigest := by
   simp only [out, forwardedNullsF, rows, List.map_cons, List.map_nil,
     List.flatten_cons, List.flatten_nil]
-  rw [nullChunk_eq_0 a h, nullChunk_eq_1 a h]
+  simp only [nullChunk_eq_0 a h, nullChunk_eq_1 a h]
   rfl
 
 /-- **The recorded public-batch wrapper satisfies `RPublicBatch`.** Every satisfying
