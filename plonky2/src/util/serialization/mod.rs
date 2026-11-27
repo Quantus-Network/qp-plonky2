@@ -64,7 +64,7 @@ pub type IoResult<T> = Result<T, IoError>;
 
 /// `IoError` carries no message, so the reason a decoded value was rejected is logged instead.
 fn rejected(reason: &'static str) -> IoError {
-    log::warn!("rejected deserialized circuit data: {reason}");
+    log::warn!("rejected deserialized data: {reason}");
     IoError
 }
 
@@ -185,7 +185,8 @@ pub trait Read {
     {
         let mut buf = [0; size_of::<u64>()];
         self.read_exact(&mut buf)?;
-        F::try_from_canonical_u64(u64::from_le_bytes(buf)).ok_or(IoError)
+        F::try_from_canonical_u64(u64::from_le_bytes(buf))
+            .ok_or_else(|| rejected("non-canonical field element"))
     }
 
     /// Reads a vector of elements from the field `F` from `self`.
@@ -297,7 +298,7 @@ pub trait Read {
     {
         let mut buf = vec![0; H::HASH_SIZE];
         self.read_exact(&mut buf)?;
-        H::Hash::from_bytes(&buf).ok_or(IoError)
+        H::Hash::from_bytes(&buf).ok_or_else(|| rejected("non-canonical hash"))
     }
 
     /// Reads a HashOutTarget value from `self`.
@@ -815,7 +816,7 @@ pub trait Read {
                 .last_key_value()
                 .is_some_and(|(last, _)| *last >= key)
             {
-                return Err(IoError);
+                return Err(rejected("generator watch keys out of order"));
             }
             generator_indices_by_watches.insert(key, self.read_usize_vec()?);
         }
@@ -1862,7 +1863,7 @@ impl<'a> Buffer<'a> {
         if buffer.is_empty() {
             Ok(value)
         } else {
-            Err(IoError)
+            Err(rejected("trailing bytes"))
         }
     }
 }
