@@ -16,13 +16,13 @@ namespace Plonky2Bridge
 /-- `wormhole_leaf_circuit_config` (`qp-zk-circuits/common/src/circuit.rs`), as the traces
     `leaf_circuit` record. -/
 def leafFri : FriQueryParams where
-  rateBits := 6
-  numQueries := 19
+  rateBits := 7
+  numQueries := 16
   proofOfWorkBits := 16
 
-example : friQueryBits leafFri = 114 := rfl
-example : friJohnsonQueryBits leafFri = 57 := rfl
-example : friConjecturedBits leafFri = 130 := rfl
+example : friQueryBits leafFri = 112 := rfl
+example : friJohnsonQueryBits leafFri = 56 := rfl
+example : friConjecturedBits leafFri = 128 := rfl
 
 /-- `wormhole_private_batch_circuit_config` (`qp-zk-circuits/common/src/circuit.rs`), as the traces
     `private_batch_wrapper_n2`, `private_batch_wrapper_n4`, `private_batch_wrapper_n8` record. -/
@@ -36,7 +36,7 @@ example : friJohnsonQueryBits privateBatchFri = 54 := rfl
 example : friConjecturedBits privateBatchFri = 128 := rfl
 
 /-- `wormhole_public_batch_circuit_config` (`qp-zk-circuits/common/src/circuit.rs`), as the traces
-    `public_batch_wrapper_n2`, `public_batch_wrapper_n4`, `public_batch_wrapper_n89` record. -/
+    `public_batch_wrapper_n2`, `public_batch_wrapper_n4`, `public_batch_wrapper_n86` record. -/
 def publicBatchFri : FriQueryParams where
   rateBits := 3
   numQueries := 36

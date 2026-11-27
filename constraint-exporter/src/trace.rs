@@ -652,7 +652,7 @@ const FRI_FAMILIES: [(&str, &str, &[&str]); 3] = [
         &[
             "public_batch_wrapper_n2",
             "public_batch_wrapper_n4",
-            "public_batch_wrapper_n89",
+            "public_batch_wrapper_n86",
         ],
     ),
 ];

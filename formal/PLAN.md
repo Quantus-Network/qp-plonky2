@@ -1536,7 +1536,7 @@ meantime. Nothing in the axiom's statement changes: it is an implication on the 
 
 - **Pins.** `Generated/FriParams.lean` (exporter: `generate_fri_params_lean`) reads each
   family's `FriConfig` off its traces, checks the sizes agree, and defines `leafFri`
-  (`6, 19, 16`), `privateBatchFri` and `publicBatchFri` (`3, 36, 20`) as
+  (`7, 16, 16`), `privateBatchFri` and `publicBatchFri` (`3, 36, 20`) as
   `FriQueryParams`, with the three exponents as `rfl` checks. `friJohnsonQueryBits`
   (`numQueries * rateBits / 2`) joins `friQueryBits` and `friConjecturedBits` in
   `Trusted.lean`; `standardRecursionFri` stays as plonky2's default, for comparison.
@@ -1553,15 +1553,15 @@ meantime. Nothing in the axiom's statement changes: it is an implication on the 
 
   | circuit | `friQueryBits` (+ grinding) | revised conjecture (+ grinding) | `friJohnsonQueryBits` (+ grinding) |
   |---|---|---|---|
-  | leaf (`1/64`, 19, 16) | 114 (130) | ≈ 95–104 (111–120) | 57 (73), ≈ 56 after commit-phase error |
+  | leaf (`1/128`, 16, 16) | 112 (128) | ≈ 93–102 (109–118) | 56 (72), ≈ 55 after commit-phase error |
   | private batch (`1/8`, 36, 20) | 108 (128) | ≈ 90–98 (110–118) | 54 (74), ≈ 52 |
   | public batch (`1/8`, 36, 20) | 108 (128) | ≈ 90–98 (110–118) | 54 (74), ≈ 51 |
 
   These are the FRI term alone. The sampling terms before it are not reached by
   grinding (`get_challenges` draws `β, γ, α` before the proof of work, and the sampling
   error in `Trusted.lean` is stated independently of it): `β, γ` are base-field
-  challenges, `≈ (rows · routedWires / 2^{64})^{numChallenges}`, which at the deployed
-  `num_challenges = 2` is `2^{-100}` on the leaf, `2^{-86}` on the private batch and
+  challenges, `≈ (rows · routedWires / 2^{64})^{numChallenges}`, which at the
+  pre-#219 `num_challenges = 2` is `2^{-100}` on the leaf, `2^{-86}` on the private batch and
   `2^{-77}` on the production public batch (`(2^{19} · 80 / 2^{64})^2`); `ζ` in `F^2`
   is `≈ 2^{-106}` there and cannot move; the proof-system hash is `128` bits. Errors
   add, so the system's soundness is the minimum over all of them: about `77` bits on
@@ -1571,12 +1571,12 @@ meantime. Nothing in the axiom's statement changes: it is an implication on the 
   Fiat–Shamir challenges as well as the grinding (Block et al., "Fiat-Shamir Security
   of FRI", ePrint 2023/1071, Cor. 4.3). More FRI queries alone therefore restore
   nothing above `77`;
-  qp-zk-circuits#219 raises `num_challenges` to `3` on the leaf and private batch and
-  `4` on the public batch (`150`, `129`, `152` bits), after which the public batch is
+  qp-zk-circuits#219 (the traces vendored here) raises `num_challenges` to `3` on all
+  three (`150`, `129`, `116` bits), after which the public batch is
   capped by `ζ` at `≈ 106` under either conjecture (the revised FRI term, `110`–`118`,
   sits above it; `ζ` is sampled before the proof of work too). Under the revised
   conjecture `128` on the FRI term alone would take about `42` queries on the wrappers
-  and `21` on the leaf; proved, about `72` and `37`. Parameter changes are
+  and `19` on the leaf; proved, about `72` and `32`. Parameter changes are
   qp-zk-circuits decisions; this step records the accounting.
 - **Axiom gate.** Unchanged; `FriParams` is a root of `Plonky2Bridge` so its `rfl`
   checks build.

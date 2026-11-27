@@ -1091,10 +1091,10 @@ axiom poseidon_transcript_oracle (perm : St p → St p) (tag : String) (c : Circ
     circuit whose verifier accepted, not a property of either hash. What is proved
     (BCIKS'20, ePrint 2025/2055) reaches the Johnson radius `1 − √ρ`: a query then
     fails with probability at most `√ρ`, so the query exponent is `friJohnsonQueryBits`
-    — `54` for the batch wrappers (`36` queries at rate `1/8`), `57` for the leaf (`19`
-    at `1/64`), less a few bits of commit-phase error on the larger domains. The
+    — `54` for the batch wrappers (`36` queries at rate `1/8`), `56` for the leaf (`16`
+    at `1/128`), less a few bits of commit-phase error on the larger domains. The
     `security_bits = 128` of the deployed configs counted `friQueryBits` instead
-    (`108` and `114`), a query failing with probability at most `ρ`, which is the
+    (`108` and `112`), a query failing with probability at most `ρ`, which is the
     capacity conjecture of ethSTARK and BCIKS'20. That conjecture is refuted
     (Crites–Stewart, ePrint 2025/2046; Krachun–Kazanin–Haböck, ePrint 2026/782, on
     FRI's own domains); its replacement (S-two, ePrint 2026/532) yields some
