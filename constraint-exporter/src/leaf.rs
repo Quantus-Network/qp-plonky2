@@ -892,7 +892,7 @@ pub fn render(shape: &Shape, t: &LoadedTrace) -> String {
     w!("/-! ### Reading the spec objects off the wiring -/");
     w!("");
     w!("/-- The leaf public inputs, decoded through `.val`. -/");
-    w!("def pub (a : Assignment p) : LeafPublic :=");
+    w!("noncomputable def pub (a : Assignment p) : LeafPublic :=");
     w!("  {{ assetId := {},", val(pis[layout::ASSET_ID]));
     w!(
         "    nullifier := {},",
@@ -910,7 +910,7 @@ pub fn render(shape: &Shape, t: &LoadedTrace) -> String {
     w!("");
     w!("/-- The sixteen recorded Merkle levels: position hint and the three sibling digests");
     w!("    (`positions`, `siblings_i`). -/");
-    w!("def levels (a : Assignment p) : List MerkleLevel :=");
+    w!("noncomputable def levels (a : Assignment p) : List MerkleLevel :=");
     w!(
         "  [{}]",
         (0..MAX_DEPTH)
@@ -921,7 +921,7 @@ pub fn render(shape: &Shape, t: &LoadedTrace) -> String {
     w!("");
     w!("/-- The leaf witness, decoded through `.val`: the named witness targets, the block-header");
     w!("    fields and the first `depth` recorded levels. -/");
-    w!("def wit (a : Assignment p) : LeafWitness :=");
+    w!("noncomputable def wit (a : Assignment p) : LeafWitness :=");
     w!("  {{ secret := {},", d4(&shape.secret));
     w!(
         "    transferCount := [{}, {}],",
@@ -1248,7 +1248,10 @@ pub fn render(shape: &Shape, t: &LoadedTrace) -> String {
     w!("/-! ### The leaf as a recursion-tree node (PLAN.md Step 10) -/");
     w!("");
     w!("/-- The 11 public inputs in registration order. -/");
-    w!("def pi : Fin {} → Target :=", layout::LEAF_PI_LEN);
+    w!(
+        "noncomputable def pi : Fin {} → Target :=",
+        layout::LEAF_PI_LEN
+    );
     let pi_items: Vec<String> = pis.iter().map(|&t| lean_target(t)).collect();
     w!("  ![{}]", pi_items.join(", "));
     w!("");
@@ -1257,7 +1260,7 @@ pub fn render(shape: &Shape, t: &LoadedTrace) -> String {
     w!("");
     w!("/-- `pub` as a function of the public-input values alone. -/");
     w!(
-        "def pubOf (v : Fin {} → ZMod p) : LeafPublic :=",
+        "noncomputable def pubOf (v : Fin {} → ZMod p) : LeafPublic :=",
         layout::LEAF_PI_LEN
     );
     let v = |k: usize| format!("(v {k}).val");

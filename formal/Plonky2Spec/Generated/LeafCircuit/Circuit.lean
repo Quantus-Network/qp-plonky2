@@ -30,7 +30,7 @@ set_option Elab.async false
 variable {p : ℕ} [Fact p.Prime]
 
 /-- The wormhole leaf circuit (`wormhole/circuit/src/circuit.rs`): the unspendable account, the zk-tree Merkle proof, the block header and the shared-target wiring with the nullifier and block-hash bindings, on the witness targets `secret`, `transfer_count`, `to_account`, `account_id`, `root_hash`, `depth`, `positions`, `is_not_dummy`, `siblings_0..15` and the header fields. -/
-def leafCircuit (p : ℕ) : Circuit p where
+noncomputable def leafCircuit (p : ℕ) : Circuit p where
   rows := [
     ⟨.arithmetic 15, [1, (-1)]⟩,  -- row 0
     ⟨.poseidon2, []⟩,  -- row 1

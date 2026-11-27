@@ -22,7 +22,7 @@ set_option linter.all false
 variable {p : ℕ} [Fact p.Prime]
 
 /-- Builder folding and re-pinning edge cases: `sum = add x y; connect sum zero`, `is_equal zero zero`, `is_equal one zero`, `is_equal x x`, `eq_xy = is_equal x y; diff = sub x y; check = mul eq_xy diff; connect check zero`; public inputs the four `equal` targets. -/
-def gadgetEdgeCases (p : ℕ) : Circuit p where
+noncomputable def gadgetEdgeCases (p : ℕ) : Circuit p where
   rows := [
     ⟨.arithmetic 20, [1, 1]⟩,  -- row 0
     ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 1
@@ -131,7 +131,7 @@ def gadgetEdgeCases.check : Target := .wire 2 11
 
 /-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
     name and the targets carrying its public inputs (`Recursive.children`). -/
-def gadgetEdgeCases.verifiers : List (String × List Target) :=
+noncomputable def gadgetEdgeCases.verifiers : List (String × List Target) :=
   []
 
 theorem gadgetEdgeCases_copies (a : Assignment p) (h : Satisfies (gadgetEdgeCases p) a) :
@@ -139,6 +139,12 @@ theorem gadgetEdgeCases_copies (a : Assignment p) (h : Satisfies (gadgetEdgeCase
   have hc := h.2.1
   simp only [gadgetEdgeCases, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
+
+theorem gadgetEdgeCases_row0 : (gadgetEdgeCases p).rows[0]? = some ⟨.arithmetic 20, [1, 1]⟩ := rfl
+
+theorem gadgetEdgeCases_row1 : (gadgetEdgeCases p).rows[1]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem gadgetEdgeCases_row2 : (gadgetEdgeCases p).rows[2]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
 
 theorem gadgetEdgeCases_consts (a : Assignment p) (h : Satisfies (gadgetEdgeCases p) a) :
     (a (.virt 2) = 0 ∧ a (.virt 3) = 1) := by
@@ -153,7 +159,7 @@ theorem gadgetEdgeCases_f0 (a : Assignment p) (h : Satisfies (gadgetEdgeCases p)
   have c1 := (gadgetEdgeCases_copies a h).2.1
   have c2 := (gadgetEdgeCases_copies a h).2.2.1
   obtain ⟨k0, k1⟩ := gadgetEdgeCases_consts a h
-  have e_0_0 := arithEq_of_rows h (row := 0) (i := 0) rfl (by decide)
+  have e_0_0 := arithEq_of_rows h (i := 0) gadgetEdgeCases_row0 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_0
   simp only [← c0, ← c1, k1, ← c2] at e_0_0
   have hr := e_0_0
@@ -174,10 +180,10 @@ theorem gadgetEdgeCases_f2 (a : Assignment p) (h : Satisfies (gadgetEdgeCases p)
   have c9 := (gadgetEdgeCases_copies a h).2.2.2.2.2.2.2.2.2.1
   have c11 := (gadgetEdgeCases_copies a h).2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1⟩ := gadgetEdgeCases_consts a h
-  have e_1_0 := arithEq_of_rows h (row := 1) (i := 0) rfl (by decide)
+  have e_1_0 := arithEq_of_rows h (i := 0) gadgetEdgeCases_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_0
   simp only [← c4, k1, ← c5, k1, ← c6] at e_1_0
-  have e_1_1 := arithEq_of_rows h (row := 1) (i := 1) rfl (by decide)
+  have e_1_1 := arithEq_of_rows h (i := 1) gadgetEdgeCases_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_1
   simp only [← c7, k0, ← c8, k1, ← c9] at e_1_1
   simp only [k0]
@@ -198,10 +204,10 @@ theorem gadgetEdgeCases_f3 (a : Assignment p) (h : Satisfies (gadgetEdgeCases p)
   have c18 := (gadgetEdgeCases_copies a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c19 := (gadgetEdgeCases_copies a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1⟩ := gadgetEdgeCases_consts a h
-  have e_1_2 := arithEq_of_rows h (row := 1) (i := 2) rfl (by decide)
+  have e_1_2 := arithEq_of_rows h (i := 2) gadgetEdgeCases_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_2
   simp only [← c12, k1, ← c13, k1, ← c14] at e_1_2
-  have e_1_3 := arithEq_of_rows h (row := 1) (i := 3) rfl (by decide)
+  have e_1_3 := arithEq_of_rows h (i := 3) gadgetEdgeCases_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_3
   simp only [← c15, ← c16, k1, ← c17] at e_1_3
   simp only [k0, k1]
@@ -232,19 +238,19 @@ theorem gadgetEdgeCases_f4 (a : Assignment p) (h : Satisfies (gadgetEdgeCases p)
   have c35 := (gadgetEdgeCases_copies a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c36 := (gadgetEdgeCases_copies a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1⟩ := gadgetEdgeCases_consts a h
-  have e_1_4 := arithEq_of_rows h (row := 1) (i := 4) rfl (by decide)
+  have e_1_4 := arithEq_of_rows h (i := 4) gadgetEdgeCases_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_4
   simp only [← c20, k1, ← c21, k1, ← c22] at e_1_4
-  have e_1_5 := arithEq_of_rows h (row := 1) (i := 5) rfl (by decide)
+  have e_1_5 := arithEq_of_rows h (i := 5) gadgetEdgeCases_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_5
   simp only [← c23, ← c24, k1, ← c25] at e_1_5
-  have e_1_6 := arithEq_of_rows h (row := 1) (i := 6) rfl (by decide)
+  have e_1_6 := arithEq_of_rows h (i := 6) gadgetEdgeCases_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_6
   simp only [← c32, ← c33, k1, ← c34] at e_1_6
-  have e_2_0 := arithEq_of_rows h (row := 2) (i := 0) rfl (by decide)
+  have e_2_0 := arithEq_of_rows h (i := 0) gadgetEdgeCases_row2 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_0
   simp only [← c26, ← c27, ← c28] at e_2_0
-  have e_2_1 := arithEq_of_rows h (row := 2) (i := 1) rfl (by decide)
+  have e_2_1 := arithEq_of_rows h (i := 1) gadgetEdgeCases_row2 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_1
   simp only [← c29, ← c30, ← c31] at e_2_1
   refine ⟨?_, ?_⟩
@@ -275,19 +281,19 @@ theorem gadgetEdgeCases_f5 (a : Assignment p) (h : Satisfies (gadgetEdgeCases p)
   have c52 := (gadgetEdgeCases_copies a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c53 := (gadgetEdgeCases_copies a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1⟩ := gadgetEdgeCases_consts a h
-  have e_1_7 := arithEq_of_rows h (row := 1) (i := 7) rfl (by decide)
+  have e_1_7 := arithEq_of_rows h (i := 7) gadgetEdgeCases_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_7
   simp only [← c37, k1, ← c38, k1, ← c39] at e_1_7
-  have e_1_8 := arithEq_of_rows h (row := 1) (i := 8) rfl (by decide)
+  have e_1_8 := arithEq_of_rows h (i := 8) gadgetEdgeCases_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_8
   simp only [← c40, ← c41, k1, ← c42] at e_1_8
-  have e_1_9 := arithEq_of_rows h (row := 1) (i := 9) rfl (by decide)
+  have e_1_9 := arithEq_of_rows h (i := 9) gadgetEdgeCases_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_9
   simp only [← c49, ← c50, k1, ← c51] at e_1_9
-  have e_2_2 := arithEq_of_rows h (row := 2) (i := 2) rfl (by decide)
+  have e_2_2 := arithEq_of_rows h (i := 2) gadgetEdgeCases_row2 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_2
   simp only [← c43, ← c44, ← c45] at e_2_2
-  have e_2_3 := arithEq_of_rows h (row := 2) (i := 3) rfl (by decide)
+  have e_2_3 := arithEq_of_rows h (i := 3) gadgetEdgeCases_row2 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_3
   simp only [← c46, ← c47, ← c48] at e_2_3
   refine ⟨?_, ?_⟩
@@ -304,7 +310,7 @@ theorem gadgetEdgeCases_f6 (a : Assignment p) (h : Satisfies (gadgetEdgeCases p)
   have c41 := (gadgetEdgeCases_copies a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c42 := (gadgetEdgeCases_copies a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1⟩ := gadgetEdgeCases_consts a h
-  have e_1_8 := arithEq_of_rows h (row := 1) (i := 8) rfl (by decide)
+  have e_1_8 := arithEq_of_rows h (i := 8) gadgetEdgeCases_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_8
   simp only [← c40, ← c41, k1, ← c42] at e_1_8
   have hr := e_1_8
@@ -315,7 +321,7 @@ theorem gadgetEdgeCases_f7 (a : Assignment p) (h : Satisfies (gadgetEdgeCases p)
   have c43 := (gadgetEdgeCases_copies a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c44 := (gadgetEdgeCases_copies a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c45 := (gadgetEdgeCases_copies a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_2_2 := arithEq_of_rows h (row := 2) (i := 2) rfl (by decide)
+  have e_2_2 := arithEq_of_rows h (i := 2) gadgetEdgeCases_row2 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_2
   simp only [← c43, ← c44, ← c45] at e_2_2
   have hr := e_2_2
@@ -340,7 +346,7 @@ theorem gadgetEdgeCases_decode (a : Assignment p) (h : Satisfies (gadgetEdgeCase
   ⟨gadgetEdgeCases_f0 a h, gadgetEdgeCases_f1 a h, gadgetEdgeCases_f2 a h, gadgetEdgeCases_f3 a h, gadgetEdgeCases_f4 a h, gadgetEdgeCases_f5 a h, gadgetEdgeCases_f6 a h, gadgetEdgeCases_f7 a h, gadgetEdgeCases_f8 a h⟩
 
 /-- `sum = add x y; prod = mul sum one`: the product folds onto `sum`. -/
-def gadgetIdentityFold (p : ℕ) : Circuit p where
+noncomputable def gadgetIdentityFold (p : ℕ) : Circuit p where
   rows := [
     ⟨.arithmetic 20, [1, 1]⟩  -- row 0
   ]
@@ -373,7 +379,7 @@ def gadgetIdentityFold.prod : Target := .wire 0 3
 
 /-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
     name and the targets carrying its public inputs (`Recursive.children`). -/
-def gadgetIdentityFold.verifiers : List (String × List Target) :=
+noncomputable def gadgetIdentityFold.verifiers : List (String × List Target) :=
   []
 
 theorem gadgetIdentityFold_copies (a : Assignment p) (h : Satisfies (gadgetIdentityFold p) a) :
@@ -381,6 +387,8 @@ theorem gadgetIdentityFold_copies (a : Assignment p) (h : Satisfies (gadgetIdent
   have hc := h.2.1
   simp only [gadgetIdentityFold, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
+
+theorem gadgetIdentityFold_row0 : (gadgetIdentityFold p).rows[0]? = some ⟨.arithmetic 20, [1, 1]⟩ := rfl
 
 theorem gadgetIdentityFold_consts (a : Assignment p) (h : Satisfies (gadgetIdentityFold p) a) :
     (a (.virt 3) = 0 ∧ a (.virt 2) = 1) := by
@@ -395,7 +403,7 @@ theorem gadgetIdentityFold_f0 (a : Assignment p) (h : Satisfies (gadgetIdentityF
   have c1 := (gadgetIdentityFold_copies a h).2.1
   have c2 := (gadgetIdentityFold_copies a h).2.2
   obtain ⟨k0, k1⟩ := gadgetIdentityFold_consts a h
-  have e_0_0 := arithEq_of_rows h (row := 0) (i := 0) rfl (by decide)
+  have e_0_0 := arithEq_of_rows h (i := 0) gadgetIdentityFold_row0 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_0
   simp only [← c0, ← c1, k1, ← c2] at e_0_0
   have hr := e_0_0
@@ -414,7 +422,7 @@ theorem gadgetIdentityFold_decode (a : Assignment p) (h : Satisfies (gadgetIdent
   ⟨gadgetIdentityFold_f0 a h, gadgetIdentityFold_f1 a h⟩
 
 /-- `diff = sub x y; eq = is_equal x y; connect diff zero`: `is_equal` reuses `diff`, which is then pinned to zero. -/
-def gadgetPinnedIntermediate (p : ℕ) : Circuit p where
+noncomputable def gadgetPinnedIntermediate (p : ℕ) : Circuit p where
   rows := [
     ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 0
     ⟨.arithmetic 20, [1, 0]⟩  -- row 1
@@ -463,7 +471,7 @@ def gadgetPinnedIntermediate.equal : Target := .virt 4
 
 /-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
     name and the targets carrying its public inputs (`Recursive.children`). -/
-def gadgetPinnedIntermediate.verifiers : List (String × List Target) :=
+noncomputable def gadgetPinnedIntermediate.verifiers : List (String × List Target) :=
   []
 
 theorem gadgetPinnedIntermediate_copies (a : Assignment p) (h : Satisfies (gadgetPinnedIntermediate p) a) :
@@ -471,6 +479,10 @@ theorem gadgetPinnedIntermediate_copies (a : Assignment p) (h : Satisfies (gadge
   have hc := h.2.1
   simp only [gadgetPinnedIntermediate, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
+
+theorem gadgetPinnedIntermediate_row0 : (gadgetPinnedIntermediate p).rows[0]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem gadgetPinnedIntermediate_row1 : (gadgetPinnedIntermediate p).rows[1]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
 
 theorem gadgetPinnedIntermediate_consts (a : Assignment p) (h : Satisfies (gadgetPinnedIntermediate p) a) :
     (a (.virt 2) = 0 ∧ a (.virt 3) = 1) := by
@@ -485,7 +497,7 @@ theorem gadgetPinnedIntermediate_f0 (a : Assignment p) (h : Satisfies (gadgetPin
   have c1 := (gadgetPinnedIntermediate_copies a h).2.1
   have c2 := (gadgetPinnedIntermediate_copies a h).2.2.1
   obtain ⟨k0, k1⟩ := gadgetPinnedIntermediate_consts a h
-  have e_0_0 := arithEq_of_rows h (row := 0) (i := 0) rfl (by decide)
+  have e_0_0 := arithEq_of_rows h (i := 0) gadgetPinnedIntermediate_row0 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_0
   simp only [← c0, ← c1, k1, ← c2] at e_0_0
   have hr := e_0_0
@@ -511,19 +523,19 @@ theorem gadgetPinnedIntermediate_f1 (a : Assignment p) (h : Satisfies (gadgetPin
   have c15 := (gadgetPinnedIntermediate_copies a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c16 := (gadgetPinnedIntermediate_copies a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1⟩ := gadgetPinnedIntermediate_consts a h
-  have e_0_0 := arithEq_of_rows h (row := 0) (i := 0) rfl (by decide)
+  have e_0_0 := arithEq_of_rows h (i := 0) gadgetPinnedIntermediate_row0 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_0
   simp only [← c0, ← c1, k1, ← c2] at e_0_0
-  have e_0_1 := arithEq_of_rows h (row := 0) (i := 1) rfl (by decide)
+  have e_0_1 := arithEq_of_rows h (i := 1) gadgetPinnedIntermediate_row0 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_1
   simp only [← c3, k1, ← c4, k1, ← c5] at e_0_1
-  have e_0_2 := arithEq_of_rows h (row := 0) (i := 2) rfl (by decide)
+  have e_0_2 := arithEq_of_rows h (i := 2) gadgetPinnedIntermediate_row0 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_2
   simp only [← c12, ← c13, k1, ← c14] at e_0_2
-  have e_1_0 := arithEq_of_rows h (row := 1) (i := 0) rfl (by decide)
+  have e_1_0 := arithEq_of_rows h (i := 0) gadgetPinnedIntermediate_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_0
   simp only [← c6, ← c7, ← c8] at e_1_0
-  have e_1_1 := arithEq_of_rows h (row := 1) (i := 1) rfl (by decide)
+  have e_1_1 := arithEq_of_rows h (i := 1) gadgetPinnedIntermediate_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_1
   simp only [← c9, ← c10, ← c11] at e_1_1
   refine ⟨?_, ?_⟩
@@ -547,7 +559,7 @@ theorem gadgetPinnedIntermediate_decode (a : Assignment p) (h : Satisfies (gadge
   ⟨gadgetPinnedIntermediate_f0 a h, gadgetPinnedIntermediate_f1 a h, gadgetPinnedIntermediate_f2 a h⟩
 
 /-- Constant folds that hold over `ℤ`: `nine = mul three three`, `eight = add three five`, `neg5 = sub zero five`. -/
-def gadgetConstantFold (p : ℕ) : Circuit p where
+noncomputable def gadgetConstantFold (p : ℕ) : Circuit p where
   rows := [
   ]
   copies := [
@@ -584,7 +596,7 @@ def gadgetConstantFold.neg5 : Target := .virt 6
 
 /-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
     name and the targets carrying its public inputs (`Recursive.children`). -/
-def gadgetConstantFold.verifiers : List (String × List Target) :=
+noncomputable def gadgetConstantFold.verifiers : List (String × List Target) :=
   []
 
 theorem gadgetConstantFold_consts (a : Assignment p) (h : Satisfies (gadgetConstantFold p) a) :
@@ -620,7 +632,7 @@ theorem gadgetConstantFold_decode (a : Assignment p) (h : Satisfies (gadgetConst
   ⟨gadgetConstantFold_f0 a h, gadgetConstantFold_f1 a h, gadgetConstantFold_f2 a h⟩
 
 /-- One recorded call, `sum = add x y`. -/
-def gadgetSingleFact (p : ℕ) : Circuit p where
+noncomputable def gadgetSingleFact (p : ℕ) : Circuit p where
   rows := [
     ⟨.arithmetic 20, [1, 1]⟩  -- row 0
   ]
@@ -647,7 +659,7 @@ def gadgetSingleFact.sum : Target := .wire 0 3
 
 /-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
     name and the targets carrying its public inputs (`Recursive.children`). -/
-def gadgetSingleFact.verifiers : List (String × List Target) :=
+noncomputable def gadgetSingleFact.verifiers : List (String × List Target) :=
   []
 
 theorem gadgetSingleFact_copies (a : Assignment p) (h : Satisfies (gadgetSingleFact p) a) :
@@ -655,6 +667,8 @@ theorem gadgetSingleFact_copies (a : Assignment p) (h : Satisfies (gadgetSingleF
   have hc := h.2.1
   simp only [gadgetSingleFact, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
+
+theorem gadgetSingleFact_row0 : (gadgetSingleFact p).rows[0]? = some ⟨.arithmetic 20, [1, 1]⟩ := rfl
 
 theorem gadgetSingleFact_consts (a : Assignment p) (h : Satisfies (gadgetSingleFact p) a) :
     (a (.virt 3) = 0 ∧ a (.virt 2) = 1) := by
@@ -669,7 +683,7 @@ theorem gadgetSingleFact_f0 (a : Assignment p) (h : Satisfies (gadgetSingleFact 
   have c1 := (gadgetSingleFact_copies a h).2.1
   have c2 := (gadgetSingleFact_copies a h).2.2
   obtain ⟨k0, k1⟩ := gadgetSingleFact_consts a h
-  have e_0_0 := arithEq_of_rows h (row := 0) (i := 0) rfl (by decide)
+  have e_0_0 := arithEq_of_rows h (i := 0) gadgetSingleFact_row0 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_0
   simp only [← c0, ← c1, k1, ← c2] at e_0_0
   have hr := e_0_0
@@ -681,7 +695,7 @@ theorem gadgetSingleFact_decode (a : Assignment p) (h : Satisfies (gadgetSingleF
   gadgetSingleFact_f0 a h
 
 /-- No recorded calls. -/
-def gadgetNoFacts (p : ℕ) : Circuit p where
+noncomputable def gadgetNoFacts (p : ℕ) : Circuit p where
   rows := [
   ]
   copies := [
@@ -699,7 +713,7 @@ def gadgetNoFacts.y : Target := .virt 1
 
 /-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
     name and the targets carrying its public inputs (`Recursive.children`). -/
-def gadgetNoFacts.verifiers : List (String × List Target) :=
+noncomputable def gadgetNoFacts.verifiers : List (String × List Target) :=
   []
 
 /-- Every satisfying assignment of `gadgetNoFacts` has the meaning of each recorded gadget call. Generated at gadget-call granularity; see `gadget.rs`. -/
@@ -707,7 +721,7 @@ theorem gadgetNoFacts_decode (a : Assignment p) (h : Satisfies (gadgetNoFacts p)
   trivial
 
 /-- `FACT_GROUP + 1` recorded calls (`connect x y` repeated): the last fact group of the decode theorem is a single fact. -/
-def gadgetFactGroupBoundary (p : ℕ) : Circuit p where
+noncomputable def gadgetFactGroupBoundary (p : ℕ) : Circuit p where
   rows := [
   ]
   copies := [
@@ -758,7 +772,7 @@ def gadgetFactGroupBoundary.y : Target := .virt 1
 
 /-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
     name and the targets carrying its public inputs (`Recursive.children`). -/
-def gadgetFactGroupBoundary.verifiers : List (String × List Target) :=
+noncomputable def gadgetFactGroupBoundary.verifiers : List (String × List Target) :=
   []
 
 theorem gadgetFactGroupBoundary_copies (a : Assignment p) (h : Satisfies (gadgetFactGroupBoundary p) a) :

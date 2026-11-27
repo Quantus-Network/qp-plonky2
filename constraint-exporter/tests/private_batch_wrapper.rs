@@ -313,7 +313,9 @@ fn wrapper_lean_is_current() {
         assert_eq!(generated.matches("    · exact rc").count(), slots(n));
         assert!(!generated.contains("rounds"));
         assert!(!generated.contains("network"));
-        assert!(generated.contains("import Plonky2Bridge.PrivateWrapperBuild"));
+        assert!(generated.contains(&format!(
+            "import Plonky2Bridge.PrivateWrapperBuild.Wrapper{n}"
+        )));
         assert_eq!(
             generated
                 .matches("(LeafCircuit.tree, List.ofFn (leafPis ")

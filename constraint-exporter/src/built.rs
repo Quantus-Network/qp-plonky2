@@ -849,7 +849,7 @@ fn render_list(defs: &mut String, name: &str, ty: &str, items: &[String]) -> Str
     for (k, r) in ranges.iter().enumerate() {
         let _ = writeln!(
             defs,
-            "/-- `{name}`, items `{}..{}`. -/\ndef {name}{k} : List ({ty}) := {}\n",
+            "/-- `{name}`, items `{}..{}`. -/\nnoncomputable def {name}{k} : List ({ty}) := {}\n",
             r.start,
             r.end,
             flat(&items[r.clone()])
@@ -864,6 +864,9 @@ fn pos(u: (usize, usize)) -> String {
 
 /// Positions per chunk definition of a table.
 const TBL_CHUNK: usize = 256;
+
+/// `copies_linked` is combined from lemmas over at most this many copy chunks each.
+const LINKED_GROUP: usize = 512;
 
 /// A balanced `Tbl` literal over `leaves`.
 fn tbl_lit(leaves: &[String]) -> String {
@@ -904,7 +907,7 @@ fn render_tbl(defs: &mut String, name: &str, ty: &str, leaves: &[(String, usize)
         let _ = writeln!(
             defs,
             "/-- `{name}`, items `{}..{}`. -/
-def {name}{k} : Tbl ({ty}) :=
+noncomputable def {name}{k} : Tbl ({ty}) :=
   {}
 ",
             r.start,
@@ -1068,7 +1071,7 @@ pub fn render_lean(t: &LoadedTrace, cert: &Cert) -> Result<String, String> {
             o,
             "/-- The {pi_len} public inputs of child proof `i` (`{prefix}i`): the targets its\n    \
              `verify_proof` gadget reads. -/\n\
-             def {pis} : Fin {n} → Fin {pi_len} → Target"
+             noncomputable def {pis} : Fin {n} → Fin {pi_len} → Target"
         );
         for i in 0..n {
             let _ = writeln!(o, "  | {i} => {circuit_name}.{prefix}{i}");
@@ -1080,7 +1083,7 @@ pub fn render_lean(t: &LoadedTrace, cert: &Cert) -> Result<String, String> {
             o,
             "\n/-- The circuit with its recursion gadgets: `verify_proof` under the `{child_tag}`\n    \
              verifier key on each `{prefix}i`. -/\n\
-             def tree : Recursive p :=\n  .node \"{tag}\" ({circuit_name} p)"
+             noncomputable def tree : Recursive p :=\n  .node \"{tag}\" ({circuit_name} p)"
         );
         let children: Vec<String> = (0..n)
             .map(|i| {
@@ -1123,7 +1126,7 @@ pub fn render_lean(t: &LoadedTrace, cert: &Cert) -> Result<String, String> {
         let _ = writeln!(
             o,
             "/-- The circuit as a recursion tree: no gadgets. -/\n\
-             def tree : Recursive p := .node \"{tag}\" ({circuit_name} p) []\n\n\
+             noncomputable def tree : Recursive p := .node \"{tag}\" ({circuit_name} p) []\n\n\
              /-- The tree's gadgets are the recorded ones: none. -/\n\
              theorem tree_verifiers : (tree (p := p)).verifiers = {circuit_name}.verifiers := rfl\n"
         );
@@ -1151,7 +1154,7 @@ pub fn render_lean(t: &LoadedTrace, cert: &Cert) -> Result<String, String> {
                 let _ = writeln!(
                     defs,
                     "/-- Cycle `{ci}` of `buildCert`, {} positions. -/
-def {name} : Tbl (ℕ × ℕ) := {expr}
+noncomputable def {name} : Tbl (ℕ × ℕ) := {expr}
 ",
                     cyc.len()
                 );
@@ -1186,7 +1189,7 @@ def {name} : Tbl (ℕ × ℕ) := {expr}
     let _ = writeln!(
         o,
         "/-- The certificate of the deployed build against `{circuit_name}`. -/\n\
-         def buildCert : BuildCert where\n  rowAt := {row_at}\n  routed := {}\n  numPublicInputs := {}\n  \
+         noncomputable def buildCert : BuildCert where\n  rowAt := {row_at}\n  routed := {}\n  numPublicInputs := {}\n  \
          cycles := {cycles}\n  virt := {virt}\n  pins := {pins}\n  zeros := [{}]\n  piRow := {}\n  \
          hashRows := [{}]\n",
         cert.routed,
@@ -1200,7 +1203,7 @@ def {name} : Tbl (ℕ × ℕ) := {expr}
         None => {
             let _ = writeln!(
                 o,
-                "/-- One witness per copy of the export. -/\ndef copyWits : List (ℕ × ℕ × ℕ) := {}\n",
+                "/-- One witness per copy of the export. -/\nnoncomputable def copyWits : List (ℕ × ℕ × ℕ) := {}\n",
                 flat(&copy_wits)
             );
         }
@@ -1209,7 +1212,7 @@ def {name} : Tbl (ℕ × ℕ) := {expr}
                 let _ = writeln!(
                     o,
                     "/-- One witness per copy of `{circuit_name}.copies{k}`. -/\n\
-                     def copyWits{k} : List (ℕ × ℕ × ℕ) := {}\n",
+                     noncomputable def copyWits{k} : List (ℕ × ℕ × ℕ) := {}\n",
                     flat(&copy_wits[r.clone()])
                 );
             }
@@ -1217,7 +1220,7 @@ def {name} : Tbl (ℕ × ℕ) := {expr}
     }
     let _ = writeln!(
         o,
-        "/-- One witness per constant target of the export. -/\ndef constWits : List (ℕ × ℕ × ℕ) := {const_wits}\n"
+        "/-- One witness per constant target of the export. -/\nnoncomputable def constWits : List (ℕ × ℕ × ℕ) := {const_wits}\n"
     );
     let hash_wits: Vec<String> = cert
         .hash_wits
@@ -1233,13 +1236,13 @@ def {name} : Tbl (ℕ × ℕ) := {expr}
     let _ = writeln!(
         o,
         "/-- The witnesses of the hash rows: the swap wire's `zero` and the twelve input lanes\n    \
-         of each. -/\ndef hashWits : List GateWit :=\n  [{}]\n",
+         of each. -/\nnoncomputable def hashWits : List GateWit :=\n  [{}]\n",
         hash_wits.join(",\n   ")
     );
     let _ = writeln!(
         o,
         "/-- The end state's four lanes into the `PublicInputGate`. -/\n\
-         def outWits : List (ℕ × ℕ × ℕ) := [{}]\n",
+         noncomputable def outWits : List (ℕ × ℕ × ℕ) := [{}]\n",
         cert.out_wits.iter().map(wit).collect::<Vec<_>>().join(", ")
     );
 
@@ -1262,18 +1265,18 @@ def {name} : Tbl (ℕ × ℕ) := {expr}
     o.push_str(&kind_defs);
     let _ = writeln!(
         o,
-        "/-- The export's gate kinds, row by row. -/\ndef rowKinds : List GateKind := {kinds}\n"
+        "/-- The export's gate kinds, row by row. -/\nnoncomputable def rowKinds : List GateKind := {kinds}\n"
     );
     let const_targets: Vec<String> = ex.constants.iter().map(|(t, _)| lean_target(*t)).collect();
     let _ = writeln!(
         o,
-        "/-- The export's constant targets, in its order. -/\ndef constTargets : List Target := [{}]\n",
+        "/-- The export's constant targets, in its order. -/\nnoncomputable def constTargets : List Target := [{}]\n",
         const_targets.join(", ")
     );
     let pi_targets: Vec<String> = ex.public_inputs.iter().map(|&t| lean_target(t)).collect();
     let _ = writeln!(
         o,
-        "/-- The export's public-input targets, in its order. -/\ndef piTargets : List Target := {}\n",
+        "/-- The export's public-input targets, in its order. -/\nnoncomputable def piTargets : List Target := {}\n",
         flat(&pi_targets)
     );
 
@@ -1330,14 +1333,35 @@ def {name} : Tbl (ℕ × ℕ) := {expr}
                     )
                 }
             }
+            // The tree over the chunks, as a lemma per subtree of at most `LINKED_GROUP`
+            // chunks: a single declaration naming every chunk's check takes minutes to
+            // index (`.ilean`), where the same references over many take seconds.
+            fn linked_groups(o: &mut String, chunks: &str, lo: usize, hi: usize) -> String {
+                if hi - lo <= LINKED_GROUP {
+                    let _ = writeln!(
+                        o,
+                        "theorem linked_{lo} : ∀ xy ∈ {}, buildCert.Links xy.1 xy.2 :=\n  {}\n",
+                        crate::circuit::chunk_tree(chunks, "", lo, hi),
+                        linked(lo, hi)
+                    );
+                    return format!("linked_{lo}");
+                }
+                let mid = lo + (hi - lo) / 2;
+                format!(
+                    "(BuildCert.links_append {} {})",
+                    linked_groups(o, chunks, lo, mid),
+                    linked_groups(o, chunks, mid, hi)
+                )
+            }
+            let chunks = format!("{circuit_name}.copies");
+            let all_linked = linked_groups(&mut o, &chunks, 0, ranges.len());
             let _ = writeln!(
                 o,
                 "theorem copies_eq : ({circuit_name} p).copies = {} := rfl\n\n\
                  /-- Every copy of the export is linked in the certificate. -/\n\
                  theorem copies_linked : ∀ xy ∈ ({circuit_name} p).copies, buildCert.Links xy.1 xy.2 := by\n  \
-                 rw [copies_eq]\n  exact {}\n",
-                crate::circuit::chunk_tree(&format!("{circuit_name}.copies"), "", 0, ranges.len()),
-                linked(0, ranges.len())
+                 rw [copies_eq]\n  exact {all_linked}\n",
+                crate::circuit::chunk_tree(&chunks, "", 0, ranges.len())
             );
         }
     }

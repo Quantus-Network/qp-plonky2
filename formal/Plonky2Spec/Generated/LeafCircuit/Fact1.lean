@@ -53,7 +53,7 @@ theorem leafCircuit_f1003 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5186 := (leafCircuit_copies162 a h).2.2.1
   have c5187 := (leafCircuit_copies162 a h).2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_133_13 := arithEq_of_rows h (row := 133) (i := 13) rfl (by decide)
+  have e_133_13 := arithEq_of_rows h (i := 13) leafCircuit_row133 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_133_13
   simp only [← c5185, k3, ← c5186, k3, ← c5187] at e_133_13
   have hr := e_133_13
@@ -65,7 +65,7 @@ theorem leafCircuit_f1004 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5188 := (leafCircuit_copies162 a h).2.2.2.2.1
   have c5189 := (leafCircuit_copies162 a h).2.2.2.2.2.1
   have c5190 := (leafCircuit_copies162 a h).2.2.2.2.2.2.1
-  have e_125_11 := arithEq_of_rows h (row := 125) (i := 11) rfl (by decide)
+  have e_125_11 := arithEq_of_rows h (i := 11) leafCircuit_row125 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_125_11
   simp only [← c5188, ← c5189, ← c5190] at e_125_11
   have hr := e_125_11
@@ -213,16 +213,16 @@ theorem leafCircuit_f1006 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5261 := (leafCircuit_copies164 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5262 := (leafCircuit_copies164 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_125_12 := arithEq_of_rows h (row := 125) (i := 12) rfl (by decide)
+  have e_125_12 := arithEq_of_rows h (i := 12) leafCircuit_row125 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_125_12
   simp only [← c5252, ← c5253, ← c5254] at e_125_12
-  have e_125_13 := arithEq_of_rows h (row := 125) (i := 13) rfl (by decide)
+  have e_125_13 := arithEq_of_rows h (i := 13) leafCircuit_row125 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_125_13
   simp only [← c5255, ← c5256, ← c5257] at e_125_13
-  have e_133_14 := arithEq_of_rows h (row := 133) (i := 14) rfl (by decide)
+  have e_133_14 := arithEq_of_rows h (i := 14) leafCircuit_row133 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_133_14
   simp only [← c5249, k3, ← c5250, k3, ← c5251] at e_133_14
-  have e_136_0 := arithEq_of_rows h (row := 136) (i := 0) rfl (by decide)
+  have e_136_0 := arithEq_of_rows h (i := 0) leafCircuit_row136 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_136_0
   simp only [← c5258, ← c5259, k3, ← c5260] at e_136_0
   simp only [k0]
@@ -253,19 +253,19 @@ theorem leafCircuit_f1007 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5278 := (leafCircuit_copies164 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5279 := (leafCircuit_copies164 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_125_14 := arithEq_of_rows h (row := 125) (i := 14) rfl (by decide)
+  have e_125_14 := arithEq_of_rows h (i := 14) leafCircuit_row125 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_125_14
   simp only [← c5269, ← c5270, ← c5271] at e_125_14
-  have e_136_1 := arithEq_of_rows h (row := 136) (i := 1) rfl (by decide)
+  have e_136_1 := arithEq_of_rows h (i := 1) leafCircuit_row136 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_136_1
   simp only [← c5263, k3, ← c5264, k3, ← c5265] at e_136_1
-  have e_136_2 := arithEq_of_rows h (row := 136) (i := 2) rfl (by decide)
+  have e_136_2 := arithEq_of_rows h (i := 2) leafCircuit_row136 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_136_2
   simp only [← c5266, ← c5267, k3, ← c5268, k3] at e_136_2
-  have e_136_3 := arithEq_of_rows h (row := 136) (i := 3) rfl (by decide)
+  have e_136_3 := arithEq_of_rows h (i := 3) leafCircuit_row136 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_136_3
   simp only [← c5275, ← c5276, k3, ← c5277] at e_136_3
-  have e_137_0 := arithEq_of_rows h (row := 137) (i := 0) rfl (by decide)
+  have e_137_0 := arithEq_of_rows h (i := 0) leafCircuit_row137 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_137_0
   simp only [← c5272, ← c5273, ← c5274] at e_137_0
   simp only [k3]
@@ -297,19 +297,19 @@ theorem leafCircuit_f1008 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5295 := (leafCircuit_copies165 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5296 := (leafCircuit_copies165 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_136_4 := arithEq_of_rows h (row := 136) (i := 4) rfl (by decide)
+  have e_136_4 := arithEq_of_rows h (i := 4) leafCircuit_row136 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_136_4
   simp only [← c5280, k3, ← c5281, k3, ← c5282] at e_136_4
-  have e_136_5 := arithEq_of_rows h (row := 136) (i := 5) rfl (by decide)
+  have e_136_5 := arithEq_of_rows h (i := 5) leafCircuit_row136 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_136_5
   simp only [← c5283, ← c5284, k3, ← c5285, k5] at e_136_5
-  have e_136_6 := arithEq_of_rows h (row := 136) (i := 6) rfl (by decide)
+  have e_136_6 := arithEq_of_rows h (i := 6) leafCircuit_row136 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_136_6
   simp only [← c5292, ← c5293, k3, ← c5294] at e_136_6
-  have e_137_1 := arithEq_of_rows h (row := 137) (i := 1) rfl (by decide)
+  have e_137_1 := arithEq_of_rows h (i := 1) leafCircuit_row137 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_137_1
   simp only [← c5286, ← c5287, ← c5288] at e_137_1
-  have e_137_2 := arithEq_of_rows h (row := 137) (i := 2) rfl (by decide)
+  have e_137_2 := arithEq_of_rows h (i := 2) leafCircuit_row137 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_137_2
   simp only [← c5289, ← c5290, ← c5291] at e_137_2
   simp only [k5]
@@ -341,19 +341,19 @@ theorem leafCircuit_f1009 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5312 := (leafCircuit_copies166 a h).1
   have c5313 := (leafCircuit_copies166 a h).2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_136_7 := arithEq_of_rows h (row := 136) (i := 7) rfl (by decide)
+  have e_136_7 := arithEq_of_rows h (i := 7) leafCircuit_row136 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_136_7
   simp only [← c5297, k3, ← c5298, k3, ← c5299] at e_136_7
-  have e_136_8 := arithEq_of_rows h (row := 136) (i := 8) rfl (by decide)
+  have e_136_8 := arithEq_of_rows h (i := 8) leafCircuit_row136 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_136_8
   simp only [← c5300, ← c5301, k3, ← c5302, k6] at e_136_8
-  have e_136_9 := arithEq_of_rows h (row := 136) (i := 9) rfl (by decide)
+  have e_136_9 := arithEq_of_rows h (i := 9) leafCircuit_row136 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_136_9
   simp only [← c5309, ← c5310, k3, ← c5311] at e_136_9
-  have e_137_3 := arithEq_of_rows h (row := 137) (i := 3) rfl (by decide)
+  have e_137_3 := arithEq_of_rows h (i := 3) leafCircuit_row137 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_137_3
   simp only [← c5303, ← c5304, ← c5305] at e_137_3
-  have e_137_4 := arithEq_of_rows h (row := 137) (i := 4) rfl (by decide)
+  have e_137_4 := arithEq_of_rows h (i := 4) leafCircuit_row137 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_137_4
   simp only [← c5306, ← c5307, ← c5308] at e_137_4
   simp only [k6]
@@ -373,10 +373,10 @@ theorem leafCircuit_f1010 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5317 := (leafCircuit_copies166 a h).2.2.2.2.2.1
   have c5318 := (leafCircuit_copies166 a h).2.2.2.2.2.2.1
   have c5319 := (leafCircuit_copies166 a h).2.2.2.2.2.2.2.1
-  have e_136_10 := arithEq_of_rows h (row := 136) (i := 10) rfl (by decide)
+  have e_136_10 := arithEq_of_rows h (i := 10) leafCircuit_row136 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_136_10
   simp only [← c5314, ← c5315, ← c5316] at e_136_10
-  have e_136_11 := arithEq_of_rows h (row := 136) (i := 11) rfl (by decide)
+  have e_136_11 := arithEq_of_rows h (i := 11) leafCircuit_row136 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_136_11
   simp only [← c5317, ← c5318, ← c5319] at e_136_11
   have hr := e_136_11
@@ -392,10 +392,10 @@ theorem leafCircuit_f1011 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5323 := (leafCircuit_copies166 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c5324 := (leafCircuit_copies166 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5325 := (leafCircuit_copies166 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_136_12 := arithEq_of_rows h (row := 136) (i := 12) rfl (by decide)
+  have e_136_12 := arithEq_of_rows h (i := 12) leafCircuit_row136 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_136_12
   simp only [← c5320, ← c5321, ← c5322] at e_136_12
-  have e_136_13 := arithEq_of_rows h (row := 136) (i := 13) rfl (by decide)
+  have e_136_13 := arithEq_of_rows h (i := 13) leafCircuit_row136 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_136_13
   simp only [← c5323, ← c5324, ← c5325] at e_136_13
   have hr := e_136_13
@@ -411,10 +411,10 @@ theorem leafCircuit_f1012 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5329 := (leafCircuit_copies166 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5330 := (leafCircuit_copies166 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5331 := (leafCircuit_copies166 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_136_14 := arithEq_of_rows h (row := 136) (i := 14) rfl (by decide)
+  have e_136_14 := arithEq_of_rows h (i := 14) leafCircuit_row136 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_136_14
   simp only [← c5326, ← c5327, ← c5328] at e_136_14
-  have e_138_0 := arithEq_of_rows h (row := 138) (i := 0) rfl (by decide)
+  have e_138_0 := arithEq_of_rows h (i := 0) leafCircuit_row138 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_138_0
   simp only [← c5329, ← c5330, ← c5331] at e_138_0
   have hr := e_138_0
@@ -430,10 +430,10 @@ theorem leafCircuit_f1013 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5335 := (leafCircuit_copies166 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5336 := (leafCircuit_copies166 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5337 := (leafCircuit_copies166 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_138_1 := arithEq_of_rows h (row := 138) (i := 1) rfl (by decide)
+  have e_138_1 := arithEq_of_rows h (i := 1) leafCircuit_row138 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_138_1
   simp only [← c5332, ← c5333, ← c5334] at e_138_1
-  have e_138_2 := arithEq_of_rows h (row := 138) (i := 2) rfl (by decide)
+  have e_138_2 := arithEq_of_rows h (i := 2) leafCircuit_row138 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_138_2
   simp only [← c5335, ← c5336, ← c5337] at e_138_2
   have hr := e_138_2
@@ -449,10 +449,10 @@ theorem leafCircuit_f1014 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5341 := (leafCircuit_copies166 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5342 := (leafCircuit_copies166 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5343 := (leafCircuit_copies166 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have e_138_3 := arithEq_of_rows h (row := 138) (i := 3) rfl (by decide)
+  have e_138_3 := arithEq_of_rows h (i := 3) leafCircuit_row138 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_138_3
   simp only [← c5338, ← c5339, ← c5340] at e_138_3
-  have e_138_4 := arithEq_of_rows h (row := 138) (i := 4) rfl (by decide)
+  have e_138_4 := arithEq_of_rows h (i := 4) leafCircuit_row138 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_138_4
   simp only [← c5341, ← c5342, ← c5343] at e_138_4
   have hr := e_138_4
@@ -468,10 +468,10 @@ theorem leafCircuit_f1015 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5347 := (leafCircuit_copies167 a h).2.2.2.1
   have c5348 := (leafCircuit_copies167 a h).2.2.2.2.1
   have c5349 := (leafCircuit_copies167 a h).2.2.2.2.2.1
-  have e_138_5 := arithEq_of_rows h (row := 138) (i := 5) rfl (by decide)
+  have e_138_5 := arithEq_of_rows h (i := 5) leafCircuit_row138 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_138_5
   simp only [← c5344, ← c5345, ← c5346] at e_138_5
-  have e_138_6 := arithEq_of_rows h (row := 138) (i := 6) rfl (by decide)
+  have e_138_6 := arithEq_of_rows h (i := 6) leafCircuit_row138 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_138_6
   simp only [← c5347, ← c5348, ← c5349] at e_138_6
   have hr := e_138_6
@@ -487,10 +487,10 @@ theorem leafCircuit_f1016 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5353 := (leafCircuit_copies167 a h).2.2.2.2.2.2.2.2.2.1
   have c5354 := (leafCircuit_copies167 a h).2.2.2.2.2.2.2.2.2.2.1
   have c5355 := (leafCircuit_copies167 a h).2.2.2.2.2.2.2.2.2.2.2.1
-  have e_138_7 := arithEq_of_rows h (row := 138) (i := 7) rfl (by decide)
+  have e_138_7 := arithEq_of_rows h (i := 7) leafCircuit_row138 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_138_7
   simp only [← c5350, ← c5351, ← c5352] at e_138_7
-  have e_138_8 := arithEq_of_rows h (row := 138) (i := 8) rfl (by decide)
+  have e_138_8 := arithEq_of_rows h (i := 8) leafCircuit_row138 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_138_8
   simp only [← c5353, ← c5354, ← c5355] at e_138_8
   have hr := e_138_8
@@ -506,10 +506,10 @@ theorem leafCircuit_f1017 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5359 := (leafCircuit_copies167 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5360 := (leafCircuit_copies167 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5361 := (leafCircuit_copies167 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_138_9 := arithEq_of_rows h (row := 138) (i := 9) rfl (by decide)
+  have e_138_9 := arithEq_of_rows h (i := 9) leafCircuit_row138 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_138_9
   simp only [← c5356, ← c5357, ← c5358] at e_138_9
-  have e_138_10 := arithEq_of_rows h (row := 138) (i := 10) rfl (by decide)
+  have e_138_10 := arithEq_of_rows h (i := 10) leafCircuit_row138 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_138_10
   simp only [← c5359, ← c5360, ← c5361] at e_138_10
   have hr := e_138_10
@@ -525,10 +525,10 @@ theorem leafCircuit_f1018 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5365 := (leafCircuit_copies167 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5366 := (leafCircuit_copies167 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5367 := (leafCircuit_copies167 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_138_11 := arithEq_of_rows h (row := 138) (i := 11) rfl (by decide)
+  have e_138_11 := arithEq_of_rows h (i := 11) leafCircuit_row138 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_138_11
   simp only [← c5362, ← c5363, ← c5364] at e_138_11
-  have e_138_12 := arithEq_of_rows h (row := 138) (i := 12) rfl (by decide)
+  have e_138_12 := arithEq_of_rows h (i := 12) leafCircuit_row138 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_138_12
   simp only [← c5365, ← c5366, ← c5367] at e_138_12
   have hr := e_138_12
@@ -544,10 +544,10 @@ theorem leafCircuit_f1019 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5371 := (leafCircuit_copies167 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5372 := (leafCircuit_copies167 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5373 := (leafCircuit_copies167 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_138_13 := arithEq_of_rows h (row := 138) (i := 13) rfl (by decide)
+  have e_138_13 := arithEq_of_rows h (i := 13) leafCircuit_row138 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_138_13
   simp only [← c5368, ← c5369, ← c5370] at e_138_13
-  have e_138_14 := arithEq_of_rows h (row := 138) (i := 14) rfl (by decide)
+  have e_138_14 := arithEq_of_rows h (i := 14) leafCircuit_row138 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_138_14
   simp only [← c5371, ← c5372, ← c5373] at e_138_14
   have hr := e_138_14
@@ -563,10 +563,10 @@ theorem leafCircuit_f1020 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5377 := (leafCircuit_copies168 a h).2.1
   have c5378 := (leafCircuit_copies168 a h).2.2.1
   have c5379 := (leafCircuit_copies168 a h).2.2.2.1
-  have e_139_0 := arithEq_of_rows h (row := 139) (i := 0) rfl (by decide)
+  have e_139_0 := arithEq_of_rows h (i := 0) leafCircuit_row139 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_139_0
   simp only [← c5374, ← c5375, ← c5376] at e_139_0
-  have e_139_1 := arithEq_of_rows h (row := 139) (i := 1) rfl (by decide)
+  have e_139_1 := arithEq_of_rows h (i := 1) leafCircuit_row139 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_139_1
   simp only [← c5377, ← c5378, ← c5379] at e_139_1
   have hr := e_139_1
@@ -582,10 +582,10 @@ theorem leafCircuit_f1021 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5383 := (leafCircuit_copies168 a h).2.2.2.2.2.2.2.1
   have c5384 := (leafCircuit_copies168 a h).2.2.2.2.2.2.2.2.1
   have c5385 := (leafCircuit_copies168 a h).2.2.2.2.2.2.2.2.2.1
-  have e_139_2 := arithEq_of_rows h (row := 139) (i := 2) rfl (by decide)
+  have e_139_2 := arithEq_of_rows h (i := 2) leafCircuit_row139 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_139_2
   simp only [← c5380, ← c5381, ← c5382] at e_139_2
-  have e_139_3 := arithEq_of_rows h (row := 139) (i := 3) rfl (by decide)
+  have e_139_3 := arithEq_of_rows h (i := 3) leafCircuit_row139 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_139_3
   simp only [← c5383, ← c5384, ← c5385] at e_139_3
   have hr := e_139_3
@@ -602,10 +602,10 @@ theorem leafCircuit_f1022 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5390 := (leafCircuit_copies168 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5391 := (leafCircuit_copies168 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_104_10 := arithEq_of_rows h (row := 104) (i := 10) rfl (by decide)
+  have e_104_10 := arithEq_of_rows h (i := 10) leafCircuit_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_10
   simp only [← c5386, ← c5387, ← c5388] at e_104_10
-  have e_128_14 := arithEq_of_rows h (row := 128) (i := 14) rfl (by decide)
+  have e_128_14 := arithEq_of_rows h (i := 14) leafCircuit_row128 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_128_14
   simp only [← c5389, ← c5390, k3, ← c5391] at e_128_14
   have hr := e_128_14
@@ -621,10 +621,10 @@ theorem leafCircuit_f1023 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5395 := (leafCircuit_copies168 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5396 := (leafCircuit_copies168 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5397 := (leafCircuit_copies168 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_139_4 := arithEq_of_rows h (row := 139) (i := 4) rfl (by decide)
+  have e_139_4 := arithEq_of_rows h (i := 4) leafCircuit_row139 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_139_4
   simp only [← c5392, ← c5393, ← c5394] at e_139_4
-  have e_139_5 := arithEq_of_rows h (row := 139) (i := 5) rfl (by decide)
+  have e_139_5 := arithEq_of_rows h (i := 5) leafCircuit_row139 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_139_5
   simp only [← c5395, ← c5396, ← c5397] at e_139_5
   have hr := e_139_5
@@ -640,10 +640,10 @@ theorem leafCircuit_f1024 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5401 := (leafCircuit_copies168 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5402 := (leafCircuit_copies168 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5403 := (leafCircuit_copies168 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_139_6 := arithEq_of_rows h (row := 139) (i := 6) rfl (by decide)
+  have e_139_6 := arithEq_of_rows h (i := 6) leafCircuit_row139 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_139_6
   simp only [← c5398, ← c5399, ← c5400] at e_139_6
-  have e_139_7 := arithEq_of_rows h (row := 139) (i := 7) rfl (by decide)
+  have e_139_7 := arithEq_of_rows h (i := 7) leafCircuit_row139 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_139_7
   simp only [← c5401, ← c5402, ← c5403] at e_139_7
   have hr := e_139_7
@@ -660,10 +660,10 @@ theorem leafCircuit_f1025 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5390 := (leafCircuit_copies168 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5391 := (leafCircuit_copies168 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_104_10 := arithEq_of_rows h (row := 104) (i := 10) rfl (by decide)
+  have e_104_10 := arithEq_of_rows h (i := 10) leafCircuit_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_10
   simp only [← c5386, ← c5387, ← c5388] at e_104_10
-  have e_128_14 := arithEq_of_rows h (row := 128) (i := 14) rfl (by decide)
+  have e_128_14 := arithEq_of_rows h (i := 14) leafCircuit_row128 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_128_14
   simp only [← c5389, ← c5390, k3, ← c5391] at e_128_14
   have hr := e_128_14
@@ -679,10 +679,10 @@ theorem leafCircuit_f1026 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5407 := (leafCircuit_copies168 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c5408 := (leafCircuit_copies169 a h).1
   have c5409 := (leafCircuit_copies169 a h).2.1
-  have e_139_8 := arithEq_of_rows h (row := 139) (i := 8) rfl (by decide)
+  have e_139_8 := arithEq_of_rows h (i := 8) leafCircuit_row139 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_139_8
   simp only [← c5404, ← c5405, ← c5406] at e_139_8
-  have e_139_9 := arithEq_of_rows h (row := 139) (i := 9) rfl (by decide)
+  have e_139_9 := arithEq_of_rows h (i := 9) leafCircuit_row139 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_139_9
   simp only [← c5407, ← c5408, ← c5409] at e_139_9
   have hr := e_139_9
@@ -698,10 +698,10 @@ theorem leafCircuit_f1027 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5413 := (leafCircuit_copies169 a h).2.2.2.2.2.1
   have c5414 := (leafCircuit_copies169 a h).2.2.2.2.2.2.1
   have c5415 := (leafCircuit_copies169 a h).2.2.2.2.2.2.2.1
-  have e_139_10 := arithEq_of_rows h (row := 139) (i := 10) rfl (by decide)
+  have e_139_10 := arithEq_of_rows h (i := 10) leafCircuit_row139 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_139_10
   simp only [← c5410, ← c5411, ← c5412] at e_139_10
-  have e_139_11 := arithEq_of_rows h (row := 139) (i := 11) rfl (by decide)
+  have e_139_11 := arithEq_of_rows h (i := 11) leafCircuit_row139 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_139_11
   simp only [← c5413, ← c5414, ← c5415] at e_139_11
   have hr := e_139_11
@@ -718,10 +718,10 @@ theorem leafCircuit_f1028 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5390 := (leafCircuit_copies168 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5391 := (leafCircuit_copies168 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_104_10 := arithEq_of_rows h (row := 104) (i := 10) rfl (by decide)
+  have e_104_10 := arithEq_of_rows h (i := 10) leafCircuit_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_10
   simp only [← c5386, ← c5387, ← c5388] at e_104_10
-  have e_128_14 := arithEq_of_rows h (row := 128) (i := 14) rfl (by decide)
+  have e_128_14 := arithEq_of_rows h (i := 14) leafCircuit_row128 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_128_14
   simp only [← c5389, ← c5390, k3, ← c5391] at e_128_14
   have hr := e_128_14
@@ -737,10 +737,10 @@ theorem leafCircuit_f1029 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5419 := (leafCircuit_copies169 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c5420 := (leafCircuit_copies169 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5421 := (leafCircuit_copies169 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_139_12 := arithEq_of_rows h (row := 139) (i := 12) rfl (by decide)
+  have e_139_12 := arithEq_of_rows h (i := 12) leafCircuit_row139 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_139_12
   simp only [← c5416, ← c5417, ← c5418] at e_139_12
-  have e_139_13 := arithEq_of_rows h (row := 139) (i := 13) rfl (by decide)
+  have e_139_13 := arithEq_of_rows h (i := 13) leafCircuit_row139 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_139_13
   simp only [← c5419, ← c5420, ← c5421] at e_139_13
   have hr := e_139_13
@@ -756,10 +756,10 @@ theorem leafCircuit_f1030 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5425 := (leafCircuit_copies169 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5426 := (leafCircuit_copies169 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5427 := (leafCircuit_copies169 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_139_14 := arithEq_of_rows h (row := 139) (i := 14) rfl (by decide)
+  have e_139_14 := arithEq_of_rows h (i := 14) leafCircuit_row139 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_139_14
   simp only [← c5422, ← c5423, ← c5424] at e_139_14
-  have e_140_0 := arithEq_of_rows h (row := 140) (i := 0) rfl (by decide)
+  have e_140_0 := arithEq_of_rows h (i := 0) leafCircuit_row140 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_140_0
   simp only [← c5425, ← c5426, ← c5427] at e_140_0
   have hr := e_140_0
@@ -776,10 +776,10 @@ theorem leafCircuit_f1031 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5390 := (leafCircuit_copies168 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5391 := (leafCircuit_copies168 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_104_10 := arithEq_of_rows h (row := 104) (i := 10) rfl (by decide)
+  have e_104_10 := arithEq_of_rows h (i := 10) leafCircuit_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_10
   simp only [← c5386, ← c5387, ← c5388] at e_104_10
-  have e_128_14 := arithEq_of_rows h (row := 128) (i := 14) rfl (by decide)
+  have e_128_14 := arithEq_of_rows h (i := 14) leafCircuit_row128 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_128_14
   simp only [← c5389, ← c5390, k3, ← c5391] at e_128_14
   have hr := e_128_14
@@ -795,10 +795,10 @@ theorem leafCircuit_f1032 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5431 := (leafCircuit_copies169 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5432 := (leafCircuit_copies169 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5433 := (leafCircuit_copies169 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_140_1 := arithEq_of_rows h (row := 140) (i := 1) rfl (by decide)
+  have e_140_1 := arithEq_of_rows h (i := 1) leafCircuit_row140 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_140_1
   simp only [← c5428, ← c5429, ← c5430] at e_140_1
-  have e_140_2 := arithEq_of_rows h (row := 140) (i := 2) rfl (by decide)
+  have e_140_2 := arithEq_of_rows h (i := 2) leafCircuit_row140 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_140_2
   simp only [← c5431, ← c5432, ← c5433] at e_140_2
   have hr := e_140_2
@@ -814,10 +814,10 @@ theorem leafCircuit_f1033 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5437 := (leafCircuit_copies169 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5438 := (leafCircuit_copies169 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5439 := (leafCircuit_copies169 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have e_140_3 := arithEq_of_rows h (row := 140) (i := 3) rfl (by decide)
+  have e_140_3 := arithEq_of_rows h (i := 3) leafCircuit_row140 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_140_3
   simp only [← c5434, ← c5435, ← c5436] at e_140_3
-  have e_140_4 := arithEq_of_rows h (row := 140) (i := 4) rfl (by decide)
+  have e_140_4 := arithEq_of_rows h (i := 4) leafCircuit_row140 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_140_4
   simp only [← c5437, ← c5438, ← c5439] at e_140_4
   have hr := e_140_4
@@ -833,10 +833,10 @@ theorem leafCircuit_f1034 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5443 := (leafCircuit_copies170 a h).2.2.2.1
   have c5444 := (leafCircuit_copies170 a h).2.2.2.2.1
   have c5445 := (leafCircuit_copies170 a h).2.2.2.2.2.1
-  have e_140_5 := arithEq_of_rows h (row := 140) (i := 5) rfl (by decide)
+  have e_140_5 := arithEq_of_rows h (i := 5) leafCircuit_row140 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_140_5
   simp only [← c5440, ← c5441, ← c5442] at e_140_5
-  have e_140_6 := arithEq_of_rows h (row := 140) (i := 6) rfl (by decide)
+  have e_140_6 := arithEq_of_rows h (i := 6) leafCircuit_row140 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_140_6
   simp only [← c5443, ← c5444, ← c5445] at e_140_6
   have hr := e_140_6
@@ -852,10 +852,10 @@ theorem leafCircuit_f1035 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5449 := (leafCircuit_copies170 a h).2.2.2.2.2.2.2.2.2.1
   have c5450 := (leafCircuit_copies170 a h).2.2.2.2.2.2.2.2.2.2.1
   have c5451 := (leafCircuit_copies170 a h).2.2.2.2.2.2.2.2.2.2.2.1
-  have e_140_7 := arithEq_of_rows h (row := 140) (i := 7) rfl (by decide)
+  have e_140_7 := arithEq_of_rows h (i := 7) leafCircuit_row140 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_140_7
   simp only [← c5446, ← c5447, ← c5448] at e_140_7
-  have e_140_8 := arithEq_of_rows h (row := 140) (i := 8) rfl (by decide)
+  have e_140_8 := arithEq_of_rows h (i := 8) leafCircuit_row140 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_140_8
   simp only [← c5449, ← c5450, ← c5451] at e_140_8
   have hr := e_140_8
@@ -871,10 +871,10 @@ theorem leafCircuit_f1036 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5455 := (leafCircuit_copies170 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5456 := (leafCircuit_copies170 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5457 := (leafCircuit_copies170 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_140_9 := arithEq_of_rows h (row := 140) (i := 9) rfl (by decide)
+  have e_140_9 := arithEq_of_rows h (i := 9) leafCircuit_row140 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_140_9
   simp only [← c5452, ← c5453, ← c5454] at e_140_9
-  have e_140_10 := arithEq_of_rows h (row := 140) (i := 10) rfl (by decide)
+  have e_140_10 := arithEq_of_rows h (i := 10) leafCircuit_row140 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_140_10
   simp only [← c5455, ← c5456, ← c5457] at e_140_10
   have hr := e_140_10
@@ -890,10 +890,10 @@ theorem leafCircuit_f1037 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5461 := (leafCircuit_copies170 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5462 := (leafCircuit_copies170 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5463 := (leafCircuit_copies170 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_140_11 := arithEq_of_rows h (row := 140) (i := 11) rfl (by decide)
+  have e_140_11 := arithEq_of_rows h (i := 11) leafCircuit_row140 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_140_11
   simp only [← c5458, ← c5459, ← c5460] at e_140_11
-  have e_140_12 := arithEq_of_rows h (row := 140) (i := 12) rfl (by decide)
+  have e_140_12 := arithEq_of_rows h (i := 12) leafCircuit_row140 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_140_12
   simp only [← c5461, ← c5462, ← c5463] at e_140_12
   have hr := e_140_12
@@ -968,31 +968,31 @@ theorem leafCircuit_f1038 (perm : St p → St p) (a : Assignment p) (h : Satisfi
   have c5525 := (leafCircuit_copies172 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5526 := (leafCircuit_copies172 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_142_0 := arithEq_of_rows h (row := 142) (i := 0) rfl (by decide)
+  have e_142_0 := arithEq_of_rows h (i := 0) leafCircuit_row142 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_142_0
   simp only [← c5476, ← c5477, k3, ← c5478] at e_142_0
-  have e_142_1 := arithEq_of_rows h (row := 142) (i := 1) rfl (by decide)
+  have e_142_1 := arithEq_of_rows h (i := 1) leafCircuit_row142 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_142_1
   simp only [← c5479, ← c5480, k3, ← c5481] at e_142_1
-  have e_142_2 := arithEq_of_rows h (row := 142) (i := 2) rfl (by decide)
+  have e_142_2 := arithEq_of_rows h (i := 2) leafCircuit_row142 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_142_2
   simp only [← c5482, ← c5483, k3, ← c5484] at e_142_2
-  have e_142_3 := arithEq_of_rows h (row := 142) (i := 3) rfl (by decide)
+  have e_142_3 := arithEq_of_rows h (i := 3) leafCircuit_row142 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_142_3
   simp only [← c5485, ← c5486, k3, ← c5487] at e_142_3
-  have e_142_4 := arithEq_of_rows h (row := 142) (i := 4) rfl (by decide)
+  have e_142_4 := arithEq_of_rows h (i := 4) leafCircuit_row142 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_142_4
   simp only [← c5488, ← c5489, k3, ← c5490] at e_142_4
-  have e_142_5 := arithEq_of_rows h (row := 142) (i := 5) rfl (by decide)
+  have e_142_5 := arithEq_of_rows h (i := 5) leafCircuit_row142 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_142_5
   simp only [← c5491, ← c5492, k3, ← c5493] at e_142_5
-  have e_142_6 := arithEq_of_rows h (row := 142) (i := 6) rfl (by decide)
+  have e_142_6 := arithEq_of_rows h (i := 6) leafCircuit_row142 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_142_6
   simp only [← c5494, ← c5495, k3, ← c5496] at e_142_6
-  have e_142_7 := arithEq_of_rows h (row := 142) (i := 7) rfl (by decide)
+  have e_142_7 := arithEq_of_rows h (i := 7) leafCircuit_row142 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_142_7
   simp only [← c5497, ← c5498, k3, ← c5499] at e_142_7
-  have e_142_8 := arithEq_of_rows h (row := 142) (i := 8) rfl (by decide)
+  have e_142_8 := arithEq_of_rows h (i := 8) leafCircuit_row142 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_142_8
   simp only [← c5512, ← c5513, k3, ← c5514, k3] at e_142_8
   have hin0 : poseidon2In a 141 = addBlock (fun _ => 0) [a (.wire 136 47), a (.wire 136 55), a (.wire 138 3), a (.wire 138 11), a (.wire 138 27), a (.wire 138 43), a (.wire 138 59), a (.wire 139 15)] :=
@@ -1018,10 +1018,10 @@ theorem leafCircuit_f1039 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5530 := (leafCircuit_copies172 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5531 := (leafCircuit_copies172 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5532 := (leafCircuit_copies172 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_140_13 := arithEq_of_rows h (row := 140) (i := 13) rfl (by decide)
+  have e_140_13 := arithEq_of_rows h (i := 13) leafCircuit_row140 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_140_13
   simp only [← c5527, ← c5528, ← c5529] at e_140_13
-  have e_140_14 := arithEq_of_rows h (row := 140) (i := 14) rfl (by decide)
+  have e_140_14 := arithEq_of_rows h (i := 14) leafCircuit_row140 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_140_14
   simp only [← c5530, ← c5531, ← c5532] at e_140_14
   have hr := e_140_14
@@ -1037,10 +1037,10 @@ theorem leafCircuit_f1040 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5536 := (leafCircuit_copies173 a h).1
   have c5537 := (leafCircuit_copies173 a h).2.1
   have c5538 := (leafCircuit_copies173 a h).2.2.1
-  have e_145_0 := arithEq_of_rows h (row := 145) (i := 0) rfl (by decide)
+  have e_145_0 := arithEq_of_rows h (i := 0) leafCircuit_row145 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_145_0
   simp only [← c5533, ← c5534, ← c5535] at e_145_0
-  have e_145_1 := arithEq_of_rows h (row := 145) (i := 1) rfl (by decide)
+  have e_145_1 := arithEq_of_rows h (i := 1) leafCircuit_row145 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_145_1
   simp only [← c5536, ← c5537, ← c5538] at e_145_1
   have hr := e_145_1
@@ -1056,10 +1056,10 @@ theorem leafCircuit_f1041 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5542 := (leafCircuit_copies173 a h).2.2.2.2.2.2.1
   have c5543 := (leafCircuit_copies173 a h).2.2.2.2.2.2.2.1
   have c5544 := (leafCircuit_copies173 a h).2.2.2.2.2.2.2.2.1
-  have e_145_2 := arithEq_of_rows h (row := 145) (i := 2) rfl (by decide)
+  have e_145_2 := arithEq_of_rows h (i := 2) leafCircuit_row145 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_145_2
   simp only [← c5539, ← c5540, ← c5541] at e_145_2
-  have e_145_3 := arithEq_of_rows h (row := 145) (i := 3) rfl (by decide)
+  have e_145_3 := arithEq_of_rows h (i := 3) leafCircuit_row145 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_145_3
   simp only [← c5542, ← c5543, ← c5544] at e_145_3
   have hr := e_145_3
@@ -1075,10 +1075,10 @@ theorem leafCircuit_f1042 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5548 := (leafCircuit_copies173 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5549 := (leafCircuit_copies173 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5550 := (leafCircuit_copies173 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_145_4 := arithEq_of_rows h (row := 145) (i := 4) rfl (by decide)
+  have e_145_4 := arithEq_of_rows h (i := 4) leafCircuit_row145 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_145_4
   simp only [← c5545, ← c5546, ← c5547] at e_145_4
-  have e_145_5 := arithEq_of_rows h (row := 145) (i := 5) rfl (by decide)
+  have e_145_5 := arithEq_of_rows h (i := 5) leafCircuit_row145 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_145_5
   simp only [← c5548, ← c5549, ← c5550] at e_145_5
   have hr := e_145_5
@@ -1258,7 +1258,7 @@ theorem leafCircuit_f1052 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5607 := (leafCircuit_copies175 a h).2.2.2.2.2.2.2.1
   have c5608 := (leafCircuit_copies175 a h).2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_145_6 := arithEq_of_rows h (row := 145) (i := 6) rfl (by decide)
+  have e_145_6 := arithEq_of_rows h (i := 6) leafCircuit_row145 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_145_6
   simp only [← c5606, k3, ← c5607, k3, ← c5608] at e_145_6
   have hr := e_145_6
@@ -1307,7 +1307,7 @@ theorem leafCircuit_f1059 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5610 := (leafCircuit_copies175 a h).2.2.2.2.2.2.2.2.2.2.1
   have c5611 := (leafCircuit_copies175 a h).2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_137_5 := arithEq_of_rows h (row := 137) (i := 5) rfl (by decide)
+  have e_137_5 := arithEq_of_rows h (i := 5) leafCircuit_row137 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_137_5
   simp only [← c5609, k5, ← c5610, ← c5611, k5] at e_137_5
   have hr := e_137_5
@@ -1320,7 +1320,7 @@ theorem leafCircuit_f1060 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5613 := (leafCircuit_copies175 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5614 := (leafCircuit_copies175 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_142_9 := arithEq_of_rows h (row := 142) (i := 9) rfl (by decide)
+  have e_142_9 := arithEq_of_rows h (i := 9) leafCircuit_row142 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_142_9
   simp only [← c5612, k3, ← c5613, k3, ← c5614] at e_142_9
   have hr := e_142_9
@@ -1333,7 +1333,7 @@ theorem leafCircuit_f1061 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5616 := (leafCircuit_copies175 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5617 := (leafCircuit_copies175 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_145_7 := arithEq_of_rows h (row := 145) (i := 7) rfl (by decide)
+  have e_145_7 := arithEq_of_rows h (i := 7) leafCircuit_row145 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_145_7
   simp only [← c5615, ← c5616, k3, ← c5617] at e_145_7
   have hr := e_145_7
@@ -1345,7 +1345,7 @@ theorem leafCircuit_f1062 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5619 := (leafCircuit_copies175 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5620 := (leafCircuit_copies175 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_145_8 := arithEq_of_rows h (row := 145) (i := 8) rfl (by decide)
+  have e_145_8 := arithEq_of_rows h (i := 8) leafCircuit_row145 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_145_8
   simp only [← c5618, k3, ← c5619, k3, ← c5620] at e_145_8
   have hr := e_145_8
@@ -1357,7 +1357,7 @@ theorem leafCircuit_f1063 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5621 := (leafCircuit_copies175 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5622 := (leafCircuit_copies175 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5623 := (leafCircuit_copies175 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_137_6 := arithEq_of_rows h (row := 137) (i := 6) rfl (by decide)
+  have e_137_6 := arithEq_of_rows h (i := 6) leafCircuit_row137 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_137_6
   simp only [← c5621, ← c5622, ← c5623] at e_137_6
   have hr := e_137_6
@@ -1381,7 +1381,7 @@ theorem leafCircuit_f1066 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5624 := (leafCircuit_copies175 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5625 := (leafCircuit_copies175 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5626 := (leafCircuit_copies175 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_137_7 := arithEq_of_rows h (row := 137) (i := 7) rfl (by decide)
+  have e_137_7 := arithEq_of_rows h (i := 7) leafCircuit_row137 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_137_7
   simp only [← c5624, ← c5625, ← c5626] at e_137_7
   have hr := e_137_7
@@ -1397,10 +1397,10 @@ theorem leafCircuit_f1067 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5631 := (leafCircuit_copies175 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c5632 := (leafCircuit_copies176 a h).1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_104_11 := arithEq_of_rows h (row := 104) (i := 11) rfl (by decide)
+  have e_104_11 := arithEq_of_rows h (i := 11) leafCircuit_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_11
   simp only [← c5627, ← c5628, ← c5629] at e_104_11
-  have e_142_10 := arithEq_of_rows h (row := 142) (i := 10) rfl (by decide)
+  have e_142_10 := arithEq_of_rows h (i := 10) leafCircuit_row142 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_142_10
   simp only [← c5630, ← c5631, k3, ← c5632] at e_142_10
   have hr := e_142_10
@@ -1438,7 +1438,7 @@ theorem leafCircuit_f1072 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5634 := (leafCircuit_copies176 a h).2.2.1
   have c5635 := (leafCircuit_copies176 a h).2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_145_9 := arithEq_of_rows h (row := 145) (i := 9) rfl (by decide)
+  have e_145_9 := arithEq_of_rows h (i := 9) leafCircuit_row145 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_145_9
   simp only [← c5633, k3, ← c5634, k3, ← c5635] at e_145_9
   have hr := e_145_9
@@ -1450,7 +1450,7 @@ theorem leafCircuit_f1073 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5636 := (leafCircuit_copies176 a h).2.2.2.2.1
   have c5637 := (leafCircuit_copies176 a h).2.2.2.2.2.1
   have c5638 := (leafCircuit_copies176 a h).2.2.2.2.2.2.1
-  have e_137_8 := arithEq_of_rows h (row := 137) (i := 8) rfl (by decide)
+  have e_137_8 := arithEq_of_rows h (i := 8) leafCircuit_row137 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_137_8
   simp only [← c5636, ← c5637, ← c5638] at e_137_8
   have hr := e_137_8
@@ -1493,7 +1493,7 @@ theorem leafCircuit_f1079 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5640 := (leafCircuit_copies176 a h).2.2.2.2.2.2.2.2.1
   have c5641 := (leafCircuit_copies176 a h).2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_137_9 := arithEq_of_rows h (row := 137) (i := 9) rfl (by decide)
+  have e_137_9 := arithEq_of_rows h (i := 9) leafCircuit_row137 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_137_9
   simp only [← c5639, k5, ← c5640, ← c5641, k5] at e_137_9
   have hr := e_137_9
@@ -1506,7 +1506,7 @@ theorem leafCircuit_f1080 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5643 := (leafCircuit_copies176 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c5644 := (leafCircuit_copies176 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_142_11 := arithEq_of_rows h (row := 142) (i := 11) rfl (by decide)
+  have e_142_11 := arithEq_of_rows h (i := 11) leafCircuit_row142 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_142_11
   simp only [← c5642, k3, ← c5643, k3, ← c5644] at e_142_11
   have hr := e_142_11
@@ -1519,7 +1519,7 @@ theorem leafCircuit_f1081 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5646 := (leafCircuit_copies176 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5647 := (leafCircuit_copies176 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_145_10 := arithEq_of_rows h (row := 145) (i := 10) rfl (by decide)
+  have e_145_10 := arithEq_of_rows h (i := 10) leafCircuit_row145 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_145_10
   simp only [← c5645, ← c5646, k3, ← c5647] at e_145_10
   have hr := e_145_10
@@ -1531,7 +1531,7 @@ theorem leafCircuit_f1082 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5649 := (leafCircuit_copies176 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5650 := (leafCircuit_copies176 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_145_11 := arithEq_of_rows h (row := 145) (i := 11) rfl (by decide)
+  have e_145_11 := arithEq_of_rows h (i := 11) leafCircuit_row145 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_145_11
   simp only [← c5648, k3, ← c5649, k3, ← c5650] at e_145_11
   have hr := e_145_11
@@ -1543,7 +1543,7 @@ theorem leafCircuit_f1083 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5651 := (leafCircuit_copies176 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5652 := (leafCircuit_copies176 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5653 := (leafCircuit_copies176 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_137_10 := arithEq_of_rows h (row := 137) (i := 10) rfl (by decide)
+  have e_137_10 := arithEq_of_rows h (i := 10) leafCircuit_row137 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_137_10
   simp only [← c5651, ← c5652, ← c5653] at e_137_10
   have hr := e_137_10
@@ -1586,7 +1586,7 @@ theorem leafCircuit_f1089 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5655 := (leafCircuit_copies176 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5656 := (leafCircuit_copies176 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_137_11 := arithEq_of_rows h (row := 137) (i := 11) rfl (by decide)
+  have e_137_11 := arithEq_of_rows h (i := 11) leafCircuit_row137 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_137_11
   simp only [← c5654, k5, ← c5655, ← c5656, k5] at e_137_11
   have hr := e_137_11
@@ -1599,7 +1599,7 @@ theorem leafCircuit_f1090 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5658 := (leafCircuit_copies176 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5659 := (leafCircuit_copies176 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_142_12 := arithEq_of_rows h (row := 142) (i := 12) rfl (by decide)
+  have e_142_12 := arithEq_of_rows h (i := 12) leafCircuit_row142 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_142_12
   simp only [← c5657, k3, ← c5658, k3, ← c5659] at e_142_12
   have hr := e_142_12
@@ -1612,7 +1612,7 @@ theorem leafCircuit_f1091 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5661 := (leafCircuit_copies176 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5662 := (leafCircuit_copies176 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_145_12 := arithEq_of_rows h (row := 145) (i := 12) rfl (by decide)
+  have e_145_12 := arithEq_of_rows h (i := 12) leafCircuit_row145 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_145_12
   simp only [← c5660, ← c5661, k3, ← c5662] at e_145_12
   have hr := e_145_12
@@ -1624,7 +1624,7 @@ theorem leafCircuit_f1092 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5664 := (leafCircuit_copies177 a h).1
   have c5665 := (leafCircuit_copies177 a h).2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_145_13 := arithEq_of_rows h (row := 145) (i := 13) rfl (by decide)
+  have e_145_13 := arithEq_of_rows h (i := 13) leafCircuit_row145 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_145_13
   simp only [← c5663, k3, ← c5664, k3, ← c5665] at e_145_13
   have hr := e_145_13
@@ -1636,7 +1636,7 @@ theorem leafCircuit_f1093 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5666 := (leafCircuit_copies177 a h).2.2.1
   have c5667 := (leafCircuit_copies177 a h).2.2.2.1
   have c5668 := (leafCircuit_copies177 a h).2.2.2.2.1
-  have e_137_12 := arithEq_of_rows h (row := 137) (i := 12) rfl (by decide)
+  have e_137_12 := arithEq_of_rows h (i := 12) leafCircuit_row137 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_137_12
   simp only [← c5666, ← c5667, ← c5668] at e_137_12
   have hr := e_137_12
@@ -1784,16 +1784,16 @@ theorem leafCircuit_f1095 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5739 := (leafCircuit_copies179 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c5740 := (leafCircuit_copies179 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_137_13 := arithEq_of_rows h (row := 137) (i := 13) rfl (by decide)
+  have e_137_13 := arithEq_of_rows h (i := 13) leafCircuit_row137 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_137_13
   simp only [← c5730, ← c5731, ← c5732] at e_137_13
-  have e_137_14 := arithEq_of_rows h (row := 137) (i := 14) rfl (by decide)
+  have e_137_14 := arithEq_of_rows h (i := 14) leafCircuit_row137 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_137_14
   simp only [← c5733, ← c5734, ← c5735] at e_137_14
-  have e_145_14 := arithEq_of_rows h (row := 145) (i := 14) rfl (by decide)
+  have e_145_14 := arithEq_of_rows h (i := 14) leafCircuit_row145 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_145_14
   simp only [← c5727, k3, ← c5728, k3, ← c5729] at e_145_14
-  have e_148_0 := arithEq_of_rows h (row := 148) (i := 0) rfl (by decide)
+  have e_148_0 := arithEq_of_rows h (i := 0) leafCircuit_row148 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_148_0
   simp only [← c5736, ← c5737, k3, ← c5738] at e_148_0
   simp only [k0]
@@ -1824,19 +1824,19 @@ theorem leafCircuit_f1096 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5756 := (leafCircuit_copies179 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5757 := (leafCircuit_copies179 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_148_1 := arithEq_of_rows h (row := 148) (i := 1) rfl (by decide)
+  have e_148_1 := arithEq_of_rows h (i := 1) leafCircuit_row148 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_148_1
   simp only [← c5741, k3, ← c5742, k3, ← c5743] at e_148_1
-  have e_148_2 := arithEq_of_rows h (row := 148) (i := 2) rfl (by decide)
+  have e_148_2 := arithEq_of_rows h (i := 2) leafCircuit_row148 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_148_2
   simp only [← c5744, ← c5745, k3, ← c5746, k3] at e_148_2
-  have e_148_3 := arithEq_of_rows h (row := 148) (i := 3) rfl (by decide)
+  have e_148_3 := arithEq_of_rows h (i := 3) leafCircuit_row148 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_148_3
   simp only [← c5753, ← c5754, k3, ← c5755] at e_148_3
-  have e_149_0 := arithEq_of_rows h (row := 149) (i := 0) rfl (by decide)
+  have e_149_0 := arithEq_of_rows h (i := 0) leafCircuit_row149 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_149_0
   simp only [← c5747, ← c5748, ← c5749] at e_149_0
-  have e_149_1 := arithEq_of_rows h (row := 149) (i := 1) rfl (by decide)
+  have e_149_1 := arithEq_of_rows h (i := 1) leafCircuit_row149 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_149_1
   simp only [← c5750, ← c5751, ← c5752] at e_149_1
   simp only [k3]
@@ -1868,19 +1868,19 @@ theorem leafCircuit_f1097 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5773 := (leafCircuit_copies180 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5774 := (leafCircuit_copies180 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_148_4 := arithEq_of_rows h (row := 148) (i := 4) rfl (by decide)
+  have e_148_4 := arithEq_of_rows h (i := 4) leafCircuit_row148 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_148_4
   simp only [← c5758, k3, ← c5759, k3, ← c5760] at e_148_4
-  have e_148_5 := arithEq_of_rows h (row := 148) (i := 5) rfl (by decide)
+  have e_148_5 := arithEq_of_rows h (i := 5) leafCircuit_row148 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_148_5
   simp only [← c5761, ← c5762, k3, ← c5763, k5] at e_148_5
-  have e_148_6 := arithEq_of_rows h (row := 148) (i := 6) rfl (by decide)
+  have e_148_6 := arithEq_of_rows h (i := 6) leafCircuit_row148 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_148_6
   simp only [← c5770, ← c5771, k3, ← c5772] at e_148_6
-  have e_149_2 := arithEq_of_rows h (row := 149) (i := 2) rfl (by decide)
+  have e_149_2 := arithEq_of_rows h (i := 2) leafCircuit_row149 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_149_2
   simp only [← c5764, ← c5765, ← c5766] at e_149_2
-  have e_149_3 := arithEq_of_rows h (row := 149) (i := 3) rfl (by decide)
+  have e_149_3 := arithEq_of_rows h (i := 3) leafCircuit_row149 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_149_3
   simp only [← c5767, ← c5768, ← c5769] at e_149_3
   simp only [k5]
@@ -1912,19 +1912,19 @@ theorem leafCircuit_f1098 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5790 := (leafCircuit_copies180 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5791 := (leafCircuit_copies180 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_148_7 := arithEq_of_rows h (row := 148) (i := 7) rfl (by decide)
+  have e_148_7 := arithEq_of_rows h (i := 7) leafCircuit_row148 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_148_7
   simp only [← c5775, k3, ← c5776, k3, ← c5777] at e_148_7
-  have e_148_8 := arithEq_of_rows h (row := 148) (i := 8) rfl (by decide)
+  have e_148_8 := arithEq_of_rows h (i := 8) leafCircuit_row148 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_148_8
   simp only [← c5778, ← c5779, k3, ← c5780, k6] at e_148_8
-  have e_148_9 := arithEq_of_rows h (row := 148) (i := 9) rfl (by decide)
+  have e_148_9 := arithEq_of_rows h (i := 9) leafCircuit_row148 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_148_9
   simp only [← c5787, ← c5788, k3, ← c5789] at e_148_9
-  have e_149_4 := arithEq_of_rows h (row := 149) (i := 4) rfl (by decide)
+  have e_149_4 := arithEq_of_rows h (i := 4) leafCircuit_row149 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_149_4
   simp only [← c5781, ← c5782, ← c5783] at e_149_4
-  have e_149_5 := arithEq_of_rows h (row := 149) (i := 5) rfl (by decide)
+  have e_149_5 := arithEq_of_rows h (i := 5) leafCircuit_row149 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_149_5
   simp only [← c5784, ← c5785, ← c5786] at e_149_5
   simp only [k6]
@@ -1944,10 +1944,10 @@ theorem leafCircuit_f1099 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5795 := (leafCircuit_copies181 a h).2.2.2.1
   have c5796 := (leafCircuit_copies181 a h).2.2.2.2.1
   have c5797 := (leafCircuit_copies181 a h).2.2.2.2.2.1
-  have e_148_10 := arithEq_of_rows h (row := 148) (i := 10) rfl (by decide)
+  have e_148_10 := arithEq_of_rows h (i := 10) leafCircuit_row148 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_148_10
   simp only [← c5792, ← c5793, ← c5794] at e_148_10
-  have e_148_11 := arithEq_of_rows h (row := 148) (i := 11) rfl (by decide)
+  have e_148_11 := arithEq_of_rows h (i := 11) leafCircuit_row148 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_148_11
   simp only [← c5795, ← c5796, ← c5797] at e_148_11
   have hr := e_148_11
@@ -1963,10 +1963,10 @@ theorem leafCircuit_f1100 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5801 := (leafCircuit_copies181 a h).2.2.2.2.2.2.2.2.2.1
   have c5802 := (leafCircuit_copies181 a h).2.2.2.2.2.2.2.2.2.2.1
   have c5803 := (leafCircuit_copies181 a h).2.2.2.2.2.2.2.2.2.2.2.1
-  have e_148_12 := arithEq_of_rows h (row := 148) (i := 12) rfl (by decide)
+  have e_148_12 := arithEq_of_rows h (i := 12) leafCircuit_row148 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_148_12
   simp only [← c5798, ← c5799, ← c5800] at e_148_12
-  have e_148_13 := arithEq_of_rows h (row := 148) (i := 13) rfl (by decide)
+  have e_148_13 := arithEq_of_rows h (i := 13) leafCircuit_row148 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_148_13
   simp only [← c5801, ← c5802, ← c5803] at e_148_13
   have hr := e_148_13
@@ -1982,10 +1982,10 @@ theorem leafCircuit_f1101 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5807 := (leafCircuit_copies181 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5808 := (leafCircuit_copies181 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5809 := (leafCircuit_copies181 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_148_14 := arithEq_of_rows h (row := 148) (i := 14) rfl (by decide)
+  have e_148_14 := arithEq_of_rows h (i := 14) leafCircuit_row148 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_148_14
   simp only [← c5804, ← c5805, ← c5806] at e_148_14
-  have e_150_0 := arithEq_of_rows h (row := 150) (i := 0) rfl (by decide)
+  have e_150_0 := arithEq_of_rows h (i := 0) leafCircuit_row150 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_150_0
   simp only [← c5807, ← c5808, ← c5809] at e_150_0
   have hr := e_150_0
@@ -2001,10 +2001,10 @@ theorem leafCircuit_f1102 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5813 := (leafCircuit_copies181 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5814 := (leafCircuit_copies181 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5815 := (leafCircuit_copies181 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_150_1 := arithEq_of_rows h (row := 150) (i := 1) rfl (by decide)
+  have e_150_1 := arithEq_of_rows h (i := 1) leafCircuit_row150 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_150_1
   simp only [← c5810, ← c5811, ← c5812] at e_150_1
-  have e_150_2 := arithEq_of_rows h (row := 150) (i := 2) rfl (by decide)
+  have e_150_2 := arithEq_of_rows h (i := 2) leafCircuit_row150 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_150_2
   simp only [← c5813, ← c5814, ← c5815] at e_150_2
   have hr := e_150_2
@@ -2020,10 +2020,10 @@ theorem leafCircuit_f1103 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5819 := (leafCircuit_copies181 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5820 := (leafCircuit_copies181 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5821 := (leafCircuit_copies181 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_150_3 := arithEq_of_rows h (row := 150) (i := 3) rfl (by decide)
+  have e_150_3 := arithEq_of_rows h (i := 3) leafCircuit_row150 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_150_3
   simp only [← c5816, ← c5817, ← c5818] at e_150_3
-  have e_150_4 := arithEq_of_rows h (row := 150) (i := 4) rfl (by decide)
+  have e_150_4 := arithEq_of_rows h (i := 4) leafCircuit_row150 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_150_4
   simp only [← c5819, ← c5820, ← c5821] at e_150_4
   have hr := e_150_4
@@ -2039,10 +2039,10 @@ theorem leafCircuit_f1104 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5825 := (leafCircuit_copies182 a h).2.1
   have c5826 := (leafCircuit_copies182 a h).2.2.1
   have c5827 := (leafCircuit_copies182 a h).2.2.2.1
-  have e_150_5 := arithEq_of_rows h (row := 150) (i := 5) rfl (by decide)
+  have e_150_5 := arithEq_of_rows h (i := 5) leafCircuit_row150 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_150_5
   simp only [← c5822, ← c5823, ← c5824] at e_150_5
-  have e_150_6 := arithEq_of_rows h (row := 150) (i := 6) rfl (by decide)
+  have e_150_6 := arithEq_of_rows h (i := 6) leafCircuit_row150 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_150_6
   simp only [← c5825, ← c5826, ← c5827] at e_150_6
   have hr := e_150_6
@@ -2058,10 +2058,10 @@ theorem leafCircuit_f1105 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5831 := (leafCircuit_copies182 a h).2.2.2.2.2.2.2.1
   have c5832 := (leafCircuit_copies182 a h).2.2.2.2.2.2.2.2.1
   have c5833 := (leafCircuit_copies182 a h).2.2.2.2.2.2.2.2.2.1
-  have e_150_7 := arithEq_of_rows h (row := 150) (i := 7) rfl (by decide)
+  have e_150_7 := arithEq_of_rows h (i := 7) leafCircuit_row150 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_150_7
   simp only [← c5828, ← c5829, ← c5830] at e_150_7
-  have e_150_8 := arithEq_of_rows h (row := 150) (i := 8) rfl (by decide)
+  have e_150_8 := arithEq_of_rows h (i := 8) leafCircuit_row150 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_150_8
   simp only [← c5831, ← c5832, ← c5833] at e_150_8
   have hr := e_150_8
@@ -2077,10 +2077,10 @@ theorem leafCircuit_f1106 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5837 := (leafCircuit_copies182 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5838 := (leafCircuit_copies182 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5839 := (leafCircuit_copies182 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_150_9 := arithEq_of_rows h (row := 150) (i := 9) rfl (by decide)
+  have e_150_9 := arithEq_of_rows h (i := 9) leafCircuit_row150 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_150_9
   simp only [← c5834, ← c5835, ← c5836] at e_150_9
-  have e_150_10 := arithEq_of_rows h (row := 150) (i := 10) rfl (by decide)
+  have e_150_10 := arithEq_of_rows h (i := 10) leafCircuit_row150 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_150_10
   simp only [← c5837, ← c5838, ← c5839] at e_150_10
   have hr := e_150_10
@@ -2096,10 +2096,10 @@ theorem leafCircuit_f1107 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5843 := (leafCircuit_copies182 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5844 := (leafCircuit_copies182 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5845 := (leafCircuit_copies182 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_150_11 := arithEq_of_rows h (row := 150) (i := 11) rfl (by decide)
+  have e_150_11 := arithEq_of_rows h (i := 11) leafCircuit_row150 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_150_11
   simp only [← c5840, ← c5841, ← c5842] at e_150_11
-  have e_150_12 := arithEq_of_rows h (row := 150) (i := 12) rfl (by decide)
+  have e_150_12 := arithEq_of_rows h (i := 12) leafCircuit_row150 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_150_12
   simp only [← c5843, ← c5844, ← c5845] at e_150_12
   have hr := e_150_12
@@ -2115,10 +2115,10 @@ theorem leafCircuit_f1108 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5849 := (leafCircuit_copies182 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5850 := (leafCircuit_copies182 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5851 := (leafCircuit_copies182 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_150_13 := arithEq_of_rows h (row := 150) (i := 13) rfl (by decide)
+  have e_150_13 := arithEq_of_rows h (i := 13) leafCircuit_row150 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_150_13
   simp only [← c5846, ← c5847, ← c5848] at e_150_13
-  have e_150_14 := arithEq_of_rows h (row := 150) (i := 14) rfl (by decide)
+  have e_150_14 := arithEq_of_rows h (i := 14) leafCircuit_row150 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_150_14
   simp only [← c5849, ← c5850, ← c5851] at e_150_14
   have hr := e_150_14
@@ -2134,10 +2134,10 @@ theorem leafCircuit_f1109 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5855 := (leafCircuit_copies182 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c5856 := (leafCircuit_copies183 a h).1
   have c5857 := (leafCircuit_copies183 a h).2.1
-  have e_151_0 := arithEq_of_rows h (row := 151) (i := 0) rfl (by decide)
+  have e_151_0 := arithEq_of_rows h (i := 0) leafCircuit_row151 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_151_0
   simp only [← c5852, ← c5853, ← c5854] at e_151_0
-  have e_151_1 := arithEq_of_rows h (row := 151) (i := 1) rfl (by decide)
+  have e_151_1 := arithEq_of_rows h (i := 1) leafCircuit_row151 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_151_1
   simp only [← c5855, ← c5856, ← c5857] at e_151_1
   have hr := e_151_1
@@ -2153,10 +2153,10 @@ theorem leafCircuit_f1110 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5861 := (leafCircuit_copies183 a h).2.2.2.2.2.1
   have c5862 := (leafCircuit_copies183 a h).2.2.2.2.2.2.1
   have c5863 := (leafCircuit_copies183 a h).2.2.2.2.2.2.2.1
-  have e_151_2 := arithEq_of_rows h (row := 151) (i := 2) rfl (by decide)
+  have e_151_2 := arithEq_of_rows h (i := 2) leafCircuit_row151 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_151_2
   simp only [← c5858, ← c5859, ← c5860] at e_151_2
-  have e_151_3 := arithEq_of_rows h (row := 151) (i := 3) rfl (by decide)
+  have e_151_3 := arithEq_of_rows h (i := 3) leafCircuit_row151 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_151_3
   simp only [← c5861, ← c5862, ← c5863] at e_151_3
   have hr := e_151_3
@@ -2173,10 +2173,10 @@ theorem leafCircuit_f1111 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5868 := (leafCircuit_copies183 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5869 := (leafCircuit_copies183 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_104_12 := arithEq_of_rows h (row := 104) (i := 12) rfl (by decide)
+  have e_104_12 := arithEq_of_rows h (i := 12) leafCircuit_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_12
   simp only [← c5864, ← c5865, ← c5866] at e_104_12
-  have e_142_13 := arithEq_of_rows h (row := 142) (i := 13) rfl (by decide)
+  have e_142_13 := arithEq_of_rows h (i := 13) leafCircuit_row142 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_142_13
   simp only [← c5867, ← c5868, k3, ← c5869] at e_142_13
   have hr := e_142_13
@@ -2192,10 +2192,10 @@ theorem leafCircuit_f1112 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5873 := (leafCircuit_copies183 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5874 := (leafCircuit_copies183 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5875 := (leafCircuit_copies183 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_151_4 := arithEq_of_rows h (row := 151) (i := 4) rfl (by decide)
+  have e_151_4 := arithEq_of_rows h (i := 4) leafCircuit_row151 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_151_4
   simp only [← c5870, ← c5871, ← c5872] at e_151_4
-  have e_151_5 := arithEq_of_rows h (row := 151) (i := 5) rfl (by decide)
+  have e_151_5 := arithEq_of_rows h (i := 5) leafCircuit_row151 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_151_5
   simp only [← c5873, ← c5874, ← c5875] at e_151_5
   have hr := e_151_5
@@ -2211,10 +2211,10 @@ theorem leafCircuit_f1113 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5879 := (leafCircuit_copies183 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5880 := (leafCircuit_copies183 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5881 := (leafCircuit_copies183 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_151_6 := arithEq_of_rows h (row := 151) (i := 6) rfl (by decide)
+  have e_151_6 := arithEq_of_rows h (i := 6) leafCircuit_row151 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_151_6
   simp only [← c5876, ← c5877, ← c5878] at e_151_6
-  have e_151_7 := arithEq_of_rows h (row := 151) (i := 7) rfl (by decide)
+  have e_151_7 := arithEq_of_rows h (i := 7) leafCircuit_row151 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_151_7
   simp only [← c5879, ← c5880, ← c5881] at e_151_7
   have hr := e_151_7
@@ -2231,10 +2231,10 @@ theorem leafCircuit_f1114 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5868 := (leafCircuit_copies183 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5869 := (leafCircuit_copies183 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_104_12 := arithEq_of_rows h (row := 104) (i := 12) rfl (by decide)
+  have e_104_12 := arithEq_of_rows h (i := 12) leafCircuit_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_12
   simp only [← c5864, ← c5865, ← c5866] at e_104_12
-  have e_142_13 := arithEq_of_rows h (row := 142) (i := 13) rfl (by decide)
+  have e_142_13 := arithEq_of_rows h (i := 13) leafCircuit_row142 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_142_13
   simp only [← c5867, ← c5868, k3, ← c5869] at e_142_13
   have hr := e_142_13
@@ -2250,10 +2250,10 @@ theorem leafCircuit_f1115 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5885 := (leafCircuit_copies183 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5886 := (leafCircuit_copies183 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5887 := (leafCircuit_copies183 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have e_151_8 := arithEq_of_rows h (row := 151) (i := 8) rfl (by decide)
+  have e_151_8 := arithEq_of_rows h (i := 8) leafCircuit_row151 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_151_8
   simp only [← c5882, ← c5883, ← c5884] at e_151_8
-  have e_151_9 := arithEq_of_rows h (row := 151) (i := 9) rfl (by decide)
+  have e_151_9 := arithEq_of_rows h (i := 9) leafCircuit_row151 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_151_9
   simp only [← c5885, ← c5886, ← c5887] at e_151_9
   have hr := e_151_9
@@ -2269,10 +2269,10 @@ theorem leafCircuit_f1116 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5891 := (leafCircuit_copies184 a h).2.2.2.1
   have c5892 := (leafCircuit_copies184 a h).2.2.2.2.1
   have c5893 := (leafCircuit_copies184 a h).2.2.2.2.2.1
-  have e_151_10 := arithEq_of_rows h (row := 151) (i := 10) rfl (by decide)
+  have e_151_10 := arithEq_of_rows h (i := 10) leafCircuit_row151 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_151_10
   simp only [← c5888, ← c5889, ← c5890] at e_151_10
-  have e_151_11 := arithEq_of_rows h (row := 151) (i := 11) rfl (by decide)
+  have e_151_11 := arithEq_of_rows h (i := 11) leafCircuit_row151 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_151_11
   simp only [← c5891, ← c5892, ← c5893] at e_151_11
   have hr := e_151_11
@@ -2289,10 +2289,10 @@ theorem leafCircuit_f1117 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5868 := (leafCircuit_copies183 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5869 := (leafCircuit_copies183 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_104_12 := arithEq_of_rows h (row := 104) (i := 12) rfl (by decide)
+  have e_104_12 := arithEq_of_rows h (i := 12) leafCircuit_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_12
   simp only [← c5864, ← c5865, ← c5866] at e_104_12
-  have e_142_13 := arithEq_of_rows h (row := 142) (i := 13) rfl (by decide)
+  have e_142_13 := arithEq_of_rows h (i := 13) leafCircuit_row142 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_142_13
   simp only [← c5867, ← c5868, k3, ← c5869] at e_142_13
   have hr := e_142_13
@@ -2308,10 +2308,10 @@ theorem leafCircuit_f1118 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5897 := (leafCircuit_copies184 a h).2.2.2.2.2.2.2.2.2.1
   have c5898 := (leafCircuit_copies184 a h).2.2.2.2.2.2.2.2.2.2.1
   have c5899 := (leafCircuit_copies184 a h).2.2.2.2.2.2.2.2.2.2.2.1
-  have e_151_12 := arithEq_of_rows h (row := 151) (i := 12) rfl (by decide)
+  have e_151_12 := arithEq_of_rows h (i := 12) leafCircuit_row151 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_151_12
   simp only [← c5894, ← c5895, ← c5896] at e_151_12
-  have e_151_13 := arithEq_of_rows h (row := 151) (i := 13) rfl (by decide)
+  have e_151_13 := arithEq_of_rows h (i := 13) leafCircuit_row151 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_151_13
   simp only [← c5897, ← c5898, ← c5899] at e_151_13
   have hr := e_151_13
@@ -2327,10 +2327,10 @@ theorem leafCircuit_f1119 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5903 := (leafCircuit_copies184 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5904 := (leafCircuit_copies184 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5905 := (leafCircuit_copies184 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_151_14 := arithEq_of_rows h (row := 151) (i := 14) rfl (by decide)
+  have e_151_14 := arithEq_of_rows h (i := 14) leafCircuit_row151 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_151_14
   simp only [← c5900, ← c5901, ← c5902] at e_151_14
-  have e_152_0 := arithEq_of_rows h (row := 152) (i := 0) rfl (by decide)
+  have e_152_0 := arithEq_of_rows h (i := 0) leafCircuit_row152 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_152_0
   simp only [← c5903, ← c5904, ← c5905] at e_152_0
   have hr := e_152_0
@@ -2347,10 +2347,10 @@ theorem leafCircuit_f1120 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5868 := (leafCircuit_copies183 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5869 := (leafCircuit_copies183 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_104_12 := arithEq_of_rows h (row := 104) (i := 12) rfl (by decide)
+  have e_104_12 := arithEq_of_rows h (i := 12) leafCircuit_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_12
   simp only [← c5864, ← c5865, ← c5866] at e_104_12
-  have e_142_13 := arithEq_of_rows h (row := 142) (i := 13) rfl (by decide)
+  have e_142_13 := arithEq_of_rows h (i := 13) leafCircuit_row142 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_142_13
   simp only [← c5867, ← c5868, k3, ← c5869] at e_142_13
   have hr := e_142_13
@@ -2366,10 +2366,10 @@ theorem leafCircuit_f1121 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5909 := (leafCircuit_copies184 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5910 := (leafCircuit_copies184 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5911 := (leafCircuit_copies184 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_152_1 := arithEq_of_rows h (row := 152) (i := 1) rfl (by decide)
+  have e_152_1 := arithEq_of_rows h (i := 1) leafCircuit_row152 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_152_1
   simp only [← c5906, ← c5907, ← c5908] at e_152_1
-  have e_152_2 := arithEq_of_rows h (row := 152) (i := 2) rfl (by decide)
+  have e_152_2 := arithEq_of_rows h (i := 2) leafCircuit_row152 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_152_2
   simp only [← c5909, ← c5910, ← c5911] at e_152_2
   have hr := e_152_2
@@ -2385,10 +2385,10 @@ theorem leafCircuit_f1122 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5915 := (leafCircuit_copies184 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5916 := (leafCircuit_copies184 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5917 := (leafCircuit_copies184 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_152_3 := arithEq_of_rows h (row := 152) (i := 3) rfl (by decide)
+  have e_152_3 := arithEq_of_rows h (i := 3) leafCircuit_row152 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_152_3
   simp only [← c5912, ← c5913, ← c5914] at e_152_3
-  have e_152_4 := arithEq_of_rows h (row := 152) (i := 4) rfl (by decide)
+  have e_152_4 := arithEq_of_rows h (i := 4) leafCircuit_row152 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_152_4
   simp only [← c5915, ← c5916, ← c5917] at e_152_4
   have hr := e_152_4
@@ -2404,10 +2404,10 @@ theorem leafCircuit_f1123 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5921 := (leafCircuit_copies185 a h).2.1
   have c5922 := (leafCircuit_copies185 a h).2.2.1
   have c5923 := (leafCircuit_copies185 a h).2.2.2.1
-  have e_152_5 := arithEq_of_rows h (row := 152) (i := 5) rfl (by decide)
+  have e_152_5 := arithEq_of_rows h (i := 5) leafCircuit_row152 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_152_5
   simp only [← c5918, ← c5919, ← c5920] at e_152_5
-  have e_152_6 := arithEq_of_rows h (row := 152) (i := 6) rfl (by decide)
+  have e_152_6 := arithEq_of_rows h (i := 6) leafCircuit_row152 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_152_6
   simp only [← c5921, ← c5922, ← c5923] at e_152_6
   have hr := e_152_6
@@ -2423,10 +2423,10 @@ theorem leafCircuit_f1124 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5927 := (leafCircuit_copies185 a h).2.2.2.2.2.2.2.1
   have c5928 := (leafCircuit_copies185 a h).2.2.2.2.2.2.2.2.1
   have c5929 := (leafCircuit_copies185 a h).2.2.2.2.2.2.2.2.2.1
-  have e_152_7 := arithEq_of_rows h (row := 152) (i := 7) rfl (by decide)
+  have e_152_7 := arithEq_of_rows h (i := 7) leafCircuit_row152 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_152_7
   simp only [← c5924, ← c5925, ← c5926] at e_152_7
-  have e_152_8 := arithEq_of_rows h (row := 152) (i := 8) rfl (by decide)
+  have e_152_8 := arithEq_of_rows h (i := 8) leafCircuit_row152 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_152_8
   simp only [← c5927, ← c5928, ← c5929] at e_152_8
   have hr := e_152_8
@@ -2442,10 +2442,10 @@ theorem leafCircuit_f1125 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5933 := (leafCircuit_copies185 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5934 := (leafCircuit_copies185 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5935 := (leafCircuit_copies185 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_152_9 := arithEq_of_rows h (row := 152) (i := 9) rfl (by decide)
+  have e_152_9 := arithEq_of_rows h (i := 9) leafCircuit_row152 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_152_9
   simp only [← c5930, ← c5931, ← c5932] at e_152_9
-  have e_152_10 := arithEq_of_rows h (row := 152) (i := 10) rfl (by decide)
+  have e_152_10 := arithEq_of_rows h (i := 10) leafCircuit_row152 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_152_10
   simp only [← c5933, ← c5934, ← c5935] at e_152_10
   have hr := e_152_10
@@ -2461,10 +2461,10 @@ theorem leafCircuit_f1126 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c5939 := (leafCircuit_copies185 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5940 := (leafCircuit_copies185 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5941 := (leafCircuit_copies185 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_152_11 := arithEq_of_rows h (row := 152) (i := 11) rfl (by decide)
+  have e_152_11 := arithEq_of_rows h (i := 11) leafCircuit_row152 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_152_11
   simp only [← c5936, ← c5937, ← c5938] at e_152_11
-  have e_152_12 := arithEq_of_rows h (row := 152) (i := 12) rfl (by decide)
+  have e_152_12 := arithEq_of_rows h (i := 12) leafCircuit_row152 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_152_12
   simp only [← c5939, ← c5940, ← c5941] at e_152_12
   have hr := e_152_12
@@ -2539,31 +2539,31 @@ theorem leafCircuit_f1127 (perm : St p → St p) (a : Assignment p) (h : Satisfi
   have c6003 := (leafCircuit_copies187 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6004 := (leafCircuit_copies187 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_142_14 := arithEq_of_rows h (row := 142) (i := 14) rfl (by decide)
+  have e_142_14 := arithEq_of_rows h (i := 14) leafCircuit_row142 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_142_14
   simp only [← c5954, ← c5955, k3, ← c5956] at e_142_14
-  have e_154_0 := arithEq_of_rows h (row := 154) (i := 0) rfl (by decide)
+  have e_154_0 := arithEq_of_rows h (i := 0) leafCircuit_row154 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_154_0
   simp only [← c5957, ← c5958, k3, ← c5959] at e_154_0
-  have e_154_1 := arithEq_of_rows h (row := 154) (i := 1) rfl (by decide)
+  have e_154_1 := arithEq_of_rows h (i := 1) leafCircuit_row154 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_154_1
   simp only [← c5960, ← c5961, k3, ← c5962] at e_154_1
-  have e_154_2 := arithEq_of_rows h (row := 154) (i := 2) rfl (by decide)
+  have e_154_2 := arithEq_of_rows h (i := 2) leafCircuit_row154 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_154_2
   simp only [← c5963, ← c5964, k3, ← c5965] at e_154_2
-  have e_154_3 := arithEq_of_rows h (row := 154) (i := 3) rfl (by decide)
+  have e_154_3 := arithEq_of_rows h (i := 3) leafCircuit_row154 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_154_3
   simp only [← c5966, ← c5967, k3, ← c5968] at e_154_3
-  have e_154_4 := arithEq_of_rows h (row := 154) (i := 4) rfl (by decide)
+  have e_154_4 := arithEq_of_rows h (i := 4) leafCircuit_row154 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_154_4
   simp only [← c5969, ← c5970, k3, ← c5971] at e_154_4
-  have e_154_5 := arithEq_of_rows h (row := 154) (i := 5) rfl (by decide)
+  have e_154_5 := arithEq_of_rows h (i := 5) leafCircuit_row154 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_154_5
   simp only [← c5972, ← c5973, k3, ← c5974] at e_154_5
-  have e_154_6 := arithEq_of_rows h (row := 154) (i := 6) rfl (by decide)
+  have e_154_6 := arithEq_of_rows h (i := 6) leafCircuit_row154 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_154_6
   simp only [← c5975, ← c5976, k3, ← c5977] at e_154_6
-  have e_154_7 := arithEq_of_rows h (row := 154) (i := 7) rfl (by decide)
+  have e_154_7 := arithEq_of_rows h (i := 7) leafCircuit_row154 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_154_7
   simp only [← c5990, ← c5991, k3, ← c5992, k3] at e_154_7
   have hin0 : poseidon2In a 153 = addBlock (fun _ => 0) [a (.wire 148 47), a (.wire 148 55), a (.wire 150 3), a (.wire 150 11), a (.wire 150 27), a (.wire 150 43), a (.wire 150 59), a (.wire 151 15)] :=
@@ -2589,10 +2589,10 @@ theorem leafCircuit_f1128 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6008 := (leafCircuit_copies187 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6009 := (leafCircuit_copies187 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6010 := (leafCircuit_copies187 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_152_13 := arithEq_of_rows h (row := 152) (i := 13) rfl (by decide)
+  have e_152_13 := arithEq_of_rows h (i := 13) leafCircuit_row152 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_152_13
   simp only [← c6005, ← c6006, ← c6007] at e_152_13
-  have e_152_14 := arithEq_of_rows h (row := 152) (i := 14) rfl (by decide)
+  have e_152_14 := arithEq_of_rows h (i := 14) leafCircuit_row152 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_152_14
   simp only [← c6008, ← c6009, ← c6010] at e_152_14
   have hr := e_152_14
@@ -2608,10 +2608,10 @@ theorem leafCircuit_f1129 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6014 := (leafCircuit_copies187 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6015 := (leafCircuit_copies187 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c6016 := (leafCircuit_copies188 a h).1
-  have e_157_0 := arithEq_of_rows h (row := 157) (i := 0) rfl (by decide)
+  have e_157_0 := arithEq_of_rows h (i := 0) leafCircuit_row157 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_157_0
   simp only [← c6011, ← c6012, ← c6013] at e_157_0
-  have e_157_1 := arithEq_of_rows h (row := 157) (i := 1) rfl (by decide)
+  have e_157_1 := arithEq_of_rows h (i := 1) leafCircuit_row157 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_157_1
   simp only [← c6014, ← c6015, ← c6016] at e_157_1
   have hr := e_157_1
@@ -2627,10 +2627,10 @@ theorem leafCircuit_f1130 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6020 := (leafCircuit_copies188 a h).2.2.2.2.1
   have c6021 := (leafCircuit_copies188 a h).2.2.2.2.2.1
   have c6022 := (leafCircuit_copies188 a h).2.2.2.2.2.2.1
-  have e_157_2 := arithEq_of_rows h (row := 157) (i := 2) rfl (by decide)
+  have e_157_2 := arithEq_of_rows h (i := 2) leafCircuit_row157 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_157_2
   simp only [← c6017, ← c6018, ← c6019] at e_157_2
-  have e_157_3 := arithEq_of_rows h (row := 157) (i := 3) rfl (by decide)
+  have e_157_3 := arithEq_of_rows h (i := 3) leafCircuit_row157 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_157_3
   simp only [← c6020, ← c6021, ← c6022] at e_157_3
   have hr := e_157_3
@@ -2646,10 +2646,10 @@ theorem leafCircuit_f1131 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6026 := (leafCircuit_copies188 a h).2.2.2.2.2.2.2.2.2.2.1
   have c6027 := (leafCircuit_copies188 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c6028 := (leafCircuit_copies188 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_157_4 := arithEq_of_rows h (row := 157) (i := 4) rfl (by decide)
+  have e_157_4 := arithEq_of_rows h (i := 4) leafCircuit_row157 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_157_4
   simp only [← c6023, ← c6024, ← c6025] at e_157_4
-  have e_157_5 := arithEq_of_rows h (row := 157) (i := 5) rfl (by decide)
+  have e_157_5 := arithEq_of_rows h (i := 5) leafCircuit_row157 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_157_5
   simp only [← c6026, ← c6027, ← c6028] at e_157_5
   have hr := e_157_5
@@ -2829,7 +2829,7 @@ theorem leafCircuit_f1141 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6085 := (leafCircuit_copies190 a h).2.2.2.2.2.1
   have c6086 := (leafCircuit_copies190 a h).2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_157_6 := arithEq_of_rows h (row := 157) (i := 6) rfl (by decide)
+  have e_157_6 := arithEq_of_rows h (i := 6) leafCircuit_row157 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_157_6
   simp only [← c6084, k3, ← c6085, k3, ← c6086] at e_157_6
   have hr := e_157_6
@@ -2878,7 +2878,7 @@ theorem leafCircuit_f1148 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6088 := (leafCircuit_copies190 a h).2.2.2.2.2.2.2.2.1
   have c6089 := (leafCircuit_copies190 a h).2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_149_6 := arithEq_of_rows h (row := 149) (i := 6) rfl (by decide)
+  have e_149_6 := arithEq_of_rows h (i := 6) leafCircuit_row149 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_149_6
   simp only [← c6087, k5, ← c6088, ← c6089, k5] at e_149_6
   have hr := e_149_6
@@ -2891,7 +2891,7 @@ theorem leafCircuit_f1149 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6091 := (leafCircuit_copies190 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c6092 := (leafCircuit_copies190 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_154_8 := arithEq_of_rows h (row := 154) (i := 8) rfl (by decide)
+  have e_154_8 := arithEq_of_rows h (i := 8) leafCircuit_row154 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_154_8
   simp only [← c6090, k3, ← c6091, k3, ← c6092] at e_154_8
   have hr := e_154_8
@@ -2904,7 +2904,7 @@ theorem leafCircuit_f1150 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6094 := (leafCircuit_copies190 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6095 := (leafCircuit_copies190 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_157_7 := arithEq_of_rows h (row := 157) (i := 7) rfl (by decide)
+  have e_157_7 := arithEq_of_rows h (i := 7) leafCircuit_row157 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_157_7
   simp only [← c6093, ← c6094, k3, ← c6095] at e_157_7
   have hr := e_157_7
@@ -2916,7 +2916,7 @@ theorem leafCircuit_f1151 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6097 := (leafCircuit_copies190 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6098 := (leafCircuit_copies190 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_157_8 := arithEq_of_rows h (row := 157) (i := 8) rfl (by decide)
+  have e_157_8 := arithEq_of_rows h (i := 8) leafCircuit_row157 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_157_8
   simp only [← c6096, k3, ← c6097, k3, ← c6098] at e_157_8
   have hr := e_157_8
@@ -2928,7 +2928,7 @@ theorem leafCircuit_f1152 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6099 := (leafCircuit_copies190 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6100 := (leafCircuit_copies190 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6101 := (leafCircuit_copies190 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_149_7 := arithEq_of_rows h (row := 149) (i := 7) rfl (by decide)
+  have e_149_7 := arithEq_of_rows h (i := 7) leafCircuit_row149 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_149_7
   simp only [← c6099, ← c6100, ← c6101] at e_149_7
   have hr := e_149_7
@@ -2971,7 +2971,7 @@ theorem leafCircuit_f1158 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6103 := (leafCircuit_copies190 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6104 := (leafCircuit_copies190 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_149_8 := arithEq_of_rows h (row := 149) (i := 8) rfl (by decide)
+  have e_149_8 := arithEq_of_rows h (i := 8) leafCircuit_row149 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_149_8
   simp only [← c6102, k5, ← c6103, ← c6104, k5] at e_149_8
   have hr := e_149_8
@@ -2984,7 +2984,7 @@ theorem leafCircuit_f1159 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6106 := (leafCircuit_copies190 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6107 := (leafCircuit_copies190 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_154_9 := arithEq_of_rows h (row := 154) (i := 9) rfl (by decide)
+  have e_154_9 := arithEq_of_rows h (i := 9) leafCircuit_row154 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_154_9
   simp only [← c6105, k3, ← c6106, k3, ← c6107] at e_154_9
   have hr := e_154_9
@@ -2997,7 +2997,7 @@ theorem leafCircuit_f1160 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6109 := (leafCircuit_copies190 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6110 := (leafCircuit_copies190 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_157_9 := arithEq_of_rows h (row := 157) (i := 9) rfl (by decide)
+  have e_157_9 := arithEq_of_rows h (i := 9) leafCircuit_row157 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_157_9
   simp only [← c6108, ← c6109, k3, ← c6110] at e_157_9
   have hr := e_157_9
@@ -3009,7 +3009,7 @@ theorem leafCircuit_f1161 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6112 := (leafCircuit_copies191 a h).1
   have c6113 := (leafCircuit_copies191 a h).2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_157_10 := arithEq_of_rows h (row := 157) (i := 10) rfl (by decide)
+  have e_157_10 := arithEq_of_rows h (i := 10) leafCircuit_row157 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_157_10
   simp only [← c6111, k3, ← c6112, k3, ← c6113] at e_157_10
   have hr := e_157_10
@@ -3021,7 +3021,7 @@ theorem leafCircuit_f1162 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6114 := (leafCircuit_copies191 a h).2.2.1
   have c6115 := (leafCircuit_copies191 a h).2.2.2.1
   have c6116 := (leafCircuit_copies191 a h).2.2.2.2.1
-  have e_149_9 := arithEq_of_rows h (row := 149) (i := 9) rfl (by decide)
+  have e_149_9 := arithEq_of_rows h (i := 9) leafCircuit_row149 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_149_9
   simp only [← c6114, ← c6115, ← c6116] at e_149_9
   have hr := e_149_9
@@ -3045,7 +3045,7 @@ theorem leafCircuit_f1165 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6117 := (leafCircuit_copies191 a h).2.2.2.2.2.1
   have c6118 := (leafCircuit_copies191 a h).2.2.2.2.2.2.1
   have c6119 := (leafCircuit_copies191 a h).2.2.2.2.2.2.2.1
-  have e_149_10 := arithEq_of_rows h (row := 149) (i := 10) rfl (by decide)
+  have e_149_10 := arithEq_of_rows h (i := 10) leafCircuit_row149 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_149_10
   simp only [← c6117, ← c6118, ← c6119] at e_149_10
   have hr := e_149_10
@@ -3061,10 +3061,10 @@ theorem leafCircuit_f1166 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6124 := (leafCircuit_copies191 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6125 := (leafCircuit_copies191 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_104_13 := arithEq_of_rows h (row := 104) (i := 13) rfl (by decide)
+  have e_104_13 := arithEq_of_rows h (i := 13) leafCircuit_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_13
   simp only [← c6120, ← c6121, ← c6122] at e_104_13
-  have e_154_10 := arithEq_of_rows h (row := 154) (i := 10) rfl (by decide)
+  have e_154_10 := arithEq_of_rows h (i := 10) leafCircuit_row154 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_154_10
   simp only [← c6123, ← c6124, k3, ← c6125] at e_154_10
   have hr := e_154_10
@@ -3102,7 +3102,7 @@ theorem leafCircuit_f1171 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6127 := (leafCircuit_copies191 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6128 := (leafCircuit_copies191 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_157_11 := arithEq_of_rows h (row := 157) (i := 11) rfl (by decide)
+  have e_157_11 := arithEq_of_rows h (i := 11) leafCircuit_row157 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_157_11
   simp only [← c6126, k3, ← c6127, k3, ← c6128] at e_157_11
   have hr := e_157_11
@@ -3114,7 +3114,7 @@ theorem leafCircuit_f1172 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6129 := (leafCircuit_copies191 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6130 := (leafCircuit_copies191 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6131 := (leafCircuit_copies191 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_149_11 := arithEq_of_rows h (row := 149) (i := 11) rfl (by decide)
+  have e_149_11 := arithEq_of_rows h (i := 11) leafCircuit_row149 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_149_11
   simp only [← c6129, ← c6130, ← c6131] at e_149_11
   have hr := e_149_11
@@ -3138,7 +3138,7 @@ theorem leafCircuit_f1175 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6132 := (leafCircuit_copies191 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6133 := (leafCircuit_copies191 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6134 := (leafCircuit_copies191 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_149_12 := arithEq_of_rows h (row := 149) (i := 12) rfl (by decide)
+  have e_149_12 := arithEq_of_rows h (i := 12) leafCircuit_row149 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_149_12
   simp only [← c6132, ← c6133, ← c6134] at e_149_12
   have hr := e_149_12
@@ -3154,10 +3154,10 @@ theorem leafCircuit_f1176 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6139 := (leafCircuit_copies191 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6140 := (leafCircuit_copies191 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_104_14 := arithEq_of_rows h (row := 104) (i := 14) rfl (by decide)
+  have e_104_14 := arithEq_of_rows h (i := 14) leafCircuit_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_14
   simp only [← c6135, ← c6136, ← c6137] at e_104_14
-  have e_154_11 := arithEq_of_rows h (row := 154) (i := 11) rfl (by decide)
+  have e_154_11 := arithEq_of_rows h (i := 11) leafCircuit_row154 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_154_11
   simp only [← c6138, ← c6139, k3, ← c6140] at e_154_11
   have hr := e_154_11
@@ -3195,7 +3195,7 @@ theorem leafCircuit_f1181 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6142 := (leafCircuit_copies191 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6143 := (leafCircuit_copies191 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_157_12 := arithEq_of_rows h (row := 157) (i := 12) rfl (by decide)
+  have e_157_12 := arithEq_of_rows h (i := 12) leafCircuit_row157 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_157_12
   simp only [← c6141, k3, ← c6142, k3, ← c6143] at e_157_12
   have hr := e_157_12
@@ -3207,7 +3207,7 @@ theorem leafCircuit_f1182 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6144 := (leafCircuit_copies192 a h).1
   have c6145 := (leafCircuit_copies192 a h).2.1
   have c6146 := (leafCircuit_copies192 a h).2.2.1
-  have e_149_13 := arithEq_of_rows h (row := 149) (i := 13) rfl (by decide)
+  have e_149_13 := arithEq_of_rows h (i := 13) leafCircuit_row149 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_149_13
   simp only [← c6144, ← c6145, ← c6146] at e_149_13
   have hr := e_149_13
@@ -3355,16 +3355,16 @@ theorem leafCircuit_f1184 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6217 := (leafCircuit_copies194 a h).2.2.2.2.2.2.2.2.2.1
   have c6218 := (leafCircuit_copies194 a h).2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_149_14 := arithEq_of_rows h (row := 149) (i := 14) rfl (by decide)
+  have e_149_14 := arithEq_of_rows h (i := 14) leafCircuit_row149 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_149_14
   simp only [← c6208, ← c6209, ← c6210] at e_149_14
-  have e_157_13 := arithEq_of_rows h (row := 157) (i := 13) rfl (by decide)
+  have e_157_13 := arithEq_of_rows h (i := 13) leafCircuit_row157 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_157_13
   simp only [← c6205, k3, ← c6206, k3, ← c6207] at e_157_13
-  have e_157_14 := arithEq_of_rows h (row := 157) (i := 14) rfl (by decide)
+  have e_157_14 := arithEq_of_rows h (i := 14) leafCircuit_row157 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_157_14
   simp only [← c6214, ← c6215, k3, ← c6216] at e_157_14
-  have e_160_0 := arithEq_of_rows h (row := 160) (i := 0) rfl (by decide)
+  have e_160_0 := arithEq_of_rows h (i := 0) leafCircuit_row160 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_160_0
   simp only [← c6211, ← c6212, ← c6213] at e_160_0
   simp only [k0]
@@ -3395,19 +3395,19 @@ theorem leafCircuit_f1185 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6234 := (leafCircuit_copies194 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6235 := (leafCircuit_copies194 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_160_1 := arithEq_of_rows h (row := 160) (i := 1) rfl (by decide)
+  have e_160_1 := arithEq_of_rows h (i := 1) leafCircuit_row160 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_160_1
   simp only [← c6225, ← c6226, ← c6227] at e_160_1
-  have e_160_2 := arithEq_of_rows h (row := 160) (i := 2) rfl (by decide)
+  have e_160_2 := arithEq_of_rows h (i := 2) leafCircuit_row160 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_160_2
   simp only [← c6228, ← c6229, ← c6230] at e_160_2
-  have e_161_0 := arithEq_of_rows h (row := 161) (i := 0) rfl (by decide)
+  have e_161_0 := arithEq_of_rows h (i := 0) leafCircuit_row161 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_161_0
   simp only [← c6219, k3, ← c6220, k3, ← c6221] at e_161_0
-  have e_161_1 := arithEq_of_rows h (row := 161) (i := 1) rfl (by decide)
+  have e_161_1 := arithEq_of_rows h (i := 1) leafCircuit_row161 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_161_1
   simp only [← c6222, ← c6223, k3, ← c6224, k3] at e_161_1
-  have e_161_2 := arithEq_of_rows h (row := 161) (i := 2) rfl (by decide)
+  have e_161_2 := arithEq_of_rows h (i := 2) leafCircuit_row161 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_161_2
   simp only [← c6231, ← c6232, k3, ← c6233] at e_161_2
   simp only [k3]
@@ -3439,19 +3439,19 @@ theorem leafCircuit_f1186 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6251 := (leafCircuit_copies195 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c6252 := (leafCircuit_copies195 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_160_3 := arithEq_of_rows h (row := 160) (i := 3) rfl (by decide)
+  have e_160_3 := arithEq_of_rows h (i := 3) leafCircuit_row160 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_160_3
   simp only [← c6242, ← c6243, ← c6244] at e_160_3
-  have e_160_4 := arithEq_of_rows h (row := 160) (i := 4) rfl (by decide)
+  have e_160_4 := arithEq_of_rows h (i := 4) leafCircuit_row160 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_160_4
   simp only [← c6245, ← c6246, ← c6247] at e_160_4
-  have e_161_3 := arithEq_of_rows h (row := 161) (i := 3) rfl (by decide)
+  have e_161_3 := arithEq_of_rows h (i := 3) leafCircuit_row161 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_161_3
   simp only [← c6236, k3, ← c6237, k3, ← c6238] at e_161_3
-  have e_161_4 := arithEq_of_rows h (row := 161) (i := 4) rfl (by decide)
+  have e_161_4 := arithEq_of_rows h (i := 4) leafCircuit_row161 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_161_4
   simp only [← c6239, ← c6240, k3, ← c6241, k5] at e_161_4
-  have e_161_5 := arithEq_of_rows h (row := 161) (i := 5) rfl (by decide)
+  have e_161_5 := arithEq_of_rows h (i := 5) leafCircuit_row161 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_161_5
   simp only [← c6248, ← c6249, k3, ← c6250] at e_161_5
   simp only [k5]
@@ -3483,19 +3483,19 @@ theorem leafCircuit_f1187 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6268 := (leafCircuit_copies195 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6269 := (leafCircuit_copies195 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_160_5 := arithEq_of_rows h (row := 160) (i := 5) rfl (by decide)
+  have e_160_5 := arithEq_of_rows h (i := 5) leafCircuit_row160 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_160_5
   simp only [← c6259, ← c6260, ← c6261] at e_160_5
-  have e_160_6 := arithEq_of_rows h (row := 160) (i := 6) rfl (by decide)
+  have e_160_6 := arithEq_of_rows h (i := 6) leafCircuit_row160 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_160_6
   simp only [← c6262, ← c6263, ← c6264] at e_160_6
-  have e_161_6 := arithEq_of_rows h (row := 161) (i := 6) rfl (by decide)
+  have e_161_6 := arithEq_of_rows h (i := 6) leafCircuit_row161 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_161_6
   simp only [← c6253, k3, ← c6254, k3, ← c6255] at e_161_6
-  have e_161_7 := arithEq_of_rows h (row := 161) (i := 7) rfl (by decide)
+  have e_161_7 := arithEq_of_rows h (i := 7) leafCircuit_row161 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_161_7
   simp only [← c6256, ← c6257, k3, ← c6258, k6] at e_161_7
-  have e_161_8 := arithEq_of_rows h (row := 161) (i := 8) rfl (by decide)
+  have e_161_8 := arithEq_of_rows h (i := 8) leafCircuit_row161 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_161_8
   simp only [← c6265, ← c6266, k3, ← c6267] at e_161_8
   simp only [k6]
@@ -3515,10 +3515,10 @@ theorem leafCircuit_f1188 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6273 := (leafCircuit_copies196 a h).2.1
   have c6274 := (leafCircuit_copies196 a h).2.2.1
   have c6275 := (leafCircuit_copies196 a h).2.2.2.1
-  have e_161_9 := arithEq_of_rows h (row := 161) (i := 9) rfl (by decide)
+  have e_161_9 := arithEq_of_rows h (i := 9) leafCircuit_row161 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_161_9
   simp only [← c6270, ← c6271, ← c6272] at e_161_9
-  have e_161_10 := arithEq_of_rows h (row := 161) (i := 10) rfl (by decide)
+  have e_161_10 := arithEq_of_rows h (i := 10) leafCircuit_row161 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_161_10
   simp only [← c6273, ← c6274, ← c6275] at e_161_10
   have hr := e_161_10
@@ -3534,10 +3534,10 @@ theorem leafCircuit_f1189 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6279 := (leafCircuit_copies196 a h).2.2.2.2.2.2.2.1
   have c6280 := (leafCircuit_copies196 a h).2.2.2.2.2.2.2.2.1
   have c6281 := (leafCircuit_copies196 a h).2.2.2.2.2.2.2.2.2.1
-  have e_161_11 := arithEq_of_rows h (row := 161) (i := 11) rfl (by decide)
+  have e_161_11 := arithEq_of_rows h (i := 11) leafCircuit_row161 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_161_11
   simp only [← c6276, ← c6277, ← c6278] at e_161_11
-  have e_161_12 := arithEq_of_rows h (row := 161) (i := 12) rfl (by decide)
+  have e_161_12 := arithEq_of_rows h (i := 12) leafCircuit_row161 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_161_12
   simp only [← c6279, ← c6280, ← c6281] at e_161_12
   have hr := e_161_12
@@ -3553,10 +3553,10 @@ theorem leafCircuit_f1190 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6285 := (leafCircuit_copies196 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6286 := (leafCircuit_copies196 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6287 := (leafCircuit_copies196 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_161_13 := arithEq_of_rows h (row := 161) (i := 13) rfl (by decide)
+  have e_161_13 := arithEq_of_rows h (i := 13) leafCircuit_row161 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_161_13
   simp only [← c6282, ← c6283, ← c6284] at e_161_13
-  have e_161_14 := arithEq_of_rows h (row := 161) (i := 14) rfl (by decide)
+  have e_161_14 := arithEq_of_rows h (i := 14) leafCircuit_row161 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_161_14
   simp only [← c6285, ← c6286, ← c6287] at e_161_14
   have hr := e_161_14
@@ -3572,10 +3572,10 @@ theorem leafCircuit_f1191 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6291 := (leafCircuit_copies196 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6292 := (leafCircuit_copies196 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6293 := (leafCircuit_copies196 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_162_0 := arithEq_of_rows h (row := 162) (i := 0) rfl (by decide)
+  have e_162_0 := arithEq_of_rows h (i := 0) leafCircuit_row162 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_162_0
   simp only [← c6288, ← c6289, ← c6290] at e_162_0
-  have e_162_1 := arithEq_of_rows h (row := 162) (i := 1) rfl (by decide)
+  have e_162_1 := arithEq_of_rows h (i := 1) leafCircuit_row162 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_162_1
   simp only [← c6291, ← c6292, ← c6293] at e_162_1
   have hr := e_162_1
@@ -3591,10 +3591,10 @@ theorem leafCircuit_f1192 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6297 := (leafCircuit_copies196 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6298 := (leafCircuit_copies196 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6299 := (leafCircuit_copies196 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_162_2 := arithEq_of_rows h (row := 162) (i := 2) rfl (by decide)
+  have e_162_2 := arithEq_of_rows h (i := 2) leafCircuit_row162 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_162_2
   simp only [← c6294, ← c6295, ← c6296] at e_162_2
-  have e_162_3 := arithEq_of_rows h (row := 162) (i := 3) rfl (by decide)
+  have e_162_3 := arithEq_of_rows h (i := 3) leafCircuit_row162 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_162_3
   simp only [← c6297, ← c6298, ← c6299] at e_162_3
   have hr := e_162_3
@@ -3610,10 +3610,10 @@ theorem leafCircuit_f1193 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6303 := (leafCircuit_copies196 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c6304 := (leafCircuit_copies197 a h).1
   have c6305 := (leafCircuit_copies197 a h).2.1
-  have e_162_4 := arithEq_of_rows h (row := 162) (i := 4) rfl (by decide)
+  have e_162_4 := arithEq_of_rows h (i := 4) leafCircuit_row162 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_162_4
   simp only [← c6300, ← c6301, ← c6302] at e_162_4
-  have e_162_5 := arithEq_of_rows h (row := 162) (i := 5) rfl (by decide)
+  have e_162_5 := arithEq_of_rows h (i := 5) leafCircuit_row162 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_162_5
   simp only [← c6303, ← c6304, ← c6305] at e_162_5
   have hr := e_162_5
@@ -3629,10 +3629,10 @@ theorem leafCircuit_f1194 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6309 := (leafCircuit_copies197 a h).2.2.2.2.2.1
   have c6310 := (leafCircuit_copies197 a h).2.2.2.2.2.2.1
   have c6311 := (leafCircuit_copies197 a h).2.2.2.2.2.2.2.1
-  have e_162_6 := arithEq_of_rows h (row := 162) (i := 6) rfl (by decide)
+  have e_162_6 := arithEq_of_rows h (i := 6) leafCircuit_row162 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_162_6
   simp only [← c6306, ← c6307, ← c6308] at e_162_6
-  have e_162_7 := arithEq_of_rows h (row := 162) (i := 7) rfl (by decide)
+  have e_162_7 := arithEq_of_rows h (i := 7) leafCircuit_row162 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_162_7
   simp only [← c6309, ← c6310, ← c6311] at e_162_7
   have hr := e_162_7
@@ -3648,10 +3648,10 @@ theorem leafCircuit_f1195 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6315 := (leafCircuit_copies197 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c6316 := (leafCircuit_copies197 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6317 := (leafCircuit_copies197 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_162_8 := arithEq_of_rows h (row := 162) (i := 8) rfl (by decide)
+  have e_162_8 := arithEq_of_rows h (i := 8) leafCircuit_row162 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_162_8
   simp only [← c6312, ← c6313, ← c6314] at e_162_8
-  have e_162_9 := arithEq_of_rows h (row := 162) (i := 9) rfl (by decide)
+  have e_162_9 := arithEq_of_rows h (i := 9) leafCircuit_row162 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_162_9
   simp only [← c6315, ← c6316, ← c6317] at e_162_9
   have hr := e_162_9
@@ -3667,10 +3667,10 @@ theorem leafCircuit_f1196 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6321 := (leafCircuit_copies197 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6322 := (leafCircuit_copies197 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6323 := (leafCircuit_copies197 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_162_10 := arithEq_of_rows h (row := 162) (i := 10) rfl (by decide)
+  have e_162_10 := arithEq_of_rows h (i := 10) leafCircuit_row162 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_162_10
   simp only [← c6318, ← c6319, ← c6320] at e_162_10
-  have e_162_11 := arithEq_of_rows h (row := 162) (i := 11) rfl (by decide)
+  have e_162_11 := arithEq_of_rows h (i := 11) leafCircuit_row162 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_162_11
   simp only [← c6321, ← c6322, ← c6323] at e_162_11
   have hr := e_162_11
@@ -3686,10 +3686,10 @@ theorem leafCircuit_f1197 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6327 := (leafCircuit_copies197 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6328 := (leafCircuit_copies197 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6329 := (leafCircuit_copies197 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_162_12 := arithEq_of_rows h (row := 162) (i := 12) rfl (by decide)
+  have e_162_12 := arithEq_of_rows h (i := 12) leafCircuit_row162 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_162_12
   simp only [← c6324, ← c6325, ← c6326] at e_162_12
-  have e_162_13 := arithEq_of_rows h (row := 162) (i := 13) rfl (by decide)
+  have e_162_13 := arithEq_of_rows h (i := 13) leafCircuit_row162 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_162_13
   simp only [← c6327, ← c6328, ← c6329] at e_162_13
   have hr := e_162_13
@@ -3705,10 +3705,10 @@ theorem leafCircuit_f1198 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6333 := (leafCircuit_copies197 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6334 := (leafCircuit_copies197 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6335 := (leafCircuit_copies197 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have e_162_14 := arithEq_of_rows h (row := 162) (i := 14) rfl (by decide)
+  have e_162_14 := arithEq_of_rows h (i := 14) leafCircuit_row162 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_162_14
   simp only [← c6330, ← c6331, ← c6332] at e_162_14
-  have e_163_0 := arithEq_of_rows h (row := 163) (i := 0) rfl (by decide)
+  have e_163_0 := arithEq_of_rows h (i := 0) leafCircuit_row163 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_163_0
   simp only [← c6333, ← c6334, ← c6335] at e_163_0
   have hr := e_163_0
@@ -3724,10 +3724,10 @@ theorem leafCircuit_f1199 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6339 := (leafCircuit_copies198 a h).2.2.2.1
   have c6340 := (leafCircuit_copies198 a h).2.2.2.2.1
   have c6341 := (leafCircuit_copies198 a h).2.2.2.2.2.1
-  have e_163_1 := arithEq_of_rows h (row := 163) (i := 1) rfl (by decide)
+  have e_163_1 := arithEq_of_rows h (i := 1) leafCircuit_row163 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_163_1
   simp only [← c6336, ← c6337, ← c6338] at e_163_1
-  have e_163_2 := arithEq_of_rows h (row := 163) (i := 2) rfl (by decide)
+  have e_163_2 := arithEq_of_rows h (i := 2) leafCircuit_row163 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_163_2
   simp only [← c6339, ← c6340, ← c6341] at e_163_2
   have hr := e_163_2
@@ -3744,10 +3744,10 @@ theorem leafCircuit_f1200 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6346 := (leafCircuit_copies198 a h).2.2.2.2.2.2.2.2.2.2.1
   have c6347 := (leafCircuit_copies198 a h).2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_154_12 := arithEq_of_rows h (row := 154) (i := 12) rfl (by decide)
+  have e_154_12 := arithEq_of_rows h (i := 12) leafCircuit_row154 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_154_12
   simp only [← c6345, ← c6346, k3, ← c6347] at e_154_12
-  have e_164_0 := arithEq_of_rows h (row := 164) (i := 0) rfl (by decide)
+  have e_164_0 := arithEq_of_rows h (i := 0) leafCircuit_row164 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_164_0
   simp only [← c6342, ← c6343, ← c6344] at e_164_0
   have hr := e_154_12
@@ -3763,10 +3763,10 @@ theorem leafCircuit_f1201 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6351 := (leafCircuit_copies198 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6352 := (leafCircuit_copies198 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6353 := (leafCircuit_copies198 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_163_3 := arithEq_of_rows h (row := 163) (i := 3) rfl (by decide)
+  have e_163_3 := arithEq_of_rows h (i := 3) leafCircuit_row163 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_163_3
   simp only [← c6348, ← c6349, ← c6350] at e_163_3
-  have e_163_4 := arithEq_of_rows h (row := 163) (i := 4) rfl (by decide)
+  have e_163_4 := arithEq_of_rows h (i := 4) leafCircuit_row163 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_163_4
   simp only [← c6351, ← c6352, ← c6353] at e_163_4
   have hr := e_163_4
@@ -3782,10 +3782,10 @@ theorem leafCircuit_f1202 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6357 := (leafCircuit_copies198 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6358 := (leafCircuit_copies198 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6359 := (leafCircuit_copies198 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_163_5 := arithEq_of_rows h (row := 163) (i := 5) rfl (by decide)
+  have e_163_5 := arithEq_of_rows h (i := 5) leafCircuit_row163 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_163_5
   simp only [← c6354, ← c6355, ← c6356] at e_163_5
-  have e_163_6 := arithEq_of_rows h (row := 163) (i := 6) rfl (by decide)
+  have e_163_6 := arithEq_of_rows h (i := 6) leafCircuit_row163 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_163_6
   simp only [← c6357, ← c6358, ← c6359] at e_163_6
   have hr := e_163_6
@@ -3802,10 +3802,10 @@ theorem leafCircuit_f1203 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6346 := (leafCircuit_copies198 a h).2.2.2.2.2.2.2.2.2.2.1
   have c6347 := (leafCircuit_copies198 a h).2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_154_12 := arithEq_of_rows h (row := 154) (i := 12) rfl (by decide)
+  have e_154_12 := arithEq_of_rows h (i := 12) leafCircuit_row154 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_154_12
   simp only [← c6345, ← c6346, k3, ← c6347] at e_154_12
-  have e_164_0 := arithEq_of_rows h (row := 164) (i := 0) rfl (by decide)
+  have e_164_0 := arithEq_of_rows h (i := 0) leafCircuit_row164 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_164_0
   simp only [← c6342, ← c6343, ← c6344] at e_164_0
   have hr := e_154_12
@@ -3821,10 +3821,10 @@ theorem leafCircuit_f1204 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6363 := (leafCircuit_copies198 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6364 := (leafCircuit_copies198 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6365 := (leafCircuit_copies198 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_163_7 := arithEq_of_rows h (row := 163) (i := 7) rfl (by decide)
+  have e_163_7 := arithEq_of_rows h (i := 7) leafCircuit_row163 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_163_7
   simp only [← c6360, ← c6361, ← c6362] at e_163_7
-  have e_163_8 := arithEq_of_rows h (row := 163) (i := 8) rfl (by decide)
+  have e_163_8 := arithEq_of_rows h (i := 8) leafCircuit_row163 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_163_8
   simp only [← c6363, ← c6364, ← c6365] at e_163_8
   have hr := e_163_8
@@ -3840,10 +3840,10 @@ theorem leafCircuit_f1205 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6369 := (leafCircuit_copies199 a h).2.1
   have c6370 := (leafCircuit_copies199 a h).2.2.1
   have c6371 := (leafCircuit_copies199 a h).2.2.2.1
-  have e_163_9 := arithEq_of_rows h (row := 163) (i := 9) rfl (by decide)
+  have e_163_9 := arithEq_of_rows h (i := 9) leafCircuit_row163 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_163_9
   simp only [← c6366, ← c6367, ← c6368] at e_163_9
-  have e_163_10 := arithEq_of_rows h (row := 163) (i := 10) rfl (by decide)
+  have e_163_10 := arithEq_of_rows h (i := 10) leafCircuit_row163 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_163_10
   simp only [← c6369, ← c6370, ← c6371] at e_163_10
   have hr := e_163_10
@@ -3860,10 +3860,10 @@ theorem leafCircuit_f1206 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6346 := (leafCircuit_copies198 a h).2.2.2.2.2.2.2.2.2.2.1
   have c6347 := (leafCircuit_copies198 a h).2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_154_12 := arithEq_of_rows h (row := 154) (i := 12) rfl (by decide)
+  have e_154_12 := arithEq_of_rows h (i := 12) leafCircuit_row154 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_154_12
   simp only [← c6345, ← c6346, k3, ← c6347] at e_154_12
-  have e_164_0 := arithEq_of_rows h (row := 164) (i := 0) rfl (by decide)
+  have e_164_0 := arithEq_of_rows h (i := 0) leafCircuit_row164 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_164_0
   simp only [← c6342, ← c6343, ← c6344] at e_164_0
   have hr := e_154_12
@@ -3879,10 +3879,10 @@ theorem leafCircuit_f1207 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6375 := (leafCircuit_copies199 a h).2.2.2.2.2.2.2.1
   have c6376 := (leafCircuit_copies199 a h).2.2.2.2.2.2.2.2.1
   have c6377 := (leafCircuit_copies199 a h).2.2.2.2.2.2.2.2.2.1
-  have e_163_11 := arithEq_of_rows h (row := 163) (i := 11) rfl (by decide)
+  have e_163_11 := arithEq_of_rows h (i := 11) leafCircuit_row163 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_163_11
   simp only [← c6372, ← c6373, ← c6374] at e_163_11
-  have e_163_12 := arithEq_of_rows h (row := 163) (i := 12) rfl (by decide)
+  have e_163_12 := arithEq_of_rows h (i := 12) leafCircuit_row163 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_163_12
   simp only [← c6375, ← c6376, ← c6377] at e_163_12
   have hr := e_163_12
@@ -3898,10 +3898,10 @@ theorem leafCircuit_f1208 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6381 := (leafCircuit_copies199 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6382 := (leafCircuit_copies199 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6383 := (leafCircuit_copies199 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_163_13 := arithEq_of_rows h (row := 163) (i := 13) rfl (by decide)
+  have e_163_13 := arithEq_of_rows h (i := 13) leafCircuit_row163 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_163_13
   simp only [← c6378, ← c6379, ← c6380] at e_163_13
-  have e_163_14 := arithEq_of_rows h (row := 163) (i := 14) rfl (by decide)
+  have e_163_14 := arithEq_of_rows h (i := 14) leafCircuit_row163 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_163_14
   simp only [← c6381, ← c6382, ← c6383] at e_163_14
   have hr := e_163_14
@@ -3918,10 +3918,10 @@ theorem leafCircuit_f1209 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6346 := (leafCircuit_copies198 a h).2.2.2.2.2.2.2.2.2.2.1
   have c6347 := (leafCircuit_copies198 a h).2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_154_12 := arithEq_of_rows h (row := 154) (i := 12) rfl (by decide)
+  have e_154_12 := arithEq_of_rows h (i := 12) leafCircuit_row154 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_154_12
   simp only [← c6345, ← c6346, k3, ← c6347] at e_154_12
-  have e_164_0 := arithEq_of_rows h (row := 164) (i := 0) rfl (by decide)
+  have e_164_0 := arithEq_of_rows h (i := 0) leafCircuit_row164 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_164_0
   simp only [← c6342, ← c6343, ← c6344] at e_164_0
   have hr := e_154_12
@@ -3937,10 +3937,10 @@ theorem leafCircuit_f1210 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6387 := (leafCircuit_copies199 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6388 := (leafCircuit_copies199 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6389 := (leafCircuit_copies199 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_165_0 := arithEq_of_rows h (row := 165) (i := 0) rfl (by decide)
+  have e_165_0 := arithEq_of_rows h (i := 0) leafCircuit_row165 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_165_0
   simp only [← c6384, ← c6385, ← c6386] at e_165_0
-  have e_165_1 := arithEq_of_rows h (row := 165) (i := 1) rfl (by decide)
+  have e_165_1 := arithEq_of_rows h (i := 1) leafCircuit_row165 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_165_1
   simp only [← c6387, ← c6388, ← c6389] at e_165_1
   have hr := e_165_1
@@ -3956,10 +3956,10 @@ theorem leafCircuit_f1211 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6393 := (leafCircuit_copies199 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6394 := (leafCircuit_copies199 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6395 := (leafCircuit_copies199 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_165_2 := arithEq_of_rows h (row := 165) (i := 2) rfl (by decide)
+  have e_165_2 := arithEq_of_rows h (i := 2) leafCircuit_row165 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_165_2
   simp only [← c6390, ← c6391, ← c6392] at e_165_2
-  have e_165_3 := arithEq_of_rows h (row := 165) (i := 3) rfl (by decide)
+  have e_165_3 := arithEq_of_rows h (i := 3) leafCircuit_row165 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_165_3
   simp only [← c6393, ← c6394, ← c6395] at e_165_3
   have hr := e_165_3
@@ -3975,10 +3975,10 @@ theorem leafCircuit_f1212 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6399 := (leafCircuit_copies199 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c6400 := (leafCircuit_copies200 a h).1
   have c6401 := (leafCircuit_copies200 a h).2.1
-  have e_165_4 := arithEq_of_rows h (row := 165) (i := 4) rfl (by decide)
+  have e_165_4 := arithEq_of_rows h (i := 4) leafCircuit_row165 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_165_4
   simp only [← c6396, ← c6397, ← c6398] at e_165_4
-  have e_165_5 := arithEq_of_rows h (row := 165) (i := 5) rfl (by decide)
+  have e_165_5 := arithEq_of_rows h (i := 5) leafCircuit_row165 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_165_5
   simp only [← c6399, ← c6400, ← c6401] at e_165_5
   have hr := e_165_5
@@ -3994,10 +3994,10 @@ theorem leafCircuit_f1213 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6405 := (leafCircuit_copies200 a h).2.2.2.2.2.1
   have c6406 := (leafCircuit_copies200 a h).2.2.2.2.2.2.1
   have c6407 := (leafCircuit_copies200 a h).2.2.2.2.2.2.2.1
-  have e_165_6 := arithEq_of_rows h (row := 165) (i := 6) rfl (by decide)
+  have e_165_6 := arithEq_of_rows h (i := 6) leafCircuit_row165 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_165_6
   simp only [← c6402, ← c6403, ← c6404] at e_165_6
-  have e_165_7 := arithEq_of_rows h (row := 165) (i := 7) rfl (by decide)
+  have e_165_7 := arithEq_of_rows h (i := 7) leafCircuit_row165 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_165_7
   simp only [← c6405, ← c6406, ← c6407] at e_165_7
   have hr := e_165_7
@@ -4013,10 +4013,10 @@ theorem leafCircuit_f1214 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6411 := (leafCircuit_copies200 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c6412 := (leafCircuit_copies200 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6413 := (leafCircuit_copies200 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_165_8 := arithEq_of_rows h (row := 165) (i := 8) rfl (by decide)
+  have e_165_8 := arithEq_of_rows h (i := 8) leafCircuit_row165 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_165_8
   simp only [← c6408, ← c6409, ← c6410] at e_165_8
-  have e_165_9 := arithEq_of_rows h (row := 165) (i := 9) rfl (by decide)
+  have e_165_9 := arithEq_of_rows h (i := 9) leafCircuit_row165 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_165_9
   simp only [← c6411, ← c6412, ← c6413] at e_165_9
   have hr := e_165_9
@@ -4032,10 +4032,10 @@ theorem leafCircuit_f1215 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6417 := (leafCircuit_copies200 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6418 := (leafCircuit_copies200 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6419 := (leafCircuit_copies200 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_165_10 := arithEq_of_rows h (row := 165) (i := 10) rfl (by decide)
+  have e_165_10 := arithEq_of_rows h (i := 10) leafCircuit_row165 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_165_10
   simp only [← c6414, ← c6415, ← c6416] at e_165_10
-  have e_165_11 := arithEq_of_rows h (row := 165) (i := 11) rfl (by decide)
+  have e_165_11 := arithEq_of_rows h (i := 11) leafCircuit_row165 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_165_11
   simp only [← c6417, ← c6418, ← c6419] at e_165_11
   have hr := e_165_11
@@ -4110,31 +4110,31 @@ theorem leafCircuit_f1216 (perm : St p → St p) (a : Assignment p) (h : Satisfi
   have c6481 := (leafCircuit_copies202 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6482 := (leafCircuit_copies202 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_154_13 := arithEq_of_rows h (row := 154) (i := 13) rfl (by decide)
+  have e_154_13 := arithEq_of_rows h (i := 13) leafCircuit_row154 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_154_13
   simp only [← c6432, ← c6433, k3, ← c6434] at e_154_13
-  have e_154_14 := arithEq_of_rows h (row := 154) (i := 14) rfl (by decide)
+  have e_154_14 := arithEq_of_rows h (i := 14) leafCircuit_row154 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_154_14
   simp only [← c6435, ← c6436, k3, ← c6437] at e_154_14
-  have e_167_0 := arithEq_of_rows h (row := 167) (i := 0) rfl (by decide)
+  have e_167_0 := arithEq_of_rows h (i := 0) leafCircuit_row167 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_167_0
   simp only [← c6438, ← c6439, k3, ← c6440] at e_167_0
-  have e_167_1 := arithEq_of_rows h (row := 167) (i := 1) rfl (by decide)
+  have e_167_1 := arithEq_of_rows h (i := 1) leafCircuit_row167 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_167_1
   simp only [← c6441, ← c6442, k3, ← c6443] at e_167_1
-  have e_167_2 := arithEq_of_rows h (row := 167) (i := 2) rfl (by decide)
+  have e_167_2 := arithEq_of_rows h (i := 2) leafCircuit_row167 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_167_2
   simp only [← c6444, ← c6445, k3, ← c6446] at e_167_2
-  have e_167_3 := arithEq_of_rows h (row := 167) (i := 3) rfl (by decide)
+  have e_167_3 := arithEq_of_rows h (i := 3) leafCircuit_row167 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_167_3
   simp only [← c6447, ← c6448, k3, ← c6449] at e_167_3
-  have e_167_4 := arithEq_of_rows h (row := 167) (i := 4) rfl (by decide)
+  have e_167_4 := arithEq_of_rows h (i := 4) leafCircuit_row167 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_167_4
   simp only [← c6450, ← c6451, k3, ← c6452] at e_167_4
-  have e_167_5 := arithEq_of_rows h (row := 167) (i := 5) rfl (by decide)
+  have e_167_5 := arithEq_of_rows h (i := 5) leafCircuit_row167 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_167_5
   simp only [← c6453, ← c6454, k3, ← c6455] at e_167_5
-  have e_167_6 := arithEq_of_rows h (row := 167) (i := 6) rfl (by decide)
+  have e_167_6 := arithEq_of_rows h (i := 6) leafCircuit_row167 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_167_6
   simp only [← c6468, ← c6469, k3, ← c6470, k3] at e_167_6
   have hin0 : poseidon2In a 166 = addBlock (fun _ => 0) [a (.wire 161 43), a (.wire 161 51), a (.wire 161 59), a (.wire 162 7), a (.wire 162 23), a (.wire 162 39), a (.wire 162 55), a (.wire 163 11)] :=
@@ -4160,10 +4160,10 @@ theorem leafCircuit_f1217 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6486 := (leafCircuit_copies202 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6487 := (leafCircuit_copies202 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6488 := (leafCircuit_copies202 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_165_12 := arithEq_of_rows h (row := 165) (i := 12) rfl (by decide)
+  have e_165_12 := arithEq_of_rows h (i := 12) leafCircuit_row165 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_165_12
   simp only [← c6483, ← c6484, ← c6485] at e_165_12
-  have e_165_13 := arithEq_of_rows h (row := 165) (i := 13) rfl (by decide)
+  have e_165_13 := arithEq_of_rows h (i := 13) leafCircuit_row165 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_165_13
   simp only [← c6486, ← c6487, ← c6488] at e_165_13
   have hr := e_165_13
@@ -4179,10 +4179,10 @@ theorem leafCircuit_f1218 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6492 := (leafCircuit_copies202 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6493 := (leafCircuit_copies202 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6494 := (leafCircuit_copies202 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_165_14 := arithEq_of_rows h (row := 165) (i := 14) rfl (by decide)
+  have e_165_14 := arithEq_of_rows h (i := 14) leafCircuit_row165 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_165_14
   simp only [← c6489, ← c6490, ← c6491] at e_165_14
-  have e_170_0 := arithEq_of_rows h (row := 170) (i := 0) rfl (by decide)
+  have e_170_0 := arithEq_of_rows h (i := 0) leafCircuit_row170 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_170_0
   simp only [← c6492, ← c6493, ← c6494] at e_170_0
   have hr := e_170_0
@@ -4198,10 +4198,10 @@ theorem leafCircuit_f1219 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6498 := (leafCircuit_copies203 a h).2.2.1
   have c6499 := (leafCircuit_copies203 a h).2.2.2.1
   have c6500 := (leafCircuit_copies203 a h).2.2.2.2.1
-  have e_170_1 := arithEq_of_rows h (row := 170) (i := 1) rfl (by decide)
+  have e_170_1 := arithEq_of_rows h (i := 1) leafCircuit_row170 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_170_1
   simp only [← c6495, ← c6496, ← c6497] at e_170_1
-  have e_170_2 := arithEq_of_rows h (row := 170) (i := 2) rfl (by decide)
+  have e_170_2 := arithEq_of_rows h (i := 2) leafCircuit_row170 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_170_2
   simp only [← c6498, ← c6499, ← c6500] at e_170_2
   have hr := e_170_2
@@ -4217,10 +4217,10 @@ theorem leafCircuit_f1220 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6504 := (leafCircuit_copies203 a h).2.2.2.2.2.2.2.2.1
   have c6505 := (leafCircuit_copies203 a h).2.2.2.2.2.2.2.2.2.1
   have c6506 := (leafCircuit_copies203 a h).2.2.2.2.2.2.2.2.2.2.1
-  have e_170_3 := arithEq_of_rows h (row := 170) (i := 3) rfl (by decide)
+  have e_170_3 := arithEq_of_rows h (i := 3) leafCircuit_row170 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_170_3
   simp only [← c6501, ← c6502, ← c6503] at e_170_3
-  have e_170_4 := arithEq_of_rows h (row := 170) (i := 4) rfl (by decide)
+  have e_170_4 := arithEq_of_rows h (i := 4) leafCircuit_row170 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_170_4
   simp only [← c6504, ← c6505, ← c6506] at e_170_4
   have hr := e_170_4
@@ -4400,7 +4400,7 @@ theorem leafCircuit_f1230 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6563 := (leafCircuit_copies205 a h).2.2.2.1
   have c6564 := (leafCircuit_copies205 a h).2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_170_5 := arithEq_of_rows h (row := 170) (i := 5) rfl (by decide)
+  have e_170_5 := arithEq_of_rows h (i := 5) leafCircuit_row170 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_170_5
   simp only [← c6562, k3, ← c6563, k3, ← c6564] at e_170_5
   have hr := e_170_5
@@ -4449,7 +4449,7 @@ theorem leafCircuit_f1237 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6566 := (leafCircuit_copies205 a h).2.2.2.2.2.2.1
   have c6567 := (leafCircuit_copies205 a h).2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_160_7 := arithEq_of_rows h (row := 160) (i := 7) rfl (by decide)
+  have e_160_7 := arithEq_of_rows h (i := 7) leafCircuit_row160 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_160_7
   simp only [← c6565, k5, ← c6566, ← c6567, k5] at e_160_7
   have hr := e_160_7
@@ -4462,7 +4462,7 @@ theorem leafCircuit_f1238 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6569 := (leafCircuit_copies205 a h).2.2.2.2.2.2.2.2.2.1
   have c6570 := (leafCircuit_copies205 a h).2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_167_7 := arithEq_of_rows h (row := 167) (i := 7) rfl (by decide)
+  have e_167_7 := arithEq_of_rows h (i := 7) leafCircuit_row167 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_167_7
   simp only [← c6568, k3, ← c6569, k3, ← c6570] at e_167_7
   have hr := e_167_7
@@ -4475,7 +4475,7 @@ theorem leafCircuit_f1239 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6572 := (leafCircuit_copies205 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6573 := (leafCircuit_copies205 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_170_6 := arithEq_of_rows h (row := 170) (i := 6) rfl (by decide)
+  have e_170_6 := arithEq_of_rows h (i := 6) leafCircuit_row170 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_170_6
   simp only [← c6571, ← c6572, k3, ← c6573] at e_170_6
   have hr := e_170_6
@@ -4487,7 +4487,7 @@ theorem leafCircuit_f1240 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6575 := (leafCircuit_copies205 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6576 := (leafCircuit_copies205 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_170_7 := arithEq_of_rows h (row := 170) (i := 7) rfl (by decide)
+  have e_170_7 := arithEq_of_rows h (i := 7) leafCircuit_row170 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_170_7
   simp only [← c6574, k3, ← c6575, k3, ← c6576] at e_170_7
   have hr := e_170_7
@@ -4499,7 +4499,7 @@ theorem leafCircuit_f1241 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6577 := (leafCircuit_copies205 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6578 := (leafCircuit_copies205 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6579 := (leafCircuit_copies205 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_160_8 := arithEq_of_rows h (row := 160) (i := 8) rfl (by decide)
+  have e_160_8 := arithEq_of_rows h (i := 8) leafCircuit_row160 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_160_8
   simp only [← c6577, ← c6578, ← c6579] at e_160_8
   have hr := e_160_8
@@ -4542,7 +4542,7 @@ theorem leafCircuit_f1247 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6581 := (leafCircuit_copies205 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6582 := (leafCircuit_copies205 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_160_9 := arithEq_of_rows h (row := 160) (i := 9) rfl (by decide)
+  have e_160_9 := arithEq_of_rows h (i := 9) leafCircuit_row160 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_160_9
   simp only [← c6580, k5, ← c6581, ← c6582, k5] at e_160_9
   have hr := e_160_9
@@ -4555,7 +4555,7 @@ theorem leafCircuit_f1248 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6584 := (leafCircuit_copies205 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6585 := (leafCircuit_copies205 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_167_8 := arithEq_of_rows h (row := 167) (i := 8) rfl (by decide)
+  have e_167_8 := arithEq_of_rows h (i := 8) leafCircuit_row167 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_167_8
   simp only [← c6583, k3, ← c6584, k3, ← c6585] at e_167_8
   have hr := e_167_8
@@ -4568,7 +4568,7 @@ theorem leafCircuit_f1249 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6587 := (leafCircuit_copies205 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6588 := (leafCircuit_copies205 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_170_8 := arithEq_of_rows h (row := 170) (i := 8) rfl (by decide)
+  have e_170_8 := arithEq_of_rows h (i := 8) leafCircuit_row170 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_170_8
   simp only [← c6586, ← c6587, k3, ← c6588] at e_170_8
   have hr := e_170_8
@@ -4580,7 +4580,7 @@ theorem leafCircuit_f1250 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6590 := (leafCircuit_copies205 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6591 := (leafCircuit_copies205 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_170_9 := arithEq_of_rows h (row := 170) (i := 9) rfl (by decide)
+  have e_170_9 := arithEq_of_rows h (i := 9) leafCircuit_row170 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_170_9
   simp only [← c6589, k3, ← c6590, k3, ← c6591] at e_170_9
   have hr := e_170_9
@@ -4592,7 +4592,7 @@ theorem leafCircuit_f1251 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6592 := (leafCircuit_copies206 a h).1
   have c6593 := (leafCircuit_copies206 a h).2.1
   have c6594 := (leafCircuit_copies206 a h).2.2.1
-  have e_160_10 := arithEq_of_rows h (row := 160) (i := 10) rfl (by decide)
+  have e_160_10 := arithEq_of_rows h (i := 10) leafCircuit_row160 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_160_10
   simp only [← c6592, ← c6593, ← c6594] at e_160_10
   have hr := e_160_10
@@ -4616,7 +4616,7 @@ theorem leafCircuit_f1254 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6595 := (leafCircuit_copies206 a h).2.2.2.1
   have c6596 := (leafCircuit_copies206 a h).2.2.2.2.1
   have c6597 := (leafCircuit_copies206 a h).2.2.2.2.2.1
-  have e_160_11 := arithEq_of_rows h (row := 160) (i := 11) rfl (by decide)
+  have e_160_11 := arithEq_of_rows h (i := 11) leafCircuit_row160 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_160_11
   simp only [← c6595, ← c6596, ← c6597] at e_160_11
   have hr := e_160_11
@@ -4632,10 +4632,10 @@ theorem leafCircuit_f1255 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6602 := (leafCircuit_copies206 a h).2.2.2.2.2.2.2.2.2.2.1
   have c6603 := (leafCircuit_copies206 a h).2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_164_1 := arithEq_of_rows h (row := 164) (i := 1) rfl (by decide)
+  have e_164_1 := arithEq_of_rows h (i := 1) leafCircuit_row164 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_164_1
   simp only [← c6598, ← c6599, ← c6600] at e_164_1
-  have e_167_9 := arithEq_of_rows h (row := 167) (i := 9) rfl (by decide)
+  have e_167_9 := arithEq_of_rows h (i := 9) leafCircuit_row167 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_167_9
   simp only [← c6601, ← c6602, k3, ← c6603] at e_167_9
   have hr := e_167_9
@@ -4673,7 +4673,7 @@ theorem leafCircuit_f1260 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6605 := (leafCircuit_copies206 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6606 := (leafCircuit_copies206 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_170_10 := arithEq_of_rows h (row := 170) (i := 10) rfl (by decide)
+  have e_170_10 := arithEq_of_rows h (i := 10) leafCircuit_row170 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_170_10
   simp only [← c6604, k3, ← c6605, k3, ← c6606] at e_170_10
   have hr := e_170_10
@@ -4685,7 +4685,7 @@ theorem leafCircuit_f1261 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6607 := (leafCircuit_copies206 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6608 := (leafCircuit_copies206 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6609 := (leafCircuit_copies206 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_160_12 := arithEq_of_rows h (row := 160) (i := 12) rfl (by decide)
+  have e_160_12 := arithEq_of_rows h (i := 12) leafCircuit_row160 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_160_12
   simp only [← c6607, ← c6608, ← c6609] at e_160_12
   have hr := e_160_12
@@ -4728,7 +4728,7 @@ theorem leafCircuit_f1267 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6611 := (leafCircuit_copies206 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6612 := (leafCircuit_copies206 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_160_13 := arithEq_of_rows h (row := 160) (i := 13) rfl (by decide)
+  have e_160_13 := arithEq_of_rows h (i := 13) leafCircuit_row160 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_160_13
   simp only [← c6610, k5, ← c6611, ← c6612, k5] at e_160_13
   have hr := e_160_13
@@ -4741,7 +4741,7 @@ theorem leafCircuit_f1268 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6614 := (leafCircuit_copies206 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6615 := (leafCircuit_copies206 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_167_10 := arithEq_of_rows h (row := 167) (i := 10) rfl (by decide)
+  have e_167_10 := arithEq_of_rows h (i := 10) leafCircuit_row167 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_167_10
   simp only [← c6613, k3, ← c6614, k3, ← c6615] at e_167_10
   have hr := e_167_10
@@ -4754,7 +4754,7 @@ theorem leafCircuit_f1269 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6617 := (leafCircuit_copies206 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6618 := (leafCircuit_copies206 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_170_11 := arithEq_of_rows h (row := 170) (i := 11) rfl (by decide)
+  have e_170_11 := arithEq_of_rows h (i := 11) leafCircuit_row170 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_170_11
   simp only [← c6616, ← c6617, k3, ← c6618] at e_170_11
   have hr := e_170_11
@@ -4766,7 +4766,7 @@ theorem leafCircuit_f1270 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6620 := (leafCircuit_copies206 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6621 := (leafCircuit_copies206 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_170_12 := arithEq_of_rows h (row := 170) (i := 12) rfl (by decide)
+  have e_170_12 := arithEq_of_rows h (i := 12) leafCircuit_row170 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_170_12
   simp only [← c6619, k3, ← c6620, k3, ← c6621] at e_170_12
   have hr := e_170_12
@@ -4778,7 +4778,7 @@ theorem leafCircuit_f1271 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6622 := (leafCircuit_copies206 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6623 := (leafCircuit_copies206 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c6624 := (leafCircuit_copies207 a h).1
-  have e_160_14 := arithEq_of_rows h (row := 160) (i := 14) rfl (by decide)
+  have e_160_14 := arithEq_of_rows h (i := 14) leafCircuit_row160 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_160_14
   simp only [← c6622, ← c6623, ← c6624] at e_160_14
   have hr := e_160_14
@@ -4926,16 +4926,16 @@ theorem leafCircuit_f1273 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6695 := (leafCircuit_copies209 a h).2.2.2.2.2.2.2.1
   have c6696 := (leafCircuit_copies209 a h).2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_170_13 := arithEq_of_rows h (row := 170) (i := 13) rfl (by decide)
+  have e_170_13 := arithEq_of_rows h (i := 13) leafCircuit_row170 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_170_13
   simp only [← c6683, k3, ← c6684, k3, ← c6685] at e_170_13
-  have e_170_14 := arithEq_of_rows h (row := 170) (i := 14) rfl (by decide)
+  have e_170_14 := arithEq_of_rows h (i := 14) leafCircuit_row170 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_170_14
   simp only [← c6692, ← c6693, k3, ← c6694] at e_170_14
-  have e_173_0 := arithEq_of_rows h (row := 173) (i := 0) rfl (by decide)
+  have e_173_0 := arithEq_of_rows h (i := 0) leafCircuit_row173 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_173_0
   simp only [← c6686, ← c6687, ← c6688] at e_173_0
-  have e_173_1 := arithEq_of_rows h (row := 173) (i := 1) rfl (by decide)
+  have e_173_1 := arithEq_of_rows h (i := 1) leafCircuit_row173 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_173_1
   simp only [← c6689, ← c6690, ← c6691] at e_173_1
   simp only [k0]
@@ -4966,19 +4966,19 @@ theorem leafCircuit_f1274 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6712 := (leafCircuit_copies209 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6713 := (leafCircuit_copies209 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_173_2 := arithEq_of_rows h (row := 173) (i := 2) rfl (by decide)
+  have e_173_2 := arithEq_of_rows h (i := 2) leafCircuit_row173 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_173_2
   simp only [← c6703, ← c6704, ← c6705] at e_173_2
-  have e_173_3 := arithEq_of_rows h (row := 173) (i := 3) rfl (by decide)
+  have e_173_3 := arithEq_of_rows h (i := 3) leafCircuit_row173 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_173_3
   simp only [← c6706, ← c6707, ← c6708] at e_173_3
-  have e_174_0 := arithEq_of_rows h (row := 174) (i := 0) rfl (by decide)
+  have e_174_0 := arithEq_of_rows h (i := 0) leafCircuit_row174 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_174_0
   simp only [← c6697, k3, ← c6698, k3, ← c6699] at e_174_0
-  have e_174_1 := arithEq_of_rows h (row := 174) (i := 1) rfl (by decide)
+  have e_174_1 := arithEq_of_rows h (i := 1) leafCircuit_row174 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_174_1
   simp only [← c6700, ← c6701, k3, ← c6702, k3] at e_174_1
-  have e_174_2 := arithEq_of_rows h (row := 174) (i := 2) rfl (by decide)
+  have e_174_2 := arithEq_of_rows h (i := 2) leafCircuit_row174 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_174_2
   simp only [← c6709, ← c6710, k3, ← c6711] at e_174_2
   simp only [k3]
@@ -5010,19 +5010,19 @@ theorem leafCircuit_f1275 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6729 := (leafCircuit_copies210 a h).2.2.2.2.2.2.2.2.2.1
   have c6730 := (leafCircuit_copies210 a h).2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_173_4 := arithEq_of_rows h (row := 173) (i := 4) rfl (by decide)
+  have e_173_4 := arithEq_of_rows h (i := 4) leafCircuit_row173 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_173_4
   simp only [← c6720, ← c6721, ← c6722] at e_173_4
-  have e_173_5 := arithEq_of_rows h (row := 173) (i := 5) rfl (by decide)
+  have e_173_5 := arithEq_of_rows h (i := 5) leafCircuit_row173 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_173_5
   simp only [← c6723, ← c6724, ← c6725] at e_173_5
-  have e_174_3 := arithEq_of_rows h (row := 174) (i := 3) rfl (by decide)
+  have e_174_3 := arithEq_of_rows h (i := 3) leafCircuit_row174 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_174_3
   simp only [← c6714, k3, ← c6715, k3, ← c6716] at e_174_3
-  have e_174_4 := arithEq_of_rows h (row := 174) (i := 4) rfl (by decide)
+  have e_174_4 := arithEq_of_rows h (i := 4) leafCircuit_row174 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_174_4
   simp only [← c6717, ← c6718, k3, ← c6719, k5] at e_174_4
-  have e_174_5 := arithEq_of_rows h (row := 174) (i := 5) rfl (by decide)
+  have e_174_5 := arithEq_of_rows h (i := 5) leafCircuit_row174 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_174_5
   simp only [← c6726, ← c6727, k3, ← c6728] at e_174_5
   simp only [k5]
@@ -5054,19 +5054,19 @@ theorem leafCircuit_f1276 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6746 := (leafCircuit_copies210 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6747 := (leafCircuit_copies210 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_173_6 := arithEq_of_rows h (row := 173) (i := 6) rfl (by decide)
+  have e_173_6 := arithEq_of_rows h (i := 6) leafCircuit_row173 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_173_6
   simp only [← c6737, ← c6738, ← c6739] at e_173_6
-  have e_173_7 := arithEq_of_rows h (row := 173) (i := 7) rfl (by decide)
+  have e_173_7 := arithEq_of_rows h (i := 7) leafCircuit_row173 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_173_7
   simp only [← c6740, ← c6741, ← c6742] at e_173_7
-  have e_174_6 := arithEq_of_rows h (row := 174) (i := 6) rfl (by decide)
+  have e_174_6 := arithEq_of_rows h (i := 6) leafCircuit_row174 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_174_6
   simp only [← c6731, k3, ← c6732, k3, ← c6733] at e_174_6
-  have e_174_7 := arithEq_of_rows h (row := 174) (i := 7) rfl (by decide)
+  have e_174_7 := arithEq_of_rows h (i := 7) leafCircuit_row174 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_174_7
   simp only [← c6734, ← c6735, k3, ← c6736, k6] at e_174_7
-  have e_174_8 := arithEq_of_rows h (row := 174) (i := 8) rfl (by decide)
+  have e_174_8 := arithEq_of_rows h (i := 8) leafCircuit_row174 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_174_8
   simp only [← c6743, ← c6744, k3, ← c6745] at e_174_8
   simp only [k6]
@@ -5086,10 +5086,10 @@ theorem leafCircuit_f1277 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6751 := (leafCircuit_copies210 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c6752 := (leafCircuit_copies211 a h).1
   have c6753 := (leafCircuit_copies211 a h).2.1
-  have e_174_9 := arithEq_of_rows h (row := 174) (i := 9) rfl (by decide)
+  have e_174_9 := arithEq_of_rows h (i := 9) leafCircuit_row174 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_174_9
   simp only [← c6748, ← c6749, ← c6750] at e_174_9
-  have e_174_10 := arithEq_of_rows h (row := 174) (i := 10) rfl (by decide)
+  have e_174_10 := arithEq_of_rows h (i := 10) leafCircuit_row174 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_174_10
   simp only [← c6751, ← c6752, ← c6753] at e_174_10
   have hr := e_174_10
@@ -5105,10 +5105,10 @@ theorem leafCircuit_f1278 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6757 := (leafCircuit_copies211 a h).2.2.2.2.2.1
   have c6758 := (leafCircuit_copies211 a h).2.2.2.2.2.2.1
   have c6759 := (leafCircuit_copies211 a h).2.2.2.2.2.2.2.1
-  have e_174_11 := arithEq_of_rows h (row := 174) (i := 11) rfl (by decide)
+  have e_174_11 := arithEq_of_rows h (i := 11) leafCircuit_row174 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_174_11
   simp only [← c6754, ← c6755, ← c6756] at e_174_11
-  have e_174_12 := arithEq_of_rows h (row := 174) (i := 12) rfl (by decide)
+  have e_174_12 := arithEq_of_rows h (i := 12) leafCircuit_row174 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_174_12
   simp only [← c6757, ← c6758, ← c6759] at e_174_12
   have hr := e_174_12
@@ -5124,10 +5124,10 @@ theorem leafCircuit_f1279 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6763 := (leafCircuit_copies211 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c6764 := (leafCircuit_copies211 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6765 := (leafCircuit_copies211 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_174_13 := arithEq_of_rows h (row := 174) (i := 13) rfl (by decide)
+  have e_174_13 := arithEq_of_rows h (i := 13) leafCircuit_row174 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_174_13
   simp only [← c6760, ← c6761, ← c6762] at e_174_13
-  have e_174_14 := arithEq_of_rows h (row := 174) (i := 14) rfl (by decide)
+  have e_174_14 := arithEq_of_rows h (i := 14) leafCircuit_row174 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_174_14
   simp only [← c6763, ← c6764, ← c6765] at e_174_14
   have hr := e_174_14
@@ -5143,10 +5143,10 @@ theorem leafCircuit_f1280 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6769 := (leafCircuit_copies211 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6770 := (leafCircuit_copies211 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6771 := (leafCircuit_copies211 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_175_0 := arithEq_of_rows h (row := 175) (i := 0) rfl (by decide)
+  have e_175_0 := arithEq_of_rows h (i := 0) leafCircuit_row175 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_175_0
   simp only [← c6766, ← c6767, ← c6768] at e_175_0
-  have e_175_1 := arithEq_of_rows h (row := 175) (i := 1) rfl (by decide)
+  have e_175_1 := arithEq_of_rows h (i := 1) leafCircuit_row175 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_175_1
   simp only [← c6769, ← c6770, ← c6771] at e_175_1
   have hr := e_175_1
@@ -5162,10 +5162,10 @@ theorem leafCircuit_f1281 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6775 := (leafCircuit_copies211 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6776 := (leafCircuit_copies211 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6777 := (leafCircuit_copies211 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_175_2 := arithEq_of_rows h (row := 175) (i := 2) rfl (by decide)
+  have e_175_2 := arithEq_of_rows h (i := 2) leafCircuit_row175 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_175_2
   simp only [← c6772, ← c6773, ← c6774] at e_175_2
-  have e_175_3 := arithEq_of_rows h (row := 175) (i := 3) rfl (by decide)
+  have e_175_3 := arithEq_of_rows h (i := 3) leafCircuit_row175 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_175_3
   simp only [← c6775, ← c6776, ← c6777] at e_175_3
   have hr := e_175_3
@@ -5181,10 +5181,10 @@ theorem leafCircuit_f1282 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6781 := (leafCircuit_copies211 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6782 := (leafCircuit_copies211 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6783 := (leafCircuit_copies211 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have e_175_4 := arithEq_of_rows h (row := 175) (i := 4) rfl (by decide)
+  have e_175_4 := arithEq_of_rows h (i := 4) leafCircuit_row175 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_175_4
   simp only [← c6778, ← c6779, ← c6780] at e_175_4
-  have e_175_5 := arithEq_of_rows h (row := 175) (i := 5) rfl (by decide)
+  have e_175_5 := arithEq_of_rows h (i := 5) leafCircuit_row175 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_175_5
   simp only [← c6781, ← c6782, ← c6783] at e_175_5
   have hr := e_175_5
@@ -5200,10 +5200,10 @@ theorem leafCircuit_f1283 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6787 := (leafCircuit_copies212 a h).2.2.2.1
   have c6788 := (leafCircuit_copies212 a h).2.2.2.2.1
   have c6789 := (leafCircuit_copies212 a h).2.2.2.2.2.1
-  have e_175_6 := arithEq_of_rows h (row := 175) (i := 6) rfl (by decide)
+  have e_175_6 := arithEq_of_rows h (i := 6) leafCircuit_row175 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_175_6
   simp only [← c6784, ← c6785, ← c6786] at e_175_6
-  have e_175_7 := arithEq_of_rows h (row := 175) (i := 7) rfl (by decide)
+  have e_175_7 := arithEq_of_rows h (i := 7) leafCircuit_row175 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_175_7
   simp only [← c6787, ← c6788, ← c6789] at e_175_7
   have hr := e_175_7
@@ -5219,10 +5219,10 @@ theorem leafCircuit_f1284 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6793 := (leafCircuit_copies212 a h).2.2.2.2.2.2.2.2.2.1
   have c6794 := (leafCircuit_copies212 a h).2.2.2.2.2.2.2.2.2.2.1
   have c6795 := (leafCircuit_copies212 a h).2.2.2.2.2.2.2.2.2.2.2.1
-  have e_175_8 := arithEq_of_rows h (row := 175) (i := 8) rfl (by decide)
+  have e_175_8 := arithEq_of_rows h (i := 8) leafCircuit_row175 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_175_8
   simp only [← c6790, ← c6791, ← c6792] at e_175_8
-  have e_175_9 := arithEq_of_rows h (row := 175) (i := 9) rfl (by decide)
+  have e_175_9 := arithEq_of_rows h (i := 9) leafCircuit_row175 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_175_9
   simp only [← c6793, ← c6794, ← c6795] at e_175_9
   have hr := e_175_9
@@ -5238,10 +5238,10 @@ theorem leafCircuit_f1285 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6799 := (leafCircuit_copies212 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6800 := (leafCircuit_copies212 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6801 := (leafCircuit_copies212 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_175_10 := arithEq_of_rows h (row := 175) (i := 10) rfl (by decide)
+  have e_175_10 := arithEq_of_rows h (i := 10) leafCircuit_row175 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_175_10
   simp only [← c6796, ← c6797, ← c6798] at e_175_10
-  have e_175_11 := arithEq_of_rows h (row := 175) (i := 11) rfl (by decide)
+  have e_175_11 := arithEq_of_rows h (i := 11) leafCircuit_row175 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_175_11
   simp only [← c6799, ← c6800, ← c6801] at e_175_11
   have hr := e_175_11
@@ -5257,10 +5257,10 @@ theorem leafCircuit_f1286 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6805 := (leafCircuit_copies212 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6806 := (leafCircuit_copies212 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6807 := (leafCircuit_copies212 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_175_12 := arithEq_of_rows h (row := 175) (i := 12) rfl (by decide)
+  have e_175_12 := arithEq_of_rows h (i := 12) leafCircuit_row175 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_175_12
   simp only [← c6802, ← c6803, ← c6804] at e_175_12
-  have e_175_13 := arithEq_of_rows h (row := 175) (i := 13) rfl (by decide)
+  have e_175_13 := arithEq_of_rows h (i := 13) leafCircuit_row175 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_175_13
   simp only [← c6805, ← c6806, ← c6807] at e_175_13
   have hr := e_175_13
@@ -5276,10 +5276,10 @@ theorem leafCircuit_f1287 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6811 := (leafCircuit_copies212 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6812 := (leafCircuit_copies212 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6813 := (leafCircuit_copies212 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_175_14 := arithEq_of_rows h (row := 175) (i := 14) rfl (by decide)
+  have e_175_14 := arithEq_of_rows h (i := 14) leafCircuit_row175 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_175_14
   simp only [← c6808, ← c6809, ← c6810] at e_175_14
-  have e_176_0 := arithEq_of_rows h (row := 176) (i := 0) rfl (by decide)
+  have e_176_0 := arithEq_of_rows h (i := 0) leafCircuit_row176 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_176_0
   simp only [← c6811, ← c6812, ← c6813] at e_176_0
   have hr := e_176_0
@@ -5295,10 +5295,10 @@ theorem leafCircuit_f1288 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6817 := (leafCircuit_copies213 a h).2.1
   have c6818 := (leafCircuit_copies213 a h).2.2.1
   have c6819 := (leafCircuit_copies213 a h).2.2.2.1
-  have e_176_1 := arithEq_of_rows h (row := 176) (i := 1) rfl (by decide)
+  have e_176_1 := arithEq_of_rows h (i := 1) leafCircuit_row176 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_176_1
   simp only [← c6814, ← c6815, ← c6816] at e_176_1
-  have e_176_2 := arithEq_of_rows h (row := 176) (i := 2) rfl (by decide)
+  have e_176_2 := arithEq_of_rows h (i := 2) leafCircuit_row176 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_176_2
   simp only [← c6817, ← c6818, ← c6819] at e_176_2
   have hr := e_176_2
@@ -5315,10 +5315,10 @@ theorem leafCircuit_f1289 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6824 := (leafCircuit_copies213 a h).2.2.2.2.2.2.2.2.1
   have c6825 := (leafCircuit_copies213 a h).2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_164_2 := arithEq_of_rows h (row := 164) (i := 2) rfl (by decide)
+  have e_164_2 := arithEq_of_rows h (i := 2) leafCircuit_row164 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_164_2
   simp only [← c6820, ← c6821, ← c6822] at e_164_2
-  have e_167_11 := arithEq_of_rows h (row := 167) (i := 11) rfl (by decide)
+  have e_167_11 := arithEq_of_rows h (i := 11) leafCircuit_row167 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_167_11
   simp only [← c6823, ← c6824, k3, ← c6825] at e_167_11
   have hr := e_167_11
@@ -5334,10 +5334,10 @@ theorem leafCircuit_f1290 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6829 := (leafCircuit_copies213 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6830 := (leafCircuit_copies213 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6831 := (leafCircuit_copies213 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_176_3 := arithEq_of_rows h (row := 176) (i := 3) rfl (by decide)
+  have e_176_3 := arithEq_of_rows h (i := 3) leafCircuit_row176 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_176_3
   simp only [← c6826, ← c6827, ← c6828] at e_176_3
-  have e_176_4 := arithEq_of_rows h (row := 176) (i := 4) rfl (by decide)
+  have e_176_4 := arithEq_of_rows h (i := 4) leafCircuit_row176 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_176_4
   simp only [← c6829, ← c6830, ← c6831] at e_176_4
   have hr := e_176_4
@@ -5353,10 +5353,10 @@ theorem leafCircuit_f1291 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6835 := (leafCircuit_copies213 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6836 := (leafCircuit_copies213 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6837 := (leafCircuit_copies213 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_176_5 := arithEq_of_rows h (row := 176) (i := 5) rfl (by decide)
+  have e_176_5 := arithEq_of_rows h (i := 5) leafCircuit_row176 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_176_5
   simp only [← c6832, ← c6833, ← c6834] at e_176_5
-  have e_176_6 := arithEq_of_rows h (row := 176) (i := 6) rfl (by decide)
+  have e_176_6 := arithEq_of_rows h (i := 6) leafCircuit_row176 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_176_6
   simp only [← c6835, ← c6836, ← c6837] at e_176_6
   have hr := e_176_6
@@ -5373,10 +5373,10 @@ theorem leafCircuit_f1292 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6824 := (leafCircuit_copies213 a h).2.2.2.2.2.2.2.2.1
   have c6825 := (leafCircuit_copies213 a h).2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_164_2 := arithEq_of_rows h (row := 164) (i := 2) rfl (by decide)
+  have e_164_2 := arithEq_of_rows h (i := 2) leafCircuit_row164 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_164_2
   simp only [← c6820, ← c6821, ← c6822] at e_164_2
-  have e_167_11 := arithEq_of_rows h (row := 167) (i := 11) rfl (by decide)
+  have e_167_11 := arithEq_of_rows h (i := 11) leafCircuit_row167 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_167_11
   simp only [← c6823, ← c6824, k3, ← c6825] at e_167_11
   have hr := e_167_11
@@ -5392,10 +5392,10 @@ theorem leafCircuit_f1293 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6841 := (leafCircuit_copies213 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6842 := (leafCircuit_copies213 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6843 := (leafCircuit_copies213 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_176_7 := arithEq_of_rows h (row := 176) (i := 7) rfl (by decide)
+  have e_176_7 := arithEq_of_rows h (i := 7) leafCircuit_row176 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_176_7
   simp only [← c6838, ← c6839, ← c6840] at e_176_7
-  have e_176_8 := arithEq_of_rows h (row := 176) (i := 8) rfl (by decide)
+  have e_176_8 := arithEq_of_rows h (i := 8) leafCircuit_row176 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_176_8
   simp only [← c6841, ← c6842, ← c6843] at e_176_8
   have hr := e_176_8
@@ -5411,10 +5411,10 @@ theorem leafCircuit_f1294 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6847 := (leafCircuit_copies213 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c6848 := (leafCircuit_copies214 a h).1
   have c6849 := (leafCircuit_copies214 a h).2.1
-  have e_176_9 := arithEq_of_rows h (row := 176) (i := 9) rfl (by decide)
+  have e_176_9 := arithEq_of_rows h (i := 9) leafCircuit_row176 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_176_9
   simp only [← c6844, ← c6845, ← c6846] at e_176_9
-  have e_176_10 := arithEq_of_rows h (row := 176) (i := 10) rfl (by decide)
+  have e_176_10 := arithEq_of_rows h (i := 10) leafCircuit_row176 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_176_10
   simp only [← c6847, ← c6848, ← c6849] at e_176_10
   have hr := e_176_10
@@ -5431,10 +5431,10 @@ theorem leafCircuit_f1295 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6824 := (leafCircuit_copies213 a h).2.2.2.2.2.2.2.2.1
   have c6825 := (leafCircuit_copies213 a h).2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_164_2 := arithEq_of_rows h (row := 164) (i := 2) rfl (by decide)
+  have e_164_2 := arithEq_of_rows h (i := 2) leafCircuit_row164 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_164_2
   simp only [← c6820, ← c6821, ← c6822] at e_164_2
-  have e_167_11 := arithEq_of_rows h (row := 167) (i := 11) rfl (by decide)
+  have e_167_11 := arithEq_of_rows h (i := 11) leafCircuit_row167 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_167_11
   simp only [← c6823, ← c6824, k3, ← c6825] at e_167_11
   have hr := e_167_11
@@ -5450,10 +5450,10 @@ theorem leafCircuit_f1296 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6853 := (leafCircuit_copies214 a h).2.2.2.2.2.1
   have c6854 := (leafCircuit_copies214 a h).2.2.2.2.2.2.1
   have c6855 := (leafCircuit_copies214 a h).2.2.2.2.2.2.2.1
-  have e_176_11 := arithEq_of_rows h (row := 176) (i := 11) rfl (by decide)
+  have e_176_11 := arithEq_of_rows h (i := 11) leafCircuit_row176 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_176_11
   simp only [← c6850, ← c6851, ← c6852] at e_176_11
-  have e_176_12 := arithEq_of_rows h (row := 176) (i := 12) rfl (by decide)
+  have e_176_12 := arithEq_of_rows h (i := 12) leafCircuit_row176 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_176_12
   simp only [← c6853, ← c6854, ← c6855] at e_176_12
   have hr := e_176_12
@@ -5469,10 +5469,10 @@ theorem leafCircuit_f1297 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6859 := (leafCircuit_copies214 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c6860 := (leafCircuit_copies214 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6861 := (leafCircuit_copies214 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_176_13 := arithEq_of_rows h (row := 176) (i := 13) rfl (by decide)
+  have e_176_13 := arithEq_of_rows h (i := 13) leafCircuit_row176 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_176_13
   simp only [← c6856, ← c6857, ← c6858] at e_176_13
-  have e_176_14 := arithEq_of_rows h (row := 176) (i := 14) rfl (by decide)
+  have e_176_14 := arithEq_of_rows h (i := 14) leafCircuit_row176 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_176_14
   simp only [← c6859, ← c6860, ← c6861] at e_176_14
   have hr := e_176_14
@@ -5489,10 +5489,10 @@ theorem leafCircuit_f1298 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6824 := (leafCircuit_copies213 a h).2.2.2.2.2.2.2.2.1
   have c6825 := (leafCircuit_copies213 a h).2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_164_2 := arithEq_of_rows h (row := 164) (i := 2) rfl (by decide)
+  have e_164_2 := arithEq_of_rows h (i := 2) leafCircuit_row164 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_164_2
   simp only [← c6820, ← c6821, ← c6822] at e_164_2
-  have e_167_11 := arithEq_of_rows h (row := 167) (i := 11) rfl (by decide)
+  have e_167_11 := arithEq_of_rows h (i := 11) leafCircuit_row167 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_167_11
   simp only [← c6823, ← c6824, k3, ← c6825] at e_167_11
   have hr := e_167_11
@@ -5508,10 +5508,10 @@ theorem leafCircuit_f1299 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6865 := (leafCircuit_copies214 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6866 := (leafCircuit_copies214 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6867 := (leafCircuit_copies214 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_177_0 := arithEq_of_rows h (row := 177) (i := 0) rfl (by decide)
+  have e_177_0 := arithEq_of_rows h (i := 0) leafCircuit_row177 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_177_0
   simp only [← c6862, ← c6863, ← c6864] at e_177_0
-  have e_177_1 := arithEq_of_rows h (row := 177) (i := 1) rfl (by decide)
+  have e_177_1 := arithEq_of_rows h (i := 1) leafCircuit_row177 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_177_1
   simp only [← c6865, ← c6866, ← c6867] at e_177_1
   have hr := e_177_1
@@ -5527,10 +5527,10 @@ theorem leafCircuit_f1300 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6871 := (leafCircuit_copies214 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6872 := (leafCircuit_copies214 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6873 := (leafCircuit_copies214 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_177_2 := arithEq_of_rows h (row := 177) (i := 2) rfl (by decide)
+  have e_177_2 := arithEq_of_rows h (i := 2) leafCircuit_row177 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_177_2
   simp only [← c6868, ← c6869, ← c6870] at e_177_2
-  have e_177_3 := arithEq_of_rows h (row := 177) (i := 3) rfl (by decide)
+  have e_177_3 := arithEq_of_rows h (i := 3) leafCircuit_row177 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_177_3
   simp only [← c6871, ← c6872, ← c6873] at e_177_3
   have hr := e_177_3
@@ -5546,10 +5546,10 @@ theorem leafCircuit_f1301 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6877 := (leafCircuit_copies214 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6878 := (leafCircuit_copies214 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6879 := (leafCircuit_copies214 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have e_177_4 := arithEq_of_rows h (row := 177) (i := 4) rfl (by decide)
+  have e_177_4 := arithEq_of_rows h (i := 4) leafCircuit_row177 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_177_4
   simp only [← c6874, ← c6875, ← c6876] at e_177_4
-  have e_177_5 := arithEq_of_rows h (row := 177) (i := 5) rfl (by decide)
+  have e_177_5 := arithEq_of_rows h (i := 5) leafCircuit_row177 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_177_5
   simp only [← c6877, ← c6878, ← c6879] at e_177_5
   have hr := e_177_5
@@ -5565,10 +5565,10 @@ theorem leafCircuit_f1302 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6883 := (leafCircuit_copies215 a h).2.2.2.1
   have c6884 := (leafCircuit_copies215 a h).2.2.2.2.1
   have c6885 := (leafCircuit_copies215 a h).2.2.2.2.2.1
-  have e_177_6 := arithEq_of_rows h (row := 177) (i := 6) rfl (by decide)
+  have e_177_6 := arithEq_of_rows h (i := 6) leafCircuit_row177 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_177_6
   simp only [← c6880, ← c6881, ← c6882] at e_177_6
-  have e_177_7 := arithEq_of_rows h (row := 177) (i := 7) rfl (by decide)
+  have e_177_7 := arithEq_of_rows h (i := 7) leafCircuit_row177 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_177_7
   simp only [← c6883, ← c6884, ← c6885] at e_177_7
   have hr := e_177_7
@@ -5584,10 +5584,10 @@ theorem leafCircuit_f1303 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6889 := (leafCircuit_copies215 a h).2.2.2.2.2.2.2.2.2.1
   have c6890 := (leafCircuit_copies215 a h).2.2.2.2.2.2.2.2.2.2.1
   have c6891 := (leafCircuit_copies215 a h).2.2.2.2.2.2.2.2.2.2.2.1
-  have e_177_8 := arithEq_of_rows h (row := 177) (i := 8) rfl (by decide)
+  have e_177_8 := arithEq_of_rows h (i := 8) leafCircuit_row177 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_177_8
   simp only [← c6886, ← c6887, ← c6888] at e_177_8
-  have e_177_9 := arithEq_of_rows h (row := 177) (i := 9) rfl (by decide)
+  have e_177_9 := arithEq_of_rows h (i := 9) leafCircuit_row177 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_177_9
   simp only [← c6889, ← c6890, ← c6891] at e_177_9
   have hr := e_177_9
@@ -5603,10 +5603,10 @@ theorem leafCircuit_f1304 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6895 := (leafCircuit_copies215 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6896 := (leafCircuit_copies215 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6897 := (leafCircuit_copies215 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_177_10 := arithEq_of_rows h (row := 177) (i := 10) rfl (by decide)
+  have e_177_10 := arithEq_of_rows h (i := 10) leafCircuit_row177 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_177_10
   simp only [← c6892, ← c6893, ← c6894] at e_177_10
-  have e_177_11 := arithEq_of_rows h (row := 177) (i := 11) rfl (by decide)
+  have e_177_11 := arithEq_of_rows h (i := 11) leafCircuit_row177 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_177_11
   simp only [← c6895, ← c6896, ← c6897] at e_177_11
   have hr := e_177_11
@@ -5681,31 +5681,31 @@ theorem leafCircuit_f1305 (perm : St p → St p) (a : Assignment p) (h : Satisfi
   have c6959 := (leafCircuit_copies217 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6960 := (leafCircuit_copies217 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_167_12 := arithEq_of_rows h (row := 167) (i := 12) rfl (by decide)
+  have e_167_12 := arithEq_of_rows h (i := 12) leafCircuit_row167 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_167_12
   simp only [← c6910, ← c6911, k3, ← c6912] at e_167_12
-  have e_167_13 := arithEq_of_rows h (row := 167) (i := 13) rfl (by decide)
+  have e_167_13 := arithEq_of_rows h (i := 13) leafCircuit_row167 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_167_13
   simp only [← c6913, ← c6914, k3, ← c6915] at e_167_13
-  have e_167_14 := arithEq_of_rows h (row := 167) (i := 14) rfl (by decide)
+  have e_167_14 := arithEq_of_rows h (i := 14) leafCircuit_row167 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_167_14
   simp only [← c6916, ← c6917, k3, ← c6918] at e_167_14
-  have e_179_0 := arithEq_of_rows h (row := 179) (i := 0) rfl (by decide)
+  have e_179_0 := arithEq_of_rows h (i := 0) leafCircuit_row179 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_179_0
   simp only [← c6919, ← c6920, k3, ← c6921] at e_179_0
-  have e_179_1 := arithEq_of_rows h (row := 179) (i := 1) rfl (by decide)
+  have e_179_1 := arithEq_of_rows h (i := 1) leafCircuit_row179 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_179_1
   simp only [← c6922, ← c6923, k3, ← c6924] at e_179_1
-  have e_179_2 := arithEq_of_rows h (row := 179) (i := 2) rfl (by decide)
+  have e_179_2 := arithEq_of_rows h (i := 2) leafCircuit_row179 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_179_2
   simp only [← c6925, ← c6926, k3, ← c6927] at e_179_2
-  have e_179_3 := arithEq_of_rows h (row := 179) (i := 3) rfl (by decide)
+  have e_179_3 := arithEq_of_rows h (i := 3) leafCircuit_row179 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_179_3
   simp only [← c6928, ← c6929, k3, ← c6930] at e_179_3
-  have e_179_4 := arithEq_of_rows h (row := 179) (i := 4) rfl (by decide)
+  have e_179_4 := arithEq_of_rows h (i := 4) leafCircuit_row179 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_179_4
   simp only [← c6931, ← c6932, k3, ← c6933] at e_179_4
-  have e_179_5 := arithEq_of_rows h (row := 179) (i := 5) rfl (by decide)
+  have e_179_5 := arithEq_of_rows h (i := 5) leafCircuit_row179 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_179_5
   simp only [← c6946, ← c6947, k3, ← c6948, k3] at e_179_5
   have hin0 : poseidon2In a 178 = addBlock (fun _ => 0) [a (.wire 174 43), a (.wire 174 51), a (.wire 174 59), a (.wire 175 7), a (.wire 175 23), a (.wire 175 39), a (.wire 175 55), a (.wire 176 11)] :=
@@ -5731,10 +5731,10 @@ theorem leafCircuit_f1306 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6964 := (leafCircuit_copies217 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6965 := (leafCircuit_copies217 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6966 := (leafCircuit_copies217 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_177_12 := arithEq_of_rows h (row := 177) (i := 12) rfl (by decide)
+  have e_177_12 := arithEq_of_rows h (i := 12) leafCircuit_row177 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_177_12
   simp only [← c6961, ← c6962, ← c6963] at e_177_12
-  have e_177_13 := arithEq_of_rows h (row := 177) (i := 13) rfl (by decide)
+  have e_177_13 := arithEq_of_rows h (i := 13) leafCircuit_row177 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_177_13
   simp only [← c6964, ← c6965, ← c6966] at e_177_13
   have hr := e_177_13
@@ -5750,10 +5750,10 @@ theorem leafCircuit_f1307 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6970 := (leafCircuit_copies217 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6971 := (leafCircuit_copies217 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c6972 := (leafCircuit_copies217 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_177_14 := arithEq_of_rows h (row := 177) (i := 14) rfl (by decide)
+  have e_177_14 := arithEq_of_rows h (i := 14) leafCircuit_row177 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_177_14
   simp only [← c6967, ← c6968, ← c6969] at e_177_14
-  have e_182_0 := arithEq_of_rows h (row := 182) (i := 0) rfl (by decide)
+  have e_182_0 := arithEq_of_rows h (i := 0) leafCircuit_row182 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_182_0
   simp only [← c6970, ← c6971, ← c6972] at e_182_0
   have hr := e_182_0
@@ -5769,10 +5769,10 @@ theorem leafCircuit_f1308 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6976 := (leafCircuit_copies218 a h).1
   have c6977 := (leafCircuit_copies218 a h).2.1
   have c6978 := (leafCircuit_copies218 a h).2.2.1
-  have e_182_1 := arithEq_of_rows h (row := 182) (i := 1) rfl (by decide)
+  have e_182_1 := arithEq_of_rows h (i := 1) leafCircuit_row182 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_182_1
   simp only [← c6973, ← c6974, ← c6975] at e_182_1
-  have e_182_2 := arithEq_of_rows h (row := 182) (i := 2) rfl (by decide)
+  have e_182_2 := arithEq_of_rows h (i := 2) leafCircuit_row182 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_182_2
   simp only [← c6976, ← c6977, ← c6978] at e_182_2
   have hr := e_182_2
@@ -5788,10 +5788,10 @@ theorem leafCircuit_f1309 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c6982 := (leafCircuit_copies218 a h).2.2.2.2.2.2.1
   have c6983 := (leafCircuit_copies218 a h).2.2.2.2.2.2.2.1
   have c6984 := (leafCircuit_copies218 a h).2.2.2.2.2.2.2.2.1
-  have e_182_3 := arithEq_of_rows h (row := 182) (i := 3) rfl (by decide)
+  have e_182_3 := arithEq_of_rows h (i := 3) leafCircuit_row182 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_182_3
   simp only [← c6979, ← c6980, ← c6981] at e_182_3
-  have e_182_4 := arithEq_of_rows h (row := 182) (i := 4) rfl (by decide)
+  have e_182_4 := arithEq_of_rows h (i := 4) leafCircuit_row182 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_182_4
   simp only [← c6982, ← c6983, ← c6984] at e_182_4
   have hr := e_182_4
@@ -5971,7 +5971,7 @@ theorem leafCircuit_f1319 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7041 := (leafCircuit_copies220 a h).2.1
   have c7042 := (leafCircuit_copies220 a h).2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_182_5 := arithEq_of_rows h (row := 182) (i := 5) rfl (by decide)
+  have e_182_5 := arithEq_of_rows h (i := 5) leafCircuit_row182 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_182_5
   simp only [← c7040, k3, ← c7041, k3, ← c7042] at e_182_5
   have hr := e_182_5
@@ -6020,7 +6020,7 @@ theorem leafCircuit_f1326 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7044 := (leafCircuit_copies220 a h).2.2.2.2.1
   have c7045 := (leafCircuit_copies220 a h).2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_173_8 := arithEq_of_rows h (row := 173) (i := 8) rfl (by decide)
+  have e_173_8 := arithEq_of_rows h (i := 8) leafCircuit_row173 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_173_8
   simp only [← c7043, k5, ← c7044, ← c7045, k5] at e_173_8
   have hr := e_173_8
@@ -6033,7 +6033,7 @@ theorem leafCircuit_f1327 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7047 := (leafCircuit_copies220 a h).2.2.2.2.2.2.2.1
   have c7048 := (leafCircuit_copies220 a h).2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_179_6 := arithEq_of_rows h (row := 179) (i := 6) rfl (by decide)
+  have e_179_6 := arithEq_of_rows h (i := 6) leafCircuit_row179 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_179_6
   simp only [← c7046, k3, ← c7047, k3, ← c7048] at e_179_6
   have hr := e_179_6
@@ -6046,7 +6046,7 @@ theorem leafCircuit_f1328 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7050 := (leafCircuit_copies220 a h).2.2.2.2.2.2.2.2.2.2.1
   have c7051 := (leafCircuit_copies220 a h).2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_182_6 := arithEq_of_rows h (row := 182) (i := 6) rfl (by decide)
+  have e_182_6 := arithEq_of_rows h (i := 6) leafCircuit_row182 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_182_6
   simp only [← c7049, ← c7050, k3, ← c7051] at e_182_6
   have hr := e_182_6
@@ -6058,7 +6058,7 @@ theorem leafCircuit_f1329 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7053 := (leafCircuit_copies220 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7054 := (leafCircuit_copies220 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_182_7 := arithEq_of_rows h (row := 182) (i := 7) rfl (by decide)
+  have e_182_7 := arithEq_of_rows h (i := 7) leafCircuit_row182 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_182_7
   simp only [← c7052, k3, ← c7053, k3, ← c7054] at e_182_7
   have hr := e_182_7
@@ -6070,7 +6070,7 @@ theorem leafCircuit_f1330 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7055 := (leafCircuit_copies220 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7056 := (leafCircuit_copies220 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7057 := (leafCircuit_copies220 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_173_9 := arithEq_of_rows h (row := 173) (i := 9) rfl (by decide)
+  have e_173_9 := arithEq_of_rows h (i := 9) leafCircuit_row173 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_173_9
   simp only [← c7055, ← c7056, ← c7057] at e_173_9
   have hr := e_173_9
@@ -6113,7 +6113,7 @@ theorem leafCircuit_f1336 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7059 := (leafCircuit_copies220 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7060 := (leafCircuit_copies220 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_173_10 := arithEq_of_rows h (row := 173) (i := 10) rfl (by decide)
+  have e_173_10 := arithEq_of_rows h (i := 10) leafCircuit_row173 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_173_10
   simp only [← c7058, k5, ← c7059, ← c7060, k5] at e_173_10
   have hr := e_173_10
@@ -6126,7 +6126,7 @@ theorem leafCircuit_f1337 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7062 := (leafCircuit_copies220 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7063 := (leafCircuit_copies220 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_179_7 := arithEq_of_rows h (row := 179) (i := 7) rfl (by decide)
+  have e_179_7 := arithEq_of_rows h (i := 7) leafCircuit_row179 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_179_7
   simp only [← c7061, k3, ← c7062, k3, ← c7063] at e_179_7
   have hr := e_179_7
@@ -6139,7 +6139,7 @@ theorem leafCircuit_f1338 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7065 := (leafCircuit_copies220 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7066 := (leafCircuit_copies220 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_182_8 := arithEq_of_rows h (row := 182) (i := 8) rfl (by decide)
+  have e_182_8 := arithEq_of_rows h (i := 8) leafCircuit_row182 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_182_8
   simp only [← c7064, ← c7065, k3, ← c7066] at e_182_8
   have hr := e_182_8
@@ -6151,7 +6151,7 @@ theorem leafCircuit_f1339 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7068 := (leafCircuit_copies220 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7069 := (leafCircuit_copies220 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_182_9 := arithEq_of_rows h (row := 182) (i := 9) rfl (by decide)
+  have e_182_9 := arithEq_of_rows h (i := 9) leafCircuit_row182 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_182_9
   simp only [← c7067, k3, ← c7068, k3, ← c7069] at e_182_9
   have hr := e_182_9
@@ -6163,7 +6163,7 @@ theorem leafCircuit_f1340 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7070 := (leafCircuit_copies220 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7071 := (leafCircuit_copies220 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c7072 := (leafCircuit_copies221 a h).1
-  have e_173_11 := arithEq_of_rows h (row := 173) (i := 11) rfl (by decide)
+  have e_173_11 := arithEq_of_rows h (i := 11) leafCircuit_row173 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_173_11
   simp only [← c7070, ← c7071, ← c7072] at e_173_11
   have hr := e_173_11
@@ -6206,7 +6206,7 @@ theorem leafCircuit_f1346 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7074 := (leafCircuit_copies221 a h).2.2.1
   have c7075 := (leafCircuit_copies221 a h).2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_173_12 := arithEq_of_rows h (row := 173) (i := 12) rfl (by decide)
+  have e_173_12 := arithEq_of_rows h (i := 12) leafCircuit_row173 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_173_12
   simp only [← c7073, k5, ← c7074, ← c7075, k5] at e_173_12
   have hr := e_173_12
@@ -6219,7 +6219,7 @@ theorem leafCircuit_f1347 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7077 := (leafCircuit_copies221 a h).2.2.2.2.2.1
   have c7078 := (leafCircuit_copies221 a h).2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_179_8 := arithEq_of_rows h (row := 179) (i := 8) rfl (by decide)
+  have e_179_8 := arithEq_of_rows h (i := 8) leafCircuit_row179 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_179_8
   simp only [← c7076, k3, ← c7077, k3, ← c7078] at e_179_8
   have hr := e_179_8
@@ -6232,7 +6232,7 @@ theorem leafCircuit_f1348 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7080 := (leafCircuit_copies221 a h).2.2.2.2.2.2.2.2.1
   have c7081 := (leafCircuit_copies221 a h).2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_182_10 := arithEq_of_rows h (row := 182) (i := 10) rfl (by decide)
+  have e_182_10 := arithEq_of_rows h (i := 10) leafCircuit_row182 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_182_10
   simp only [← c7079, ← c7080, k3, ← c7081] at e_182_10
   have hr := e_182_10
@@ -6244,7 +6244,7 @@ theorem leafCircuit_f1349 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7083 := (leafCircuit_copies221 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c7084 := (leafCircuit_copies221 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_182_11 := arithEq_of_rows h (row := 182) (i := 11) rfl (by decide)
+  have e_182_11 := arithEq_of_rows h (i := 11) leafCircuit_row182 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_182_11
   simp only [← c7082, k3, ← c7083, k3, ← c7084] at e_182_11
   have hr := e_182_11
@@ -6256,7 +6256,7 @@ theorem leafCircuit_f1350 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7085 := (leafCircuit_copies221 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7086 := (leafCircuit_copies221 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7087 := (leafCircuit_copies221 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_173_13 := arithEq_of_rows h (row := 173) (i := 13) rfl (by decide)
+  have e_173_13 := arithEq_of_rows h (i := 13) leafCircuit_row173 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_173_13
   simp only [← c7085, ← c7086, ← c7087] at e_173_13
   have hr := e_173_13
@@ -6280,7 +6280,7 @@ theorem leafCircuit_f1353 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7088 := (leafCircuit_copies221 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7089 := (leafCircuit_copies221 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7090 := (leafCircuit_copies221 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_173_14 := arithEq_of_rows h (row := 173) (i := 14) rfl (by decide)
+  have e_173_14 := arithEq_of_rows h (i := 14) leafCircuit_row173 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_173_14
   simp only [← c7088, ← c7089, ← c7090] at e_173_14
   have hr := e_173_14
@@ -6296,10 +6296,10 @@ theorem leafCircuit_f1354 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7095 := (leafCircuit_copies221 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7096 := (leafCircuit_copies221 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_164_3 := arithEq_of_rows h (row := 164) (i := 3) rfl (by decide)
+  have e_164_3 := arithEq_of_rows h (i := 3) leafCircuit_row164 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_164_3
   simp only [← c7091, ← c7092, ← c7093] at e_164_3
-  have e_179_9 := arithEq_of_rows h (row := 179) (i := 9) rfl (by decide)
+  have e_179_9 := arithEq_of_rows h (i := 9) leafCircuit_row179 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_179_9
   simp only [← c7094, ← c7095, k3, ← c7096] at e_179_9
   have hr := e_179_9
@@ -6337,7 +6337,7 @@ theorem leafCircuit_f1359 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7098 := (leafCircuit_copies221 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7099 := (leafCircuit_copies221 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_182_12 := arithEq_of_rows h (row := 182) (i := 12) rfl (by decide)
+  have e_182_12 := arithEq_of_rows h (i := 12) leafCircuit_row182 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_182_12
   simp only [← c7097, k3, ← c7098, k3, ← c7099] at e_182_12
   have hr := e_182_12
@@ -6349,7 +6349,7 @@ theorem leafCircuit_f1360 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7100 := (leafCircuit_copies221 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7101 := (leafCircuit_copies221 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7102 := (leafCircuit_copies221 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_184_0 := arithEq_of_rows h (row := 184) (i := 0) rfl (by decide)
+  have e_184_0 := arithEq_of_rows h (i := 0) leafCircuit_row184 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_184_0
   simp only [← c7100, ← c7101, ← c7102] at e_184_0
   have hr := e_184_0
@@ -6497,16 +6497,16 @@ theorem leafCircuit_f1362 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7173 := (leafCircuit_copies224 a h).2.2.2.2.2.1
   have c7174 := (leafCircuit_copies224 a h).2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_182_13 := arithEq_of_rows h (row := 182) (i := 13) rfl (by decide)
+  have e_182_13 := arithEq_of_rows h (i := 13) leafCircuit_row182 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_182_13
   simp only [← c7161, k3, ← c7162, k3, ← c7163] at e_182_13
-  have e_182_14 := arithEq_of_rows h (row := 182) (i := 14) rfl (by decide)
+  have e_182_14 := arithEq_of_rows h (i := 14) leafCircuit_row182 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_182_14
   simp only [← c7170, ← c7171, k3, ← c7172] at e_182_14
-  have e_184_1 := arithEq_of_rows h (row := 184) (i := 1) rfl (by decide)
+  have e_184_1 := arithEq_of_rows h (i := 1) leafCircuit_row184 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_184_1
   simp only [← c7164, ← c7165, ← c7166] at e_184_1
-  have e_184_2 := arithEq_of_rows h (row := 184) (i := 2) rfl (by decide)
+  have e_184_2 := arithEq_of_rows h (i := 2) leafCircuit_row184 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_184_2
   simp only [← c7167, ← c7168, ← c7169] at e_184_2
   simp only [k0]
@@ -6537,19 +6537,19 @@ theorem leafCircuit_f1363 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7190 := (leafCircuit_copies224 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7191 := (leafCircuit_copies224 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_184_3 := arithEq_of_rows h (row := 184) (i := 3) rfl (by decide)
+  have e_184_3 := arithEq_of_rows h (i := 3) leafCircuit_row184 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_184_3
   simp only [← c7181, ← c7182, ← c7183] at e_184_3
-  have e_184_4 := arithEq_of_rows h (row := 184) (i := 4) rfl (by decide)
+  have e_184_4 := arithEq_of_rows h (i := 4) leafCircuit_row184 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_184_4
   simp only [← c7184, ← c7185, ← c7186] at e_184_4
-  have e_186_0 := arithEq_of_rows h (row := 186) (i := 0) rfl (by decide)
+  have e_186_0 := arithEq_of_rows h (i := 0) leafCircuit_row186 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_186_0
   simp only [← c7175, k3, ← c7176, k3, ← c7177] at e_186_0
-  have e_186_1 := arithEq_of_rows h (row := 186) (i := 1) rfl (by decide)
+  have e_186_1 := arithEq_of_rows h (i := 1) leafCircuit_row186 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_186_1
   simp only [← c7178, ← c7179, k3, ← c7180, k3] at e_186_1
-  have e_186_2 := arithEq_of_rows h (row := 186) (i := 2) rfl (by decide)
+  have e_186_2 := arithEq_of_rows h (i := 2) leafCircuit_row186 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_186_2
   simp only [← c7187, ← c7188, k3, ← c7189] at e_186_2
   simp only [k3]
@@ -6581,19 +6581,19 @@ theorem leafCircuit_f1364 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7207 := (leafCircuit_copies225 a h).2.2.2.2.2.2.2.1
   have c7208 := (leafCircuit_copies225 a h).2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_184_5 := arithEq_of_rows h (row := 184) (i := 5) rfl (by decide)
+  have e_184_5 := arithEq_of_rows h (i := 5) leafCircuit_row184 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_184_5
   simp only [← c7198, ← c7199, ← c7200] at e_184_5
-  have e_184_6 := arithEq_of_rows h (row := 184) (i := 6) rfl (by decide)
+  have e_184_6 := arithEq_of_rows h (i := 6) leafCircuit_row184 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_184_6
   simp only [← c7201, ← c7202, ← c7203] at e_184_6
-  have e_186_3 := arithEq_of_rows h (row := 186) (i := 3) rfl (by decide)
+  have e_186_3 := arithEq_of_rows h (i := 3) leafCircuit_row186 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_186_3
   simp only [← c7192, k3, ← c7193, k3, ← c7194] at e_186_3
-  have e_186_4 := arithEq_of_rows h (row := 186) (i := 4) rfl (by decide)
+  have e_186_4 := arithEq_of_rows h (i := 4) leafCircuit_row186 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_186_4
   simp only [← c7195, ← c7196, k3, ← c7197, k5] at e_186_4
-  have e_186_5 := arithEq_of_rows h (row := 186) (i := 5) rfl (by decide)
+  have e_186_5 := arithEq_of_rows h (i := 5) leafCircuit_row186 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_186_5
   simp only [← c7204, ← c7205, k3, ← c7206] at e_186_5
   simp only [k5]
@@ -6625,19 +6625,19 @@ theorem leafCircuit_f1365 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7224 := (leafCircuit_copies225 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7225 := (leafCircuit_copies225 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_184_7 := arithEq_of_rows h (row := 184) (i := 7) rfl (by decide)
+  have e_184_7 := arithEq_of_rows h (i := 7) leafCircuit_row184 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_184_7
   simp only [← c7215, ← c7216, ← c7217] at e_184_7
-  have e_184_8 := arithEq_of_rows h (row := 184) (i := 8) rfl (by decide)
+  have e_184_8 := arithEq_of_rows h (i := 8) leafCircuit_row184 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_184_8
   simp only [← c7218, ← c7219, ← c7220] at e_184_8
-  have e_186_6 := arithEq_of_rows h (row := 186) (i := 6) rfl (by decide)
+  have e_186_6 := arithEq_of_rows h (i := 6) leafCircuit_row186 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_186_6
   simp only [← c7209, k3, ← c7210, k3, ← c7211] at e_186_6
-  have e_186_7 := arithEq_of_rows h (row := 186) (i := 7) rfl (by decide)
+  have e_186_7 := arithEq_of_rows h (i := 7) leafCircuit_row186 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_186_7
   simp only [← c7212, ← c7213, k3, ← c7214, k6] at e_186_7
-  have e_186_8 := arithEq_of_rows h (row := 186) (i := 8) rfl (by decide)
+  have e_186_8 := arithEq_of_rows h (i := 8) leafCircuit_row186 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_186_8
   simp only [← c7221, ← c7222, k3, ← c7223] at e_186_8
   simp only [k6]
@@ -6657,10 +6657,10 @@ theorem leafCircuit_f1366 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7229 := (leafCircuit_copies225 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7230 := (leafCircuit_copies225 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7231 := (leafCircuit_copies225 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have e_186_9 := arithEq_of_rows h (row := 186) (i := 9) rfl (by decide)
+  have e_186_9 := arithEq_of_rows h (i := 9) leafCircuit_row186 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_186_9
   simp only [← c7226, ← c7227, ← c7228] at e_186_9
-  have e_186_10 := arithEq_of_rows h (row := 186) (i := 10) rfl (by decide)
+  have e_186_10 := arithEq_of_rows h (i := 10) leafCircuit_row186 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_186_10
   simp only [← c7229, ← c7230, ← c7231] at e_186_10
   have hr := e_186_10
@@ -6676,10 +6676,10 @@ theorem leafCircuit_f1367 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7235 := (leafCircuit_copies226 a h).2.2.2.1
   have c7236 := (leafCircuit_copies226 a h).2.2.2.2.1
   have c7237 := (leafCircuit_copies226 a h).2.2.2.2.2.1
-  have e_186_11 := arithEq_of_rows h (row := 186) (i := 11) rfl (by decide)
+  have e_186_11 := arithEq_of_rows h (i := 11) leafCircuit_row186 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_186_11
   simp only [← c7232, ← c7233, ← c7234] at e_186_11
-  have e_186_12 := arithEq_of_rows h (row := 186) (i := 12) rfl (by decide)
+  have e_186_12 := arithEq_of_rows h (i := 12) leafCircuit_row186 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_186_12
   simp only [← c7235, ← c7236, ← c7237] at e_186_12
   have hr := e_186_12
@@ -6695,10 +6695,10 @@ theorem leafCircuit_f1368 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7241 := (leafCircuit_copies226 a h).2.2.2.2.2.2.2.2.2.1
   have c7242 := (leafCircuit_copies226 a h).2.2.2.2.2.2.2.2.2.2.1
   have c7243 := (leafCircuit_copies226 a h).2.2.2.2.2.2.2.2.2.2.2.1
-  have e_186_13 := arithEq_of_rows h (row := 186) (i := 13) rfl (by decide)
+  have e_186_13 := arithEq_of_rows h (i := 13) leafCircuit_row186 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_186_13
   simp only [← c7238, ← c7239, ← c7240] at e_186_13
-  have e_186_14 := arithEq_of_rows h (row := 186) (i := 14) rfl (by decide)
+  have e_186_14 := arithEq_of_rows h (i := 14) leafCircuit_row186 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_186_14
   simp only [← c7241, ← c7242, ← c7243] at e_186_14
   have hr := e_186_14
@@ -6714,10 +6714,10 @@ theorem leafCircuit_f1369 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7247 := (leafCircuit_copies226 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7248 := (leafCircuit_copies226 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7249 := (leafCircuit_copies226 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_187_0 := arithEq_of_rows h (row := 187) (i := 0) rfl (by decide)
+  have e_187_0 := arithEq_of_rows h (i := 0) leafCircuit_row187 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_187_0
   simp only [← c7244, ← c7245, ← c7246] at e_187_0
-  have e_187_1 := arithEq_of_rows h (row := 187) (i := 1) rfl (by decide)
+  have e_187_1 := arithEq_of_rows h (i := 1) leafCircuit_row187 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_187_1
   simp only [← c7247, ← c7248, ← c7249] at e_187_1
   have hr := e_187_1
@@ -6733,10 +6733,10 @@ theorem leafCircuit_f1370 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7253 := (leafCircuit_copies226 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7254 := (leafCircuit_copies226 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7255 := (leafCircuit_copies226 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_187_2 := arithEq_of_rows h (row := 187) (i := 2) rfl (by decide)
+  have e_187_2 := arithEq_of_rows h (i := 2) leafCircuit_row187 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_187_2
   simp only [← c7250, ← c7251, ← c7252] at e_187_2
-  have e_187_3 := arithEq_of_rows h (row := 187) (i := 3) rfl (by decide)
+  have e_187_3 := arithEq_of_rows h (i := 3) leafCircuit_row187 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_187_3
   simp only [← c7253, ← c7254, ← c7255] at e_187_3
   have hr := e_187_3
@@ -6752,10 +6752,10 @@ theorem leafCircuit_f1371 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7259 := (leafCircuit_copies226 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7260 := (leafCircuit_copies226 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7261 := (leafCircuit_copies226 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_187_4 := arithEq_of_rows h (row := 187) (i := 4) rfl (by decide)
+  have e_187_4 := arithEq_of_rows h (i := 4) leafCircuit_row187 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_187_4
   simp only [← c7256, ← c7257, ← c7258] at e_187_4
-  have e_187_5 := arithEq_of_rows h (row := 187) (i := 5) rfl (by decide)
+  have e_187_5 := arithEq_of_rows h (i := 5) leafCircuit_row187 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_187_5
   simp only [← c7259, ← c7260, ← c7261] at e_187_5
   have hr := e_187_5
@@ -6771,10 +6771,10 @@ theorem leafCircuit_f1372 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7265 := (leafCircuit_copies227 a h).2.1
   have c7266 := (leafCircuit_copies227 a h).2.2.1
   have c7267 := (leafCircuit_copies227 a h).2.2.2.1
-  have e_187_6 := arithEq_of_rows h (row := 187) (i := 6) rfl (by decide)
+  have e_187_6 := arithEq_of_rows h (i := 6) leafCircuit_row187 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_187_6
   simp only [← c7262, ← c7263, ← c7264] at e_187_6
-  have e_187_7 := arithEq_of_rows h (row := 187) (i := 7) rfl (by decide)
+  have e_187_7 := arithEq_of_rows h (i := 7) leafCircuit_row187 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_187_7
   simp only [← c7265, ← c7266, ← c7267] at e_187_7
   have hr := e_187_7
@@ -6790,10 +6790,10 @@ theorem leafCircuit_f1373 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7271 := (leafCircuit_copies227 a h).2.2.2.2.2.2.2.1
   have c7272 := (leafCircuit_copies227 a h).2.2.2.2.2.2.2.2.1
   have c7273 := (leafCircuit_copies227 a h).2.2.2.2.2.2.2.2.2.1
-  have e_187_8 := arithEq_of_rows h (row := 187) (i := 8) rfl (by decide)
+  have e_187_8 := arithEq_of_rows h (i := 8) leafCircuit_row187 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_187_8
   simp only [← c7268, ← c7269, ← c7270] at e_187_8
-  have e_187_9 := arithEq_of_rows h (row := 187) (i := 9) rfl (by decide)
+  have e_187_9 := arithEq_of_rows h (i := 9) leafCircuit_row187 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_187_9
   simp only [← c7271, ← c7272, ← c7273] at e_187_9
   have hr := e_187_9
@@ -6809,10 +6809,10 @@ theorem leafCircuit_f1374 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7277 := (leafCircuit_copies227 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7278 := (leafCircuit_copies227 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7279 := (leafCircuit_copies227 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_187_10 := arithEq_of_rows h (row := 187) (i := 10) rfl (by decide)
+  have e_187_10 := arithEq_of_rows h (i := 10) leafCircuit_row187 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_187_10
   simp only [← c7274, ← c7275, ← c7276] at e_187_10
-  have e_187_11 := arithEq_of_rows h (row := 187) (i := 11) rfl (by decide)
+  have e_187_11 := arithEq_of_rows h (i := 11) leafCircuit_row187 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_187_11
   simp only [← c7277, ← c7278, ← c7279] at e_187_11
   have hr := e_187_11
@@ -6828,10 +6828,10 @@ theorem leafCircuit_f1375 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7283 := (leafCircuit_copies227 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7284 := (leafCircuit_copies227 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7285 := (leafCircuit_copies227 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_187_12 := arithEq_of_rows h (row := 187) (i := 12) rfl (by decide)
+  have e_187_12 := arithEq_of_rows h (i := 12) leafCircuit_row187 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_187_12
   simp only [← c7280, ← c7281, ← c7282] at e_187_12
-  have e_187_13 := arithEq_of_rows h (row := 187) (i := 13) rfl (by decide)
+  have e_187_13 := arithEq_of_rows h (i := 13) leafCircuit_row187 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_187_13
   simp only [← c7283, ← c7284, ← c7285] at e_187_13
   have hr := e_187_13
@@ -6847,10 +6847,10 @@ theorem leafCircuit_f1376 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7289 := (leafCircuit_copies227 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7290 := (leafCircuit_copies227 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7291 := (leafCircuit_copies227 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_187_14 := arithEq_of_rows h (row := 187) (i := 14) rfl (by decide)
+  have e_187_14 := arithEq_of_rows h (i := 14) leafCircuit_row187 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_187_14
   simp only [← c7286, ← c7287, ← c7288] at e_187_14
-  have e_188_0 := arithEq_of_rows h (row := 188) (i := 0) rfl (by decide)
+  have e_188_0 := arithEq_of_rows h (i := 0) leafCircuit_row188 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_188_0
   simp only [← c7289, ← c7290, ← c7291] at e_188_0
   have hr := e_188_0
@@ -6866,10 +6866,10 @@ theorem leafCircuit_f1377 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7295 := (leafCircuit_copies227 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c7296 := (leafCircuit_copies228 a h).1
   have c7297 := (leafCircuit_copies228 a h).2.1
-  have e_188_1 := arithEq_of_rows h (row := 188) (i := 1) rfl (by decide)
+  have e_188_1 := arithEq_of_rows h (i := 1) leafCircuit_row188 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_188_1
   simp only [← c7292, ← c7293, ← c7294] at e_188_1
-  have e_188_2 := arithEq_of_rows h (row := 188) (i := 2) rfl (by decide)
+  have e_188_2 := arithEq_of_rows h (i := 2) leafCircuit_row188 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_188_2
   simp only [← c7295, ← c7296, ← c7297] at e_188_2
   have hr := e_188_2
@@ -6886,10 +6886,10 @@ theorem leafCircuit_f1378 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7302 := (leafCircuit_copies228 a h).2.2.2.2.2.2.1
   have c7303 := (leafCircuit_copies228 a h).2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_164_4 := arithEq_of_rows h (row := 164) (i := 4) rfl (by decide)
+  have e_164_4 := arithEq_of_rows h (i := 4) leafCircuit_row164 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_164_4
   simp only [← c7298, ← c7299, ← c7300] at e_164_4
-  have e_179_10 := arithEq_of_rows h (row := 179) (i := 10) rfl (by decide)
+  have e_179_10 := arithEq_of_rows h (i := 10) leafCircuit_row179 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_179_10
   simp only [← c7301, ← c7302, k3, ← c7303] at e_179_10
   have hr := e_179_10
@@ -6905,10 +6905,10 @@ theorem leafCircuit_f1379 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7307 := (leafCircuit_copies228 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c7308 := (leafCircuit_copies228 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7309 := (leafCircuit_copies228 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_188_3 := arithEq_of_rows h (row := 188) (i := 3) rfl (by decide)
+  have e_188_3 := arithEq_of_rows h (i := 3) leafCircuit_row188 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_188_3
   simp only [← c7304, ← c7305, ← c7306] at e_188_3
-  have e_188_4 := arithEq_of_rows h (row := 188) (i := 4) rfl (by decide)
+  have e_188_4 := arithEq_of_rows h (i := 4) leafCircuit_row188 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_188_4
   simp only [← c7307, ← c7308, ← c7309] at e_188_4
   have hr := e_188_4
@@ -6924,10 +6924,10 @@ theorem leafCircuit_f1380 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7313 := (leafCircuit_copies228 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7314 := (leafCircuit_copies228 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7315 := (leafCircuit_copies228 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_188_5 := arithEq_of_rows h (row := 188) (i := 5) rfl (by decide)
+  have e_188_5 := arithEq_of_rows h (i := 5) leafCircuit_row188 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_188_5
   simp only [← c7310, ← c7311, ← c7312] at e_188_5
-  have e_188_6 := arithEq_of_rows h (row := 188) (i := 6) rfl (by decide)
+  have e_188_6 := arithEq_of_rows h (i := 6) leafCircuit_row188 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_188_6
   simp only [← c7313, ← c7314, ← c7315] at e_188_6
   have hr := e_188_6
@@ -6944,10 +6944,10 @@ theorem leafCircuit_f1381 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7302 := (leafCircuit_copies228 a h).2.2.2.2.2.2.1
   have c7303 := (leafCircuit_copies228 a h).2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_164_4 := arithEq_of_rows h (row := 164) (i := 4) rfl (by decide)
+  have e_164_4 := arithEq_of_rows h (i := 4) leafCircuit_row164 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_164_4
   simp only [← c7298, ← c7299, ← c7300] at e_164_4
-  have e_179_10 := arithEq_of_rows h (row := 179) (i := 10) rfl (by decide)
+  have e_179_10 := arithEq_of_rows h (i := 10) leafCircuit_row179 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_179_10
   simp only [← c7301, ← c7302, k3, ← c7303] at e_179_10
   have hr := e_179_10
@@ -6963,10 +6963,10 @@ theorem leafCircuit_f1382 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7319 := (leafCircuit_copies228 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7320 := (leafCircuit_copies228 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7321 := (leafCircuit_copies228 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_188_7 := arithEq_of_rows h (row := 188) (i := 7) rfl (by decide)
+  have e_188_7 := arithEq_of_rows h (i := 7) leafCircuit_row188 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_188_7
   simp only [← c7316, ← c7317, ← c7318] at e_188_7
-  have e_188_8 := arithEq_of_rows h (row := 188) (i := 8) rfl (by decide)
+  have e_188_8 := arithEq_of_rows h (i := 8) leafCircuit_row188 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_188_8
   simp only [← c7319, ← c7320, ← c7321] at e_188_8
   have hr := e_188_8
@@ -6982,10 +6982,10 @@ theorem leafCircuit_f1383 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7325 := (leafCircuit_copies228 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7326 := (leafCircuit_copies228 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7327 := (leafCircuit_copies228 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have e_188_9 := arithEq_of_rows h (row := 188) (i := 9) rfl (by decide)
+  have e_188_9 := arithEq_of_rows h (i := 9) leafCircuit_row188 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_188_9
   simp only [← c7322, ← c7323, ← c7324] at e_188_9
-  have e_188_10 := arithEq_of_rows h (row := 188) (i := 10) rfl (by decide)
+  have e_188_10 := arithEq_of_rows h (i := 10) leafCircuit_row188 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_188_10
   simp only [← c7325, ← c7326, ← c7327] at e_188_10
   have hr := e_188_10
@@ -7002,10 +7002,10 @@ theorem leafCircuit_f1384 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7302 := (leafCircuit_copies228 a h).2.2.2.2.2.2.1
   have c7303 := (leafCircuit_copies228 a h).2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_164_4 := arithEq_of_rows h (row := 164) (i := 4) rfl (by decide)
+  have e_164_4 := arithEq_of_rows h (i := 4) leafCircuit_row164 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_164_4
   simp only [← c7298, ← c7299, ← c7300] at e_164_4
-  have e_179_10 := arithEq_of_rows h (row := 179) (i := 10) rfl (by decide)
+  have e_179_10 := arithEq_of_rows h (i := 10) leafCircuit_row179 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_179_10
   simp only [← c7301, ← c7302, k3, ← c7303] at e_179_10
   have hr := e_179_10
@@ -7021,10 +7021,10 @@ theorem leafCircuit_f1385 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7331 := (leafCircuit_copies229 a h).2.2.2.1
   have c7332 := (leafCircuit_copies229 a h).2.2.2.2.1
   have c7333 := (leafCircuit_copies229 a h).2.2.2.2.2.1
-  have e_188_11 := arithEq_of_rows h (row := 188) (i := 11) rfl (by decide)
+  have e_188_11 := arithEq_of_rows h (i := 11) leafCircuit_row188 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_188_11
   simp only [← c7328, ← c7329, ← c7330] at e_188_11
-  have e_188_12 := arithEq_of_rows h (row := 188) (i := 12) rfl (by decide)
+  have e_188_12 := arithEq_of_rows h (i := 12) leafCircuit_row188 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_188_12
   simp only [← c7331, ← c7332, ← c7333] at e_188_12
   have hr := e_188_12
@@ -7040,10 +7040,10 @@ theorem leafCircuit_f1386 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7337 := (leafCircuit_copies229 a h).2.2.2.2.2.2.2.2.2.1
   have c7338 := (leafCircuit_copies229 a h).2.2.2.2.2.2.2.2.2.2.1
   have c7339 := (leafCircuit_copies229 a h).2.2.2.2.2.2.2.2.2.2.2.1
-  have e_188_13 := arithEq_of_rows h (row := 188) (i := 13) rfl (by decide)
+  have e_188_13 := arithEq_of_rows h (i := 13) leafCircuit_row188 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_188_13
   simp only [← c7334, ← c7335, ← c7336] at e_188_13
-  have e_188_14 := arithEq_of_rows h (row := 188) (i := 14) rfl (by decide)
+  have e_188_14 := arithEq_of_rows h (i := 14) leafCircuit_row188 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_188_14
   simp only [← c7337, ← c7338, ← c7339] at e_188_14
   have hr := e_188_14
@@ -7060,10 +7060,10 @@ theorem leafCircuit_f1387 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7302 := (leafCircuit_copies228 a h).2.2.2.2.2.2.1
   have c7303 := (leafCircuit_copies228 a h).2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_164_4 := arithEq_of_rows h (row := 164) (i := 4) rfl (by decide)
+  have e_164_4 := arithEq_of_rows h (i := 4) leafCircuit_row164 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_164_4
   simp only [← c7298, ← c7299, ← c7300] at e_164_4
-  have e_179_10 := arithEq_of_rows h (row := 179) (i := 10) rfl (by decide)
+  have e_179_10 := arithEq_of_rows h (i := 10) leafCircuit_row179 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_179_10
   simp only [← c7301, ← c7302, k3, ← c7303] at e_179_10
   have hr := e_179_10
@@ -7079,10 +7079,10 @@ theorem leafCircuit_f1388 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7343 := (leafCircuit_copies229 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7344 := (leafCircuit_copies229 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7345 := (leafCircuit_copies229 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_189_0 := arithEq_of_rows h (row := 189) (i := 0) rfl (by decide)
+  have e_189_0 := arithEq_of_rows h (i := 0) leafCircuit_row189 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_189_0
   simp only [← c7340, ← c7341, ← c7342] at e_189_0
-  have e_189_1 := arithEq_of_rows h (row := 189) (i := 1) rfl (by decide)
+  have e_189_1 := arithEq_of_rows h (i := 1) leafCircuit_row189 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_189_1
   simp only [← c7343, ← c7344, ← c7345] at e_189_1
   have hr := e_189_1
@@ -7098,10 +7098,10 @@ theorem leafCircuit_f1389 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7349 := (leafCircuit_copies229 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7350 := (leafCircuit_copies229 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7351 := (leafCircuit_copies229 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_189_2 := arithEq_of_rows h (row := 189) (i := 2) rfl (by decide)
+  have e_189_2 := arithEq_of_rows h (i := 2) leafCircuit_row189 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_189_2
   simp only [← c7346, ← c7347, ← c7348] at e_189_2
-  have e_189_3 := arithEq_of_rows h (row := 189) (i := 3) rfl (by decide)
+  have e_189_3 := arithEq_of_rows h (i := 3) leafCircuit_row189 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_189_3
   simp only [← c7349, ← c7350, ← c7351] at e_189_3
   have hr := e_189_3
@@ -7117,10 +7117,10 @@ theorem leafCircuit_f1390 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7355 := (leafCircuit_copies229 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7356 := (leafCircuit_copies229 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7357 := (leafCircuit_copies229 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_189_4 := arithEq_of_rows h (row := 189) (i := 4) rfl (by decide)
+  have e_189_4 := arithEq_of_rows h (i := 4) leafCircuit_row189 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_189_4
   simp only [← c7352, ← c7353, ← c7354] at e_189_4
-  have e_189_5 := arithEq_of_rows h (row := 189) (i := 5) rfl (by decide)
+  have e_189_5 := arithEq_of_rows h (i := 5) leafCircuit_row189 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_189_5
   simp only [← c7355, ← c7356, ← c7357] at e_189_5
   have hr := e_189_5
@@ -7136,10 +7136,10 @@ theorem leafCircuit_f1391 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7361 := (leafCircuit_copies230 a h).2.1
   have c7362 := (leafCircuit_copies230 a h).2.2.1
   have c7363 := (leafCircuit_copies230 a h).2.2.2.1
-  have e_189_6 := arithEq_of_rows h (row := 189) (i := 6) rfl (by decide)
+  have e_189_6 := arithEq_of_rows h (i := 6) leafCircuit_row189 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_189_6
   simp only [← c7358, ← c7359, ← c7360] at e_189_6
-  have e_189_7 := arithEq_of_rows h (row := 189) (i := 7) rfl (by decide)
+  have e_189_7 := arithEq_of_rows h (i := 7) leafCircuit_row189 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_189_7
   simp only [← c7361, ← c7362, ← c7363] at e_189_7
   have hr := e_189_7
@@ -7155,10 +7155,10 @@ theorem leafCircuit_f1392 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7367 := (leafCircuit_copies230 a h).2.2.2.2.2.2.2.1
   have c7368 := (leafCircuit_copies230 a h).2.2.2.2.2.2.2.2.1
   have c7369 := (leafCircuit_copies230 a h).2.2.2.2.2.2.2.2.2.1
-  have e_189_8 := arithEq_of_rows h (row := 189) (i := 8) rfl (by decide)
+  have e_189_8 := arithEq_of_rows h (i := 8) leafCircuit_row189 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_189_8
   simp only [← c7364, ← c7365, ← c7366] at e_189_8
-  have e_189_9 := arithEq_of_rows h (row := 189) (i := 9) rfl (by decide)
+  have e_189_9 := arithEq_of_rows h (i := 9) leafCircuit_row189 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_189_9
   simp only [← c7367, ← c7368, ← c7369] at e_189_9
   have hr := e_189_9
@@ -7174,10 +7174,10 @@ theorem leafCircuit_f1393 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7373 := (leafCircuit_copies230 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7374 := (leafCircuit_copies230 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7375 := (leafCircuit_copies230 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_189_10 := arithEq_of_rows h (row := 189) (i := 10) rfl (by decide)
+  have e_189_10 := arithEq_of_rows h (i := 10) leafCircuit_row189 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_189_10
   simp only [← c7370, ← c7371, ← c7372] at e_189_10
-  have e_189_11 := arithEq_of_rows h (row := 189) (i := 11) rfl (by decide)
+  have e_189_11 := arithEq_of_rows h (i := 11) leafCircuit_row189 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_189_11
   simp only [← c7373, ← c7374, ← c7375] at e_189_11
   have hr := e_189_11
@@ -7252,31 +7252,31 @@ theorem leafCircuit_f1394 (perm : St p → St p) (a : Assignment p) (h : Satisfi
   have c7437 := (leafCircuit_copies232 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7438 := (leafCircuit_copies232 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_179_11 := arithEq_of_rows h (row := 179) (i := 11) rfl (by decide)
+  have e_179_11 := arithEq_of_rows h (i := 11) leafCircuit_row179 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_179_11
   simp only [← c7388, ← c7389, k3, ← c7390] at e_179_11
-  have e_179_12 := arithEq_of_rows h (row := 179) (i := 12) rfl (by decide)
+  have e_179_12 := arithEq_of_rows h (i := 12) leafCircuit_row179 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_179_12
   simp only [← c7391, ← c7392, k3, ← c7393] at e_179_12
-  have e_179_13 := arithEq_of_rows h (row := 179) (i := 13) rfl (by decide)
+  have e_179_13 := arithEq_of_rows h (i := 13) leafCircuit_row179 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_179_13
   simp only [← c7394, ← c7395, k3, ← c7396] at e_179_13
-  have e_179_14 := arithEq_of_rows h (row := 179) (i := 14) rfl (by decide)
+  have e_179_14 := arithEq_of_rows h (i := 14) leafCircuit_row179 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_179_14
   simp only [← c7397, ← c7398, k3, ← c7399] at e_179_14
-  have e_191_0 := arithEq_of_rows h (row := 191) (i := 0) rfl (by decide)
+  have e_191_0 := arithEq_of_rows h (i := 0) leafCircuit_row191 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_191_0
   simp only [← c7400, ← c7401, k3, ← c7402] at e_191_0
-  have e_191_1 := arithEq_of_rows h (row := 191) (i := 1) rfl (by decide)
+  have e_191_1 := arithEq_of_rows h (i := 1) leafCircuit_row191 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_191_1
   simp only [← c7403, ← c7404, k3, ← c7405] at e_191_1
-  have e_191_2 := arithEq_of_rows h (row := 191) (i := 2) rfl (by decide)
+  have e_191_2 := arithEq_of_rows h (i := 2) leafCircuit_row191 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_191_2
   simp only [← c7406, ← c7407, k3, ← c7408] at e_191_2
-  have e_191_3 := arithEq_of_rows h (row := 191) (i := 3) rfl (by decide)
+  have e_191_3 := arithEq_of_rows h (i := 3) leafCircuit_row191 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_191_3
   simp only [← c7409, ← c7410, k3, ← c7411] at e_191_3
-  have e_191_4 := arithEq_of_rows h (row := 191) (i := 4) rfl (by decide)
+  have e_191_4 := arithEq_of_rows h (i := 4) leafCircuit_row191 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_191_4
   simp only [← c7424, ← c7425, k3, ← c7426, k3] at e_191_4
   have hin0 : poseidon2In a 190 = addBlock (fun _ => 0) [a (.wire 186 43), a (.wire 186 51), a (.wire 186 59), a (.wire 187 7), a (.wire 187 23), a (.wire 187 39), a (.wire 187 55), a (.wire 188 11)] :=
@@ -7302,10 +7302,10 @@ theorem leafCircuit_f1395 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7442 := (leafCircuit_copies232 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7443 := (leafCircuit_copies232 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7444 := (leafCircuit_copies232 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_189_12 := arithEq_of_rows h (row := 189) (i := 12) rfl (by decide)
+  have e_189_12 := arithEq_of_rows h (i := 12) leafCircuit_row189 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_189_12
   simp only [← c7439, ← c7440, ← c7441] at e_189_12
-  have e_189_13 := arithEq_of_rows h (row := 189) (i := 13) rfl (by decide)
+  have e_189_13 := arithEq_of_rows h (i := 13) leafCircuit_row189 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_189_13
   simp only [← c7442, ← c7443, ← c7444] at e_189_13
   have hr := e_189_13
@@ -7321,10 +7321,10 @@ theorem leafCircuit_f1396 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7448 := (leafCircuit_copies232 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7449 := (leafCircuit_copies232 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7450 := (leafCircuit_copies232 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_189_14 := arithEq_of_rows h (row := 189) (i := 14) rfl (by decide)
+  have e_189_14 := arithEq_of_rows h (i := 14) leafCircuit_row189 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_189_14
   simp only [← c7445, ← c7446, ← c7447] at e_189_14
-  have e_194_0 := arithEq_of_rows h (row := 194) (i := 0) rfl (by decide)
+  have e_194_0 := arithEq_of_rows h (i := 0) leafCircuit_row194 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_194_0
   simp only [← c7448, ← c7449, ← c7450] at e_194_0
   have hr := e_194_0
@@ -7340,10 +7340,10 @@ theorem leafCircuit_f1397 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7454 := (leafCircuit_copies232 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7455 := (leafCircuit_copies232 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c7456 := (leafCircuit_copies233 a h).1
-  have e_194_1 := arithEq_of_rows h (row := 194) (i := 1) rfl (by decide)
+  have e_194_1 := arithEq_of_rows h (i := 1) leafCircuit_row194 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_194_1
   simp only [← c7451, ← c7452, ← c7453] at e_194_1
-  have e_194_2 := arithEq_of_rows h (row := 194) (i := 2) rfl (by decide)
+  have e_194_2 := arithEq_of_rows h (i := 2) leafCircuit_row194 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_194_2
   simp only [← c7454, ← c7455, ← c7456] at e_194_2
   have hr := e_194_2
@@ -7359,10 +7359,10 @@ theorem leafCircuit_f1398 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7460 := (leafCircuit_copies233 a h).2.2.2.2.1
   have c7461 := (leafCircuit_copies233 a h).2.2.2.2.2.1
   have c7462 := (leafCircuit_copies233 a h).2.2.2.2.2.2.1
-  have e_194_3 := arithEq_of_rows h (row := 194) (i := 3) rfl (by decide)
+  have e_194_3 := arithEq_of_rows h (i := 3) leafCircuit_row194 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_194_3
   simp only [← c7457, ← c7458, ← c7459] at e_194_3
-  have e_194_4 := arithEq_of_rows h (row := 194) (i := 4) rfl (by decide)
+  have e_194_4 := arithEq_of_rows h (i := 4) leafCircuit_row194 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_194_4
   simp only [← c7460, ← c7461, ← c7462] at e_194_4
   have hr := e_194_4
@@ -7542,7 +7542,7 @@ theorem leafCircuit_f1408 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7519 := (leafCircuit_copies234 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c7520 := (leafCircuit_copies235 a h).1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_194_5 := arithEq_of_rows h (row := 194) (i := 5) rfl (by decide)
+  have e_194_5 := arithEq_of_rows h (i := 5) leafCircuit_row194 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_194_5
   simp only [← c7518, k3, ← c7519, k3, ← c7520] at e_194_5
   have hr := e_194_5
@@ -7591,7 +7591,7 @@ theorem leafCircuit_f1415 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7522 := (leafCircuit_copies235 a h).2.2.1
   have c7523 := (leafCircuit_copies235 a h).2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_184_9 := arithEq_of_rows h (row := 184) (i := 9) rfl (by decide)
+  have e_184_9 := arithEq_of_rows h (i := 9) leafCircuit_row184 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_184_9
   simp only [← c7521, k5, ← c7522, ← c7523, k5] at e_184_9
   have hr := e_184_9
@@ -7604,7 +7604,7 @@ theorem leafCircuit_f1416 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7525 := (leafCircuit_copies235 a h).2.2.2.2.2.1
   have c7526 := (leafCircuit_copies235 a h).2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_191_5 := arithEq_of_rows h (row := 191) (i := 5) rfl (by decide)
+  have e_191_5 := arithEq_of_rows h (i := 5) leafCircuit_row191 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_191_5
   simp only [← c7524, k3, ← c7525, k3, ← c7526] at e_191_5
   have hr := e_191_5
@@ -7617,7 +7617,7 @@ theorem leafCircuit_f1417 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7528 := (leafCircuit_copies235 a h).2.2.2.2.2.2.2.2.1
   have c7529 := (leafCircuit_copies235 a h).2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_194_6 := arithEq_of_rows h (row := 194) (i := 6) rfl (by decide)
+  have e_194_6 := arithEq_of_rows h (i := 6) leafCircuit_row194 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_194_6
   simp only [← c7527, ← c7528, k3, ← c7529] at e_194_6
   have hr := e_194_6
@@ -7629,7 +7629,7 @@ theorem leafCircuit_f1418 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7531 := (leafCircuit_copies235 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c7532 := (leafCircuit_copies235 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_194_7 := arithEq_of_rows h (row := 194) (i := 7) rfl (by decide)
+  have e_194_7 := arithEq_of_rows h (i := 7) leafCircuit_row194 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_194_7
   simp only [← c7530, k3, ← c7531, k3, ← c7532] at e_194_7
   have hr := e_194_7
@@ -7641,7 +7641,7 @@ theorem leafCircuit_f1419 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7533 := (leafCircuit_copies235 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7534 := (leafCircuit_copies235 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7535 := (leafCircuit_copies235 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_184_10 := arithEq_of_rows h (row := 184) (i := 10) rfl (by decide)
+  have e_184_10 := arithEq_of_rows h (i := 10) leafCircuit_row184 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_184_10
   simp only [← c7533, ← c7534, ← c7535] at e_184_10
   have hr := e_184_10
@@ -7684,7 +7684,7 @@ theorem leafCircuit_f1425 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7537 := (leafCircuit_copies235 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7538 := (leafCircuit_copies235 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_184_11 := arithEq_of_rows h (row := 184) (i := 11) rfl (by decide)
+  have e_184_11 := arithEq_of_rows h (i := 11) leafCircuit_row184 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_184_11
   simp only [← c7536, k5, ← c7537, ← c7538, k5] at e_184_11
   have hr := e_184_11
@@ -7697,7 +7697,7 @@ theorem leafCircuit_f1426 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7540 := (leafCircuit_copies235 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7541 := (leafCircuit_copies235 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_191_6 := arithEq_of_rows h (row := 191) (i := 6) rfl (by decide)
+  have e_191_6 := arithEq_of_rows h (i := 6) leafCircuit_row191 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_191_6
   simp only [← c7539, k3, ← c7540, k3, ← c7541] at e_191_6
   have hr := e_191_6
@@ -7710,7 +7710,7 @@ theorem leafCircuit_f1427 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7543 := (leafCircuit_copies235 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7544 := (leafCircuit_copies235 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_194_8 := arithEq_of_rows h (row := 194) (i := 8) rfl (by decide)
+  have e_194_8 := arithEq_of_rows h (i := 8) leafCircuit_row194 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_194_8
   simp only [← c7542, ← c7543, k3, ← c7544] at e_194_8
   have hr := e_194_8
@@ -7722,7 +7722,7 @@ theorem leafCircuit_f1428 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7546 := (leafCircuit_copies235 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7547 := (leafCircuit_copies235 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_194_9 := arithEq_of_rows h (row := 194) (i := 9) rfl (by decide)
+  have e_194_9 := arithEq_of_rows h (i := 9) leafCircuit_row194 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_194_9
   simp only [← c7545, k3, ← c7546, k3, ← c7547] at e_194_9
   have hr := e_194_9
@@ -7734,7 +7734,7 @@ theorem leafCircuit_f1429 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7548 := (leafCircuit_copies235 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7549 := (leafCircuit_copies235 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7550 := (leafCircuit_copies235 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_184_12 := arithEq_of_rows h (row := 184) (i := 12) rfl (by decide)
+  have e_184_12 := arithEq_of_rows h (i := 12) leafCircuit_row184 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_184_12
   simp only [← c7548, ← c7549, ← c7550] at e_184_12
   have hr := e_184_12
@@ -7777,7 +7777,7 @@ theorem leafCircuit_f1435 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7552 := (leafCircuit_copies236 a h).1
   have c7553 := (leafCircuit_copies236 a h).2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_184_13 := arithEq_of_rows h (row := 184) (i := 13) rfl (by decide)
+  have e_184_13 := arithEq_of_rows h (i := 13) leafCircuit_row184 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_184_13
   simp only [← c7551, k5, ← c7552, ← c7553, k5] at e_184_13
   have hr := e_184_13
@@ -7790,7 +7790,7 @@ theorem leafCircuit_f1436 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7555 := (leafCircuit_copies236 a h).2.2.2.1
   have c7556 := (leafCircuit_copies236 a h).2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_191_7 := arithEq_of_rows h (row := 191) (i := 7) rfl (by decide)
+  have e_191_7 := arithEq_of_rows h (i := 7) leafCircuit_row191 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_191_7
   simp only [← c7554, k3, ← c7555, k3, ← c7556] at e_191_7
   have hr := e_191_7
@@ -7803,7 +7803,7 @@ theorem leafCircuit_f1437 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7558 := (leafCircuit_copies236 a h).2.2.2.2.2.2.1
   have c7559 := (leafCircuit_copies236 a h).2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_194_10 := arithEq_of_rows h (row := 194) (i := 10) rfl (by decide)
+  have e_194_10 := arithEq_of_rows h (i := 10) leafCircuit_row194 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_194_10
   simp only [← c7557, ← c7558, k3, ← c7559] at e_194_10
   have hr := e_194_10
@@ -7815,7 +7815,7 @@ theorem leafCircuit_f1438 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7561 := (leafCircuit_copies236 a h).2.2.2.2.2.2.2.2.2.1
   have c7562 := (leafCircuit_copies236 a h).2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_194_11 := arithEq_of_rows h (row := 194) (i := 11) rfl (by decide)
+  have e_194_11 := arithEq_of_rows h (i := 11) leafCircuit_row194 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_194_11
   simp only [← c7560, k3, ← c7561, k3, ← c7562] at e_194_11
   have hr := e_194_11
@@ -7827,7 +7827,7 @@ theorem leafCircuit_f1439 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7563 := (leafCircuit_copies236 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c7564 := (leafCircuit_copies236 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7565 := (leafCircuit_copies236 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_184_14 := arithEq_of_rows h (row := 184) (i := 14) rfl (by decide)
+  have e_184_14 := arithEq_of_rows h (i := 14) leafCircuit_row184 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_184_14
   simp only [← c7563, ← c7564, ← c7565] at e_184_14
   have hr := e_184_14
@@ -7870,7 +7870,7 @@ theorem leafCircuit_f1445 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7567 := (leafCircuit_copies236 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7568 := (leafCircuit_copies236 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_196_0 := arithEq_of_rows h (row := 196) (i := 0) rfl (by decide)
+  have e_196_0 := arithEq_of_rows h (i := 0) leafCircuit_row196 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_196_0
   simp only [← c7566, k5, ← c7567, ← c7568, k5] at e_196_0
   have hr := e_196_0
@@ -7883,7 +7883,7 @@ theorem leafCircuit_f1446 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7570 := (leafCircuit_copies236 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7571 := (leafCircuit_copies236 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_191_8 := arithEq_of_rows h (row := 191) (i := 8) rfl (by decide)
+  have e_191_8 := arithEq_of_rows h (i := 8) leafCircuit_row191 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_191_8
   simp only [← c7569, k3, ← c7570, k3, ← c7571] at e_191_8
   have hr := e_191_8
@@ -7896,7 +7896,7 @@ theorem leafCircuit_f1447 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7573 := (leafCircuit_copies236 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7574 := (leafCircuit_copies236 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_194_12 := arithEq_of_rows h (row := 194) (i := 12) rfl (by decide)
+  have e_194_12 := arithEq_of_rows h (i := 12) leafCircuit_row194 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_194_12
   simp only [← c7572, ← c7573, k3, ← c7574] at e_194_12
   have hr := e_194_12
@@ -7908,7 +7908,7 @@ theorem leafCircuit_f1448 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7576 := (leafCircuit_copies236 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7577 := (leafCircuit_copies236 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_194_13 := arithEq_of_rows h (row := 194) (i := 13) rfl (by decide)
+  have e_194_13 := arithEq_of_rows h (i := 13) leafCircuit_row194 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_194_13
   simp only [← c7575, k3, ← c7576, k3, ← c7577] at e_194_13
   have hr := e_194_13
@@ -7920,7 +7920,7 @@ theorem leafCircuit_f1449 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7578 := (leafCircuit_copies236 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7579 := (leafCircuit_copies236 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7580 := (leafCircuit_copies236 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_196_1 := arithEq_of_rows h (row := 196) (i := 1) rfl (by decide)
+  have e_196_1 := arithEq_of_rows h (i := 1) leafCircuit_row196 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_196_1
   simp only [← c7578, ← c7579, ← c7580] at e_196_1
   have hr := e_196_1
@@ -8068,16 +8068,16 @@ theorem leafCircuit_f1451 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7651 := (leafCircuit_copies239 a h).2.2.2.1
   have c7652 := (leafCircuit_copies239 a h).2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_194_14 := arithEq_of_rows h (row := 194) (i := 14) rfl (by decide)
+  have e_194_14 := arithEq_of_rows h (i := 14) leafCircuit_row194 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_194_14
   simp only [← c7639, k3, ← c7640, k3, ← c7641] at e_194_14
-  have e_196_2 := arithEq_of_rows h (row := 196) (i := 2) rfl (by decide)
+  have e_196_2 := arithEq_of_rows h (i := 2) leafCircuit_row196 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_196_2
   simp only [← c7642, ← c7643, ← c7644] at e_196_2
-  have e_196_3 := arithEq_of_rows h (row := 196) (i := 3) rfl (by decide)
+  have e_196_3 := arithEq_of_rows h (i := 3) leafCircuit_row196 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_196_3
   simp only [← c7645, ← c7646, ← c7647] at e_196_3
-  have e_198_0 := arithEq_of_rows h (row := 198) (i := 0) rfl (by decide)
+  have e_198_0 := arithEq_of_rows h (i := 0) leafCircuit_row198 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_198_0
   simp only [← c7648, ← c7649, k3, ← c7650] at e_198_0
   simp only [k0]
@@ -8108,19 +8108,19 @@ theorem leafCircuit_f1452 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7668 := (leafCircuit_copies239 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7669 := (leafCircuit_copies239 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_196_4 := arithEq_of_rows h (row := 196) (i := 4) rfl (by decide)
+  have e_196_4 := arithEq_of_rows h (i := 4) leafCircuit_row196 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_196_4
   simp only [← c7659, ← c7660, ← c7661] at e_196_4
-  have e_196_5 := arithEq_of_rows h (row := 196) (i := 5) rfl (by decide)
+  have e_196_5 := arithEq_of_rows h (i := 5) leafCircuit_row196 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_196_5
   simp only [← c7662, ← c7663, ← c7664] at e_196_5
-  have e_198_1 := arithEq_of_rows h (row := 198) (i := 1) rfl (by decide)
+  have e_198_1 := arithEq_of_rows h (i := 1) leafCircuit_row198 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_198_1
   simp only [← c7653, k3, ← c7654, k3, ← c7655] at e_198_1
-  have e_198_2 := arithEq_of_rows h (row := 198) (i := 2) rfl (by decide)
+  have e_198_2 := arithEq_of_rows h (i := 2) leafCircuit_row198 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_198_2
   simp only [← c7656, ← c7657, k3, ← c7658, k3] at e_198_2
-  have e_198_3 := arithEq_of_rows h (row := 198) (i := 3) rfl (by decide)
+  have e_198_3 := arithEq_of_rows h (i := 3) leafCircuit_row198 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_198_3
   simp only [← c7665, ← c7666, k3, ← c7667] at e_198_3
   simp only [k3]
@@ -8152,19 +8152,19 @@ theorem leafCircuit_f1453 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7685 := (leafCircuit_copies240 a h).2.2.2.2.2.1
   have c7686 := (leafCircuit_copies240 a h).2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_196_6 := arithEq_of_rows h (row := 196) (i := 6) rfl (by decide)
+  have e_196_6 := arithEq_of_rows h (i := 6) leafCircuit_row196 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_196_6
   simp only [← c7676, ← c7677, ← c7678] at e_196_6
-  have e_196_7 := arithEq_of_rows h (row := 196) (i := 7) rfl (by decide)
+  have e_196_7 := arithEq_of_rows h (i := 7) leafCircuit_row196 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_196_7
   simp only [← c7679, ← c7680, ← c7681] at e_196_7
-  have e_198_4 := arithEq_of_rows h (row := 198) (i := 4) rfl (by decide)
+  have e_198_4 := arithEq_of_rows h (i := 4) leafCircuit_row198 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_198_4
   simp only [← c7670, k3, ← c7671, k3, ← c7672] at e_198_4
-  have e_198_5 := arithEq_of_rows h (row := 198) (i := 5) rfl (by decide)
+  have e_198_5 := arithEq_of_rows h (i := 5) leafCircuit_row198 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_198_5
   simp only [← c7673, ← c7674, k3, ← c7675, k5] at e_198_5
-  have e_198_6 := arithEq_of_rows h (row := 198) (i := 6) rfl (by decide)
+  have e_198_6 := arithEq_of_rows h (i := 6) leafCircuit_row198 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_198_6
   simp only [← c7682, ← c7683, k3, ← c7684] at e_198_6
   simp only [k5]
@@ -8196,19 +8196,19 @@ theorem leafCircuit_f1454 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7702 := (leafCircuit_copies240 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7703 := (leafCircuit_copies240 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_196_8 := arithEq_of_rows h (row := 196) (i := 8) rfl (by decide)
+  have e_196_8 := arithEq_of_rows h (i := 8) leafCircuit_row196 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_196_8
   simp only [← c7693, ← c7694, ← c7695] at e_196_8
-  have e_196_9 := arithEq_of_rows h (row := 196) (i := 9) rfl (by decide)
+  have e_196_9 := arithEq_of_rows h (i := 9) leafCircuit_row196 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_196_9
   simp only [← c7696, ← c7697, ← c7698] at e_196_9
-  have e_198_7 := arithEq_of_rows h (row := 198) (i := 7) rfl (by decide)
+  have e_198_7 := arithEq_of_rows h (i := 7) leafCircuit_row198 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_198_7
   simp only [← c7687, k3, ← c7688, k3, ← c7689] at e_198_7
-  have e_198_8 := arithEq_of_rows h (row := 198) (i := 8) rfl (by decide)
+  have e_198_8 := arithEq_of_rows h (i := 8) leafCircuit_row198 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_198_8
   simp only [← c7690, ← c7691, k3, ← c7692, k6] at e_198_8
-  have e_198_9 := arithEq_of_rows h (row := 198) (i := 9) rfl (by decide)
+  have e_198_9 := arithEq_of_rows h (i := 9) leafCircuit_row198 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_198_9
   simp only [← c7699, ← c7700, k3, ← c7701] at e_198_9
   simp only [k6]
@@ -8228,10 +8228,10 @@ theorem leafCircuit_f1455 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7707 := (leafCircuit_copies240 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7708 := (leafCircuit_copies240 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7709 := (leafCircuit_copies240 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_198_10 := arithEq_of_rows h (row := 198) (i := 10) rfl (by decide)
+  have e_198_10 := arithEq_of_rows h (i := 10) leafCircuit_row198 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_198_10
   simp only [← c7704, ← c7705, ← c7706] at e_198_10
-  have e_198_11 := arithEq_of_rows h (row := 198) (i := 11) rfl (by decide)
+  have e_198_11 := arithEq_of_rows h (i := 11) leafCircuit_row198 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_198_11
   simp only [← c7707, ← c7708, ← c7709] at e_198_11
   have hr := e_198_11
@@ -8247,10 +8247,10 @@ theorem leafCircuit_f1456 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7713 := (leafCircuit_copies241 a h).2.1
   have c7714 := (leafCircuit_copies241 a h).2.2.1
   have c7715 := (leafCircuit_copies241 a h).2.2.2.1
-  have e_198_12 := arithEq_of_rows h (row := 198) (i := 12) rfl (by decide)
+  have e_198_12 := arithEq_of_rows h (i := 12) leafCircuit_row198 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_198_12
   simp only [← c7710, ← c7711, ← c7712] at e_198_12
-  have e_198_13 := arithEq_of_rows h (row := 198) (i := 13) rfl (by decide)
+  have e_198_13 := arithEq_of_rows h (i := 13) leafCircuit_row198 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_198_13
   simp only [← c7713, ← c7714, ← c7715] at e_198_13
   have hr := e_198_13
@@ -8266,10 +8266,10 @@ theorem leafCircuit_f1457 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7719 := (leafCircuit_copies241 a h).2.2.2.2.2.2.2.1
   have c7720 := (leafCircuit_copies241 a h).2.2.2.2.2.2.2.2.1
   have c7721 := (leafCircuit_copies241 a h).2.2.2.2.2.2.2.2.2.1
-  have e_198_14 := arithEq_of_rows h (row := 198) (i := 14) rfl (by decide)
+  have e_198_14 := arithEq_of_rows h (i := 14) leafCircuit_row198 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_198_14
   simp only [← c7716, ← c7717, ← c7718] at e_198_14
-  have e_199_0 := arithEq_of_rows h (row := 199) (i := 0) rfl (by decide)
+  have e_199_0 := arithEq_of_rows h (i := 0) leafCircuit_row199 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_199_0
   simp only [← c7719, ← c7720, ← c7721] at e_199_0
   have hr := e_199_0
@@ -8285,10 +8285,10 @@ theorem leafCircuit_f1458 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7725 := (leafCircuit_copies241 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7726 := (leafCircuit_copies241 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7727 := (leafCircuit_copies241 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_199_1 := arithEq_of_rows h (row := 199) (i := 1) rfl (by decide)
+  have e_199_1 := arithEq_of_rows h (i := 1) leafCircuit_row199 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_199_1
   simp only [← c7722, ← c7723, ← c7724] at e_199_1
-  have e_199_2 := arithEq_of_rows h (row := 199) (i := 2) rfl (by decide)
+  have e_199_2 := arithEq_of_rows h (i := 2) leafCircuit_row199 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_199_2
   simp only [← c7725, ← c7726, ← c7727] at e_199_2
   have hr := e_199_2
@@ -8304,10 +8304,10 @@ theorem leafCircuit_f1459 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7731 := (leafCircuit_copies241 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7732 := (leafCircuit_copies241 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7733 := (leafCircuit_copies241 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_199_3 := arithEq_of_rows h (row := 199) (i := 3) rfl (by decide)
+  have e_199_3 := arithEq_of_rows h (i := 3) leafCircuit_row199 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_199_3
   simp only [← c7728, ← c7729, ← c7730] at e_199_3
-  have e_199_4 := arithEq_of_rows h (row := 199) (i := 4) rfl (by decide)
+  have e_199_4 := arithEq_of_rows h (i := 4) leafCircuit_row199 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_199_4
   simp only [← c7731, ← c7732, ← c7733] at e_199_4
   have hr := e_199_4
@@ -8323,10 +8323,10 @@ theorem leafCircuit_f1460 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7737 := (leafCircuit_copies241 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7738 := (leafCircuit_copies241 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7739 := (leafCircuit_copies241 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_199_5 := arithEq_of_rows h (row := 199) (i := 5) rfl (by decide)
+  have e_199_5 := arithEq_of_rows h (i := 5) leafCircuit_row199 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_199_5
   simp only [← c7734, ← c7735, ← c7736] at e_199_5
-  have e_199_6 := arithEq_of_rows h (row := 199) (i := 6) rfl (by decide)
+  have e_199_6 := arithEq_of_rows h (i := 6) leafCircuit_row199 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_199_6
   simp only [← c7737, ← c7738, ← c7739] at e_199_6
   have hr := e_199_6
@@ -8342,10 +8342,10 @@ theorem leafCircuit_f1461 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7743 := (leafCircuit_copies241 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c7744 := (leafCircuit_copies242 a h).1
   have c7745 := (leafCircuit_copies242 a h).2.1
-  have e_199_7 := arithEq_of_rows h (row := 199) (i := 7) rfl (by decide)
+  have e_199_7 := arithEq_of_rows h (i := 7) leafCircuit_row199 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_199_7
   simp only [← c7740, ← c7741, ← c7742] at e_199_7
-  have e_199_8 := arithEq_of_rows h (row := 199) (i := 8) rfl (by decide)
+  have e_199_8 := arithEq_of_rows h (i := 8) leafCircuit_row199 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_199_8
   simp only [← c7743, ← c7744, ← c7745] at e_199_8
   have hr := e_199_8
@@ -8361,10 +8361,10 @@ theorem leafCircuit_f1462 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7749 := (leafCircuit_copies242 a h).2.2.2.2.2.1
   have c7750 := (leafCircuit_copies242 a h).2.2.2.2.2.2.1
   have c7751 := (leafCircuit_copies242 a h).2.2.2.2.2.2.2.1
-  have e_199_9 := arithEq_of_rows h (row := 199) (i := 9) rfl (by decide)
+  have e_199_9 := arithEq_of_rows h (i := 9) leafCircuit_row199 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_199_9
   simp only [← c7746, ← c7747, ← c7748] at e_199_9
-  have e_199_10 := arithEq_of_rows h (row := 199) (i := 10) rfl (by decide)
+  have e_199_10 := arithEq_of_rows h (i := 10) leafCircuit_row199 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_199_10
   simp only [← c7749, ← c7750, ← c7751] at e_199_10
   have hr := e_199_10
@@ -8380,10 +8380,10 @@ theorem leafCircuit_f1463 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7755 := (leafCircuit_copies242 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c7756 := (leafCircuit_copies242 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7757 := (leafCircuit_copies242 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_199_11 := arithEq_of_rows h (row := 199) (i := 11) rfl (by decide)
+  have e_199_11 := arithEq_of_rows h (i := 11) leafCircuit_row199 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_199_11
   simp only [← c7752, ← c7753, ← c7754] at e_199_11
-  have e_199_12 := arithEq_of_rows h (row := 199) (i := 12) rfl (by decide)
+  have e_199_12 := arithEq_of_rows h (i := 12) leafCircuit_row199 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_199_12
   simp only [← c7755, ← c7756, ← c7757] at e_199_12
   have hr := e_199_12
@@ -8399,10 +8399,10 @@ theorem leafCircuit_f1464 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7761 := (leafCircuit_copies242 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7762 := (leafCircuit_copies242 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7763 := (leafCircuit_copies242 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_199_13 := arithEq_of_rows h (row := 199) (i := 13) rfl (by decide)
+  have e_199_13 := arithEq_of_rows h (i := 13) leafCircuit_row199 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_199_13
   simp only [← c7758, ← c7759, ← c7760] at e_199_13
-  have e_199_14 := arithEq_of_rows h (row := 199) (i := 14) rfl (by decide)
+  have e_199_14 := arithEq_of_rows h (i := 14) leafCircuit_row199 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_199_14
   simp only [← c7761, ← c7762, ← c7763] at e_199_14
   have hr := e_199_14
@@ -8418,10 +8418,10 @@ theorem leafCircuit_f1465 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7767 := (leafCircuit_copies242 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7768 := (leafCircuit_copies242 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7769 := (leafCircuit_copies242 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_200_0 := arithEq_of_rows h (row := 200) (i := 0) rfl (by decide)
+  have e_200_0 := arithEq_of_rows h (i := 0) leafCircuit_row200 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_200_0
   simp only [← c7764, ← c7765, ← c7766] at e_200_0
-  have e_200_1 := arithEq_of_rows h (row := 200) (i := 1) rfl (by decide)
+  have e_200_1 := arithEq_of_rows h (i := 1) leafCircuit_row200 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_200_1
   simp only [← c7767, ← c7768, ← c7769] at e_200_1
   have hr := e_200_1
@@ -8437,10 +8437,10 @@ theorem leafCircuit_f1466 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7773 := (leafCircuit_copies242 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7774 := (leafCircuit_copies242 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7775 := (leafCircuit_copies242 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have e_200_2 := arithEq_of_rows h (row := 200) (i := 2) rfl (by decide)
+  have e_200_2 := arithEq_of_rows h (i := 2) leafCircuit_row200 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_200_2
   simp only [← c7770, ← c7771, ← c7772] at e_200_2
-  have e_200_3 := arithEq_of_rows h (row := 200) (i := 3) rfl (by decide)
+  have e_200_3 := arithEq_of_rows h (i := 3) leafCircuit_row200 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_200_3
   simp only [← c7773, ← c7774, ← c7775] at e_200_3
   have hr := e_200_3
@@ -8457,10 +8457,10 @@ theorem leafCircuit_f1467 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7780 := (leafCircuit_copies243 a h).2.2.2.2.1
   have c7781 := (leafCircuit_copies243 a h).2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_164_5 := arithEq_of_rows h (row := 164) (i := 5) rfl (by decide)
+  have e_164_5 := arithEq_of_rows h (i := 5) leafCircuit_row164 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_164_5
   simp only [← c7776, ← c7777, ← c7778] at e_164_5
-  have e_191_9 := arithEq_of_rows h (row := 191) (i := 9) rfl (by decide)
+  have e_191_9 := arithEq_of_rows h (i := 9) leafCircuit_row191 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_191_9
   simp only [← c7779, ← c7780, k3, ← c7781] at e_191_9
   have hr := e_191_9
@@ -8476,10 +8476,10 @@ theorem leafCircuit_f1468 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7785 := (leafCircuit_copies243 a h).2.2.2.2.2.2.2.2.2.1
   have c7786 := (leafCircuit_copies243 a h).2.2.2.2.2.2.2.2.2.2.1
   have c7787 := (leafCircuit_copies243 a h).2.2.2.2.2.2.2.2.2.2.2.1
-  have e_200_4 := arithEq_of_rows h (row := 200) (i := 4) rfl (by decide)
+  have e_200_4 := arithEq_of_rows h (i := 4) leafCircuit_row200 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_200_4
   simp only [← c7782, ← c7783, ← c7784] at e_200_4
-  have e_200_5 := arithEq_of_rows h (row := 200) (i := 5) rfl (by decide)
+  have e_200_5 := arithEq_of_rows h (i := 5) leafCircuit_row200 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_200_5
   simp only [← c7785, ← c7786, ← c7787] at e_200_5
   have hr := e_200_5
@@ -8495,10 +8495,10 @@ theorem leafCircuit_f1469 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7791 := (leafCircuit_copies243 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7792 := (leafCircuit_copies243 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7793 := (leafCircuit_copies243 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_200_6 := arithEq_of_rows h (row := 200) (i := 6) rfl (by decide)
+  have e_200_6 := arithEq_of_rows h (i := 6) leafCircuit_row200 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_200_6
   simp only [← c7788, ← c7789, ← c7790] at e_200_6
-  have e_200_7 := arithEq_of_rows h (row := 200) (i := 7) rfl (by decide)
+  have e_200_7 := arithEq_of_rows h (i := 7) leafCircuit_row200 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_200_7
   simp only [← c7791, ← c7792, ← c7793] at e_200_7
   have hr := e_200_7
@@ -8515,10 +8515,10 @@ theorem leafCircuit_f1470 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7780 := (leafCircuit_copies243 a h).2.2.2.2.1
   have c7781 := (leafCircuit_copies243 a h).2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_164_5 := arithEq_of_rows h (row := 164) (i := 5) rfl (by decide)
+  have e_164_5 := arithEq_of_rows h (i := 5) leafCircuit_row164 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_164_5
   simp only [← c7776, ← c7777, ← c7778] at e_164_5
-  have e_191_9 := arithEq_of_rows h (row := 191) (i := 9) rfl (by decide)
+  have e_191_9 := arithEq_of_rows h (i := 9) leafCircuit_row191 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_191_9
   simp only [← c7779, ← c7780, k3, ← c7781] at e_191_9
   have hr := e_191_9
@@ -8534,10 +8534,10 @@ theorem leafCircuit_f1471 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7797 := (leafCircuit_copies243 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7798 := (leafCircuit_copies243 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7799 := (leafCircuit_copies243 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_200_8 := arithEq_of_rows h (row := 200) (i := 8) rfl (by decide)
+  have e_200_8 := arithEq_of_rows h (i := 8) leafCircuit_row200 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_200_8
   simp only [← c7794, ← c7795, ← c7796] at e_200_8
-  have e_200_9 := arithEq_of_rows h (row := 200) (i := 9) rfl (by decide)
+  have e_200_9 := arithEq_of_rows h (i := 9) leafCircuit_row200 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_200_9
   simp only [← c7797, ← c7798, ← c7799] at e_200_9
   have hr := e_200_9
@@ -8553,10 +8553,10 @@ theorem leafCircuit_f1472 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7803 := (leafCircuit_copies243 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7804 := (leafCircuit_copies243 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7805 := (leafCircuit_copies243 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_200_10 := arithEq_of_rows h (row := 200) (i := 10) rfl (by decide)
+  have e_200_10 := arithEq_of_rows h (i := 10) leafCircuit_row200 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_200_10
   simp only [← c7800, ← c7801, ← c7802] at e_200_10
-  have e_200_11 := arithEq_of_rows h (row := 200) (i := 11) rfl (by decide)
+  have e_200_11 := arithEq_of_rows h (i := 11) leafCircuit_row200 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_200_11
   simp only [← c7803, ← c7804, ← c7805] at e_200_11
   have hr := e_200_11
@@ -8573,10 +8573,10 @@ theorem leafCircuit_f1473 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7780 := (leafCircuit_copies243 a h).2.2.2.2.1
   have c7781 := (leafCircuit_copies243 a h).2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_164_5 := arithEq_of_rows h (row := 164) (i := 5) rfl (by decide)
+  have e_164_5 := arithEq_of_rows h (i := 5) leafCircuit_row164 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_164_5
   simp only [← c7776, ← c7777, ← c7778] at e_164_5
-  have e_191_9 := arithEq_of_rows h (row := 191) (i := 9) rfl (by decide)
+  have e_191_9 := arithEq_of_rows h (i := 9) leafCircuit_row191 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_191_9
   simp only [← c7779, ← c7780, k3, ← c7781] at e_191_9
   have hr := e_191_9
@@ -8592,10 +8592,10 @@ theorem leafCircuit_f1474 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7809 := (leafCircuit_copies244 a h).2.1
   have c7810 := (leafCircuit_copies244 a h).2.2.1
   have c7811 := (leafCircuit_copies244 a h).2.2.2.1
-  have e_200_12 := arithEq_of_rows h (row := 200) (i := 12) rfl (by decide)
+  have e_200_12 := arithEq_of_rows h (i := 12) leafCircuit_row200 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_200_12
   simp only [← c7806, ← c7807, ← c7808] at e_200_12
-  have e_200_13 := arithEq_of_rows h (row := 200) (i := 13) rfl (by decide)
+  have e_200_13 := arithEq_of_rows h (i := 13) leafCircuit_row200 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_200_13
   simp only [← c7809, ← c7810, ← c7811] at e_200_13
   have hr := e_200_13
@@ -8611,10 +8611,10 @@ theorem leafCircuit_f1475 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7815 := (leafCircuit_copies244 a h).2.2.2.2.2.2.2.1
   have c7816 := (leafCircuit_copies244 a h).2.2.2.2.2.2.2.2.1
   have c7817 := (leafCircuit_copies244 a h).2.2.2.2.2.2.2.2.2.1
-  have e_200_14 := arithEq_of_rows h (row := 200) (i := 14) rfl (by decide)
+  have e_200_14 := arithEq_of_rows h (i := 14) leafCircuit_row200 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_200_14
   simp only [← c7812, ← c7813, ← c7814] at e_200_14
-  have e_201_0 := arithEq_of_rows h (row := 201) (i := 0) rfl (by decide)
+  have e_201_0 := arithEq_of_rows h (i := 0) leafCircuit_row201 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_201_0
   simp only [← c7815, ← c7816, ← c7817] at e_201_0
   have hr := e_201_0
@@ -8631,10 +8631,10 @@ theorem leafCircuit_f1476 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7780 := (leafCircuit_copies243 a h).2.2.2.2.1
   have c7781 := (leafCircuit_copies243 a h).2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_164_5 := arithEq_of_rows h (row := 164) (i := 5) rfl (by decide)
+  have e_164_5 := arithEq_of_rows h (i := 5) leafCircuit_row164 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_164_5
   simp only [← c7776, ← c7777, ← c7778] at e_164_5
-  have e_191_9 := arithEq_of_rows h (row := 191) (i := 9) rfl (by decide)
+  have e_191_9 := arithEq_of_rows h (i := 9) leafCircuit_row191 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_191_9
   simp only [← c7779, ← c7780, k3, ← c7781] at e_191_9
   have hr := e_191_9
@@ -8650,10 +8650,10 @@ theorem leafCircuit_f1477 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7821 := (leafCircuit_copies244 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7822 := (leafCircuit_copies244 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7823 := (leafCircuit_copies244 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_201_1 := arithEq_of_rows h (row := 201) (i := 1) rfl (by decide)
+  have e_201_1 := arithEq_of_rows h (i := 1) leafCircuit_row201 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_201_1
   simp only [← c7818, ← c7819, ← c7820] at e_201_1
-  have e_201_2 := arithEq_of_rows h (row := 201) (i := 2) rfl (by decide)
+  have e_201_2 := arithEq_of_rows h (i := 2) leafCircuit_row201 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_201_2
   simp only [← c7821, ← c7822, ← c7823] at e_201_2
   have hr := e_201_2
@@ -8669,10 +8669,10 @@ theorem leafCircuit_f1478 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7827 := (leafCircuit_copies244 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7828 := (leafCircuit_copies244 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7829 := (leafCircuit_copies244 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_201_3 := arithEq_of_rows h (row := 201) (i := 3) rfl (by decide)
+  have e_201_3 := arithEq_of_rows h (i := 3) leafCircuit_row201 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_201_3
   simp only [← c7824, ← c7825, ← c7826] at e_201_3
-  have e_201_4 := arithEq_of_rows h (row := 201) (i := 4) rfl (by decide)
+  have e_201_4 := arithEq_of_rows h (i := 4) leafCircuit_row201 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_201_4
   simp only [← c7827, ← c7828, ← c7829] at e_201_4
   have hr := e_201_4
@@ -8688,10 +8688,10 @@ theorem leafCircuit_f1479 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7833 := (leafCircuit_copies244 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7834 := (leafCircuit_copies244 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7835 := (leafCircuit_copies244 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_201_5 := arithEq_of_rows h (row := 201) (i := 5) rfl (by decide)
+  have e_201_5 := arithEq_of_rows h (i := 5) leafCircuit_row201 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_201_5
   simp only [← c7830, ← c7831, ← c7832] at e_201_5
-  have e_201_6 := arithEq_of_rows h (row := 201) (i := 6) rfl (by decide)
+  have e_201_6 := arithEq_of_rows h (i := 6) leafCircuit_row201 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_201_6
   simp only [← c7833, ← c7834, ← c7835] at e_201_6
   have hr := e_201_6
@@ -8707,10 +8707,10 @@ theorem leafCircuit_f1480 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7839 := (leafCircuit_copies244 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c7840 := (leafCircuit_copies245 a h).1
   have c7841 := (leafCircuit_copies245 a h).2.1
-  have e_201_7 := arithEq_of_rows h (row := 201) (i := 7) rfl (by decide)
+  have e_201_7 := arithEq_of_rows h (i := 7) leafCircuit_row201 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_201_7
   simp only [← c7836, ← c7837, ← c7838] at e_201_7
-  have e_201_8 := arithEq_of_rows h (row := 201) (i := 8) rfl (by decide)
+  have e_201_8 := arithEq_of_rows h (i := 8) leafCircuit_row201 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_201_8
   simp only [← c7839, ← c7840, ← c7841] at e_201_8
   have hr := e_201_8
@@ -8726,10 +8726,10 @@ theorem leafCircuit_f1481 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7845 := (leafCircuit_copies245 a h).2.2.2.2.2.1
   have c7846 := (leafCircuit_copies245 a h).2.2.2.2.2.2.1
   have c7847 := (leafCircuit_copies245 a h).2.2.2.2.2.2.2.1
-  have e_201_9 := arithEq_of_rows h (row := 201) (i := 9) rfl (by decide)
+  have e_201_9 := arithEq_of_rows h (i := 9) leafCircuit_row201 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_201_9
   simp only [← c7842, ← c7843, ← c7844] at e_201_9
-  have e_201_10 := arithEq_of_rows h (row := 201) (i := 10) rfl (by decide)
+  have e_201_10 := arithEq_of_rows h (i := 10) leafCircuit_row201 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_201_10
   simp only [← c7845, ← c7846, ← c7847] at e_201_10
   have hr := e_201_10
@@ -8745,10 +8745,10 @@ theorem leafCircuit_f1482 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7851 := (leafCircuit_copies245 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c7852 := (leafCircuit_copies245 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7853 := (leafCircuit_copies245 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_201_11 := arithEq_of_rows h (row := 201) (i := 11) rfl (by decide)
+  have e_201_11 := arithEq_of_rows h (i := 11) leafCircuit_row201 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_201_11
   simp only [← c7848, ← c7849, ← c7850] at e_201_11
-  have e_201_12 := arithEq_of_rows h (row := 201) (i := 12) rfl (by decide)
+  have e_201_12 := arithEq_of_rows h (i := 12) leafCircuit_row201 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_201_12
   simp only [← c7851, ← c7852, ← c7853] at e_201_12
   have hr := e_201_12
@@ -8823,31 +8823,31 @@ theorem leafCircuit_f1483 (perm : St p → St p) (a : Assignment p) (h : Satisfi
   have c7915 := (leafCircuit_copies247 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c7916 := (leafCircuit_copies247 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_191_10 := arithEq_of_rows h (row := 191) (i := 10) rfl (by decide)
+  have e_191_10 := arithEq_of_rows h (i := 10) leafCircuit_row191 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_191_10
   simp only [← c7866, ← c7867, k3, ← c7868] at e_191_10
-  have e_191_11 := arithEq_of_rows h (row := 191) (i := 11) rfl (by decide)
+  have e_191_11 := arithEq_of_rows h (i := 11) leafCircuit_row191 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_191_11
   simp only [← c7869, ← c7870, k3, ← c7871] at e_191_11
-  have e_191_12 := arithEq_of_rows h (row := 191) (i := 12) rfl (by decide)
+  have e_191_12 := arithEq_of_rows h (i := 12) leafCircuit_row191 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_191_12
   simp only [← c7872, ← c7873, k3, ← c7874] at e_191_12
-  have e_191_13 := arithEq_of_rows h (row := 191) (i := 13) rfl (by decide)
+  have e_191_13 := arithEq_of_rows h (i := 13) leafCircuit_row191 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_191_13
   simp only [← c7875, ← c7876, k3, ← c7877] at e_191_13
-  have e_191_14 := arithEq_of_rows h (row := 191) (i := 14) rfl (by decide)
+  have e_191_14 := arithEq_of_rows h (i := 14) leafCircuit_row191 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_191_14
   simp only [← c7878, ← c7879, k3, ← c7880] at e_191_14
-  have e_203_0 := arithEq_of_rows h (row := 203) (i := 0) rfl (by decide)
+  have e_203_0 := arithEq_of_rows h (i := 0) leafCircuit_row203 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_203_0
   simp only [← c7881, ← c7882, k3, ← c7883] at e_203_0
-  have e_203_1 := arithEq_of_rows h (row := 203) (i := 1) rfl (by decide)
+  have e_203_1 := arithEq_of_rows h (i := 1) leafCircuit_row203 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_203_1
   simp only [← c7884, ← c7885, k3, ← c7886] at e_203_1
-  have e_203_2 := arithEq_of_rows h (row := 203) (i := 2) rfl (by decide)
+  have e_203_2 := arithEq_of_rows h (i := 2) leafCircuit_row203 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_203_2
   simp only [← c7887, ← c7888, k3, ← c7889] at e_203_2
-  have e_203_3 := arithEq_of_rows h (row := 203) (i := 3) rfl (by decide)
+  have e_203_3 := arithEq_of_rows h (i := 3) leafCircuit_row203 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_203_3
   simp only [← c7902, ← c7903, k3, ← c7904, k3] at e_203_3
   have hin0 : poseidon2In a 202 = addBlock (fun _ => 0) [a (.wire 198 47), a (.wire 198 55), a (.wire 199 3), a (.wire 199 11), a (.wire 199 27), a (.wire 199 43), a (.wire 199 59), a (.wire 200 15)] :=
@@ -8873,10 +8873,10 @@ theorem leafCircuit_f1484 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7920 := (leafCircuit_copies247 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7921 := (leafCircuit_copies247 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7922 := (leafCircuit_copies247 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_201_13 := arithEq_of_rows h (row := 201) (i := 13) rfl (by decide)
+  have e_201_13 := arithEq_of_rows h (i := 13) leafCircuit_row201 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_201_13
   simp only [← c7917, ← c7918, ← c7919] at e_201_13
-  have e_201_14 := arithEq_of_rows h (row := 201) (i := 14) rfl (by decide)
+  have e_201_14 := arithEq_of_rows h (i := 14) leafCircuit_row201 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_201_14
   simp only [← c7920, ← c7921, ← c7922] at e_201_14
   have hr := e_201_14
@@ -8892,10 +8892,10 @@ theorem leafCircuit_f1485 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7926 := (leafCircuit_copies247 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7927 := (leafCircuit_copies247 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7928 := (leafCircuit_copies247 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_206_0 := arithEq_of_rows h (row := 206) (i := 0) rfl (by decide)
+  have e_206_0 := arithEq_of_rows h (i := 0) leafCircuit_row206 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_206_0
   simp only [← c7923, ← c7924, ← c7925] at e_206_0
-  have e_206_1 := arithEq_of_rows h (row := 206) (i := 1) rfl (by decide)
+  have e_206_1 := arithEq_of_rows h (i := 1) leafCircuit_row206 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_206_1
   simp only [← c7926, ← c7927, ← c7928] at e_206_1
   have hr := e_206_1
@@ -8911,10 +8911,10 @@ theorem leafCircuit_f1486 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7932 := (leafCircuit_copies247 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7933 := (leafCircuit_copies247 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7934 := (leafCircuit_copies247 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_206_2 := arithEq_of_rows h (row := 206) (i := 2) rfl (by decide)
+  have e_206_2 := arithEq_of_rows h (i := 2) leafCircuit_row206 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_206_2
   simp only [← c7929, ← c7930, ← c7931] at e_206_2
-  have e_206_3 := arithEq_of_rows h (row := 206) (i := 3) rfl (by decide)
+  have e_206_3 := arithEq_of_rows h (i := 3) leafCircuit_row206 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_206_3
   simp only [← c7932, ← c7933, ← c7934] at e_206_3
   have hr := e_206_3
@@ -8930,10 +8930,10 @@ theorem leafCircuit_f1487 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7938 := (leafCircuit_copies248 a h).2.2.1
   have c7939 := (leafCircuit_copies248 a h).2.2.2.1
   have c7940 := (leafCircuit_copies248 a h).2.2.2.2.1
-  have e_206_4 := arithEq_of_rows h (row := 206) (i := 4) rfl (by decide)
+  have e_206_4 := arithEq_of_rows h (i := 4) leafCircuit_row206 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_206_4
   simp only [← c7935, ← c7936, ← c7937] at e_206_4
-  have e_206_5 := arithEq_of_rows h (row := 206) (i := 5) rfl (by decide)
+  have e_206_5 := arithEq_of_rows h (i := 5) leafCircuit_row206 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_206_5
   simp only [← c7938, ← c7939, ← c7940] at e_206_5
   have hr := e_206_5
@@ -8947,7 +8947,7 @@ theorem leafCircuit_f1488 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7942 := (leafCircuit_copies248 a h).2.2.2.2.2.2.1
   have c7943 := (leafCircuit_copies248 a h).2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_206_6 := arithEq_of_rows h (row := 206) (i := 6) rfl (by decide)
+  have e_206_6 := arithEq_of_rows h (i := 6) leafCircuit_row206 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_206_6
   simp only [← c7941, ← c7942, k3, ← c7943] at e_206_6
   have hr := e_206_6
@@ -8958,7 +8958,7 @@ theorem leafCircuit_f1489 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7944 := (leafCircuit_copies248 a h).2.2.2.2.2.2.2.2.1
   have c7945 := (leafCircuit_copies248 a h).2.2.2.2.2.2.2.2.2.1
   have c7946 := (leafCircuit_copies248 a h).2.2.2.2.2.2.2.2.2.2.1
-  have e_196_10 := arithEq_of_rows h (row := 196) (i := 10) rfl (by decide)
+  have e_196_10 := arithEq_of_rows h (i := 10) leafCircuit_row196 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_196_10
   simp only [← c7944, ← c7945, ← c7946] at e_196_10
   have hr := e_196_10
@@ -8975,7 +8975,7 @@ theorem leafCircuit_f1491 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7949 := (leafCircuit_copies248 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7950 := (leafCircuit_copies248 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_206_7 := arithEq_of_rows h (row := 206) (i := 7) rfl (by decide)
+  have e_206_7 := arithEq_of_rows h (i := 7) leafCircuit_row206 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_206_7
   simp only [← c7948, ← c7949, k3, ← c7950] at e_206_7
   have hr := e_206_7
@@ -8986,7 +8986,7 @@ theorem leafCircuit_f1492 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7951 := (leafCircuit_copies248 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7952 := (leafCircuit_copies248 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7953 := (leafCircuit_copies248 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_196_11 := arithEq_of_rows h (row := 196) (i := 11) rfl (by decide)
+  have e_196_11 := arithEq_of_rows h (i := 11) leafCircuit_row196 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_196_11
   simp only [← c7951, ← c7952, ← c7953] at e_196_11
   have hr := e_196_11
@@ -9003,7 +9003,7 @@ theorem leafCircuit_f1494 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7956 := (leafCircuit_copies248 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7957 := (leafCircuit_copies248 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_206_8 := arithEq_of_rows h (row := 206) (i := 8) rfl (by decide)
+  have e_206_8 := arithEq_of_rows h (i := 8) leafCircuit_row206 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_206_8
   simp only [← c7955, ← c7956, k3, ← c7957] at e_206_8
   have hr := e_206_8
@@ -9014,7 +9014,7 @@ theorem leafCircuit_f1495 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7958 := (leafCircuit_copies248 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7959 := (leafCircuit_copies248 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7960 := (leafCircuit_copies248 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_196_12 := arithEq_of_rows h (row := 196) (i := 12) rfl (by decide)
+  have e_196_12 := arithEq_of_rows h (i := 12) leafCircuit_row196 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_196_12
   simp only [← c7958, ← c7959, ← c7960] at e_196_12
   have hr := e_196_12
@@ -9031,7 +9031,7 @@ theorem leafCircuit_f1497 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7963 := (leafCircuit_copies248 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7964 := (leafCircuit_copies248 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_206_9 := arithEq_of_rows h (row := 206) (i := 9) rfl (by decide)
+  have e_206_9 := arithEq_of_rows h (i := 9) leafCircuit_row206 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_206_9
   simp only [← c7962, ← c7963, k3, ← c7964] at e_206_9
   have hr := e_206_9
@@ -9042,7 +9042,7 @@ theorem leafCircuit_f1498 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c7965 := (leafCircuit_copies248 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7966 := (leafCircuit_copies248 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c7967 := (leafCircuit_copies248 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have e_196_13 := arithEq_of_rows h (row := 196) (i := 13) rfl (by decide)
+  have e_196_13 := arithEq_of_rows h (i := 13) leafCircuit_row196 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_196_13
   simp only [← c7965, ← c7966, ← c7967] at e_196_13
   have hr := e_196_13
@@ -9184,16 +9184,16 @@ theorem leafCircuit_f1511 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8019 := (leafCircuit_copies250 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8020 := (leafCircuit_copies250 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_196_14 := arithEq_of_rows h (row := 196) (i := 14) rfl (by decide)
+  have e_196_14 := arithEq_of_rows h (i := 14) leafCircuit_row196 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_196_14
   simp only [← c8010, ← c8011, ← c8012] at e_196_14
-  have e_206_10 := arithEq_of_rows h (row := 206) (i := 10) rfl (by decide)
+  have e_206_10 := arithEq_of_rows h (i := 10) leafCircuit_row206 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_206_10
   simp only [← c8007, k3, ← c8008, k3, ← c8009] at e_206_10
-  have e_206_11 := arithEq_of_rows h (row := 206) (i := 11) rfl (by decide)
+  have e_206_11 := arithEq_of_rows h (i := 11) leafCircuit_row206 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_206_11
   simp only [← c8016, ← c8017, k3, ← c8018] at e_206_11
-  have e_208_0 := arithEq_of_rows h (row := 208) (i := 0) rfl (by decide)
+  have e_208_0 := arithEq_of_rows h (i := 0) leafCircuit_row208 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_208_0
   simp only [← c8013, ← c8014, ← c8015] at e_208_0
   simp only [k0]
@@ -9221,16 +9221,16 @@ theorem leafCircuit_f1512 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8033 := (leafCircuit_copies251 a h).2.1
   have c8034 := (leafCircuit_copies251 a h).2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_206_12 := arithEq_of_rows h (row := 206) (i := 12) rfl (by decide)
+  have e_206_12 := arithEq_of_rows h (i := 12) leafCircuit_row206 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_206_12
   simp only [← c8021, k3, ← c8022, k3, ← c8023] at e_206_12
-  have e_206_13 := arithEq_of_rows h (row := 206) (i := 13) rfl (by decide)
+  have e_206_13 := arithEq_of_rows h (i := 13) leafCircuit_row206 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_206_13
   simp only [← c8030, ← c8031, k3, ← c8032] at e_206_13
-  have e_208_1 := arithEq_of_rows h (row := 208) (i := 1) rfl (by decide)
+  have e_208_1 := arithEq_of_rows h (i := 1) leafCircuit_row208 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_208_1
   simp only [← c8024, ← c8025, ← c8026] at e_208_1
-  have e_208_2 := arithEq_of_rows h (row := 208) (i := 2) rfl (by decide)
+  have e_208_2 := arithEq_of_rows h (i := 2) leafCircuit_row208 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_208_2
   simp only [← c8027, ← c8028, ← c8029] at e_208_2
   simp only [k0]
@@ -9258,16 +9258,16 @@ theorem leafCircuit_f1513 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8047 := (leafCircuit_copies251 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8048 := (leafCircuit_copies251 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_206_14 := arithEq_of_rows h (row := 206) (i := 14) rfl (by decide)
+  have e_206_14 := arithEq_of_rows h (i := 14) leafCircuit_row206 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_206_14
   simp only [← c8035, k3, ← c8036, k3, ← c8037] at e_206_14
-  have e_208_3 := arithEq_of_rows h (row := 208) (i := 3) rfl (by decide)
+  have e_208_3 := arithEq_of_rows h (i := 3) leafCircuit_row208 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_208_3
   simp only [← c8038, ← c8039, ← c8040] at e_208_3
-  have e_208_4 := arithEq_of_rows h (row := 208) (i := 4) rfl (by decide)
+  have e_208_4 := arithEq_of_rows h (i := 4) leafCircuit_row208 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_208_4
   simp only [← c8041, ← c8042, ← c8043] at e_208_4
-  have e_209_0 := arithEq_of_rows h (row := 209) (i := 0) rfl (by decide)
+  have e_209_0 := arithEq_of_rows h (i := 0) leafCircuit_row209 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_209_0
   simp only [← c8044, ← c8045, k3, ← c8046] at e_209_0
   simp only [k0]
@@ -9295,16 +9295,16 @@ theorem leafCircuit_f1514 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8061 := (leafCircuit_copies251 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8062 := (leafCircuit_copies251 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_208_5 := arithEq_of_rows h (row := 208) (i := 5) rfl (by decide)
+  have e_208_5 := arithEq_of_rows h (i := 5) leafCircuit_row208 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_208_5
   simp only [← c8052, ← c8053, ← c8054] at e_208_5
-  have e_208_6 := arithEq_of_rows h (row := 208) (i := 6) rfl (by decide)
+  have e_208_6 := arithEq_of_rows h (i := 6) leafCircuit_row208 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_208_6
   simp only [← c8055, ← c8056, ← c8057] at e_208_6
-  have e_209_1 := arithEq_of_rows h (row := 209) (i := 1) rfl (by decide)
+  have e_209_1 := arithEq_of_rows h (i := 1) leafCircuit_row209 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_209_1
   simp only [← c8049, k3, ← c8050, k3, ← c8051] at e_209_1
-  have e_209_2 := arithEq_of_rows h (row := 209) (i := 2) rfl (by decide)
+  have e_209_2 := arithEq_of_rows h (i := 2) leafCircuit_row209 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_209_2
   simp only [← c8058, ← c8059, k3, ← c8060] at e_209_2
   simp only [k0]
@@ -9320,7 +9320,7 @@ theorem leafCircuit_f1515 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8063 := (leafCircuit_copies251 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c8064 := (leafCircuit_copies252 a h).1
   have c8065 := (leafCircuit_copies252 a h).2.1
-  have e_208_7 := arithEq_of_rows h (row := 208) (i := 7) rfl (by decide)
+  have e_208_7 := arithEq_of_rows h (i := 7) leafCircuit_row208 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_208_7
   simp only [← c8063, ← c8064, ← c8065] at e_208_7
   have hr := e_208_7
@@ -9332,7 +9332,7 @@ theorem leafCircuit_f1516 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8066 := (leafCircuit_copies252 a h).2.2.1
   have c8067 := (leafCircuit_copies252 a h).2.2.2.1
   have c8068 := (leafCircuit_copies252 a h).2.2.2.2.1
-  have e_208_8 := arithEq_of_rows h (row := 208) (i := 8) rfl (by decide)
+  have e_208_8 := arithEq_of_rows h (i := 8) leafCircuit_row208 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_208_8
   simp only [← c8066, ← c8067, ← c8068] at e_208_8
   have hr := e_208_8
@@ -9344,7 +9344,7 @@ theorem leafCircuit_f1517 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8069 := (leafCircuit_copies252 a h).2.2.2.2.2.1
   have c8070 := (leafCircuit_copies252 a h).2.2.2.2.2.2.1
   have c8071 := (leafCircuit_copies252 a h).2.2.2.2.2.2.2.1
-  have e_208_9 := arithEq_of_rows h (row := 208) (i := 9) rfl (by decide)
+  have e_208_9 := arithEq_of_rows h (i := 9) leafCircuit_row208 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_208_9
   simp only [← c8069, ← c8070, ← c8071] at e_208_9
   have hr := e_208_9
@@ -9357,7 +9357,7 @@ theorem leafCircuit_f1518 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8073 := (leafCircuit_copies252 a h).2.2.2.2.2.2.2.2.2.1
   have c8074 := (leafCircuit_copies252 a h).2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_209_3 := arithEq_of_rows h (row := 209) (i := 3) rfl (by decide)
+  have e_209_3 := arithEq_of_rows h (i := 3) leafCircuit_row209 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_209_3
   simp only [← c8072, k3, ← c8073, k3, ← c8074] at e_209_3
   have hr := e_209_3
@@ -9369,7 +9369,7 @@ theorem leafCircuit_f1519 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8075 := (leafCircuit_copies252 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c8076 := (leafCircuit_copies252 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8077 := (leafCircuit_copies252 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_208_10 := arithEq_of_rows h (row := 208) (i := 10) rfl (by decide)
+  have e_208_10 := arithEq_of_rows h (i := 10) leafCircuit_row208 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_208_10
   simp only [← c8075, ← c8076, ← c8077] at e_208_10
   have hr := e_208_10
@@ -9419,10 +9419,10 @@ theorem leafCircuit_f1522 (perm : St p → St p) (a : Assignment p) (h : Satisfi
   have c8108 := (leafCircuit_copies253 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8109 := (leafCircuit_copies253 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_203_4 := arithEq_of_rows h (row := 203) (i := 4) rfl (by decide)
+  have e_203_4 := arithEq_of_rows h (i := 4) leafCircuit_row203 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_203_4
   simp only [← c8092, ← c8093, k3, ← c8094] at e_203_4
-  have e_203_5 := arithEq_of_rows h (row := 203) (i := 5) rfl (by decide)
+  have e_203_5 := arithEq_of_rows h (i := 5) leafCircuit_row203 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_203_5
   simp only [← c8095, ← c8096, k3, ← c8097, k3] at e_203_5
   have hin0 : poseidon2In a 210 = addBlock (fun _ => 0) [a (.virt 432), a (.virt 433), a (.virt 292), a (.virt 227), a (.virt 228), a (.virt 229), a (.virt 230), a (.virt 231)] :=
@@ -9468,7 +9468,7 @@ theorem leafCircuit_f1524 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8123 := (leafCircuit_copies253 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8124 := (leafCircuit_copies253 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_209_4 := arithEq_of_rows h (row := 209) (i := 4) rfl (by decide)
+  have e_209_4 := arithEq_of_rows h (i := 4) leafCircuit_row209 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_209_4
   simp only [← c8122, ← c8123, k3, ← c8124] at e_209_4
   have hr := e_209_4
@@ -9479,7 +9479,7 @@ theorem leafCircuit_f1525 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8125 := (leafCircuit_copies253 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8126 := (leafCircuit_copies253 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8127 := (leafCircuit_copies253 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have e_208_11 := arithEq_of_rows h (row := 208) (i := 11) rfl (by decide)
+  have e_208_11 := arithEq_of_rows h (i := 11) leafCircuit_row208 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_208_11
   simp only [← c8125, ← c8126, ← c8127] at e_208_11
   have hr := e_208_11
@@ -9496,7 +9496,7 @@ theorem leafCircuit_f1527 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8130 := (leafCircuit_copies254 a h).2.2.1
   have c8131 := (leafCircuit_copies254 a h).2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_209_5 := arithEq_of_rows h (row := 209) (i := 5) rfl (by decide)
+  have e_209_5 := arithEq_of_rows h (i := 5) leafCircuit_row209 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_209_5
   simp only [← c8129, ← c8130, k3, ← c8131] at e_209_5
   have hr := e_209_5
@@ -9507,7 +9507,7 @@ theorem leafCircuit_f1528 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8132 := (leafCircuit_copies254 a h).2.2.2.2.1
   have c8133 := (leafCircuit_copies254 a h).2.2.2.2.2.1
   have c8134 := (leafCircuit_copies254 a h).2.2.2.2.2.2.1
-  have e_208_12 := arithEq_of_rows h (row := 208) (i := 12) rfl (by decide)
+  have e_208_12 := arithEq_of_rows h (i := 12) leafCircuit_row208 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_208_12
   simp only [← c8132, ← c8133, ← c8134] at e_208_12
   have hr := e_208_12
@@ -9524,7 +9524,7 @@ theorem leafCircuit_f1530 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8137 := (leafCircuit_copies254 a h).2.2.2.2.2.2.2.2.2.1
   have c8138 := (leafCircuit_copies254 a h).2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_209_6 := arithEq_of_rows h (row := 209) (i := 6) rfl (by decide)
+  have e_209_6 := arithEq_of_rows h (i := 6) leafCircuit_row209 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_209_6
   simp only [← c8136, ← c8137, k3, ← c8138] at e_209_6
   have hr := e_209_6
@@ -9535,7 +9535,7 @@ theorem leafCircuit_f1531 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8139 := (leafCircuit_copies254 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c8140 := (leafCircuit_copies254 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8141 := (leafCircuit_copies254 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_208_13 := arithEq_of_rows h (row := 208) (i := 13) rfl (by decide)
+  have e_208_13 := arithEq_of_rows h (i := 13) leafCircuit_row208 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_208_13
   simp only [← c8139, ← c8140, ← c8141] at e_208_13
   have hr := e_208_13
@@ -9552,7 +9552,7 @@ theorem leafCircuit_f1533 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8144 := (leafCircuit_copies254 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8145 := (leafCircuit_copies254 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_209_7 := arithEq_of_rows h (row := 209) (i := 7) rfl (by decide)
+  have e_209_7 := arithEq_of_rows h (i := 7) leafCircuit_row209 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_209_7
   simp only [← c8143, ← c8144, k3, ← c8145] at e_209_7
   have hr := e_209_7
@@ -9563,7 +9563,7 @@ theorem leafCircuit_f1534 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8146 := (leafCircuit_copies254 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8147 := (leafCircuit_copies254 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8148 := (leafCircuit_copies254 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_208_14 := arithEq_of_rows h (row := 208) (i := 14) rfl (by decide)
+  have e_208_14 := arithEq_of_rows h (i := 14) leafCircuit_row208 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_208_14
   simp only [← c8146, ← c8147, ← c8148] at e_208_14
   have hr := e_208_14
@@ -9764,118 +9764,118 @@ theorem leafCircuit_f1536 (perm : St p → St p) (a : Assignment p) (h : Satisfi
   have c8334 := (leafCircuit_copies260 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8335 := (leafCircuit_copies260 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_203_6 := arithEq_of_rows h (row := 203) (i := 6) rfl (by decide)
+  have e_203_6 := arithEq_of_rows h (i := 6) leafCircuit_row203 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_203_6
   simp only [← c8162, ← c8163, k3, ← c8164] at e_203_6
-  have e_203_7 := arithEq_of_rows h (row := 203) (i := 7) rfl (by decide)
+  have e_203_7 := arithEq_of_rows h (i := 7) leafCircuit_row203 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_203_7
   simp only [← c8165, ← c8166, k3, ← c8167] at e_203_7
-  have e_203_8 := arithEq_of_rows h (row := 203) (i := 8) rfl (by decide)
+  have e_203_8 := arithEq_of_rows h (i := 8) leafCircuit_row203 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_203_8
   simp only [← c8168, ← c8169, k3, ← c8170] at e_203_8
-  have e_203_9 := arithEq_of_rows h (row := 203) (i := 9) rfl (by decide)
+  have e_203_9 := arithEq_of_rows h (i := 9) leafCircuit_row203 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_203_9
   simp only [← c8171, ← c8172, k3, ← c8173] at e_203_9
-  have e_203_10 := arithEq_of_rows h (row := 203) (i := 10) rfl (by decide)
+  have e_203_10 := arithEq_of_rows h (i := 10) leafCircuit_row203 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_203_10
   simp only [← c8174, ← c8175, k3, ← c8176] at e_203_10
-  have e_203_11 := arithEq_of_rows h (row := 203) (i := 11) rfl (by decide)
+  have e_203_11 := arithEq_of_rows h (i := 11) leafCircuit_row203 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_203_11
   simp only [← c8177, ← c8178, k3, ← c8179] at e_203_11
-  have e_203_12 := arithEq_of_rows h (row := 203) (i := 12) rfl (by decide)
+  have e_203_12 := arithEq_of_rows h (i := 12) leafCircuit_row203 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_203_12
   simp only [← c8180, ← c8181, k3, ← c8182] at e_203_12
-  have e_203_13 := arithEq_of_rows h (row := 203) (i := 13) rfl (by decide)
+  have e_203_13 := arithEq_of_rows h (i := 13) leafCircuit_row203 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_203_13
   simp only [← c8183, ← c8184, k3, ← c8185] at e_203_13
-  have e_203_14 := arithEq_of_rows h (row := 203) (i := 14) rfl (by decide)
+  have e_203_14 := arithEq_of_rows h (i := 14) leafCircuit_row203 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_203_14
   simp only [← c8198, ← c8199, k3, ← c8200] at e_203_14
-  have e_215_0 := arithEq_of_rows h (row := 215) (i := 0) rfl (by decide)
+  have e_215_0 := arithEq_of_rows h (i := 0) leafCircuit_row215 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_215_0
   simp only [← c8201, ← c8202, k3, ← c8203] at e_215_0
-  have e_215_1 := arithEq_of_rows h (row := 215) (i := 1) rfl (by decide)
+  have e_215_1 := arithEq_of_rows h (i := 1) leafCircuit_row215 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_215_1
   simp only [← c8204, ← c8205, k3, ← c8206] at e_215_1
-  have e_215_2 := arithEq_of_rows h (row := 215) (i := 2) rfl (by decide)
+  have e_215_2 := arithEq_of_rows h (i := 2) leafCircuit_row215 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_215_2
   simp only [← c8207, ← c8208, k3, ← c8209] at e_215_2
-  have e_215_3 := arithEq_of_rows h (row := 215) (i := 3) rfl (by decide)
+  have e_215_3 := arithEq_of_rows h (i := 3) leafCircuit_row215 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_215_3
   simp only [← c8210, ← c8211, k3, ← c8212] at e_215_3
-  have e_215_4 := arithEq_of_rows h (row := 215) (i := 4) rfl (by decide)
+  have e_215_4 := arithEq_of_rows h (i := 4) leafCircuit_row215 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_215_4
   simp only [← c8213, ← c8214, k3, ← c8215] at e_215_4
-  have e_215_5 := arithEq_of_rows h (row := 215) (i := 5) rfl (by decide)
+  have e_215_5 := arithEq_of_rows h (i := 5) leafCircuit_row215 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_215_5
   simp only [← c8216, ← c8217, k3, ← c8218] at e_215_5
-  have e_215_6 := arithEq_of_rows h (row := 215) (i := 6) rfl (by decide)
+  have e_215_6 := arithEq_of_rows h (i := 6) leafCircuit_row215 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_215_6
   simp only [← c8219, ← c8220, k3, ← c8221] at e_215_6
-  have e_215_7 := arithEq_of_rows h (row := 215) (i := 7) rfl (by decide)
+  have e_215_7 := arithEq_of_rows h (i := 7) leafCircuit_row215 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_215_7
   simp only [← c8234, ← c8235, k3, ← c8236] at e_215_7
-  have e_215_8 := arithEq_of_rows h (row := 215) (i := 8) rfl (by decide)
+  have e_215_8 := arithEq_of_rows h (i := 8) leafCircuit_row215 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_215_8
   simp only [← c8237, ← c8238, k3, ← c8239] at e_215_8
-  have e_215_9 := arithEq_of_rows h (row := 215) (i := 9) rfl (by decide)
+  have e_215_9 := arithEq_of_rows h (i := 9) leafCircuit_row215 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_215_9
   simp only [← c8240, ← c8241, k3, ← c8242] at e_215_9
-  have e_215_10 := arithEq_of_rows h (row := 215) (i := 10) rfl (by decide)
+  have e_215_10 := arithEq_of_rows h (i := 10) leafCircuit_row215 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_215_10
   simp only [← c8243, ← c8244, k3, ← c8245] at e_215_10
-  have e_215_11 := arithEq_of_rows h (row := 215) (i := 11) rfl (by decide)
+  have e_215_11 := arithEq_of_rows h (i := 11) leafCircuit_row215 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_215_11
   simp only [← c8246, ← c8247, k3, ← c8248] at e_215_11
-  have e_215_12 := arithEq_of_rows h (row := 215) (i := 12) rfl (by decide)
+  have e_215_12 := arithEq_of_rows h (i := 12) leafCircuit_row215 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_215_12
   simp only [← c8249, ← c8250, k3, ← c8251] at e_215_12
-  have e_215_13 := arithEq_of_rows h (row := 215) (i := 13) rfl (by decide)
+  have e_215_13 := arithEq_of_rows h (i := 13) leafCircuit_row215 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_215_13
   simp only [← c8252, ← c8253, k3, ← c8254] at e_215_13
-  have e_215_14 := arithEq_of_rows h (row := 215) (i := 14) rfl (by decide)
+  have e_215_14 := arithEq_of_rows h (i := 14) leafCircuit_row215 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_215_14
   simp only [← c8255, ← c8256, k3, ← c8257] at e_215_14
-  have e_218_0 := arithEq_of_rows h (row := 218) (i := 0) rfl (by decide)
+  have e_218_0 := arithEq_of_rows h (i := 0) leafCircuit_row218 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_218_0
   simp only [← c8270, ← c8271, k3, ← c8272] at e_218_0
-  have e_218_1 := arithEq_of_rows h (row := 218) (i := 1) rfl (by decide)
+  have e_218_1 := arithEq_of_rows h (i := 1) leafCircuit_row218 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_218_1
   simp only [← c8273, ← c8274, k3, ← c8275] at e_218_1
-  have e_218_2 := arithEq_of_rows h (row := 218) (i := 2) rfl (by decide)
+  have e_218_2 := arithEq_of_rows h (i := 2) leafCircuit_row218 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_218_2
   simp only [← c8276, ← c8277, k3, ← c8278] at e_218_2
-  have e_218_3 := arithEq_of_rows h (row := 218) (i := 3) rfl (by decide)
+  have e_218_3 := arithEq_of_rows h (i := 3) leafCircuit_row218 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_218_3
   simp only [← c8279, ← c8280, k3, ← c8281] at e_218_3
-  have e_218_4 := arithEq_of_rows h (row := 218) (i := 4) rfl (by decide)
+  have e_218_4 := arithEq_of_rows h (i := 4) leafCircuit_row218 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_218_4
   simp only [← c8282, ← c8283, k3, ← c8284] at e_218_4
-  have e_218_5 := arithEq_of_rows h (row := 218) (i := 5) rfl (by decide)
+  have e_218_5 := arithEq_of_rows h (i := 5) leafCircuit_row218 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_218_5
   simp only [← c8285, ← c8286, k3, ← c8287] at e_218_5
-  have e_218_6 := arithEq_of_rows h (row := 218) (i := 6) rfl (by decide)
+  have e_218_6 := arithEq_of_rows h (i := 6) leafCircuit_row218 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_218_6
   simp only [← c8288, ← c8289, k3, ← c8290] at e_218_6
-  have e_218_7 := arithEq_of_rows h (row := 218) (i := 7) rfl (by decide)
+  have e_218_7 := arithEq_of_rows h (i := 7) leafCircuit_row218 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_218_7
   simp only [← c8291, ← c8292, k3, ← c8293] at e_218_7
-  have e_218_8 := arithEq_of_rows h (row := 218) (i := 8) rfl (by decide)
+  have e_218_8 := arithEq_of_rows h (i := 8) leafCircuit_row218 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_218_8
   simp only [← c8306, ← c8307, k3, ← c8308] at e_218_8
-  have e_218_9 := arithEq_of_rows h (row := 218) (i := 9) rfl (by decide)
+  have e_218_9 := arithEq_of_rows h (i := 9) leafCircuit_row218 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_218_9
   simp only [← c8309, ← c8310, k3, ← c8311] at e_218_9
-  have e_218_10 := arithEq_of_rows h (row := 218) (i := 10) rfl (by decide)
+  have e_218_10 := arithEq_of_rows h (i := 10) leafCircuit_row218 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_218_10
   simp only [← c8312, ← c8313, k3, ← c8314] at e_218_10
-  have e_218_11 := arithEq_of_rows h (row := 218) (i := 11) rfl (by decide)
+  have e_218_11 := arithEq_of_rows h (i := 11) leafCircuit_row218 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_218_11
   simp only [← c8315, ← c8316, k3, ← c8317] at e_218_11
-  have e_218_12 := arithEq_of_rows h (row := 218) (i := 12) rfl (by decide)
+  have e_218_12 := arithEq_of_rows h (i := 12) leafCircuit_row218 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_218_12
   simp only [← c8318, ← c8319, k3, ← c8320] at e_218_12
-  have e_218_13 := arithEq_of_rows h (row := 218) (i := 13) rfl (by decide)
+  have e_218_13 := arithEq_of_rows h (i := 13) leafCircuit_row218 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_218_13
   simp only [← c8321, ← c8322, k3, ← c8323, k3] at e_218_13
   have hin0 : poseidon2In a 213 = addBlock (fun _ => 0) [a (.virt 245), a (.virt 246), a (.virt 247), a (.virt 248), a (.virt 249), a (.virt 250), a (.virt 251), a (.virt 252)] :=
@@ -9908,7 +9908,7 @@ theorem leafCircuit_f1537 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8337 := (leafCircuit_copies260 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8338 := (leafCircuit_copies260 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_209_8 := arithEq_of_rows h (row := 209) (i := 8) rfl (by decide)
+  have e_209_8 := arithEq_of_rows h (i := 8) leafCircuit_row209 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_209_8
   simp only [← c8336, ← c8337, k3, ← c8338] at e_209_8
   have hr := e_209_8
@@ -9919,7 +9919,7 @@ theorem leafCircuit_f1538 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8339 := (leafCircuit_copies260 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8340 := (leafCircuit_copies260 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8341 := (leafCircuit_copies260 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_221_0 := arithEq_of_rows h (row := 221) (i := 0) rfl (by decide)
+  have e_221_0 := arithEq_of_rows h (i := 0) leafCircuit_row221 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_221_0
   simp only [← c8339, ← c8340, ← c8341] at e_221_0
   have hr := e_221_0
@@ -9936,7 +9936,7 @@ theorem leafCircuit_f1540 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8344 := (leafCircuit_copies260 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8345 := (leafCircuit_copies260 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_209_9 := arithEq_of_rows h (row := 209) (i := 9) rfl (by decide)
+  have e_209_9 := arithEq_of_rows h (i := 9) leafCircuit_row209 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_209_9
   simp only [← c8343, ← c8344, k3, ← c8345] at e_209_9
   have hr := e_209_9
@@ -9947,7 +9947,7 @@ theorem leafCircuit_f1541 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8346 := (leafCircuit_copies260 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8347 := (leafCircuit_copies260 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8348 := (leafCircuit_copies260 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_221_1 := arithEq_of_rows h (row := 221) (i := 1) rfl (by decide)
+  have e_221_1 := arithEq_of_rows h (i := 1) leafCircuit_row221 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_221_1
   simp only [← c8346, ← c8347, ← c8348] at e_221_1
   have hr := e_221_1
@@ -9964,7 +9964,7 @@ theorem leafCircuit_f1543 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8351 := (leafCircuit_copies260 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c8352 := (leafCircuit_copies261 a h).1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_209_10 := arithEq_of_rows h (row := 209) (i := 10) rfl (by decide)
+  have e_209_10 := arithEq_of_rows h (i := 10) leafCircuit_row209 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_209_10
   simp only [← c8350, ← c8351, k3, ← c8352] at e_209_10
   have hr := e_209_10
@@ -9975,7 +9975,7 @@ theorem leafCircuit_f1544 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8353 := (leafCircuit_copies261 a h).2.1
   have c8354 := (leafCircuit_copies261 a h).2.2.1
   have c8355 := (leafCircuit_copies261 a h).2.2.2.1
-  have e_221_2 := arithEq_of_rows h (row := 221) (i := 2) rfl (by decide)
+  have e_221_2 := arithEq_of_rows h (i := 2) leafCircuit_row221 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_221_2
   simp only [← c8353, ← c8354, ← c8355] at e_221_2
   have hr := e_221_2
@@ -9992,7 +9992,7 @@ theorem leafCircuit_f1546 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8358 := (leafCircuit_copies261 a h).2.2.2.2.2.2.1
   have c8359 := (leafCircuit_copies261 a h).2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_209_11 := arithEq_of_rows h (row := 209) (i := 11) rfl (by decide)
+  have e_209_11 := arithEq_of_rows h (i := 11) leafCircuit_row209 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_209_11
   simp only [← c8357, ← c8358, k3, ← c8359] at e_209_11
   have hr := e_209_11
@@ -10003,7 +10003,7 @@ theorem leafCircuit_f1547 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8360 := (leafCircuit_copies261 a h).2.2.2.2.2.2.2.2.1
   have c8361 := (leafCircuit_copies261 a h).2.2.2.2.2.2.2.2.2.1
   have c8362 := (leafCircuit_copies261 a h).2.2.2.2.2.2.2.2.2.2.1
-  have e_221_3 := arithEq_of_rows h (row := 221) (i := 3) rfl (by decide)
+  have e_221_3 := arithEq_of_rows h (i := 3) leafCircuit_row221 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_221_3
   simp only [← c8360, ← c8361, ← c8362] at e_221_3
   have hr := e_221_3
@@ -10020,7 +10020,7 @@ theorem leafCircuit_f1549 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8365 := (leafCircuit_copies261 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8366 := (leafCircuit_copies261 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_209_12 := arithEq_of_rows h (row := 209) (i := 12) rfl (by decide)
+  have e_209_12 := arithEq_of_rows h (i := 12) leafCircuit_row209 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_209_12
   simp only [← c8364, ← c8365, k3, ← c8366] at e_209_12
   have hr := e_209_12
@@ -10031,7 +10031,7 @@ theorem leafCircuit_f1550 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8367 := (leafCircuit_copies261 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8368 := (leafCircuit_copies261 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8369 := (leafCircuit_copies261 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_221_4 := arithEq_of_rows h (row := 221) (i := 4) rfl (by decide)
+  have e_221_4 := arithEq_of_rows h (i := 4) leafCircuit_row221 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_221_4
   simp only [← c8367, ← c8368, ← c8369] at e_221_4
   have hr := e_221_4
@@ -10048,7 +10048,7 @@ theorem leafCircuit_f1552 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8372 := (leafCircuit_copies261 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8373 := (leafCircuit_copies261 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_209_13 := arithEq_of_rows h (row := 209) (i := 13) rfl (by decide)
+  have e_209_13 := arithEq_of_rows h (i := 13) leafCircuit_row209 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_209_13
   simp only [← c8371, ← c8372, k3, ← c8373] at e_209_13
   have hr := e_209_13
@@ -10059,7 +10059,7 @@ theorem leafCircuit_f1553 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8374 := (leafCircuit_copies261 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8375 := (leafCircuit_copies261 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8376 := (leafCircuit_copies261 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_221_5 := arithEq_of_rows h (row := 221) (i := 5) rfl (by decide)
+  have e_221_5 := arithEq_of_rows h (i := 5) leafCircuit_row221 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_221_5
   simp only [← c8374, ← c8375, ← c8376] at e_221_5
   have hr := e_221_5
@@ -10076,7 +10076,7 @@ theorem leafCircuit_f1555 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8379 := (leafCircuit_copies261 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8380 := (leafCircuit_copies261 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_209_14 := arithEq_of_rows h (row := 209) (i := 14) rfl (by decide)
+  have e_209_14 := arithEq_of_rows h (i := 14) leafCircuit_row209 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_209_14
   simp only [← c8378, ← c8379, k3, ← c8380] at e_209_14
   have hr := e_209_14
@@ -10087,7 +10087,7 @@ theorem leafCircuit_f1556 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8381 := (leafCircuit_copies261 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8382 := (leafCircuit_copies261 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c8383 := (leafCircuit_copies261 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have e_221_6 := arithEq_of_rows h (row := 221) (i := 6) rfl (by decide)
+  have e_221_6 := arithEq_of_rows h (i := 6) leafCircuit_row221 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_221_6
   simp only [← c8381, ← c8382, ← c8383] at e_221_6
   have hr := e_221_6
@@ -10104,7 +10104,7 @@ theorem leafCircuit_f1558 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8386 := (leafCircuit_copies262 a h).2.2.1
   have c8387 := (leafCircuit_copies262 a h).2.2.2.1
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8⟩ := leafCircuit_consts a h
-  have e_222_0 := arithEq_of_rows h (row := 222) (i := 0) rfl (by decide)
+  have e_222_0 := arithEq_of_rows h (i := 0) leafCircuit_row222 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_222_0
   simp only [← c8385, ← c8386, k3, ← c8387] at e_222_0
   have hr := e_222_0
@@ -10115,7 +10115,7 @@ theorem leafCircuit_f1559 (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
   have c8388 := (leafCircuit_copies262 a h).2.2.2.2.1
   have c8389 := (leafCircuit_copies262 a h).2.2.2.2.2.1
   have c8390 := (leafCircuit_copies262 a h).2.2.2.2.2.2.1
-  have e_221_7 := arithEq_of_rows h (row := 221) (i := 7) rfl (by decide)
+  have e_221_7 := arithEq_of_rows h (i := 7) leafCircuit_row221 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_221_7
   simp only [← c8388, ← c8389, ← c8390] at e_221_7
   have hr := e_221_7

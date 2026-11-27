@@ -25,18 +25,27 @@ pub struct Layout {
 }
 
 /// A recorded circuit's decode module: copy-list chunks, the circuit, the copy and
-/// constant lemmas, the per-call facts, then the decode conjunction.
+/// constant lemmas, the per-call facts, then the decode conjunction (for the largest
+/// circuits in parts, then in all).
 pub const SPEC: Layout = Layout {
     package: "Plonky2Spec.Generated",
-    layers: &["CopyData", "Circuit", "CopyLemma", "Fact", "Decode"],
+    layers: &[
+        "CopyData",
+        "Circuit",
+        "CopyLemma",
+        "Fact",
+        "Decode",
+        "DecodeAll",
+    ],
 };
 
 /// A build certificate (`built.rs`): table chunks, the long cycles, the cycle table, the
-/// certificate, its chunked checks, then what they prove.
+/// certificate, its chunked checks, the links they prove by group and in all, then what
+/// the certificate proves of a build.
 pub const BUILT: Layout = Layout {
     package: "Plonky2Bridge.Generated",
     layers: &[
-        "Data", "Cycle", "Cycles", "Cert", "Check", "Linked", "Agrees",
+        "Data", "Cycle", "Cycles", "Cert", "Check", "Links", "Linked", "Agrees",
     ],
 };
 
