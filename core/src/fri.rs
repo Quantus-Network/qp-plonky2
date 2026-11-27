@@ -12,6 +12,7 @@ use crate::challenger::Challenger;
 use crate::config::{GenericConfig, Hasher};
 use crate::field::extension::Extendable;
 use crate::field::polynomial::PolynomialCoeffs;
+use crate::field::types::Field;
 use crate::fri_structure::{FriChallenges, FriOpenings};
 use crate::hash_types::RichField;
 use crate::merkle_tree::MerkleCap;
