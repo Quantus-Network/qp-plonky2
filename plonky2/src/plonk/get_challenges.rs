@@ -61,8 +61,6 @@ fn get_challenges<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, cons
             pow_witness,
             common_data.degree_bits(),
             &config.fri_config,
-            None,
-            None,
         ),
     })
 }

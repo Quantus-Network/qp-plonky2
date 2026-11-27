@@ -22,7 +22,7 @@ set_option linter.all false
 variable {p : ℕ} [Fact p.Prime]
 
 /-- `gadgetZoo.copies`, items `0..32`. -/
-def gadgetZoo.copies0 : List (Target × Target) := [
+noncomputable def gadgetZoo.copies0 : List (Target × Target) := [
     (.virt 3, .wire 0 0),
     (.virt 3, .wire 0 1),
     (.virt 3, .wire 0 2),
@@ -58,7 +58,7 @@ def gadgetZoo.copies0 : List (Target × Target) := [
   ]
 
 /-- `gadgetZoo.copies`, items `32..64`. -/
-def gadgetZoo.copies1 : List (Target × Target) := [
+noncomputable def gadgetZoo.copies1 : List (Target × Target) := [
     (.virt 3, .wire 3 2),
     (.virt 6, .wire 0 24),
     (.virt 6, .wire 0 25),
@@ -94,7 +94,7 @@ def gadgetZoo.copies1 : List (Target × Target) := [
   ]
 
 /-- `gadgetZoo.copies`, items `64..93`. -/
-def gadgetZoo.copies2 : List (Target × Target) := [
+noncomputable def gadgetZoo.copies2 : List (Target × Target) := [
     (.wire 4 37, .virt 4),
     (.wire 4 38, .virt 4),
     (.wire 4 39, .virt 4),
@@ -127,7 +127,7 @@ def gadgetZoo.copies2 : List (Target × Target) := [
   ]
 
 /-- The gadget zoo: `assert_bool flag`, `eq = is_equal x y`, `sel = select flag x y`, `either = or eq flag`, `nflag = not flag`, `both = and eq nflag`, `head = sub 10000 fee`, `range_check head 14`, `connect sel either`; public inputs `x`, `sel`, `both`. -/
-def gadgetZoo (p : ℕ) : Circuit p where
+noncomputable def gadgetZoo (p : ℕ) : Circuit p where
   rows := [
     ⟨.arithmetic 20, [1, (-1)]⟩,  -- row 0
     ⟨.arithmetic 20, [1, 0]⟩,  -- row 1
@@ -171,7 +171,7 @@ def gadgetZoo.head : Target := .wire 0 31
 
 /-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
     name and the targets carrying its public inputs (`Recursive.children`). -/
-def gadgetZoo.verifiers : List (String × List Target) :=
+noncomputable def gadgetZoo.verifiers : List (String × List Target) :=
   []
 
 theorem gadgetZoo_copies0 (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
@@ -192,6 +192,14 @@ theorem gadgetZoo_copies2 (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
   simp only [gadgetZoo.copies2, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
+theorem gadgetZoo_row0 : (gadgetZoo p).rows[0]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem gadgetZoo_row1 : (gadgetZoo p).rows[1]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem gadgetZoo_row2 : (gadgetZoo p).rows[2]? = some ⟨.arithmetic 20, [(-1), 1]⟩ := rfl
+
+theorem gadgetZoo_row3 : (gadgetZoo p).rows[3]? = some ⟨.arithmetic 20, [1, 1]⟩ := rfl
+
 theorem gadgetZoo_consts (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
     (a (.virt 4) = 0 ∧ a (.virt 6) = 1 ∧ a (.virt 8) = 10000 ∧ a (.virt 9) = 9223372036854775808) := by
   have hconst := h.2.2
@@ -206,7 +214,7 @@ theorem gadgetZoo_f0 (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
   have c2 := (gadgetZoo_copies0 a h).2.2.1
   have c3 := (gadgetZoo_copies0 a h).2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := gadgetZoo_consts a h
-  have e_0_0 := arithEq_of_rows h (row := 0) (i := 0) rfl (by decide)
+  have e_0_0 := arithEq_of_rows h (i := 0) gadgetZoo_row0 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_0
   simp only [← c0, ← c1, ← c2] at e_0_0
   refine isBool_iff_assertBool.mpr ?_
@@ -233,19 +241,19 @@ theorem gadgetZoo_f1 (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
   have c19 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c20 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := gadgetZoo_consts a h
-  have e_0_1 := arithEq_of_rows h (row := 0) (i := 1) rfl (by decide)
+  have e_0_1 := arithEq_of_rows h (i := 1) gadgetZoo_row0 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_1
   simp only [← c4, k1, ← c5, k1, ← c6] at e_0_1
-  have e_0_2 := arithEq_of_rows h (row := 0) (i := 2) rfl (by decide)
+  have e_0_2 := arithEq_of_rows h (i := 2) gadgetZoo_row0 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_2
   simp only [← c7, ← c8, k1, ← c9] at e_0_2
-  have e_0_3 := arithEq_of_rows h (row := 0) (i := 3) rfl (by decide)
+  have e_0_3 := arithEq_of_rows h (i := 3) gadgetZoo_row0 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_3
   simp only [← c16, ← c17, k1, ← c18] at e_0_3
-  have e_1_0 := arithEq_of_rows h (row := 1) (i := 0) rfl (by decide)
+  have e_1_0 := arithEq_of_rows h (i := 0) gadgetZoo_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_0
   simp only [← c10, ← c11, ← c12] at e_1_0
-  have e_1_1 := arithEq_of_rows h (row := 1) (i := 1) rfl (by decide)
+  have e_1_1 := arithEq_of_rows h (i := 1) gadgetZoo_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_1
   simp only [← c13, ← c14, ← c15] at e_1_1
   refine ⟨?_, ?_⟩
@@ -264,10 +272,10 @@ theorem gadgetZoo_f2 (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
   have c24 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c25 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c26 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_0_4 := arithEq_of_rows h (row := 0) (i := 4) rfl (by decide)
+  have e_0_4 := arithEq_of_rows h (i := 4) gadgetZoo_row0 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_4
   simp only [← c21, ← c22, ← c23] at e_0_4
-  have e_0_5 := arithEq_of_rows h (row := 0) (i := 5) rfl (by decide)
+  have e_0_5 := arithEq_of_rows h (i := 5) gadgetZoo_row0 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_5
   simp only [← c24, ← c25, ← c26] at e_0_5
   have hr := e_0_5
@@ -284,10 +292,10 @@ theorem gadgetZoo_f3 (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
   have c31 := (gadgetZoo_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c32 := (gadgetZoo_copies1 a h).1
   obtain ⟨k0, k1, k2, k3⟩ := gadgetZoo_consts a h
-  have e_2_0 := arithEq_of_rows h (row := 2) (i := 0) rfl (by decide)
+  have e_2_0 := arithEq_of_rows h (i := 0) gadgetZoo_row2 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_0
   simp only [← c27, ← c28, ← c29] at e_2_0
-  have e_3_0 := arithEq_of_rows h (row := 3) (i := 0) rfl (by decide)
+  have e_3_0 := arithEq_of_rows h (i := 0) gadgetZoo_row3 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_0
   simp only [← c30, ← c31, k1, ← c32] at e_3_0
   have hr := e_3_0
@@ -301,7 +309,7 @@ theorem gadgetZoo_f4 (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
   have c34 := (gadgetZoo_copies1 a h).2.2.1
   have c35 := (gadgetZoo_copies1 a h).2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := gadgetZoo_consts a h
-  have e_0_6 := arithEq_of_rows h (row := 0) (i := 6) rfl (by decide)
+  have e_0_6 := arithEq_of_rows h (i := 6) gadgetZoo_row0 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_6
   simp only [← c33, k1, ← c34, k1, ← c35] at e_0_6
   have hr := e_0_6
@@ -313,7 +321,7 @@ theorem gadgetZoo_f5 (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
   have c36 := (gadgetZoo_copies1 a h).2.2.2.2.1
   have c37 := (gadgetZoo_copies1 a h).2.2.2.2.2.1
   have c38 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.1
-  have e_1_2 := arithEq_of_rows h (row := 1) (i := 2) rfl (by decide)
+  have e_1_2 := arithEq_of_rows h (i := 2) gadgetZoo_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_2
   simp only [← c36, ← c37, ← c38] at e_1_2
   have hr := e_1_2
@@ -326,7 +334,7 @@ theorem gadgetZoo_f6 (a : Assignment p) (h : Satisfies (gadgetZoo p) a) :
   have c40 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.1
   have c41 := (gadgetZoo_copies1 a h).2.2.2.2.2.2.2.2.2.1
   obtain ⟨k0, k1, k2, k3⟩ := gadgetZoo_consts a h
-  have e_0_7 := arithEq_of_rows h (row := 0) (i := 7) rfl (by decide)
+  have e_0_7 := arithEq_of_rows h (i := 7) gadgetZoo_row0 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_7
   simp only [← c39, k2, ← c40, k1, ← c41] at e_0_7
   have hr := e_0_7

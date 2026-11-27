@@ -18,7 +18,7 @@ set_option maxHeartbeats 0
 
 /-- The wrapper with its recursion gadgets: `verify_proof` under the `8`-leaf private-batch
     verifier key on each `inner_pis_i`. -/
-def tree : Recursive p :=
+noncomputable def tree : Recursive p :=
   .node "public_batch_wrapper_n89" (publicBatchWrapper89 p)
     [(Wrapper8.tree, List.ofFn (innerPis 0)),
      (Wrapper8.tree, List.ofFn (innerPis 1)),
@@ -113,446 +113,624 @@ def tree : Recursive p :=
 
 theorem pisEq_0 :
     List.ofFn (innerPis 0) = (publicBatchWrapper89.verifiers[0]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_0 = _
+  simp only [publicBatchWrapper89.inner_pis_0, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_1 :
     List.ofFn (innerPis 1) = (publicBatchWrapper89.verifiers[1]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_1 = _
+  simp only [publicBatchWrapper89.inner_pis_1, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_2 :
     List.ofFn (innerPis 2) = (publicBatchWrapper89.verifiers[2]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_2 = _
+  simp only [publicBatchWrapper89.inner_pis_2, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_3 :
     List.ofFn (innerPis 3) = (publicBatchWrapper89.verifiers[3]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_3 = _
+  simp only [publicBatchWrapper89.inner_pis_3, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_4 :
     List.ofFn (innerPis 4) = (publicBatchWrapper89.verifiers[4]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_4 = _
+  simp only [publicBatchWrapper89.inner_pis_4, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_5 :
     List.ofFn (innerPis 5) = (publicBatchWrapper89.verifiers[5]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_5 = _
+  simp only [publicBatchWrapper89.inner_pis_5, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_6 :
     List.ofFn (innerPis 6) = (publicBatchWrapper89.verifiers[6]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_6 = _
+  simp only [publicBatchWrapper89.inner_pis_6, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_7 :
     List.ofFn (innerPis 7) = (publicBatchWrapper89.verifiers[7]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_7 = _
+  simp only [publicBatchWrapper89.inner_pis_7, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_8 :
     List.ofFn (innerPis 8) = (publicBatchWrapper89.verifiers[8]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_8 = _
+  simp only [publicBatchWrapper89.inner_pis_8, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_9 :
     List.ofFn (innerPis 9) = (publicBatchWrapper89.verifiers[9]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_9 = _
+  simp only [publicBatchWrapper89.inner_pis_9, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_10 :
     List.ofFn (innerPis 10) = (publicBatchWrapper89.verifiers[10]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_10 = _
+  simp only [publicBatchWrapper89.inner_pis_10, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_11 :
     List.ofFn (innerPis 11) = (publicBatchWrapper89.verifiers[11]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_11 = _
+  simp only [publicBatchWrapper89.inner_pis_11, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_12 :
     List.ofFn (innerPis 12) = (publicBatchWrapper89.verifiers[12]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_12 = _
+  simp only [publicBatchWrapper89.inner_pis_12, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_13 :
     List.ofFn (innerPis 13) = (publicBatchWrapper89.verifiers[13]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_13 = _
+  simp only [publicBatchWrapper89.inner_pis_13, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_14 :
     List.ofFn (innerPis 14) = (publicBatchWrapper89.verifiers[14]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_14 = _
+  simp only [publicBatchWrapper89.inner_pis_14, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_15 :
     List.ofFn (innerPis 15) = (publicBatchWrapper89.verifiers[15]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_15 = _
+  simp only [publicBatchWrapper89.inner_pis_15, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_16 :
     List.ofFn (innerPis 16) = (publicBatchWrapper89.verifiers[16]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_16 = _
+  simp only [publicBatchWrapper89.inner_pis_16, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_17 :
     List.ofFn (innerPis 17) = (publicBatchWrapper89.verifiers[17]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_17 = _
+  simp only [publicBatchWrapper89.inner_pis_17, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_18 :
     List.ofFn (innerPis 18) = (publicBatchWrapper89.verifiers[18]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_18 = _
+  simp only [publicBatchWrapper89.inner_pis_18, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_19 :
     List.ofFn (innerPis 19) = (publicBatchWrapper89.verifiers[19]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_19 = _
+  simp only [publicBatchWrapper89.inner_pis_19, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_20 :
     List.ofFn (innerPis 20) = (publicBatchWrapper89.verifiers[20]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_20 = _
+  simp only [publicBatchWrapper89.inner_pis_20, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_21 :
     List.ofFn (innerPis 21) = (publicBatchWrapper89.verifiers[21]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_21 = _
+  simp only [publicBatchWrapper89.inner_pis_21, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_22 :
     List.ofFn (innerPis 22) = (publicBatchWrapper89.verifiers[22]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_22 = _
+  simp only [publicBatchWrapper89.inner_pis_22, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_23 :
     List.ofFn (innerPis 23) = (publicBatchWrapper89.verifiers[23]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_23 = _
+  simp only [publicBatchWrapper89.inner_pis_23, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_24 :
     List.ofFn (innerPis 24) = (publicBatchWrapper89.verifiers[24]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_24 = _
+  simp only [publicBatchWrapper89.inner_pis_24, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_25 :
     List.ofFn (innerPis 25) = (publicBatchWrapper89.verifiers[25]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_25 = _
+  simp only [publicBatchWrapper89.inner_pis_25, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_26 :
     List.ofFn (innerPis 26) = (publicBatchWrapper89.verifiers[26]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_26 = _
+  simp only [publicBatchWrapper89.inner_pis_26, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_27 :
     List.ofFn (innerPis 27) = (publicBatchWrapper89.verifiers[27]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_27 = _
+  simp only [publicBatchWrapper89.inner_pis_27, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_28 :
     List.ofFn (innerPis 28) = (publicBatchWrapper89.verifiers[28]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_28 = _
+  simp only [publicBatchWrapper89.inner_pis_28, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_29 :
     List.ofFn (innerPis 29) = (publicBatchWrapper89.verifiers[29]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_29 = _
+  simp only [publicBatchWrapper89.inner_pis_29, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_30 :
     List.ofFn (innerPis 30) = (publicBatchWrapper89.verifiers[30]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_30 = _
+  simp only [publicBatchWrapper89.inner_pis_30, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_31 :
     List.ofFn (innerPis 31) = (publicBatchWrapper89.verifiers[31]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_31 = _
+  simp only [publicBatchWrapper89.inner_pis_31, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_32 :
     List.ofFn (innerPis 32) = (publicBatchWrapper89.verifiers[32]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_32 = _
+  simp only [publicBatchWrapper89.inner_pis_32, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_33 :
     List.ofFn (innerPis 33) = (publicBatchWrapper89.verifiers[33]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_33 = _
+  simp only [publicBatchWrapper89.inner_pis_33, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_34 :
     List.ofFn (innerPis 34) = (publicBatchWrapper89.verifiers[34]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_34 = _
+  simp only [publicBatchWrapper89.inner_pis_34, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_35 :
     List.ofFn (innerPis 35) = (publicBatchWrapper89.verifiers[35]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_35 = _
+  simp only [publicBatchWrapper89.inner_pis_35, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_36 :
     List.ofFn (innerPis 36) = (publicBatchWrapper89.verifiers[36]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_36 = _
+  simp only [publicBatchWrapper89.inner_pis_36, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_37 :
     List.ofFn (innerPis 37) = (publicBatchWrapper89.verifiers[37]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_37 = _
+  simp only [publicBatchWrapper89.inner_pis_37, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_38 :
     List.ofFn (innerPis 38) = (publicBatchWrapper89.verifiers[38]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_38 = _
+  simp only [publicBatchWrapper89.inner_pis_38, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_39 :
     List.ofFn (innerPis 39) = (publicBatchWrapper89.verifiers[39]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_39 = _
+  simp only [publicBatchWrapper89.inner_pis_39, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_40 :
     List.ofFn (innerPis 40) = (publicBatchWrapper89.verifiers[40]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_40 = _
+  simp only [publicBatchWrapper89.inner_pis_40, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_41 :
     List.ofFn (innerPis 41) = (publicBatchWrapper89.verifiers[41]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_41 = _
+  simp only [publicBatchWrapper89.inner_pis_41, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_42 :
     List.ofFn (innerPis 42) = (publicBatchWrapper89.verifiers[42]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_42 = _
+  simp only [publicBatchWrapper89.inner_pis_42, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_43 :
     List.ofFn (innerPis 43) = (publicBatchWrapper89.verifiers[43]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_43 = _
+  simp only [publicBatchWrapper89.inner_pis_43, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_44 :
     List.ofFn (innerPis 44) = (publicBatchWrapper89.verifiers[44]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_44 = _
+  simp only [publicBatchWrapper89.inner_pis_44, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_45 :
     List.ofFn (innerPis 45) = (publicBatchWrapper89.verifiers[45]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_45 = _
+  simp only [publicBatchWrapper89.inner_pis_45, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_46 :
     List.ofFn (innerPis 46) = (publicBatchWrapper89.verifiers[46]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_46 = _
+  simp only [publicBatchWrapper89.inner_pis_46, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_47 :
     List.ofFn (innerPis 47) = (publicBatchWrapper89.verifiers[47]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_47 = _
+  simp only [publicBatchWrapper89.inner_pis_47, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_48 :
     List.ofFn (innerPis 48) = (publicBatchWrapper89.verifiers[48]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_48 = _
+  simp only [publicBatchWrapper89.inner_pis_48, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_49 :
     List.ofFn (innerPis 49) = (publicBatchWrapper89.verifiers[49]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_49 = _
+  simp only [publicBatchWrapper89.inner_pis_49, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_50 :
     List.ofFn (innerPis 50) = (publicBatchWrapper89.verifiers[50]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_50 = _
+  simp only [publicBatchWrapper89.inner_pis_50, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_51 :
     List.ofFn (innerPis 51) = (publicBatchWrapper89.verifiers[51]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_51 = _
+  simp only [publicBatchWrapper89.inner_pis_51, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_52 :
     List.ofFn (innerPis 52) = (publicBatchWrapper89.verifiers[52]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_52 = _
+  simp only [publicBatchWrapper89.inner_pis_52, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_53 :
     List.ofFn (innerPis 53) = (publicBatchWrapper89.verifiers[53]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_53 = _
+  simp only [publicBatchWrapper89.inner_pis_53, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_54 :
     List.ofFn (innerPis 54) = (publicBatchWrapper89.verifiers[54]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_54 = _
+  simp only [publicBatchWrapper89.inner_pis_54, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_55 :
     List.ofFn (innerPis 55) = (publicBatchWrapper89.verifiers[55]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_55 = _
+  simp only [publicBatchWrapper89.inner_pis_55, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_56 :
     List.ofFn (innerPis 56) = (publicBatchWrapper89.verifiers[56]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_56 = _
+  simp only [publicBatchWrapper89.inner_pis_56, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_57 :
     List.ofFn (innerPis 57) = (publicBatchWrapper89.verifiers[57]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_57 = _
+  simp only [publicBatchWrapper89.inner_pis_57, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_58 :
     List.ofFn (innerPis 58) = (publicBatchWrapper89.verifiers[58]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_58 = _
+  simp only [publicBatchWrapper89.inner_pis_58, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_59 :
     List.ofFn (innerPis 59) = (publicBatchWrapper89.verifiers[59]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_59 = _
+  simp only [publicBatchWrapper89.inner_pis_59, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_60 :
     List.ofFn (innerPis 60) = (publicBatchWrapper89.verifiers[60]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_60 = _
+  simp only [publicBatchWrapper89.inner_pis_60, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_61 :
     List.ofFn (innerPis 61) = (publicBatchWrapper89.verifiers[61]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_61 = _
+  simp only [publicBatchWrapper89.inner_pis_61, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_62 :
     List.ofFn (innerPis 62) = (publicBatchWrapper89.verifiers[62]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_62 = _
+  simp only [publicBatchWrapper89.inner_pis_62, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_63 :
     List.ofFn (innerPis 63) = (publicBatchWrapper89.verifiers[63]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_63 = _
+  simp only [publicBatchWrapper89.inner_pis_63, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_64 :
     List.ofFn (innerPis 64) = (publicBatchWrapper89.verifiers[64]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_64 = _
+  simp only [publicBatchWrapper89.inner_pis_64, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_65 :
     List.ofFn (innerPis 65) = (publicBatchWrapper89.verifiers[65]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_65 = _
+  simp only [publicBatchWrapper89.inner_pis_65, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_66 :
     List.ofFn (innerPis 66) = (publicBatchWrapper89.verifiers[66]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_66 = _
+  simp only [publicBatchWrapper89.inner_pis_66, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_67 :
     List.ofFn (innerPis 67) = (publicBatchWrapper89.verifiers[67]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_67 = _
+  simp only [publicBatchWrapper89.inner_pis_67, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_68 :
     List.ofFn (innerPis 68) = (publicBatchWrapper89.verifiers[68]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_68 = _
+  simp only [publicBatchWrapper89.inner_pis_68, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_69 :
     List.ofFn (innerPis 69) = (publicBatchWrapper89.verifiers[69]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_69 = _
+  simp only [publicBatchWrapper89.inner_pis_69, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_70 :
     List.ofFn (innerPis 70) = (publicBatchWrapper89.verifiers[70]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_70 = _
+  simp only [publicBatchWrapper89.inner_pis_70, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_71 :
     List.ofFn (innerPis 71) = (publicBatchWrapper89.verifiers[71]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_71 = _
+  simp only [publicBatchWrapper89.inner_pis_71, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_72 :
     List.ofFn (innerPis 72) = (publicBatchWrapper89.verifiers[72]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_72 = _
+  simp only [publicBatchWrapper89.inner_pis_72, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_73 :
     List.ofFn (innerPis 73) = (publicBatchWrapper89.verifiers[73]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_73 = _
+  simp only [publicBatchWrapper89.inner_pis_73, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_74 :
     List.ofFn (innerPis 74) = (publicBatchWrapper89.verifiers[74]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_74 = _
+  simp only [publicBatchWrapper89.inner_pis_74, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_75 :
     List.ofFn (innerPis 75) = (publicBatchWrapper89.verifiers[75]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_75 = _
+  simp only [publicBatchWrapper89.inner_pis_75, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_76 :
     List.ofFn (innerPis 76) = (publicBatchWrapper89.verifiers[76]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_76 = _
+  simp only [publicBatchWrapper89.inner_pis_76, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_77 :
     List.ofFn (innerPis 77) = (publicBatchWrapper89.verifiers[77]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_77 = _
+  simp only [publicBatchWrapper89.inner_pis_77, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_78 :
     List.ofFn (innerPis 78) = (publicBatchWrapper89.verifiers[78]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_78 = _
+  simp only [publicBatchWrapper89.inner_pis_78, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_79 :
     List.ofFn (innerPis 79) = (publicBatchWrapper89.verifiers[79]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_79 = _
+  simp only [publicBatchWrapper89.inner_pis_79, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_80 :
     List.ofFn (innerPis 80) = (publicBatchWrapper89.verifiers[80]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_80 = _
+  simp only [publicBatchWrapper89.inner_pis_80, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_81 :
     List.ofFn (innerPis 81) = (publicBatchWrapper89.verifiers[81]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_81 = _
+  simp only [publicBatchWrapper89.inner_pis_81, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_82 :
     List.ofFn (innerPis 82) = (publicBatchWrapper89.verifiers[82]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_82 = _
+  simp only [publicBatchWrapper89.inner_pis_82, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_83 :
     List.ofFn (innerPis 83) = (publicBatchWrapper89.verifiers[83]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_83 = _
+  simp only [publicBatchWrapper89.inner_pis_83, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_84 :
     List.ofFn (innerPis 84) = (publicBatchWrapper89.verifiers[84]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_84 = _
+  simp only [publicBatchWrapper89.inner_pis_84, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_85 :
     List.ofFn (innerPis 85) = (publicBatchWrapper89.verifiers[85]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_85 = _
+  simp only [publicBatchWrapper89.inner_pis_85, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_86 :
     List.ofFn (innerPis 86) = (publicBatchWrapper89.verifiers[86]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_86 = _
+  simp only [publicBatchWrapper89.inner_pis_86, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_87 :
     List.ofFn (innerPis 87) = (publicBatchWrapper89.verifiers[87]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_87 = _
+  simp only [publicBatchWrapper89.inner_pis_87, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
 theorem pisEq_88 :
     List.ofFn (innerPis 88) = (publicBatchWrapper89.verifiers[88]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper89.inner_pis_88 = _
+  simp only [publicBatchWrapper89.inner_pis_88, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 
