@@ -778,11 +778,11 @@ pub fn render(shape: &Shape, exported_constants: usize) -> String {
     w!("  is restated on the wiring (`end_to_end_wired`), with the children's `Rleaf` recovered from");
     w!("  their accepted proofs through `proof_sound` and the leaf bridge");
     w!("  (Step 10). `accepted_sound` is the wrapper's own `proof_sound` consequence, on its");
-    w!("  certified build (`Plonky2Bridge/PrivateWrapperBuild.lean`), for the public-batch");
+    w!("  certified build (`Plonky2Bridge/PrivateWrapperBuild/Wrapper{n}.lean`), for the public-batch");
     w!("  wrapper above it.");
     w!("-/");
     w!("import Plonky2Bridge.PrivateBatch");
-    w!("import Plonky2Bridge.PrivateWrapperBuild");
+    w!("import Plonky2Bridge.PrivateWrapperBuild.Wrapper{n}");
     w!("import Plonky2Bridge.Generated.Leaf");
     w!("import Plonky2Spec.Generated.PrivateBatchWrapper{n}");
     w!("");
@@ -804,7 +804,7 @@ pub fn render(shape: &Shape, exported_constants: usize) -> String {
     w!("/-! ### Reading the spec objects off the wiring -/");
     w!("");
     w!("/-- The 4-felt dummy-nullifier preimage of leaf `i` (`dummy_pre_image_i`). -/");
-    w!("def preimage : Fin {n} → Fin 4 → Target");
+    w!("noncomputable def preimage : Fin {n} → Fin 4 → Target");
     for i in 0..n {
         w!("  | {i} => {circuit}.dummy_pre_image_{i}");
     }
@@ -812,7 +812,7 @@ pub fn render(shape: &Shape, exported_constants: usize) -> String {
     w!("/-- The field wires of leaf `i` the wrapper reads, with the `is_equal` witnesses of its");
     w!("    `bytes_digest_eq(block_hash, 0)` dummy check, its preimage and the outer dummy-hash");
     w!("    output. -/");
-    w!("def row (a : Assignment p) : Fin {n} → LeafRow p");
+    w!("noncomputable def row (a : Assignment p) : Fin {n} → LeafRow p");
     for (i, leaf) in leaves.iter().enumerate() {
         let (eqs, invs): (Vec<Target>, Vec<Target>) = leaf
             .dummy
@@ -843,20 +843,20 @@ pub fn render(shape: &Shape, exported_constants: usize) -> String {
     w!("");
     let row_list: Vec<String> = (0..n).map(|i| format!("row a {i}")).collect();
     w!(
-        "def rows (a : Assignment p) : List (LeafRow p) := [{}]",
+        "noncomputable def rows (a : Assignment p) : List (LeafRow p) := [{}]",
         row_list.join(", ")
     );
     let leaf_list: Vec<String> = (0..n).map(|i| format!("(row a {i}).leaf")).collect();
     w!("");
     w!("/-- The {n} children, decoded through `.val`. -/");
     w!(
-        "def leaves (a : Assignment p) : List LeafPublic := [{}]",
+        "noncomputable def leaves (a : Assignment p) : List LeafPublic := [{}]",
         leaf_list.join(", ")
     );
     let u_list: Vec<String> = (0..n).map(|i| format!("(row a {i}).u")).collect();
     w!("/-- The {n} dummy-nullifier preimages, decoded through `.val`. -/");
     w!(
-        "def us (a : Assignment p) : List (List Felt) := [{}]",
+        "noncomputable def us (a : Assignment p) : List (List Felt) := [{}]",
         u_list.join(", ")
     );
     w!("");
@@ -871,11 +871,11 @@ pub fn render(shape: &Shape, exported_constants: usize) -> String {
         .map(|slot| format!("({}, {})", a(slot.amount), digest_fun(&slot.account)))
         .collect();
     w!("/-- The {m} witnessed exit slots `(exit_amount_k, exit_account_k)`. -/");
-    w!("def slots (a : Assignment p) : List (SlotF p) :=");
+    w!("noncomputable def slots (a : Assignment p) : List (SlotF p) :=");
     w!("  [{}]", slot_list.join(",\n   "));
     w!("");
     w!("/-- Public input `k` of the wrapper, decoded through `.val`. -/");
-    w!("def pv (a : Assignment p) (k : ℕ) : Felt :=");
+    w!("noncomputable def pv (a : Assignment p) (k : ℕ) : Felt :=");
     w!("  (a (({circuit} p).publicInputs.getD k (.virt 0))).val");
     w!("");
     let header = layout::HEADER_LEN;
@@ -901,7 +901,7 @@ pub fn render(shape: &Shape, exported_constants: usize) -> String {
     w!("/-- The aggregated output at the `aggregated_output` layout: header `[num_exit_slots,");
     w!("    asset_id, volume_fee_bps, block_hash(4), block_number]`, `M = {m}` exit slots");
     w!("    `[amount, account(4)]`, `N = {n}` nullifiers. -/");
-    w!("def out (a : Assignment p) : PrivateBatchOutput :=");
+    w!("noncomputable def out (a : Assignment p) : PrivateBatchOutput :=");
     w!("  {{ numExitSlots := pv a 0, assetId := pv a 1, volumeFeeBps := pv a 2,");
     w!("    blockHash := ⟨pv a 3, pv a 4, pv a 5, pv a 6⟩, blockNumber := pv a 7,");
     w!("    exitSlots := [{}],", slot_pvs.join(",\n      "));
@@ -1357,7 +1357,7 @@ pub fn render(shape: &Shape, exported_constants: usize) -> String {
     w!("  exact ⟨hR, RPrivateBatch_settlement_le_input hR, RPrivateBatch_settles_distinct_spends hR, hleaf⟩");
     w!("");
     w!("/-- The {pi_total} public inputs in registration order. -/");
-    w!("def pi : Fin {pi_total} → Target :=");
+    w!("noncomputable def pi : Fin {pi_total} → Target :=");
     let pi_items: Vec<String> = shape
         .public_inputs
         .iter()
@@ -1370,7 +1370,7 @@ pub fn render(shape: &Shape, exported_constants: usize) -> String {
     w!("theorem publicInputs_eq : ({circuit} p).publicInputs = List.ofFn pi := rfl");
     w!("");
     w!("/-- `out` as a function of the public-input values alone. -/");
-    w!("def outOf (v : Fin {pi_total} → ZMod p) : PrivateBatchOutput :=");
+    w!("noncomputable def outOf (v : Fin {pi_total} → ZMod p) : PrivateBatchOutput :=");
     let vv = |k: usize| format!("(v {k}).val");
     let slot_vs: Vec<String> = (0..m)
         .map(|k| {

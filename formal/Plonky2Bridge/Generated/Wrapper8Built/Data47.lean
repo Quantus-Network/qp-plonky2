@@ -26,8 +26,65 @@ set_option Elab.async false
 
 variable {p : ℕ}
 
+/-- `rowKinds`, items `13184..13312`. -/
+noncomputable def rowKinds103 : List (GateKind) := [
+    .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
+    .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
+    .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }",
+    .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }",
+    .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }"]
+
+/-- `rowKinds`, items `13312..13440`. -/
+noncomputable def rowKinds104 : List (GateKind) := [
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }",
+    .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }"]
+
+/-- `rowKinds`, items `13440..13568`. -/
+noncomputable def rowKinds105 : List (GateKind) := [
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }",
+    .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }",
+    .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>",
+    .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>"]
+
 /-- `rowKinds`, items `13568..13696`. -/
-def rowKinds106 : List (GateKind) := [
+noncomputable def rowKinds106 : List (GateKind) := [
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }",
     .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }",
     .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
@@ -46,7 +103,7 @@ def rowKinds106 : List (GateKind) := [
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }"]
 
 /-- `rowKinds`, items `13696..13824`. -/
-def rowKinds107 : List (GateKind) := [
+noncomputable def rowKinds107 : List (GateKind) := [
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }",
     .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }",
     .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }",
@@ -65,7 +122,7 @@ def rowKinds107 : List (GateKind) := [
     .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "CosetInterpolationGate { subgroup_bits: 4, degree: 6, barycentric_weights: [17293822565076172801, 256, 1048576, 4294967296, 17592186044416, 72057594037927936, 68719476720, 281474976645120, 1152921504338411520, 18446744069414584065, 18446744069413535745, 18446744065119617025, 18446726477228539905, 18374686475376656385, 18446744000695107601, 18446462594437939201], _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>"]
 
 /-- `rowKinds`, items `13824..13952`. -/
-def rowKinds108 : List (GateKind) := [
+noncomputable def rowKinds108 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "ReducingExtensionGate { num_coeffs: 27 }", .baseSum2 59, .baseSum2 59, .arithmetic 15, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -84,7 +141,7 @@ def rowKinds108 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `13952..14080`. -/
-def rowKinds109 : List (GateKind) := [
+noncomputable def rowKinds109 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>",
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -103,7 +160,7 @@ def rowKinds109 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `14080..14208`. -/
-def rowKinds110 : List (GateKind) := [
+noncomputable def rowKinds110 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon,
@@ -122,7 +179,7 @@ def rowKinds110 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `14208..14336`. -/
-def rowKinds111 : List (GateKind) := [
+noncomputable def rowKinds111 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }",
     .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "CosetInterpolationGate { subgroup_bits: 4, degree: 6, barycentric_weights: [17293822565076172801, 256, 1048576, 4294967296, 17592186044416, 72057594037927936, 68719476720, 281474976645120, 1152921504338411520, 18446744069414584065, 18446744069413535745, 18446744065119617025, 18446726477228539905, 18374686475376656385, 18446744000695107601, 18446462594437939201], _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon,
@@ -141,7 +198,7 @@ def rowKinds111 : List (GateKind) := [
     .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .arithmetic 15, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "CosetInterpolationGate { subgroup_bits: 4, degree: 6, barycentric_weights: [17293822565076172801, 256, 1048576, 4294967296, 17592186044416, 72057594037927936, 68719476720, 281474976645120, 1152921504338411520, 18446744069414584065, 18446744069413535745, 18446744065119617025, 18446726477228539905, 18374686475376656385, 18446744000695107601, 18446462594437939201], _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `14336..14464`. -/
-def rowKinds112 : List (GateKind) := [
+noncomputable def rowKinds112 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>",
     .other "ReducingExtensionGate { num_coeffs: 27 }", .baseSum2 59, .baseSum2 59, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -160,7 +217,7 @@ def rowKinds112 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `14464..14592`. -/
-def rowKinds113 : List (GateKind) := [
+noncomputable def rowKinds113 : List (GateKind) := [
     .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -179,7 +236,7 @@ def rowKinds113 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `14592..14720`. -/
-def rowKinds114 : List (GateKind) := [
+noncomputable def rowKinds114 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon,
@@ -198,7 +255,7 @@ def rowKinds114 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `14720..14848`. -/
-def rowKinds115 : List (GateKind) := [
+noncomputable def rowKinds115 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }",
     .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "MulExtensionGate { num_ops: 10 }", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>",
     .other "CosetInterpolationGate { subgroup_bits: 4, degree: 6, barycentric_weights: [17293822565076172801, 256, 1048576, 4294967296, 17592186044416, 72057594037927936, 68719476720, 281474976645120, 1152921504338411520, 18446744069414584065, 18446744069413535745, 18446744065119617025, 18446726477228539905, 18374686475376656385, 18446744000695107601, 18446462594437939201], _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -217,7 +274,7 @@ def rowKinds115 : List (GateKind) := [
     .arithmetic 15, .arithmetic 15, .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }"]
 
 /-- `rowKinds`, items `14848..14976`. -/
-def rowKinds116 : List (GateKind) := [
+noncomputable def rowKinds116 : List (GateKind) := [
     .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .arithmetic 15, .arithmetic 15, .arithmetic 15,
     .other "CosetInterpolationGate { subgroup_bits: 4, degree: 6, barycentric_weights: [17293822565076172801, 256, 1048576, 4294967296, 17592186044416, 72057594037927936, 68719476720, 281474976645120, 1152921504338411520, 18446744069414584065, 18446744069413535745, 18446744065119617025, 18446726477228539905, 18374686475376656385, 18446744000695107601, 18446462594437939201], _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "ReducingExtensionGate { num_coeffs: 27 }", .baseSum2 59, .baseSum2 59,
@@ -236,7 +293,7 @@ def rowKinds116 : List (GateKind) := [
     .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "ReducingExtensionGate { num_coeffs: 27 }", .baseSum2 59, .baseSum2 59, .arithmetic 15, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `14976..15104`. -/
-def rowKinds117 : List (GateKind) := [
+noncomputable def rowKinds117 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -255,7 +312,7 @@ def rowKinds117 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `15104..15232`. -/
-def rowKinds118 : List (GateKind) := [
+noncomputable def rowKinds118 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -274,7 +331,7 @@ def rowKinds118 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `15232..15360`. -/
-def rowKinds119 : List (GateKind) := [
+noncomputable def rowKinds119 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }",
@@ -293,7 +350,7 @@ def rowKinds119 : List (GateKind) := [
     .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }"]
 
 /-- `rowKinds`, items `15360..15488`. -/
-def rowKinds120 : List (GateKind) := [
+noncomputable def rowKinds120 : List (GateKind) := [
     .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "CosetInterpolationGate { subgroup_bits: 4, degree: 6, barycentric_weights: [17293822565076172801, 256, 1048576, 4294967296, 17592186044416, 72057594037927936, 68719476720, 281474976645120, 1152921504338411520, 18446744069414584065, 18446744069413535745, 18446744065119617025, 18446726477228539905, 18374686475376656385, 18446744000695107601, 18446462594437939201], _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "ReducingExtensionGate { num_coeffs: 27 }",
     .baseSum2 59, .baseSum2 59, .arithmetic 15, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -312,7 +369,7 @@ def rowKinds120 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `15488..15616`. -/
-def rowKinds121 : List (GateKind) := [
+noncomputable def rowKinds121 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -331,7 +388,7 @@ def rowKinds121 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `15616..15744`. -/
-def rowKinds122 : List (GateKind) := [
+noncomputable def rowKinds122 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -350,7 +407,7 @@ def rowKinds122 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `15744..15872`. -/
-def rowKinds123 : List (GateKind) := [
+noncomputable def rowKinds123 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -369,7 +426,7 @@ def rowKinds123 : List (GateKind) := [
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }"]
 
 /-- `rowKinds`, items `15872..16000`. -/
-def rowKinds124 : List (GateKind) := [
+noncomputable def rowKinds124 : List (GateKind) := [
     .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
@@ -388,7 +445,7 @@ def rowKinds124 : List (GateKind) := [
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }"]
 
 /-- `rowKinds`, items `16000..16128`. -/
-def rowKinds125 : List (GateKind) := [
+noncomputable def rowKinds125 : List (GateKind) := [
     .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
     .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
@@ -407,7 +464,7 @@ def rowKinds125 : List (GateKind) := [
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>"]
 
 /-- `rowKinds`, items `16128..16256`. -/
-def rowKinds126 : List (GateKind) := [
+noncomputable def rowKinds126 : List (GateKind) := [
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>",
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }",
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }",
@@ -426,7 +483,7 @@ def rowKinds126 : List (GateKind) := [
     .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }"]
 
 /-- `rowKinds`, items `16256..16384`. -/
-def rowKinds127 : List (GateKind) := [
+noncomputable def rowKinds127 : List (GateKind) := [
     .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
@@ -445,7 +502,7 @@ def rowKinds127 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon]
 
 /-- `rowKinds`, items `16384..16512`. -/
-def rowKinds128 : List (GateKind) := [
+noncomputable def rowKinds128 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }",
     .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "MulExtensionGate { num_ops: 10 }", .other "CosetInterpolationGate { subgroup_bits: 4, degree: 6, barycentric_weights: [17293822565076172801, 256, 1048576, 4294967296, 17592186044416, 72057594037927936, 68719476720, 281474976645120, 1152921504338411520, 18446744069414584065, 18446744069413535745, 18446744065119617025, 18446726477228539905, 18374686475376656385, 18446744000695107601, 18446462594437939201], _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>",
@@ -464,7 +521,7 @@ def rowKinds128 : List (GateKind) := [
     .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .arithmetic 15, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "CosetInterpolationGate { subgroup_bits: 4, degree: 6, barycentric_weights: [17293822565076172801, 256, 1048576, 4294967296, 17592186044416, 72057594037927936, 68719476720, 281474976645120, 1152921504338411520, 18446744069414584065, 18446744069413535745, 18446744065119617025, 18446726477228539905, 18374686475376656385, 18446744000695107601, 18446462594437939201], _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>"]
 
 /-- `rowKinds`, items `16512..16640`. -/
-def rowKinds129 : List (GateKind) := [
+noncomputable def rowKinds129 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "ReducingExtensionGate { num_coeffs: 27 }", .baseSum2 59, .baseSum2 59, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -483,7 +540,7 @@ def rowKinds129 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `16640..16768`. -/
-def rowKinds130 : List (GateKind) := [
+noncomputable def rowKinds130 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -502,7 +559,7 @@ def rowKinds130 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `16768..16896`. -/
-def rowKinds131 : List (GateKind) := [
+noncomputable def rowKinds131 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>",
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon,
@@ -521,7 +578,7 @@ def rowKinds131 : List (GateKind) := [
     .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `16896..17024`. -/
-def rowKinds132 : List (GateKind) := [
+noncomputable def rowKinds132 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }",
     .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
     .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "CosetInterpolationGate { subgroup_bits: 4, degree: 6, barycentric_weights: [17293822565076172801, 256, 1048576, 4294967296, 17592186044416, 72057594037927936, 68719476720, 281474976645120, 1152921504338411520, 18446744069414584065, 18446744069413535745, 18446744065119617025, 18446726477228539905, 18374686475376656385, 18446744000695107601, 18446462594437939201], _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon,
@@ -540,7 +597,7 @@ def rowKinds132 : List (GateKind) := [
     .arithmetic 15, .arithmetic 15, .arithmetic 15, .arithmetic 15, .arithmetic 15, .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }"]
 
 /-- `rowKinds`, items `17024..17152`. -/
-def rowKinds133 : List (GateKind) := [
+noncomputable def rowKinds133 : List (GateKind) := [
     .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .arithmetic 15,
     .arithmetic 15, .arithmetic 15, .other "CosetInterpolationGate { subgroup_bits: 4, degree: 6, barycentric_weights: [17293822565076172801, 256, 1048576, 4294967296, 17592186044416, 72057594037927936, 68719476720, 281474976645120, 1152921504338411520, 18446744069414584065, 18446744069413535745, 18446744065119617025, 18446726477228539905, 18374686475376656385, 18446744000695107601, 18446462594437939201], _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "ReducingExtensionGate { num_coeffs: 27 }",
@@ -559,7 +616,7 @@ def rowKinds133 : List (GateKind) := [
     .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "ReducingExtensionGate { num_coeffs: 27 }", .baseSum2 59, .baseSum2 59, .arithmetic 15, .poseidon]
 
 /-- `rowKinds`, items `17152..17280`. -/
-def rowKinds134 : List (GateKind) := [
+noncomputable def rowKinds134 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -578,7 +635,7 @@ def rowKinds134 : List (GateKind) := [
     .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `17280..17408`. -/
-def rowKinds135 : List (GateKind) := [
+noncomputable def rowKinds135 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon,
@@ -597,7 +654,7 @@ def rowKinds135 : List (GateKind) := [
     .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `17408..17536`. -/
-def rowKinds136 : List (GateKind) := [
+noncomputable def rowKinds136 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }",
@@ -616,7 +673,7 @@ def rowKinds136 : List (GateKind) := [
     .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .arithmetic 15, .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }"]
 
 /-- `rowKinds`, items `17536..17664`. -/
-def rowKinds137 : List (GateKind) := [
+noncomputable def rowKinds137 : List (GateKind) := [
     .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "CosetInterpolationGate { subgroup_bits: 4, degree: 6, barycentric_weights: [17293822565076172801, 256, 1048576, 4294967296, 17592186044416, 72057594037927936, 68719476720, 281474976645120, 1152921504338411520, 18446744069414584065, 18446744069413535745, 18446744065119617025, 18446726477228539905, 18374686475376656385, 18446744000695107601, 18446462594437939201], _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>",
     .other "ReducingExtensionGate { num_coeffs: 27 }", .baseSum2 59, .baseSum2 59, .arithmetic 15, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -635,7 +692,7 @@ def rowKinds137 : List (GateKind) := [
     .other "ReducingExtensionGate { num_coeffs: 27 }", .baseSum2 59, .baseSum2 59, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `17664..17792`. -/
-def rowKinds138 : List (GateKind) := [
+noncomputable def rowKinds138 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -654,7 +711,7 @@ def rowKinds138 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `17792..17920`. -/
-def rowKinds139 : List (GateKind) := [
+noncomputable def rowKinds139 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>",
     .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -673,7 +730,7 @@ def rowKinds139 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `17920..18048`. -/
-def rowKinds140 : List (GateKind) := [
+noncomputable def rowKinds140 : List (GateKind) := [
     .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>",
     .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }",
@@ -692,7 +749,7 @@ def rowKinds140 : List (GateKind) := [
     .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }"]
 
 /-- `rowKinds`, items `18048..18176`. -/
-def rowKinds141 : List (GateKind) := [
+noncomputable def rowKinds141 : List (GateKind) := [
     .arithmetic 15, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "CosetInterpolationGate { subgroup_bits: 4, degree: 6, barycentric_weights: [17293822565076172801, 256, 1048576, 4294967296, 17592186044416, 72057594037927936, 68719476720, 281474976645120, 1152921504338411520, 18446744069414584065, 18446744069413535745, 18446744065119617025, 18446726477228539905, 18374686475376656385, 18446744000695107601, 18446462594437939201], _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "ReducingExtensionGate { num_coeffs: 27 }", .baseSum2 59,
     .baseSum2 59, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -711,7 +768,7 @@ def rowKinds141 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `18176..18304`. -/
-def rowKinds142 : List (GateKind) := [
+noncomputable def rowKinds142 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -730,7 +787,7 @@ def rowKinds142 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `18304..18432`. -/
-def rowKinds143 : List (GateKind) := [
+noncomputable def rowKinds143 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -749,7 +806,7 @@ def rowKinds143 : List (GateKind) := [
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }"]
 
 /-- `rowKinds`, items `18432..18560`. -/
-def rowKinds144 : List (GateKind) := [
+noncomputable def rowKinds144 : List (GateKind) := [
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }",
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }",
@@ -768,7 +825,7 @@ def rowKinds144 : List (GateKind) := [
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }"]
 
 /-- `rowKinds`, items `18560..18688`. -/
-def rowKinds145 : List (GateKind) := [
+noncomputable def rowKinds145 : List (GateKind) := [
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }",
@@ -787,7 +844,7 @@ def rowKinds145 : List (GateKind) := [
     .other "MulExtensionGate { num_ops: 10 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }"]
 
 /-- `rowKinds`, items `18688..18816`. -/
-def rowKinds146 : List (GateKind) := [
+noncomputable def rowKinds146 : List (GateKind) := [
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>",
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>",
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "PoseidonMdsGate(PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField>)<WIDTH=12>", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
@@ -806,7 +863,7 @@ def rowKinds146 : List (GateKind) := [
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }"]
 
 /-- `rowKinds`, items `18816..18944`. -/
-def rowKinds147 : List (GateKind) := [
+noncomputable def rowKinds147 : List (GateKind) := [
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }",
     .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }",
     .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "MulExtensionGate { num_ops: 10 }",
@@ -825,7 +882,7 @@ def rowKinds147 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `18944..19072`. -/
-def rowKinds148 : List (GateKind) := [
+noncomputable def rowKinds148 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>",
@@ -844,7 +901,7 @@ def rowKinds148 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `19072..19200`. -/
-def rowKinds149 : List (GateKind) := [
+noncomputable def rowKinds149 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }",
     .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "MulExtensionGate { num_ops: 10 }", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "CosetInterpolationGate { subgroup_bits: 4, degree: 6, barycentric_weights: [17293822565076172801, 256, 1048576, 4294967296, 17592186044416, 72057594037927936, 68719476720, 281474976645120, 1152921504338411520, 18446744069414584065, 18446744069413535745, 18446744065119617025, 18446726477228539905, 18374686475376656385, 18446744000695107601, 18446462594437939201], _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon,
@@ -863,7 +920,7 @@ def rowKinds149 : List (GateKind) := [
     .arithmetic 15, .arithmetic 15, .arithmetic 15, .arithmetic 15, .arithmetic 15, .arithmetic 15, .arithmetic 15, .arithmetic 15]
 
 /-- `rowKinds`, items `19200..19328`. -/
-def rowKinds150 : List (GateKind) := [
+noncomputable def rowKinds150 : List (GateKind) := [
     .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }",
     .other "ReducingExtensionGate { num_coeffs: 27 }", .arithmetic 15, .arithmetic 15, .arithmetic 15, .other "CosetInterpolationGate { subgroup_bits: 4, degree: 6, barycentric_weights: [17293822565076172801, 256, 1048576, 4294967296, 17592186044416, 72057594037927936, 68719476720, 281474976645120, 1152921504338411520, 18446744069414584065, 18446744069413535745, 18446744065119617025, 18446726477228539905, 18374686475376656385, 18446744000695107601, 18446462594437939201], _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>",
@@ -882,7 +939,7 @@ def rowKinds150 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "ReducingExtensionGate { num_coeffs: 27 }", .baseSum2 59]
 
 /-- `rowKinds`, items `19328..19456`. -/
-def rowKinds151 : List (GateKind) := [
+noncomputable def rowKinds151 : List (GateKind) := [
     .baseSum2 59, .arithmetic 15, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon,
@@ -901,7 +958,7 @@ def rowKinds151 : List (GateKind) := [
     .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `19456..19584`. -/
-def rowKinds152 : List (GateKind) := [
+noncomputable def rowKinds152 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon,
@@ -920,7 +977,7 @@ def rowKinds152 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `19584..19712`. -/
-def rowKinds153 : List (GateKind) := [
+noncomputable def rowKinds153 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "ReducingExtensionGate { num_coeffs: 27 }",
@@ -939,7 +996,7 @@ def rowKinds153 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .arithmetic 15, .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }"]
 
 /-- `rowKinds`, items `19712..19840`. -/
-def rowKinds154 : List (GateKind) := [
+noncomputable def rowKinds154 : List (GateKind) := [
     .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>",
     .other "CosetInterpolationGate { subgroup_bits: 4, degree: 6, barycentric_weights: [17293822565076172801, 256, 1048576, 4294967296, 17592186044416, 72057594037927936, 68719476720, 281474976645120, 1152921504338411520, 18446744069414584065, 18446744069413535745, 18446744065119617025, 18446726477228539905, 18374686475376656385, 18446744000695107601, 18446462594437939201], _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "ReducingExtensionGate { num_coeffs: 27 }", .baseSum2 59, .baseSum2 59, .arithmetic 15,
@@ -958,7 +1015,7 @@ def rowKinds154 : List (GateKind) := [
     .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "ReducingExtensionGate { num_coeffs: 27 }", .baseSum2 59, .baseSum2 59, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `19840..19968`. -/
-def rowKinds155 : List (GateKind) := [
+noncomputable def rowKinds155 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>",
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -977,7 +1034,7 @@ def rowKinds155 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `19968..20096`. -/
-def rowKinds156 : List (GateKind) := [
+noncomputable def rowKinds156 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -996,7 +1053,7 @@ def rowKinds156 : List (GateKind) := [
     .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `20096..20224`. -/
-def rowKinds157 : List (GateKind) := [
+noncomputable def rowKinds157 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }",
@@ -1015,7 +1072,7 @@ def rowKinds157 : List (GateKind) := [
     .arithmetic 15, .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }"]
 
 /-- `rowKinds`, items `20224..20352`. -/
-def rowKinds158 : List (GateKind) := [
+noncomputable def rowKinds158 : List (GateKind) := [
     .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .arithmetic 15, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "CosetInterpolationGate { subgroup_bits: 4, degree: 6, barycentric_weights: [17293822565076172801, 256, 1048576, 4294967296, 17592186044416, 72057594037927936, 68719476720, 281474976645120, 1152921504338411520, 18446744069414584065, 18446744069413535745, 18446744065119617025, 18446726477228539905, 18374686475376656385, 18446744000695107601, 18446462594437939201], _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "ReducingExtensionGate { num_coeffs: 27 }", .baseSum2 59, .baseSum2 59, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -1034,7 +1091,7 @@ def rowKinds158 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `20352..20480`. -/
-def rowKinds159 : List (GateKind) := [
+noncomputable def rowKinds159 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -1053,7 +1110,7 @@ def rowKinds159 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `20480..20608`. -/
-def rowKinds160 : List (GateKind) := [
+noncomputable def rowKinds160 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -1072,7 +1129,7 @@ def rowKinds160 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon]
 
 /-- `rowKinds`, items `20608..20736`. -/
-def rowKinds161 : List (GateKind) := [
+noncomputable def rowKinds161 : List (GateKind) := [
     .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }",
     .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "MulExtensionGate { num_ops: 10 }",
@@ -1091,7 +1148,7 @@ def rowKinds161 : List (GateKind) := [
     .arithmetic 15, .arithmetic 15, .arithmetic 15, .arithmetic 15, .arithmetic 15, .arithmetic 15, .arithmetic 15, .arithmetic 15]
 
 /-- `rowKinds`, items `20736..20864`. -/
-def rowKinds162 : List (GateKind) := [
+noncomputable def rowKinds162 : List (GateKind) := [
     .arithmetic 15, .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }",
     .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ReducingExtensionGate { num_coeffs: 27 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .other "ArithmeticExtensionGate { num_ops: 7 }", .arithmetic 15, .arithmetic 15, .arithmetic 15, .other "CosetInterpolationGate { subgroup_bits: 4, degree: 6, barycentric_weights: [17293822565076172801, 256, 1048576, 4294967296, 17592186044416, 72057594037927936, 68719476720, 281474976645120, 1152921504338411520, 18446744069414584065, 18446744069413535745, 18446744065119617025, 18446726477228539905, 18374686475376656385, 18446744000695107601, 18446462594437939201], _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>",
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon,
@@ -1110,10 +1167,10 @@ def rowKinds162 : List (GateKind) := [
     .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .poseidon, .other "RandomAccessGate { bits: 4, num_copies: 3, num_extra_constants: 2, _phantom: PhantomData<qp_plonky2_field::goldilocks_field::GoldilocksField> }<D=2>", .other "ReducingExtensionGate { num_coeffs: 27 }"]
 
 /-- The export's constant targets, in its order. -/
-def constTargets : List Target := [.virt 283, .virt 412, .virt 11, .virt 12, .virt 637, .virt 638, .virt 647, .virt 648, .virt 649, .virt 650, .virt 651, .virt 652, .virt 653, .virt 654, .virt 655, .virt 656, .virt 639, .virt 657, .virt 658, .virt 659, .virt 660, .virt 661, .virt 662, .virt 663, .virt 664, .virt 665, .virt 666, .virt 640, .virt 667, .virt 668, .virt 669, .virt 670, .virt 671, .virt 672, .virt 673, .virt 674, .virt 675, .virt 676, .virt 641, .virt 677, .virt 678, .virt 679, .virt 680, .virt 681, .virt 682, .virt 683, .virt 684, .virt 685, .virt 686, .virt 642, .virt 687, .virt 688, .virt 689, .virt 690, .virt 691, .virt 692, .virt 693, .virt 694, .virt 695, .virt 696, .virt 643, .virt 697, .virt 698, .virt 699, .virt 700, .virt 701, .virt 702, .virt 703, .virt 704, .virt 644, .virt 645, .virt 646, .virt 9953, .virt 9954, .virt 9955, .virt 9956, .virt 9957, .virt 9958, .virt 9959, .virt 9960, .virt 9961, .virt 9962, .virt 9963, .virt 9964, .virt 9965, .virt 9966, .virt 9967, .virt 9968, .virt 9969, .virt 9970, .virt 9971, .virt 9972, .virt 9973, .virt 9974, .virt 9975, .virt 9976, .virt 9977, .virt 9978, .virt 9979, .virt 9980, .virt 9981, .virt 9982, .virt 9983, .virt 9984, .virt 9985, .virt 9986, .virt 9987, .virt 9988, .virt 9989, .virt 9990, .virt 9991, .virt 9992, .virt 9993, .virt 9994, .virt 9995, .virt 9996, .virt 9997, .virt 9998, .virt 9999, .virt 10000, .virt 10001, .virt 10002, .virt 10003, .virt 10004, .virt 10005, .virt 10006, .virt 10007, .virt 10008, .virt 10009, .virt 10010, .virt 10011, .virt 10012, .virt 10013, .virt 10014, .virt 10015, .virt 10016, .virt 10017, .virt 10018, .virt 10019, .virt 10020, .virt 10021, .virt 10022, .virt 10023, .virt 10024, .virt 10025, .virt 10026, .virt 10027, .virt 10028, .virt 10029, .virt 10030, .virt 10031, .virt 10032, .virt 10033, .virt 10034, .virt 10035, .virt 10036, .virt 10037, .virt 10038, .virt 10039, .virt 10040, .virt 10041, .virt 10042, .virt 10043, .virt 10044, .virt 10045, .virt 10046, .virt 10047, .virt 10048, .virt 10049, .virt 10050, .virt 10051, .virt 10052, .virt 10053, .virt 10054, .virt 10055, .virt 10056, .virt 10057, .virt 10058, .virt 10059, .virt 10060, .virt 10061, .virt 10062, .virt 10063, .virt 10064, .virt 10065, .virt 10066, .virt 10067, .virt 10068, .virt 10069, .virt 10070, .virt 10071, .virt 10072, .virt 10073, .virt 10074, .virt 10075, .virt 10076, .virt 10077, .virt 10078, .virt 10079, .virt 10080, .virt 10081, .virt 10082, .virt 10083, .virt 10084, .virt 10085, .virt 10086, .virt 10087, .virt 10088, .virt 10089, .virt 10090, .virt 10091, .virt 10092, .virt 10093, .virt 10094, .virt 10095, .virt 10096, .virt 10097, .virt 10098, .virt 10099, .virt 10100, .virt 10101, .virt 10102, .virt 10103, .virt 10104, .virt 10105, .virt 10106, .virt 10107, .virt 10108, .virt 10109, .virt 10110, .virt 10111, .virt 10112, .virt 10113, .virt 10114, .virt 10115, .virt 10116, .virt 10117, .virt 10118, .virt 10119, .virt 10120, .virt 10121, .virt 10122, .virt 10123, .virt 10124, .virt 10125, .virt 10126, .virt 10127, .virt 10128, .virt 10129, .virt 10130, .virt 10131, .virt 10132, .virt 10133, .virt 10134, .virt 10135, .virt 10136, .virt 10137, .virt 10138, .virt 10139, .virt 10140, .virt 10141, .virt 10142, .virt 10143, .virt 10144, .virt 10145, .virt 10146, .virt 10147, .virt 10148, .virt 10149, .virt 10150, .virt 10151, .virt 10152, .virt 10153, .virt 10154, .virt 10155, .virt 10156, .virt 10157, .virt 10158, .virt 10159, .virt 10160, .virt 10161, .virt 10162, .virt 10163, .virt 10164, .virt 10165, .virt 10166, .virt 10167, .virt 10168, .virt 10169, .virt 10170, .virt 10171, .virt 10172, .virt 10173, .virt 10174, .virt 10175, .virt 10176, .virt 10177, .virt 10178, .virt 10179, .virt 10180, .virt 10181, .virt 10182, .virt 10183, .virt 10184, .virt 10185, .virt 10186, .virt 10187, .virt 10188, .virt 10189, .virt 10190, .virt 10191, .virt 10192, .virt 10193, .virt 10194, .virt 10195, .virt 10196, .virt 10197, .virt 10198, .virt 10199, .virt 10200, .virt 10201, .virt 10202, .virt 10203, .virt 10204, .virt 10205, .virt 10206, .virt 10207, .virt 10208, .virt 10209, .virt 10210, .virt 10211, .virt 10212, .virt 10213, .virt 10214, .virt 10215, .virt 10216, .virt 10217, .virt 10218, .virt 10219, .virt 10220, .virt 10221, .virt 10222, .virt 10223, .virt 10224, .virt 10225, .virt 10226, .virt 10227, .virt 10228, .virt 10229, .virt 10230, .virt 10231, .virt 10232, .virt 10233, .virt 10234, .virt 10235, .virt 10236, .virt 10237, .virt 10238, .virt 10239, .virt 10240, .virt 10241, .virt 10242, .virt 10243, .virt 10244, .virt 10245, .virt 10246, .virt 10247, .virt 10248, .virt 10249, .virt 10250, .virt 10251, .virt 10252, .virt 10253, .virt 10254, .virt 10255, .virt 10256, .virt 10257, .virt 10258, .virt 10259, .virt 10260, .virt 10261, .virt 10262, .virt 10263, .virt 10264, .virt 10265, .virt 10266, .virt 10267, .virt 10268, .virt 10269, .virt 10270, .virt 10271, .virt 10272, .virt 10273, .virt 10274, .virt 10275, .virt 10276, .virt 10277, .virt 10278, .virt 10279, .virt 10280, .virt 10281, .virt 10282, .virt 10283, .virt 10284, .virt 10285, .virt 10286, .virt 10287, .virt 10288, .virt 10289, .virt 10290, .virt 10291, .virt 10292, .virt 10293, .virt 10294, .virt 10295, .virt 10296, .virt 10297, .virt 10298, .virt 10299, .virt 10300, .virt 10301, .virt 10302, .virt 10303, .virt 10304, .virt 10305, .virt 10306, .virt 10307, .virt 10308, .virt 10309, .virt 10310, .virt 10311, .virt 10312, .virt 10313, .virt 10314, .virt 10315, .virt 10316, .virt 10317, .virt 10318, .virt 10319, .virt 10320, .virt 10321, .virt 10322, .virt 10323, .virt 10324, .virt 10325, .virt 10326, .virt 10327, .virt 10328, .virt 10329, .virt 10330, .virt 10331, .virt 10332, .virt 10333, .virt 10334, .virt 10335, .virt 10336, .virt 10337, .virt 10338, .virt 10339, .virt 10340, .virt 10341, .virt 10342, .virt 10343, .virt 10344, .virt 10345, .virt 10346, .virt 10347, .virt 10348, .virt 10349, .virt 10350, .virt 10351, .virt 10352, .virt 10353, .virt 10354, .virt 10355, .virt 10356, .virt 10357, .virt 10358, .virt 10359, .virt 10360, .virt 10361, .virt 10362, .virt 10363, .virt 10364, .virt 10365, .virt 10366, .virt 10367, .virt 10368, .virt 10369, .virt 10370, .virt 10371, .virt 10372, .virt 10373, .virt 10374, .virt 10375, .virt 10376, .virt 10377, .virt 10378, .virt 10379, .virt 10380, .virt 10381, .virt 10382, .virt 10383, .virt 10384, .virt 10385, .virt 10386, .virt 10387, .virt 10388, .virt 10389, .virt 10390, .virt 10391, .virt 10392, .virt 10393, .virt 10394, .virt 10395, .virt 10396, .virt 10397, .virt 10398, .virt 10399, .virt 10400, .virt 10401, .virt 10402, .virt 10403, .virt 10404, .virt 10405, .virt 10406, .virt 10407, .virt 10408, .virt 10409, .virt 10410, .virt 10411, .virt 10412, .virt 10413, .virt 10414, .virt 10415, .virt 10416, .virt 10417, .virt 10418, .virt 10419, .virt 10420, .virt 10421, .virt 10422, .virt 10423, .virt 10424, .virt 10425, .virt 10426, .virt 10427, .virt 10428, .virt 10429, .virt 10430, .virt 10431, .virt 10432, .virt 10433, .virt 10434, .virt 10435, .virt 10436, .virt 10437, .virt 10438, .virt 10439, .virt 10440, .virt 10441, .virt 10442, .virt 10443, .virt 10444, .virt 10445, .virt 10446, .virt 10447, .virt 10448, .virt 10449, .virt 10450, .virt 10451, .virt 10452, .virt 10455, .virt 10456, .virt 10457, .virt 10458, .virt 10459, .virt 10460, .virt 10461, .virt 10462, .virt 10463, .virt 10464, .virt 10465, .virt 10466, .virt 10467, .virt 10468, .virt 10469, .virt 10470, .virt 10471, .virt 10472, .virt 10473, .virt 10474, .virt 10475, .virt 10476, .virt 10477, .virt 10478, .virt 10479, .virt 10480, .virt 10481, .virt 10482, .virt 10483, .virt 10484, .virt 10485, .virt 10486, .virt 10487, .virt 10488, .virt 10489, .virt 10490, .virt 10491, .virt 10492, .virt 10493, .virt 10494, .virt 10495, .virt 10496, .virt 10497, .virt 10498, .virt 10499, .virt 10500, .virt 10501, .virt 10502, .virt 10503, .virt 10504, .virt 10505, .virt 10506, .virt 10507, .virt 10508, .virt 10509, .virt 10510, .virt 10511, .virt 10512, .virt 10513, .virt 10514, .virt 10515, .virt 10516, .virt 10521, .virt 10526, .virt 10535, .virt 10542, .virt 10543]
+noncomputable def constTargets : List Target := [.virt 283, .virt 412, .virt 11, .virt 12, .virt 637, .virt 638, .virt 647, .virt 648, .virt 649, .virt 650, .virt 651, .virt 652, .virt 653, .virt 654, .virt 655, .virt 656, .virt 639, .virt 657, .virt 658, .virt 659, .virt 660, .virt 661, .virt 662, .virt 663, .virt 664, .virt 665, .virt 666, .virt 640, .virt 667, .virt 668, .virt 669, .virt 670, .virt 671, .virt 672, .virt 673, .virt 674, .virt 675, .virt 676, .virt 641, .virt 677, .virt 678, .virt 679, .virt 680, .virt 681, .virt 682, .virt 683, .virt 684, .virt 685, .virt 686, .virt 642, .virt 687, .virt 688, .virt 689, .virt 690, .virt 691, .virt 692, .virt 693, .virt 694, .virt 695, .virt 696, .virt 643, .virt 697, .virt 698, .virt 699, .virt 700, .virt 701, .virt 702, .virt 703, .virt 704, .virt 644, .virt 645, .virt 646, .virt 9953, .virt 9954, .virt 9955, .virt 9956, .virt 9957, .virt 9958, .virt 9959, .virt 9960, .virt 9961, .virt 9962, .virt 9963, .virt 9964, .virt 9965, .virt 9966, .virt 9967, .virt 9968, .virt 9969, .virt 9970, .virt 9971, .virt 9972, .virt 9973, .virt 9974, .virt 9975, .virt 9976, .virt 9977, .virt 9978, .virt 9979, .virt 9980, .virt 9981, .virt 9982, .virt 9983, .virt 9984, .virt 9985, .virt 9986, .virt 9987, .virt 9988, .virt 9989, .virt 9990, .virt 9991, .virt 9992, .virt 9993, .virt 9994, .virt 9995, .virt 9996, .virt 9997, .virt 9998, .virt 9999, .virt 10000, .virt 10001, .virt 10002, .virt 10003, .virt 10004, .virt 10005, .virt 10006, .virt 10007, .virt 10008, .virt 10009, .virt 10010, .virt 10011, .virt 10012, .virt 10013, .virt 10014, .virt 10015, .virt 10016, .virt 10017, .virt 10018, .virt 10019, .virt 10020, .virt 10021, .virt 10022, .virt 10023, .virt 10024, .virt 10025, .virt 10026, .virt 10027, .virt 10028, .virt 10029, .virt 10030, .virt 10031, .virt 10032, .virt 10033, .virt 10034, .virt 10035, .virt 10036, .virt 10037, .virt 10038, .virt 10039, .virt 10040, .virt 10041, .virt 10042, .virt 10043, .virt 10044, .virt 10045, .virt 10046, .virt 10047, .virt 10048, .virt 10049, .virt 10050, .virt 10051, .virt 10052, .virt 10053, .virt 10054, .virt 10055, .virt 10056, .virt 10057, .virt 10058, .virt 10059, .virt 10060, .virt 10061, .virt 10062, .virt 10063, .virt 10064, .virt 10065, .virt 10066, .virt 10067, .virt 10068, .virt 10069, .virt 10070, .virt 10071, .virt 10072, .virt 10073, .virt 10074, .virt 10075, .virt 10076, .virt 10077, .virt 10078, .virt 10079, .virt 10080, .virt 10081, .virt 10082, .virt 10083, .virt 10084, .virt 10085, .virt 10086, .virt 10087, .virt 10088, .virt 10089, .virt 10090, .virt 10091, .virt 10092, .virt 10093, .virt 10094, .virt 10095, .virt 10096, .virt 10097, .virt 10098, .virt 10099, .virt 10100, .virt 10101, .virt 10102, .virt 10103, .virt 10104, .virt 10105, .virt 10106, .virt 10107, .virt 10108, .virt 10109, .virt 10110, .virt 10111, .virt 10112, .virt 10113, .virt 10114, .virt 10115, .virt 10116, .virt 10117, .virt 10118, .virt 10119, .virt 10120, .virt 10121, .virt 10122, .virt 10123, .virt 10124, .virt 10125, .virt 10126, .virt 10127, .virt 10128, .virt 10129, .virt 10130, .virt 10131, .virt 10132, .virt 10133, .virt 10134, .virt 10135, .virt 10136, .virt 10137, .virt 10138, .virt 10139, .virt 10140, .virt 10141, .virt 10142, .virt 10143, .virt 10144, .virt 10145, .virt 10146, .virt 10147, .virt 10148, .virt 10149, .virt 10150, .virt 10151, .virt 10152, .virt 10153, .virt 10154, .virt 10155, .virt 10156, .virt 10157, .virt 10158, .virt 10159, .virt 10160, .virt 10161, .virt 10162, .virt 10163, .virt 10164, .virt 10165, .virt 10166, .virt 10167, .virt 10168, .virt 10169, .virt 10170, .virt 10171, .virt 10172, .virt 10173, .virt 10174, .virt 10175, .virt 10176, .virt 10177, .virt 10178, .virt 10179, .virt 10180, .virt 10181, .virt 10182, .virt 10183, .virt 10184, .virt 10185, .virt 10186, .virt 10187, .virt 10188, .virt 10189, .virt 10190, .virt 10191, .virt 10192, .virt 10193, .virt 10194, .virt 10195, .virt 10196, .virt 10197, .virt 10198, .virt 10199, .virt 10200, .virt 10201, .virt 10202, .virt 10203, .virt 10204, .virt 10205, .virt 10206, .virt 10207, .virt 10208, .virt 10209, .virt 10210, .virt 10211, .virt 10212, .virt 10213, .virt 10214, .virt 10215, .virt 10216, .virt 10217, .virt 10218, .virt 10219, .virt 10220, .virt 10221, .virt 10222, .virt 10223, .virt 10224, .virt 10225, .virt 10226, .virt 10227, .virt 10228, .virt 10229, .virt 10230, .virt 10231, .virt 10232, .virt 10233, .virt 10234, .virt 10235, .virt 10236, .virt 10237, .virt 10238, .virt 10239, .virt 10240, .virt 10241, .virt 10242, .virt 10243, .virt 10244, .virt 10245, .virt 10246, .virt 10247, .virt 10248, .virt 10249, .virt 10250, .virt 10251, .virt 10252, .virt 10253, .virt 10254, .virt 10255, .virt 10256, .virt 10257, .virt 10258, .virt 10259, .virt 10260, .virt 10261, .virt 10262, .virt 10263, .virt 10264, .virt 10265, .virt 10266, .virt 10267, .virt 10268, .virt 10269, .virt 10270, .virt 10271, .virt 10272, .virt 10273, .virt 10274, .virt 10275, .virt 10276, .virt 10277, .virt 10278, .virt 10279, .virt 10280, .virt 10281, .virt 10282, .virt 10283, .virt 10284, .virt 10285, .virt 10286, .virt 10287, .virt 10288, .virt 10289, .virt 10290, .virt 10291, .virt 10292, .virt 10293, .virt 10294, .virt 10295, .virt 10296, .virt 10297, .virt 10298, .virt 10299, .virt 10300, .virt 10301, .virt 10302, .virt 10303, .virt 10304, .virt 10305, .virt 10306, .virt 10307, .virt 10308, .virt 10309, .virt 10310, .virt 10311, .virt 10312, .virt 10313, .virt 10314, .virt 10315, .virt 10316, .virt 10317, .virt 10318, .virt 10319, .virt 10320, .virt 10321, .virt 10322, .virt 10323, .virt 10324, .virt 10325, .virt 10326, .virt 10327, .virt 10328, .virt 10329, .virt 10330, .virt 10331, .virt 10332, .virt 10333, .virt 10334, .virt 10335, .virt 10336, .virt 10337, .virt 10338, .virt 10339, .virt 10340, .virt 10341, .virt 10342, .virt 10343, .virt 10344, .virt 10345, .virt 10346, .virt 10347, .virt 10348, .virt 10349, .virt 10350, .virt 10351, .virt 10352, .virt 10353, .virt 10354, .virt 10355, .virt 10356, .virt 10357, .virt 10358, .virt 10359, .virt 10360, .virt 10361, .virt 10362, .virt 10363, .virt 10364, .virt 10365, .virt 10366, .virt 10367, .virt 10368, .virt 10369, .virt 10370, .virt 10371, .virt 10372, .virt 10373, .virt 10374, .virt 10375, .virt 10376, .virt 10377, .virt 10378, .virt 10379, .virt 10380, .virt 10381, .virt 10382, .virt 10383, .virt 10384, .virt 10385, .virt 10386, .virt 10387, .virt 10388, .virt 10389, .virt 10390, .virt 10391, .virt 10392, .virt 10393, .virt 10394, .virt 10395, .virt 10396, .virt 10397, .virt 10398, .virt 10399, .virt 10400, .virt 10401, .virt 10402, .virt 10403, .virt 10404, .virt 10405, .virt 10406, .virt 10407, .virt 10408, .virt 10409, .virt 10410, .virt 10411, .virt 10412, .virt 10413, .virt 10414, .virt 10415, .virt 10416, .virt 10417, .virt 10418, .virt 10419, .virt 10420, .virt 10421, .virt 10422, .virt 10423, .virt 10424, .virt 10425, .virt 10426, .virt 10427, .virt 10428, .virt 10429, .virt 10430, .virt 10431, .virt 10432, .virt 10433, .virt 10434, .virt 10435, .virt 10436, .virt 10437, .virt 10438, .virt 10439, .virt 10440, .virt 10441, .virt 10442, .virt 10443, .virt 10444, .virt 10445, .virt 10446, .virt 10447, .virt 10448, .virt 10449, .virt 10450, .virt 10451, .virt 10452, .virt 10455, .virt 10456, .virt 10457, .virt 10458, .virt 10459, .virt 10460, .virt 10461, .virt 10462, .virt 10463, .virt 10464, .virt 10465, .virt 10466, .virt 10467, .virt 10468, .virt 10469, .virt 10470, .virt 10471, .virt 10472, .virt 10473, .virt 10474, .virt 10475, .virt 10476, .virt 10477, .virt 10478, .virt 10479, .virt 10480, .virt 10481, .virt 10482, .virt 10483, .virt 10484, .virt 10485, .virt 10486, .virt 10487, .virt 10488, .virt 10489, .virt 10490, .virt 10491, .virt 10492, .virt 10493, .virt 10494, .virt 10495, .virt 10496, .virt 10497, .virt 10498, .virt 10499, .virt 10500, .virt 10501, .virt 10502, .virt 10503, .virt 10504, .virt 10505, .virt 10506, .virt 10507, .virt 10508, .virt 10509, .virt 10510, .virt 10511, .virt 10512, .virt 10513, .virt 10514, .virt 10515, .virt 10516, .virt 10521, .virt 10526, .virt 10535, .virt 10542, .virt 10543]
 
 /-- The export's public-input targets, in its order. -/
-def piTargets : List Target := [
+noncomputable def piTargets : List Target := [
     .virt 283, .virt 0, .virt 90, .wire 20 43, .wire 20 51, .wire 20 59, .wire 21 7, .wire 21 15,
     .virt 95, .virt 91, .virt 92, .virt 93, .virt 94, .virt 100, .virt 96, .virt 97,
     .virt 98, .virt 99, .virt 105, .virt 101, .virt 102, .virt 103, .virt 104, .virt 110,

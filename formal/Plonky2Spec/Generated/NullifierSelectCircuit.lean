@@ -20,7 +20,7 @@ namespace Plonky2Spec.Generated
 open Plonky2Spec.Wiring
 
 /-- Nullifier selection for 2 slots: `out[4s+j] = select(isDummy[s], dnull[4s+j], real[4s+j])`, each `isDummy[s]` an `assert_bool`ed virtual target, outputs registered as public inputs. -/
-def nullifierSelect2 (p : ℕ) : Circuit p where
+noncomputable def nullifierSelect2 (p : ℕ) : Circuit p where
   rows := [
     ⟨.arithmetic 20, [1, (-1)]⟩  -- row 0
   ]
@@ -114,7 +114,7 @@ def nullifierSelect2.out : Fin 8 → Target :=
 
 /-- The `verify_proof` gadgets the rows above do not contain: the child circuit's trace
     name and the targets carrying its public inputs (`Recursive.children`). -/
-def nullifierSelect2.verifiers : List (String × List Target) :=
+noncomputable def nullifierSelect2.verifiers : List (String × List Target) :=
   []
 
 end Plonky2Spec.Generated

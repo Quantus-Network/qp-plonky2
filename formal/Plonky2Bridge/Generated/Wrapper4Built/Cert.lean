@@ -28,7 +28,7 @@ set_option Elab.async false
 variable {p : ℕ}
 
 /-- The certificate of the deployed build against `privateBatchWrapper4`. -/
-def buildCert : BuildCert where
+noncomputable def buildCert : BuildCert where
   rowAt := (Tbl.node 5120 (Tbl.node 2560 (Tbl.node 1280 (Tbl.node 512 (Tbl.node 256 buildCert.rowAt0 buildCert.rowAt1) (Tbl.node 256 buildCert.rowAt2 (Tbl.node 256 buildCert.rowAt3 buildCert.rowAt4))) (Tbl.node 512 (Tbl.node 256 buildCert.rowAt5 buildCert.rowAt6) (Tbl.node 256 buildCert.rowAt7 (Tbl.node 256 buildCert.rowAt8 buildCert.rowAt9)))) (Tbl.node 1280 (Tbl.node 512 (Tbl.node 256 buildCert.rowAt10 buildCert.rowAt11) (Tbl.node 256 buildCert.rowAt12 (Tbl.node 256 buildCert.rowAt13 buildCert.rowAt14))) (Tbl.node 512 (Tbl.node 256 buildCert.rowAt15 buildCert.rowAt16) (Tbl.node 256 buildCert.rowAt17 (Tbl.node 256 buildCert.rowAt18 buildCert.rowAt19))))) (Tbl.node 2560 (Tbl.node 1280 (Tbl.node 512 (Tbl.node 256 buildCert.rowAt20 buildCert.rowAt21) (Tbl.node 256 buildCert.rowAt22 (Tbl.node 256 buildCert.rowAt23 buildCert.rowAt24))) (Tbl.node 512 (Tbl.node 256 buildCert.rowAt25 buildCert.rowAt26) (Tbl.node 256 buildCert.rowAt27 (Tbl.node 256 buildCert.rowAt28 buildCert.rowAt29)))) (Tbl.node 1280 (Tbl.node 512 (Tbl.node 256 buildCert.rowAt30 buildCert.rowAt31) (Tbl.node 256 buildCert.rowAt32 (Tbl.node 256 buildCert.rowAt33 buildCert.rowAt34))) (Tbl.node 768 (Tbl.node 256 buildCert.rowAt35 (Tbl.node 256 buildCert.rowAt36 buildCert.rowAt37)) (Tbl.node 256 buildCert.rowAt38 (Tbl.node 256 buildCert.rowAt39 buildCert.rowAt40))))))
   routed := 60
   numPublicInputs := 44

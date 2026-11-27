@@ -35,7 +35,7 @@ set_option linter.unusedSimpArgs false
 /-! ### Reading the spec objects off the wiring -/
 
 /-- The leaf public inputs, decoded through `.val`. -/
-def pub (a : Assignment p) : LeafPublic :=
+noncomputable def pub (a : Assignment p) : LeafPublic :=
   { assetId := (a (.virt 0)).val,
     nullifier := D4 (a (.virt 223)) (a (.virt 224)) (a (.virt 225)) (a (.virt 226)),
     blockHash := D4 (a (.virt 241)) (a (.virt 242)) (a (.virt 243)) (a (.virt 244)),
@@ -43,7 +43,7 @@ def pub (a : Assignment p) : LeafPublic :=
 
 /-- The sixteen recorded Merkle levels: position hint and the three sibling digests
     (`positions`, `siblings_i`). -/
-def levels (a : Assignment p) : List MerkleLevel :=
+noncomputable def levels (a : Assignment p) : List MerkleLevel :=
   [⟨(a (.virt 207)).val, D4 (a (.virt 15)) (a (.virt 16)) (a (.virt 17)) (a (.virt 18)), D4 (a (.virt 19)) (a (.virt 20)) (a (.virt 21)) (a (.virt 22)), D4 (a (.virt 23)) (a (.virt 24)) (a (.virt 25)) (a (.virt 26))⟩,
    ⟨(a (.virt 208)).val, D4 (a (.virt 27)) (a (.virt 28)) (a (.virt 29)) (a (.virt 30)), D4 (a (.virt 31)) (a (.virt 32)) (a (.virt 33)) (a (.virt 34)), D4 (a (.virt 35)) (a (.virt 36)) (a (.virt 37)) (a (.virt 38))⟩,
    ⟨(a (.virt 209)).val, D4 (a (.virt 39)) (a (.virt 40)) (a (.virt 41)) (a (.virt 42)), D4 (a (.virt 43)) (a (.virt 44)) (a (.virt 45)) (a (.virt 46)), D4 (a (.virt 47)) (a (.virt 48)) (a (.virt 49)) (a (.virt 50))⟩,
@@ -63,7 +63,7 @@ def levels (a : Assignment p) : List MerkleLevel :=
 
 /-- The leaf witness, decoded through `.val`: the named witness targets, the block-header
     fields and the first `depth` recorded levels. -/
-def wit (a : Assignment p) : LeafWitness :=
+noncomputable def wit (a : Assignment p) : LeafWitness :=
   { secret := D4 (a (.virt 227)) (a (.virt 228)) (a (.virt 229)) (a (.virt 230)),
     transferCount := [(a (.virt 231)).val, (a (.virt 232)).val],
     toAccount := D4 (a (.virt 1)) (a (.virt 2)) (a (.virt 3)) (a (.virt 4)),
@@ -2482,14 +2482,14 @@ theorem sound (perm : St p → St p) (hpg : goldilocks ≤ p)
 /-! ### The leaf as a recursion-tree node (PLAN.md Step 10) -/
 
 /-- The 11 public inputs in registration order. -/
-def pi : Fin 11 → Target :=
+noncomputable def pi : Fin 11 → Target :=
   ![.virt 0, .virt 223, .virt 224, .virt 225, .virt 226, .virt 241, .virt 242, .virt 243, .virt 244, .virt 249, .virt 7]
 
 omit [Fact p.Prime] in
 theorem publicInputs_eq : (leafCircuit p).publicInputs = List.ofFn pi := rfl
 
 /-- `pub` as a function of the public-input values alone. -/
-def pubOf (v : Fin 11 → ZMod p) : LeafPublic :=
+noncomputable def pubOf (v : Fin 11 → ZMod p) : LeafPublic :=
   { assetId := (v 0).val, nullifier := D4 (v 1) (v 2) (v 3) (v 4),
     blockHash := D4 (v 5) (v 6) (v 7) (v 8), blockNumber := (v 9).val, inputAmount := (v 10).val }
 

@@ -12,9 +12,8 @@ use crate::challenger::Challenger;
 use crate::config::{GenericConfig, Hasher};
 use crate::field::extension::Extendable;
 use crate::field::polynomial::PolynomialCoeffs;
-use crate::field::types::Field;
 use crate::fri_structure::{FriChallenges, FriOpenings};
-use crate::hash_types::{RichField, NUM_HASH_OUT_ELTS};
+use crate::hash_types::RichField;
 use crate::merkle_tree::MerkleCap;
 
 /// A method for deciding what arity to use at each reduction layer.
@@ -385,8 +384,6 @@ pub trait FriChallenger<F: RichField, H: Hasher<F>> {
         pow_witness: F,
         degree_bits: usize,
         config: &FriConfig,
-        final_poly_coeff_len: Option<usize>,
-        max_num_query_steps: Option<usize>,
     ) -> FriChallenges<F, D>
     where
         F: RichField + Extendable<D>;
@@ -409,8 +406,6 @@ impl<F: RichField, H: Hasher<F>> FriChallenger<F, H> for Challenger<F, H> {
         pow_witness: F,
         degree_bits: usize,
         config: &FriConfig,
-        final_poly_coeff_len: Option<usize>,
-        max_num_query_steps: Option<usize>,
     ) -> FriChallenges<F, D>
     where
         F: RichField + Extendable<D>,
@@ -429,28 +424,7 @@ impl<F: RichField, H: Hasher<F>> FriChallenger<F, H> for Challenger<F, H> {
             })
             .collect();
 
-        // When this proof was generated in a circuit with a different number of query steps,
-        // the challenger needs to observe the additional hash caps.
-        if let Some(step_count) = max_num_query_steps {
-            let cap_len = (1 << config.cap_height) * NUM_HASH_OUT_ELTS;
-            let zero_cap = vec![F::ZERO; cap_len];
-            for _ in commit_phase_merkle_caps.len()..step_count {
-                self.observe_elements(&zero_cap);
-                self.get_extension_challenge::<D>();
-            }
-        }
-
         self.observe_extension_elements(&final_poly.coeffs);
-        // When this proof was generated in a circuit with a different final polynomial length,
-        // the challenger needs to observe the full length so native and
-        // recursive transcripts stay aligned.
-        if let Some(len) = final_poly_coeff_len {
-            let current_len = final_poly.len();
-            for _ in current_len..len {
-                self.observe_extension_element(&F::Extension::ZERO);
-            }
-        }
-
         self.observe_element(pow_witness);
         let fri_pow_response = self.get_challenge();
 

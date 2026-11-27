@@ -14,7 +14,7 @@ use crate::fri_proof::{FriInitialTreeProof, FriProof, FriQueryRound};
 use crate::fri_structure::{
     FriBatchInfo, FriChallenges, FriCoefficient, FriInstanceInfo, FriOpeningExpression, FriOpenings,
 };
-use crate::fri_validate_shape::validate_fri_proof_shape;
+use crate::fri_validate_shape::{validate_fri_proof_shape, validate_fri_verifier_inputs};
 use crate::hash_types::RichField;
 use crate::merkle_proofs::verify_merkle_proof_to_cap;
 use crate::merkle_tree::MerkleCap;
@@ -79,18 +79,19 @@ pub fn verify_fri_proof<
     params: &FriParams,
 ) -> Result<()> {
     validate_fri_proof_shape::<F, C, D>(proof, instance, params)?;
+    validate_fri_verifier_inputs(
+        core::slice::from_ref(instance),
+        core::slice::from_ref(openings),
+        challenges,
+        initial_merkle_caps,
+        params,
+    )?;
 
     // Size of the LDE domain.
     let n = params.lde_size();
 
     // Check PoW.
     fri_verify_proof_of_work(challenges.fri_pow_response, &params.config)?;
-
-    // Check that parameters are coherent.
-    ensure!(
-        params.config.num_query_rounds == proof.query_round_proofs.len(),
-        "Number of query rounds does not match config."
-    );
 
     let precomputed_reduced_evals =
         PrecomputedReducedOpenings::from_os_and_alpha(openings, challenges.fri_alpha);

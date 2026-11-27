@@ -30,7 +30,7 @@ set_option Elab.async false
 variable {p : ℕ} [Fact p.Prime]
 
 /-- The private-batch aggregation wrapper at `n = 4` with its leaf verifiers (`wormhole/aggregator/src/private_batch/circuit/circuit_logic.rs`): leaf public inputs `leaf_pis_0..3`, dummy-nullifier preimages `dummy_pre_image_0..3`, the permutation switches `switches`, and the aggregated public inputs; then the `verify_proof` gadgets' rows and copies. -/
-def privateBatchWrapper4 (p : ℕ) : Circuit p where
+noncomputable def privateBatchWrapper4 (p : ℕ) : Circuit p where
   rows := [
     ⟨.arithmetic 15, [1, 1]⟩,  -- row 0
     ⟨.arithmetic 15, [1, 0]⟩,  -- row 1

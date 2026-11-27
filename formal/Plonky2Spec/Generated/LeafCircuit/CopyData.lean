@@ -30,7 +30,7 @@ variable {p : ℕ} [Fact p.Prime]
 
 
 /-- `leafCircuit.copies`, items `0..32`. -/
-def leafCircuit.copies0 : List (Target × Target) := [
+noncomputable def leafCircuit.copies0 : List (Target × Target) := [
     (.virt 13, .wire 0 0),
     (.virt 13, .wire 0 1),
     (.virt 13, .wire 0 2),
@@ -66,7 +66,7 @@ def leafCircuit.copies0 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `32..64`. -/
-def leafCircuit.copies1 : List (Target × Target) := [
+noncomputable def leafCircuit.copies1 : List (Target × Target) := [
     (.wire 3 33, .virt 14),
     (.wire 3 34, .virt 14),
     (.wire 3 35, .virt 14),
@@ -102,7 +102,7 @@ def leafCircuit.copies1 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `64..96`. -/
-def leafCircuit.copies2 : List (Target × Target) := [
+noncomputable def leafCircuit.copies2 : List (Target × Target) := [
     (.wire 4 37, .virt 14),
     (.wire 4 38, .virt 14),
     (.wire 4 39, .virt 14),
@@ -138,7 +138,7 @@ def leafCircuit.copies2 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `96..128`. -/
-def leafCircuit.copies3 : List (Target × Target) := [
+noncomputable def leafCircuit.copies3 : List (Target × Target) := [
     (.wire 5 41, .virt 14),
     (.wire 5 42, .virt 14),
     (.wire 5 43, .virt 14),
@@ -174,7 +174,7 @@ def leafCircuit.copies3 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `128..160`. -/
-def leafCircuit.copies4 : List (Target × Target) := [
+noncomputable def leafCircuit.copies4 : List (Target × Target) := [
     (.wire 6 45, .virt 14),
     (.wire 6 46, .virt 14),
     (.wire 6 47, .virt 14),
@@ -210,7 +210,7 @@ def leafCircuit.copies4 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `160..192`. -/
-def leafCircuit.copies5 : List (Target × Target) := [
+noncomputable def leafCircuit.copies5 : List (Target × Target) := [
     (.wire 7 13, .wire 9 1),
     (.wire 7 14, .wire 9 2),
     (.wire 7 15, .wire 9 3),
@@ -246,7 +246,7 @@ def leafCircuit.copies5 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `192..224`. -/
-def leafCircuit.copies6 : List (Target × Target) := [
+noncomputable def leafCircuit.copies6 : List (Target × Target) := [
     (.wire 10 27, .virt 14),
     (.wire 10 28, .virt 14),
     (.wire 10 29, .virt 14),
@@ -282,7 +282,7 @@ def leafCircuit.copies6 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `224..256`. -/
-def leafCircuit.copies7 : List (Target × Target) := [
+noncomputable def leafCircuit.copies7 : List (Target × Target) := [
     (.wire 10 59, .virt 14),
     (.wire 10 0, .virt 12),
     (.virt 294, .wire 11 0),
@@ -318,7 +318,7 @@ def leafCircuit.copies7 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `256..288`. -/
-def leafCircuit.copies8 : List (Target × Target) := [
+noncomputable def leafCircuit.copies8 : List (Target × Target) := [
     (.virt 292, .wire 0 16),
     (.virt 292, .wire 0 17),
     (.wire 10 3, .wire 0 18),
@@ -354,7 +354,7 @@ def leafCircuit.copies8 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `288..320`. -/
-def leafCircuit.copies9 : List (Target × Target) := [
+noncomputable def leafCircuit.copies9 : List (Target × Target) := [
     (.wire 10 1, .wire 0 26),
     (.wire 11 27, .wire 11 32),
     (.wire 0 27, .wire 11 33),
@@ -390,7 +390,7 @@ def leafCircuit.copies9 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `320..352`. -/
-def leafCircuit.copies10 : List (Target × Target) := [
+noncomputable def leafCircuit.copies10 : List (Target × Target) := [
     (.wire 13 33, .virt 14),
     (.wire 13 34, .virt 14),
     (.wire 13 35, .virt 14),
@@ -426,7 +426,7 @@ def leafCircuit.copies10 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `352..384`. -/
-def leafCircuit.copies11 : List (Target × Target) := [
+noncomputable def leafCircuit.copies11 : List (Target × Target) := [
     (.wire 0 31, .wire 11 37),
     (.wire 13 4, .wire 11 38),
     (.wire 13 5, .wire 12 12),
@@ -462,7 +462,7 @@ def leafCircuit.copies11 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `384..416`. -/
-def leafCircuit.copies12 : List (Target × Target) := [
+noncomputable def leafCircuit.copies12 : List (Target × Target) := [
     (.wire 8 27, .wire 12 20),
     (.wire 11 55, .wire 12 21),
     (.wire 8 27, .wire 12 22),
@@ -498,7 +498,7 @@ def leafCircuit.copies12 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `416..448`. -/
-def leafCircuit.copies13 : List (Target × Target) := [
+noncomputable def leafCircuit.copies13 : List (Target × Target) := [
     (.wire 15 8, .virt 14),
     (.wire 15 9, .virt 14),
     (.wire 15 10, .virt 14),
@@ -534,7 +534,7 @@ def leafCircuit.copies13 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `448..480`. -/
-def leafCircuit.copies14 : List (Target × Target) := [
+noncomputable def leafCircuit.copies14 : List (Target × Target) := [
     (.wire 15 40, .virt 14),
     (.wire 15 41, .virt 14),
     (.wire 15 42, .virt 14),
@@ -570,7 +570,7 @@ def leafCircuit.copies14 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `480..512`. -/
-def leafCircuit.copies15 : List (Target × Target) := [
+noncomputable def leafCircuit.copies15 : List (Target × Target) := [
     (.wire 0 51, .wire 0 54),
     (.wire 14 11, .virt 14),
     (.wire 0 55, .virt 14),
@@ -606,7 +606,7 @@ def leafCircuit.copies15 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `512..544`. -/
-def leafCircuit.copies16 : List (Target × Target) := [
+noncomputable def leafCircuit.copies16 : List (Target × Target) := [
     (.wire 14 31, .wire 16 16),
     (.virt 292, .wire 16 17),
     (.wire 16 11, .wire 16 18),
@@ -642,7 +642,7 @@ def leafCircuit.copies16 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `544..576`. -/
-def leafCircuit.copies17 : List (Target × Target) := [
+noncomputable def leafCircuit.copies17 : List (Target × Target) := [
     (.wire 9 13, .wire 16 45),
     (.wire 16 43, .wire 16 46),
     (.virt 296, .wire 16 48),
@@ -678,7 +678,7 @@ def leafCircuit.copies17 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `576..608`. -/
-def leafCircuit.copies18 : List (Target × Target) := [
+noncomputable def leafCircuit.copies18 : List (Target × Target) := [
     (.virt 298, .wire 17 28),
     (.wire 17 27, .wire 17 29),
     (.wire 17 27, .wire 17 30),
@@ -714,7 +714,7 @@ def leafCircuit.copies18 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `608..640`. -/
-def leafCircuit.copies19 : List (Target × Target) := [
+noncomputable def leafCircuit.copies19 : List (Target × Target) := [
     (.virt 296, .wire 12 30),
     (.wire 12 31, .wire 8 36),
     (.virt 292, .wire 8 37),
@@ -750,7 +750,7 @@ def leafCircuit.copies19 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `640..672`. -/
-def leafCircuit.copies20 : List (Target × Target) := [
+noncomputable def leafCircuit.copies20 : List (Target × Target) := [
     (.virt 21, .wire 18 45),
     (.wire 18 43, .wire 18 46),
     (.virt 300, .wire 18 48),
@@ -786,7 +786,7 @@ def leafCircuit.copies20 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `672..704`. -/
-def leafCircuit.copies21 : List (Target × Target) := [
+noncomputable def leafCircuit.copies21 : List (Target × Target) := [
     (.virt 302, .wire 19 28),
     (.virt 25, .wire 19 29),
     (.virt 25, .wire 19 30),
@@ -822,7 +822,7 @@ def leafCircuit.copies21 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `704..736`. -/
-def leafCircuit.copies22 : List (Target × Target) := [
+noncomputable def leafCircuit.copies22 : List (Target × Target) := [
     (.wire 18 55, .wire 8 50),
     (.wire 20 15, .wire 8 52),
     (.virt 292, .wire 8 53),
@@ -858,7 +858,7 @@ def leafCircuit.copies22 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `736..768`. -/
-def leafCircuit.copies23 : List (Target × Target) := [
+noncomputable def leafCircuit.copies23 : List (Target × Target) := [
     (.wire 22 13, .wire 23 1),
     (.wire 22 14, .wire 23 2),
     (.wire 22 15, .wire 23 3),
@@ -894,7 +894,7 @@ def leafCircuit.copies23 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `768..800`. -/
-def leafCircuit.copies24 : List (Target × Target) := [
+noncomputable def leafCircuit.copies24 : List (Target × Target) := [
     (.wire 8 35, .wire 24 12),
     (.wire 23 15, .wire 24 13),
     (.wire 24 11, .wire 24 14),
@@ -930,7 +930,7 @@ def leafCircuit.copies24 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `800..832`. -/
-def leafCircuit.copies25 : List (Target × Target) := [
+noncomputable def leafCircuit.copies25 : List (Target × Target) := [
     (.wire 25 35, .virt 14),
     (.wire 25 36, .virt 14),
     (.wire 25 37, .virt 14),
@@ -966,7 +966,7 @@ def leafCircuit.copies25 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `832..864`. -/
-def leafCircuit.copies26 : List (Target × Target) := [
+noncomputable def leafCircuit.copies26 : List (Target × Target) := [
     (.wire 25 5, .wire 12 32),
     (.wire 14 43, .wire 12 33),
     (.wire 25 5, .wire 12 34),
@@ -1002,7 +1002,7 @@ def leafCircuit.copies26 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `864..896`. -/
-def leafCircuit.copies27 : List (Target × Target) := [
+noncomputable def leafCircuit.copies27 : List (Target × Target) := [
     (.wire 21 23, .wire 12 42),
     (.wire 12 43, .wire 21 24),
     (.virt 292, .wire 21 25),
@@ -1038,7 +1038,7 @@ def leafCircuit.copies27 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `896..928`. -/
-def leafCircuit.copies28 : List (Target × Target) := [
+noncomputable def leafCircuit.copies28 : List (Target × Target) := [
     (.wire 27 10, .virt 14),
     (.wire 27 11, .virt 14),
     (.wire 27 12, .virt 14),
@@ -1074,7 +1074,7 @@ def leafCircuit.copies28 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `928..960`. -/
-def leafCircuit.copies29 : List (Target × Target) := [
+noncomputable def leafCircuit.copies29 : List (Target × Target) := [
     (.wire 27 42, .virt 14),
     (.wire 27 43, .virt 14),
     (.wire 27 44, .virt 14),
@@ -1110,7 +1110,7 @@ def leafCircuit.copies29 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `960..992`. -/
-def leafCircuit.copies30 : List (Target × Target) := [
+noncomputable def leafCircuit.copies30 : List (Target × Target) := [
     (.wire 24 47, .virt 14),
     (.virt 292, .wire 24 48),
     (.virt 292, .wire 24 49),
@@ -1146,7 +1146,7 @@ def leafCircuit.copies30 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `992..1024`. -/
-def leafCircuit.copies31 : List (Target × Target) := [
+noncomputable def leafCircuit.copies31 : List (Target × Target) := [
     (.wire 28 3, .wire 28 10),
     (.wire 26 31, .virt 14),
     (.wire 28 11, .virt 14),
@@ -1182,7 +1182,7 @@ def leafCircuit.copies31 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1024..1056`. -/
-def leafCircuit.copies32 : List (Target × Target) := [
+noncomputable def leafCircuit.copies32 : List (Target × Target) := [
     (.virt 304, .wire 28 40),
     (.virt 29, .wire 28 41),
     (.virt 29, .wire 28 42),
@@ -1218,7 +1218,7 @@ def leafCircuit.copies32 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1056..1088`. -/
-def leafCircuit.copies33 : List (Target × Target) := [
+noncomputable def leafCircuit.copies33 : List (Target × Target) := [
     (.wire 29 19, .wire 29 22),
     (.virt 306, .wire 29 24),
     (.wire 19 59, .wire 29 25),
@@ -1254,7 +1254,7 @@ def leafCircuit.copies33 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1088..1120`. -/
-def leafCircuit.copies34 : List (Target × Target) := [
+noncomputable def leafCircuit.copies34 : List (Target × Target) := [
     (.virt 292, .wire 21 33),
     (.virt 306, .wire 21 34),
     (.wire 21 35, .wire 30 0),
@@ -1290,7 +1290,7 @@ def leafCircuit.copies34 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1120..1152`. -/
-def leafCircuit.copies35 : List (Target × Target) := [
+noncomputable def leafCircuit.copies35 : List (Target × Target) := [
     (.virt 308, .wire 30 40),
     (.wire 30 39, .wire 30 41),
     (.wire 30 39, .wire 30 42),
@@ -1326,7 +1326,7 @@ def leafCircuit.copies35 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1152..1184`. -/
-def leafCircuit.copies36 : List (Target × Target) := [
+noncomputable def leafCircuit.copies36 : List (Target × Target) := [
     (.virt 37, .wire 31 22),
     (.virt 310, .wire 31 24),
     (.wire 24 7, .wire 31 25),
@@ -1362,7 +1362,7 @@ def leafCircuit.copies36 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1184..1216`. -/
-def leafCircuit.copies37 : List (Target × Target) := [
+noncomputable def leafCircuit.copies37 : List (Target × Target) := [
     (.virt 292, .wire 21 49),
     (.wire 31 3, .wire 21 50),
     (.wire 32 16, .wire 21 52),
@@ -1398,7 +1398,7 @@ def leafCircuit.copies37 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1216..1248`. -/
-def leafCircuit.copies38 : List (Target × Target) := [
+noncomputable def leafCircuit.copies38 : List (Target × Target) := [
     (.wire 34 15, .wire 35 3),
     (.wire 34 16, .wire 35 4),
     (.wire 34 17, .wire 35 5),
@@ -1434,7 +1434,7 @@ def leafCircuit.copies38 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1248..1280`. -/
-def leafCircuit.copies39 : List (Target × Target) := [
+noncomputable def leafCircuit.copies39 : List (Target × Target) := [
     (.wire 36 3, .wire 36 6),
     (.wire 37 6, .virt 14),
     (.wire 37 7, .virt 14),
@@ -1470,7 +1470,7 @@ def leafCircuit.copies39 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1280..1312`. -/
-def leafCircuit.copies40 : List (Target × Target) := [
+noncomputable def leafCircuit.copies40 : List (Target × Target) := [
     (.wire 37 37, .virt 14),
     (.wire 37 38, .virt 14),
     (.wire 37 39, .virt 14),
@@ -1506,7 +1506,7 @@ def leafCircuit.copies40 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1312..1344`. -/
-def leafCircuit.copies41 : List (Target × Target) := [
+noncomputable def leafCircuit.copies41 : List (Target × Target) := [
     (.wire 37 5, .wire 12 50),
     (.wire 12 51, .wire 33 12),
     (.virt 292, .wire 33 13),
@@ -1542,7 +1542,7 @@ def leafCircuit.copies41 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1344..1376`. -/
-def leafCircuit.copies42 : List (Target × Target) := [
+noncomputable def leafCircuit.copies42 : List (Target × Target) := [
     (.virt 292, .wire 36 21),
     (.wire 38 3, .wire 36 22),
     (.virt 292, .wire 36 24),
@@ -1578,7 +1578,7 @@ def leafCircuit.copies42 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1376..1408`. -/
-def leafCircuit.copies43 : List (Target × Target) := [
+noncomputable def leafCircuit.copies43 : List (Target × Target) := [
     (.wire 39 12, .virt 14),
     (.wire 39 13, .virt 14),
     (.wire 39 14, .virt 14),
@@ -1614,7 +1614,7 @@ def leafCircuit.copies43 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1408..1440`. -/
-def leafCircuit.copies44 : List (Target × Target) := [
+noncomputable def leafCircuit.copies44 : List (Target × Target) := [
     (.wire 39 44, .virt 14),
     (.wire 39 45, .virt 14),
     (.wire 39 46, .virt 14),
@@ -1650,7 +1650,7 @@ def leafCircuit.copies44 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1440..1472`. -/
-def leafCircuit.copies45 : List (Target × Target) := [
+noncomputable def leafCircuit.copies45 : List (Target × Target) := [
     (.virt 292, .wire 36 41),
     (.virt 314, .wire 36 42),
     (.virt 209, .wire 36 44),
@@ -1686,7 +1686,7 @@ def leafCircuit.copies45 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1472..1504`. -/
-def leafCircuit.copies46 : List (Target × Target) := [
+noncomputable def leafCircuit.copies46 : List (Target × Target) := [
     (.wire 40 3, .virt 14),
     (.virt 292, .wire 40 4),
     (.virt 292, .wire 40 5),
@@ -1722,7 +1722,7 @@ def leafCircuit.copies46 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1504..1536`. -/
-def leafCircuit.copies47 : List (Target × Target) := [
+noncomputable def leafCircuit.copies47 : List (Target × Target) := [
     (.virt 41, .wire 40 34),
     (.virt 312, .wire 40 36),
     (.wire 31 59, .wire 40 37),
@@ -1758,7 +1758,7 @@ def leafCircuit.copies47 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1536..1568`. -/
-def leafCircuit.copies48 : List (Target × Target) := [
+noncomputable def leafCircuit.copies48 : List (Target × Target) := [
     (.wire 31 51, .wire 41 17),
     (.wire 41 15, .wire 41 18),
     (.virt 312, .wire 41 20),
@@ -1794,7 +1794,7 @@ def leafCircuit.copies48 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1568..1600`. -/
-def leafCircuit.copies49 : List (Target × Target) := [
+noncomputable def leafCircuit.copies49 : List (Target × Target) := [
     (.wire 33 31, .wire 41 52),
     (.virt 47, .wire 41 53),
     (.virt 47, .wire 41 54),
@@ -1830,7 +1830,7 @@ def leafCircuit.copies49 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1600..1632`. -/
-def leafCircuit.copies50 : List (Target × Target) := [
+noncomputable def leafCircuit.copies50 : List (Target × Target) := [
     (.wire 43 31, .wire 43 34),
     (.virt 316, .wire 43 36),
     (.wire 31 59, .wire 43 37),
@@ -1866,7 +1866,7 @@ def leafCircuit.copies50 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1632..1664`. -/
-def leafCircuit.copies51 : List (Target × Target) := [
+noncomputable def leafCircuit.copies51 : List (Target × Target) := [
     (.wire 31 59, .wire 44 17),
     (.wire 44 15, .wire 44 18),
     (.virt 318, .wire 44 20),
@@ -1902,7 +1902,7 @@ def leafCircuit.copies51 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1664..1696`. -/
-def leafCircuit.copies52 : List (Target × Target) := [
+noncomputable def leafCircuit.copies52 : List (Target × Target) := [
     (.wire 45 16, .wire 33 48),
     (.virt 292, .wire 33 49),
     (.wire 44 3, .wire 33 50),
@@ -1938,7 +1938,7 @@ def leafCircuit.copies52 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1696..1728`. -/
-def leafCircuit.copies53 : List (Target × Target) := [
+noncomputable def leafCircuit.copies53 : List (Target × Target) := [
     (.wire 47 17, .wire 48 5),
     (.wire 47 18, .wire 48 6),
     (.wire 47 19, .wire 48 7),
@@ -1974,7 +1974,7 @@ def leafCircuit.copies53 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1728..1760`. -/
-def leafCircuit.copies54 : List (Target × Target) := [
+noncomputable def leafCircuit.copies54 : List (Target × Target) := [
     (.wire 49 7, .virt 14),
     (.wire 49 8, .virt 14),
     (.wire 49 9, .virt 14),
@@ -2010,7 +2010,7 @@ def leafCircuit.copies54 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1760..1792`. -/
-def leafCircuit.copies55 : List (Target × Target) := [
+noncomputable def leafCircuit.copies55 : List (Target × Target) := [
     (.wire 49 39, .virt 14),
     (.wire 49 40, .virt 14),
     (.wire 49 41, .virt 14),
@@ -2046,7 +2046,7 @@ def leafCircuit.copies55 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1792..1824`. -/
-def leafCircuit.copies56 : List (Target × Target) := [
+noncomputable def leafCircuit.copies56 : List (Target × Target) := [
     (.virt 292, .wire 46 9),
     (.wire 38 51, .wire 46 10),
     (.virt 292, .wire 50 4),
@@ -2082,7 +2082,7 @@ def leafCircuit.copies56 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1824..1856`. -/
-def leafCircuit.copies57 : List (Target × Target) := [
+noncomputable def leafCircuit.copies57 : List (Target × Target) := [
     (.virt 292, .wire 50 16),
     (.virt 292, .wire 50 17),
     (.wire 50 15, .wire 50 18),
@@ -2118,7 +2118,7 @@ def leafCircuit.copies57 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1856..1888`. -/
-def leafCircuit.copies58 : List (Target × Target) := [
+noncomputable def leafCircuit.copies58 : List (Target × Target) := [
     (.wire 52 14, .virt 14),
     (.wire 52 15, .virt 14),
     (.wire 52 16, .virt 14),
@@ -2154,7 +2154,7 @@ def leafCircuit.copies58 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1888..1920`. -/
-def leafCircuit.copies59 : List (Target × Target) := [
+noncomputable def leafCircuit.copies59 : List (Target × Target) := [
     (.wire 52 46, .virt 14),
     (.wire 52 47, .virt 14),
     (.wire 52 48, .virt 14),
@@ -2190,7 +2190,7 @@ def leafCircuit.copies59 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1920..1952`. -/
-def leafCircuit.copies60 : List (Target × Target) := [
+noncomputable def leafCircuit.copies60 : List (Target × Target) := [
     (.virt 210, .wire 50 40),
     (.virt 292, .wire 50 41),
     (.virt 292, .wire 50 42),
@@ -2226,7 +2226,7 @@ def leafCircuit.copies60 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1952..1984`. -/
-def leafCircuit.copies61 : List (Target × Target) := [
+noncomputable def leafCircuit.copies61 : List (Target × Target) := [
     (.virt 292, .wire 53 1),
     (.virt 326, .wire 53 2),
     (.virt 210, .wire 53 4),
@@ -2262,7 +2262,7 @@ def leafCircuit.copies61 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `1984..2016`. -/
-def leafCircuit.copies62 : List (Target × Target) := [
+noncomputable def leafCircuit.copies62 : List (Target × Target) := [
     (.wire 44 51, .wire 53 33),
     (.wire 53 31, .wire 53 34),
     (.virt 320, .wire 53 36),
@@ -2298,7 +2298,7 @@ def leafCircuit.copies62 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2016..2048`. -/
-def leafCircuit.copies63 : List (Target × Target) := [
+noncomputable def leafCircuit.copies63 : List (Target × Target) := [
     (.virt 320, .wire 54 16),
     (.virt 57, .wire 54 17),
     (.virt 57, .wire 54 18),
@@ -2334,7 +2334,7 @@ def leafCircuit.copies63 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2048..2080`. -/
-def leafCircuit.copies64 : List (Target × Target) := [
+noncomputable def leafCircuit.copies64 : List (Target × Target) := [
     (.virt 59, .wire 54 50),
     (.wire 46 27, .wire 54 52),
     (.virt 55, .wire 54 53),
@@ -2370,7 +2370,7 @@ def leafCircuit.copies64 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2080..2112`. -/
-def leafCircuit.copies65 : List (Target × Target) := [
+noncomputable def leafCircuit.copies65 : List (Target × Target) := [
     (.wire 44 51, .wire 55 33),
     (.wire 55 31, .wire 55 34),
     (.wire 46 27, .wire 55 36),
@@ -2406,7 +2406,7 @@ def leafCircuit.copies65 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2112..2144`. -/
-def leafCircuit.copies66 : List (Target × Target) := [
+noncomputable def leafCircuit.copies66 : List (Target × Target) := [
     (.virt 326, .wire 56 16),
     (.virt 62, .wire 56 17),
     (.virt 62, .wire 56 18),
@@ -2442,7 +2442,7 @@ def leafCircuit.copies66 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2144..2176`. -/
-def leafCircuit.copies67 : List (Target × Target) := [
+noncomputable def leafCircuit.copies67 : List (Target × Target) := [
     (.wire 55 59, .wire 46 46),
     (.wire 57 17, .wire 46 48),
     (.virt 292, .wire 46 49),
@@ -2478,7 +2478,7 @@ def leafCircuit.copies67 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2176..2208`. -/
-def leafCircuit.copies68 : List (Target × Target) := [
+noncomputable def leafCircuit.copies68 : List (Target × Target) := [
     (.wire 58 19, .wire 60 7),
     (.wire 58 20, .wire 60 8),
     (.wire 58 21, .wire 60 9),
@@ -2514,7 +2514,7 @@ def leafCircuit.copies68 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2208..2240`. -/
-def leafCircuit.copies69 : List (Target × Target) := [
+noncomputable def leafCircuit.copies69 : List (Target × Target) := [
     (.wire 61 9, .virt 14),
     (.wire 61 10, .virt 14),
     (.wire 61 11, .virt 14),
@@ -2550,7 +2550,7 @@ def leafCircuit.copies69 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2240..2272`. -/
-def leafCircuit.copies70 : List (Target × Target) := [
+noncomputable def leafCircuit.copies70 : List (Target × Target) := [
     (.wire 61 41, .virt 14),
     (.wire 61 42, .virt 14),
     (.wire 61 43, .virt 14),
@@ -2586,7 +2586,7 @@ def leafCircuit.copies70 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2272..2304`. -/
-def leafCircuit.copies71 : List (Target × Target) := [
+noncomputable def leafCircuit.copies71 : List (Target × Target) := [
     (.virt 292, .wire 62 0),
     (.virt 292, .wire 62 1),
     (.wire 61 4, .wire 62 2),
@@ -2622,7 +2622,7 @@ def leafCircuit.copies71 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2304..2336`. -/
-def leafCircuit.copies72 : List (Target × Target) := [
+noncomputable def leafCircuit.copies72 : List (Target × Target) := [
     (.wire 61 2, .wire 62 14),
     (.wire 63 7, .wire 63 12),
     (.wire 62 15, .wire 63 13),
@@ -2658,7 +2658,7 @@ def leafCircuit.copies72 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2336..2368`. -/
-def leafCircuit.copies73 : List (Target × Target) := [
+noncomputable def leafCircuit.copies73 : List (Target × Target) := [
     (.wire 64 16, .virt 14),
     (.wire 64 17, .virt 14),
     (.wire 64 18, .virt 14),
@@ -2694,7 +2694,7 @@ def leafCircuit.copies73 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2368..2400`. -/
-def leafCircuit.copies74 : List (Target × Target) := [
+noncomputable def leafCircuit.copies74 : List (Target × Target) := [
     (.wire 64 48, .virt 14),
     (.wire 64 49, .virt 14),
     (.wire 64 50, .virt 14),
@@ -2730,7 +2730,7 @@ def leafCircuit.copies74 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2400..2432`. -/
-def leafCircuit.copies75 : List (Target × Target) := [
+noncomputable def leafCircuit.copies75 : List (Target × Target) := [
     (.virt 292, .wire 62 34),
     (.virt 330, .wire 63 32),
     (.wire 62 35, .wire 63 33),
@@ -2766,7 +2766,7 @@ def leafCircuit.copies75 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2432..2464`. -/
-def leafCircuit.copies76 : List (Target × Target) := [
+noncomputable def leafCircuit.copies76 : List (Target × Target) := [
     (.virt 211, .wire 62 56),
     (.virt 292, .wire 62 57),
     (.virt 295, .wire 62 58),
@@ -2802,7 +2802,7 @@ def leafCircuit.copies76 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2464..2496`. -/
-def leafCircuit.copies77 : List (Target × Target) := [
+noncomputable def leafCircuit.copies77 : List (Target × Target) := [
     (.virt 328, .wire 65 28),
     (.virt 66, .wire 65 29),
     (.virt 66, .wire 65 30),
@@ -2838,7 +2838,7 @@ def leafCircuit.copies77 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2496..2528`. -/
-def leafCircuit.copies78 : List (Target × Target) := [
+noncomputable def leafCircuit.copies78 : List (Target × Target) := [
     (.virt 69, .wire 66 10),
     (.virt 328, .wire 66 12),
     (.virt 65, .wire 66 13),
@@ -2874,7 +2874,7 @@ def leafCircuit.copies78 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2528..2560`. -/
-def leafCircuit.copies79 : List (Target × Target) := [
+noncomputable def leafCircuit.copies79 : List (Target × Target) := [
     (.virt 67, .wire 66 45),
     (.wire 66 43, .wire 66 46),
     (.virt 332, .wire 66 48),
@@ -2910,7 +2910,7 @@ def leafCircuit.copies79 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2560..2592`. -/
-def leafCircuit.copies80 : List (Target × Target) := [
+noncomputable def leafCircuit.copies80 : List (Target × Target) := [
     (.wire 59 23, .wire 67 28),
     (.virt 74, .wire 67 29),
     (.virt 74, .wire 67 30),
@@ -2946,7 +2946,7 @@ def leafCircuit.copies80 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2592..2624`. -/
-def leafCircuit.copies81 : List (Target × Target) := [
+noncomputable def leafCircuit.copies81 : List (Target × Target) := [
     (.virt 74, .wire 68 10),
     (.virt 334, .wire 68 12),
     (.wire 56 55, .wire 68 13),
@@ -2982,7 +2982,7 @@ def leafCircuit.copies81 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2624..2656`. -/
-def leafCircuit.copies82 : List (Target × Target) := [
+noncomputable def leafCircuit.copies82 : List (Target × Target) := [
     (.virt 292, .wire 59 45),
     (.wire 67 59, .wire 59 46),
     (.wire 69 18, .wire 59 48),
@@ -3018,7 +3018,7 @@ def leafCircuit.copies82 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2656..2688`. -/
-def leafCircuit.copies83 : List (Target × Target) := [
+noncomputable def leafCircuit.copies83 : List (Target × Target) := [
     (.wire 70 21, .wire 71 9),
     (.wire 70 22, .wire 71 10),
     (.wire 70 23, .wire 71 11),
@@ -3054,7 +3054,7 @@ def leafCircuit.copies83 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2688..2720`. -/
-def leafCircuit.copies84 : List (Target × Target) := [
+noncomputable def leafCircuit.copies84 : List (Target × Target) := [
     (.wire 72 11, .virt 14),
     (.wire 72 12, .virt 14),
     (.wire 72 13, .virt 14),
@@ -3090,7 +3090,7 @@ def leafCircuit.copies84 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2720..2752`. -/
-def leafCircuit.copies85 : List (Target × Target) := [
+noncomputable def leafCircuit.copies85 : List (Target × Target) := [
     (.wire 72 43, .virt 14),
     (.wire 72 44, .virt 14),
     (.wire 72 45, .virt 14),
@@ -3126,7 +3126,7 @@ def leafCircuit.copies85 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2752..2784`. -/
-def leafCircuit.copies86 : List (Target × Target) := [
+noncomputable def leafCircuit.copies86 : List (Target × Target) := [
     (.wire 72 4, .wire 68 54),
     (.wire 68 51, .wire 74 0),
     (.wire 68 55, .wire 74 1),
@@ -3162,7 +3162,7 @@ def leafCircuit.copies86 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2784..2816`. -/
-def leafCircuit.copies87 : List (Target × Target) := [
+noncomputable def leafCircuit.copies87 : List (Target × Target) := [
     (.wire 75 7, .wire 74 17),
     (.wire 74 11, .wire 74 18),
     (.virt 294, .wire 74 20),
@@ -3198,7 +3198,7 @@ def leafCircuit.copies87 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2816..2848`. -/
-def leafCircuit.copies88 : List (Target × Target) := [
+noncomputable def leafCircuit.copies88 : List (Target × Target) := [
     (.wire 76 18, .virt 14),
     (.wire 76 19, .virt 14),
     (.wire 76 20, .virt 14),
@@ -3234,7 +3234,7 @@ def leafCircuit.copies88 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2848..2880`. -/
-def leafCircuit.copies89 : List (Target × Target) := [
+noncomputable def leafCircuit.copies89 : List (Target × Target) := [
     (.wire 76 50, .virt 14),
     (.wire 76 51, .virt 14),
     (.wire 76 52, .virt 14),
@@ -3270,7 +3270,7 @@ def leafCircuit.copies89 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2880..2912`. -/
-def leafCircuit.copies90 : List (Target × Target) := [
+noncomputable def leafCircuit.copies90 : List (Target × Target) := [
     (.wire 75 31, .wire 74 37),
     (.virt 338, .wire 74 38),
     (.wire 75 31, .wire 74 40),
@@ -3306,7 +3306,7 @@ def leafCircuit.copies90 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2912..2944`. -/
-def leafCircuit.copies91 : List (Target × Target) := [
+noncomputable def leafCircuit.copies91 : List (Target × Target) := [
     (.virt 295, .wire 75 54),
     (.virt 342, .wire 74 52),
     (.wire 75 55, .wire 74 53),
@@ -3342,7 +3342,7 @@ def leafCircuit.copies91 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2944..2976`. -/
-def leafCircuit.copies92 : List (Target × Target) := [
+noncomputable def leafCircuit.copies92 : List (Target × Target) := [
     (.virt 78, .wire 77 26),
     (.virt 336, .wire 77 28),
     (.wire 68 47, .wire 77 29),
@@ -3378,7 +3378,7 @@ def leafCircuit.copies92 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `2976..3008`. -/
-def leafCircuit.copies93 : List (Target × Target) := [
+noncomputable def leafCircuit.copies93 : List (Target × Target) := [
     (.virt 77, .wire 78 9),
     (.wire 78 7, .wire 78 10),
     (.virt 338, .wire 78 12),
@@ -3414,7 +3414,7 @@ def leafCircuit.copies93 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3008..3040`. -/
-def leafCircuit.copies94 : List (Target × Target) := [
+noncomputable def leafCircuit.copies94 : List (Target × Target) := [
     (.virt 340, .wire 78 44),
     (.wire 78 43, .wire 78 45),
     (.wire 78 43, .wire 78 46),
@@ -3450,7 +3450,7 @@ def leafCircuit.copies94 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3040..3072`. -/
-def leafCircuit.copies95 : List (Target × Target) := [
+noncomputable def leafCircuit.copies95 : List (Target × Target) := [
     (.virt 86, .wire 79 26),
     (.wire 73 19, .wire 79 28),
     (.virt 82, .wire 79 29),
@@ -3486,7 +3486,7 @@ def leafCircuit.copies95 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3072..3104`. -/
-def leafCircuit.copies96 : List (Target × Target) := [
+noncomputable def leafCircuit.copies96 : List (Target × Target) := [
     (.wire 68 47, .wire 80 9),
     (.wire 80 7, .wire 80 10),
     (.wire 77 7, .wire 81 0),
@@ -3522,7 +3522,7 @@ def leafCircuit.copies96 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3104..3136`. -/
-def leafCircuit.copies97 : List (Target × Target) := [
+noncomputable def leafCircuit.copies97 : List (Target × Target) := [
     (.wire 81 18, .wire 73 44),
     (.virt 292, .wire 73 45),
     (.wire 80 3, .wire 73 46),
@@ -3558,7 +3558,7 @@ def leafCircuit.copies97 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3136..3168`. -/
-def leafCircuit.copies98 : List (Target × Target) := [
+noncomputable def leafCircuit.copies98 : List (Target × Target) := [
     (.wire 82 23, .wire 83 11),
     (.wire 73 11, .wire 80 12),
     (.wire 68 23, .wire 80 13),
@@ -3594,7 +3594,7 @@ def leafCircuit.copies98 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3168..3200`. -/
-def leafCircuit.copies99 : List (Target × Target) := [
+noncomputable def leafCircuit.copies99 : List (Target × Target) := [
     (.wire 84 13, .virt 14),
     (.wire 84 14, .virt 14),
     (.wire 84 15, .virt 14),
@@ -3630,7 +3630,7 @@ def leafCircuit.copies99 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3200..3232`. -/
-def leafCircuit.copies100 : List (Target × Target) := [
+noncomputable def leafCircuit.copies100 : List (Target × Target) := [
     (.wire 84 45, .virt 14),
     (.wire 84 46, .virt 14),
     (.wire 84 47, .virt 14),
@@ -3666,7 +3666,7 @@ def leafCircuit.copies100 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3232..3264`. -/
-def leafCircuit.copies101 : List (Target × Target) := [
+noncomputable def leafCircuit.copies101 : List (Target × Target) := [
     (.wire 80 51, .wire 85 5),
     (.wire 80 47, .wire 85 6),
     (.virt 294, .wire 85 8),
@@ -3702,7 +3702,7 @@ def leafCircuit.copies101 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3264..3296`. -/
-def leafCircuit.copies102 : List (Target × Target) := [
+noncomputable def leafCircuit.copies102 : List (Target × Target) := [
     (.wire 84 1, .wire 85 24),
     (.wire 85 23, .wire 85 25),
     (.wire 84 1, .wire 85 26),
@@ -3738,7 +3738,7 @@ def leafCircuit.copies102 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3296..3328`. -/
-def leafCircuit.copies103 : List (Target × Target) := [
+noncomputable def leafCircuit.copies103 : List (Target × Target) := [
     (.wire 88 20, .virt 14),
     (.wire 88 21, .virt 14),
     (.wire 88 22, .virt 14),
@@ -3774,7 +3774,7 @@ def leafCircuit.copies103 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3328..3360`. -/
-def leafCircuit.copies104 : List (Target × Target) := [
+noncomputable def leafCircuit.copies104 : List (Target × Target) := [
     (.wire 88 52, .virt 14),
     (.wire 88 53, .virt 14),
     (.wire 88 54, .virt 14),
@@ -3810,7 +3810,7 @@ def leafCircuit.copies104 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3360..3392`. -/
-def leafCircuit.copies105 : List (Target × Target) := [
+noncomputable def leafCircuit.copies105 : List (Target × Target) := [
     (.wire 87 27, .wire 85 44),
     (.virt 347, .wire 85 45),
     (.wire 87 27, .wire 85 46),
@@ -3846,7 +3846,7 @@ def leafCircuit.copies105 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3392..3424`. -/
-def leafCircuit.copies106 : List (Target × Target) := [
+noncomputable def leafCircuit.copies106 : List (Target × Target) := [
     (.wire 87 51, .wire 85 57),
     (.virt 350, .wire 85 58),
     (.wire 87 51, .wire 89 0),
@@ -3882,7 +3882,7 @@ def leafCircuit.copies106 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3424..3456`. -/
-def leafCircuit.copies107 : List (Target × Target) := [
+noncomputable def leafCircuit.copies107 : List (Target × Target) := [
     (.wire 80 43, .wire 90 25),
     (.wire 90 23, .wire 90 26),
     (.virt 344, .wire 90 28),
@@ -3918,7 +3918,7 @@ def leafCircuit.copies107 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3456..3488`. -/
-def leafCircuit.copies108 : List (Target × Target) := [
+noncomputable def leafCircuit.copies108 : List (Target × Target) := [
     (.virt 346, .wire 91 8),
     (.wire 91 7, .wire 91 9),
     (.wire 91 7, .wire 91 10),
@@ -3954,7 +3954,7 @@ def leafCircuit.copies108 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3488..3520`. -/
-def leafCircuit.copies109 : List (Target × Target) := [
+noncomputable def leafCircuit.copies109 : List (Target × Target) := [
     (.wire 91 39, .wire 91 42),
     (.virt 348, .wire 91 44),
     (.wire 80 19, .wire 91 45),
@@ -3990,7 +3990,7 @@ def leafCircuit.copies109 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3520..3552`. -/
-def leafCircuit.copies110 : List (Target × Target) := [
+noncomputable def leafCircuit.copies110 : List (Target × Target) := [
     (.virt 94, .wire 92 25),
     (.wire 92 23, .wire 92 26),
     (.virt 348, .wire 92 28),
@@ -4026,7 +4026,7 @@ def leafCircuit.copies110 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3552..3584`. -/
-def leafCircuit.copies111 : List (Target × Target) := [
+noncomputable def leafCircuit.copies111 : List (Target × Target) := [
     (.wire 90 3, .wire 94 0),
     (.wire 90 11, .wire 94 1),
     (.wire 90 19, .wire 94 2),
@@ -4062,7 +4062,7 @@ def leafCircuit.copies111 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3584..3616`. -/
-def leafCircuit.copies112 : List (Target × Target) := [
+noncomputable def leafCircuit.copies112 : List (Target × Target) := [
     (.wire 92 59, .wire 86 42),
     (.wire 94 19, .wire 86 44),
     (.virt 292, .wire 86 45),
@@ -4098,7 +4098,7 @@ def leafCircuit.copies112 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3616..3648`. -/
-def leafCircuit.copies113 : List (Target × Target) := [
+noncomputable def leafCircuit.copies113 : List (Target × Target) := [
     (.wire 80 19, .wire 93 9),
     (.wire 80 19, .wire 93 10),
     (.wire 86 11, .wire 93 12),
@@ -4134,7 +4134,7 @@ def leafCircuit.copies113 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3648..3680`. -/
-def leafCircuit.copies114 : List (Target × Target) := [
+noncomputable def leafCircuit.copies114 : List (Target × Target) := [
     (.wire 97 15, .virt 14),
     (.wire 97 16, .virt 14),
     (.wire 97 17, .virt 14),
@@ -4170,7 +4170,7 @@ def leafCircuit.copies114 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3680..3712`. -/
-def leafCircuit.copies115 : List (Target × Target) := [
+noncomputable def leafCircuit.copies115 : List (Target × Target) := [
     (.wire 97 47, .virt 14),
     (.wire 97 48, .virt 14),
     (.wire 97 49, .virt 14),
@@ -4206,7 +4206,7 @@ def leafCircuit.copies115 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3712..3744`. -/
-def leafCircuit.copies116 : List (Target × Target) := [
+noncomputable def leafCircuit.copies116 : List (Target × Target) := [
     (.virt 294, .wire 89 12),
     (.wire 97 3, .wire 89 13),
     (.virt 294, .wire 89 14),
@@ -4242,7 +4242,7 @@ def leafCircuit.copies116 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3744..3776`. -/
-def leafCircuit.copies117 : List (Target × Target) := [
+noncomputable def leafCircuit.copies117 : List (Target × Target) := [
     (.virt 294, .wire 89 30),
     (.virt 292, .wire 98 4),
     (.virt 292, .wire 98 5),
@@ -4278,7 +4278,7 @@ def leafCircuit.copies117 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3776..3808`. -/
-def leafCircuit.copies118 : List (Target × Target) := [
+noncomputable def leafCircuit.copies118 : List (Target × Target) := [
     (.wire 100 22, .virt 14),
     (.wire 100 23, .virt 14),
     (.wire 100 24, .virt 14),
@@ -4314,7 +4314,7 @@ def leafCircuit.copies118 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3808..3840`. -/
-def leafCircuit.copies119 : List (Target × Target) := [
+noncomputable def leafCircuit.copies119 : List (Target × Target) := [
     (.wire 100 54, .virt 14),
     (.wire 100 55, .virt 14),
     (.wire 100 56, .virt 14),
@@ -4350,7 +4350,7 @@ def leafCircuit.copies119 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3840..3872`. -/
-def leafCircuit.copies120 : List (Target × Target) := [
+noncomputable def leafCircuit.copies120 : List (Target × Target) := [
     (.wire 99 27, .wire 89 50),
     (.wire 89 51, .wire 99 28),
     (.virt 292, .wire 99 29),
@@ -4386,7 +4386,7 @@ def leafCircuit.copies120 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3872..3904`. -/
-def leafCircuit.copies121 : List (Target × Target) := [
+noncomputable def leafCircuit.copies121 : List (Target × Target) := [
     (.wire 99 51, .wire 101 4),
     (.virt 359, .wire 101 5),
     (.wire 99 51, .wire 101 6),
@@ -4422,7 +4422,7 @@ def leafCircuit.copies121 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3904..3936`. -/
-def leafCircuit.copies122 : List (Target × Target) := [
+noncomputable def leafCircuit.copies122 : List (Target × Target) := [
     (.virt 352, .wire 102 28),
     (.virt 103, .wire 102 29),
     (.virt 103, .wire 102 30),
@@ -4458,7 +4458,7 @@ def leafCircuit.copies122 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3936..3968`. -/
-def leafCircuit.copies123 : List (Target × Target) := [
+noncomputable def leafCircuit.copies123 : List (Target × Target) := [
     (.wire 103 7, .wire 103 10),
     (.virt 354, .wire 103 12),
     (.wire 93 31, .wire 103 13),
@@ -4494,7 +4494,7 @@ def leafCircuit.copies123 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `3968..4000`. -/
-def leafCircuit.copies124 : List (Target × Target) := [
+noncomputable def leafCircuit.copies124 : List (Target × Target) := [
     (.wire 93 15, .wire 103 45),
     (.wire 103 43, .wire 103 46),
     (.wire 98 11, .wire 103 48),
@@ -4530,7 +4530,7 @@ def leafCircuit.copies124 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4000..4032`. -/
-def leafCircuit.copies125 : List (Target × Target) := [
+noncomputable def leafCircuit.copies125 : List (Target × Target) := [
     (.virt 356, .wire 105 28),
     (.wire 105 27, .wire 105 29),
     (.wire 105 27, .wire 105 30),
@@ -4566,7 +4566,7 @@ def leafCircuit.copies125 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4032..4064`. -/
-def leafCircuit.copies126 : List (Target × Target) := [
+noncomputable def leafCircuit.copies126 : List (Target × Target) := [
     (.wire 102 19, .wire 107 2),
     (.wire 102 27, .wire 107 3),
     (.wire 102 43, .wire 107 4),
@@ -4602,7 +4602,7 @@ def leafCircuit.copies126 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4064..4096`. -/
-def leafCircuit.copies127 : List (Target × Target) := [
+noncomputable def leafCircuit.copies127 : List (Target × Target) := [
     (.virt 292, .wire 98 41),
     (.wire 106 7, .wire 98 42),
     (.wire 98 15, .wire 108 0),
@@ -4638,7 +4638,7 @@ def leafCircuit.copies127 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4096..4128`. -/
-def leafCircuit.copies128 : List (Target × Target) := [
+noncomputable def leafCircuit.copies128 : List (Target × Target) := [
     (.wire 86 55, .wire 106 12),
     (.wire 109 12, .wire 106 13),
     (.wire 106 11, .wire 106 14),
@@ -4674,7 +4674,7 @@ def leafCircuit.copies128 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4128..4160`. -/
-def leafCircuit.copies129 : List (Target × Target) := [
+noncomputable def leafCircuit.copies129 : List (Target × Target) := [
     (.wire 110 17, .virt 14),
     (.wire 110 18, .virt 14),
     (.wire 110 19, .virt 14),
@@ -4710,7 +4710,7 @@ def leafCircuit.copies129 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4160..4192`. -/
-def leafCircuit.copies130 : List (Target × Target) := [
+noncomputable def leafCircuit.copies130 : List (Target × Target) := [
     (.wire 110 49, .virt 14),
     (.wire 110 50, .virt 14),
     (.wire 110 51, .virt 14),
@@ -4746,7 +4746,7 @@ def leafCircuit.copies130 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4192..4224`. -/
-def leafCircuit.copies131 : List (Target × Target) := [
+noncomputable def leafCircuit.copies131 : List (Target × Target) := [
     (.wire 110 3, .wire 101 18),
     (.wire 110 5, .wire 104 4),
     (.wire 101 19, .wire 104 5),
@@ -4782,7 +4782,7 @@ def leafCircuit.copies131 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4224..4256`. -/
-def leafCircuit.copies132 : List (Target × Target) := [
+noncomputable def leafCircuit.copies132 : List (Target × Target) := [
     (.wire 101 35, .wire 104 13),
     (.wire 98 59, .wire 104 14),
     (.wire 104 15, .wire 111 0),
@@ -4818,7 +4818,7 @@ def leafCircuit.copies132 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4256..4288`. -/
-def leafCircuit.copies133 : List (Target × Target) := [
+noncomputable def leafCircuit.copies133 : List (Target × Target) := [
     (.wire 113 24, .virt 14),
     (.wire 113 25, .virt 14),
     (.wire 113 26, .virt 14),
@@ -4854,7 +4854,7 @@ def leafCircuit.copies133 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4288..4320`. -/
-def leafCircuit.copies134 : List (Target × Target) := [
+noncomputable def leafCircuit.copies134 : List (Target × Target) := [
     (.wire 113 56, .virt 14),
     (.wire 113 57, .virt 14),
     (.wire 113 58, .virt 14),
@@ -4890,7 +4890,7 @@ def leafCircuit.copies134 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4320..4352`. -/
-def leafCircuit.copies135 : List (Target × Target) := [
+noncomputable def leafCircuit.copies135 : List (Target × Target) := [
     (.virt 292, .wire 112 21),
     (.wire 112 15, .wire 112 22),
     (.wire 101 51, .virt 14),
@@ -4926,7 +4926,7 @@ def leafCircuit.copies135 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4352..4384`. -/
-def leafCircuit.copies136 : List (Target × Target) := [
+noncomputable def leafCircuit.copies136 : List (Target × Target) := [
     (.wire 112 43, .wire 114 10),
     (.wire 114 11, .wire 112 44),
     (.virt 292, .wire 112 45),
@@ -4962,7 +4962,7 @@ def leafCircuit.copies136 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4384..4416`. -/
-def leafCircuit.copies137 : List (Target × Target) := [
+noncomputable def leafCircuit.copies137 : List (Target × Target) := [
     (.virt 115, .wire 115 22),
     (.virt 360, .wire 115 24),
     (.virt 111, .wire 115 25),
@@ -4998,7 +4998,7 @@ def leafCircuit.copies137 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4416..4448`. -/
-def leafCircuit.copies138 : List (Target × Target) := [
+noncomputable def leafCircuit.copies138 : List (Target × Target) := [
     (.wire 106 31, .wire 116 5),
     (.wire 116 3, .wire 116 6),
     (.virt 360, .wire 116 8),
@@ -5034,7 +5034,7 @@ def leafCircuit.copies138 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4448..4480`. -/
-def leafCircuit.copies139 : List (Target × Target) := [
+noncomputable def leafCircuit.copies139 : List (Target × Target) := [
     (.wire 111 7, .wire 116 40),
     (.virt 120, .wire 116 41),
     (.virt 120, .wire 116 42),
@@ -5070,7 +5070,7 @@ def leafCircuit.copies139 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4480..4512`. -/
-def leafCircuit.copies140 : List (Target × Target) := [
+noncomputable def leafCircuit.copies140 : List (Target × Target) := [
     (.wire 117 19, .wire 117 22),
     (.virt 364, .wire 117 24),
     (.wire 106 39, .wire 117 25),
@@ -5106,7 +5106,7 @@ def leafCircuit.copies140 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4512..4544`. -/
-def leafCircuit.copies141 : List (Target × Target) := [
+noncomputable def leafCircuit.copies141 : List (Target × Target) := [
     (.wire 115 35, .wire 118 4),
     (.wire 115 51, .wire 118 5),
     (.wire 116 7, .wire 118 6),
@@ -5142,7 +5142,7 @@ def leafCircuit.copies141 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4544..4576`. -/
-def leafCircuit.copies142 : List (Target × Target) := [
+noncomputable def leafCircuit.copies142 : List (Target × Target) := [
     (.wire 111 11, .wire 119 0),
     (.wire 111 15, .wire 119 1),
     (.wire 111 19, .wire 119 2),
@@ -5178,7 +5178,7 @@ def leafCircuit.copies142 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4576..4608`. -/
-def leafCircuit.copies143 : List (Target × Target) := [
+noncomputable def leafCircuit.copies143 : List (Target × Target) := [
     (.wire 121 3, .wire 121 6),
     (.wire 111 3, .wire 121 8),
     (.wire 106 23, .wire 121 9),
@@ -5214,7 +5214,7 @@ def leafCircuit.copies143 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4608..4640`. -/
-def leafCircuit.copies144 : List (Target × Target) := [
+noncomputable def leafCircuit.copies144 : List (Target × Target) := [
     (.wire 122 19, .virt 14),
     (.wire 122 20, .virt 14),
     (.wire 122 21, .virt 14),
@@ -5250,7 +5250,7 @@ def leafCircuit.copies144 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4640..4672`. -/
-def leafCircuit.copies145 : List (Target × Target) := [
+noncomputable def leafCircuit.copies145 : List (Target × Target) := [
     (.wire 122 51, .virt 14),
     (.wire 122 52, .virt 14),
     (.wire 122 53, .virt 14),
@@ -5286,7 +5286,7 @@ def leafCircuit.copies145 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4672..4704`. -/
-def leafCircuit.copies146 : List (Target × Target) := [
+noncomputable def leafCircuit.copies146 : List (Target × Target) := [
     (.wire 114 23, .wire 104 21),
     (.wire 122 5, .wire 104 22),
     (.wire 104 23, .wire 111 48),
@@ -5322,7 +5322,7 @@ def leafCircuit.copies146 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4704..4736`. -/
-def leafCircuit.copies147 : List (Target × Target) := [
+noncomputable def leafCircuit.copies147 : List (Target × Target) := [
     (.wire 111 59, .wire 121 52),
     (.virt 292, .wire 121 53),
     (.wire 114 39, .wire 121 54),
@@ -5358,7 +5358,7 @@ def leafCircuit.copies147 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4736..4768`. -/
-def leafCircuit.copies148 : List (Target × Target) := [
+noncomputable def leafCircuit.copies148 : List (Target × Target) := [
     (.wire 123 26, .virt 14),
     (.wire 123 27, .virt 14),
     (.wire 123 28, .virt 14),
@@ -5394,7 +5394,7 @@ def leafCircuit.copies148 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4768..4800`. -/
-def leafCircuit.copies149 : List (Target × Target) := [
+noncomputable def leafCircuit.copies149 : List (Target × Target) := [
     (.wire 123 58, .virt 14),
     (.wire 123 59, .virt 14),
     (.wire 123 0, .virt 216),
@@ -5430,7 +5430,7 @@ def leafCircuit.copies149 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4800..4832`. -/
-def leafCircuit.copies150 : List (Target × Target) := [
+noncomputable def leafCircuit.copies150 : List (Target × Target) := [
     (.wire 114 55, .virt 14),
     (.wire 124 19, .virt 14),
     (.virt 292, .wire 124 20),
@@ -5466,7 +5466,7 @@ def leafCircuit.copies150 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4832..4864`. -/
-def leafCircuit.copies151 : List (Target × Target) := [
+noncomputable def leafCircuit.copies151 : List (Target × Target) := [
     (.virt 292, .wire 124 41),
     (.wire 124 35, .wire 124 42),
     (.wire 125 11, .virt 14),
@@ -5502,7 +5502,7 @@ def leafCircuit.copies151 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4864..4896`. -/
-def leafCircuit.copies152 : List (Target × Target) := [
+noncomputable def leafCircuit.copies152 : List (Target × Target) := [
     (.virt 123, .wire 126 21),
     (.wire 126 19, .wire 126 22),
     (.virt 370, .wire 126 24),
@@ -5538,7 +5538,7 @@ def leafCircuit.copies152 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4896..4928`. -/
-def leafCircuit.copies153 : List (Target × Target) := [
+noncomputable def leafCircuit.copies153 : List (Target × Target) := [
     (.virt 368, .wire 127 4),
     (.virt 130, .wire 127 5),
     (.virt 130, .wire 127 6),
@@ -5574,7 +5574,7 @@ def leafCircuit.copies153 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4928..4960`. -/
-def leafCircuit.copies154 : List (Target × Target) := [
+noncomputable def leafCircuit.copies154 : List (Target × Target) := [
     (.virt 132, .wire 127 38),
     (.wire 128 3, .wire 127 40),
     (.virt 128, .wire 127 41),
@@ -5610,7 +5610,7 @@ def leafCircuit.copies154 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4960..4992`. -/
-def leafCircuit.copies155 : List (Target × Target) := [
+noncomputable def leafCircuit.copies155 : List (Target × Target) := [
     (.wire 121 31, .wire 129 21),
     (.wire 129 19, .wire 129 22),
     (.virt 374, .wire 129 24),
@@ -5646,7 +5646,7 @@ def leafCircuit.copies155 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `4992..5024`. -/
-def leafCircuit.copies156 : List (Target × Target) := [
+noncomputable def leafCircuit.copies156 : List (Target × Target) := [
     (.wire 127 3, .wire 130 6),
     (.wire 127 19, .wire 130 7),
     (.virt 14, .wire 130 8),
@@ -5682,7 +5682,7 @@ def leafCircuit.copies156 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5024..5056`. -/
-def leafCircuit.copies157 : List (Target × Target) := [
+noncomputable def leafCircuit.copies157 : List (Target × Target) := [
     (.wire 128 15, .wire 131 2),
     (.wire 128 19, .wire 131 3),
     (.wire 128 23, .wire 131 4),
@@ -5718,7 +5718,7 @@ def leafCircuit.copies157 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5056..5088`. -/
-def leafCircuit.copies158 : List (Target × Target) := [
+noncomputable def leafCircuit.copies158 : List (Target × Target) := [
     (.wire 121 15, .wire 133 5),
     (.wire 121 15, .wire 133 6),
     (.wire 111 55, .wire 133 8),
@@ -5754,7 +5754,7 @@ def leafCircuit.copies158 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5088..5120`. -/
-def leafCircuit.copies159 : List (Target × Target) := [
+noncomputable def leafCircuit.copies159 : List (Target × Target) := [
     (.wire 134 21, .virt 14),
     (.wire 134 22, .virt 14),
     (.wire 134 23, .virt 14),
@@ -5790,7 +5790,7 @@ def leafCircuit.copies159 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5120..5152`. -/
-def leafCircuit.copies160 : List (Target × Target) := [
+noncomputable def leafCircuit.copies160 : List (Target × Target) := [
     (.wire 134 53, .virt 14),
     (.wire 134 54, .virt 14),
     (.wire 134 55, .virt 14),
@@ -5826,7 +5826,7 @@ def leafCircuit.copies160 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5152..5184`. -/
-def leafCircuit.copies161 : List (Target × Target) := [
+noncomputable def leafCircuit.copies161 : List (Target × Target) := [
     (.wire 104 35, .wire 128 44),
     (.virt 292, .wire 128 45),
     (.wire 125 27, .wire 128 46),
@@ -5862,7 +5862,7 @@ def leafCircuit.copies161 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5184..5216`. -/
-def leafCircuit.copies162 : List (Target × Target) := [
+noncomputable def leafCircuit.copies162 : List (Target × Target) := [
     (.wire 125 43, .wire 128 54),
     (.virt 292, .wire 133 52),
     (.virt 292, .wire 133 53),
@@ -5898,7 +5898,7 @@ def leafCircuit.copies162 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5216..5248`. -/
-def leafCircuit.copies163 : List (Target × Target) := [
+noncomputable def leafCircuit.copies163 : List (Target × Target) := [
     (.wire 135 28, .virt 14),
     (.wire 135 29, .virt 14),
     (.wire 135 30, .virt 14),
@@ -5934,7 +5934,7 @@ def leafCircuit.copies163 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5248..5280`. -/
-def leafCircuit.copies164 : List (Target × Target) := [
+noncomputable def leafCircuit.copies164 : List (Target × Target) := [
     (.wire 135 0, .virt 217),
     (.virt 292, .wire 133 56),
     (.virt 292, .wire 133 57),
@@ -5970,7 +5970,7 @@ def leafCircuit.copies164 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5280..5312`. -/
-def leafCircuit.copies165 : List (Target × Target) := [
+noncomputable def leafCircuit.copies165 : List (Target × Target) := [
     (.virt 292, .wire 136 16),
     (.virt 292, .wire 136 17),
     (.virt 380, .wire 136 18),
@@ -6006,7 +6006,7 @@ def leafCircuit.copies165 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5312..5344`. -/
-def leafCircuit.copies166 : List (Target × Target) := [
+noncomputable def leafCircuit.copies166 : List (Target × Target) := [
     (.wire 137 15, .virt 14),
     (.wire 136 39, .virt 14),
     (.virt 376, .wire 136 40),
@@ -6042,7 +6042,7 @@ def leafCircuit.copies166 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5344..5376`. -/
-def leafCircuit.copies167 : List (Target × Target) := [
+noncomputable def leafCircuit.copies167 : List (Target × Target) := [
     (.virt 378, .wire 138 20),
     (.wire 138 19, .wire 138 21),
     (.wire 138 19, .wire 138 22),
@@ -6078,7 +6078,7 @@ def leafCircuit.copies167 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5376..5408`. -/
-def leafCircuit.copies168 : List (Target × Target) := [
+noncomputable def leafCircuit.copies168 : List (Target × Target) := [
     (.virt 142, .wire 139 2),
     (.virt 376, .wire 139 4),
     (.virt 138, .wire 139 5),
@@ -6114,7 +6114,7 @@ def leafCircuit.copies168 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5408..5440`. -/
-def leafCircuit.copies169 : List (Target × Target) := [
+noncomputable def leafCircuit.copies169 : List (Target × Target) := [
     (.virt 140, .wire 139 37),
     (.wire 139 35, .wire 139 38),
     (.virt 380, .wire 139 40),
@@ -6150,7 +6150,7 @@ def leafCircuit.copies169 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5440..5472`. -/
-def leafCircuit.copies170 : List (Target × Target) := [
+noncomputable def leafCircuit.copies170 : List (Target × Target) := [
     (.virt 382, .wire 140 20),
     (.virt 143, .wire 140 21),
     (.virt 143, .wire 140 22),
@@ -6186,7 +6186,7 @@ def leafCircuit.copies170 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5472..5504`. -/
-def leafCircuit.copies171 : List (Target × Target) := [
+noncomputable def leafCircuit.copies171 : List (Target × Target) := [
     (.virt 14, .wire 141 8),
     (.virt 14, .wire 141 9),
     (.virt 14, .wire 141 10),
@@ -6222,7 +6222,7 @@ def leafCircuit.copies171 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5504..5536`. -/
-def leafCircuit.copies172 : List (Target × Target) := [
+noncomputable def leafCircuit.copies172 : List (Target × Target) := [
     (.wire 142 19, .wire 143 4),
     (.wire 142 23, .wire 143 5),
     (.wire 142 27, .wire 143 6),
@@ -6258,7 +6258,7 @@ def leafCircuit.copies172 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5536..5568`. -/
-def leafCircuit.copies173 : List (Target × Target) := [
+noncomputable def leafCircuit.copies173 : List (Target × Target) := [
     (.wire 128 55, .wire 145 4),
     (.wire 144 13, .wire 145 5),
     (.wire 145 3, .wire 145 6),
@@ -6294,7 +6294,7 @@ def leafCircuit.copies173 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5568..5600`. -/
-def leafCircuit.copies174 : List (Target × Target) := [
+noncomputable def leafCircuit.copies174 : List (Target × Target) := [
     (.wire 146 23, .virt 14),
     (.wire 146 24, .virt 14),
     (.wire 146 25, .virt 14),
@@ -6330,7 +6330,7 @@ def leafCircuit.copies174 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5600..5632`. -/
-def leafCircuit.copies175 : List (Target × Target) := [
+noncomputable def leafCircuit.copies175 : List (Target × Target) := [
     (.wire 146 55, .virt 14),
     (.wire 146 56, .virt 14),
     (.wire 146 57, .virt 14),
@@ -6366,7 +6366,7 @@ def leafCircuit.copies175 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5632..5664`. -/
-def leafCircuit.copies176 : List (Target × Target) := [
+noncomputable def leafCircuit.copies176 : List (Target × Target) := [
     (.wire 137 31, .wire 142 42),
     (.virt 292, .wire 145 36),
     (.virt 292, .wire 145 37),
@@ -6402,7 +6402,7 @@ def leafCircuit.copies176 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5664..5696`. -/
-def leafCircuit.copies177 : List (Target × Target) := [
+noncomputable def leafCircuit.copies177 : List (Target × Target) := [
     (.virt 292, .wire 145 53),
     (.wire 145 51, .wire 145 54),
     (.wire 137 43, .wire 137 48),
@@ -6438,7 +6438,7 @@ def leafCircuit.copies177 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5696..5728`. -/
-def leafCircuit.copies178 : List (Target × Target) := [
+noncomputable def leafCircuit.copies178 : List (Target × Target) := [
     (.wire 147 30, .virt 14),
     (.wire 147 31, .virt 14),
     (.wire 147 32, .virt 14),
@@ -6474,7 +6474,7 @@ def leafCircuit.copies178 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5728..5760`. -/
-def leafCircuit.copies179 : List (Target × Target) := [
+noncomputable def leafCircuit.copies179 : List (Target × Target) := [
     (.virt 292, .wire 145 57),
     (.virt 384, .wire 145 58),
     (.virt 384, .wire 137 52),
@@ -6510,7 +6510,7 @@ def leafCircuit.copies179 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5760..5792`. -/
-def leafCircuit.copies180 : List (Target × Target) := [
+noncomputable def leafCircuit.copies180 : List (Target × Target) := [
     (.virt 388, .wire 148 18),
     (.virt 218, .wire 148 20),
     (.virt 292, .wire 148 21),
@@ -6546,7 +6546,7 @@ def leafCircuit.copies180 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5792..5824`. -/
-def leafCircuit.copies181 : List (Target × Target) := [
+noncomputable def leafCircuit.copies181 : List (Target × Target) := [
     (.virt 384, .wire 148 40),
     (.virt 147, .wire 148 41),
     (.virt 147, .wire 148 42),
@@ -6582,7 +6582,7 @@ def leafCircuit.copies181 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5824..5856`. -/
-def leafCircuit.copies182 : List (Target × Target) := [
+noncomputable def leafCircuit.copies182 : List (Target × Target) := [
     (.wire 150 19, .wire 150 22),
     (.virt 386, .wire 150 24),
     (.wire 140 59, .wire 150 25),
@@ -6618,7 +6618,7 @@ def leafCircuit.copies182 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5856..5888`. -/
-def leafCircuit.copies183 : List (Target × Target) := [
+noncomputable def leafCircuit.copies183 : List (Target × Target) := [
     (.virt 150, .wire 151 5),
     (.wire 151 3, .wire 151 6),
     (.virt 386, .wire 151 8),
@@ -6654,7 +6654,7 @@ def leafCircuit.copies183 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5888..5920`. -/
-def leafCircuit.copies184 : List (Target × Target) := [
+noncomputable def leafCircuit.copies184 : List (Target × Target) := [
     (.virt 388, .wire 151 40),
     (.wire 151 39, .wire 151 41),
     (.wire 151 39, .wire 151 42),
@@ -6690,7 +6690,7 @@ def leafCircuit.copies184 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5920..5952`. -/
-def leafCircuit.copies185 : List (Target × Target) := [
+noncomputable def leafCircuit.copies185 : List (Target × Target) := [
     (.virt 155, .wire 152 22),
     (.virt 390, .wire 152 24),
     (.wire 140 59, .wire 152 25),
@@ -6726,7 +6726,7 @@ def leafCircuit.copies185 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5952..5984`. -/
-def leafCircuit.copies186 : List (Target × Target) := [
+noncomputable def leafCircuit.copies186 : List (Target × Target) := [
     (.virt 14, .wire 153 10),
     (.virt 14, .wire 153 11),
     (.wire 153 12, .wire 142 56),
@@ -6762,7 +6762,7 @@ def leafCircuit.copies186 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `5984..6016`. -/
-def leafCircuit.copies187 : List (Target × Target) := [
+noncomputable def leafCircuit.copies187 : List (Target × Target) := [
     (.wire 154 23, .wire 155 6),
     (.wire 154 27, .wire 155 7),
     (.wire 153 20, .wire 155 8),
@@ -6798,7 +6798,7 @@ def leafCircuit.copies187 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6016..6048`. -/
-def leafCircuit.copies188 : List (Target × Target) := [
+noncomputable def leafCircuit.copies188 : List (Target × Target) := [
     (.wire 157 3, .wire 157 6),
     (.wire 142 43, .wire 157 8),
     (.wire 145 15, .wire 157 9),
@@ -6834,7 +6834,7 @@ def leafCircuit.copies188 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6048..6080`. -/
-def leafCircuit.copies189 : List (Target × Target) := [
+noncomputable def leafCircuit.copies189 : List (Target × Target) := [
     (.wire 158 25, .virt 14),
     (.wire 158 26, .virt 14),
     (.wire 158 27, .virt 14),
@@ -6870,7 +6870,7 @@ def leafCircuit.copies189 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6080..6112`. -/
-def leafCircuit.copies190 : List (Target × Target) := [
+noncomputable def leafCircuit.copies190 : List (Target × Target) := [
     (.wire 158 57, .virt 14),
     (.wire 158 58, .virt 14),
     (.wire 158 59, .virt 14),
@@ -6906,7 +6906,7 @@ def leafCircuit.copies190 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6112..6144`. -/
-def leafCircuit.copies191 : List (Target × Target) := [
+noncomputable def leafCircuit.copies191 : List (Target × Target) := [
     (.virt 292, .wire 157 41),
     (.wire 157 39, .wire 157 42),
     (.wire 149 31, .wire 149 36),
@@ -6942,7 +6942,7 @@ def leafCircuit.copies191 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6144..6176`. -/
-def leafCircuit.copies192 : List (Target × Target) := [
+noncomputable def leafCircuit.copies192 : List (Target × Target) := [
     (.wire 149 47, .wire 149 52),
     (.wire 157 51, .wire 149 53),
     (.wire 149 47, .wire 149 54),
@@ -6978,7 +6978,7 @@ def leafCircuit.copies192 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6176..6208`. -/
-def leafCircuit.copies193 : List (Target × Target) := [
+noncomputable def leafCircuit.copies193 : List (Target × Target) := [
     (.wire 159 32, .virt 14),
     (.wire 159 33, .virt 14),
     (.wire 159 34, .virt 14),
@@ -7014,7 +7014,7 @@ def leafCircuit.copies193 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6208..6240`. -/
-def leafCircuit.copies194 : List (Target × Target) := [
+noncomputable def leafCircuit.copies194 : List (Target × Target) := [
     (.virt 392, .wire 149 56),
     (.virt 219, .wire 149 57),
     (.virt 392, .wire 149 58),
@@ -7050,7 +7050,7 @@ def leafCircuit.copies194 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6240..6272`. -/
-def leafCircuit.copies195 : List (Target × Target) := [
+noncomputable def leafCircuit.copies195 : List (Target × Target) := [
     (.virt 292, .wire 161 17),
     (.virt 294, .wire 161 18),
     (.virt 396, .wire 160 12),
@@ -7086,7 +7086,7 @@ def leafCircuit.copies195 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6272..6304`. -/
-def leafCircuit.copies196 : List (Target × Target) := [
+noncomputable def leafCircuit.copies196 : List (Target × Target) := [
     (.virt 159, .wire 161 38),
     (.virt 392, .wire 161 40),
     (.wire 152 59, .wire 161 41),
@@ -7122,7 +7122,7 @@ def leafCircuit.copies196 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6304..6336`. -/
-def leafCircuit.copies197 : List (Target × Target) := [
+noncomputable def leafCircuit.copies197 : List (Target × Target) := [
     (.wire 152 59, .wire 162 21),
     (.wire 162 19, .wire 162 22),
     (.virt 392, .wire 162 24),
@@ -7158,7 +7158,7 @@ def leafCircuit.copies197 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6336..6368`. -/
-def leafCircuit.copies198 : List (Target × Target) := [
+noncomputable def leafCircuit.copies198 : List (Target × Target) := [
     (.virt 394, .wire 163 4),
     (.wire 163 3, .wire 163 5),
     (.wire 163 3, .wire 163 6),
@@ -7194,7 +7194,7 @@ def leafCircuit.copies198 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6368..6400`. -/
-def leafCircuit.copies199 : List (Target × Target) := [
+noncomputable def leafCircuit.copies199 : List (Target × Target) := [
     (.wire 163 35, .wire 163 38),
     (.virt 396, .wire 163 40),
     (.wire 157 7, .wire 163 41),
@@ -7230,7 +7230,7 @@ def leafCircuit.copies199 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6400..6432`. -/
-def leafCircuit.copies200 : List (Target × Target) := [
+noncomputable def leafCircuit.copies200 : List (Target × Target) := [
     (.wire 152 59, .wire 165 21),
     (.wire 165 19, .wire 165 22),
     (.virt 398, .wire 165 24),
@@ -7266,7 +7266,7 @@ def leafCircuit.copies200 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6432..6464`. -/
-def leafCircuit.copies201 : List (Target × Target) := [
+noncomputable def leafCircuit.copies201 : List (Target × Target) := [
     (.wire 166 12, .wire 154 52),
     (.virt 292, .wire 154 53),
     (.wire 163 27, .wire 154 54),
@@ -7302,7 +7302,7 @@ def leafCircuit.copies201 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6464..6496`. -/
-def leafCircuit.copies202 : List (Target × Target) := [
+noncomputable def leafCircuit.copies202 : List (Target × Target) := [
     (.wire 166 20, .wire 168 8),
     (.wire 166 21, .wire 168 9),
     (.wire 166 22, .wire 168 10),
@@ -7338,7 +7338,7 @@ def leafCircuit.copies202 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6496..6528`. -/
-def leafCircuit.copies203 : List (Target × Target) := [
+noncomputable def leafCircuit.copies203 : List (Target × Target) := [
     (.wire 157 15, .wire 170 5),
     (.wire 157 15, .wire 170 6),
     (.wire 154 47, .wire 170 8),
@@ -7374,7 +7374,7 @@ def leafCircuit.copies203 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6528..6560`. -/
-def leafCircuit.copies204 : List (Target × Target) := [
+noncomputable def leafCircuit.copies204 : List (Target × Target) := [
     (.wire 171 27, .virt 14),
     (.wire 171 28, .virt 14),
     (.wire 171 29, .virt 14),
@@ -7410,7 +7410,7 @@ def leafCircuit.copies204 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6560..6592`. -/
-def leafCircuit.copies205 : List (Target × Target) := [
+noncomputable def leafCircuit.copies205 : List (Target × Target) := [
     (.wire 171 59, .virt 14),
     (.wire 171 0, .virt 12),
     (.virt 292, .wire 170 20),
@@ -7446,7 +7446,7 @@ def leafCircuit.copies205 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6592..6624`. -/
-def leafCircuit.copies206 : List (Target × Target) := [
+noncomputable def leafCircuit.copies206 : List (Target × Target) := [
     (.wire 160 35, .wire 160 40),
     (.wire 170 39, .wire 160 41),
     (.wire 160 35, .wire 160 42),
@@ -7482,7 +7482,7 @@ def leafCircuit.copies206 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6624..6656`. -/
-def leafCircuit.copies207 : List (Target × Target) := [
+noncomputable def leafCircuit.copies207 : List (Target × Target) := [
     (.wire 160 51, .wire 160 58),
     (.wire 172 3, .virt 14),
     (.wire 172 4, .virt 14),
@@ -7518,7 +7518,7 @@ def leafCircuit.copies207 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6656..6688`. -/
-def leafCircuit.copies208 : List (Target × Target) := [
+noncomputable def leafCircuit.copies208 : List (Target × Target) := [
     (.wire 172 34, .virt 14),
     (.wire 172 35, .virt 14),
     (.wire 172 36, .virt 14),
@@ -7554,7 +7554,7 @@ def leafCircuit.copies208 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6688..6720`. -/
-def leafCircuit.copies209 : List (Target × Target) := [
+noncomputable def leafCircuit.copies209 : List (Target × Target) := [
     (.virt 400, .wire 173 2),
     (.virt 220, .wire 173 4),
     (.virt 401, .wire 173 5),
@@ -7590,7 +7590,7 @@ def leafCircuit.copies209 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6720..6752`. -/
-def leafCircuit.copies210 : List (Target × Target) := [
+noncomputable def leafCircuit.copies210 : List (Target × Target) := [
     (.virt 404, .wire 173 16),
     (.wire 174 19, .wire 173 17),
     (.virt 404, .wire 173 18),
@@ -7626,7 +7626,7 @@ def leafCircuit.copies210 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6752..6784`. -/
-def leafCircuit.copies211 : List (Target × Target) := [
+noncomputable def leafCircuit.copies211 : List (Target × Target) := [
     (.wire 165 55, .wire 174 41),
     (.wire 174 39, .wire 174 42),
     (.virt 400, .wire 174 44),
@@ -7662,7 +7662,7 @@ def leafCircuit.copies211 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6784..6816`. -/
-def leafCircuit.copies212 : List (Target × Target) := [
+noncomputable def leafCircuit.copies212 : List (Target × Target) := [
     (.virt 400, .wire 175 24),
     (.virt 176, .wire 175 25),
     (.virt 176, .wire 175 26),
@@ -7698,7 +7698,7 @@ def leafCircuit.copies212 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6816..6848`. -/
-def leafCircuit.copies213 : List (Target × Target) := [
+noncomputable def leafCircuit.copies213 : List (Target × Target) := [
     (.wire 176 3, .wire 176 6),
     (.virt 402, .wire 176 8),
     (.wire 170 19, .wire 176 9),
@@ -7734,7 +7734,7 @@ def leafCircuit.copies213 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6848..6880`. -/
-def leafCircuit.copies214 : List (Target × Target) := [
+noncomputable def leafCircuit.copies214 : List (Target × Target) := [
     (.wire 170 3, .wire 176 41),
     (.wire 176 39, .wire 176 42),
     (.wire 167 47, .wire 176 44),
@@ -7770,7 +7770,7 @@ def leafCircuit.copies214 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6880..6912`. -/
-def leafCircuit.copies215 : List (Target × Target) := [
+noncomputable def leafCircuit.copies215 : List (Target × Target) := [
     (.virt 406, .wire 177 24),
     (.virt 180, .wire 177 25),
     (.virt 180, .wire 177 26),
@@ -7806,7 +7806,7 @@ def leafCircuit.copies215 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6912..6944`. -/
-def leafCircuit.copies216 : List (Target × Target) := [
+noncomputable def leafCircuit.copies216 : List (Target × Target) := [
     (.wire 176 27, .wire 167 50),
     (.wire 178 13, .wire 167 52),
     (.virt 292, .wire 167 53),
@@ -7842,7 +7842,7 @@ def leafCircuit.copies216 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6944..6976`. -/
-def leafCircuit.copies217 : List (Target × Target) := [
+noncomputable def leafCircuit.copies217 : List (Target × Target) := [
     (.wire 178 22, .wire 180 10),
     (.wire 178 23, .wire 180 11),
     (.wire 180 12, .wire 179 20),
@@ -7878,7 +7878,7 @@ def leafCircuit.copies217 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `6976..7008`. -/
-def leafCircuit.copies218 : List (Target × Target) := [
+noncomputable def leafCircuit.copies218 : List (Target × Target) := [
     (.wire 167 39, .wire 182 8),
     (.wire 181 14, .wire 182 9),
     (.wire 182 7, .wire 182 10),
@@ -7914,7 +7914,7 @@ def leafCircuit.copies218 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7008..7040`. -/
-def leafCircuit.copies219 : List (Target × Target) := [
+noncomputable def leafCircuit.copies219 : List (Target × Target) := [
     (.wire 183 29, .virt 14),
     (.wire 183 30, .virt 14),
     (.wire 183 31, .virt 14),
@@ -7950,7 +7950,7 @@ def leafCircuit.copies219 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7040..7072`. -/
-def leafCircuit.copies220 : List (Target × Target) := [
+noncomputable def leafCircuit.copies220 : List (Target × Target) := [
     (.virt 292, .wire 182 20),
     (.virt 292, .wire 182 21),
     (.wire 183 5, .wire 182 22),
@@ -7986,7 +7986,7 @@ def leafCircuit.copies220 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7072..7104`. -/
-def leafCircuit.copies221 : List (Target × Target) := [
+noncomputable def leafCircuit.copies221 : List (Target × Target) := [
     (.wire 173 39, .wire 173 46),
     (.virt 294, .wire 173 48),
     (.wire 183 2, .wire 173 49),
@@ -8022,7 +8022,7 @@ def leafCircuit.copies221 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7104..7136`. -/
-def leafCircuit.copies222 : List (Target × Target) := [
+noncomputable def leafCircuit.copies222 : List (Target × Target) := [
     (.wire 185 4, .virt 14),
     (.wire 185 5, .virt 14),
     (.wire 185 6, .virt 14),
@@ -8058,7 +8058,7 @@ def leafCircuit.copies222 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7136..7168`. -/
-def leafCircuit.copies223 : List (Target × Target) := [
+noncomputable def leafCircuit.copies223 : List (Target × Target) := [
     (.wire 185 36, .virt 14),
     (.wire 185 37, .virt 14),
     (.wire 185 38, .virt 14),
@@ -8094,7 +8094,7 @@ def leafCircuit.copies223 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7168..7200`. -/
-def leafCircuit.copies224 : List (Target × Target) := [
+noncomputable def leafCircuit.copies224 : List (Target × Target) := [
     (.virt 409, .wire 184 9),
     (.virt 221, .wire 184 10),
     (.wire 184 11, .wire 182 56),
@@ -8130,7 +8130,7 @@ def leafCircuit.copies224 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7200..7232`. -/
-def leafCircuit.copies225 : List (Target × Target) := [
+noncomputable def leafCircuit.copies225 : List (Target × Target) := [
     (.virt 412, .wire 184 22),
     (.wire 186 19, .wire 184 24),
     (.virt 413, .wire 184 25),
@@ -8166,7 +8166,7 @@ def leafCircuit.copies225 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7232..7264`. -/
-def leafCircuit.copies226 : List (Target × Target) := [
+noncomputable def leafCircuit.copies226 : List (Target × Target) := [
     (.virt 408, .wire 186 44),
     (.virt 184, .wire 186 45),
     (.virt 184, .wire 186 46),
@@ -8202,7 +8202,7 @@ def leafCircuit.copies226 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7264..7296`. -/
-def leafCircuit.copies227 : List (Target × Target) := [
+noncomputable def leafCircuit.copies227 : List (Target × Target) := [
     (.virt 188, .wire 187 26),
     (.virt 408, .wire 187 28),
     (.virt 184, .wire 187 29),
@@ -8238,7 +8238,7 @@ def leafCircuit.copies227 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7296..7328`. -/
-def leafCircuit.copies228 : List (Target × Target) := [
+noncomputable def leafCircuit.copies228 : List (Target × Target) := [
     (.wire 182 19, .wire 188 9),
     (.wire 188 7, .wire 188 10),
     (.virt 408, .wire 164 16),
@@ -8274,7 +8274,7 @@ def leafCircuit.copies228 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7328..7360`. -/
-def leafCircuit.copies229 : List (Target × Target) := [
+noncomputable def leafCircuit.copies229 : List (Target × Target) := [
     (.wire 179 43, .wire 188 44),
     (.virt 193, .wire 188 45),
     (.virt 193, .wire 188 46),
@@ -8310,7 +8310,7 @@ def leafCircuit.copies229 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7360..7392`. -/
-def leafCircuit.copies230 : List (Target × Target) := [
+noncomputable def leafCircuit.copies230 : List (Target × Target) := [
     (.virt 192, .wire 189 26),
     (.virt 414, .wire 189 28),
     (.wire 182 3, .wire 189 29),
@@ -8346,7 +8346,7 @@ def leafCircuit.copies230 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7392..7424`. -/
-def leafCircuit.copies231 : List (Target × Target) := [
+noncomputable def leafCircuit.copies231 : List (Target × Target) := [
     (.virt 292, .wire 179 49),
     (.wire 188 43, .wire 179 50),
     (.wire 190 14, .wire 179 52),
@@ -8382,7 +8382,7 @@ def leafCircuit.copies231 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7424..7456`. -/
-def leafCircuit.copies232 : List (Target × Target) := [
+noncomputable def leafCircuit.copies232 : List (Target × Target) := [
     (.wire 192 12, .wire 191 16),
     (.virt 292, .wire 191 17),
     (.virt 292, .wire 191 18),
@@ -8418,7 +8418,7 @@ def leafCircuit.copies232 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7456..7488`. -/
-def leafCircuit.copies233 : List (Target × Target) := [
+noncomputable def leafCircuit.copies233 : List (Target × Target) := [
     (.wire 194 7, .wire 194 10),
     (.wire 179 39, .wire 194 12),
     (.wire 182 19, .wire 194 13),
@@ -8454,7 +8454,7 @@ def leafCircuit.copies233 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7488..7520`. -/
-def leafCircuit.copies234 : List (Target × Target) := [
+noncomputable def leafCircuit.copies234 : List (Target × Target) := [
     (.wire 195 31, .virt 14),
     (.wire 195 32, .virt 14),
     (.wire 195 33, .virt 14),
@@ -8490,7 +8490,7 @@ def leafCircuit.copies234 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7520..7552`. -/
-def leafCircuit.copies235 : List (Target × Target) := [
+noncomputable def leafCircuit.copies235 : List (Target × Target) := [
     (.wire 195 5, .wire 194 22),
     (.virt 294, .wire 184 36),
     (.wire 195 4, .wire 184 37),
@@ -8526,7 +8526,7 @@ def leafCircuit.copies235 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7552..7584`. -/
-def leafCircuit.copies236 : List (Target × Target) := [
+noncomputable def leafCircuit.copies236 : List (Target × Target) := [
     (.wire 195 2, .wire 184 53),
     (.virt 294, .wire 184 54),
     (.virt 292, .wire 191 28),
@@ -8562,7 +8562,7 @@ def leafCircuit.copies236 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7584..7616`. -/
-def leafCircuit.copies237 : List (Target × Target) := [
+noncomputable def leafCircuit.copies237 : List (Target × Target) := [
     (.wire 197 6, .virt 14),
     (.wire 197 7, .virt 14),
     (.wire 197 8, .virt 14),
@@ -8598,7 +8598,7 @@ def leafCircuit.copies237 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7616..7648`. -/
-def leafCircuit.copies238 : List (Target × Target) := [
+noncomputable def leafCircuit.copies238 : List (Target × Target) := [
     (.wire 197 38, .virt 14),
     (.wire 197 39, .virt 14),
     (.wire 197 40, .virt 14),
@@ -8634,7 +8634,7 @@ def leafCircuit.copies238 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7648..7680`. -/
-def leafCircuit.copies239 : List (Target × Target) := [
+noncomputable def leafCircuit.copies239 : List (Target × Target) := [
     (.wire 196 15, .wire 198 0),
     (.virt 292, .wire 198 1),
     (.wire 194 59, .wire 198 2),
@@ -8670,7 +8670,7 @@ def leafCircuit.copies239 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7680..7712`. -/
-def leafCircuit.copies240 : List (Target × Target) := [
+noncomputable def leafCircuit.copies240 : List (Target × Target) := [
     (.virt 421, .wire 196 29),
     (.wire 198 23, .wire 196 30),
     (.wire 196 31, .wire 198 24),
@@ -8706,7 +8706,7 @@ def leafCircuit.copies240 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7712..7744`. -/
-def leafCircuit.copies241 : List (Target × Target) := [
+noncomputable def leafCircuit.copies241 : List (Target × Target) := [
     (.virt 196, .wire 198 50),
     (.virt 416, .wire 198 52),
     (.wire 194 3, .wire 198 53),
@@ -8742,7 +8742,7 @@ def leafCircuit.copies241 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7744..7776`. -/
-def leafCircuit.copies242 : List (Target × Target) := [
+noncomputable def leafCircuit.copies242 : List (Target × Target) := [
     (.virt 196, .wire 199 33),
     (.wire 199 31, .wire 199 34),
     (.virt 418, .wire 199 36),
@@ -8778,7 +8778,7 @@ def leafCircuit.copies242 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7776..7808`. -/
-def leafCircuit.copies243 : List (Target × Target) := [
+noncomputable def leafCircuit.copies243 : List (Target × Target) := [
     (.virt 416, .wire 164 20),
     (.virt 418, .wire 164 21),
     (.virt 416, .wire 164 22),
@@ -8814,7 +8814,7 @@ def leafCircuit.copies243 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7808..7840`. -/
-def leafCircuit.copies244 : List (Target × Target) := [
+noncomputable def leafCircuit.copies244 : List (Target × Target) := [
     (.virt 205, .wire 200 50),
     (.wire 191 39, .wire 200 52),
     (.virt 201, .wire 200 53),
@@ -8850,7 +8850,7 @@ def leafCircuit.copies244 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7840..7872`. -/
-def leafCircuit.copies245 : List (Target × Target) := [
+noncomputable def leafCircuit.copies245 : List (Target × Target) := [
     (.wire 194 3, .wire 201 33),
     (.wire 201 31, .wire 201 34),
     (.virt 422, .wire 201 36),
@@ -8886,7 +8886,7 @@ def leafCircuit.copies245 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7872..7904`. -/
-def leafCircuit.copies246 : List (Target × Target) := [
+noncomputable def leafCircuit.copies246 : List (Target × Target) := [
     (.wire 202 14, .wire 191 48),
     (.virt 292, .wire 191 49),
     (.wire 201 3, .wire 191 50),
@@ -8922,7 +8922,7 @@ def leafCircuit.copies246 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7904..7936`. -/
-def leafCircuit.copies247 : List (Target × Target) := [
+noncomputable def leafCircuit.copies247 : List (Target × Target) := [
     (.virt 292, .wire 203 14),
     (.wire 203 15, .wire 205 0),
     (.wire 204 13, .wire 205 1),
@@ -8958,7 +8958,7 @@ def leafCircuit.copies247 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7936..7968`. -/
-def leafCircuit.copies248 : List (Target × Target) := [
+noncomputable def leafCircuit.copies248 : List (Target × Target) := [
     (.wire 194 19, .wire 206 17),
     (.wire 194 19, .wire 206 18),
     (.wire 195 5, .wire 206 20),
@@ -8994,7 +8994,7 @@ def leafCircuit.copies248 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `7968..8000`. -/
-def leafCircuit.copies249 : List (Target × Target) := [
+noncomputable def leafCircuit.copies249 : List (Target × Target) := [
     (.wire 196 55, .virt 14),
     (.wire 207 33, .virt 14),
     (.wire 207 34, .virt 14),
@@ -9030,7 +9030,7 @@ def leafCircuit.copies249 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `8000..8032`. -/
-def leafCircuit.copies250 : List (Target × Target) := [
+noncomputable def leafCircuit.copies250 : List (Target × Target) := [
     (.virt 230, .virt 240),
     (.virt 231, .virt 5),
     (.virt 232, .virt 6),
@@ -9066,7 +9066,7 @@ def leafCircuit.copies250 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `8032..8064`. -/
-def leafCircuit.copies251 : List (Target × Target) := [
+noncomputable def leafCircuit.copies251 : List (Target × Target) := [
     (.wire 206 51, .wire 206 54),
     (.wire 208 7, .virt 14),
     (.wire 206 55, .virt 14),
@@ -9102,7 +9102,7 @@ def leafCircuit.copies251 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `8064..8096`. -/
-def leafCircuit.copies252 : List (Target × Target) := [
+noncomputable def leafCircuit.copies252 : List (Target × Target) := [
     (.virt 426, .wire 208 29),
     (.virt 424, .wire 208 30),
     (.virt 428, .wire 208 32),
@@ -9138,7 +9138,7 @@ def leafCircuit.copies252 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `8096..8128`. -/
-def leafCircuit.copies253 : List (Target × Target) := [
+noncomputable def leafCircuit.copies253 : List (Target × Target) := [
     (.virt 292, .wire 203 21),
     (.virt 292, .wire 203 22),
     (.wire 203 19, .wire 211 0),
@@ -9174,7 +9174,7 @@ def leafCircuit.copies253 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `8128..8160`. -/
-def leafCircuit.copies254 : List (Target × Target) := [
+noncomputable def leafCircuit.copies254 : List (Target × Target) := [
     (.wire 208 47, .virt 14),
     (.virt 224, .wire 209 20),
     (.virt 292, .wire 209 21),
@@ -9210,7 +9210,7 @@ def leafCircuit.copies254 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `8160..8192`. -/
-def leafCircuit.copies255 : List (Target × Target) := [
+noncomputable def leafCircuit.copies255 : List (Target × Target) := [
     (.virt 14, .wire 213 10),
     (.virt 14, .wire 213 11),
     (.wire 213 12, .wire 203 24),
@@ -9246,7 +9246,7 @@ def leafCircuit.copies255 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `8192..8224`. -/
-def leafCircuit.copies256 : List (Target × Target) := [
+noncomputable def leafCircuit.copies256 : List (Target × Target) := [
     (.wire 203 51, .wire 214 6),
     (.wire 203 55, .wire 214 7),
     (.wire 213 20, .wire 214 8),
@@ -9282,7 +9282,7 @@ def leafCircuit.copies256 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `8224..8256`. -/
-def leafCircuit.copies257 : List (Target × Target) := [
+noncomputable def leafCircuit.copies257 : List (Target × Target) := [
     (.wire 215 7, .wire 216 2),
     (.wire 215 11, .wire 216 3),
     (.wire 215 15, .wire 216 4),
@@ -9318,7 +9318,7 @@ def leafCircuit.copies257 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `8256..8288`. -/
-def leafCircuit.copies258 : List (Target × Target) := [
+noncomputable def leafCircuit.copies258 : List (Target × Target) := [
     (.virt 292, .wire 215 57),
     (.virt 276, .wire 215 58),
     (.wire 215 31, .wire 217 0),
@@ -9354,7 +9354,7 @@ def leafCircuit.copies258 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `8288..8320`. -/
-def leafCircuit.copies259 : List (Target × Target) := [
+noncomputable def leafCircuit.copies259 : List (Target × Target) := [
     (.wire 217 18, .wire 218 24),
     (.virt 292, .wire 218 25),
     (.virt 283, .wire 218 26),
@@ -9390,7 +9390,7 @@ def leafCircuit.copies259 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `8320..8352`. -/
-def leafCircuit.copies260 : List (Target × Target) := [
+noncomputable def leafCircuit.copies260 : List (Target × Target) := [
     (.virt 289, .wire 218 50),
     (.wire 219 17, .wire 218 52),
     (.virt 292, .wire 218 53),
@@ -9426,7 +9426,7 @@ def leafCircuit.copies260 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `8352..8384`. -/
-def leafCircuit.copies261 : List (Target × Target) := [
+noncomputable def leafCircuit.copies261 : List (Target × Target) := [
     (.wire 220 14, .wire 209 42),
     (.wire 209 43, .wire 221 8),
     (.wire 209 15, .wire 221 9),
@@ -9462,7 +9462,7 @@ def leafCircuit.copies261 : List (Target × Target) := [
   ]
 
 /-- `leafCircuit.copies`, items `8384..8392`. -/
-def leafCircuit.copies262 : List (Target × Target) := [
+noncomputable def leafCircuit.copies262 : List (Target × Target) := [
     (.wire 221 27, .virt 14),
     (.virt 261, .wire 222 0),
     (.virt 292, .wire 222 1),
