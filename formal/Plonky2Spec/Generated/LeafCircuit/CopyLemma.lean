@@ -1726,6 +1726,254 @@ theorem leafCircuit_copies262 (a : Assignment p) (h : Satisfies (leafCircuit p) 
   simp only [leafCircuit.copies262, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
+theorem leafCircuit_row0 : (leafCircuit p).rows[0]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row8 : (leafCircuit p).rows[8]? = some ⟨.arithmetic 15, [1, 1]⟩ := rfl
+
+theorem leafCircuit_row11 : (leafCircuit p).rows[11]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem leafCircuit_row12 : (leafCircuit p).rows[12]? = some ⟨.arithmetic 15, [(-1), 1]⟩ := rfl
+
+theorem leafCircuit_row14 : (leafCircuit p).rows[14]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem leafCircuit_row16 : (leafCircuit p).rows[16]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row17 : (leafCircuit p).rows[17]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row18 : (leafCircuit p).rows[18]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row19 : (leafCircuit p).rows[19]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row21 : (leafCircuit p).rows[21]? = some ⟨.arithmetic 15, [1, 1]⟩ := rfl
+
+theorem leafCircuit_row24 : (leafCircuit p).rows[24]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row26 : (leafCircuit p).rows[26]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem leafCircuit_row28 : (leafCircuit p).rows[28]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row29 : (leafCircuit p).rows[29]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row30 : (leafCircuit p).rows[30]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row31 : (leafCircuit p).rows[31]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row33 : (leafCircuit p).rows[33]? = some ⟨.arithmetic 15, [1, 1]⟩ := rfl
+
+theorem leafCircuit_row36 : (leafCircuit p).rows[36]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row38 : (leafCircuit p).rows[38]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem leafCircuit_row40 : (leafCircuit p).rows[40]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row41 : (leafCircuit p).rows[41]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row42 : (leafCircuit p).rows[42]? = some ⟨.arithmetic 15, [(-1), 1]⟩ := rfl
+
+theorem leafCircuit_row43 : (leafCircuit p).rows[43]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row44 : (leafCircuit p).rows[44]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row46 : (leafCircuit p).rows[46]? = some ⟨.arithmetic 15, [1, 1]⟩ := rfl
+
+theorem leafCircuit_row50 : (leafCircuit p).rows[50]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row51 : (leafCircuit p).rows[51]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem leafCircuit_row53 : (leafCircuit p).rows[53]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row54 : (leafCircuit p).rows[54]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row55 : (leafCircuit p).rows[55]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row56 : (leafCircuit p).rows[56]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row59 : (leafCircuit p).rows[59]? = some ⟨.arithmetic 15, [1, 1]⟩ := rfl
+
+theorem leafCircuit_row62 : (leafCircuit p).rows[62]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row63 : (leafCircuit p).rows[63]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem leafCircuit_row65 : (leafCircuit p).rows[65]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row66 : (leafCircuit p).rows[66]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row67 : (leafCircuit p).rows[67]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row68 : (leafCircuit p).rows[68]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row73 : (leafCircuit p).rows[73]? = some ⟨.arithmetic 15, [1, 1]⟩ := rfl
+
+theorem leafCircuit_row74 : (leafCircuit p).rows[74]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem leafCircuit_row75 : (leafCircuit p).rows[75]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row77 : (leafCircuit p).rows[77]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row78 : (leafCircuit p).rows[78]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row79 : (leafCircuit p).rows[79]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row80 : (leafCircuit p).rows[80]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row85 : (leafCircuit p).rows[85]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem leafCircuit_row86 : (leafCircuit p).rows[86]? = some ⟨.arithmetic 15, [1, 1]⟩ := rfl
+
+theorem leafCircuit_row87 : (leafCircuit p).rows[87]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row89 : (leafCircuit p).rows[89]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem leafCircuit_row90 : (leafCircuit p).rows[90]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row91 : (leafCircuit p).rows[91]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row92 : (leafCircuit p).rows[92]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row93 : (leafCircuit p).rows[93]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row98 : (leafCircuit p).rows[98]? = some ⟨.arithmetic 15, [1, 1]⟩ := rfl
+
+theorem leafCircuit_row99 : (leafCircuit p).rows[99]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row101 : (leafCircuit p).rows[101]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem leafCircuit_row102 : (leafCircuit p).rows[102]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row103 : (leafCircuit p).rows[103]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row104 : (leafCircuit p).rows[104]? = some ⟨.arithmetic 15, [(-1), 1]⟩ := rfl
+
+theorem leafCircuit_row105 : (leafCircuit p).rows[105]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row106 : (leafCircuit p).rows[106]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row111 : (leafCircuit p).rows[111]? = some ⟨.arithmetic 15, [1, 1]⟩ := rfl
+
+theorem leafCircuit_row112 : (leafCircuit p).rows[112]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row114 : (leafCircuit p).rows[114]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem leafCircuit_row115 : (leafCircuit p).rows[115]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row116 : (leafCircuit p).rows[116]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row117 : (leafCircuit p).rows[117]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row121 : (leafCircuit p).rows[121]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row124 : (leafCircuit p).rows[124]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row125 : (leafCircuit p).rows[125]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem leafCircuit_row126 : (leafCircuit p).rows[126]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row127 : (leafCircuit p).rows[127]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row128 : (leafCircuit p).rows[128]? = some ⟨.arithmetic 15, [1, 1]⟩ := rfl
+
+theorem leafCircuit_row129 : (leafCircuit p).rows[129]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row133 : (leafCircuit p).rows[133]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row136 : (leafCircuit p).rows[136]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row137 : (leafCircuit p).rows[137]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem leafCircuit_row138 : (leafCircuit p).rows[138]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row139 : (leafCircuit p).rows[139]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row140 : (leafCircuit p).rows[140]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row142 : (leafCircuit p).rows[142]? = some ⟨.arithmetic 15, [1, 1]⟩ := rfl
+
+theorem leafCircuit_row145 : (leafCircuit p).rows[145]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row148 : (leafCircuit p).rows[148]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row149 : (leafCircuit p).rows[149]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem leafCircuit_row150 : (leafCircuit p).rows[150]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row151 : (leafCircuit p).rows[151]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row152 : (leafCircuit p).rows[152]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row154 : (leafCircuit p).rows[154]? = some ⟨.arithmetic 15, [1, 1]⟩ := rfl
+
+theorem leafCircuit_row157 : (leafCircuit p).rows[157]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row160 : (leafCircuit p).rows[160]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem leafCircuit_row161 : (leafCircuit p).rows[161]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row162 : (leafCircuit p).rows[162]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row163 : (leafCircuit p).rows[163]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row164 : (leafCircuit p).rows[164]? = some ⟨.arithmetic 15, [(-1), 1]⟩ := rfl
+
+theorem leafCircuit_row165 : (leafCircuit p).rows[165]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row167 : (leafCircuit p).rows[167]? = some ⟨.arithmetic 15, [1, 1]⟩ := rfl
+
+theorem leafCircuit_row170 : (leafCircuit p).rows[170]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row173 : (leafCircuit p).rows[173]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem leafCircuit_row174 : (leafCircuit p).rows[174]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row175 : (leafCircuit p).rows[175]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row176 : (leafCircuit p).rows[176]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row177 : (leafCircuit p).rows[177]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row179 : (leafCircuit p).rows[179]? = some ⟨.arithmetic 15, [1, 1]⟩ := rfl
+
+theorem leafCircuit_row182 : (leafCircuit p).rows[182]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row184 : (leafCircuit p).rows[184]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem leafCircuit_row186 : (leafCircuit p).rows[186]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row187 : (leafCircuit p).rows[187]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row188 : (leafCircuit p).rows[188]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row189 : (leafCircuit p).rows[189]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row191 : (leafCircuit p).rows[191]? = some ⟨.arithmetic 15, [1, 1]⟩ := rfl
+
+theorem leafCircuit_row194 : (leafCircuit p).rows[194]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row196 : (leafCircuit p).rows[196]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem leafCircuit_row198 : (leafCircuit p).rows[198]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row199 : (leafCircuit p).rows[199]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row200 : (leafCircuit p).rows[200]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row201 : (leafCircuit p).rows[201]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row203 : (leafCircuit p).rows[203]? = some ⟨.arithmetic 15, [1, 1]⟩ := rfl
+
+theorem leafCircuit_row206 : (leafCircuit p).rows[206]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row208 : (leafCircuit p).rows[208]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem leafCircuit_row209 : (leafCircuit p).rows[209]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem leafCircuit_row215 : (leafCircuit p).rows[215]? = some ⟨.arithmetic 15, [1, 1]⟩ := rfl
+
+theorem leafCircuit_row218 : (leafCircuit p).rows[218]? = some ⟨.arithmetic 15, [1, 1]⟩ := rfl
+
+theorem leafCircuit_row221 : (leafCircuit p).rows[221]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem leafCircuit_row222 : (leafCircuit p).rows[222]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
 theorem leafCircuit_consts (a : Assignment p) (h : Satisfies (leafCircuit p) a) :
     (a (.virt 14) = 0 ∧ a (.virt 290) = 1836216183 ∧ a (.virt 291) = 1701605224 ∧ a (.virt 292) = 1 ∧ a (.virt 293) = 576460752303423488 ∧ a (.virt 294) = 2 ∧ a (.virt 295) = 3 ∧ a (.virt 432) = 1819635326 ∧ a (.virt 433) = 2120640876) := by
   have hconst := h.2.2

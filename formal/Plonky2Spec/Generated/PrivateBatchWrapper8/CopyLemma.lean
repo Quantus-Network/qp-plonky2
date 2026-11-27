@@ -1354,6 +1354,184 @@ theorem privateBatchWrapper8_copies169 (a : Assignment p) (h : Satisfies (privat
   simp only [privateBatchWrapper8.copies169, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
+theorem privateBatchWrapper8_row0 : (privateBatchWrapper8 p).rows[0]? = some ⟨.arithmetic 15, [1, 1]⟩ := rfl
+
+theorem privateBatchWrapper8_row1 : (privateBatchWrapper8 p).rows[1]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row2 : (privateBatchWrapper8 p).rows[2]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row3 : (privateBatchWrapper8 p).rows[3]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row4 : (privateBatchWrapper8 p).rows[4]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row5 : (privateBatchWrapper8 p).rows[5]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row6 : (privateBatchWrapper8 p).rows[6]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row7 : (privateBatchWrapper8 p).rows[7]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row8 : (privateBatchWrapper8 p).rows[8]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row9 : (privateBatchWrapper8 p).rows[9]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row10 : (privateBatchWrapper8 p).rows[10]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row11 : (privateBatchWrapper8 p).rows[11]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row12 : (privateBatchWrapper8 p).rows[12]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row13 : (privateBatchWrapper8 p).rows[13]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row14 : (privateBatchWrapper8 p).rows[14]? = some ⟨.arithmetic 15, [(-1), 1]⟩ := rfl
+
+theorem privateBatchWrapper8_row15 : (privateBatchWrapper8 p).rows[15]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row16 : (privateBatchWrapper8 p).rows[16]? = some ⟨.arithmetic 15, [1, 1]⟩ := rfl
+
+theorem privateBatchWrapper8_row17 : (privateBatchWrapper8 p).rows[17]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row18 : (privateBatchWrapper8 p).rows[18]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row19 : (privateBatchWrapper8 p).rows[19]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row20 : (privateBatchWrapper8 p).rows[20]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row21 : (privateBatchWrapper8 p).rows[21]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row22 : (privateBatchWrapper8 p).rows[22]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row23 : (privateBatchWrapper8 p).rows[23]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row24 : (privateBatchWrapper8 p).rows[24]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row25 : (privateBatchWrapper8 p).rows[25]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row26 : (privateBatchWrapper8 p).rows[26]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row27 : (privateBatchWrapper8 p).rows[27]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row28 : (privateBatchWrapper8 p).rows[28]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row29 : (privateBatchWrapper8 p).rows[29]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row30 : (privateBatchWrapper8 p).rows[30]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row31 : (privateBatchWrapper8 p).rows[31]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row32 : (privateBatchWrapper8 p).rows[32]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row33 : (privateBatchWrapper8 p).rows[33]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row34 : (privateBatchWrapper8 p).rows[34]? = some ⟨.arithmetic 15, [1, 1]⟩ := rfl
+
+theorem privateBatchWrapper8_row46 : (privateBatchWrapper8 p).rows[46]? = some ⟨.arithmetic 15, [1, 1]⟩ := rfl
+
+theorem privateBatchWrapper8_row62 : (privateBatchWrapper8 p).rows[62]? = some ⟨.arithmetic 15, [1, 1]⟩ := rfl
+
+theorem privateBatchWrapper8_row71 : (privateBatchWrapper8 p).rows[71]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row73 : (privateBatchWrapper8 p).rows[73]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row74 : (privateBatchWrapper8 p).rows[74]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row75 : (privateBatchWrapper8 p).rows[75]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row76 : (privateBatchWrapper8 p).rows[76]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row77 : (privateBatchWrapper8 p).rows[77]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row78 : (privateBatchWrapper8 p).rows[78]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row79 : (privateBatchWrapper8 p).rows[79]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row80 : (privateBatchWrapper8 p).rows[80]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row81 : (privateBatchWrapper8 p).rows[81]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row82 : (privateBatchWrapper8 p).rows[82]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row83 : (privateBatchWrapper8 p).rows[83]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row84 : (privateBatchWrapper8 p).rows[84]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row85 : (privateBatchWrapper8 p).rows[85]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row86 : (privateBatchWrapper8 p).rows[86]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row87 : (privateBatchWrapper8 p).rows[87]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row88 : (privateBatchWrapper8 p).rows[88]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row89 : (privateBatchWrapper8 p).rows[89]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row90 : (privateBatchWrapper8 p).rows[90]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row91 : (privateBatchWrapper8 p).rows[91]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row92 : (privateBatchWrapper8 p).rows[92]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row93 : (privateBatchWrapper8 p).rows[93]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row94 : (privateBatchWrapper8 p).rows[94]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row95 : (privateBatchWrapper8 p).rows[95]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row96 : (privateBatchWrapper8 p).rows[96]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row97 : (privateBatchWrapper8 p).rows[97]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row98 : (privateBatchWrapper8 p).rows[98]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row99 : (privateBatchWrapper8 p).rows[99]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row100 : (privateBatchWrapper8 p).rows[100]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row101 : (privateBatchWrapper8 p).rows[101]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row102 : (privateBatchWrapper8 p).rows[102]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row103 : (privateBatchWrapper8 p).rows[103]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row104 : (privateBatchWrapper8 p).rows[104]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row105 : (privateBatchWrapper8 p).rows[105]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row106 : (privateBatchWrapper8 p).rows[106]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row107 : (privateBatchWrapper8 p).rows[107]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row108 : (privateBatchWrapper8 p).rows[108]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row109 : (privateBatchWrapper8 p).rows[109]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row110 : (privateBatchWrapper8 p).rows[110]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row111 : (privateBatchWrapper8 p).rows[111]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row112 : (privateBatchWrapper8 p).rows[112]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row113 : (privateBatchWrapper8 p).rows[113]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row114 : (privateBatchWrapper8 p).rows[114]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row115 : (privateBatchWrapper8 p).rows[115]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row116 : (privateBatchWrapper8 p).rows[116]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row117 : (privateBatchWrapper8 p).rows[117]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row118 : (privateBatchWrapper8 p).rows[118]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row119 : (privateBatchWrapper8 p).rows[119]? = some ⟨.arithmetic 15, [1, 0]⟩ := rfl
+
+theorem privateBatchWrapper8_row124 : (privateBatchWrapper8 p).rows[124]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row129 : (privateBatchWrapper8 p).rows[129]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row134 : (privateBatchWrapper8 p).rows[134]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
+theorem privateBatchWrapper8_row139 : (privateBatchWrapper8 p).rows[139]? = some ⟨.arithmetic 15, [1, (-1)]⟩ := rfl
+
 theorem privateBatchWrapper8_consts (a : Assignment p) (h : Satisfies (privateBatchWrapper8 p) a) :
     (((((a (.virt 283) = 32 ∧ a (.virt 412) = 10000 ∧ a (.virt 11) = 0 ∧ a (.virt 12) = 1 ∧ a (.virt 637) = 2669934329256448483 ∧ a (.virt 638) = 3910533469842929621 ∧ a (.virt 647) = 13867510187454200898 ∧ a (.virt 648) = 8974345350209682189 ∧ a (.virt 649) = 10106945758255736152 ∧ a (.virt 650) = 14392110991490405405 ∧ a (.virt 651) = 16568250028667515478 ∧ a (.virt 652) = 8758564878173481032 ∧ a (.virt 653) = 2557243763760957341 ∧ a (.virt 654) = 3060395241570505247 ∧ a (.virt 655) = 15323327262374367936 ∧ a (.virt 656) = 2564783871101425954 ∧ a (.virt 639) = 16177582211473227250 ∧ a (.virt 657) = 3951540059935488476 ∧ a (.virt 658) = 10363163258068256734 ∧ a (.virt 659) = 17353652403397797163 ∧ a (.virt 660) = 8654667293118248052 ∧ a (.virt 661) = 3683186042767029070 ∧ a (.virt 662) = 12620006444743400057 ∧ a (.virt 663) = 1519366744844421027 ∧ a (.virt 664) = 2721324813619564810 ∧ a (.virt 665) = 7407802601477707005 ∧ a (.virt 666) = 12124794147368957434 ∧ a (.virt 640) = 3389059994055414047 ∧ a (.virt 667) = 13496323416041817823 ∧ a (.virt 668) = 15211093293281132178 ∧ a (.virt 669) = 7224134120855825365 ∧ a (.virt 670) = 14409905900105238479) ∧ (a (.virt 671) = 14864048385404953735 ∧ a (.virt 672) = 13699359647576009514 ∧ a (.virt 673) = 4955008897197158301 ∧ a (.virt 674) = 10696350982036806194 ∧ a (.virt 675) = 4586712180161084781 ∧ a (.virt 676) = 3896841391288263896 ∧ a (.virt 641) = 14690438750233668579 ∧ a (.virt 677) = 849432284252499787 ∧ a (.virt 678) = 17240473865348072128 ∧ a (.virt 679) = 15267192237385737331 ∧ a (.virt 680) = 10823094967795992164 ∧ a (.virt 681) = 9229457744182229018 ∧ a (.virt 682) = 9902266041513304948 ∧ a (.virt 683) = 11470975469015608885 ∧ a (.virt 684) = 11074761115676954538 ∧ a (.virt 685) = 16608459832798754405 ∧ a (.virt 686) = 1190943364738280138 ∧ a (.virt 642) = 15283634271787416095 ∧ a (.virt 687) = 15900361426710057063 ∧ a (.virt 688) = 9769405700932678895 ∧ a (.virt 689) = 2504414342351470299 ∧ a (.virt 690) = 11303440805453797324 ∧ a (.virt 691) = 8606115635322774050 ∧ a (.virt 692) = 7293605457655564769 ∧ a (.virt 693) = 4235409815857950341 ∧ a (.virt 694) = 17296883002649787995 ∧ a (.virt 695) = 7902877280898927714 ∧ a (.virt 696) = 14331636764939804719 ∧ a (.virt 643) = 1487697470293959053 ∧ a (.virt 697) = 8429586579458326487 ∧ a (.virt 698) = 7125736210433037664 ∧ a (.virt 699) = 9482302484920226483)) ∧ ((a (.virt 700) = 4257593843881765099 ∧ a (.virt 701) = 15101204307867406391 ∧ a (.virt 702) = 4984110629781477994 ∧ a (.virt 703) = 15964602978973519077 ∧ a (.virt 704) = 1260699525966399192 ∧ a (.virt 644) = 5190897431307088263 ∧ a (.virt 645) = 4187411571467205964 ∧ a (.virt 646) = 16229017472860920147 ∧ a (.virt 9953) = 6 ∧ a (.virt 9954) = 4 ∧ a (.virt 9955) = 16 ∧ a (.virt 9956) = 5 ∧ a (.virt 9957) = 19 ∧ a (.virt 9958) = 8 ∧ a (.virt 9959) = 2 ∧ a (.virt 9960) = 3 ∧ a (.virt 9961) = 4294967295 ∧ a (.virt 9962) = 13835875475997267463 ∧ a (.virt 9963) = 13593300247443167546 ∧ a (.virt 9964) = 8256098654959761401 ∧ a (.virt 9965) = 16497527840820049068 ∧ a (.virt 9966) = 15411522637299147849 ∧ a (.virt 9967) = 17020150177669596865 ∧ a (.virt 9968) = 5219051110225758042 ∧ a (.virt 9969) = 7790297870083302641 ∧ a (.virt 9970) = 16425486905783891643 ∧ a (.virt 9971) = 15683309641931586601 ∧ a (.virt 9972) = 16544887301834777006 ∧ a (.virt 9973) = 3043822364766212060 ∧ a (.virt 9974) = 12511554865575947557 ∧ a (.virt 9975) = 2815218757487154454 ∧ a (.virt 9976) = 5397191216188696727) ∧ ((a (.virt 9977) = 6263167237941024378 ∧ a (.virt 9978) = 2268298353185649950 ∧ a (.virt 9979) = 3891183183650783080 ∧ a (.virt 9980) = 16503280268681069520 ∧ a (.virt 9981) = 18218637884622147757 ∧ a (.virt 9982) = 14810472806729743006 ∧ a (.virt 9983) = 4746652143794040382 ∧ a (.virt 9984) = 17167206695294637949 ∧ a (.virt 9985) = 15175925601089995781 ∧ a (.virt 9986) = 9033104775021388674 ∧ a (.virt 9987) = 9921017235607945260 ∧ a (.virt 9988) = 12923798861715797527 ∧ a (.virt 9989) = 15786281414702354803 ∧ a (.virt 9990) = 8714540470225280152 ∧ a (.virt 9991) = 2761431909488453770 ∧ a (.virt 9992) = 11068269652872909615 ∧ a (.virt 9993) = 7255476598362472915 ∧ a (.virt 9994) = 17152841886271966136 ∧ a (.virt 9995) = 5752572615743285230 ∧ a (.virt 9996) = 6296806204286062663 ∧ a (.virt 9997) = 17660184115874751421 ∧ a (.virt 9998) = 2188234123236287607 ∧ a (.virt 9999) = 7071885762696490733 ∧ a (.virt 10000) = 12261132718627234478 ∧ a (.virt 10001) = 7190250995558642684 ∧ a (.virt 10002) = 4297991823969990112 ∧ a (.virt 10003) = 2588908926796910813 ∧ a (.virt 10004) = 12309391821249485402 ∧ a (.virt 10005) = 16850936440481388618 ∧ a (.virt 10006) = 14821697447947797068 ∧ a (.virt 10007) = 10388886288248231395 ∧ a (.virt 10008) = 6579267572940231471) ∧ (a (.virt 10009) = 16030945643832113911 ∧ a (.virt 10010) = 10950354654605269091 ∧ a (.virt 10011) = 14102670999874605824 ∧ a (.virt 10012) = 15585654191999307702 ∧ a (.virt 10013) = 940187017142450255 ∧ a (.virt 10014) = 8747386241522630711 ∧ a (.virt 10015) = 6750641561540124747 ∧ a (.virt 10016) = 7440998025584530007 ∧ a (.virt 10017) = 6136358134615751536 ∧ a (.virt 10018) = 12413576830284969611 ∧ a (.virt 10019) = 11675438539028694709 ∧ a (.virt 10020) = 17580553691069642926 ∧ a (.virt 10021) = 892707462476851331 ∧ a (.virt 10022) = 15167485180850043744 ∧ a (.virt 10023) = 15119356940911695088 ∧ a (.virt 10024) = 7612059357007237638 ∧ a (.virt 10025) = 12236395664799796772 ∧ a (.virt 10026) = 2977570947024676277 ∧ a (.virt 10027) = 6373970340753430342 ∧ a (.virt 10028) = 9946283046412846796 ∧ a (.virt 10029) = 4463022581802230821 ∧ a (.virt 10030) = 4150295645638148407 ∧ a (.virt 10031) = 4490915162115027274 ∧ a (.virt 10032) = 10829504123483496140 ∧ a (.virt 10033) = 4597224039659100030 ∧ a (.virt 10034) = 10266435449820638573 ∧ a (.virt 10035) = 9552757317149730134 ∧ a (.virt 10036) = 17182064290885366998 ∧ a (.virt 10037) = 2165695174462817354 ∧ a (.virt 10038) = 1097317823465564870 ∧ a (.virt 10039) = 1947274085218180819 ∧ a (.virt 10040) = 1813898247148918694)))) ∧ (((a (.virt 10041) = 17786016722733367904 ∧ a (.virt 10042) = 4522584789973874566 ∧ a (.virt 10043) = 6140884543838897619 ∧ a (.virt 10044) = 8895389066387410030 ∧ a (.virt 10045) = 1460701038096849270 ∧ a (.virt 10046) = 9232424000661355656 ∧ a (.virt 10047) = 7869694012000561090 ∧ a (.virt 10048) = 11674967405510647539 ∧ a (.virt 10049) = 17791439039604636207 ∧ a (.virt 10050) = 3816678204163591524 ∧ a (.virt 10051) = 12701925137758912458 ∧ a (.virt 10052) = 7268169701857820838 ∧ a (.virt 10053) = 1067589902488001943 ∧ a (.virt 10054) = 2070308862709674891 ∧ a (.virt 10055) = 7382496027314534074 ∧ a (.virt 10056) = 6944427652715851265 ∧ a (.virt 10057) = 4599841608850341455 ∧ a (.virt 10058) = 16721906878468876749 ∧ a (.virt 10059) = 17856999528157411150 ∧ a (.virt 10060) = 17553134374929059977 ∧ a (.virt 10061) = 7890458318273453558 ∧ a (.virt 10062) = 17906430202258692747 ∧ a (.virt 10063) = 6331829681132802170 ∧ a (.virt 10064) = 1650501125073619501 ∧ a (.virt 10065) = 2395319349875521589 ∧ a (.virt 10066) = 12750456425164666614 ∧ a (.virt 10067) = 15628562918670685207 ∧ a (.virt 10068) = 16472031182362063631 ∧ a (.virt 10069) = 8519479891090086696 ∧ a (.virt 10070) = 650980590610947853 ∧ a (.virt 10071) = 8543868547028952308 ∧ a (.virt 10072) = 1027758676635423666) ∧ (a (.virt 10073) = 10647516517072103279 ∧ a (.virt 10074) = 11022005145419959786 ∧ a (.virt 10075) = 16418258577134197184 ∧ a (.virt 10076) = 2230831754333088463 ∧ a (.virt 10077) = 802979627989531812 ∧ a (.virt 10078) = 7080627001952875303 ∧ a (.virt 10079) = 6853960081492534406 ∧ a (.virt 10080) = 18303760418668938283 ∧ a (.virt 10081) = 8239306592877361155 ∧ a (.virt 10082) = 16622244490604654200 ∧ a (.virt 10083) = 6274074331584152849 ∧ a (.virt 10084) = 17886681876111343804 ∧ a (.virt 10085) = 3231554205214632021 ∧ a (.virt 10086) = 9020704674996646513 ∧ a (.virt 10087) = 9632659917939292177 ∧ a (.virt 10088) = 5954679916794327224 ∧ a (.virt 10089) = 5786083536133615252 ∧ a (.virt 10090) = 13610804294834768633 ∧ a (.virt 10091) = 16186843687143828937 ∧ a (.virt 10092) = 13080132714287612933 ∧ a (.virt 10093) = 8594738767457295063 ∧ a (.virt 10094) = 12896916465481390516 ∧ a (.virt 10095) = 1109962092811921367 ∧ a (.virt 10096) = 16216730422861946898 ∧ a (.virt 10097) = 10137062673499593713 ∧ a (.virt 10098) = 15292064466732465823 ∧ a (.virt 10099) = 17255573294985989181 ∧ a (.virt 10100) = 14827154241873003558 ∧ a (.virt 10101) = 2846171647972703231 ∧ a (.virt 10102) = 16246264663680317601 ∧ a (.virt 10103) = 14214208087951879286 ∧ a (.virt 10104) = 9667108687426275457)) ∧ ((a (.virt 10105) = 6470857420712283733 ∧ a (.virt 10106) = 14103331940138337652 ∧ a (.virt 10107) = 11854816473550292865 ∧ a (.virt 10108) = 3498097497301325516 ∧ a (.virt 10109) = 7947235692523864220 ∧ a (.virt 10110) = 11110078701231901946 ∧ a (.virt 10111) = 16384314112672821048 ∧ a (.virt 10112) = 15404405912655775739 ∧ a (.virt 10113) = 14077880830714445579 ∧ a (.virt 10114) = 9555554662709218279 ∧ a (.virt 10115) = 13859595358210603949 ∧ a (.virt 10116) = 16859897325061800066 ∧ a (.virt 10117) = 17685474420222222349 ∧ a (.virt 10118) = 17858764734618734949 ∧ a (.virt 10119) = 9410011022665866671 ∧ a (.virt 10120) = 12495243629579414666 ∧ a (.virt 10121) = 12416945298171515742 ∧ a (.virt 10122) = 5776666812364270983 ∧ a (.virt 10123) = 6314421662864060481 ∧ a (.virt 10124) = 7402742471423223171 ∧ a (.virt 10125) = 982536713192432718 ∧ a (.virt 10126) = 17321168865775127905 ∧ a (.virt 10127) = 2934354895005980211 ∧ a (.virt 10128) = 10567510598607410195 ∧ a (.virt 10129) = 8135543733717919110 ∧ a (.virt 10130) = 116353493081713692 ∧ a (.virt 10131) = 8029688163494945618 ∧ a (.virt 10132) = 9003846637224807585 ∧ a (.virt 10133) = 7052445132467233849 ∧ a (.virt 10134) = 9645665432288852853 ∧ a (.virt 10135) = 5446430061030868787 ∧ a (.virt 10136) = 16770910634346036823) ∧ ((a (.virt 10137) = 17708360571433944729 ∧ a (.virt 10138) = 4661556288322237631 ∧ a (.virt 10139) = 11977051899316327985 ∧ a (.virt 10140) = 4378616569090929672 ∧ a (.virt 10141) = 3334807502817538491 ∧ a (.virt 10142) = 8019184735943344966 ∧ a (.virt 10143) = 2395043908812246395 ∧ a (.virt 10144) = 6558421058331732611 ∧ a (.virt 10145) = 11735894060727326369 ∧ a (.virt 10146) = 8143540538889204488 ∧ a (.virt 10147) = 5991753489563751169 ∧ a (.virt 10148) = 12235918791502088007 ∧ a (.virt 10149) = 2880312033702687139 ∧ a (.virt 10150) = 18224748115308382355 ∧ a (.virt 10151) = 18070411013125314165 ∧ a (.virt 10152) = 8156487614120951180 ∧ a (.virt 10153) = 10615269510047010719 ∧ a (.virt 10154) = 12489426404754222075 ∧ a (.virt 10155) = 5055279340069995710 ∧ a (.virt 10156) = 7231927319780248664 ∧ a (.virt 10157) = 2602078848106763799 ∧ a (.virt 10158) = 12445944369334781425 ∧ a (.virt 10159) = 3978905923892496205 ∧ a (.virt 10160) = 16711272944329818038 ∧ a (.virt 10161) = 10439032361227108922 ∧ a (.virt 10162) = 15110119871725214866 ∧ a (.virt 10163) = 821141790655890946 ∧ a (.virt 10164) = 11073536380651186235 ∧ a (.virt 10165) = 4866839313097607757 ∧ a (.virt 10166) = 13118391689513956636 ∧ a (.virt 10167) = 14527674973762312380 ∧ a (.virt 10168) = 7612751959265567999) ∧ (a (.virt 10169) = 6808090907814178161 ∧ a (.virt 10170) = 6899703779492644997 ∧ a (.virt 10171) = 3664666286336986826 ∧ a (.virt 10172) = 783179505424462608 ∧ a (.virt 10173) = 8990689241814097697 ∧ a (.virt 10174) = 9646603555412825679 ∧ a (.virt 10175) = 7351246026167205041 ∧ a (.virt 10176) = 16970959813722173256 ∧ a (.virt 10177) = 15735726858241466429 ∧ a (.virt 10178) = 10347018221892268419 ∧ a (.virt 10179) = 12195545878449322889 ∧ a (.virt 10180) = 7423314197114049891 ∧ a (.virt 10181) = 14908016116973904153 ∧ a (.virt 10182) = 5840340122527363265 ∧ a (.virt 10183) = 17740311462440614128 ∧ a (.virt 10184) = 815306421953744623 ∧ a (.virt 10185) = 17456357368219253949 ∧ a (.virt 10186) = 6982651076559329072 ∧ a (.virt 10187) = 11970987324614963868 ∧ a (.virt 10188) = 8167785008538063246 ∧ a (.virt 10189) = 9483259819397403968 ∧ a (.virt 10190) = 954550221664291548 ∧ a (.virt 10191) = 10339565171024313256 ∧ a (.virt 10192) = 8651171084286500102 ∧ a (.virt 10193) = 16974445528003515956 ∧ a (.virt 10194) = 15104530047940621190 ∧ a (.virt 10195) = 103271880867179718 ∧ a (.virt 10196) = 14654666245504492663 ∧ a (.virt 10197) = 12445769555936887967 ∧ a (.virt 10198) = 11250582358051997490 ∧ a (.virt 10199) = 6730977207490590241 ∧ a (.virt 10200) = 15919951556166196935))))) ∧ ((((a (.virt 10201) = 4423540216573360915 ∧ a (.virt 10202) = 16317664700341473511 ∧ a (.virt 10203) = 4723997214951767765 ∧ a (.virt 10204) = 10098756619006575500 ∧ a (.virt 10205) = 3223149401237667964 ∧ a (.virt 10206) = 6870494874300767682 ∧ a (.virt 10207) = 2902095711130291898 ∧ a (.virt 10208) = 7159372652788439733 ∧ a (.virt 10209) = 11500508372997952671 ∧ a (.virt 10210) = 13348148181479462670 ∧ a (.virt 10211) = 12729401155983882093 ∧ a (.virt 10212) = 15021242795466053388 ∧ a (.virt 10213) = 3802990509227527157 ∧ a (.virt 10214) = 4665459515680145682 ∧ a (.virt 10215) = 13165553315407675603 ∧ a (.virt 10216) = 6496364397926233172 ∧ a (.virt 10217) = 12800832566287577810 ∧ a (.virt 10218) = 9737592377590267426 ∧ a (.virt 10219) = 8687131091302514939 ∧ a (.virt 10220) = 1488200421755445892 ∧ a (.virt 10221) = 11004377668730991641 ∧ a (.virt 10222) = 13516338734600228410 ∧ a (.virt 10223) = 2953581820660217936 ∧ a (.virt 10224) = 3505040783153922951 ∧ a (.virt 10225) = 3710332827435113697 ∧ a (.virt 10226) = 15414874040873320221 ∧ a (.virt 10227) = 8602547649919482301 ∧ a (.virt 10228) = 13971349938398812007 ∧ a (.virt 10229) = 187239246702636066 ∧ a (.virt 10230) = 12886019973971254144 ∧ a (.virt 10231) = 4512274763990493707 ∧ a (.virt 10232) = 2986635507805503192) ∧ (a (.virt 10233) = 2315252455709119454 ∧ a (.virt 10234) = 12537995864054210246 ∧ a (.virt 10235) = 2039491936479859267 ∧ a (.virt 10236) = 1558644089185031256 ∧ a (.virt 10237) = 4074089203264759305 ∧ a (.virt 10238) = 2522268501749395707 ∧ a (.virt 10239) = 3414760436185256196 ∧ a (.virt 10240) = 17420887529146466921 ∧ a (.virt 10241) = 2817020417938125001 ∧ a (.virt 10242) = 16538346563888261485 ∧ a (.virt 10243) = 5592270336833998770 ∧ a (.virt 10244) = 16876602064684906232 ∧ a (.virt 10245) = 1793025614521516343 ∧ a (.virt 10246) = 2178510518148748532 ∧ a (.virt 10247) = 2726440714374752509 ∧ a (.virt 10248) = 6502946837278398021 ∧ a (.virt 10249) = 15816362857667988792 ∧ a (.virt 10250) = 12997958454165692924 ∧ a (.virt 10251) = 5314892854495903792 ∧ a (.virt 10252) = 15533907063555687782 ∧ a (.virt 10253) = 12312015675698548715 ∧ a (.virt 10254) = 14140016464013350248 ∧ a (.virt 10255) = 16325589062962838690 ∧ a (.virt 10256) = 6796145646370327654 ∧ a (.virt 10257) = 1168753512742361735 ∧ a (.virt 10258) = 4100789820704709368 ∧ a (.virt 10259) = 15947554381540469177 ∧ a (.virt 10260) = 8597377839806076919 ∧ a (.virt 10261) = 9704018824195918000 ∧ a (.virt 10262) = 12763288618765762688 ∧ a (.virt 10263) = 17249257732622847695 ∧ a (.virt 10264) = 1998710993415069759)) ∧ ((a (.virt 10265) = 923759906393011543 ∧ a (.virt 10266) = 1271051229666811593 ∧ a (.virt 10267) = 17822362132088738077 ∧ a (.virt 10268) = 11797234543722669271 ∧ a (.virt 10269) = 5864538787265942447 ∧ a (.virt 10270) = 15975583211110506970 ∧ a (.virt 10271) = 7258516085733671960 ∧ a (.virt 10272) = 17999926471875633100 ∧ a (.virt 10273) = 635992114476018166 ∧ a (.virt 10274) = 17205047318256576347 ∧ a (.virt 10275) = 17384900867876315312 ∧ a (.virt 10276) = 16484825562915784226 ∧ a (.virt 10277) = 16694130609036138894 ∧ a (.virt 10278) = 10575069350371260875 ∧ a (.virt 10279) = 8330575162062887277 ∧ a (.virt 10280) = 6212375704691932880 ∧ a (.virt 10281) = 15965138197626618226 ∧ a (.virt 10282) = 14285453069600046939 ∧ a (.virt 10283) = 10005163510208402517 ∧ a (.virt 10284) = 885298637936952595 ∧ a (.virt 10285) = 541790758138118921 ∧ a (.virt 10286) = 5985203084790372993 ∧ a (.virt 10287) = 4685030219775483721 ∧ a (.virt 10288) = 1411106851304815020 ∧ a (.virt 10289) = 11290732479954096478 ∧ a (.virt 10290) = 208280581124868513 ∧ a (.virt 10291) = 10979018648467968495 ∧ a (.virt 10292) = 8600643745023338215 ∧ a (.virt 10293) = 3477453626867126061 ∧ a (.virt 10294) = 6428436309340258604 ∧ a (.virt 10295) = 5695415667275657934 ∧ a (.virt 10296) = 15952065508715623490) ∧ ((a (.virt 10297) = 15571300830419767248 ∧ a (.virt 10298) = 17259785660502616862 ∧ a (.virt 10299) = 4298425495274316083 ∧ a (.virt 10300) = 9023601070579319352 ∧ a (.virt 10301) = 7353589709321807492 ∧ a (.virt 10302) = 2988848909076209475 ∧ a (.virt 10303) = 10439527789422046135 ∧ a (.virt 10304) = 6097734044161429459 ∧ a (.virt 10305) = 1113429873817861476 ∧ a (.virt 10306) = 1639063372386966591 ∧ a (.virt 10307) = 7863102812716788759 ∧ a (.virt 10308) = 216040220732135364 ∧ a (.virt 10309) = 14252611488623712688 ∧ a (.virt 10310) = 9543395466794536974 ∧ a (.virt 10311) = 2714461051639810934 ∧ a (.virt 10312) = 2588317208781407279 ∧ a (.virt 10313) = 15458529123534594916 ∧ a (.virt 10314) = 15748417817551040856 ∧ a (.virt 10315) = 16414455697114422951 ∧ a (.virt 10316) = 13378164466674639511 ∧ a (.virt 10317) = 13894319928411294675 ∧ a (.virt 10318) = 5032680892090751540 ∧ a (.virt 10319) = 17201338494743078916 ∧ a (.virt 10320) = 4397422800601932505 ∧ a (.virt 10321) = 11285062031581972327 ∧ a (.virt 10322) = 7309354640676468207 ∧ a (.virt 10323) = 10457152817239331848 ∧ a (.virt 10324) = 8855911538863247046 ∧ a (.virt 10325) = 4301853449821814398 ∧ a (.virt 10326) = 13001502396339103326 ∧ a (.virt 10327) = 10218424535115580246 ∧ a (.virt 10328) = 8628244713920681895) ∧ (a (.virt 10329) = 17410423622514037261 ∧ a (.virt 10330) = 14080683768439215375 ∧ a (.virt 10331) = 11453161143447188100 ∧ a (.virt 10332) = 16761509772042181939 ∧ a (.virt 10333) = 6688821660695954082 ∧ a (.virt 10334) = 12083434295263160416 ∧ a (.virt 10335) = 8540021431714616589 ∧ a (.virt 10336) = 6891616215679974226 ∧ a (.virt 10337) = 10229217098454812721 ∧ a (.virt 10338) = 3292165387203778711 ∧ a (.virt 10339) = 6090113424998243490 ∧ a (.virt 10340) = 13431780521962358660 ∧ a (.virt 10341) = 6061081364215809883 ∧ a (.virt 10342) = 16792066504222214142 ∧ a (.virt 10343) = 16134314044798124799 ∧ a (.virt 10344) = 17070233710126619765 ∧ a (.virt 10345) = 6915716851370550800 ∧ a (.virt 10346) = 9505009849073026581 ∧ a (.virt 10347) = 6422700465081897153 ∧ a (.virt 10348) = 17977653991560529185 ∧ a (.virt 10349) = 5800870252836247255 ∧ a (.virt 10350) = 12096124733159345520 ∧ a (.virt 10351) = 7679273623392321940 ∧ a (.virt 10352) = 17835783910585744964 ∧ a (.virt 10353) = 2478664878205754377 ∧ a (.virt 10354) = 1720314468413114967 ∧ a (.virt 10355) = 10376757819003248056 ∧ a (.virt 10356) = 10376377187857634245 ∧ a (.virt 10357) = 13344930747504284997 ∧ a (.virt 10358) = 11579281865160153596 ∧ a (.virt 10359) = 10300256980048736962 ∧ a (.virt 10360) = 378765236515040565)))) ∧ (((a (.virt 10361) = 11412420941557253424 ∧ a (.virt 10362) = 12931662470734252786 ∧ a (.virt 10363) = 43018908376346374 ∧ a (.virt 10364) = 3589810689190160071 ∧ a (.virt 10365) = 4688229274750659741 ∧ a (.virt 10366) = 13688957436484306091 ∧ a (.virt 10367) = 11424740943016984272 ∧ a (.virt 10368) = 16001900718237913960 ∧ a (.virt 10369) = 5548469743008097574 ∧ a (.virt 10370) = 14584404916672178680 ∧ a (.virt 10371) = 3396622135873576824 ∧ a (.virt 10372) = 7861729246871155992 ∧ a (.virt 10373) = 16112271126908045545 ∧ a (.virt 10374) = 16988163966860016012 ∧ a (.virt 10375) = 273641680619529493 ∧ a (.virt 10376) = 15222677154027327363 ∧ a (.virt 10377) = 4070328078309830604 ∧ a (.virt 10378) = 13520458500363296391 ∧ a (.virt 10379) = 8235111705801363015 ∧ a (.virt 10380) = 5575990058472514138 ∧ a (.virt 10381) = 2751301609188252989 ∧ a (.virt 10382) = 6478598528223547074 ∧ a (.virt 10383) = 386565553848556638 ∧ a (.virt 10384) = 9417729078939938713 ∧ a (.virt 10385) = 15204315939835727483 ∧ a (.virt 10386) = 14942015033780606261 ∧ a (.virt 10387) = 18369423901636582012 ∧ a (.virt 10388) = 4715338437538604447 ∧ a (.virt 10389) = 6840590980607806319 ∧ a (.virt 10390) = 5535471161490539014 ∧ a (.virt 10391) = 5341328005359029952 ∧ a (.virt 10392) = 1475161295215894444) ∧ (a (.virt 10393) = 7999197814297036636 ∧ a (.virt 10394) = 2984233088665867938 ∧ a (.virt 10395) = 3097746028144832229 ∧ a (.virt 10396) = 8849530863480031517 ∧ a (.virt 10397) = 7464920943249009773 ∧ a (.virt 10398) = 3802996844641460514 ∧ a (.virt 10399) = 6284458522545927646 ∧ a (.virt 10400) = 2307388003445002779 ∧ a (.virt 10401) = 4461479354745457623 ∧ a (.virt 10402) = 1649739722664588460 ∧ a (.virt 10403) = 3008391274160432867 ∧ a (.virt 10404) = 5142217010456550622 ∧ a (.virt 10405) = 1775580461722730120 ∧ a (.virt 10406) = 161694268822794344 ∧ a (.virt 10407) = 1518963253808031703 ∧ a (.virt 10408) = 16475258091652710137 ∧ a (.virt 10409) = 119575899007375159 ∧ a (.virt 10410) = 1275863735937973999 ∧ a (.virt 10411) = 16539412514520642374 ∧ a (.virt 10412) = 2303365191438051950 ∧ a (.virt 10413) = 6435126839960916075 ∧ a (.virt 10414) = 17794599201026020053 ∧ a (.virt 10415) = 13847097589277840330 ∧ a (.virt 10416) = 16645869274577729720 ∧ a (.virt 10417) = 8039205965509554440 ∧ a (.virt 10418) = 4788586935019371140 ∧ a (.virt 10419) = 15129007200040077746 ∧ a (.virt 10420) = 2055561615223771341 ∧ a (.virt 10421) = 4149731103701412892 ∧ a (.virt 10422) = 10268130195734144189 ∧ a (.virt 10423) = 13406631635880074708 ∧ a (.virt 10424) = 11429218277824986203)) ∧ ((a (.virt 10425) = 15773968030812198565 ∧ a (.virt 10426) = 16050275277550506872 ∧ a (.virt 10427) = 11858586752031736643 ∧ a (.virt 10428) = 8927746344866569756 ∧ a (.virt 10429) = 11802068403177695792 ∧ a (.virt 10430) = 157833420806751556 ∧ a (.virt 10431) = 4698875910749767878 ∧ a (.virt 10432) = 1616722774788291698 ∧ a (.virt 10433) = 3990951895163748090 ∧ a (.virt 10434) = 16758609224720795472 ∧ a (.virt 10435) = 3045571693290741477 ∧ a (.virt 10436) = 9281634245289836419 ∧ a (.virt 10437) = 13517688176723875370 ∧ a (.virt 10438) = 7961395585333219380 ∧ a (.virt 10439) = 1606574359105691080 ∧ a (.virt 10440) = 17564372683613562171 ∧ a (.virt 10441) = 4664015225343144418 ∧ a (.virt 10442) = 6133721340680280128 ∧ a (.virt 10443) = 2667022304383014929 ∧ a (.virt 10444) = 12316557761857340230 ∧ a (.virt 10445) = 10375614850625292317 ∧ a (.virt 10446) = 8141542666379135068 ∧ a (.virt 10447) = 9185476451083834432 ∧ a (.virt 10448) = 4991072365274649547 ∧ a (.virt 10449) = 17398204971778820365 ∧ a (.virt 10450) = 16127888338958422584 ∧ a (.virt 10451) = 13586792051317758204 ∧ a (.virt 10452) = -1 ∧ a (.virt 10455) = 14293326489335486720 ∧ a (.virt 10456) = 4700049436776250445 ∧ a (.virt 10457) = 3541557213422017946 ∧ a (.virt 10458) = 18196947516708736925) ∧ ((a (.virt 10459) = 15817657382918473249 ∧ a (.virt 10460) = 13907817722130613464 ∧ a (.virt 10461) = 10952810625341944941 ∧ a (.virt 10462) = 6203009912824666656 ∧ a (.virt 10463) = 3300053643433736875 ∧ a (.virt 10464) = 6744005316595460895 ∧ a (.virt 10465) = 15739729861593455007 ∧ a (.virt 10466) = 261242591546957104 ∧ a (.virt 10467) = 15971894691377196519 ∧ a (.virt 10468) = 16201670926897260089 ∧ a (.virt 10469) = 8415742645426514154 ∧ a (.virt 10470) = 11796957557555108937 ∧ a (.virt 10471) = 16294407261451109534 ∧ a (.virt 10472) = 5598800393413128961 ∧ a (.virt 10473) = 15563455834725815206 ∧ a (.virt 10474) = 1764867128134410509 ∧ a (.virt 10475) = 7162174829468034425 ∧ a (.virt 10476) = 3755871071604584538 ∧ a (.virt 10477) = 4342271783305288164 ∧ a (.virt 10478) = 12880969007487790240 ∧ a (.virt 10479) = 10677306222450711949 ∧ a (.virt 10480) = 6504175050764636243 ∧ a (.virt 10481) = 5111390403385516632 ∧ a (.virt 10482) = 13022173847108028602 ∧ a (.virt 10483) = 13993386182188331211 ∧ a (.virt 10484) = 17852688572278391749 ∧ a (.virt 10485) = 13748656795736045903 ∧ a (.virt 10486) = 1633629184600895140 ∧ a (.virt 10487) = 4529011729897082393 ∧ a (.virt 10488) = 4906629816328734350 ∧ a (.virt 10489) = 12354457273844909068 ∧ a (.virt 10490) = 11030994060168315240) ∧ (a (.virt 10491) = 5132927100884704451 ∧ a (.virt 10492) = 1903334112240650810 ∧ a (.virt 10493) = 11300350282455140548 ∧ a (.virt 10494) = 12947495166068534688 ∧ a (.virt 10495) = 7280050037032595918 ∧ a (.virt 10496) = 2325750220496619057 ∧ a (.virt 10497) = 9863469300860708700 ∧ a (.virt 10498) = 5927058137232203163 ∧ a (.virt 10499) = 18296775548535963806 ∧ a (.virt 10500) = 16027760200278862284 ∧ a (.virt 10501) = 3198226309374699824 ∧ a (.virt 10502) = 17159143107915980371 ∧ a (.virt 10503) = 4742102661775960192 ∧ a (.virt 10504) = 5942453867077433164 ∧ a (.virt 10505) = 12359909013026785218 ∧ a (.virt 10506) = 12296487080408661428 ∧ a (.virt 10507) = 14401603032726340600 ∧ a (.virt 10508) = 18340875264408803468 ∧ a (.virt 10509) = 8906999085452790476 ∧ a (.virt 10510) = 11753455510941625388 ∧ a (.virt 10511) = 3159781736502437645 ∧ a (.virt 10512) = 3690235712498808163 ∧ a (.virt 10513) = 16869124931580068791 ∧ a (.virt 10514) = 4404853092538523347 ∧ a (.virt 10515) = 576460752303423488 ∧ a (.virt 10516) = 65 ∧ a (.virt 10521) = 136 ∧ a (.virt 10526) = 17 ∧ a (.virt 10535) = 7126024226993609386 ∧ a (.virt 10542) = 18442240469788262401 ∧ a (.virt 10543) = 33)))))) := by
   have hconst := h.2.2

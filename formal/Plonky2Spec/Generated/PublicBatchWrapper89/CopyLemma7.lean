@@ -2804,11 +2804,1078 @@ theorem publicBatchWrapper89_copies3912 (a : Assignment p) (h : Satisfies (publi
   simp only [publicBatchWrapper89.copies3912, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hc
   exact hc
 
-theorem publicBatchWrapper89_consts (a : Assignment p) (h : Satisfies (publicBatchWrapper89 p) a) :
-    (a (.virt 17806) = 32 ∧ a (.virt 19587) = 2848 ∧ a (.virt 200) = 0 ∧ a (.virt 201) = 1) := by
-  have hconst := h.2.2
-  simp only [publicBatchWrapper89, List.forall_mem_cons, List.not_mem_nil, false_implies, implies_true, and_true] at hconst
-  obtain ⟨k0, k1, k2, k3⟩ := hconst
-  exact ⟨k0, k1, k2, k3⟩
+theorem publicBatchWrapper89_row0 : (publicBatchWrapper89 p).rows[0]? = some ⟨.arithmetic 20, [1, 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row1 : (publicBatchWrapper89 p).rows[1]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row2 : (publicBatchWrapper89 p).rows[2]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row3 : (publicBatchWrapper89 p).rows[3]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row4 : (publicBatchWrapper89 p).rows[4]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row5 : (publicBatchWrapper89 p).rows[5]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row6 : (publicBatchWrapper89 p).rows[6]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row7 : (publicBatchWrapper89 p).rows[7]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row8 : (publicBatchWrapper89 p).rows[8]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row9 : (publicBatchWrapper89 p).rows[9]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row10 : (publicBatchWrapper89 p).rows[10]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row11 : (publicBatchWrapper89 p).rows[11]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row12 : (publicBatchWrapper89 p).rows[12]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row13 : (publicBatchWrapper89 p).rows[13]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row14 : (publicBatchWrapper89 p).rows[14]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row15 : (publicBatchWrapper89 p).rows[15]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row16 : (publicBatchWrapper89 p).rows[16]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row17 : (publicBatchWrapper89 p).rows[17]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row18 : (publicBatchWrapper89 p).rows[18]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row19 : (publicBatchWrapper89 p).rows[19]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row20 : (publicBatchWrapper89 p).rows[20]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row21 : (publicBatchWrapper89 p).rows[21]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row22 : (publicBatchWrapper89 p).rows[22]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row23 : (publicBatchWrapper89 p).rows[23]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row24 : (publicBatchWrapper89 p).rows[24]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row25 : (publicBatchWrapper89 p).rows[25]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row26 : (publicBatchWrapper89 p).rows[26]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row27 : (publicBatchWrapper89 p).rows[27]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row28 : (publicBatchWrapper89 p).rows[28]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row29 : (publicBatchWrapper89 p).rows[29]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row30 : (publicBatchWrapper89 p).rows[30]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row31 : (publicBatchWrapper89 p).rows[31]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row32 : (publicBatchWrapper89 p).rows[32]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row33 : (publicBatchWrapper89 p).rows[33]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row34 : (publicBatchWrapper89 p).rows[34]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row35 : (publicBatchWrapper89 p).rows[35]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row36 : (publicBatchWrapper89 p).rows[36]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row37 : (publicBatchWrapper89 p).rows[37]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row38 : (publicBatchWrapper89 p).rows[38]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row39 : (publicBatchWrapper89 p).rows[39]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row40 : (publicBatchWrapper89 p).rows[40]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row41 : (publicBatchWrapper89 p).rows[41]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row42 : (publicBatchWrapper89 p).rows[42]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row43 : (publicBatchWrapper89 p).rows[43]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row44 : (publicBatchWrapper89 p).rows[44]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row45 : (publicBatchWrapper89 p).rows[45]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row46 : (publicBatchWrapper89 p).rows[46]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row47 : (publicBatchWrapper89 p).rows[47]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row48 : (publicBatchWrapper89 p).rows[48]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row49 : (publicBatchWrapper89 p).rows[49]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row50 : (publicBatchWrapper89 p).rows[50]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row51 : (publicBatchWrapper89 p).rows[51]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row52 : (publicBatchWrapper89 p).rows[52]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row53 : (publicBatchWrapper89 p).rows[53]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row54 : (publicBatchWrapper89 p).rows[54]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row55 : (publicBatchWrapper89 p).rows[55]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row56 : (publicBatchWrapper89 p).rows[56]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row57 : (publicBatchWrapper89 p).rows[57]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row58 : (publicBatchWrapper89 p).rows[58]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row59 : (publicBatchWrapper89 p).rows[59]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row60 : (publicBatchWrapper89 p).rows[60]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row61 : (publicBatchWrapper89 p).rows[61]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row62 : (publicBatchWrapper89 p).rows[62]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row63 : (publicBatchWrapper89 p).rows[63]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row64 : (publicBatchWrapper89 p).rows[64]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row65 : (publicBatchWrapper89 p).rows[65]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row66 : (publicBatchWrapper89 p).rows[66]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row67 : (publicBatchWrapper89 p).rows[67]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row68 : (publicBatchWrapper89 p).rows[68]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row69 : (publicBatchWrapper89 p).rows[69]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row70 : (publicBatchWrapper89 p).rows[70]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row71 : (publicBatchWrapper89 p).rows[71]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row72 : (publicBatchWrapper89 p).rows[72]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row73 : (publicBatchWrapper89 p).rows[73]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row74 : (publicBatchWrapper89 p).rows[74]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row75 : (publicBatchWrapper89 p).rows[75]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row76 : (publicBatchWrapper89 p).rows[76]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row77 : (publicBatchWrapper89 p).rows[77]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row78 : (publicBatchWrapper89 p).rows[78]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row79 : (publicBatchWrapper89 p).rows[79]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row80 : (publicBatchWrapper89 p).rows[80]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row81 : (publicBatchWrapper89 p).rows[81]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row82 : (publicBatchWrapper89 p).rows[82]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row83 : (publicBatchWrapper89 p).rows[83]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row84 : (publicBatchWrapper89 p).rows[84]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row85 : (publicBatchWrapper89 p).rows[85]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row86 : (publicBatchWrapper89 p).rows[86]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row87 : (publicBatchWrapper89 p).rows[87]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row88 : (publicBatchWrapper89 p).rows[88]? = some ⟨.arithmetic 20, [(-1), 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row89 : (publicBatchWrapper89 p).rows[89]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row90 : (publicBatchWrapper89 p).rows[90]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row91 : (publicBatchWrapper89 p).rows[91]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row92 : (publicBatchWrapper89 p).rows[92]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row93 : (publicBatchWrapper89 p).rows[93]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row94 : (publicBatchWrapper89 p).rows[94]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row95 : (publicBatchWrapper89 p).rows[95]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row96 : (publicBatchWrapper89 p).rows[96]? = some ⟨.arithmetic 20, [1, 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row97 : (publicBatchWrapper89 p).rows[97]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row98 : (publicBatchWrapper89 p).rows[98]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row99 : (publicBatchWrapper89 p).rows[99]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row100 : (publicBatchWrapper89 p).rows[100]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row101 : (publicBatchWrapper89 p).rows[101]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row102 : (publicBatchWrapper89 p).rows[102]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row103 : (publicBatchWrapper89 p).rows[103]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row104 : (publicBatchWrapper89 p).rows[104]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row105 : (publicBatchWrapper89 p).rows[105]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row106 : (publicBatchWrapper89 p).rows[106]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row107 : (publicBatchWrapper89 p).rows[107]? = some ⟨.arithmetic 20, [(-1), 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row108 : (publicBatchWrapper89 p).rows[108]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row109 : (publicBatchWrapper89 p).rows[109]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row110 : (publicBatchWrapper89 p).rows[110]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row111 : (publicBatchWrapper89 p).rows[111]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row112 : (publicBatchWrapper89 p).rows[112]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row113 : (publicBatchWrapper89 p).rows[113]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row114 : (publicBatchWrapper89 p).rows[114]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row115 : (publicBatchWrapper89 p).rows[115]? = some ⟨.arithmetic 20, [1, 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row116 : (publicBatchWrapper89 p).rows[116]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row117 : (publicBatchWrapper89 p).rows[117]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row118 : (publicBatchWrapper89 p).rows[118]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row119 : (publicBatchWrapper89 p).rows[119]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row120 : (publicBatchWrapper89 p).rows[120]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row121 : (publicBatchWrapper89 p).rows[121]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row122 : (publicBatchWrapper89 p).rows[122]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row123 : (publicBatchWrapper89 p).rows[123]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row124 : (publicBatchWrapper89 p).rows[124]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row125 : (publicBatchWrapper89 p).rows[125]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row126 : (publicBatchWrapper89 p).rows[126]? = some ⟨.arithmetic 20, [(-1), 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row127 : (publicBatchWrapper89 p).rows[127]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row128 : (publicBatchWrapper89 p).rows[128]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row129 : (publicBatchWrapper89 p).rows[129]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row130 : (publicBatchWrapper89 p).rows[130]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row131 : (publicBatchWrapper89 p).rows[131]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row132 : (publicBatchWrapper89 p).rows[132]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row133 : (publicBatchWrapper89 p).rows[133]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row134 : (publicBatchWrapper89 p).rows[134]? = some ⟨.arithmetic 20, [1, 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row135 : (publicBatchWrapper89 p).rows[135]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row136 : (publicBatchWrapper89 p).rows[136]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row137 : (publicBatchWrapper89 p).rows[137]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row138 : (publicBatchWrapper89 p).rows[138]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row139 : (publicBatchWrapper89 p).rows[139]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row140 : (publicBatchWrapper89 p).rows[140]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row141 : (publicBatchWrapper89 p).rows[141]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row142 : (publicBatchWrapper89 p).rows[142]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row143 : (publicBatchWrapper89 p).rows[143]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row144 : (publicBatchWrapper89 p).rows[144]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row145 : (publicBatchWrapper89 p).rows[145]? = some ⟨.arithmetic 20, [(-1), 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row146 : (publicBatchWrapper89 p).rows[146]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row147 : (publicBatchWrapper89 p).rows[147]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row148 : (publicBatchWrapper89 p).rows[148]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row149 : (publicBatchWrapper89 p).rows[149]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row150 : (publicBatchWrapper89 p).rows[150]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row151 : (publicBatchWrapper89 p).rows[151]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row152 : (publicBatchWrapper89 p).rows[152]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row153 : (publicBatchWrapper89 p).rows[153]? = some ⟨.arithmetic 20, [1, 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row154 : (publicBatchWrapper89 p).rows[154]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row155 : (publicBatchWrapper89 p).rows[155]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row156 : (publicBatchWrapper89 p).rows[156]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row157 : (publicBatchWrapper89 p).rows[157]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row158 : (publicBatchWrapper89 p).rows[158]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row159 : (publicBatchWrapper89 p).rows[159]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row160 : (publicBatchWrapper89 p).rows[160]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row161 : (publicBatchWrapper89 p).rows[161]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row162 : (publicBatchWrapper89 p).rows[162]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row163 : (publicBatchWrapper89 p).rows[163]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row164 : (publicBatchWrapper89 p).rows[164]? = some ⟨.arithmetic 20, [(-1), 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row165 : (publicBatchWrapper89 p).rows[165]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row166 : (publicBatchWrapper89 p).rows[166]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row167 : (publicBatchWrapper89 p).rows[167]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row168 : (publicBatchWrapper89 p).rows[168]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row169 : (publicBatchWrapper89 p).rows[169]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row170 : (publicBatchWrapper89 p).rows[170]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row171 : (publicBatchWrapper89 p).rows[171]? = some ⟨.arithmetic 20, [1, 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row172 : (publicBatchWrapper89 p).rows[172]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row173 : (publicBatchWrapper89 p).rows[173]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row174 : (publicBatchWrapper89 p).rows[174]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row175 : (publicBatchWrapper89 p).rows[175]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row176 : (publicBatchWrapper89 p).rows[176]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row177 : (publicBatchWrapper89 p).rows[177]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row178 : (publicBatchWrapper89 p).rows[178]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row179 : (publicBatchWrapper89 p).rows[179]? = some ⟨.arithmetic 20, [(-1), 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row180 : (publicBatchWrapper89 p).rows[180]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row181 : (publicBatchWrapper89 p).rows[181]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row182 : (publicBatchWrapper89 p).rows[182]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row183 : (publicBatchWrapper89 p).rows[183]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row184 : (publicBatchWrapper89 p).rows[184]? = some ⟨.arithmetic 20, [1, 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row185 : (publicBatchWrapper89 p).rows[185]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row186 : (publicBatchWrapper89 p).rows[186]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row187 : (publicBatchWrapper89 p).rows[187]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row188 : (publicBatchWrapper89 p).rows[188]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row189 : (publicBatchWrapper89 p).rows[189]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row190 : (publicBatchWrapper89 p).rows[190]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row191 : (publicBatchWrapper89 p).rows[191]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row192 : (publicBatchWrapper89 p).rows[192]? = some ⟨.arithmetic 20, [(-1), 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row193 : (publicBatchWrapper89 p).rows[193]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row194 : (publicBatchWrapper89 p).rows[194]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row195 : (publicBatchWrapper89 p).rows[195]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row196 : (publicBatchWrapper89 p).rows[196]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row197 : (publicBatchWrapper89 p).rows[197]? = some ⟨.arithmetic 20, [1, 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row198 : (publicBatchWrapper89 p).rows[198]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row199 : (publicBatchWrapper89 p).rows[199]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row200 : (publicBatchWrapper89 p).rows[200]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row201 : (publicBatchWrapper89 p).rows[201]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row202 : (publicBatchWrapper89 p).rows[202]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row203 : (publicBatchWrapper89 p).rows[203]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row204 : (publicBatchWrapper89 p).rows[204]? = some ⟨.arithmetic 20, [(-1), 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row205 : (publicBatchWrapper89 p).rows[205]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row206 : (publicBatchWrapper89 p).rows[206]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row207 : (publicBatchWrapper89 p).rows[207]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row208 : (publicBatchWrapper89 p).rows[208]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row209 : (publicBatchWrapper89 p).rows[209]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row210 : (publicBatchWrapper89 p).rows[210]? = some ⟨.arithmetic 20, [1, 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row211 : (publicBatchWrapper89 p).rows[211]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row212 : (publicBatchWrapper89 p).rows[212]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row213 : (publicBatchWrapper89 p).rows[213]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row214 : (publicBatchWrapper89 p).rows[214]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row215 : (publicBatchWrapper89 p).rows[215]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row216 : (publicBatchWrapper89 p).rows[216]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row217 : (publicBatchWrapper89 p).rows[217]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row218 : (publicBatchWrapper89 p).rows[218]? = some ⟨.arithmetic 20, [(-1), 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row219 : (publicBatchWrapper89 p).rows[219]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row220 : (publicBatchWrapper89 p).rows[220]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row221 : (publicBatchWrapper89 p).rows[221]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row222 : (publicBatchWrapper89 p).rows[222]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row223 : (publicBatchWrapper89 p).rows[223]? = some ⟨.arithmetic 20, [1, 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row224 : (publicBatchWrapper89 p).rows[224]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row225 : (publicBatchWrapper89 p).rows[225]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row226 : (publicBatchWrapper89 p).rows[226]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row227 : (publicBatchWrapper89 p).rows[227]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row228 : (publicBatchWrapper89 p).rows[228]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row229 : (publicBatchWrapper89 p).rows[229]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row230 : (publicBatchWrapper89 p).rows[230]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row231 : (publicBatchWrapper89 p).rows[231]? = some ⟨.arithmetic 20, [(-1), 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row232 : (publicBatchWrapper89 p).rows[232]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row233 : (publicBatchWrapper89 p).rows[233]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row234 : (publicBatchWrapper89 p).rows[234]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row235 : (publicBatchWrapper89 p).rows[235]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row236 : (publicBatchWrapper89 p).rows[236]? = some ⟨.arithmetic 20, [1, 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row237 : (publicBatchWrapper89 p).rows[237]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row238 : (publicBatchWrapper89 p).rows[238]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row239 : (publicBatchWrapper89 p).rows[239]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row240 : (publicBatchWrapper89 p).rows[240]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row241 : (publicBatchWrapper89 p).rows[241]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row242 : (publicBatchWrapper89 p).rows[242]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row243 : (publicBatchWrapper89 p).rows[243]? = some ⟨.arithmetic 20, [(-1), 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row244 : (publicBatchWrapper89 p).rows[244]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row245 : (publicBatchWrapper89 p).rows[245]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row246 : (publicBatchWrapper89 p).rows[246]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row247 : (publicBatchWrapper89 p).rows[247]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row248 : (publicBatchWrapper89 p).rows[248]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row249 : (publicBatchWrapper89 p).rows[249]? = some ⟨.arithmetic 20, [1, 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row250 : (publicBatchWrapper89 p).rows[250]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row251 : (publicBatchWrapper89 p).rows[251]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row252 : (publicBatchWrapper89 p).rows[252]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row253 : (publicBatchWrapper89 p).rows[253]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row254 : (publicBatchWrapper89 p).rows[254]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row255 : (publicBatchWrapper89 p).rows[255]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row256 : (publicBatchWrapper89 p).rows[256]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row257 : (publicBatchWrapper89 p).rows[257]? = some ⟨.arithmetic 20, [(-1), 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row258 : (publicBatchWrapper89 p).rows[258]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row259 : (publicBatchWrapper89 p).rows[259]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row260 : (publicBatchWrapper89 p).rows[260]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row261 : (publicBatchWrapper89 p).rows[261]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row262 : (publicBatchWrapper89 p).rows[262]? = some ⟨.arithmetic 20, [1, 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row263 : (publicBatchWrapper89 p).rows[263]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row264 : (publicBatchWrapper89 p).rows[264]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row265 : (publicBatchWrapper89 p).rows[265]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row266 : (publicBatchWrapper89 p).rows[266]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row267 : (publicBatchWrapper89 p).rows[267]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row268 : (publicBatchWrapper89 p).rows[268]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row269 : (publicBatchWrapper89 p).rows[269]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row270 : (publicBatchWrapper89 p).rows[270]? = some ⟨.arithmetic 20, [(-1), 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row271 : (publicBatchWrapper89 p).rows[271]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row272 : (publicBatchWrapper89 p).rows[272]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row273 : (publicBatchWrapper89 p).rows[273]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row274 : (publicBatchWrapper89 p).rows[274]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row275 : (publicBatchWrapper89 p).rows[275]? = some ⟨.arithmetic 20, [1, 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row276 : (publicBatchWrapper89 p).rows[276]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row277 : (publicBatchWrapper89 p).rows[277]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row278 : (publicBatchWrapper89 p).rows[278]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row279 : (publicBatchWrapper89 p).rows[279]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row280 : (publicBatchWrapper89 p).rows[280]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row281 : (publicBatchWrapper89 p).rows[281]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row282 : (publicBatchWrapper89 p).rows[282]? = some ⟨.arithmetic 20, [(-1), 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row283 : (publicBatchWrapper89 p).rows[283]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row284 : (publicBatchWrapper89 p).rows[284]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row285 : (publicBatchWrapper89 p).rows[285]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row286 : (publicBatchWrapper89 p).rows[286]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row287 : (publicBatchWrapper89 p).rows[287]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row288 : (publicBatchWrapper89 p).rows[288]? = some ⟨.arithmetic 20, [1, 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row289 : (publicBatchWrapper89 p).rows[289]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row290 : (publicBatchWrapper89 p).rows[290]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row291 : (publicBatchWrapper89 p).rows[291]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row292 : (publicBatchWrapper89 p).rows[292]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row293 : (publicBatchWrapper89 p).rows[293]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row294 : (publicBatchWrapper89 p).rows[294]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row295 : (publicBatchWrapper89 p).rows[295]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row296 : (publicBatchWrapper89 p).rows[296]? = some ⟨.arithmetic 20, [(-1), 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row297 : (publicBatchWrapper89 p).rows[297]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row298 : (publicBatchWrapper89 p).rows[298]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row299 : (publicBatchWrapper89 p).rows[299]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row300 : (publicBatchWrapper89 p).rows[300]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row301 : (publicBatchWrapper89 p).rows[301]? = some ⟨.arithmetic 20, [1, 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row302 : (publicBatchWrapper89 p).rows[302]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row303 : (publicBatchWrapper89 p).rows[303]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row304 : (publicBatchWrapper89 p).rows[304]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row305 : (publicBatchWrapper89 p).rows[305]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row306 : (publicBatchWrapper89 p).rows[306]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row307 : (publicBatchWrapper89 p).rows[307]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row308 : (publicBatchWrapper89 p).rows[308]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row309 : (publicBatchWrapper89 p).rows[309]? = some ⟨.arithmetic 20, [(-1), 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row310 : (publicBatchWrapper89 p).rows[310]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row311 : (publicBatchWrapper89 p).rows[311]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row312 : (publicBatchWrapper89 p).rows[312]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row313 : (publicBatchWrapper89 p).rows[313]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row314 : (publicBatchWrapper89 p).rows[314]? = some ⟨.arithmetic 20, [1, 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row315 : (publicBatchWrapper89 p).rows[315]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row316 : (publicBatchWrapper89 p).rows[316]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row317 : (publicBatchWrapper89 p).rows[317]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row318 : (publicBatchWrapper89 p).rows[318]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row319 : (publicBatchWrapper89 p).rows[319]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row320 : (publicBatchWrapper89 p).rows[320]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row321 : (publicBatchWrapper89 p).rows[321]? = some ⟨.arithmetic 20, [(-1), 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row322 : (publicBatchWrapper89 p).rows[322]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row323 : (publicBatchWrapper89 p).rows[323]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row324 : (publicBatchWrapper89 p).rows[324]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row325 : (publicBatchWrapper89 p).rows[325]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row326 : (publicBatchWrapper89 p).rows[326]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row327 : (publicBatchWrapper89 p).rows[327]? = some ⟨.arithmetic 20, [1, 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row328 : (publicBatchWrapper89 p).rows[328]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row329 : (publicBatchWrapper89 p).rows[329]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row330 : (publicBatchWrapper89 p).rows[330]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row331 : (publicBatchWrapper89 p).rows[331]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row332 : (publicBatchWrapper89 p).rows[332]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row333 : (publicBatchWrapper89 p).rows[333]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row334 : (publicBatchWrapper89 p).rows[334]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row335 : (publicBatchWrapper89 p).rows[335]? = some ⟨.arithmetic 20, [(-1), 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row336 : (publicBatchWrapper89 p).rows[336]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row337 : (publicBatchWrapper89 p).rows[337]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row338 : (publicBatchWrapper89 p).rows[338]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row339 : (publicBatchWrapper89 p).rows[339]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row340 : (publicBatchWrapper89 p).rows[340]? = some ⟨.arithmetic 20, [1, 1]⟩ := rfl
+
+theorem publicBatchWrapper89_row341 : (publicBatchWrapper89 p).rows[341]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row342 : (publicBatchWrapper89 p).rows[342]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row343 : (publicBatchWrapper89 p).rows[343]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row344 : (publicBatchWrapper89 p).rows[344]? = some ⟨.arithmetic 20, [1, 0]⟩ := rfl
+
+theorem publicBatchWrapper89_row345 : (publicBatchWrapper89 p).rows[345]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row346 : (publicBatchWrapper89 p).rows[346]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row347 : (publicBatchWrapper89 p).rows[347]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row348 : (publicBatchWrapper89 p).rows[348]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row349 : (publicBatchWrapper89 p).rows[349]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row350 : (publicBatchWrapper89 p).rows[350]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row351 : (publicBatchWrapper89 p).rows[351]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row352 : (publicBatchWrapper89 p).rows[352]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row353 : (publicBatchWrapper89 p).rows[353]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row354 : (publicBatchWrapper89 p).rows[354]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row355 : (publicBatchWrapper89 p).rows[355]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row356 : (publicBatchWrapper89 p).rows[356]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row357 : (publicBatchWrapper89 p).rows[357]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row358 : (publicBatchWrapper89 p).rows[358]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row359 : (publicBatchWrapper89 p).rows[359]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row360 : (publicBatchWrapper89 p).rows[360]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row361 : (publicBatchWrapper89 p).rows[361]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row362 : (publicBatchWrapper89 p).rows[362]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row363 : (publicBatchWrapper89 p).rows[363]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row364 : (publicBatchWrapper89 p).rows[364]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row365 : (publicBatchWrapper89 p).rows[365]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row366 : (publicBatchWrapper89 p).rows[366]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row367 : (publicBatchWrapper89 p).rows[367]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row368 : (publicBatchWrapper89 p).rows[368]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row369 : (publicBatchWrapper89 p).rows[369]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row370 : (publicBatchWrapper89 p).rows[370]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row371 : (publicBatchWrapper89 p).rows[371]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row372 : (publicBatchWrapper89 p).rows[372]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row373 : (publicBatchWrapper89 p).rows[373]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row374 : (publicBatchWrapper89 p).rows[374]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row375 : (publicBatchWrapper89 p).rows[375]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row376 : (publicBatchWrapper89 p).rows[376]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row377 : (publicBatchWrapper89 p).rows[377]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row378 : (publicBatchWrapper89 p).rows[378]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row379 : (publicBatchWrapper89 p).rows[379]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row380 : (publicBatchWrapper89 p).rows[380]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row381 : (publicBatchWrapper89 p).rows[381]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row382 : (publicBatchWrapper89 p).rows[382]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row383 : (publicBatchWrapper89 p).rows[383]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row384 : (publicBatchWrapper89 p).rows[384]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row385 : (publicBatchWrapper89 p).rows[385]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row386 : (publicBatchWrapper89 p).rows[386]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row387 : (publicBatchWrapper89 p).rows[387]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row388 : (publicBatchWrapper89 p).rows[388]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row389 : (publicBatchWrapper89 p).rows[389]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row390 : (publicBatchWrapper89 p).rows[390]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row391 : (publicBatchWrapper89 p).rows[391]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row392 : (publicBatchWrapper89 p).rows[392]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row393 : (publicBatchWrapper89 p).rows[393]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row394 : (publicBatchWrapper89 p).rows[394]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row395 : (publicBatchWrapper89 p).rows[395]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row396 : (publicBatchWrapper89 p).rows[396]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row397 : (publicBatchWrapper89 p).rows[397]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row398 : (publicBatchWrapper89 p).rows[398]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row399 : (publicBatchWrapper89 p).rows[399]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row400 : (publicBatchWrapper89 p).rows[400]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row401 : (publicBatchWrapper89 p).rows[401]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row402 : (publicBatchWrapper89 p).rows[402]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row403 : (publicBatchWrapper89 p).rows[403]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row404 : (publicBatchWrapper89 p).rows[404]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row405 : (publicBatchWrapper89 p).rows[405]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row406 : (publicBatchWrapper89 p).rows[406]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row407 : (publicBatchWrapper89 p).rows[407]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row408 : (publicBatchWrapper89 p).rows[408]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row409 : (publicBatchWrapper89 p).rows[409]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row410 : (publicBatchWrapper89 p).rows[410]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row411 : (publicBatchWrapper89 p).rows[411]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row412 : (publicBatchWrapper89 p).rows[412]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row413 : (publicBatchWrapper89 p).rows[413]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row414 : (publicBatchWrapper89 p).rows[414]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row415 : (publicBatchWrapper89 p).rows[415]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row416 : (publicBatchWrapper89 p).rows[416]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row417 : (publicBatchWrapper89 p).rows[417]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row418 : (publicBatchWrapper89 p).rows[418]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row419 : (publicBatchWrapper89 p).rows[419]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row420 : (publicBatchWrapper89 p).rows[420]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row421 : (publicBatchWrapper89 p).rows[421]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row422 : (publicBatchWrapper89 p).rows[422]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row423 : (publicBatchWrapper89 p).rows[423]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row424 : (publicBatchWrapper89 p).rows[424]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row425 : (publicBatchWrapper89 p).rows[425]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row426 : (publicBatchWrapper89 p).rows[426]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row427 : (publicBatchWrapper89 p).rows[427]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row428 : (publicBatchWrapper89 p).rows[428]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row429 : (publicBatchWrapper89 p).rows[429]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row430 : (publicBatchWrapper89 p).rows[430]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row431 : (publicBatchWrapper89 p).rows[431]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row432 : (publicBatchWrapper89 p).rows[432]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row433 : (publicBatchWrapper89 p).rows[433]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row434 : (publicBatchWrapper89 p).rows[434]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row435 : (publicBatchWrapper89 p).rows[435]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row436 : (publicBatchWrapper89 p).rows[436]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row437 : (publicBatchWrapper89 p).rows[437]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row438 : (publicBatchWrapper89 p).rows[438]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row439 : (publicBatchWrapper89 p).rows[439]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row440 : (publicBatchWrapper89 p).rows[440]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row441 : (publicBatchWrapper89 p).rows[441]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row442 : (publicBatchWrapper89 p).rows[442]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row443 : (publicBatchWrapper89 p).rows[443]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row444 : (publicBatchWrapper89 p).rows[444]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row445 : (publicBatchWrapper89 p).rows[445]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row446 : (publicBatchWrapper89 p).rows[446]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row447 : (publicBatchWrapper89 p).rows[447]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row448 : (publicBatchWrapper89 p).rows[448]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row449 : (publicBatchWrapper89 p).rows[449]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row450 : (publicBatchWrapper89 p).rows[450]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row451 : (publicBatchWrapper89 p).rows[451]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row452 : (publicBatchWrapper89 p).rows[452]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row453 : (publicBatchWrapper89 p).rows[453]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row454 : (publicBatchWrapper89 p).rows[454]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row455 : (publicBatchWrapper89 p).rows[455]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row456 : (publicBatchWrapper89 p).rows[456]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row457 : (publicBatchWrapper89 p).rows[457]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row458 : (publicBatchWrapper89 p).rows[458]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row459 : (publicBatchWrapper89 p).rows[459]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row460 : (publicBatchWrapper89 p).rows[460]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row461 : (publicBatchWrapper89 p).rows[461]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row462 : (publicBatchWrapper89 p).rows[462]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row463 : (publicBatchWrapper89 p).rows[463]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row464 : (publicBatchWrapper89 p).rows[464]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row465 : (publicBatchWrapper89 p).rows[465]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row466 : (publicBatchWrapper89 p).rows[466]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row467 : (publicBatchWrapper89 p).rows[467]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row468 : (publicBatchWrapper89 p).rows[468]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row469 : (publicBatchWrapper89 p).rows[469]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row470 : (publicBatchWrapper89 p).rows[470]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row471 : (publicBatchWrapper89 p).rows[471]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row472 : (publicBatchWrapper89 p).rows[472]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row473 : (publicBatchWrapper89 p).rows[473]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row474 : (publicBatchWrapper89 p).rows[474]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row475 : (publicBatchWrapper89 p).rows[475]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row476 : (publicBatchWrapper89 p).rows[476]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row477 : (publicBatchWrapper89 p).rows[477]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row478 : (publicBatchWrapper89 p).rows[478]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row479 : (publicBatchWrapper89 p).rows[479]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row480 : (publicBatchWrapper89 p).rows[480]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row481 : (publicBatchWrapper89 p).rows[481]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row482 : (publicBatchWrapper89 p).rows[482]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row483 : (publicBatchWrapper89 p).rows[483]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row484 : (publicBatchWrapper89 p).rows[484]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row485 : (publicBatchWrapper89 p).rows[485]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row486 : (publicBatchWrapper89 p).rows[486]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row487 : (publicBatchWrapper89 p).rows[487]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row488 : (publicBatchWrapper89 p).rows[488]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row489 : (publicBatchWrapper89 p).rows[489]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row490 : (publicBatchWrapper89 p).rows[490]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row491 : (publicBatchWrapper89 p).rows[491]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row492 : (publicBatchWrapper89 p).rows[492]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row493 : (publicBatchWrapper89 p).rows[493]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row494 : (publicBatchWrapper89 p).rows[494]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row495 : (publicBatchWrapper89 p).rows[495]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row496 : (publicBatchWrapper89 p).rows[496]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row497 : (publicBatchWrapper89 p).rows[497]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row498 : (publicBatchWrapper89 p).rows[498]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row499 : (publicBatchWrapper89 p).rows[499]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row500 : (publicBatchWrapper89 p).rows[500]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row501 : (publicBatchWrapper89 p).rows[501]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row502 : (publicBatchWrapper89 p).rows[502]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row503 : (publicBatchWrapper89 p).rows[503]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row504 : (publicBatchWrapper89 p).rows[504]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row505 : (publicBatchWrapper89 p).rows[505]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row506 : (publicBatchWrapper89 p).rows[506]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row507 : (publicBatchWrapper89 p).rows[507]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row508 : (publicBatchWrapper89 p).rows[508]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row509 : (publicBatchWrapper89 p).rows[509]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row510 : (publicBatchWrapper89 p).rows[510]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row511 : (publicBatchWrapper89 p).rows[511]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row512 : (publicBatchWrapper89 p).rows[512]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row513 : (publicBatchWrapper89 p).rows[513]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row514 : (publicBatchWrapper89 p).rows[514]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row515 : (publicBatchWrapper89 p).rows[515]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row516 : (publicBatchWrapper89 p).rows[516]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row517 : (publicBatchWrapper89 p).rows[517]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row518 : (publicBatchWrapper89 p).rows[518]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row519 : (publicBatchWrapper89 p).rows[519]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row520 : (publicBatchWrapper89 p).rows[520]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row521 : (publicBatchWrapper89 p).rows[521]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row522 : (publicBatchWrapper89 p).rows[522]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row523 : (publicBatchWrapper89 p).rows[523]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row524 : (publicBatchWrapper89 p).rows[524]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row525 : (publicBatchWrapper89 p).rows[525]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row526 : (publicBatchWrapper89 p).rows[526]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row527 : (publicBatchWrapper89 p).rows[527]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row528 : (publicBatchWrapper89 p).rows[528]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row529 : (publicBatchWrapper89 p).rows[529]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row530 : (publicBatchWrapper89 p).rows[530]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row531 : (publicBatchWrapper89 p).rows[531]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row532 : (publicBatchWrapper89 p).rows[532]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row533 : (publicBatchWrapper89 p).rows[533]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row534 : (publicBatchWrapper89 p).rows[534]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row535 : (publicBatchWrapper89 p).rows[535]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
+
+theorem publicBatchWrapper89_row536 : (publicBatchWrapper89 p).rows[536]? = some ⟨.arithmetic 20, [1, (-1)]⟩ := rfl
 
 end Plonky2Spec.Generated

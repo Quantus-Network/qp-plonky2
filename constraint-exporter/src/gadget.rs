@@ -1002,7 +1002,7 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
         let mut s = String::new();
         let _ = writeln!(
             s,
-            "  have {} := arithEq_of_rows h (row := {row}) (i := {i}) rfl (by decide)",
+            "  have {} := arithEq_of_rows h (i := {i}) {name}_row{row} (by decide)",
             e((row, i))
         );
         let mut rules: Vec<String> = Vec::new();
@@ -1033,12 +1033,14 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
     // The tactic block of each call, and the copies and constants the blocks mention: a
     // completed export (`built::complete`) carries the recursive verifiers' copies and
     // constants too, of which the wrapper's calls use none.
+    let mut used_rows: BTreeSet<usize> = BTreeSet::new();
     let bodies: Vec<String> = calls
         .iter()
         .map(|call| {
             let script = fact_script(&ops, ex, call);
             let mut body = String::new();
             for op in op_refs(&script) {
+                used_rows.insert(op.0);
                 body.push_str(&op_block(op));
             }
             body.push_str(&script);
@@ -1083,6 +1085,16 @@ pub fn render_decode_theorem(name: &str, ex: &CircuitExport, calls: &[Call]) -> 
             }
             let _ = writeln!(out, "  exact hc\n");
         }
+    }
+    // The row of each op, looked up once: `rows[row]?` reduces through `row` cons cells,
+    // and a row's lookup is shared by every op on it instead of redone per op.
+    for &row in &used_rows {
+        let (kind, consts) = &ex.rows[row];
+        let _ = writeln!(
+            out,
+            "theorem {name}_row{row} : ({name} p).rows[{row}]? = some {} := rfl\n",
+            crate::circuit::lean_row(kind, consts)
+        );
     }
     // `have c<i> := <chunk lemma>.2.….1` for copy `i`.
     let copy_have = |ci: usize| -> String {

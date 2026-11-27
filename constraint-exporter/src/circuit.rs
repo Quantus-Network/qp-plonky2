@@ -176,6 +176,12 @@ fn lean_const(c: F) -> String {
     }
 }
 
+/// A `Row p` literal: the gate kind and its constants.
+pub fn lean_row(k: &GateKind, consts: &[F]) -> String {
+    let cs: Vec<String> = consts.iter().map(|&c| lean_const(c)).collect();
+    format!("⟨{}, [{}]⟩", lean_kind(k), cs.join(", "))
+}
+
 fn lean_kind(k: &GateKind) -> String {
     match k {
         GateKind::Arithmetic { num_ops } => format!(".arithmetic {num_ops}"),
@@ -301,14 +307,8 @@ pub fn render_lean(name: &str, doc: &str, ex: &CircuitExport) -> String {
     let _ = writeln!(out, "noncomputable def {name} (p : ℕ) : Circuit p where");
     out.push_str("  rows := [\n");
     for (i, (k, consts)) in ex.rows.iter().enumerate() {
-        let cs: Vec<String> = consts.iter().map(|&c| lean_const(c)).collect();
         let sep = if i + 1 == ex.rows.len() { "" } else { "," };
-        let _ = writeln!(
-            out,
-            "    ⟨{}, [{}]⟩{sep}  -- row {i}",
-            lean_kind(k),
-            cs.join(", ")
-        );
+        let _ = writeln!(out, "    {}{sep}  -- row {i}", lean_row(k, consts));
     }
     let _ = writeln!(out, "  ]\n  copies := {copies}");
     let _ = writeln!(out, "  constants := {constants}");
