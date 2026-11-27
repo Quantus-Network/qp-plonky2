@@ -21,6 +21,10 @@ const EPSILON: u64 = (1 << 32) - 1;
 ///   = 2**64 - 2**32 + 1
 ///   = 2**32 * (2**32 - 1) + 1
 /// ```
+///
+/// The serde encoding is the raw `u64`, so it is not canonical: values at or above `P` serialize
+/// and deserialize unchanged. The byte format read by `from_bytes` is canonical; use it wherever
+/// one encoding per value matters.
 #[derive(Copy, Clone, Serialize, Deserialize)]
 #[repr(transparent)]
 pub struct GoldilocksField(pub u64);

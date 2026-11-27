@@ -1,7 +1,9 @@
 //! Circuit configuration types shared between prover and verifier.
 
 #[cfg(not(feature = "std"))]
-use alloc::{string::String, vec::Vec};
+use alloc::{collections::BTreeSet, string::String, vec::Vec};
+#[cfg(feature = "std")]
+use std::collections::BTreeSet;
 
 use serde::{Deserialize, Serialize};
 
@@ -321,10 +323,26 @@ pub struct DerivedCommonData<F: Field> {
     pub num_lookup_selectors: usize,
 }
 
+/// Checks that `luts` are ones the builder could have stored: none empty, and no two equal.
+/// The builder stores each table once and gates refer to it by index, so a repeated table
+/// would give the same gate two encodings. The count comes from untrusted bytes, so the
+/// comparison is `O(n log n)`.
+pub fn check_lookup_tables(luts: &[LookupTable]) -> Result<(), &'static str> {
+    if luts.iter().any(|lut| lut.is_empty()) {
+        return Err("lookup table is empty");
+    }
+    let mut seen = BTreeSet::new();
+    if !luts.iter().all(|lut| seen.insert(lut)) {
+        return Err("lookup tables must be distinct");
+    }
+    Ok(())
+}
+
 /// Derives the rest of a `CommonCircuitData` the way `CircuitBuilder::build` does, after
 /// checking that the primitives are ones the builder could have fixed: the config passes the
 /// builder's checks, the FRI domain and schedule exist for the degree, the gates are sorted by
-/// `(degree, id)` without repeats and fit the config, and no lookup table is empty.
+/// `(degree, id)` without repeats and fit the config, and the lookup tables pass
+/// [`check_lookup_tables`].
 ///
 /// The gate methods behind [`GateShape`] are only meaningful on parameters the builder could
 /// have produced, so callers check every gate's `parameters_fit` before building the shapes.
@@ -355,14 +373,7 @@ pub fn derive_common_data<F: Field + Extendable<D>, const D: usize>(
     {
         return Err("gate does not fit within the circuit config");
     }
-    if luts.iter().any(|lut| lut.is_empty()) {
-        return Err("lookup table is empty");
-    }
-    // The builder stores each table once and gates refer to it by index, so a repeated table
-    // would give the same gate two encodings.
-    if (1..luts.len()).any(|i| luts[..i].contains(&luts[i])) {
-        return Err("lookup tables must be distinct");
-    }
+    check_lookup_tables(luts)?;
 
     let quotient_degree_factor = config.max_quotient_degree_factor;
     let degrees: Vec<usize> = gates.iter().map(|gate| gate.degree).collect();

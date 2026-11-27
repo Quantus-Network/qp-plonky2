@@ -1074,6 +1074,23 @@ fn duplicate_lookup_tables_rejected() {
         )
         .is_err()
     );
+
+    // `luts` is a public field, so the common data handed to the prover-data reader is checked
+    // too: with a repeated table, the lookup and lookup-table generators could name either index.
+    let generator_serializer = DefaultGeneratorSerializer::<C, D>::default();
+    let prover_only_bytes = data
+        .prover_only
+        .to_bytes(&generator_serializer, &data.common)
+        .unwrap();
+    let decode = |common: &CommonCircuitData<F, D>| {
+        ProverOnlyCircuitData::<F, C, D>::from_bytes(
+            &prover_only_bytes,
+            &generator_serializer,
+            common,
+        )
+    };
+    assert_eq!(decode(&data.common).unwrap(), data.prover_only);
+    assert!(decode(&repeated).is_err());
 }
 
 /// Prover data has one encoding per value too: the watch map must be in key order without

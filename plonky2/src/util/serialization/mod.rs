@@ -17,6 +17,7 @@ pub use gate_serialization::default::DefaultGateSerializer;
 pub use gate_serialization::GateSerializer;
 pub use generator_serialization::default::DefaultGeneratorSerializer;
 pub use generator_serialization::WitnessGeneratorSerializer;
+use qp_plonky2_core::circuit_config::check_lookup_tables;
 use qp_plonky2_core::CircuitConfig;
 
 use crate::field::extension::{Extendable, FieldExtension};
@@ -66,7 +67,7 @@ pub type IoResult<T> = Result<T, IoError>;
 
 /// `IoError` carries no message, so the reason a decoded value was rejected is logged instead.
 fn rejected(reason: &'static str) -> IoError {
-    log::warn!("rejected deserialized circuit data: {reason}");
+    log::warn!("rejected deserialized data: {reason}");
     IoError
 }
 
@@ -187,7 +188,8 @@ pub trait Read {
     {
         let mut buf = [0; size_of::<u64>()];
         self.read_exact(&mut buf)?;
-        F::try_from_canonical_u64(u64::from_le_bytes(buf)).ok_or(IoError)
+        F::try_from_canonical_u64(u64::from_le_bytes(buf))
+            .ok_or_else(|| rejected("non-canonical field element"))
     }
 
     /// Reads a vector of elements from the field `F` from `self`.
@@ -299,7 +301,7 @@ pub trait Read {
     {
         let mut buf = vec![0; H::HASH_SIZE];
         self.read_exact(&mut buf)?;
-        H::Hash::from_bytes(&buf).ok_or(IoError)
+        H::Hash::from_bytes(&buf).ok_or_else(|| rejected("non-canonical hash"))
     }
 
     /// Reads a HashOutTarget value from `self`.
@@ -823,6 +825,9 @@ pub trait Read {
         generator_serializer: &dyn WitnessGeneratorSerializer<F, D>,
         common_data: &CommonCircuitData<F, D>,
     ) -> IoResult<ProverOnlyCircuitData<F, C, D>> {
+        // The generators refer to `common_data.luts` by index, and its fields are public, so
+        // the caller's tables are checked as `derive_common_data` checks decoded ones.
+        check_lookup_tables(&common_data.luts).map_err(rejected)?;
         let gen_len = self.read_usize()?;
         let mut generators = try_with_capacity(gen_len)?;
         for _ in 0..gen_len {
@@ -837,7 +842,7 @@ pub trait Read {
                 .last_key_value()
                 .is_some_and(|(last, _)| *last >= key)
             {
-                return Err(IoError);
+                return Err(rejected("generator watch keys out of order"));
             }
             generator_indices_by_watches.insert(key, self.read_usize_vec()?);
         }
@@ -1976,7 +1981,7 @@ impl<'a> Buffer<'a> {
         if buffer.is_empty() {
             Ok(value)
         } else {
-            Err(IoError)
+            Err(rejected("trailing bytes"))
         }
     }
 }
