@@ -133,9 +133,12 @@ sound+complete) and compose up to the gadget. The gates our gadgets emit
   `leanprover/lean-action` (pinned SHA) running `lake build` + `leanchecker: true`, plus
   the grep-based **no-`sorry`/`admit`** gate, then `lake build Plonky2Bridge` and the
   axiom-footprint gate in the same job. `use-mathlib-cache` fetches mathlib's prebuilt
-  `.olean`s; the package's own `.lake/build` is cached between runs by content hash, so
-  a pull request rebuilds only what it changes. No `nanoda` (crashes on v4.30 export
-  format).
+  `.olean`s; the package itself is built from scratch on every run (about 25 minutes on
+  the 4-core runner, 55 with the production wrappers), so the generated Lean is shaped
+  for a cold build: data definitions are `noncomputable`, no declaration references more
+  than a few hundred others (one naming thousands takes minutes to index), a row lookup
+  or a fact is proved once and shared, and long rewrite chains are single `simp only`
+  passes. No `nanoda` (crashes on v4.30 export format).
 - The production wrappers — the public wrapper at `n_inner = 89` and the 8-leaf private
   wrapper — are their own target, `Plonky2BridgeProduction`
   (`Plonky2Bridge/PublicWrapperProduction.lean`, `PrivateWrapperProduction.lean`, gated by
