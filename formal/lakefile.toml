@@ -51,7 +51,8 @@ name = "Plonky2Bridge"
 roots = ["Plonky2Bridge", "Plonky2Bridge.PublicBatch", "Plonky2Bridge.Complete", "Plonky2Bridge.Wiring",
   "Plonky2Bridge.PrivateBatch", "Plonky2Bridge.PrivateWrapper", "Plonky2Bridge.PublicWrapper",
   "Plonky2Bridge.Leaf", "Plonky2Bridge.LeafWired", "Plonky2Bridge.Trusted", "Plonky2Bridge.LeafBuild",
-  "Plonky2Bridge.PrivateWrapperBuild", "Plonky2Bridge.Generated.PublicInputsHashVector"]
+  "Plonky2Bridge.PrivateWrapperBuild", "Plonky2Bridge.Generated.PublicInputsHashVector",
+  "Plonky2Bridge.Generated.FriParams"]
 
 # The production wrappers: the public-batch wrapper at `n_inner = 89` and the 8-leaf
 # private-batch wrapper it reads. The generated modules behind them are most of a cold

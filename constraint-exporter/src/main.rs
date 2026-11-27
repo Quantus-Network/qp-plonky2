@@ -16,6 +16,8 @@
 //!     certificates of their builds, carrying their recursion trees (Steps 16, 19)
 //!   * `Plonky2Bridge/Generated/PublicInputsHashVector.lean` — a kernel-checked vector of
 //!     the proof-system public-input hash (Step 19)
+//!   * `Plonky2Bridge/Generated/FriParams.lean` — the deployed circuits' FRI query
+//!     parameters and the query exponents they determine (Step 22)
 //!
 //!     cargo run -p qp-plonky2-constraint-exporter --bin export-constraints
 //!
@@ -121,6 +123,8 @@ fn main() -> std::io::Result<()> {
     let poseidon_consts = constraint_exporter::poseidon::generate_poseidon_consts_lean();
     let public_inputs_hash_vector =
         constraint_exporter::poseidon::generate_public_inputs_hash_vector_lean();
+    let fri_params =
+        constraint_exporter::trace::generate_fri_params_lean().map_err(std::io::Error::other)?;
     let nullifier_select = constraint_exporter::circuit::generate_nullifier_select_lean();
     let gadget_zoo = constraint_exporter::gadget::generate_gadget_zoo_lean();
     let gadget_edge_cases = constraint_exporter::gadget::generate_gadget_edge_cases_lean();
@@ -226,6 +230,7 @@ fn main() -> std::io::Result<()> {
         "PublicInputsHashVector.lean",
         &public_inputs_hash_vector,
     )?;
+    write(&bridge_dir, "FriParams.lean", &fri_params)?;
 
     print!("{gates}");
     println!("\n-- ===== Poseidon2.lean =====");
@@ -280,5 +285,7 @@ fn main() -> std::io::Result<()> {
             print_exported(89, &part.relative, &part.contents);
         }
     }
+    println!("\n-- ===== Plonky2Bridge/Generated/FriParams.lean =====");
+    print!("{fri_params}");
     Ok(())
 }
