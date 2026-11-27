@@ -1402,6 +1402,8 @@ pub fn render(shape: &Shape) -> String {
     for i in 0..n {
         w!("theorem pisEq_{i} :");
         w!("    List.ofFn (innerPis {i}) = ({circuit}.verifiers[{i}]'(by decide)).2 := by");
+        w!("  show List.ofFn {circuit}.inner_pis_{i} = _");
+        w!("  simp only [{circuit}.inner_pis_{i}, List.ofFn_vecCons, List.ofFn_zero]");
         w!("  rfl");
         w!("");
     }

@@ -769,18 +769,26 @@ noncomputable def tree : Recursive p :=
 
 theorem pisEq_0 :
     List.ofFn (innerPis 0) = (publicBatchWrapper4.verifiers[0]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper4.inner_pis_0 = _
+  simp only [publicBatchWrapper4.inner_pis_0, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 theorem pisEq_1 :
     List.ofFn (innerPis 1) = (publicBatchWrapper4.verifiers[1]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper4.inner_pis_1 = _
+  simp only [publicBatchWrapper4.inner_pis_1, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 theorem pisEq_2 :
     List.ofFn (innerPis 2) = (publicBatchWrapper4.verifiers[2]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper4.inner_pis_2 = _
+  simp only [publicBatchWrapper4.inner_pis_2, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 theorem pisEq_3 :
     List.ofFn (innerPis 3) = (publicBatchWrapper4.verifiers[3]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper4.inner_pis_3 = _
+  simp only [publicBatchWrapper4.inner_pis_3, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 /-- The tree's gadgets are the recorded ones. -/
