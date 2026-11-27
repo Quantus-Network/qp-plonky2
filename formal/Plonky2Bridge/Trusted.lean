@@ -75,14 +75,26 @@ open Plonky2Spec.Sponge (rate squeeze4)
     query fails with probability at most the rate. That conjecture is refuted:
     Crites–Stewart (ePrint 2025/2046) disprove it over large fields, and
     Krachun–Kazanin–Haböck (ePrint 2026/782) for codes over multiplicative subgroups of
-    prime fields, FRI's domains. The conjecture that replaces it (S-two, ePrint
-    2026/532, Appendix A.5) stops at the Elias radius with an error exponential in the
-    gap to it, and yields some `0.83`–`0.91 · rateBits` per query.
+    prime fields, FRI's domains. The replacement S-two proposed (ePrint 2026/532,
+    Appendix A.5) was quantified with constants that Al Kindi (ePrint 2026/2245) shows
+    are too small, so no quantified conjecture stands in its place. Asymptotically the
+    question is settled: Brakensiek–Chen–Putterman–Zhang–Zheng (ECCC TR26-164) and
+    Jeronimo (ECCC TR26-169) prove list decoding and mutual correlated agreement at
+    `1 − ρ − γ` for every fixed `γ > 0`, on any evaluation set of a prime field of
+    characteristic above the degree, with `poly(n) / q` error over `F_q`. Their
+    constants are not usable at deployed sizes; the quantitative radius at `2^{-128}`
+    is open.
   * `friJohnsonQueryBits = numQueries * rateBits / 2` is the query exponent that is
     proved (BCIKS'20, improved in ePrint 2025/2055): proximity gaps out to the Johnson
     radius `1 − √ρ`, where a query fails with probability at most `√ρ`. It is an upper
-    bound: the proof trades a slack `η` in the radius against a commit-phase term
-    quadratic in the domain size, which takes a few bits off the larger circuits.
+    bound: the proof trades a slack `η` in the radius against a commit-phase term linear
+    in the domain size, which takes a few bits off the larger circuits. Beyond it,
+    Dao–Kominers–Thaler (ePrint 2026/2056, Lean-checked in ArkLib) reach agreement
+    `a₁(ρ) + η` with `a₁(ρ) < √ρ` (`0.319` against `0.354` at rate `1/8`, `0.071`
+    against `0.088` at `1/128`) in characteristic above the degree, at a commit-phase
+    error of `140 C_ρ⁶ n² / (q η⁴)`, `C_ρ ≥ 1`. Over `Goldilocks²` that term certifies
+    at most about `3` bits over Johnson on the leaf and private batch and nothing on
+    the public batch; the budget is in `PLAN.md` Step 22.
   * `friConjecturedBits` adds the grinding bits. That sum is the work factor stored in
     `CircuitConfig.security_bits`. It is not a statistical error: the grinding term is
     adversary work per attempt at the query round, as separated in Appendix A.3.2 of
@@ -1097,14 +1109,21 @@ axiom poseidon_transcript_oracle (perm : St p → St p) (tag : String) (c : Circ
     (`108` and `112`), a query failing with probability at most `ρ`, which is the
     capacity conjecture of ethSTARK and BCIKS'20. That conjecture is refuted
     (Crites–Stewart, ePrint 2025/2046; Krachun–Kazanin–Haböck, ePrint 2026/782, on
-    FRI's own domains); its replacement (S-two, ePrint 2026/532) yields some
-    `0.83`–`0.91 · rateBits` per query, `90`–`98` for the batch wrappers. The grinding
-    bits (`20`, `16`) are adversary work per attempt at the query round, not another
-    term of this probability. This implication is the proximity good event only. It
-    does not remove the algebraic sampling error (`algebraic_sampling`).
+    FRI's own domains), and no quantified conjecture has replaced it (the S-two one,
+    ePrint 2026/532, is undercut by ePrint 2026/2245). Dao–Kominers–Thaler's
+    first-order threshold (ePrint 2026/2056) would give `59` and `61` from the queries
+    alone, but its `n²/(q η⁴)` commit-phase error, which the grinding does not reach,
+    leaves at most about `3` bits over Johnson on the leaf and private batch and
+    nothing on the public batch over `Goldilocks²`. The grinding bits (`20`, `16`) are
+    adversary work per attempt at the query round, not another term of this
+    probability. This implication is the proximity good event only. It does not remove
+    the algebraic sampling error (`algebraic_sampling`).
 
-    Discharging this at the Johnson radius is a formalization of BCIKS'20; beyond it,
-    an open problem in coding theory. -/
+    Discharging this at the Johnson radius is a formalization of BCIKS'20, and at the
+    first-order threshold of the ArkLib development behind ePrint 2026/2056. Out to
+    `1 − ρ − γ` it is a theorem for every fixed `γ` (ECCC TR26-164, TR26-169), with
+    constants that do not yet yield a radius usable at these sizes; the quantitative
+    radius at `2^{-128}` is the open problem the Proximity Prize names. -/
 axiom fri_proximity_gap (perm : St p → St p) (r : Recursive p) (pis : List (ZMod p)) :
     ProximityGood perm r → TranscriptAccepted perm r pis → LowDegreeOpenings perm r pis
 
