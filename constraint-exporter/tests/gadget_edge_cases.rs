@@ -25,7 +25,7 @@ type F = GoldilocksField;
 #[test]
 fn gadget_edge_cases_export_shape() {
     let (r, t) = build_gadget_edge_cases();
-    let ex = r.export(vec![]).unwrap();
+    let ex = r.export(vec![]);
     let copies_of = |fact: &dyn Fn(&Fact) -> bool| -> Vec<(Target, Target)> {
         let c = r
             .calls
@@ -74,7 +74,7 @@ fn gadget_edge_cases_export_shape() {
 #[test]
 fn gadget_edge_cases_satisfied_by_real_witness() {
     let (r, t) = build_gadget_edge_cases();
-    let ex = r.export(vec![]).unwrap();
+    let ex = r.export(vec![]);
     let data = r.builder.build::<PoseidonGoldilocksConfig>();
 
     for x in [0_u64, 1, 7, 12345] {
@@ -119,7 +119,7 @@ fn identity_fold_is_proved_as_identity() {
         matches!(r.calls[1].fact, Fact::Mul { x: mx, y: my, out } if mx == sum && my == one && out == sum)
     );
     assert!(r.calls[1].rows.is_empty() && r.calls[1].copies.is_empty());
-    let ex = r.export(vec![]).unwrap();
+    let ex = r.export(vec![]);
     let lean = render_decode_theorem("t", &ex, &r.calls);
     let f1 = &lean[lean.find("theorem t_f1 ").unwrap()..lean.find("/--").unwrap()];
     assert!(f1.starts_with(
@@ -148,7 +148,7 @@ fn identity_fold_is_proved_as_identity() {
 fn wrong_fact_is_rejected() {
     let (mut r, [x, y, sum]) = build_single_fact();
     r.calls[0].fact = Fact::Mul { x, y, out: sum };
-    let ex = r.export(vec![]).unwrap();
+    let ex = r.export(vec![]);
     render_decode_theorem("t", &ex, &r.calls);
 }
 
@@ -157,7 +157,7 @@ fn wrong_fact_is_rejected() {
 #[test]
 fn pinned_intermediate_keeps_its_definition() {
     let (r, [x, y, _zero, diff, equal]) = build_pinned_intermediate();
-    let ex = r.export(vec![]).unwrap();
+    let ex = r.export(vec![]);
     let lean = render_decode_theorem("t", &ex, &r.calls);
     // Both equality checks unfold `diff` through its op (`e_0_0`) and close against their
     // own pins; `diff`'s own pin is not what proves them.
@@ -189,7 +189,7 @@ fn pinned_intermediate_keeps_its_definition() {
 #[test]
 fn constant_folds_are_identities_over_the_integers() {
     let (r, [zero, three, five, nine, eight, neg5]) = build_constant_fold();
-    let ex = r.export(vec![]).unwrap();
+    let ex = r.export(vec![]);
     let value = |t: Target| ex.constants.iter().find(|(k, _)| *k == t).map(|(_, v)| *v);
     assert_eq!(value(nine), Some(F::from_canonical_u64(9)));
     assert_eq!(value(eight), Some(F::from_canonical_u64(8)));
@@ -207,7 +207,7 @@ fn constant_folds_are_identities_over_the_integers() {
 #[should_panic(expected = "holds only modulo the Goldilocks order")]
 fn goldilocks_only_mul_fold_is_rejected() {
     let r = build_goldilocks_fold_mul();
-    let ex = r.export(vec![]).unwrap();
+    let ex = r.export(vec![]);
     // The circuit itself is fine in Goldilocks.
     check_satisfied(&ex, |t| {
         ex.constants
@@ -225,7 +225,7 @@ fn goldilocks_only_mul_fold_is_rejected() {
 #[should_panic(expected = "holds only modulo the Goldilocks order")]
 fn goldilocks_only_sub_fold_is_rejected() {
     let r = build_goldilocks_fold_sub();
-    let ex = r.export(vec![]).unwrap();
+    let ex = r.export(vec![]);
     render_decode_theorem("t", &ex, &r.calls);
 }
 
@@ -233,13 +233,13 @@ fn goldilocks_only_sub_fold_is_rejected() {
 #[test]
 fn one_and_zero_facts_assemble() {
     let (r, _) = build_single_fact();
-    let ex = r.export(vec![]).unwrap();
+    let ex = r.export(vec![]);
     let lean = render_decode_theorem("t", &ex, &r.calls);
     assert!(lean.ends_with(" :=\n  t_f0 a h\n"), "{lean}");
     assert!(!lean.contains("⟨t_f0"), "{lean}");
 
     let (r, _) = build_no_facts();
-    let ex = r.export(vec![]).unwrap();
+    let ex = r.export(vec![]);
     assert!(ex.rows.is_empty() && ex.copies.is_empty() && ex.constants.is_empty());
     let lean = render_decode_theorem("t", &ex, &r.calls);
     assert!(
@@ -254,7 +254,7 @@ fn one_and_zero_facts_assemble() {
 fn singleton_final_fact_group_is_bare() {
     let (r, _) = build_fact_group_boundary();
     assert_eq!(r.calls.len(), FACT_GROUP + 1);
-    let ex = r.export(vec![]).unwrap();
+    let ex = r.export(vec![]);
     let lean = render_decode_theorem("t", &ex, &r.calls);
     let last = lean.lines().last().unwrap();
     assert!(last.starts_with("  ⟨⟨t_f0 a h, t_f1 a h, "), "{last}");

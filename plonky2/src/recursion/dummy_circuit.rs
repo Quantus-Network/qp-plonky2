@@ -205,7 +205,7 @@ where
             public_inputs: vec![],
         };
 
-        let common_data = CommonCircuitData::tables_only(CircuitConfig::default(), vec![]);
+        let common_data = CommonCircuitData::config_only(CircuitConfig::default());
 
         Self {
             proof_with_pis_target,

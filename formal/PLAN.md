@@ -188,9 +188,8 @@ unconditional on them.
   a work factor against the oracle, not another statistical `2^{-16}`.
 - **`algebraic_sampling`** — low degree plus the Fiat–Shamir checks imply identical
   constraints only on a good event of probability `1 − ε`. The failure probability
-  `ε` is a sum of two kinds of terms. `α`, `β`, and `γ` (and lookup deltas, when
-  present) are base-field elements, repeated `num_challenges` times, independent of
-  the extension degree. Only the opening point `ζ` is sampled in the extension.
+  `ε` is a sum of two kinds of terms. `α`, `β`, and `γ` are base-field elements,
+  repeated `num_challenges` times, independent of the extension degree. Only the opening point `ζ` is sampled in the extension.
   A single factor of `1/|F^D|` drops the base-field terms. No closed form is stated
   until that bound is derived. The error remains when the hash is ideal and FRI
   proximity is perfect.
@@ -729,10 +728,6 @@ it. Pieces:
    blocker is the dependency: qp-zk-circuits consumes the *published* `qp-plonky2 =1.5.6`
    and a local `[patch.crates-io]` does not resolve (rayon `=1.11.0` vs `=1.12.0` pins), so
    `formal_export_view` must ship in a release before an in-crate export test can call it.
-   *Lookups* are outside the model: `formal_export_view` exposes the pending
-   `(looking_in, looking_out)` lists and `circuit::export` refuses a builder that has any
-   (`export_rejects_pending_lookups`), since `build` would add lookup rows the export
-   would silently lack. The wrapper places none.
 2. *Gate coverage.* `Satisfies` interprets `ArithmeticGate` and (since 8b) `BaseSumGate<2>`;
    `Poseidon2Gate` rows are stated through `Poseidon2Rows`. The wrapper also places
    `ConstantGate`, `PublicInputGate` (both `build`-time, absent pre-`build`) and the

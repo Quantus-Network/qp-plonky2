@@ -1086,9 +1086,8 @@ axiom fri_proximity_gap (perm : St p → St p) (r : Recursive p) (pis : List (ZM
     `plonky2/src/plonk/get_challenges.rs`). The permutation challenges `β`, `γ` and
     the constraint-combination challenges `α` are base-field elements, each drawn
     `num_challenges` times by `get_n_challenges`. That repetition count does not
-    depend on the extension degree `D`. Lookup deltas, when the circuit has lookups,
-    are further base-field coins of the same kind. Only the opening point `ζ` is an
-    extension element (`get_extension_challenge`).
+    depend on the extension degree `D`. Only the opening point `ζ` is an extension
+    element (`get_extension_challenge`).
 
     A bad base-field challenge is already a failure, before any opening. With
     `β = 0` the verifier's numerator `wire + β·s_id + γ` and denominator

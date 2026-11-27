@@ -84,7 +84,7 @@ pub use poseidon::{
 };
 // Proof challenge types
 pub use proof::ProofChallenges;
-pub use selectors::{LookupSelectors, SelectorsInfo, UNUSED_SELECTOR};
+pub use selectors::{SelectorsInfo, UNUSED_SELECTOR};
 // Utility functions
 pub use util::{
     branch_hint, log2_ceil, log2_strict, reverse_bits, reverse_index_bits,

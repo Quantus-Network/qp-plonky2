@@ -333,7 +333,7 @@ impl Recorder {
         self.record(|bd| bd.connect(x, y), |_, _| Fact::Connect { x, y });
     }
 
-    pub fn export(&self, named: Vec<(String, Vec<Target>)>) -> Result<CircuitExport, String> {
+    pub fn export(&self, named: Vec<(String, Vec<Target>)>) -> CircuitExport {
         export(&self.builder, named)
     }
 }
@@ -1778,7 +1778,7 @@ impl GeneratedCircuit {
         GeneratedCircuit {
             name: name.to_string(),
             doc: doc.to_string(),
-            ex: r.export(named).expect("no lookups"),
+            ex: r.export(named),
             calls: r.calls.clone(),
         }
     }

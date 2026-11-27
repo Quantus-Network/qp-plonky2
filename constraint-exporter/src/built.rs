@@ -63,10 +63,6 @@ type C = PoseidonGoldilocksConfig;
 /// builder; two builders with one digest build one circuit.
 pub fn state_digest(b: &CircuitBuilder<F, D>) -> String {
     let view = b.formal_export_view();
-    assert!(
-        view.lookups.iter().all(Vec::is_empty),
-        "lookups are not modeled"
-    );
     let felt = |n: usize| F::from_canonical_u64(n as u64);
     let target = |t: &Target| match *t {
         Target::Wire(w) => [felt(0), felt(w.row), felt(w.column)],

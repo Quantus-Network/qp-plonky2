@@ -19,9 +19,6 @@ pub struct ProofChallenges<F: RichField + Extendable<D>, const D: usize> {
     /// Random values used to combine PLONK constraints.
     pub plonk_alphas: Vec<F>,
 
-    /// Lookup challenges.
-    pub plonk_deltas: Vec<F>,
-
     /// Point at which the PLONK polynomials are opened.
     pub plonk_zeta: F::Extension,
 

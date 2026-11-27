@@ -55,17 +55,3 @@ impl SelectorsInfo {
         })
     }
 }
-
-/// Enum listing the different selectors for lookup constraints:
-/// - `TransSre` is for Sum and RE transition constraints.
-/// - `TransLdc` is for LDC transition constraints.
-/// - `InitSre` is for the initial constraint of Sum and Re.
-/// - `LastLdc` is for the final LDC (and Sum) constraint.
-/// - `StartEnd` indicates where lookup end selectors begin.
-pub enum LookupSelectors {
-    TransSre = 0,
-    TransLdc,
-    InitSre,
-    LastLdc,
-    StartEnd,
-}

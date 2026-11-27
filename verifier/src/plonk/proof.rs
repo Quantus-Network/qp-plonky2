@@ -81,47 +81,23 @@ pub struct OpeningSet<F: RichField + Extendable<D>, const D: usize> {
     pub plonk_zs_next: Vec<F::Extension>,
     pub partial_products: Vec<F::Extension>,
     pub quotient_polys: Vec<F::Extension>,
-    pub lookup_zs: Vec<F::Extension>,
-    pub lookup_zs_next: Vec<F::Extension>,
 }
 
 impl<F: RichField + Extendable<D>, const D: usize> OpeningSet<F, D> {
     pub(crate) fn to_fri_openings(&self) -> FriOpenings<F, D> {
-        let has_lookup = !self.lookup_zs.is_empty();
-        let zeta_batch = if has_lookup {
-            FriOpeningBatch {
-                values: [
-                    self.constants.as_slice(),
-                    self.plonk_sigmas.as_slice(),
-                    self.wires.as_slice(),
-                    self.plonk_zs.as_slice(),
-                    self.partial_products.as_slice(),
-                    self.quotient_polys.as_slice(),
-                    self.lookup_zs.as_slice(),
-                ]
-                .concat(),
-            }
-        } else {
-            FriOpeningBatch {
-                values: [
-                    self.constants.as_slice(),
-                    self.plonk_sigmas.as_slice(),
-                    self.wires.as_slice(),
-                    self.plonk_zs.as_slice(),
-                    self.partial_products.as_slice(),
-                    self.quotient_polys.as_slice(),
-                ]
-                .concat(),
-            }
+        let zeta_batch = FriOpeningBatch {
+            values: [
+                self.constants.as_slice(),
+                self.plonk_sigmas.as_slice(),
+                self.wires.as_slice(),
+                self.plonk_zs.as_slice(),
+                self.partial_products.as_slice(),
+                self.quotient_polys.as_slice(),
+            ]
+            .concat(),
         };
-        let zeta_next_batch = if has_lookup {
-            FriOpeningBatch {
-                values: [self.plonk_zs_next.clone(), self.lookup_zs_next.clone()].concat(),
-            }
-        } else {
-            FriOpeningBatch {
-                values: self.plonk_zs_next.clone(),
-            }
+        let zeta_next_batch = FriOpeningBatch {
+            values: self.plonk_zs_next.clone(),
         };
         FriOpenings {
             batches: vec![zeta_batch, zeta_next_batch],

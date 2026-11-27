@@ -1,16 +1,10 @@
 //! Utility methods and constants for Plonk shared between prover and verifier.
 
 #[cfg(not(feature = "std"))]
-use alloc::{sync::Arc, vec, vec::Vec};
-#[cfg(feature = "std")]
-use std::sync::Arc;
+use alloc::{vec, vec::Vec};
 
 use crate::field::packed::PackedField;
 use crate::field::types::Field;
-use crate::selectors::LookupSelectors;
-
-/// A lookup table as `(input, output)` pairs, shared by the gates that use it.
-pub type LookupTable = Arc<Vec<(u16, u16)>>;
 
 /// Number of random values added to each polynomial for salting.
 pub const SALT_SIZE: usize = 4;
@@ -46,34 +40,6 @@ impl PlonkOracle {
 /// Needs `max_degree >= 2` and `num_routed_wires >= 1`, which `CircuitConfig::check_valid` ensures.
 pub const fn num_partial_products(num_routed_wires: usize, max_degree: usize) -> usize {
     num_routed_wires.div_ceil(max_degree) - 1
-}
-
-/// `LookupGate` holds one (input, output) pair per two routed wires.
-pub const fn lookup_gate_slots(num_routed_wires: usize) -> usize {
-    num_routed_wires / 2
-}
-
-/// One RE polynomial plus the partial Sum/LDC polynomials, each covering `lookup_degree` lookup
-/// slots; none when the circuit has no lookup tables.
-pub const fn num_lookup_polys(
-    num_routed_wires: usize,
-    lookup_degree: usize,
-    num_luts: usize,
-) -> usize {
-    if num_luts == 0 {
-        0
-    } else {
-        lookup_gate_slots(num_routed_wires).div_ceil(lookup_degree) + 1
-    }
-}
-
-/// The four shared lookup selectors plus one end selector per table; none without tables.
-pub const fn num_lookup_selectors(num_luts: usize) -> usize {
-    if num_luts == 0 {
-        0
-    } else {
-        LookupSelectors::StartEnd as usize + num_luts
-    }
 }
 
 pub const fn salt_size(salted: bool) -> usize {

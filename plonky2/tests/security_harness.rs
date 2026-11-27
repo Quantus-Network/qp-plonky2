@@ -1,5 +1,4 @@
 use std::panic::{catch_unwind, AssertUnwindSafe};
-use std::sync::Arc;
 
 use plonky2::field::types::Field;
 use plonky2::field::zero_poly_coset::ZeroPolyOnCoset;
@@ -511,7 +510,7 @@ fn zero_slot_gate_rejected() {
     assert!(message.contains("no operation slots"), "{message}");
 }
 
-/// Only the config, degree, gates, public input count and lookup tables are serialized; the
+/// Only the config, degree, gates and public input count are serialized; the
 /// loader derives the rest the way the builder does, after checking those primitives are ones the
 /// builder could have fixed. Both crates reject the same bytes.
 #[test]
@@ -526,7 +525,6 @@ fn common_data_primitives_are_checked_on_load() {
                 common.trace_degree_bits,
                 common.gates.clone(),
                 common.num_public_inputs,
-                common.luts.clone(),
             )
             .err(),
             Some(error)
@@ -621,7 +619,6 @@ fn hostile_gate_parameters_rejected() {
             common.trace_degree_bits,
             gates,
             common.num_public_inputs,
-            common.luts.clone(),
         ) != Err("gate parameters do not fit within the circuit config");
         assert_eq!(prover_accepts, in_memory_accepts, "{gate:?}");
         prover_accepts
@@ -692,7 +689,6 @@ fn zero_width_config_rejected_before_gate_checks() {
             common.trace_degree_bits,
             common.gates.clone(),
             common.num_public_inputs,
-            common.luts.clone(),
         )
         .is_err());
         assert!(
@@ -701,7 +697,6 @@ fn zero_width_config_rejected_before_gate_checks() {
                 verifier_common.trace_degree_bits,
                 verifier_common.gates.clone(),
                 verifier_common.num_public_inputs,
-                verifier_common.luts.clone(),
             )
             .is_err()
         );
@@ -747,19 +742,16 @@ fn malformed_in_memory_proof_rejected_not_panicking() -> anyhow::Result<()> {
     Ok(())
 }
 
-/// Generators are read from prover-only bytes, which this harness treats as untrusted: a lookup
-/// table index past `luts`, a slot count the gate cannot hold, or more limbs than a wire row has
-/// are errors rather than panics.
+/// Generators are read from prover-only bytes, which this harness treats as untrusted: more limbs
+/// than a wire row has is an error rather than a panic.
 #[test]
 fn hostile_generator_parameters_rejected_on_deserialization() {
     use plonky2::util::serialization::WitnessGeneratorSerializer;
 
     let config = CircuitConfig::standard_recursion_config();
     let mut builder = CircuitBuilder::<F, D>::new(config);
-    let table_index = builder.add_lookup_table_from_pairs(Arc::new(vec![(0, 1), (1, 2)]));
     let input = builder.add_virtual_target();
     builder.register_public_input(input);
-    builder.add_lookup_from_index(input, table_index);
     builder.split_le(input, 8);
     let data = builder.build::<C>();
     let serializer = DefaultGeneratorSerializer::<C, D>::default();
@@ -783,21 +775,6 @@ fn hostile_generator_parameters_rejected_on_deserialization() {
             .is_ok()
     };
     let word = 8;
-
-    // The lookup table index is each lookup generator's last field.
-    for id in ["LookupGenerator", "LookupTableGenerator"] {
-        let mut bytes = generator_bytes(id);
-        assert!(accepted(&bytes), "{id}");
-        let lut_index = bytes.len() - word;
-        bytes[lut_index..].copy_from_slice(&u64::MAX.to_le_bytes());
-        assert!(!accepted(&bytes), "{id}");
-    }
-
-    // `num_slots` is the third-last field; the generator divides by it.
-    let mut bytes = generator_bytes("LookupTableGenerator");
-    let num_slots = bytes.len() - 3 * word;
-    bytes[num_slots..num_slots + word].copy_from_slice(&0u64.to_le_bytes());
-    assert!(!accepted(&bytes));
 
     let mut bytes = generator_bytes("BaseSplitGenerator + Base: 2");
     assert!(accepted(&bytes));
@@ -1036,61 +1013,6 @@ fn circuit_data_bytes_with_trailing_data_rejected() -> anyhow::Result<()> {
         .is_err()
     );
     Ok(())
-}
-
-/// Lookup gates and generators name their table by index and are written back with the first
-/// content-equal table's index, so a repeated table would give them two encodings. The builder
-/// stores each table once, and common data that repeats one cannot be constructed or loaded.
-#[test]
-fn duplicate_lookup_tables_rejected() {
-    let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
-    let table_index = builder.add_lookup_table_from_pairs(Arc::new(vec![(0, 1), (1, 2)]));
-    let input = builder.add_virtual_target();
-    builder.register_public_input(input);
-    builder.add_lookup_from_index(input, table_index);
-    let data = builder.build::<C>();
-    let gate_serializer = DefaultGateSerializer;
-
-    let mut repeated = data.common.clone();
-    repeated.luts.push(repeated.luts[0].clone());
-    assert_eq!(
-        CommonCircuitData::<F, D>::new(
-            repeated.config.clone(),
-            repeated.trace_degree_bits,
-            repeated.gates.clone(),
-            repeated.num_public_inputs,
-            repeated.luts.clone(),
-        )
-        .err(),
-        Some("lookup tables must be distinct")
-    );
-
-    let bytes = repeated.to_bytes(&gate_serializer).unwrap();
-    assert!(CommonCircuitData::<F, D>::from_bytes(bytes.clone(), &gate_serializer).is_err());
-    assert!(
-        plonky2_verifier::plonk::circuit_data::CommonCircuitData::<F, D>::from_bytes(
-            bytes,
-            &plonky2_verifier::util::serialization::DefaultGateSerializer,
-        )
-        .is_err()
-    );
-
-    // `luts` is a public field, so the common data handed to the prover-data reader is checked
-    // too: with a repeated table, the lookup and lookup-table generators could name either index.
-    let generator_serializer = DefaultGeneratorSerializer::<C, D>::default();
-    let prover_only_bytes = data
-        .prover_only
-        .to_bytes(&generator_serializer, &data.common)
-        .unwrap();
-    let decode = |common: &CommonCircuitData<F, D>| {
-        ProverOnlyCircuitData::<F, C, D>::from_bytes(
-            &prover_only_bytes,
-            &generator_serializer,
-            common,
-        )
-    };
-    assert_eq!(decode(&data.common).unwrap(), data.prover_only);
-    assert!(decode(&repeated).is_err());
 }
 
 /// Prover data has one encoding per value too: the watch map must be in key order without

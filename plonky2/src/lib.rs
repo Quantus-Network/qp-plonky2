@@ -30,5 +30,3 @@ pub mod util;
 
 #[cfg(test)]
 mod cross_crate_gate_tests;
-#[cfg(test)]
-mod lookup_test;
