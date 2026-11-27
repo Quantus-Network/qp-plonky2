@@ -154,4 +154,10 @@ def verifiers (r : Recursive p) : List (String × List Target) :=
 
 end Recursive
 
+/-- `List.ofFn` over a `![…]` literal, one element at a time: the generated bridges' `pisEq_i`
+    rewrite with it, where `rfl` evaluates the `n` lookups in `n²` `vecCons` steps. -/
+theorem _root_.List.ofFn_vecCons {α : Type} {n : ℕ} (x : α) (u : Fin n → α) :
+    List.ofFn (Matrix.vecCons x u) = x :: List.ofFn u := by
+  rw [List.ofFn_succ]; rfl
+
 end Plonky2Spec.Wiring

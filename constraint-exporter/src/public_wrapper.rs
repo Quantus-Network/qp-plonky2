@@ -666,7 +666,7 @@ pub fn render(shape: &Shape) -> String {
     w!("");
     w!("/-- The {pi_len} public inputs of inner proof `i` (`inner_pis_i`), at the private-batch");
     w!("    `aggregated_output` layout. -/");
-    w!("def innerPis : Fin {n} → Fin {pi_len} → Target");
+    w!("noncomputable def innerPis : Fin {n} → Fin {pi_len} → Target");
     for i in 0..n {
         w!("  | {i} => {circuit}.inner_pis_{i}");
     }
@@ -674,7 +674,7 @@ pub fn render(shape: &Shape) -> String {
     w!("");
     w!("/-- The field wires of inner `i` the wrapper reads, with the `is_equal` witnesses of its");
     w!("    `bytes_digest_eq(block_hash, 0)` dummy check. -/");
-    w!("def row (a : Assignment p) : Fin {n} → InnerRow p");
+    w!("noncomputable def row (a : Assignment p) : Fin {n} → InnerRow p");
     let mut emit_row = |pat: String, i: usize, inner: &Inner| {
         let (eqs, invs): (Vec<String>, Vec<String>) = inner
             .dummy_eq
@@ -721,7 +721,7 @@ pub fn render(shape: &Shape) -> String {
     emit_row("_".to_string(), 0, &inners[0]);
     w!("");
     w!("/-- Inner `i`'s private-batch output, decoded through `.val`. -/");
-    w!("def inner (a : Assignment p) (i : Fin {n}) : PrivateBatchOutput :=");
+    w!("noncomputable def inner (a : Assignment p) (i : Fin {n}) : PrivateBatchOutput :=");
     w!(
         "  {{ numExitSlots := (a (innerPis i {})).val, assetId := (a (innerPis i {})).val,",
         layout::NUM_EXIT_SLOTS,
@@ -741,12 +741,12 @@ pub fn render(shape: &Shape) -> String {
         .map(|i| format!("(row a {i}, inner a {i})"))
         .collect();
     w!(
-        "def rows (a : Assignment p) : List (InnerPair p) := [{}]",
+        "noncomputable def rows (a : Assignment p) : List (InnerPair p) := [{}]",
         pairs.join(", ")
     );
     let inner_list: Vec<String> = (0..n).map(|i| format!("inner a {i}")).collect();
     w!(
-        "def inners (a : Assignment p) : List PrivateBatchOutput := [{}]",
+        "noncomputable def inners (a : Assignment p) : List PrivateBatchOutput := [{}]",
         inner_list.join(", ")
     );
     w!("");
@@ -754,10 +754,10 @@ pub fn render(shape: &Shape) -> String {
     w!("theorem rows_inners (a : Assignment p) : (rows a).map Prod.snd = inners a := rfl");
     w!("");
     w!("/-- The `aggregator_address` witness, decoded. -/");
-    w!("def addr (a : Assignment p) : Digest := valDigest fun j => a ({circuit}.aggregator_address j)");
+    w!("noncomputable def addr (a : Assignment p) : Digest := valDigest fun j => a ({circuit}.aggregator_address j)");
     w!("");
     w!("/-- Public input `k` of the wrapper, decoded through `.val`. -/");
-    w!("def pv (a : Assignment p) (k : ℕ) : Felt :=");
+    w!("noncomputable def pv (a : Assignment p) (k : ℕ) : Felt :=");
     w!("  (a (({circuit} p).publicInputs.getD k (.virt 0))).val");
     w!("");
     // One list per inner. `out` concatenates them in the same right-nested shape as
@@ -803,14 +803,14 @@ pub fn render(shape: &Shape) -> String {
         acc
     };
     w!("/-- Inner `i`'s forwarded exit slots, read off the wiring. -/");
-    w!("def exitChunk (a : Assignment p) : Fin {n} → List ExitSlot");
+    w!("noncomputable def exitChunk (a : Assignment p) : Fin {n} → List ExitSlot");
     for (i, lit) in slot_lits.iter().enumerate() {
         w!("  | {i} => {lit}");
     }
     w!("  | _ => []");
     w!("");
     w!("/-- Inner `i`'s forwarded nullifiers, read off the wiring. -/");
-    w!("def nullChunk (a : Assignment p) : Fin {n} → List Digest");
+    w!("noncomputable def nullChunk (a : Assignment p) : Fin {n} → List Digest");
     for (i, lit) in null_lits.iter().enumerate() {
         w!("  | {i} => {lit}");
     }
@@ -819,7 +819,7 @@ pub fn render(shape: &Shape) -> String {
     w!("/-- The aggregated output at the public-batch layout: `[aggregator_address(4), asset_id,");
     w!("    volume_fee_bps, block_hash(4), block_number, total_exit_slots]`, `{n} · {s}` forwarded exit");
     w!("    slots `[sum, account(4)]`, `{n} · {u}` forwarded nullifiers. -/");
-    w!("def out (a : Assignment p) : PublicBatchOutput :=");
+    w!("noncomputable def out (a : Assignment p) : PublicBatchOutput :=");
     w!("  {{ aggregatorAddress := ⟨pv a 0, pv a 1, pv a 2, pv a 3⟩, assetId := pv a 4, volumeFeeBps := pv a 5,");
     w!("    blockHash := ⟨pv a 6, pv a 7, pv a 8, pv a 9⟩, blockNumber := pv a 10, totalExitSlots := pv a 11,");
     w!("    exitSlots := {},", nest("exitChunk"));
@@ -956,7 +956,7 @@ pub fn render(shape: &Shape) -> String {
         w!("  {obtain}");
         w!("  {hd}");
         if !slot_rules.is_empty() {
-            w!("  rw [{}]", slot_rules.join(", "));
+            w!("  simp only [{}]", slot_rules.join(", "));
         }
         w!("  rw [kzero, hd]");
         w!("  rfl");
@@ -970,7 +970,7 @@ pub fn render(shape: &Shape) -> String {
         w!("  {obtain}");
         w!("  {hd}");
         if !null_rules.is_empty() {
-            w!("  rw [{}]", null_rules.join(", "));
+            w!("  simp only [{}]", null_rules.join(", "));
         }
         w!("  rw [kzero, hd]");
         w!("  rfl");
@@ -1008,7 +1008,7 @@ pub fn render(shape: &Shape) -> String {
         )
     };
     w!("/-- The take wire of inner `i` (`is_real` for inner 0, where the scan folds). -/");
-    w!("def takeWire : Fin {n} → Target");
+    w!("noncomputable def takeWire : Fin {n} → Target");
     for i in 0..n {
         w!("  | {i} => {}", lean_target(take_tgt(i)));
     }
@@ -1317,14 +1317,14 @@ pub fn render(shape: &Shape) -> String {
     w!("    (out a).exitSlots = (forwardedSlotsF (rows a)).map valSlot := by");
     w!("  simp only [out, forwardedSlotsF, rows, List.map_cons, List.map_nil,");
     w!("    List.flatten_cons, List.flatten_nil]");
-    w!("  rw [{}]", exit_eqs.join(", "));
+    w!("  simp only [{}]", exit_eqs.join(", "));
     w!("  rfl");
     w!("");
     w!("theorem nullFwd (a : Assignment p) (h : Satisfies ({circuit} p) a) :");
     w!("    (out a).nullifiers = (forwardedNullsF (rows a)).map valDigest := by");
     w!("  simp only [out, forwardedNullsF, rows, List.map_cons, List.map_nil,");
     w!("    List.flatten_cons, List.flatten_nil]");
-    w!("  rw [{}]", null_eqs.join(", "));
+    w!("  simp only [{}]", null_eqs.join(", "));
     w!("  rfl");
     w!("");
     if shape.calls.len() > 1000 {
@@ -1392,7 +1392,7 @@ pub fn render(shape: &Shape) -> String {
     w!("");
     w!("/-- The wrapper with its recursion gadgets: `verify_proof` under the `{leaves}`-leaf private-batch");
     w!("    verifier key on each `inner_pis_i`. -/");
-    w!("def tree : Recursive p :=");
+    w!("noncomputable def tree : Recursive p :=");
     w!("  .node \"public_batch_wrapper_n{n}\" ({circuit} p)");
     let children: Vec<String> = (0..n)
         .map(|i| format!("(Wrapper{leaves}.tree, List.ofFn (innerPis {i}))"))
@@ -1402,6 +1402,8 @@ pub fn render(shape: &Shape) -> String {
     for i in 0..n {
         w!("theorem pisEq_{i} :");
         w!("    List.ofFn (innerPis {i}) = ({circuit}.verifiers[{i}]'(by decide)).2 := by");
+        w!("  show List.ofFn {circuit}.inner_pis_{i} = _");
+        w!("  simp only [{circuit}.inner_pis_{i}, List.ofFn_vecCons, List.ofFn_zero]");
         w!("  rfl");
         w!("");
     }
@@ -1824,7 +1826,7 @@ fn is_directive_only(block: &str) -> bool {
 
 fn is_tree_block(block: &str) -> bool {
     block.lines().any(|line| {
-        line.starts_with("def tree ")
+        (line.starts_with("def tree ") || line.starts_with("noncomputable def tree "))
             || line.starts_with("theorem pisEq_")
             || line.starts_with("theorem tree_verifiers")
             || line.starts_with("theorem inner_eq")
@@ -1843,7 +1845,7 @@ fn is_scan_scalar(block: &str) -> bool {
 
 fn is_take_block(block: &str) -> bool {
     block.lines().any(|line| {
-        line.starts_with("def takeWire")
+        (line.starts_with("def takeWire") || line.starts_with("noncomputable def takeWire"))
             || line.starts_with("theorem realEq_")
             || line.starts_with("theorem foundEq_")
             || line.starts_with("theorem takeEq_")
@@ -1863,6 +1865,7 @@ fn decl_blocks(src: &str) -> Vec<String> {
     let mut has_decl = false;
     for line in src.lines() {
         let starts = line.starts_with("def ")
+            || line.starts_with("noncomputable def ")
             || line.starts_with("theorem ")
             || line.starts_with("omit ")
             || line.starts_with("set_option ")
@@ -1873,6 +1876,7 @@ fn decl_blocks(src: &str) -> Vec<String> {
             has_decl = false;
         }
         if line.starts_with("def ")
+            || line.starts_with("noncomputable def ")
             || line.starts_with("theorem ")
             || line.starts_with("omit ")
             || line.starts_with("set_option ")

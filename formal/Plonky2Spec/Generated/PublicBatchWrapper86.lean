@@ -7,4 +7,4 @@
 
       cargo run -p qp-plonky2-constraint-exporter --bin export-constraints
 -/
-import Plonky2Spec.Generated.PublicBatchWrapper86.Decode
+import Plonky2Spec.Generated.PublicBatchWrapper86.DecodeAll

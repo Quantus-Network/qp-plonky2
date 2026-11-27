@@ -11,3 +11,5 @@ import Plonky2Spec.Generated.PublicBatchWrapper86.CopyLemma4
 import Plonky2Spec.Generated.PublicBatchWrapper86.CopyLemma5
 import Plonky2Spec.Generated.PublicBatchWrapper86.CopyLemma6
 import Plonky2Spec.Generated.PublicBatchWrapper86.CopyLemma7
+import Plonky2Spec.Generated.PublicBatchWrapper86.CopyLemma8
+import Plonky2Spec.Generated.PublicBatchWrapper86.CopyLemma9

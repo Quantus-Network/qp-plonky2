@@ -8,10 +8,17 @@
   trace replayed on top, to the state digest the trace records of
   `PrivateBatchCircuit::new`'s builder. They prove `build_refines_of_agrees` and
   `build_hashes_of_agrees` by kernel evaluation of the certificate's checks against the
-  export. What is left to trust is one declaration per wrapper below: that the deployed
-  build agrees with its certificate. `proof_sound` composes them, with the child
-  obligation `recursive_verifier_transcript` on the complete export, into each wrapper's
+  export. What is left to trust is one declaration per wrapper, in
+  `PrivateWrapperBuild/Wrapper{n}.lean`: that the deployed build agrees with its
+  certificate. `proof_sound` composes them, with the child obligation
+  `recursive_verifier_transcript` on the complete export, into each wrapper's
   `accepted_sound`.
+
+  This module gathers the `n = 2` and `4` sizes, which every pull request builds. The
+  production size, `n = 8`, is over half of a cold Lean build and reaches CI through
+  `PrivateWrapperProduction.lean` (the `Plonky2BridgeProduction` target) with the
+  `n_inner = 86` public wrapper: pushes to `main`, release pull requests and pull requests
+  labelled `formal-full`.
 
   WHAT `Agrees` SAYS OF A WRAPPER.
   A wrapper's export is the whole production builder before `build`: the wrapper's own
@@ -25,71 +32,5 @@
   production pre-`build` state (`state_digest`, checked in qp-zk-circuits against
   `PrivateBatchCircuit::new`) and `build` is deterministic.
 -/
-import Plonky2Bridge.Generated.Wrapper2Built
-import Plonky2Bridge.Generated.Wrapper4Built
-import Plonky2Bridge.Generated.Wrapper8Built
-
-namespace Plonky2Bridge
-
-open Plonky2Spec.Wiring
-open Plonky2Spec.Generated
-
-variable {p : ℕ}
-
-namespace Wrapper2
-
-/-- **TRUSTED — the deployed 2-leaf private-batch build is the certified one.** Checked in
-    Rust: `built::verify_agrees` on the `FormalBuiltView` of `CircuitBuilder::build` for the
-    replayed `private_batch_wrapper_n2` trace over the built leaf. -/
-axiom build_agrees (b : Built p) : BuildOf tree b → b.Agrees (privateBatchWrapper2 p) buildCert
-
-theorem build_refines (b : Built p) : BuildOf tree b → b.Refines (privateBatchWrapper2 p) :=
-  fun h => build_refines_of_agrees b (build_agrees b h)
-
-theorem build_hashes (b : Built p) :
-    BuildOf tree b → b.HashesPublicInputs (privateBatchWrapper2 p) :=
-  fun h => build_hashes_of_agrees b (build_agrees b h)
-
-theorem build_complete (b : Built p) : BuildOf tree b → b.Complete (privateBatchWrapper2 p) :=
-  fun h => (build_agrees b h).complete
-
-end Wrapper2
-
-namespace Wrapper4
-
-/-- **TRUSTED — the deployed 4-leaf private-batch build is the certified one.** Checked in
-    Rust as `Wrapper2.build_agrees`, on the `private_batch_wrapper_n4` trace. -/
-axiom build_agrees (b : Built p) : BuildOf tree b → b.Agrees (privateBatchWrapper4 p) buildCert
-
-theorem build_refines (b : Built p) : BuildOf tree b → b.Refines (privateBatchWrapper4 p) :=
-  fun h => build_refines_of_agrees b (build_agrees b h)
-
-theorem build_hashes (b : Built p) :
-    BuildOf tree b → b.HashesPublicInputs (privateBatchWrapper4 p) :=
-  fun h => build_hashes_of_agrees b (build_agrees b h)
-
-theorem build_complete (b : Built p) : BuildOf tree b → b.Complete (privateBatchWrapper4 p) :=
-  fun h => (build_agrees b h).complete
-
-end Wrapper4
-
-namespace Wrapper8
-
-/-- **TRUSTED — the deployed production (8-leaf, 32-slot) private-batch build is the
-    certified one.** Checked in Rust as `Wrapper2.build_agrees`, on the
-    `private_batch_wrapper_n8` trace. -/
-axiom build_agrees (b : Built p) : BuildOf tree b → b.Agrees (privateBatchWrapper8 p) buildCert
-
-theorem build_refines (b : Built p) : BuildOf tree b → b.Refines (privateBatchWrapper8 p) :=
-  fun h => build_refines_of_agrees b (build_agrees b h)
-
-theorem build_hashes (b : Built p) :
-    BuildOf tree b → b.HashesPublicInputs (privateBatchWrapper8 p) :=
-  fun h => build_hashes_of_agrees b (build_agrees b h)
-
-theorem build_complete (b : Built p) : BuildOf tree b → b.Complete (privateBatchWrapper8 p) :=
-  fun h => (build_agrees b h).complete
-
-end Wrapper8
-
-end Plonky2Bridge
+import Plonky2Bridge.PrivateWrapperBuild.Wrapper2
+import Plonky2Bridge.PrivateWrapperBuild.Wrapper4

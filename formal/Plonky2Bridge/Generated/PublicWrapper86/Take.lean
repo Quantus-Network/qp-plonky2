@@ -15,7 +15,7 @@ set_option maxRecDepth 200000
 set_option maxHeartbeats 0
 
 /-- The take wire of inner `i` (`is_real` for inner 0, where the scan folds). -/
-def takeWire : Fin 86 → Target
+noncomputable def takeWire : Fin 86 → Target
   | 0 => .wire 83 35
   | 1 => .wire 84 11
   | 2 => .wire 84 15

@@ -53,10 +53,12 @@ roots = ["Plonky2Bridge", "Plonky2Bridge.PublicBatch", "Plonky2Bridge.Complete",
   "Plonky2Bridge.Leaf", "Plonky2Bridge.LeafWired", "Plonky2Bridge.Trusted", "Plonky2Bridge.LeafBuild",
   "Plonky2Bridge.PrivateWrapperBuild", "Plonky2Bridge.Generated.PublicInputsHashVector"]
 
-# The production public-batch wrapper (`n_inner = 86`): the generated modules behind it
-# are most of a cold Lean build, so it is its own target. CI builds it on `main` and on
-# release pull requests (`lake build Plonky2BridgeProduction`); every pull request builds
-# `Plonky2Bridge`, which has the `n_inner = 2` and `4` shapes of the same capstone.
+# The production wrappers: the public-batch wrapper at `n_inner = 86` and the 8-leaf
+# private-batch wrapper it reads. The generated modules behind them are most of a cold
+# Lean build, so they are their own target. CI builds it on `main` and on release pull
+# requests (`lake build Plonky2BridgeProduction`); every pull request builds
+# `Plonky2Bridge`, which has the `n_inner = 2` and `4` and `n = 2` and `4` shapes of the
+# same capstones.
 [[lean_lib]]
 name = "Plonky2BridgeProduction"
-roots = ["Plonky2Bridge.PublicWrapperProduction"]
+roots = ["Plonky2Bridge.PublicWrapperProduction", "Plonky2Bridge.PrivateWrapperProduction"]

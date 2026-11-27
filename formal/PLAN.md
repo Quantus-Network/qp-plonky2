@@ -133,15 +133,20 @@ sound+complete) and compose up to the gadget. The gates our gadgets emit
   `leanprover/lean-action` (pinned SHA) running `lake build` + `leanchecker: true`, plus
   the grep-based **no-`sorry`/`admit`** gate, then `lake build Plonky2Bridge` and the
   axiom-footprint gate in the same job. `use-mathlib-cache` fetches mathlib's prebuilt
-  `.olean`s; the package's own `.lake/build` is cached between runs by content hash, so
-  a pull request rebuilds only what it changes. No `nanoda` (crashes on v4.30 export
-  format).
-- The production public wrapper (`n_inner = 86`) is its own target,
-  `Plonky2BridgeProduction` (`Plonky2Bridge/PublicWrapperProduction.lean`, gated by
-  `ci/AxiomsCheckProduction.lean`): its 19,000 generated gadget facts and 86 forwarding
-  modules are most of a cold build. CI builds it on pushes to `main`, on release pull
-  requests, and on pull requests labelled `formal-full`; every pull request builds the
-  `n_inner = 2` and `4` shapes of the same capstone.
+  `.olean`s; the package itself is built from scratch on every run (about 25 minutes on
+  the 4-core runner, 55 with the production wrappers), so the generated Lean is shaped
+  for a cold build: data definitions are `noncomputable`, no declaration references more
+  than a few hundred others (one naming thousands takes minutes to index), a row lookup
+  or a fact is proved once and shared, and long rewrite chains are single `simp only`
+  passes. No `nanoda` (crashes on v4.30 export format).
+- The production wrappers — the public wrapper at `n_inner = 86` and the 8-leaf private
+  wrapper — are their own target, `Plonky2BridgeProduction`
+  (`Plonky2Bridge/PublicWrapperProduction.lean`, `PrivateWrapperProduction.lean`, gated by
+  `ci/AxiomsCheckProduction.lean`): the 19,000 generated gadget facts and 86 forwarding
+  modules of the one and the build certificate of the other are most of a cold build. CI
+  builds it on pushes to `main`, on release pull requests, and on pull requests labelled
+  `formal-full`; every pull request builds the `n_inner = 2` and `4` and `n = 2` and `4`
+  shapes of the same capstones.
 
 ## 6. Composition with qp-zk-circuits
 
@@ -164,7 +169,7 @@ Poseidon2 instantiates `RandomOracle.H` (its felt outputs are `digest.val`s).
 ## 7. Trusted assumptions (the seam to layer 1)
 
 `Plonky2Bridge/Trusted.lean` declares the generic assumptions and obligations;
-`Plonky2Bridge/LeafBuild.lean` and `PrivateWrapperBuild.lean` declare the one per-circuit
+`Plonky2Bridge/LeafBuild.lean` and `PrivateWrapperBuild/Wrapper{n}.lean` declare the one per-circuit
 fact of each certified build (Steps 16, 17, 19, 21). No other file declares an `axiom`. `proof_sound`
 is a theorem, the composition of three assumptions and `verifier_algebra` (Steps 12, 13).
 Each assumption is an implication on its good event (Step 15): an opaque per-tree
@@ -1427,7 +1432,7 @@ builder's, and the private-batch wrappers are certified as the leaf is.
   wrapper's copies are rendered in chunks. Each `Generated/{Leaf,Wrapper{2,4,8}}Built.lean`
   now also carries the circuit's recursion tree (`tree`, the child public inputs
   `leafPis`, `tree_verifiers`), so the hand-written `build_agrees` declarations
-  (`LeafBuild.lean`, `PrivateWrapperBuild.lean`) are stated on `tree`, and each bridge's
+  (`LeafBuild.lean`, `PrivateWrapperBuild/Wrapper{n}.lean`) are stated on `tree`, and each bridge's
   `accepted_sound` calls `proof_sound_of` with `build_refines`, `build_hashes` and
   `children_accepted`. The `σ`-cycles a wrapper's copies run along include the
   verifiers' classes of the constants `0` and `1` (tens of thousands of positions); the
@@ -1511,8 +1516,9 @@ the export's own rows.
   constants lemma is grouped by chunk so a call opens only the groups it uses (the
   wrappers' bridges read their four constants from it). Rebuilding every generated
   module, as a pull request that regenerates them does, is some 60 minutes on a 4-core
-  runner, `n = 8` three fifths of it; `n = 8` stays in the pull-request lane because
-  `PrivateWrapperBuild` holds all three sizes.
+  runner, `n = 8` three fifths of it; `n = 8` is in the `Plonky2BridgeProduction` lane with
+  the `n_inner = 86` public wrapper (`PrivateWrapperProduction`), each size's certificate
+  in its own `PrivateWrapperBuild/Wrapper{n}.lean`.
 - **Axiom gate.** `children` is `recursive_verifier_transcript` alone;
   `Wrapper{n}.build_complete`: `propext`, `Quot.sound` and `Wrapper{n}.build_agrees`, as
   `build_refines`. No capstone footprint grew.

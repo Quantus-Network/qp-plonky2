@@ -35,7 +35,7 @@ set_option maxHeartbeats 0
 
 /-- The 200 public inputs of inner proof `i` (`inner_pis_i`), at the private-batch
     `aggregated_output` layout. -/
-def innerPis : Fin 86 → Fin 200 → Target
+noncomputable def innerPis : Fin 86 → Fin 200 → Target
   | 0 => publicBatchWrapper86.inner_pis_0
   | 1 => publicBatchWrapper86.inner_pis_1
   | 2 => publicBatchWrapper86.inner_pis_2
@@ -127,7 +127,7 @@ def innerPis : Fin 86 → Fin 200 → Target
 
 /-- The field wires of inner `i` the wrapper reads, with the `is_equal` witnesses of its
     `bytes_digest_eq(block_hash, 0)` dummy check. -/
-def row (a : Assignment p) : Fin 86 → InnerRow p
+noncomputable def row (a : Assignment p) : Fin 86 → InnerRow p
   | 0 =>
     { blockHash := fun j => a (innerPis 0 ⟨3 + j, by omega⟩)
       dummyEq := ![a (.virt 17207), a (.virt 17209), a (.virt 17211), a (.virt 17213)]
@@ -4046,16 +4046,16 @@ def row (a : Assignment p) : Fin 86 → InnerRow p
 
 
 /-- Inner `i`'s private-batch output, decoded through `.val`. -/
-def inner (a : Assignment p) (i : Fin 86) : PrivateBatchOutput :=
+noncomputable def inner (a : Assignment p) (i : Fin 86) : PrivateBatchOutput :=
   { numExitSlots := (a (innerPis i 0)).val, assetId := (a (innerPis i 1)).val,
     volumeFeeBps := (a (innerPis i 2)).val, blockHash := valDigest (row a i).blockHash,
     blockNumber := (a (innerPis i 7)).val, exitSlots := (row a i).slots.map valSlot,
     nullifiers := (row a i).nulls.map valDigest }
 
 
-def rows (a : Assignment p) : List (InnerPair p) := [(row a 0, inner a 0), (row a 1, inner a 1), (row a 2, inner a 2), (row a 3, inner a 3), (row a 4, inner a 4), (row a 5, inner a 5), (row a 6, inner a 6), (row a 7, inner a 7), (row a 8, inner a 8), (row a 9, inner a 9), (row a 10, inner a 10), (row a 11, inner a 11), (row a 12, inner a 12), (row a 13, inner a 13), (row a 14, inner a 14), (row a 15, inner a 15), (row a 16, inner a 16), (row a 17, inner a 17), (row a 18, inner a 18), (row a 19, inner a 19), (row a 20, inner a 20), (row a 21, inner a 21), (row a 22, inner a 22), (row a 23, inner a 23), (row a 24, inner a 24), (row a 25, inner a 25), (row a 26, inner a 26), (row a 27, inner a 27), (row a 28, inner a 28), (row a 29, inner a 29), (row a 30, inner a 30), (row a 31, inner a 31), (row a 32, inner a 32), (row a 33, inner a 33), (row a 34, inner a 34), (row a 35, inner a 35), (row a 36, inner a 36), (row a 37, inner a 37), (row a 38, inner a 38), (row a 39, inner a 39), (row a 40, inner a 40), (row a 41, inner a 41), (row a 42, inner a 42), (row a 43, inner a 43), (row a 44, inner a 44), (row a 45, inner a 45), (row a 46, inner a 46), (row a 47, inner a 47), (row a 48, inner a 48), (row a 49, inner a 49), (row a 50, inner a 50), (row a 51, inner a 51), (row a 52, inner a 52), (row a 53, inner a 53), (row a 54, inner a 54), (row a 55, inner a 55), (row a 56, inner a 56), (row a 57, inner a 57), (row a 58, inner a 58), (row a 59, inner a 59), (row a 60, inner a 60), (row a 61, inner a 61), (row a 62, inner a 62), (row a 63, inner a 63), (row a 64, inner a 64), (row a 65, inner a 65), (row a 66, inner a 66), (row a 67, inner a 67), (row a 68, inner a 68), (row a 69, inner a 69), (row a 70, inner a 70), (row a 71, inner a 71), (row a 72, inner a 72), (row a 73, inner a 73), (row a 74, inner a 74), (row a 75, inner a 75), (row a 76, inner a 76), (row a 77, inner a 77), (row a 78, inner a 78), (row a 79, inner a 79), (row a 80, inner a 80), (row a 81, inner a 81), (row a 82, inner a 82), (row a 83, inner a 83), (row a 84, inner a 84), (row a 85, inner a 85)]
+noncomputable def rows (a : Assignment p) : List (InnerPair p) := [(row a 0, inner a 0), (row a 1, inner a 1), (row a 2, inner a 2), (row a 3, inner a 3), (row a 4, inner a 4), (row a 5, inner a 5), (row a 6, inner a 6), (row a 7, inner a 7), (row a 8, inner a 8), (row a 9, inner a 9), (row a 10, inner a 10), (row a 11, inner a 11), (row a 12, inner a 12), (row a 13, inner a 13), (row a 14, inner a 14), (row a 15, inner a 15), (row a 16, inner a 16), (row a 17, inner a 17), (row a 18, inner a 18), (row a 19, inner a 19), (row a 20, inner a 20), (row a 21, inner a 21), (row a 22, inner a 22), (row a 23, inner a 23), (row a 24, inner a 24), (row a 25, inner a 25), (row a 26, inner a 26), (row a 27, inner a 27), (row a 28, inner a 28), (row a 29, inner a 29), (row a 30, inner a 30), (row a 31, inner a 31), (row a 32, inner a 32), (row a 33, inner a 33), (row a 34, inner a 34), (row a 35, inner a 35), (row a 36, inner a 36), (row a 37, inner a 37), (row a 38, inner a 38), (row a 39, inner a 39), (row a 40, inner a 40), (row a 41, inner a 41), (row a 42, inner a 42), (row a 43, inner a 43), (row a 44, inner a 44), (row a 45, inner a 45), (row a 46, inner a 46), (row a 47, inner a 47), (row a 48, inner a 48), (row a 49, inner a 49), (row a 50, inner a 50), (row a 51, inner a 51), (row a 52, inner a 52), (row a 53, inner a 53), (row a 54, inner a 54), (row a 55, inner a 55), (row a 56, inner a 56), (row a 57, inner a 57), (row a 58, inner a 58), (row a 59, inner a 59), (row a 60, inner a 60), (row a 61, inner a 61), (row a 62, inner a 62), (row a 63, inner a 63), (row a 64, inner a 64), (row a 65, inner a 65), (row a 66, inner a 66), (row a 67, inner a 67), (row a 68, inner a 68), (row a 69, inner a 69), (row a 70, inner a 70), (row a 71, inner a 71), (row a 72, inner a 72), (row a 73, inner a 73), (row a 74, inner a 74), (row a 75, inner a 75), (row a 76, inner a 76), (row a 77, inner a 77), (row a 78, inner a 78), (row a 79, inner a 79), (row a 80, inner a 80), (row a 81, inner a 81), (row a 82, inner a 82), (row a 83, inner a 83), (row a 84, inner a 84), (row a 85, inner a 85)]
 
-def inners (a : Assignment p) : List PrivateBatchOutput := [inner a 0, inner a 1, inner a 2, inner a 3, inner a 4, inner a 5, inner a 6, inner a 7, inner a 8, inner a 9, inner a 10, inner a 11, inner a 12, inner a 13, inner a 14, inner a 15, inner a 16, inner a 17, inner a 18, inner a 19, inner a 20, inner a 21, inner a 22, inner a 23, inner a 24, inner a 25, inner a 26, inner a 27, inner a 28, inner a 29, inner a 30, inner a 31, inner a 32, inner a 33, inner a 34, inner a 35, inner a 36, inner a 37, inner a 38, inner a 39, inner a 40, inner a 41, inner a 42, inner a 43, inner a 44, inner a 45, inner a 46, inner a 47, inner a 48, inner a 49, inner a 50, inner a 51, inner a 52, inner a 53, inner a 54, inner a 55, inner a 56, inner a 57, inner a 58, inner a 59, inner a 60, inner a 61, inner a 62, inner a 63, inner a 64, inner a 65, inner a 66, inner a 67, inner a 68, inner a 69, inner a 70, inner a 71, inner a 72, inner a 73, inner a 74, inner a 75, inner a 76, inner a 77, inner a 78, inner a 79, inner a 80, inner a 81, inner a 82, inner a 83, inner a 84, inner a 85]
+noncomputable def inners (a : Assignment p) : List PrivateBatchOutput := [inner a 0, inner a 1, inner a 2, inner a 3, inner a 4, inner a 5, inner a 6, inner a 7, inner a 8, inner a 9, inner a 10, inner a 11, inner a 12, inner a 13, inner a 14, inner a 15, inner a 16, inner a 17, inner a 18, inner a 19, inner a 20, inner a 21, inner a 22, inner a 23, inner a 24, inner a 25, inner a 26, inner a 27, inner a 28, inner a 29, inner a 30, inner a 31, inner a 32, inner a 33, inner a 34, inner a 35, inner a 36, inner a 37, inner a 38, inner a 39, inner a 40, inner a 41, inner a 42, inner a 43, inner a 44, inner a 45, inner a 46, inner a 47, inner a 48, inner a 49, inner a 50, inner a 51, inner a 52, inner a 53, inner a 54, inner a 55, inner a 56, inner a 57, inner a 58, inner a 59, inner a 60, inner a 61, inner a 62, inner a 63, inner a 64, inner a 65, inner a 66, inner a 67, inner a 68, inner a 69, inner a 70, inner a 71, inner a 72, inner a 73, inner a 74, inner a 75, inner a 76, inner a 77, inner a 78, inner a 79, inner a 80, inner a 81, inner a 82, inner a 83, inner a 84, inner a 85]
 
 
 omit [Fact p.Prime] in
@@ -4063,16 +4063,16 @@ theorem rows_inners (a : Assignment p) : (rows a).map Prod.snd = inners a := rfl
 
 
 /-- The `aggregator_address` witness, decoded. -/
-def addr (a : Assignment p) : Digest := valDigest fun j => a (publicBatchWrapper86.aggregator_address j)
+noncomputable def addr (a : Assignment p) : Digest := valDigest fun j => a (publicBatchWrapper86.aggregator_address j)
 
 
 /-- Public input `k` of the wrapper, decoded through `.val`. -/
-def pv (a : Assignment p) (k : ℕ) : Felt :=
+noncomputable def pv (a : Assignment p) (k : ℕ) : Felt :=
   (a ((publicBatchWrapper86 p).publicInputs.getD k (.virt 0))).val
 
 
 /-- Inner `i`'s forwarded exit slots, read off the wiring. -/
-def exitChunk (a : Assignment p) : Fin 86 → List ExitSlot
+noncomputable def exitChunk (a : Assignment p) : Fin 86 → List ExitSlot
   | 0 => [⟨(a (.wire 333 23)).val, ⟨(a (.wire 333 31)).val, (a (.wire 333 39)).val, (a (.wire 333 47)).val, (a (.wire 333 55)).val⟩⟩,
       ⟨(a (.wire 333 63)).val, ⟨(a (.wire 333 71)).val, (a (.wire 333 79)).val, (a (.wire 334 7)).val, (a (.wire 334 15)).val⟩⟩,
       ⟨(a (.wire 334 23)).val, ⟨(a (.wire 334 31)).val, (a (.wire 334 39)).val, (a (.wire 334 47)).val, (a (.wire 334 55)).val⟩⟩,
@@ -6829,7 +6829,7 @@ def exitChunk (a : Assignment p) : Fin 86 → List ExitSlot
 
 
 /-- Inner `i`'s forwarded nullifiers, read off the wiring. -/
-def nullChunk (a : Assignment p) : Fin 86 → List Digest
+noncomputable def nullChunk (a : Assignment p) : Fin 86 → List Digest
   | 0 => [⟨(a (.wire 1709 23)).val, (a (.wire 1709 31)).val, (a (.wire 1709 39)).val, (a (.wire 1709 47)).val⟩,
       ⟨(a (.wire 1709 55)).val, (a (.wire 1709 63)).val, (a (.wire 1709 71)).val, (a (.wire 1709 79)).val⟩,
       ⟨(a (.wire 1710 7)).val, (a (.wire 1710 15)).val, (a (.wire 1710 23)).val, (a (.wire 1710 31)).val⟩,
@@ -7524,7 +7524,7 @@ def nullChunk (a : Assignment p) : Fin 86 → List Digest
 /-- The aggregated output at the public-batch layout: `[aggregator_address(4), asset_id,
     volume_fee_bps, block_hash(4), block_number, total_exit_slots]`, `86 · 32` forwarded exit
     slots `[sum, account(4)]`, `86 · 8` forwarded nullifiers. -/
-def out (a : Assignment p) : PublicBatchOutput :=
+noncomputable def out (a : Assignment p) : PublicBatchOutput :=
   { aggregatorAddress := ⟨pv a 0, pv a 1, pv a 2, pv a 3⟩, assetId := pv a 4, volumeFeeBps := pv a 5,
     blockHash := ⟨pv a 6, pv a 7, pv a 8, pv a 9⟩, blockNumber := pv a 10, totalExitSlots := pv a 11,
     exitSlots := exitChunk a 0 ++ (exitChunk a 1 ++ (exitChunk a 2 ++ (exitChunk a 3 ++ (exitChunk a 4 ++ (exitChunk a 5 ++ (exitChunk a 6 ++ (exitChunk a 7 ++ (exitChunk a 8 ++ (exitChunk a 9 ++ (exitChunk a 10 ++ (exitChunk a 11 ++ (exitChunk a 12 ++ (exitChunk a 13 ++ (exitChunk a 14 ++ (exitChunk a 15 ++ (exitChunk a 16 ++ (exitChunk a 17 ++ (exitChunk a 18 ++ (exitChunk a 19 ++ (exitChunk a 20 ++ (exitChunk a 21 ++ (exitChunk a 22 ++ (exitChunk a 23 ++ (exitChunk a 24 ++ (exitChunk a 25 ++ (exitChunk a 26 ++ (exitChunk a 27 ++ (exitChunk a 28 ++ (exitChunk a 29 ++ (exitChunk a 30 ++ (exitChunk a 31 ++ (exitChunk a 32 ++ (exitChunk a 33 ++ (exitChunk a 34 ++ (exitChunk a 35 ++ (exitChunk a 36 ++ (exitChunk a 37 ++ (exitChunk a 38 ++ (exitChunk a 39 ++ (exitChunk a 40 ++ (exitChunk a 41 ++ (exitChunk a 42 ++ (exitChunk a 43 ++ (exitChunk a 44 ++ (exitChunk a 45 ++ (exitChunk a 46 ++ (exitChunk a 47 ++ (exitChunk a 48 ++ (exitChunk a 49 ++ (exitChunk a 50 ++ (exitChunk a 51 ++ (exitChunk a 52 ++ (exitChunk a 53 ++ (exitChunk a 54 ++ (exitChunk a 55 ++ (exitChunk a 56 ++ (exitChunk a 57 ++ (exitChunk a 58 ++ (exitChunk a 59 ++ (exitChunk a 60 ++ (exitChunk a 61 ++ (exitChunk a 62 ++ (exitChunk a 63 ++ (exitChunk a 64 ++ (exitChunk a 65 ++ (exitChunk a 66 ++ (exitChunk a 67 ++ (exitChunk a 68 ++ (exitChunk a 69 ++ (exitChunk a 70 ++ (exitChunk a 71 ++ (exitChunk a 72 ++ (exitChunk a 73 ++ (exitChunk a 74 ++ (exitChunk a 75 ++ (exitChunk a 76 ++ (exitChunk a 77 ++ (exitChunk a 78 ++ (exitChunk a 79 ++ (exitChunk a 80 ++ (exitChunk a 81 ++ (exitChunk a 82 ++ (exitChunk a 83 ++ (exitChunk a 84 ++ (exitChunk a 85 ++ ([])))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))),

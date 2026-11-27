@@ -92,19 +92,12 @@ import Plonky2Bridge.Generated.PublicInputsHashVector
 #print axioms Plonky2Bridge.Wrapper4.build_refines
 #print axioms Plonky2Bridge.Wrapper4.build_hashes
 #print axioms Plonky2Bridge.Wrapper4.build_complete
-#print axioms Plonky2Bridge.Wrapper8.build_refines_of_agrees
-#print axioms Plonky2Bridge.Wrapper8.build_hashes_of_agrees
-#print axioms Plonky2Bridge.Wrapper8.build_refines
-#print axioms Plonky2Bridge.Wrapper8.build_hashes
-#print axioms Plonky2Bridge.Wrapper8.build_complete
 #print axioms Plonky2Bridge.private_batch_end_to_end
 #print axioms Plonky2Bridge.public_batch_end_to_end
 #print axioms Plonky2Bridge.private_batch_end_to_end_wired
 #print axioms Plonky2Bridge.Wrapper2.sound
 #print axioms Plonky2Bridge.private_batch_end_to_end_wired_n4
 #print axioms Plonky2Bridge.Wrapper4.sound
-#print axioms Plonky2Bridge.private_batch_end_to_end_wired_production
-#print axioms Plonky2Bridge.Wrapper8.sound
 #print axioms Plonky2Bridge.public_batch_end_to_end_wired
 #print axioms Plonky2Bridge.PublicWrapper2.sound
 #print axioms Plonky2Bridge.public_batch_end_to_end_wired_n4
@@ -114,4 +107,3 @@ import Plonky2Bridge.Generated.PublicInputsHashVector
 #print axioms Plonky2Bridge.LeafCircuit.accepted_sound
 #print axioms Plonky2Bridge.Wrapper2.accepted_sound
 #print axioms Plonky2Bridge.Wrapper4.accepted_sound
-#print axioms Plonky2Bridge.Wrapper8.accepted_sound

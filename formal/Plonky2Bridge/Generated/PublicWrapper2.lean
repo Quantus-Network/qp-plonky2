@@ -31,14 +31,14 @@ variable {p : ℕ} [Fact p.Prime]
 
 /-- The 26 public inputs of inner proof `i` (`inner_pis_i`), at the private-batch
     `aggregated_output` layout. -/
-def innerPis : Fin 2 → Fin 26 → Target
+noncomputable def innerPis : Fin 2 → Fin 26 → Target
   | 0 => publicBatchWrapper2.inner_pis_0
   | 1 => publicBatchWrapper2.inner_pis_1
   | _ => publicBatchWrapper2.inner_pis_0
 
 /-- The field wires of inner `i` the wrapper reads, with the `is_equal` witnesses of its
     `bytes_digest_eq(block_hash, 0)` dummy check. -/
-def row (a : Assignment p) : Fin 2 → InnerRow p
+noncomputable def row (a : Assignment p) : Fin 2 → InnerRow p
   | 0 =>
     { blockHash := fun j => a (innerPis 0 ⟨3 + j, by omega⟩)
       dummyEq := ![a (.virt 60), a (.virt 62), a (.virt 64), a (.virt 66)]
@@ -68,27 +68,27 @@ def row (a : Assignment p) : Fin 2 → InnerRow p
         fun j => a (innerPis 0 ⟨22 + j, by omega⟩)] }
 
 /-- Inner `i`'s private-batch output, decoded through `.val`. -/
-def inner (a : Assignment p) (i : Fin 2) : PrivateBatchOutput :=
+noncomputable def inner (a : Assignment p) (i : Fin 2) : PrivateBatchOutput :=
   { numExitSlots := (a (innerPis i 0)).val, assetId := (a (innerPis i 1)).val,
     volumeFeeBps := (a (innerPis i 2)).val, blockHash := valDigest (row a i).blockHash,
     blockNumber := (a (innerPis i 7)).val, exitSlots := (row a i).slots.map valSlot,
     nullifiers := (row a i).nulls.map valDigest }
 
-def rows (a : Assignment p) : List (InnerPair p) := [(row a 0, inner a 0), (row a 1, inner a 1)]
-def inners (a : Assignment p) : List PrivateBatchOutput := [inner a 0, inner a 1]
+noncomputable def rows (a : Assignment p) : List (InnerPair p) := [(row a 0, inner a 0), (row a 1, inner a 1)]
+noncomputable def inners (a : Assignment p) : List PrivateBatchOutput := [inner a 0, inner a 1]
 
 omit [Fact p.Prime] in
 theorem rows_inners (a : Assignment p) : (rows a).map Prod.snd = inners a := rfl
 
 /-- The `aggregator_address` witness, decoded. -/
-def addr (a : Assignment p) : Digest := valDigest fun j => a (publicBatchWrapper2.aggregator_address j)
+noncomputable def addr (a : Assignment p) : Digest := valDigest fun j => a (publicBatchWrapper2.aggregator_address j)
 
 /-- Public input `k` of the wrapper, decoded through `.val`. -/
-def pv (a : Assignment p) (k : ℕ) : Felt :=
+noncomputable def pv (a : Assignment p) (k : ℕ) : Felt :=
   (a ((publicBatchWrapper2 p).publicInputs.getD k (.virt 0))).val
 
 /-- Inner `i`'s forwarded exit slots, read off the wiring. -/
-def exitChunk (a : Assignment p) : Fin 2 → List ExitSlot
+noncomputable def exitChunk (a : Assignment p) : Fin 2 → List ExitSlot
   | 0 => [⟨(a (.wire 8 71)).val, ⟨(a (.wire 8 79)).val, (a (.wire 11 7)).val, (a (.wire 11 15)).val, (a (.wire 11 23)).val⟩⟩,
       ⟨(a (.wire 11 31)).val, ⟨(a (.wire 11 39)).val, (a (.wire 11 47)).val, (a (.wire 11 55)).val, (a (.wire 11 63)).val⟩⟩]
   | 1 => [⟨(a (.wire 11 71)).val, ⟨(a (.wire 11 79)).val, (a (.wire 12 7)).val, (a (.wire 12 15)).val, (a (.wire 12 23)).val⟩⟩,
@@ -96,7 +96,7 @@ def exitChunk (a : Assignment p) : Fin 2 → List ExitSlot
   | _ => []
 
 /-- Inner `i`'s forwarded nullifiers, read off the wiring. -/
-def nullChunk (a : Assignment p) : Fin 2 → List Digest
+noncomputable def nullChunk (a : Assignment p) : Fin 2 → List Digest
   | 0 => [⟨(a (.wire 12 71)).val, (a (.wire 12 79)).val, (a (.wire 13 7)).val, (a (.wire 13 15)).val⟩,
       ⟨(a (.wire 13 23)).val, (a (.wire 13 31)).val, (a (.wire 13 39)).val, (a (.wire 13 47)).val⟩]
   | 1 => [⟨(a (.wire 13 55)).val, (a (.wire 13 63)).val, (a (.wire 13 71)).val, (a (.wire 13 79)).val⟩,
@@ -106,7 +106,7 @@ def nullChunk (a : Assignment p) : Fin 2 → List Digest
 /-- The aggregated output at the public-batch layout: `[aggregator_address(4), asset_id,
     volume_fee_bps, block_hash(4), block_number, total_exit_slots]`, `2 · 2` forwarded exit
     slots `[sum, account(4)]`, `2 · 2` forwarded nullifiers. -/
-def out (a : Assignment p) : PublicBatchOutput :=
+noncomputable def out (a : Assignment p) : PublicBatchOutput :=
   { aggregatorAddress := ⟨pv a 0, pv a 1, pv a 2, pv a 3⟩, assetId := pv a 4, volumeFeeBps := pv a 5,
     blockHash := ⟨pv a 6, pv a 7, pv a 8, pv a 9⟩, blockNumber := pv a 10, totalExitSlots := pv a 11,
     exitSlots := exitChunk a 0 ++ (exitChunk a 1 ++ ([])),
@@ -136,7 +136,7 @@ theorem exitChunk_eq_0 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p)
   unfold exitChunk
   obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
   have hd : a (.wire 3 11) = (row a 0).isDummy := by rw [(publicBatchWrapper2_f8 a h), (publicBatchWrapper2_f6 a h), (publicBatchWrapper2_f7 a h)]; rfl
-  rw [(publicBatchWrapper2_f68 a h), (publicBatchWrapper2_f69 a h), (publicBatchWrapper2_f70 a h), (publicBatchWrapper2_f71 a h), (publicBatchWrapper2_f72 a h), (publicBatchWrapper2_f73 a h), (publicBatchWrapper2_f74 a h), (publicBatchWrapper2_f75 a h), (publicBatchWrapper2_f76 a h), (publicBatchWrapper2_f77 a h)]
+  simp only [(publicBatchWrapper2_f68 a h), (publicBatchWrapper2_f69 a h), (publicBatchWrapper2_f70 a h), (publicBatchWrapper2_f71 a h), (publicBatchWrapper2_f72 a h), (publicBatchWrapper2_f73 a h), (publicBatchWrapper2_f74 a h), (publicBatchWrapper2_f75 a h), (publicBatchWrapper2_f76 a h), (publicBatchWrapper2_f77 a h)]
   rw [kzero, hd]
   rfl
 
@@ -145,7 +145,7 @@ theorem nullChunk_eq_0 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p)
   unfold nullChunk
   obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
   have hd : a (.wire 3 11) = (row a 0).isDummy := by rw [(publicBatchWrapper2_f8 a h), (publicBatchWrapper2_f6 a h), (publicBatchWrapper2_f7 a h)]; rfl
-  rw [(publicBatchWrapper2_f88 a h), (publicBatchWrapper2_f89 a h), (publicBatchWrapper2_f90 a h), (publicBatchWrapper2_f91 a h), (publicBatchWrapper2_f92 a h), (publicBatchWrapper2_f93 a h), (publicBatchWrapper2_f94 a h), (publicBatchWrapper2_f95 a h)]
+  simp only [(publicBatchWrapper2_f88 a h), (publicBatchWrapper2_f89 a h), (publicBatchWrapper2_f90 a h), (publicBatchWrapper2_f91 a h), (publicBatchWrapper2_f92 a h), (publicBatchWrapper2_f93 a h), (publicBatchWrapper2_f94 a h), (publicBatchWrapper2_f95 a h)]
   rw [kzero, hd]
   rfl
 
@@ -154,7 +154,7 @@ theorem exitChunk_eq_1 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p)
   unfold exitChunk
   obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
   have hd : a (.wire 3 55) = (row a 1).isDummy := by rw [(publicBatchWrapper2_f15 a h), (publicBatchWrapper2_f13 a h), (publicBatchWrapper2_f14 a h)]; rfl
-  rw [(publicBatchWrapper2_f78 a h), (publicBatchWrapper2_f79 a h), (publicBatchWrapper2_f80 a h), (publicBatchWrapper2_f81 a h), (publicBatchWrapper2_f82 a h), (publicBatchWrapper2_f83 a h), (publicBatchWrapper2_f84 a h), (publicBatchWrapper2_f85 a h), (publicBatchWrapper2_f86 a h), (publicBatchWrapper2_f87 a h)]
+  simp only [(publicBatchWrapper2_f78 a h), (publicBatchWrapper2_f79 a h), (publicBatchWrapper2_f80 a h), (publicBatchWrapper2_f81 a h), (publicBatchWrapper2_f82 a h), (publicBatchWrapper2_f83 a h), (publicBatchWrapper2_f84 a h), (publicBatchWrapper2_f85 a h), (publicBatchWrapper2_f86 a h), (publicBatchWrapper2_f87 a h)]
   rw [kzero, hd]
   rfl
 
@@ -163,12 +163,12 @@ theorem nullChunk_eq_1 (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p)
   unfold nullChunk
   obtain ⟨kzero, ktot, kone, kslots⟩ := consts a h
   have hd : a (.wire 3 55) = (row a 1).isDummy := by rw [(publicBatchWrapper2_f15 a h), (publicBatchWrapper2_f13 a h), (publicBatchWrapper2_f14 a h)]; rfl
-  rw [(publicBatchWrapper2_f96 a h), (publicBatchWrapper2_f97 a h), (publicBatchWrapper2_f98 a h), (publicBatchWrapper2_f99 a h), (publicBatchWrapper2_f100 a h), (publicBatchWrapper2_f101 a h), (publicBatchWrapper2_f102 a h), (publicBatchWrapper2_f103 a h)]
+  simp only [(publicBatchWrapper2_f96 a h), (publicBatchWrapper2_f97 a h), (publicBatchWrapper2_f98 a h), (publicBatchWrapper2_f99 a h), (publicBatchWrapper2_f100 a h), (publicBatchWrapper2_f101 a h), (publicBatchWrapper2_f102 a h), (publicBatchWrapper2_f103 a h)]
   rw [kzero, hd]
   rfl
 
 /-- The take wire of inner `i` (`is_real` for inner 0, where the scan folds). -/
-def takeWire : Fin 2 → Target
+noncomputable def takeWire : Fin 2 → Target
   | 0 => .wire 2 67
   | 1 => .wire 3 59
   | _ => .wire 2 67
@@ -467,14 +467,14 @@ theorem exitFwd (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
     (out a).exitSlots = (forwardedSlotsF (rows a)).map valSlot := by
   simp only [out, forwardedSlotsF, rows, List.map_cons, List.map_nil,
     List.flatten_cons, List.flatten_nil]
-  rw [exitChunk_eq_0 a h, exitChunk_eq_1 a h]
+  simp only [exitChunk_eq_0 a h, exitChunk_eq_1 a h]
   rfl
 
 theorem nullFwd (a : Assignment p) (h : Satisfies (publicBatchWrapper2 p) a) :
     (out a).nullifiers = (forwardedNullsF (rows a)).map valDigest := by
   simp only [out, forwardedNullsF, rows, List.map_cons, List.map_nil,
     List.flatten_cons, List.flatten_nil]
-  rw [nullChunk_eq_0 a h, nullChunk_eq_1 a h]
+  simp only [nullChunk_eq_0 a h, nullChunk_eq_1 a h]
   rfl
 
 /-- **The recorded public-batch wrapper satisfies `RPublicBatch`.** Every satisfying
@@ -524,17 +524,21 @@ theorem sound (ro : RandomOracle) (hpg : WormholeSpec.goldilocks ≤ p)
 
 /-- The wrapper with its recursion gadgets: `verify_proof` under the `2`-leaf private-batch
     verifier key on each `inner_pis_i`. -/
-def tree : Recursive p :=
+noncomputable def tree : Recursive p :=
   .node "public_batch_wrapper_n2" (publicBatchWrapper2 p)
     [(Wrapper2.tree, List.ofFn (innerPis 0)),
      (Wrapper2.tree, List.ofFn (innerPis 1))]
 
 theorem pisEq_0 :
     List.ofFn (innerPis 0) = (publicBatchWrapper2.verifiers[0]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper2.inner_pis_0 = _
+  simp only [publicBatchWrapper2.inner_pis_0, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 theorem pisEq_1 :
     List.ofFn (innerPis 1) = (publicBatchWrapper2.verifiers[1]'(by decide)).2 := by
+  show List.ofFn publicBatchWrapper2.inner_pis_1 = _
+  simp only [publicBatchWrapper2.inner_pis_1, List.ofFn_vecCons, List.ofFn_zero]
   rfl
 
 /-- The tree's gadgets are the recorded ones. -/

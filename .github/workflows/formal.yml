@@ -9,21 +9,20 @@
 # `*_lean_is_current` tests fail if the Rust gates drift from the checked-in Lean. `scope`
 # skips the Lean job for such pull requests (a skipped job satisfies a required check).
 #
-# The package's own `.lake/build` is cached between runs (mathlib's comes from
-# `lake exe cache get`). Lake rebuilds by content hash, so a restored cache skips every
-# module whose sources are unchanged; the key is exact on the sources, with a fallback to
-# the most recent cache for the same toolchain and manifest — on a pull request, `main`'s,
-# since a branch sees only its own entries and `main`'s. This is the only cache the job
-# writes: `lean-action`'s own, keyed by commit and 3 GB a piece, is turned off because a
-# few of them evict everything else under the repository's 10 GB cap. A change to a module
-# everything imports (`Plonky2Spec/Wiring.lean`) still pays a cold build, once.
+# Nothing of the package's own build is cached between runs; only mathlib's `.olean`s are
+# fetched (`lake exe cache get`). Every run is a cold build, and the generated data
+# definitions are `noncomputable` so that it fits the runner: Lean's compiler on a
+# `def` holding a 10^5-entry table costs more time than the proofs that use it and
+# 20× its `.olean` size, and nothing executes those definitions (the proofs are
+# `decide +kernel` and `rfl`, which the kernel reduces itself).
 #
-# The production public wrapper (`Plonky2BridgeProduction`, `n_inner = 86`) is most of a
-# cold build — some 19,000 generated gadget-fact theorems and 86 forwarding modules — and
-# is built only with `full`: `ci.yml` sets it on pushes to `main` and on pull requests
-# carrying `release-proposal` or `formal-full`; `formal-full.yml` sets it when one of
-# those labels is added to an open pull request. Every pull request builds the
-# `n_inner = 2` and `4` shapes of the same capstone.
+# The production wrappers (`Plonky2BridgeProduction`: the `n_inner = 86` public wrapper,
+# some 19,000 generated gadget-fact theorems and 86 forwarding modules, and the 8-leaf
+# private wrapper, whose build certificate is over half of a cold build) are built only
+# with `full`: `ci.yml` sets it on pushes to `main` and on pull requests carrying
+# `release-proposal` or `formal-full`; `formal-full.yml` sets it when one of those labels
+# is added to an open pull request. Every pull request builds the `n_inner = 2` and `4`
+# and `n = 2` and `4` shapes of the same capstones.
 name: Formal
 
 on:
@@ -74,16 +73,6 @@ jobs:
       FORMAL_FULL: ${{ inputs.full }}
     steps:
       - uses: actions/checkout@v4
-      - name: Restore Lean build cache
-        id: lean-cache
-        uses: actions/cache/restore@v4
-        with:
-          path: |
-            formal/.lake/build
-            formal/.lake/packages/wormholeSpec/formal/.lake/build
-          key: lean-${{ runner.os }}-${{ hashFiles('formal/lean-toolchain', 'formal/lake-manifest.json') }}-${{ hashFiles('formal/**/*.lean') }}
-          restore-keys: |
-            lean-${{ runner.os }}-${{ hashFiles('formal/lean-toolchain', 'formal/lake-manifest.json') }}-
       # Builds the Lean 4 gadget→constraint model under `formal/` (see formal/PLAN.md).
       # `lake build` type-checks every proof in the kernel, so a later edit that
       # breaks a proof fails CI instead of rotting silently. elan/lake come from
@@ -125,16 +114,6 @@ jobs:
       - name: Build Plonky2BridgeProduction (n_inner = 86)
         if: env.FORMAL_FULL == 'true'
         run: cd formal && lake build Plonky2BridgeProduction
-      # Save whatever was built, even after a failure, so the next run resumes from it.
-      # An exact hit needs no save; a save on an existing key is a no-op with a warning.
-      - name: Save Lean build cache
-        if: always() && steps.lean-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            formal/.lake/build
-            formal/.lake/packages/wormholeSpec/formal/.lake/build
-          key: ${{ steps.lean-cache.outputs.cache-primary-key }}
       # The exporter's `Generated/*Wrapper*.lean` are produced from the vendored copies of
       # the qp-zk-circuits gadget-call traces in `constraint-exporter/traces/`. The only job
       # with the pinned `wormholeSpec` package on disk is this one (after `lake build`), so
@@ -226,32 +205,32 @@ jobs:
           expect Plonky2Bridge.Built.Agrees.hashesPublicInputs propext Quot.sound
           expect Plonky2Bridge.LeafCircuit.build_hashes_of_agrees propext Quot.sound
           expect Plonky2Bridge.LeafCircuit.build_hashes propext Quot.sound "${leaf_cert[@]}"
-          for n in 2 4 8; do
+          wrapper_sizes=(2 4)
+          if [ "$FORMAL_FULL" = true ]; then
+            wrapper_sizes+=(8)
+          fi
+          for n in "${wrapper_sizes[@]}"; do
             expect Plonky2Bridge.Wrapper$n.build_refines_of_agrees propext Quot.sound
             expect Plonky2Bridge.Wrapper$n.build_hashes_of_agrees propext Quot.sound
             expect Plonky2Bridge.Wrapper$n.build_refines propext Quot.sound Plonky2Bridge.Wrapper$n.build_agrees
             expect Plonky2Bridge.Wrapper$n.build_hashes propext Quot.sound Plonky2Bridge.Wrapper$n.build_agrees
             expect Plonky2Bridge.Wrapper$n.build_complete propext Quot.sound Plonky2Bridge.Wrapper$n.build_agrees
+            expect Plonky2Bridge.Wrapper$n.sound "${base[@]}"
+            expect Plonky2Bridge.Wrapper$n.accepted_sound "${base[@]}" "${wrapper_trusted[@]}" Plonky2Bridge.Wrapper$n.build_agrees
           done
           expect Plonky2Bridge.private_batch_end_to_end "${base[@]}"
           expect Plonky2Bridge.public_batch_end_to_end "${base[@]}"
           expect Plonky2Bridge.private_batch_end_to_end_wired "${base[@]}" "${leaf_trusted[@]}" "${leaf_cert[@]}"
           expect Plonky2Bridge.private_batch_end_to_end_wired_n4 "${base[@]}" "${leaf_trusted[@]}" "${leaf_cert[@]}"
-          expect Plonky2Bridge.private_batch_end_to_end_wired_production "${base[@]}" "${leaf_trusted[@]}" "${leaf_cert[@]}"
           expect Plonky2Bridge.public_batch_end_to_end_wired "${base[@]}" "${wrapper_trusted[@]}" Plonky2Bridge.Wrapper2.build_agrees
           expect Plonky2Bridge.public_batch_end_to_end_wired_n4 "${base[@]}" "${wrapper_trusted[@]}" Plonky2Bridge.Wrapper2.build_agrees
           expect Plonky2Bridge.LeafCircuit.accepted_sound "${base[@]}" "${leaf_trusted[@]}" "${leaf_cert[@]}"
-          expect Plonky2Bridge.Wrapper2.accepted_sound "${base[@]}" "${wrapper_trusted[@]}" Plonky2Bridge.Wrapper2.build_agrees
-          expect Plonky2Bridge.Wrapper4.accepted_sound "${base[@]}" "${wrapper_trusted[@]}" Plonky2Bridge.Wrapper4.build_agrees
-          expect Plonky2Bridge.Wrapper8.accepted_sound "${base[@]}" "${wrapper_trusted[@]}" Plonky2Bridge.Wrapper8.build_agrees
-          expect Plonky2Bridge.Wrapper2.sound "${base[@]}"
-          expect Plonky2Bridge.Wrapper4.sound "${base[@]}"
-          expect Plonky2Bridge.Wrapper8.sound "${base[@]}"
           expect Plonky2Bridge.PublicWrapper2.sound "${base[@]}"
           expect Plonky2Bridge.PublicWrapper4.sound "${base[@]}"
           expect Plonky2Bridge.leaf_wired "${base[@]}"
           expect Plonky2Bridge.LeafCircuit.sound "${base[@]}"
           if [ "$FORMAL_FULL" = true ]; then
+            expect Plonky2Bridge.private_batch_end_to_end_wired_production "${base[@]}" "${leaf_trusted[@]}" "${leaf_cert[@]}"
             expect Plonky2Bridge.public_batch_end_to_end_wired_production "${base[@]}" "${wrapper_trusted[@]}" Plonky2Bridge.Wrapper8.build_agrees
             expect Plonky2Bridge.PublicWrapper86.sound "${base[@]}"
           fi

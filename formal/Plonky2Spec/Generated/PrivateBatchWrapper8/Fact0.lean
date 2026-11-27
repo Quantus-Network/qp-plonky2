@@ -47,16 +47,16 @@ theorem privateBatchWrapper8_f0 (a : Assignment p) (h : Satisfies (privateBatchW
   have c13 := (privateBatchWrapper8_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_1_3 := arithEq_of_rows h (row := 1) (i := 3) rfl (by decide)
+  have e_1_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_3
   simp only [← c3, ← c4, ← c5] at e_1_3
-  have e_1_4 := arithEq_of_rows h (row := 1) (i := 4) rfl (by decide)
+  have e_1_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_4
   simp only [← c6, ← c7, ← c8] at e_1_4
-  have e_2_0 := arithEq_of_rows h (row := 2) (i := 0) rfl (by decide)
+  have e_2_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row2 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_0
   simp only [← c0, k3, ← c1, k3, ← c2] at e_2_0
-  have e_2_1 := arithEq_of_rows h (row := 2) (i := 1) rfl (by decide)
+  have e_2_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row2 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_1
   simp only [← c9, ← c10, k3, ← c11] at e_2_1
   simp only [k2]
@@ -85,16 +85,16 @@ theorem privateBatchWrapper8_f1 (a : Assignment p) (h : Satisfies (privateBatchW
   have c27 := (privateBatchWrapper8_copies0 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_1_5 := arithEq_of_rows h (row := 1) (i := 5) rfl (by decide)
+  have e_1_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_5
   simp only [← c17, ← c18, ← c19] at e_1_5
-  have e_1_6 := arithEq_of_rows h (row := 1) (i := 6) rfl (by decide)
+  have e_1_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_6
   simp only [← c20, ← c21, ← c22] at e_1_6
-  have e_2_2 := arithEq_of_rows h (row := 2) (i := 2) rfl (by decide)
+  have e_2_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row2 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_2
   simp only [← c14, k3, ← c15, k3, ← c16] at e_2_2
-  have e_2_3 := arithEq_of_rows h (row := 2) (i := 3) rfl (by decide)
+  have e_2_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row2 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_3
   simp only [← c23, ← c24, k3, ← c25] at e_2_3
   simp only [k2]
@@ -123,16 +123,16 @@ theorem privateBatchWrapper8_f2 (a : Assignment p) (h : Satisfies (privateBatchW
   have c41 := (privateBatchWrapper8_copies1 a h).2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_1_7 := arithEq_of_rows h (row := 1) (i := 7) rfl (by decide)
+  have e_1_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_7
   simp only [← c31, ← c32, ← c33] at e_1_7
-  have e_1_8 := arithEq_of_rows h (row := 1) (i := 8) rfl (by decide)
+  have e_1_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_8
   simp only [← c34, ← c35, ← c36] at e_1_8
-  have e_2_4 := arithEq_of_rows h (row := 2) (i := 4) rfl (by decide)
+  have e_2_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row2 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_4
   simp only [← c28, k3, ← c29, k3, ← c30] at e_2_4
-  have e_2_5 := arithEq_of_rows h (row := 2) (i := 5) rfl (by decide)
+  have e_2_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row2 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_5
   simp only [← c37, ← c38, k3, ← c39] at e_2_5
   simp only [k2]
@@ -161,16 +161,16 @@ theorem privateBatchWrapper8_f3 (a : Assignment p) (h : Satisfies (privateBatchW
   have c55 := (privateBatchWrapper8_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_1_9 := arithEq_of_rows h (row := 1) (i := 9) rfl (by decide)
+  have e_1_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_9
   simp only [← c45, ← c46, ← c47] at e_1_9
-  have e_1_10 := arithEq_of_rows h (row := 1) (i := 10) rfl (by decide)
+  have e_1_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_10
   simp only [← c48, ← c49, ← c50] at e_1_10
-  have e_2_6 := arithEq_of_rows h (row := 2) (i := 6) rfl (by decide)
+  have e_2_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row2 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_6
   simp only [← c42, k3, ← c43, k3, ← c44] at e_2_6
-  have e_2_7 := arithEq_of_rows h (row := 2) (i := 7) rfl (by decide)
+  have e_2_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row2 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_7
   simp only [← c51, ← c52, k3, ← c53] at e_2_7
   simp only [k2]
@@ -186,7 +186,7 @@ theorem privateBatchWrapper8_f4 (a : Assignment p) (h : Satisfies (privateBatchW
   have c56 := (privateBatchWrapper8_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c57 := (privateBatchWrapper8_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c58 := (privateBatchWrapper8_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_1_11 := arithEq_of_rows h (row := 1) (i := 11) rfl (by decide)
+  have e_1_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_11
   simp only [← c56, ← c57, ← c58] at e_1_11
   have hr := e_1_11
@@ -198,7 +198,7 @@ theorem privateBatchWrapper8_f5 (a : Assignment p) (h : Satisfies (privateBatchW
   have c59 := (privateBatchWrapper8_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c60 := (privateBatchWrapper8_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c61 := (privateBatchWrapper8_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_1_12 := arithEq_of_rows h (row := 1) (i := 12) rfl (by decide)
+  have e_1_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_12
   simp only [← c59, ← c60, ← c61] at e_1_12
   have hr := e_1_12
@@ -210,7 +210,7 @@ theorem privateBatchWrapper8_f6 (a : Assignment p) (h : Satisfies (privateBatchW
   have c62 := (privateBatchWrapper8_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c63 := (privateBatchWrapper8_copies1 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c64 := (privateBatchWrapper8_copies2 a h).1
-  have e_1_13 := arithEq_of_rows h (row := 1) (i := 13) rfl (by decide)
+  have e_1_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_13
   simp only [← c62, ← c63, ← c64] at e_1_13
   have hr := e_1_13
@@ -235,16 +235,16 @@ theorem privateBatchWrapper8_f7 (a : Assignment p) (h : Satisfies (privateBatchW
   have c78 := (privateBatchWrapper8_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_1_14 := arithEq_of_rows h (row := 1) (i := 14) rfl (by decide)
+  have e_1_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row1 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_1_14
   simp only [← c68, ← c69, ← c70] at e_1_14
-  have e_2_8 := arithEq_of_rows h (row := 2) (i := 8) rfl (by decide)
+  have e_2_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row2 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_8
   simp only [← c65, k3, ← c66, k3, ← c67] at e_2_8
-  have e_2_9 := arithEq_of_rows h (row := 2) (i := 9) rfl (by decide)
+  have e_2_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row2 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_9
   simp only [← c74, ← c75, k3, ← c76] at e_2_9
-  have e_3_0 := arithEq_of_rows h (row := 3) (i := 0) rfl (by decide)
+  have e_3_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row3 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_0
   simp only [← c71, ← c72, ← c73] at e_3_0
   simp only [k2]
@@ -273,16 +273,16 @@ theorem privateBatchWrapper8_f8 (a : Assignment p) (h : Satisfies (privateBatchW
   have c92 := (privateBatchWrapper8_copies2 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_2_10 := arithEq_of_rows h (row := 2) (i := 10) rfl (by decide)
+  have e_2_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row2 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_10
   simp only [← c79, k3, ← c80, k3, ← c81] at e_2_10
-  have e_2_11 := arithEq_of_rows h (row := 2) (i := 11) rfl (by decide)
+  have e_2_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row2 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_11
   simp only [← c88, ← c89, k3, ← c90] at e_2_11
-  have e_3_1 := arithEq_of_rows h (row := 3) (i := 1) rfl (by decide)
+  have e_3_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row3 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_1
   simp only [← c82, ← c83, ← c84] at e_3_1
-  have e_3_2 := arithEq_of_rows h (row := 3) (i := 2) rfl (by decide)
+  have e_3_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row3 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_2
   simp only [← c85, ← c86, ← c87] at e_3_2
   simp only [k2]
@@ -311,16 +311,16 @@ theorem privateBatchWrapper8_f9 (a : Assignment p) (h : Satisfies (privateBatchW
   have c106 := (privateBatchWrapper8_copies3 a h).2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_2_12 := arithEq_of_rows h (row := 2) (i := 12) rfl (by decide)
+  have e_2_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row2 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_12
   simp only [← c93, k3, ← c94, k3, ← c95] at e_2_12
-  have e_2_13 := arithEq_of_rows h (row := 2) (i := 13) rfl (by decide)
+  have e_2_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row2 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_13
   simp only [← c102, ← c103, k3, ← c104] at e_2_13
-  have e_3_3 := arithEq_of_rows h (row := 3) (i := 3) rfl (by decide)
+  have e_3_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row3 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_3
   simp only [← c96, ← c97, ← c98] at e_3_3
-  have e_3_4 := arithEq_of_rows h (row := 3) (i := 4) rfl (by decide)
+  have e_3_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row3 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_4
   simp only [← c99, ← c100, ← c101] at e_3_4
   simp only [k2]
@@ -349,16 +349,16 @@ theorem privateBatchWrapper8_f10 (a : Assignment p) (h : Satisfies (privateBatch
   have c120 := (privateBatchWrapper8_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_2_14 := arithEq_of_rows h (row := 2) (i := 14) rfl (by decide)
+  have e_2_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row2 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_2_14
   simp only [← c107, k3, ← c108, k3, ← c109] at e_2_14
-  have e_3_5 := arithEq_of_rows h (row := 3) (i := 5) rfl (by decide)
+  have e_3_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row3 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_5
   simp only [← c110, ← c111, ← c112] at e_3_5
-  have e_3_6 := arithEq_of_rows h (row := 3) (i := 6) rfl (by decide)
+  have e_3_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row3 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_6
   simp only [← c113, ← c114, ← c115] at e_3_6
-  have e_4_0 := arithEq_of_rows h (row := 4) (i := 0) rfl (by decide)
+  have e_4_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row4 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_0
   simp only [← c116, ← c117, k3, ← c118] at e_4_0
   simp only [k2]
@@ -374,7 +374,7 @@ theorem privateBatchWrapper8_f11 (a : Assignment p) (h : Satisfies (privateBatch
   have c121 := (privateBatchWrapper8_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c122 := (privateBatchWrapper8_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c123 := (privateBatchWrapper8_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_3_7 := arithEq_of_rows h (row := 3) (i := 7) rfl (by decide)
+  have e_3_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row3 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_7
   simp only [← c121, ← c122, ← c123] at e_3_7
   have hr := e_3_7
@@ -386,7 +386,7 @@ theorem privateBatchWrapper8_f12 (a : Assignment p) (h : Satisfies (privateBatch
   have c124 := (privateBatchWrapper8_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c125 := (privateBatchWrapper8_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c126 := (privateBatchWrapper8_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_3_8 := arithEq_of_rows h (row := 3) (i := 8) rfl (by decide)
+  have e_3_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row3 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_8
   simp only [← c124, ← c125, ← c126] at e_3_8
   have hr := e_3_8
@@ -398,7 +398,7 @@ theorem privateBatchWrapper8_f13 (a : Assignment p) (h : Satisfies (privateBatch
   have c127 := (privateBatchWrapper8_copies3 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c128 := (privateBatchWrapper8_copies4 a h).1
   have c129 := (privateBatchWrapper8_copies4 a h).2.1
-  have e_3_9 := arithEq_of_rows h (row := 3) (i := 9) rfl (by decide)
+  have e_3_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row3 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_9
   simp only [← c127, ← c128, ← c129] at e_3_9
   have hr := e_3_9
@@ -423,16 +423,16 @@ theorem privateBatchWrapper8_f14 (a : Assignment p) (h : Satisfies (privateBatch
   have c143 := (privateBatchWrapper8_copies4 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_3_10 := arithEq_of_rows h (row := 3) (i := 10) rfl (by decide)
+  have e_3_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row3 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_10
   simp only [← c133, ← c134, ← c135] at e_3_10
-  have e_3_11 := arithEq_of_rows h (row := 3) (i := 11) rfl (by decide)
+  have e_3_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row3 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_11
   simp only [← c136, ← c137, ← c138] at e_3_11
-  have e_4_1 := arithEq_of_rows h (row := 4) (i := 1) rfl (by decide)
+  have e_4_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row4 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_1
   simp only [← c130, k3, ← c131, k3, ← c132] at e_4_1
-  have e_4_2 := arithEq_of_rows h (row := 4) (i := 2) rfl (by decide)
+  have e_4_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row4 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_2
   simp only [← c139, ← c140, k3, ← c141] at e_4_2
   simp only [k2]
@@ -461,16 +461,16 @@ theorem privateBatchWrapper8_f15 (a : Assignment p) (h : Satisfies (privateBatch
   have c157 := (privateBatchWrapper8_copies4 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_3_12 := arithEq_of_rows h (row := 3) (i := 12) rfl (by decide)
+  have e_3_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row3 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_12
   simp only [← c147, ← c148, ← c149] at e_3_12
-  have e_3_13 := arithEq_of_rows h (row := 3) (i := 13) rfl (by decide)
+  have e_3_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row3 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_13
   simp only [← c150, ← c151, ← c152] at e_3_13
-  have e_4_3 := arithEq_of_rows h (row := 4) (i := 3) rfl (by decide)
+  have e_4_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row4 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_3
   simp only [← c144, k3, ← c145, k3, ← c146] at e_4_3
-  have e_4_4 := arithEq_of_rows h (row := 4) (i := 4) rfl (by decide)
+  have e_4_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row4 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_4
   simp only [← c153, ← c154, k3, ← c155] at e_4_4
   simp only [k2]
@@ -499,16 +499,16 @@ theorem privateBatchWrapper8_f16 (a : Assignment p) (h : Satisfies (privateBatch
   have c171 := (privateBatchWrapper8_copies5 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_3_14 := arithEq_of_rows h (row := 3) (i := 14) rfl (by decide)
+  have e_3_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row3 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_3_14
   simp only [← c161, ← c162, ← c163] at e_3_14
-  have e_4_5 := arithEq_of_rows h (row := 4) (i := 5) rfl (by decide)
+  have e_4_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row4 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_5
   simp only [← c158, k3, ← c159, k3, ← c160] at e_4_5
-  have e_4_6 := arithEq_of_rows h (row := 4) (i := 6) rfl (by decide)
+  have e_4_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row4 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_6
   simp only [← c167, ← c168, k3, ← c169] at e_4_6
-  have e_5_0 := arithEq_of_rows h (row := 5) (i := 0) rfl (by decide)
+  have e_5_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row5 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_0
   simp only [← c164, ← c165, ← c166] at e_5_0
   simp only [k2]
@@ -537,16 +537,16 @@ theorem privateBatchWrapper8_f17 (a : Assignment p) (h : Satisfies (privateBatch
   have c185 := (privateBatchWrapper8_copies5 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_4_7 := arithEq_of_rows h (row := 4) (i := 7) rfl (by decide)
+  have e_4_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row4 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_7
   simp only [← c172, k3, ← c173, k3, ← c174] at e_4_7
-  have e_4_8 := arithEq_of_rows h (row := 4) (i := 8) rfl (by decide)
+  have e_4_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row4 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_8
   simp only [← c181, ← c182, k3, ← c183] at e_4_8
-  have e_5_1 := arithEq_of_rows h (row := 5) (i := 1) rfl (by decide)
+  have e_5_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row5 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_1
   simp only [← c175, ← c176, ← c177] at e_5_1
-  have e_5_2 := arithEq_of_rows h (row := 5) (i := 2) rfl (by decide)
+  have e_5_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row5 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_2
   simp only [← c178, ← c179, ← c180] at e_5_2
   simp only [k2]
@@ -562,7 +562,7 @@ theorem privateBatchWrapper8_f18 (a : Assignment p) (h : Satisfies (privateBatch
   have c186 := (privateBatchWrapper8_copies5 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c187 := (privateBatchWrapper8_copies5 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c188 := (privateBatchWrapper8_copies5 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_5_3 := arithEq_of_rows h (row := 5) (i := 3) rfl (by decide)
+  have e_5_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row5 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_3
   simp only [← c186, ← c187, ← c188] at e_5_3
   have hr := e_5_3
@@ -574,7 +574,7 @@ theorem privateBatchWrapper8_f19 (a : Assignment p) (h : Satisfies (privateBatch
   have c189 := (privateBatchWrapper8_copies5 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c190 := (privateBatchWrapper8_copies5 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c191 := (privateBatchWrapper8_copies5 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have e_5_4 := arithEq_of_rows h (row := 5) (i := 4) rfl (by decide)
+  have e_5_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row5 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_4
   simp only [← c189, ← c190, ← c191] at e_5_4
   have hr := e_5_4
@@ -586,7 +586,7 @@ theorem privateBatchWrapper8_f20 (a : Assignment p) (h : Satisfies (privateBatch
   have c192 := (privateBatchWrapper8_copies6 a h).1
   have c193 := (privateBatchWrapper8_copies6 a h).2.1
   have c194 := (privateBatchWrapper8_copies6 a h).2.2.1
-  have e_5_5 := arithEq_of_rows h (row := 5) (i := 5) rfl (by decide)
+  have e_5_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row5 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_5
   simp only [← c192, ← c193, ← c194] at e_5_5
   have hr := e_5_5
@@ -611,16 +611,16 @@ theorem privateBatchWrapper8_f21 (a : Assignment p) (h : Satisfies (privateBatch
   have c208 := (privateBatchWrapper8_copies6 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_4_9 := arithEq_of_rows h (row := 4) (i := 9) rfl (by decide)
+  have e_4_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row4 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_9
   simp only [← c195, k3, ← c196, k3, ← c197] at e_4_9
-  have e_4_10 := arithEq_of_rows h (row := 4) (i := 10) rfl (by decide)
+  have e_4_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row4 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_10
   simp only [← c204, ← c205, k3, ← c206] at e_4_10
-  have e_5_6 := arithEq_of_rows h (row := 5) (i := 6) rfl (by decide)
+  have e_5_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row5 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_6
   simp only [← c198, ← c199, ← c200] at e_5_6
-  have e_5_7 := arithEq_of_rows h (row := 5) (i := 7) rfl (by decide)
+  have e_5_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row5 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_7
   simp only [← c201, ← c202, ← c203] at e_5_7
   simp only [k2]
@@ -649,16 +649,16 @@ theorem privateBatchWrapper8_f22 (a : Assignment p) (h : Satisfies (privateBatch
   have c222 := (privateBatchWrapper8_copies6 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_4_11 := arithEq_of_rows h (row := 4) (i := 11) rfl (by decide)
+  have e_4_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row4 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_11
   simp only [← c209, k3, ← c210, k3, ← c211] at e_4_11
-  have e_4_12 := arithEq_of_rows h (row := 4) (i := 12) rfl (by decide)
+  have e_4_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row4 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_12
   simp only [← c218, ← c219, k3, ← c220] at e_4_12
-  have e_5_8 := arithEq_of_rows h (row := 5) (i := 8) rfl (by decide)
+  have e_5_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row5 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_8
   simp only [← c212, ← c213, ← c214] at e_5_8
-  have e_5_9 := arithEq_of_rows h (row := 5) (i := 9) rfl (by decide)
+  have e_5_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row5 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_9
   simp only [← c215, ← c216, ← c217] at e_5_9
   simp only [k2]
@@ -687,16 +687,16 @@ theorem privateBatchWrapper8_f23 (a : Assignment p) (h : Satisfies (privateBatch
   have c236 := (privateBatchWrapper8_copies7 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_4_13 := arithEq_of_rows h (row := 4) (i := 13) rfl (by decide)
+  have e_4_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row4 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_13
   simp only [← c223, k3, ← c224, k3, ← c225] at e_4_13
-  have e_4_14 := arithEq_of_rows h (row := 4) (i := 14) rfl (by decide)
+  have e_4_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row4 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_4_14
   simp only [← c232, ← c233, k3, ← c234] at e_4_14
-  have e_5_10 := arithEq_of_rows h (row := 5) (i := 10) rfl (by decide)
+  have e_5_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row5 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_10
   simp only [← c226, ← c227, ← c228] at e_5_10
-  have e_5_11 := arithEq_of_rows h (row := 5) (i := 11) rfl (by decide)
+  have e_5_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row5 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_11
   simp only [← c229, ← c230, ← c231] at e_5_11
   simp only [k2]
@@ -725,16 +725,16 @@ theorem privateBatchWrapper8_f24 (a : Assignment p) (h : Satisfies (privateBatch
   have c250 := (privateBatchWrapper8_copies7 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_5_12 := arithEq_of_rows h (row := 5) (i := 12) rfl (by decide)
+  have e_5_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row5 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_12
   simp only [← c240, ← c241, ← c242] at e_5_12
-  have e_5_13 := arithEq_of_rows h (row := 5) (i := 13) rfl (by decide)
+  have e_5_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row5 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_13
   simp only [← c243, ← c244, ← c245] at e_5_13
-  have e_6_0 := arithEq_of_rows h (row := 6) (i := 0) rfl (by decide)
+  have e_6_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row6 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_0
   simp only [← c237, k3, ← c238, k3, ← c239] at e_6_0
-  have e_6_1 := arithEq_of_rows h (row := 6) (i := 1) rfl (by decide)
+  have e_6_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row6 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_1
   simp only [← c246, ← c247, k3, ← c248] at e_6_1
   simp only [k2]
@@ -750,7 +750,7 @@ theorem privateBatchWrapper8_f25 (a : Assignment p) (h : Satisfies (privateBatch
   have c251 := (privateBatchWrapper8_copies7 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c252 := (privateBatchWrapper8_copies7 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c253 := (privateBatchWrapper8_copies7 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_5_14 := arithEq_of_rows h (row := 5) (i := 14) rfl (by decide)
+  have e_5_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row5 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_5_14
   simp only [← c251, ← c252, ← c253] at e_5_14
   have hr := e_5_14
@@ -762,7 +762,7 @@ theorem privateBatchWrapper8_f26 (a : Assignment p) (h : Satisfies (privateBatch
   have c254 := (privateBatchWrapper8_copies7 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c255 := (privateBatchWrapper8_copies7 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c256 := (privateBatchWrapper8_copies8 a h).1
-  have e_7_0 := arithEq_of_rows h (row := 7) (i := 0) rfl (by decide)
+  have e_7_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row7 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_0
   simp only [← c254, ← c255, ← c256] at e_7_0
   have hr := e_7_0
@@ -774,7 +774,7 @@ theorem privateBatchWrapper8_f27 (a : Assignment p) (h : Satisfies (privateBatch
   have c257 := (privateBatchWrapper8_copies8 a h).2.1
   have c258 := (privateBatchWrapper8_copies8 a h).2.2.1
   have c259 := (privateBatchWrapper8_copies8 a h).2.2.2.1
-  have e_7_1 := arithEq_of_rows h (row := 7) (i := 1) rfl (by decide)
+  have e_7_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row7 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_1
   simp only [← c257, ← c258, ← c259] at e_7_1
   have hr := e_7_1
@@ -799,16 +799,16 @@ theorem privateBatchWrapper8_f28 (a : Assignment p) (h : Satisfies (privateBatch
   have c273 := (privateBatchWrapper8_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_6_2 := arithEq_of_rows h (row := 6) (i := 2) rfl (by decide)
+  have e_6_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row6 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_2
   simp only [← c260, k3, ← c261, k3, ← c262] at e_6_2
-  have e_6_3 := arithEq_of_rows h (row := 6) (i := 3) rfl (by decide)
+  have e_6_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row6 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_3
   simp only [← c269, ← c270, k3, ← c271] at e_6_3
-  have e_7_2 := arithEq_of_rows h (row := 7) (i := 2) rfl (by decide)
+  have e_7_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row7 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_2
   simp only [← c263, ← c264, ← c265] at e_7_2
-  have e_7_3 := arithEq_of_rows h (row := 7) (i := 3) rfl (by decide)
+  have e_7_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row7 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_3
   simp only [← c266, ← c267, ← c268] at e_7_3
   simp only [k2]
@@ -837,16 +837,16 @@ theorem privateBatchWrapper8_f29 (a : Assignment p) (h : Satisfies (privateBatch
   have c287 := (privateBatchWrapper8_copies8 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_6_4 := arithEq_of_rows h (row := 6) (i := 4) rfl (by decide)
+  have e_6_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row6 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_4
   simp only [← c274, k3, ← c275, k3, ← c276] at e_6_4
-  have e_6_5 := arithEq_of_rows h (row := 6) (i := 5) rfl (by decide)
+  have e_6_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row6 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_5
   simp only [← c283, ← c284, k3, ← c285] at e_6_5
-  have e_7_4 := arithEq_of_rows h (row := 7) (i := 4) rfl (by decide)
+  have e_7_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row7 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_4
   simp only [← c277, ← c278, ← c279] at e_7_4
-  have e_7_5 := arithEq_of_rows h (row := 7) (i := 5) rfl (by decide)
+  have e_7_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row7 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_5
   simp only [← c280, ← c281, ← c282] at e_7_5
   simp only [k2]
@@ -875,16 +875,16 @@ theorem privateBatchWrapper8_f30 (a : Assignment p) (h : Satisfies (privateBatch
   have c301 := (privateBatchWrapper8_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_6_6 := arithEq_of_rows h (row := 6) (i := 6) rfl (by decide)
+  have e_6_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row6 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_6
   simp only [← c288, k3, ← c289, k3, ← c290] at e_6_6
-  have e_6_7 := arithEq_of_rows h (row := 6) (i := 7) rfl (by decide)
+  have e_6_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row6 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_7
   simp only [← c297, ← c298, k3, ← c299] at e_6_7
-  have e_7_6 := arithEq_of_rows h (row := 7) (i := 6) rfl (by decide)
+  have e_7_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row7 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_6
   simp only [← c291, ← c292, ← c293] at e_7_6
-  have e_7_7 := arithEq_of_rows h (row := 7) (i := 7) rfl (by decide)
+  have e_7_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row7 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_7
   simp only [← c294, ← c295, ← c296] at e_7_7
   simp only [k2]
@@ -913,16 +913,16 @@ theorem privateBatchWrapper8_f31 (a : Assignment p) (h : Satisfies (privateBatch
   have c315 := (privateBatchWrapper8_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_6_8 := arithEq_of_rows h (row := 6) (i := 8) rfl (by decide)
+  have e_6_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row6 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_8
   simp only [← c302, k3, ← c303, k3, ← c304] at e_6_8
-  have e_6_9 := arithEq_of_rows h (row := 6) (i := 9) rfl (by decide)
+  have e_6_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row6 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_9
   simp only [← c311, ← c312, k3, ← c313] at e_6_9
-  have e_7_8 := arithEq_of_rows h (row := 7) (i := 8) rfl (by decide)
+  have e_7_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row7 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_8
   simp only [← c305, ← c306, ← c307] at e_7_8
-  have e_7_9 := arithEq_of_rows h (row := 7) (i := 9) rfl (by decide)
+  have e_7_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row7 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_9
   simp only [← c308, ← c309, ← c310] at e_7_9
   simp only [k2]
@@ -938,7 +938,7 @@ theorem privateBatchWrapper8_f32 (a : Assignment p) (h : Satisfies (privateBatch
   have c316 := (privateBatchWrapper8_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c317 := (privateBatchWrapper8_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c318 := (privateBatchWrapper8_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_7_10 := arithEq_of_rows h (row := 7) (i := 10) rfl (by decide)
+  have e_7_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row7 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_10
   simp only [← c316, ← c317, ← c318] at e_7_10
   have hr := e_7_10
@@ -950,7 +950,7 @@ theorem privateBatchWrapper8_f33 (a : Assignment p) (h : Satisfies (privateBatch
   have c319 := (privateBatchWrapper8_copies9 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c320 := (privateBatchWrapper8_copies10 a h).1
   have c321 := (privateBatchWrapper8_copies10 a h).2.1
-  have e_7_11 := arithEq_of_rows h (row := 7) (i := 11) rfl (by decide)
+  have e_7_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row7 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_11
   simp only [← c319, ← c320, ← c321] at e_7_11
   have hr := e_7_11
@@ -962,7 +962,7 @@ theorem privateBatchWrapper8_f34 (a : Assignment p) (h : Satisfies (privateBatch
   have c322 := (privateBatchWrapper8_copies10 a h).2.2.1
   have c323 := (privateBatchWrapper8_copies10 a h).2.2.2.1
   have c324 := (privateBatchWrapper8_copies10 a h).2.2.2.2.1
-  have e_7_12 := arithEq_of_rows h (row := 7) (i := 12) rfl (by decide)
+  have e_7_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row7 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_12
   simp only [← c322, ← c323, ← c324] at e_7_12
   have hr := e_7_12
@@ -987,16 +987,16 @@ theorem privateBatchWrapper8_f35 (a : Assignment p) (h : Satisfies (privateBatch
   have c338 := (privateBatchWrapper8_copies10 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_6_10 := arithEq_of_rows h (row := 6) (i := 10) rfl (by decide)
+  have e_6_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row6 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_10
   simp only [← c325, k3, ← c326, k3, ← c327] at e_6_10
-  have e_6_11 := arithEq_of_rows h (row := 6) (i := 11) rfl (by decide)
+  have e_6_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row6 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_11
   simp only [← c334, ← c335, k3, ← c336] at e_6_11
-  have e_7_13 := arithEq_of_rows h (row := 7) (i := 13) rfl (by decide)
+  have e_7_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row7 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_13
   simp only [← c328, ← c329, ← c330] at e_7_13
-  have e_7_14 := arithEq_of_rows h (row := 7) (i := 14) rfl (by decide)
+  have e_7_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row7 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_7_14
   simp only [← c331, ← c332, ← c333] at e_7_14
   simp only [k2]
@@ -1025,16 +1025,16 @@ theorem privateBatchWrapper8_f36 (a : Assignment p) (h : Satisfies (privateBatch
   have c352 := (privateBatchWrapper8_copies11 a h).1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_6_12 := arithEq_of_rows h (row := 6) (i := 12) rfl (by decide)
+  have e_6_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row6 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_12
   simp only [← c339, k3, ← c340, k3, ← c341] at e_6_12
-  have e_6_13 := arithEq_of_rows h (row := 6) (i := 13) rfl (by decide)
+  have e_6_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row6 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_13
   simp only [← c348, ← c349, k3, ← c350] at e_6_13
-  have e_8_0 := arithEq_of_rows h (row := 8) (i := 0) rfl (by decide)
+  have e_8_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row8 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_8_0
   simp only [← c342, ← c343, ← c344] at e_8_0
-  have e_8_1 := arithEq_of_rows h (row := 8) (i := 1) rfl (by decide)
+  have e_8_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row8 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_8_1
   simp only [← c345, ← c346, ← c347] at e_8_1
   simp only [k2]
@@ -1063,16 +1063,16 @@ theorem privateBatchWrapper8_f37 (a : Assignment p) (h : Satisfies (privateBatch
   have c366 := (privateBatchWrapper8_copies11 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_6_14 := arithEq_of_rows h (row := 6) (i := 14) rfl (by decide)
+  have e_6_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row6 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_6_14
   simp only [← c353, k3, ← c354, k3, ← c355] at e_6_14
-  have e_8_2 := arithEq_of_rows h (row := 8) (i := 2) rfl (by decide)
+  have e_8_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row8 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_8_2
   simp only [← c356, ← c357, ← c358] at e_8_2
-  have e_8_3 := arithEq_of_rows h (row := 8) (i := 3) rfl (by decide)
+  have e_8_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row8 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_8_3
   simp only [← c359, ← c360, ← c361] at e_8_3
-  have e_9_0 := arithEq_of_rows h (row := 9) (i := 0) rfl (by decide)
+  have e_9_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row9 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_0
   simp only [← c362, ← c363, k3, ← c364] at e_9_0
   simp only [k2]
@@ -1101,16 +1101,16 @@ theorem privateBatchWrapper8_f38 (a : Assignment p) (h : Satisfies (privateBatch
   have c380 := (privateBatchWrapper8_copies11 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_8_4 := arithEq_of_rows h (row := 8) (i := 4) rfl (by decide)
+  have e_8_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row8 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_8_4
   simp only [← c370, ← c371, ← c372] at e_8_4
-  have e_8_5 := arithEq_of_rows h (row := 8) (i := 5) rfl (by decide)
+  have e_8_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row8 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_8_5
   simp only [← c373, ← c374, ← c375] at e_8_5
-  have e_9_1 := arithEq_of_rows h (row := 9) (i := 1) rfl (by decide)
+  have e_9_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row9 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_1
   simp only [← c367, k3, ← c368, k3, ← c369] at e_9_1
-  have e_9_2 := arithEq_of_rows h (row := 9) (i := 2) rfl (by decide)
+  have e_9_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row9 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_2
   simp only [← c376, ← c377, k3, ← c378] at e_9_2
   simp only [k2]
@@ -1126,7 +1126,7 @@ theorem privateBatchWrapper8_f39 (a : Assignment p) (h : Satisfies (privateBatch
   have c381 := (privateBatchWrapper8_copies11 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c382 := (privateBatchWrapper8_copies11 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c383 := (privateBatchWrapper8_copies11 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have e_8_6 := arithEq_of_rows h (row := 8) (i := 6) rfl (by decide)
+  have e_8_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row8 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_8_6
   simp only [← c381, ← c382, ← c383] at e_8_6
   have hr := e_8_6
@@ -1138,7 +1138,7 @@ theorem privateBatchWrapper8_f40 (a : Assignment p) (h : Satisfies (privateBatch
   have c384 := (privateBatchWrapper8_copies12 a h).1
   have c385 := (privateBatchWrapper8_copies12 a h).2.1
   have c386 := (privateBatchWrapper8_copies12 a h).2.2.1
-  have e_8_7 := arithEq_of_rows h (row := 8) (i := 7) rfl (by decide)
+  have e_8_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row8 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_8_7
   simp only [← c384, ← c385, ← c386] at e_8_7
   have hr := e_8_7
@@ -1150,7 +1150,7 @@ theorem privateBatchWrapper8_f41 (a : Assignment p) (h : Satisfies (privateBatch
   have c387 := (privateBatchWrapper8_copies12 a h).2.2.2.1
   have c388 := (privateBatchWrapper8_copies12 a h).2.2.2.2.1
   have c389 := (privateBatchWrapper8_copies12 a h).2.2.2.2.2.1
-  have e_8_8 := arithEq_of_rows h (row := 8) (i := 8) rfl (by decide)
+  have e_8_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row8 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_8_8
   simp only [← c387, ← c388, ← c389] at e_8_8
   have hr := e_8_8
@@ -1175,16 +1175,16 @@ theorem privateBatchWrapper8_f42 (a : Assignment p) (h : Satisfies (privateBatch
   have c403 := (privateBatchWrapper8_copies12 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_8_9 := arithEq_of_rows h (row := 8) (i := 9) rfl (by decide)
+  have e_8_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row8 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_8_9
   simp only [← c393, ← c394, ← c395] at e_8_9
-  have e_8_10 := arithEq_of_rows h (row := 8) (i := 10) rfl (by decide)
+  have e_8_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row8 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_8_10
   simp only [← c396, ← c397, ← c398] at e_8_10
-  have e_9_3 := arithEq_of_rows h (row := 9) (i := 3) rfl (by decide)
+  have e_9_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row9 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_3
   simp only [← c390, k3, ← c391, k3, ← c392] at e_9_3
-  have e_9_4 := arithEq_of_rows h (row := 9) (i := 4) rfl (by decide)
+  have e_9_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row9 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_4
   simp only [← c399, ← c400, k3, ← c401] at e_9_4
   simp only [k2]
@@ -1213,16 +1213,16 @@ theorem privateBatchWrapper8_f43 (a : Assignment p) (h : Satisfies (privateBatch
   have c417 := (privateBatchWrapper8_copies13 a h).2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_8_11 := arithEq_of_rows h (row := 8) (i := 11) rfl (by decide)
+  have e_8_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row8 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_8_11
   simp only [← c407, ← c408, ← c409] at e_8_11
-  have e_8_12 := arithEq_of_rows h (row := 8) (i := 12) rfl (by decide)
+  have e_8_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row8 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_8_12
   simp only [← c410, ← c411, ← c412] at e_8_12
-  have e_9_5 := arithEq_of_rows h (row := 9) (i := 5) rfl (by decide)
+  have e_9_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row9 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_5
   simp only [← c404, k3, ← c405, k3, ← c406] at e_9_5
-  have e_9_6 := arithEq_of_rows h (row := 9) (i := 6) rfl (by decide)
+  have e_9_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row9 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_6
   simp only [← c413, ← c414, k3, ← c415] at e_9_6
   simp only [k2]
@@ -1251,16 +1251,16 @@ theorem privateBatchWrapper8_f44 (a : Assignment p) (h : Satisfies (privateBatch
   have c431 := (privateBatchWrapper8_copies13 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_8_13 := arithEq_of_rows h (row := 8) (i := 13) rfl (by decide)
+  have e_8_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row8 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_8_13
   simp only [← c421, ← c422, ← c423] at e_8_13
-  have e_8_14 := arithEq_of_rows h (row := 8) (i := 14) rfl (by decide)
+  have e_8_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row8 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_8_14
   simp only [← c424, ← c425, ← c426] at e_8_14
-  have e_9_7 := arithEq_of_rows h (row := 9) (i := 7) rfl (by decide)
+  have e_9_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row9 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_7
   simp only [← c418, k3, ← c419, k3, ← c420] at e_9_7
-  have e_9_8 := arithEq_of_rows h (row := 9) (i := 8) rfl (by decide)
+  have e_9_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row9 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_8
   simp only [← c427, ← c428, k3, ← c429] at e_9_8
   simp only [k2]
@@ -1289,16 +1289,16 @@ theorem privateBatchWrapper8_f45 (a : Assignment p) (h : Satisfies (privateBatch
   have c445 := (privateBatchWrapper8_copies13 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_9_9 := arithEq_of_rows h (row := 9) (i := 9) rfl (by decide)
+  have e_9_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row9 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_9
   simp only [← c432, k3, ← c433, k3, ← c434] at e_9_9
-  have e_9_10 := arithEq_of_rows h (row := 9) (i := 10) rfl (by decide)
+  have e_9_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row9 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_10
   simp only [← c441, ← c442, k3, ← c443] at e_9_10
-  have e_10_0 := arithEq_of_rows h (row := 10) (i := 0) rfl (by decide)
+  have e_10_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row10 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_0
   simp only [← c435, ← c436, ← c437] at e_10_0
-  have e_10_1 := arithEq_of_rows h (row := 10) (i := 1) rfl (by decide)
+  have e_10_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row10 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_1
   simp only [← c438, ← c439, ← c440] at e_10_1
   simp only [k2]
@@ -1314,7 +1314,7 @@ theorem privateBatchWrapper8_f46 (a : Assignment p) (h : Satisfies (privateBatch
   have c446 := (privateBatchWrapper8_copies13 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c447 := (privateBatchWrapper8_copies13 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c448 := (privateBatchWrapper8_copies14 a h).1
-  have e_10_2 := arithEq_of_rows h (row := 10) (i := 2) rfl (by decide)
+  have e_10_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row10 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_2
   simp only [← c446, ← c447, ← c448] at e_10_2
   have hr := e_10_2
@@ -1326,7 +1326,7 @@ theorem privateBatchWrapper8_f47 (a : Assignment p) (h : Satisfies (privateBatch
   have c449 := (privateBatchWrapper8_copies14 a h).2.1
   have c450 := (privateBatchWrapper8_copies14 a h).2.2.1
   have c451 := (privateBatchWrapper8_copies14 a h).2.2.2.1
-  have e_10_3 := arithEq_of_rows h (row := 10) (i := 3) rfl (by decide)
+  have e_10_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row10 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_3
   simp only [← c449, ← c450, ← c451] at e_10_3
   have hr := e_10_3
@@ -1338,7 +1338,7 @@ theorem privateBatchWrapper8_f48 (a : Assignment p) (h : Satisfies (privateBatch
   have c452 := (privateBatchWrapper8_copies14 a h).2.2.2.2.1
   have c453 := (privateBatchWrapper8_copies14 a h).2.2.2.2.2.1
   have c454 := (privateBatchWrapper8_copies14 a h).2.2.2.2.2.2.1
-  have e_10_4 := arithEq_of_rows h (row := 10) (i := 4) rfl (by decide)
+  have e_10_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row10 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_4
   simp only [← c452, ← c453, ← c454] at e_10_4
   have hr := e_10_4
@@ -1363,16 +1363,16 @@ theorem privateBatchWrapper8_f49 (a : Assignment p) (h : Satisfies (privateBatch
   have c468 := (privateBatchWrapper8_copies14 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_9_11 := arithEq_of_rows h (row := 9) (i := 11) rfl (by decide)
+  have e_9_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row9 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_11
   simp only [← c455, k3, ← c456, k3, ← c457] at e_9_11
-  have e_9_12 := arithEq_of_rows h (row := 9) (i := 12) rfl (by decide)
+  have e_9_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row9 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_12
   simp only [← c464, ← c465, k3, ← c466] at e_9_12
-  have e_10_5 := arithEq_of_rows h (row := 10) (i := 5) rfl (by decide)
+  have e_10_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row10 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_5
   simp only [← c458, ← c459, ← c460] at e_10_5
-  have e_10_6 := arithEq_of_rows h (row := 10) (i := 6) rfl (by decide)
+  have e_10_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row10 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_6
   simp only [← c461, ← c462, ← c463] at e_10_6
   simp only [k2]
@@ -1401,16 +1401,16 @@ theorem privateBatchWrapper8_f50 (a : Assignment p) (h : Satisfies (privateBatch
   have c482 := (privateBatchWrapper8_copies15 a h).2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_9_13 := arithEq_of_rows h (row := 9) (i := 13) rfl (by decide)
+  have e_9_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row9 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_13
   simp only [← c469, k3, ← c470, k3, ← c471] at e_9_13
-  have e_9_14 := arithEq_of_rows h (row := 9) (i := 14) rfl (by decide)
+  have e_9_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row9 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_9_14
   simp only [← c478, ← c479, k3, ← c480] at e_9_14
-  have e_10_7 := arithEq_of_rows h (row := 10) (i := 7) rfl (by decide)
+  have e_10_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row10 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_7
   simp only [← c472, ← c473, ← c474] at e_10_7
-  have e_10_8 := arithEq_of_rows h (row := 10) (i := 8) rfl (by decide)
+  have e_10_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row10 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_8
   simp only [← c475, ← c476, ← c477] at e_10_8
   simp only [k2]
@@ -1439,16 +1439,16 @@ theorem privateBatchWrapper8_f51 (a : Assignment p) (h : Satisfies (privateBatch
   have c496 := (privateBatchWrapper8_copies15 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_10_9 := arithEq_of_rows h (row := 10) (i := 9) rfl (by decide)
+  have e_10_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row10 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_9
   simp only [← c486, ← c487, ← c488] at e_10_9
-  have e_10_10 := arithEq_of_rows h (row := 10) (i := 10) rfl (by decide)
+  have e_10_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row10 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_10
   simp only [← c489, ← c490, ← c491] at e_10_10
-  have e_11_0 := arithEq_of_rows h (row := 11) (i := 0) rfl (by decide)
+  have e_11_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row11 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_0
   simp only [← c483, k3, ← c484, k3, ← c485] at e_11_0
-  have e_11_1 := arithEq_of_rows h (row := 11) (i := 1) rfl (by decide)
+  have e_11_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row11 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_1
   simp only [← c492, ← c493, k3, ← c494] at e_11_1
   simp only [k2]
@@ -1477,16 +1477,16 @@ theorem privateBatchWrapper8_f52 (a : Assignment p) (h : Satisfies (privateBatch
   have c510 := (privateBatchWrapper8_copies15 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_10_11 := arithEq_of_rows h (row := 10) (i := 11) rfl (by decide)
+  have e_10_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row10 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_11
   simp only [← c500, ← c501, ← c502] at e_10_11
-  have e_10_12 := arithEq_of_rows h (row := 10) (i := 12) rfl (by decide)
+  have e_10_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row10 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_12
   simp only [← c503, ← c504, ← c505] at e_10_12
-  have e_11_2 := arithEq_of_rows h (row := 11) (i := 2) rfl (by decide)
+  have e_11_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row11 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_2
   simp only [← c497, k3, ← c498, k3, ← c499] at e_11_2
-  have e_11_3 := arithEq_of_rows h (row := 11) (i := 3) rfl (by decide)
+  have e_11_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row11 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_3
   simp only [← c506, ← c507, k3, ← c508] at e_11_3
   simp only [k2]
@@ -1502,7 +1502,7 @@ theorem privateBatchWrapper8_f53 (a : Assignment p) (h : Satisfies (privateBatch
   have c511 := (privateBatchWrapper8_copies15 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c512 := (privateBatchWrapper8_copies16 a h).1
   have c513 := (privateBatchWrapper8_copies16 a h).2.1
-  have e_10_13 := arithEq_of_rows h (row := 10) (i := 13) rfl (by decide)
+  have e_10_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row10 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_13
   simp only [← c511, ← c512, ← c513] at e_10_13
   have hr := e_10_13
@@ -1514,7 +1514,7 @@ theorem privateBatchWrapper8_f54 (a : Assignment p) (h : Satisfies (privateBatch
   have c514 := (privateBatchWrapper8_copies16 a h).2.2.1
   have c515 := (privateBatchWrapper8_copies16 a h).2.2.2.1
   have c516 := (privateBatchWrapper8_copies16 a h).2.2.2.2.1
-  have e_10_14 := arithEq_of_rows h (row := 10) (i := 14) rfl (by decide)
+  have e_10_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row10 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_10_14
   simp only [← c514, ← c515, ← c516] at e_10_14
   have hr := e_10_14
@@ -1526,7 +1526,7 @@ theorem privateBatchWrapper8_f55 (a : Assignment p) (h : Satisfies (privateBatch
   have c517 := (privateBatchWrapper8_copies16 a h).2.2.2.2.2.1
   have c518 := (privateBatchWrapper8_copies16 a h).2.2.2.2.2.2.1
   have c519 := (privateBatchWrapper8_copies16 a h).2.2.2.2.2.2.2.1
-  have e_12_0 := arithEq_of_rows h (row := 12) (i := 0) rfl (by decide)
+  have e_12_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row12 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_0
   simp only [← c517, ← c518, ← c519] at e_12_0
   have hr := e_12_0
@@ -1540,7 +1540,7 @@ theorem privateBatchWrapper8_f56 (a : Assignment p) (h : Satisfies (privateBatch
   have c522 := (privateBatchWrapper8_copies16 a h).2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_11_4 := arithEq_of_rows h (row := 11) (i := 4) rfl (by decide)
+  have e_11_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row11 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_4
   simp only [← c520, k3, ← c521, k3, ← c522] at e_11_4
   have hr := e_11_4
@@ -1568,7 +1568,7 @@ theorem privateBatchWrapper8_f59 (a : Assignment p) (h : Satisfies (privateBatch
   have c525 := (privateBatchWrapper8_copies16 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_11_5 := arithEq_of_rows h (row := 11) (i := 5) rfl (by decide)
+  have e_11_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row11 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_5
   simp only [← c523, ← c524, ← c525, k2] at e_11_5
   have hr := e_11_5
@@ -1582,7 +1582,7 @@ theorem privateBatchWrapper8_f60 (a : Assignment p) (h : Satisfies (privateBatch
   have c528 := (privateBatchWrapper8_copies16 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_11_6 := arithEq_of_rows h (row := 11) (i := 6) rfl (by decide)
+  have e_11_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row11 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_6
   simp only [← c526, ← c527, ← c528, k2] at e_11_6
   have hr := e_11_6
@@ -1596,7 +1596,7 @@ theorem privateBatchWrapper8_f61 (a : Assignment p) (h : Satisfies (privateBatch
   have c531 := (privateBatchWrapper8_copies16 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_11_7 := arithEq_of_rows h (row := 11) (i := 7) rfl (by decide)
+  have e_11_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row11 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_7
   simp only [← c529, ← c530, ← c531, k2] at e_11_7
   have hr := e_11_7
@@ -1610,7 +1610,7 @@ theorem privateBatchWrapper8_f62 (a : Assignment p) (h : Satisfies (privateBatch
   have c534 := (privateBatchWrapper8_copies16 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_11_8 := arithEq_of_rows h (row := 11) (i := 8) rfl (by decide)
+  have e_11_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row11 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_8
   simp only [← c532, ← c533, ← c534, k2] at e_11_8
   have hr := e_11_8
@@ -1624,7 +1624,7 @@ theorem privateBatchWrapper8_f63 (a : Assignment p) (h : Satisfies (privateBatch
   have c537 := (privateBatchWrapper8_copies16 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_11_9 := arithEq_of_rows h (row := 11) (i := 9) rfl (by decide)
+  have e_11_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row11 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_9
   simp only [← c535, ← c536, ← c537, k2] at e_11_9
   have hr := e_11_9
@@ -1645,7 +1645,7 @@ theorem privateBatchWrapper8_f65 (a : Assignment p) (h : Satisfies (privateBatch
   have c540 := (privateBatchWrapper8_copies16 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_11_10 := arithEq_of_rows h (row := 11) (i := 10) rfl (by decide)
+  have e_11_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row11 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_10
   simp only [← c538, k3, ← c539, k3, ← c540] at e_11_10
   have hr := e_11_10
@@ -1659,7 +1659,7 @@ theorem privateBatchWrapper8_f66 (a : Assignment p) (h : Satisfies (privateBatch
   have c543 := (privateBatchWrapper8_copies16 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_11_11 := arithEq_of_rows h (row := 11) (i := 11) rfl (by decide)
+  have e_11_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row11 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_11
   simp only [← c541, k3, ← c542, k3, ← c543] at e_11_11
   have hr := e_11_11
@@ -1671,7 +1671,7 @@ theorem privateBatchWrapper8_f67 (a : Assignment p) (h : Satisfies (privateBatch
   have c544 := (privateBatchWrapper8_copies17 a h).1
   have c545 := (privateBatchWrapper8_copies17 a h).2.1
   have c546 := (privateBatchWrapper8_copies17 a h).2.2.1
-  have e_12_1 := arithEq_of_rows h (row := 12) (i := 1) rfl (by decide)
+  have e_12_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row12 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_1
   simp only [← c544, ← c545, ← c546] at e_12_1
   have hr := e_12_1
@@ -1686,10 +1686,10 @@ theorem privateBatchWrapper8_f68 (a : Assignment p) (h : Satisfies (privateBatch
   have c550 := (privateBatchWrapper8_copies17 a h).2.2.2.2.2.2.1
   have c551 := (privateBatchWrapper8_copies17 a h).2.2.2.2.2.2.2.1
   have c552 := (privateBatchWrapper8_copies17 a h).2.2.2.2.2.2.2.2.1
-  have e_11_12 := arithEq_of_rows h (row := 11) (i := 12) rfl (by decide)
+  have e_11_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row11 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_12
   simp only [← c547, ← c548, ← c549] at e_11_12
-  have e_11_13 := arithEq_of_rows h (row := 11) (i := 13) rfl (by decide)
+  have e_11_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row11 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_13
   simp only [← c550, ← c551, ← c552] at e_11_13
   have hr := e_11_13
@@ -1705,10 +1705,10 @@ theorem privateBatchWrapper8_f69 (a : Assignment p) (h : Satisfies (privateBatch
   have c556 := (privateBatchWrapper8_copies17 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c557 := (privateBatchWrapper8_copies17 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c558 := (privateBatchWrapper8_copies17 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_11_14 := arithEq_of_rows h (row := 11) (i := 14) rfl (by decide)
+  have e_11_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row11 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_14
   simp only [← c553, ← c554, ← c555] at e_11_14
-  have e_13_0 := arithEq_of_rows h (row := 13) (i := 0) rfl (by decide)
+  have e_13_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row13 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_0
   simp only [← c556, ← c557, ← c558] at e_13_0
   have hr := e_13_0
@@ -1724,10 +1724,10 @@ theorem privateBatchWrapper8_f70 (a : Assignment p) (h : Satisfies (privateBatch
   have c562 := (privateBatchWrapper8_copies17 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c563 := (privateBatchWrapper8_copies17 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c564 := (privateBatchWrapper8_copies17 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_13_1 := arithEq_of_rows h (row := 13) (i := 1) rfl (by decide)
+  have e_13_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row13 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_1
   simp only [← c559, ← c560, ← c561] at e_13_1
-  have e_13_2 := arithEq_of_rows h (row := 13) (i := 2) rfl (by decide)
+  have e_13_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row13 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_2
   simp only [← c562, ← c563, ← c564] at e_13_2
   have hr := e_13_2
@@ -1743,10 +1743,10 @@ theorem privateBatchWrapper8_f71 (a : Assignment p) (h : Satisfies (privateBatch
   have c568 := (privateBatchWrapper8_copies17 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c569 := (privateBatchWrapper8_copies17 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c570 := (privateBatchWrapper8_copies17 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_13_3 := arithEq_of_rows h (row := 13) (i := 3) rfl (by decide)
+  have e_13_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row13 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_3
   simp only [← c565, ← c566, ← c567] at e_13_3
-  have e_13_4 := arithEq_of_rows h (row := 13) (i := 4) rfl (by decide)
+  have e_13_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row13 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_4
   simp only [← c568, ← c569, ← c570] at e_13_4
   have hr := e_13_4
@@ -1762,10 +1762,10 @@ theorem privateBatchWrapper8_f72 (a : Assignment p) (h : Satisfies (privateBatch
   have c574 := (privateBatchWrapper8_copies17 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c575 := (privateBatchWrapper8_copies17 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c576 := (privateBatchWrapper8_copies18 a h).1
-  have e_13_5 := arithEq_of_rows h (row := 13) (i := 5) rfl (by decide)
+  have e_13_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row13 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_5
   simp only [← c571, ← c572, ← c573] at e_13_5
-  have e_13_6 := arithEq_of_rows h (row := 13) (i := 6) rfl (by decide)
+  have e_13_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row13 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_6
   simp only [← c574, ← c575, ← c576] at e_13_6
   have hr := e_13_6
@@ -1783,10 +1783,10 @@ theorem privateBatchWrapper8_f73 (a : Assignment p) (h : Satisfies (privateBatch
   have c582 := (privateBatchWrapper8_copies18 a h).2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_0_11 := arithEq_of_rows h (row := 0) (i := 11) rfl (by decide)
+  have e_0_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row0 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_11
   simp only [← c580, ← c581, k3, ← c582] at e_0_11
-  have e_14_0 := arithEq_of_rows h (row := 14) (i := 0) rfl (by decide)
+  have e_14_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row14 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_0
   simp only [← c577, ← c578, ← c579] at e_14_0
   have hr := e_0_11
@@ -1801,7 +1801,7 @@ theorem privateBatchWrapper8_f74 (a : Assignment p) (h : Satisfies (privateBatch
   have c585 := (privateBatchWrapper8_copies18 a h).2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_13_7 := arithEq_of_rows h (row := 13) (i := 7) rfl (by decide)
+  have e_13_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row13 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_7
   simp only [← c583, k3, ← c584, k3, ← c585] at e_13_7
   have hr := e_13_7
@@ -1815,7 +1815,7 @@ theorem privateBatchWrapper8_f75 (a : Assignment p) (h : Satisfies (privateBatch
   have c588 := (privateBatchWrapper8_copies18 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_13_8 := arithEq_of_rows h (row := 13) (i := 8) rfl (by decide)
+  have e_13_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row13 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_8
   simp only [← c586, k3, ← c587, k3, ← c588] at e_13_8
   have hr := e_13_8
@@ -1827,7 +1827,7 @@ theorem privateBatchWrapper8_f76 (a : Assignment p) (h : Satisfies (privateBatch
   have c589 := (privateBatchWrapper8_copies18 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c590 := (privateBatchWrapper8_copies18 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c591 := (privateBatchWrapper8_copies18 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_12_2 := arithEq_of_rows h (row := 12) (i := 2) rfl (by decide)
+  have e_12_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row12 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_2
   simp only [← c589, ← c590, ← c591] at e_12_2
   have hr := e_12_2
@@ -1842,10 +1842,10 @@ theorem privateBatchWrapper8_f77 (a : Assignment p) (h : Satisfies (privateBatch
   have c595 := (privateBatchWrapper8_copies18 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c596 := (privateBatchWrapper8_copies18 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c597 := (privateBatchWrapper8_copies18 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_13_9 := arithEq_of_rows h (row := 13) (i := 9) rfl (by decide)
+  have e_13_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row13 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_9
   simp only [← c592, ← c593, ← c594] at e_13_9
-  have e_13_10 := arithEq_of_rows h (row := 13) (i := 10) rfl (by decide)
+  have e_13_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row13 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_10
   simp only [← c595, ← c596, ← c597] at e_13_10
   have hr := e_13_10
@@ -1861,10 +1861,10 @@ theorem privateBatchWrapper8_f78 (a : Assignment p) (h : Satisfies (privateBatch
   have c601 := (privateBatchWrapper8_copies18 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c602 := (privateBatchWrapper8_copies18 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c603 := (privateBatchWrapper8_copies18 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_13_11 := arithEq_of_rows h (row := 13) (i := 11) rfl (by decide)
+  have e_13_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row13 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_11
   simp only [← c598, ← c599, ← c600] at e_13_11
-  have e_13_12 := arithEq_of_rows h (row := 13) (i := 12) rfl (by decide)
+  have e_13_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row13 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_12
   simp only [← c601, ← c602, ← c603] at e_13_12
   have hr := e_13_12
@@ -1880,10 +1880,10 @@ theorem privateBatchWrapper8_f79 (a : Assignment p) (h : Satisfies (privateBatch
   have c607 := (privateBatchWrapper8_copies18 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c608 := (privateBatchWrapper8_copies19 a h).1
   have c609 := (privateBatchWrapper8_copies19 a h).2.1
-  have e_13_13 := arithEq_of_rows h (row := 13) (i := 13) rfl (by decide)
+  have e_13_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row13 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_13
   simp only [← c604, ← c605, ← c606] at e_13_13
-  have e_13_14 := arithEq_of_rows h (row := 13) (i := 14) rfl (by decide)
+  have e_13_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row13 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_14
   simp only [← c607, ← c608, ← c609] at e_13_14
   have hr := e_13_14
@@ -1899,10 +1899,10 @@ theorem privateBatchWrapper8_f80 (a : Assignment p) (h : Satisfies (privateBatch
   have c613 := (privateBatchWrapper8_copies19 a h).2.2.2.2.2.1
   have c614 := (privateBatchWrapper8_copies19 a h).2.2.2.2.2.2.1
   have c615 := (privateBatchWrapper8_copies19 a h).2.2.2.2.2.2.2.1
-  have e_15_0 := arithEq_of_rows h (row := 15) (i := 0) rfl (by decide)
+  have e_15_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row15 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_0
   simp only [← c610, ← c611, ← c612] at e_15_0
-  have e_15_1 := arithEq_of_rows h (row := 15) (i := 1) rfl (by decide)
+  have e_15_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row15 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_1
   simp only [← c613, ← c614, ← c615] at e_15_1
   have hr := e_15_1
@@ -1918,10 +1918,10 @@ theorem privateBatchWrapper8_f81 (a : Assignment p) (h : Satisfies (privateBatch
   have c619 := (privateBatchWrapper8_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c620 := (privateBatchWrapper8_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c621 := (privateBatchWrapper8_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_15_2 := arithEq_of_rows h (row := 15) (i := 2) rfl (by decide)
+  have e_15_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row15 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_2
   simp only [← c616, ← c617, ← c618] at e_15_2
-  have e_15_3 := arithEq_of_rows h (row := 15) (i := 3) rfl (by decide)
+  have e_15_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row15 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_3
   simp only [← c619, ← c620, ← c621] at e_15_3
   have hr := e_15_3
@@ -1939,10 +1939,10 @@ theorem privateBatchWrapper8_f82 (a : Assignment p) (h : Satisfies (privateBatch
   have c627 := (privateBatchWrapper8_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_0_12 := arithEq_of_rows h (row := 0) (i := 12) rfl (by decide)
+  have e_0_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row0 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_12
   simp only [← c625, ← c626, k3, ← c627] at e_0_12
-  have e_14_1 := arithEq_of_rows h (row := 14) (i := 1) rfl (by decide)
+  have e_14_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row14 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_1
   simp only [← c622, ← c623, ← c624] at e_14_1
   have hr := e_0_12
@@ -1957,7 +1957,7 @@ theorem privateBatchWrapper8_f83 (a : Assignment p) (h : Satisfies (privateBatch
   have c630 := (privateBatchWrapper8_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_15_4 := arithEq_of_rows h (row := 15) (i := 4) rfl (by decide)
+  have e_15_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row15 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_4
   simp only [← c628, k3, ← c629, k3, ← c630] at e_15_4
   have hr := e_15_4
@@ -1971,7 +1971,7 @@ theorem privateBatchWrapper8_f84 (a : Assignment p) (h : Satisfies (privateBatch
   have c633 := (privateBatchWrapper8_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_15_5 := arithEq_of_rows h (row := 15) (i := 5) rfl (by decide)
+  have e_15_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row15 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_5
   simp only [← c631, k3, ← c632, k3, ← c633] at e_15_5
   have hr := e_15_5
@@ -1983,7 +1983,7 @@ theorem privateBatchWrapper8_f85 (a : Assignment p) (h : Satisfies (privateBatch
   have c634 := (privateBatchWrapper8_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c635 := (privateBatchWrapper8_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c636 := (privateBatchWrapper8_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_12_3 := arithEq_of_rows h (row := 12) (i := 3) rfl (by decide)
+  have e_12_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row12 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_3
   simp only [← c634, ← c635, ← c636] at e_12_3
   have hr := e_12_3
@@ -1998,10 +1998,10 @@ theorem privateBatchWrapper8_f86 (a : Assignment p) (h : Satisfies (privateBatch
   have c640 := (privateBatchWrapper8_copies20 a h).1
   have c641 := (privateBatchWrapper8_copies20 a h).2.1
   have c642 := (privateBatchWrapper8_copies20 a h).2.2.1
-  have e_15_6 := arithEq_of_rows h (row := 15) (i := 6) rfl (by decide)
+  have e_15_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row15 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_6
   simp only [← c637, ← c638, ← c639] at e_15_6
-  have e_15_7 := arithEq_of_rows h (row := 15) (i := 7) rfl (by decide)
+  have e_15_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row15 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_7
   simp only [← c640, ← c641, ← c642] at e_15_7
   have hr := e_15_7
@@ -2017,10 +2017,10 @@ theorem privateBatchWrapper8_f87 (a : Assignment p) (h : Satisfies (privateBatch
   have c646 := (privateBatchWrapper8_copies20 a h).2.2.2.2.2.2.1
   have c647 := (privateBatchWrapper8_copies20 a h).2.2.2.2.2.2.2.1
   have c648 := (privateBatchWrapper8_copies20 a h).2.2.2.2.2.2.2.2.1
-  have e_15_8 := arithEq_of_rows h (row := 15) (i := 8) rfl (by decide)
+  have e_15_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row15 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_8
   simp only [← c643, ← c644, ← c645] at e_15_8
-  have e_15_9 := arithEq_of_rows h (row := 15) (i := 9) rfl (by decide)
+  have e_15_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row15 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_9
   simp only [← c646, ← c647, ← c648] at e_15_9
   have hr := e_15_9
@@ -2036,10 +2036,10 @@ theorem privateBatchWrapper8_f88 (a : Assignment p) (h : Satisfies (privateBatch
   have c652 := (privateBatchWrapper8_copies20 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c653 := (privateBatchWrapper8_copies20 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c654 := (privateBatchWrapper8_copies20 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_15_10 := arithEq_of_rows h (row := 15) (i := 10) rfl (by decide)
+  have e_15_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row15 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_10
   simp only [← c649, ← c650, ← c651] at e_15_10
-  have e_15_11 := arithEq_of_rows h (row := 15) (i := 11) rfl (by decide)
+  have e_15_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row15 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_11
   simp only [← c652, ← c653, ← c654] at e_15_11
   have hr := e_15_11
@@ -2055,10 +2055,10 @@ theorem privateBatchWrapper8_f89 (a : Assignment p) (h : Satisfies (privateBatch
   have c658 := (privateBatchWrapper8_copies20 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c659 := (privateBatchWrapper8_copies20 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c660 := (privateBatchWrapper8_copies20 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_15_12 := arithEq_of_rows h (row := 15) (i := 12) rfl (by decide)
+  have e_15_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row15 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_12
   simp only [← c655, ← c656, ← c657] at e_15_12
-  have e_15_13 := arithEq_of_rows h (row := 15) (i := 13) rfl (by decide)
+  have e_15_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row15 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_13
   simp only [← c658, ← c659, ← c660] at e_15_13
   have hr := e_15_13
@@ -2074,10 +2074,10 @@ theorem privateBatchWrapper8_f90 (a : Assignment p) (h : Satisfies (privateBatch
   have c664 := (privateBatchWrapper8_copies20 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c665 := (privateBatchWrapper8_copies20 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c666 := (privateBatchWrapper8_copies20 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_15_14 := arithEq_of_rows h (row := 15) (i := 14) rfl (by decide)
+  have e_15_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row15 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_14
   simp only [← c661, ← c662, ← c663] at e_15_14
-  have e_16_0 := arithEq_of_rows h (row := 16) (i := 0) rfl (by decide)
+  have e_16_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_0
   simp only [← c664, ← c665, ← c666] at e_16_0
   have hr := e_16_0
@@ -2095,10 +2095,10 @@ theorem privateBatchWrapper8_f91 (a : Assignment p) (h : Satisfies (privateBatch
   have c672 := (privateBatchWrapper8_copies21 a h).1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_0_13 := arithEq_of_rows h (row := 0) (i := 13) rfl (by decide)
+  have e_0_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row0 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_13
   simp only [← c670, ← c671, k3, ← c672] at e_0_13
-  have e_14_2 := arithEq_of_rows h (row := 14) (i := 2) rfl (by decide)
+  have e_14_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row14 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_2
   simp only [← c667, ← c668, ← c669] at e_14_2
   have hr := e_0_13
@@ -2113,7 +2113,7 @@ theorem privateBatchWrapper8_f92 (a : Assignment p) (h : Satisfies (privateBatch
   have c675 := (privateBatchWrapper8_copies21 a h).2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_16_1 := arithEq_of_rows h (row := 16) (i := 1) rfl (by decide)
+  have e_16_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_1
   simp only [← c673, k3, ← c674, k3, ← c675] at e_16_1
   have hr := e_16_1
@@ -2127,7 +2127,7 @@ theorem privateBatchWrapper8_f93 (a : Assignment p) (h : Satisfies (privateBatch
   have c678 := (privateBatchWrapper8_copies21 a h).2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_16_2 := arithEq_of_rows h (row := 16) (i := 2) rfl (by decide)
+  have e_16_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_2
   simp only [← c676, k3, ← c677, k3, ← c678] at e_16_2
   have hr := e_16_2
@@ -2139,7 +2139,7 @@ theorem privateBatchWrapper8_f94 (a : Assignment p) (h : Satisfies (privateBatch
   have c679 := (privateBatchWrapper8_copies21 a h).2.2.2.2.2.2.2.1
   have c680 := (privateBatchWrapper8_copies21 a h).2.2.2.2.2.2.2.2.1
   have c681 := (privateBatchWrapper8_copies21 a h).2.2.2.2.2.2.2.2.2.1
-  have e_12_4 := arithEq_of_rows h (row := 12) (i := 4) rfl (by decide)
+  have e_12_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row12 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_4
   simp only [← c679, ← c680, ← c681] at e_12_4
   have hr := e_12_4
@@ -2154,10 +2154,10 @@ theorem privateBatchWrapper8_f95 (a : Assignment p) (h : Satisfies (privateBatch
   have c685 := (privateBatchWrapper8_copies21 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c686 := (privateBatchWrapper8_copies21 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c687 := (privateBatchWrapper8_copies21 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_16_3 := arithEq_of_rows h (row := 16) (i := 3) rfl (by decide)
+  have e_16_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_3
   simp only [← c682, ← c683, ← c684] at e_16_3
-  have e_16_4 := arithEq_of_rows h (row := 16) (i := 4) rfl (by decide)
+  have e_16_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_4
   simp only [← c685, ← c686, ← c687] at e_16_4
   have hr := e_16_4
@@ -2173,10 +2173,10 @@ theorem privateBatchWrapper8_f96 (a : Assignment p) (h : Satisfies (privateBatch
   have c691 := (privateBatchWrapper8_copies21 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c692 := (privateBatchWrapper8_copies21 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c693 := (privateBatchWrapper8_copies21 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_16_5 := arithEq_of_rows h (row := 16) (i := 5) rfl (by decide)
+  have e_16_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_5
   simp only [← c688, ← c689, ← c690] at e_16_5
-  have e_16_6 := arithEq_of_rows h (row := 16) (i := 6) rfl (by decide)
+  have e_16_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_6
   simp only [← c691, ← c692, ← c693] at e_16_6
   have hr := e_16_6
@@ -2192,10 +2192,10 @@ theorem privateBatchWrapper8_f97 (a : Assignment p) (h : Satisfies (privateBatch
   have c697 := (privateBatchWrapper8_copies21 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c698 := (privateBatchWrapper8_copies21 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c699 := (privateBatchWrapper8_copies21 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_16_7 := arithEq_of_rows h (row := 16) (i := 7) rfl (by decide)
+  have e_16_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_7
   simp only [← c694, ← c695, ← c696] at e_16_7
-  have e_16_8 := arithEq_of_rows h (row := 16) (i := 8) rfl (by decide)
+  have e_16_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_8
   simp only [← c697, ← c698, ← c699] at e_16_8
   have hr := e_16_8
@@ -2211,10 +2211,10 @@ theorem privateBatchWrapper8_f98 (a : Assignment p) (h : Satisfies (privateBatch
   have c703 := (privateBatchWrapper8_copies21 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c704 := (privateBatchWrapper8_copies22 a h).1
   have c705 := (privateBatchWrapper8_copies22 a h).2.1
-  have e_16_9 := arithEq_of_rows h (row := 16) (i := 9) rfl (by decide)
+  have e_16_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_9
   simp only [← c700, ← c701, ← c702] at e_16_9
-  have e_16_10 := arithEq_of_rows h (row := 16) (i := 10) rfl (by decide)
+  have e_16_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_10
   simp only [← c703, ← c704, ← c705] at e_16_10
   have hr := e_16_10
@@ -2230,10 +2230,10 @@ theorem privateBatchWrapper8_f99 (a : Assignment p) (h : Satisfies (privateBatch
   have c709 := (privateBatchWrapper8_copies22 a h).2.2.2.2.2.1
   have c710 := (privateBatchWrapper8_copies22 a h).2.2.2.2.2.2.1
   have c711 := (privateBatchWrapper8_copies22 a h).2.2.2.2.2.2.2.1
-  have e_16_11 := arithEq_of_rows h (row := 16) (i := 11) rfl (by decide)
+  have e_16_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_11
   simp only [← c706, ← c707, ← c708] at e_16_11
-  have e_16_12 := arithEq_of_rows h (row := 16) (i := 12) rfl (by decide)
+  have e_16_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_12
   simp only [← c709, ← c710, ← c711] at e_16_12
   have hr := e_16_12
@@ -2251,10 +2251,10 @@ theorem privateBatchWrapper8_f100 (a : Assignment p) (h : Satisfies (privateBatc
   have c717 := (privateBatchWrapper8_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_0_14 := arithEq_of_rows h (row := 0) (i := 14) rfl (by decide)
+  have e_0_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row0 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_0_14
   simp only [← c715, ← c716, k3, ← c717] at e_0_14
-  have e_14_3 := arithEq_of_rows h (row := 14) (i := 3) rfl (by decide)
+  have e_14_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row14 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_3
   simp only [← c712, ← c713, ← c714] at e_14_3
   have hr := e_0_14
@@ -2269,7 +2269,7 @@ theorem privateBatchWrapper8_f101 (a : Assignment p) (h : Satisfies (privateBatc
   have c720 := (privateBatchWrapper8_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_16_13 := arithEq_of_rows h (row := 16) (i := 13) rfl (by decide)
+  have e_16_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_13
   simp only [← c718, k3, ← c719, k3, ← c720] at e_16_13
   have hr := e_16_13
@@ -2283,7 +2283,7 @@ theorem privateBatchWrapper8_f102 (a : Assignment p) (h : Satisfies (privateBatc
   have c723 := (privateBatchWrapper8_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_16_14 := arithEq_of_rows h (row := 16) (i := 14) rfl (by decide)
+  have e_16_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_14
   simp only [← c721, k3, ← c722, k3, ← c723] at e_16_14
   have hr := e_16_14
@@ -2295,7 +2295,7 @@ theorem privateBatchWrapper8_f103 (a : Assignment p) (h : Satisfies (privateBatc
   have c724 := (privateBatchWrapper8_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c725 := (privateBatchWrapper8_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c726 := (privateBatchWrapper8_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_12_5 := arithEq_of_rows h (row := 12) (i := 5) rfl (by decide)
+  have e_12_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row12 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_5
   simp only [← c724, ← c725, ← c726] at e_12_5
   have hr := e_12_5
@@ -2310,10 +2310,10 @@ theorem privateBatchWrapper8_f104 (a : Assignment p) (h : Satisfies (privateBatc
   have c730 := (privateBatchWrapper8_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c731 := (privateBatchWrapper8_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c732 := (privateBatchWrapper8_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_17_0 := arithEq_of_rows h (row := 17) (i := 0) rfl (by decide)
+  have e_17_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row17 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_0
   simp only [← c727, ← c728, ← c729] at e_17_0
-  have e_17_1 := arithEq_of_rows h (row := 17) (i := 1) rfl (by decide)
+  have e_17_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row17 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_1
   simp only [← c730, ← c731, ← c732] at e_17_1
   have hr := e_17_1
@@ -2329,10 +2329,10 @@ theorem privateBatchWrapper8_f105 (a : Assignment p) (h : Satisfies (privateBatc
   have c736 := (privateBatchWrapper8_copies23 a h).1
   have c737 := (privateBatchWrapper8_copies23 a h).2.1
   have c738 := (privateBatchWrapper8_copies23 a h).2.2.1
-  have e_17_2 := arithEq_of_rows h (row := 17) (i := 2) rfl (by decide)
+  have e_17_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row17 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_2
   simp only [← c733, ← c734, ← c735] at e_17_2
-  have e_17_3 := arithEq_of_rows h (row := 17) (i := 3) rfl (by decide)
+  have e_17_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row17 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_3
   simp only [← c736, ← c737, ← c738] at e_17_3
   have hr := e_17_3
@@ -2348,10 +2348,10 @@ theorem privateBatchWrapper8_f106 (a : Assignment p) (h : Satisfies (privateBatc
   have c742 := (privateBatchWrapper8_copies23 a h).2.2.2.2.2.2.1
   have c743 := (privateBatchWrapper8_copies23 a h).2.2.2.2.2.2.2.1
   have c744 := (privateBatchWrapper8_copies23 a h).2.2.2.2.2.2.2.2.1
-  have e_17_4 := arithEq_of_rows h (row := 17) (i := 4) rfl (by decide)
+  have e_17_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row17 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_4
   simp only [← c739, ← c740, ← c741] at e_17_4
-  have e_17_5 := arithEq_of_rows h (row := 17) (i := 5) rfl (by decide)
+  have e_17_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row17 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_5
   simp only [← c742, ← c743, ← c744] at e_17_5
   have hr := e_17_5
@@ -2367,10 +2367,10 @@ theorem privateBatchWrapper8_f107 (a : Assignment p) (h : Satisfies (privateBatc
   have c748 := (privateBatchWrapper8_copies23 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c749 := (privateBatchWrapper8_copies23 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c750 := (privateBatchWrapper8_copies23 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_17_6 := arithEq_of_rows h (row := 17) (i := 6) rfl (by decide)
+  have e_17_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row17 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_6
   simp only [← c745, ← c746, ← c747] at e_17_6
-  have e_17_7 := arithEq_of_rows h (row := 17) (i := 7) rfl (by decide)
+  have e_17_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row17 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_7
   simp only [← c748, ← c749, ← c750] at e_17_7
   have hr := e_17_7
@@ -2386,10 +2386,10 @@ theorem privateBatchWrapper8_f108 (a : Assignment p) (h : Satisfies (privateBatc
   have c754 := (privateBatchWrapper8_copies23 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c755 := (privateBatchWrapper8_copies23 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c756 := (privateBatchWrapper8_copies23 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_17_8 := arithEq_of_rows h (row := 17) (i := 8) rfl (by decide)
+  have e_17_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row17 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_8
   simp only [← c751, ← c752, ← c753] at e_17_8
-  have e_17_9 := arithEq_of_rows h (row := 17) (i := 9) rfl (by decide)
+  have e_17_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row17 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_9
   simp only [← c754, ← c755, ← c756] at e_17_9
   have hr := e_17_9
@@ -2407,10 +2407,10 @@ theorem privateBatchWrapper8_f109 (a : Assignment p) (h : Satisfies (privateBatc
   have c762 := (privateBatchWrapper8_copies23 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_14_4 := arithEq_of_rows h (row := 14) (i := 4) rfl (by decide)
+  have e_14_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row14 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_4
   simp only [← c757, ← c758, ← c759] at e_14_4
-  have e_18_0 := arithEq_of_rows h (row := 18) (i := 0) rfl (by decide)
+  have e_18_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row18 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_0
   simp only [← c760, ← c761, k3, ← c762] at e_18_0
   have hr := e_18_0
@@ -2425,7 +2425,7 @@ theorem privateBatchWrapper8_f110 (a : Assignment p) (h : Satisfies (privateBatc
   have c765 := (privateBatchWrapper8_copies23 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_17_10 := arithEq_of_rows h (row := 17) (i := 10) rfl (by decide)
+  have e_17_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row17 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_10
   simp only [← c763, k3, ← c764, k3, ← c765] at e_17_10
   have hr := e_17_10
@@ -2439,7 +2439,7 @@ theorem privateBatchWrapper8_f111 (a : Assignment p) (h : Satisfies (privateBatc
   have c768 := (privateBatchWrapper8_copies24 a h).1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_17_11 := arithEq_of_rows h (row := 17) (i := 11) rfl (by decide)
+  have e_17_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row17 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_11
   simp only [← c766, k3, ← c767, k3, ← c768] at e_17_11
   have hr := e_17_11
@@ -2451,7 +2451,7 @@ theorem privateBatchWrapper8_f112 (a : Assignment p) (h : Satisfies (privateBatc
   have c769 := (privateBatchWrapper8_copies24 a h).2.1
   have c770 := (privateBatchWrapper8_copies24 a h).2.2.1
   have c771 := (privateBatchWrapper8_copies24 a h).2.2.2.1
-  have e_12_6 := arithEq_of_rows h (row := 12) (i := 6) rfl (by decide)
+  have e_12_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row12 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_6
   simp only [← c769, ← c770, ← c771] at e_12_6
   have hr := e_12_6
@@ -2466,10 +2466,10 @@ theorem privateBatchWrapper8_f113 (a : Assignment p) (h : Satisfies (privateBatc
   have c775 := (privateBatchWrapper8_copies24 a h).2.2.2.2.2.2.2.1
   have c776 := (privateBatchWrapper8_copies24 a h).2.2.2.2.2.2.2.2.1
   have c777 := (privateBatchWrapper8_copies24 a h).2.2.2.2.2.2.2.2.2.1
-  have e_17_12 := arithEq_of_rows h (row := 17) (i := 12) rfl (by decide)
+  have e_17_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row17 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_12
   simp only [← c772, ← c773, ← c774] at e_17_12
-  have e_17_13 := arithEq_of_rows h (row := 17) (i := 13) rfl (by decide)
+  have e_17_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row17 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_13
   simp only [← c775, ← c776, ← c777] at e_17_13
   have hr := e_17_13
@@ -2485,10 +2485,10 @@ theorem privateBatchWrapper8_f114 (a : Assignment p) (h : Satisfies (privateBatc
   have c781 := (privateBatchWrapper8_copies24 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c782 := (privateBatchWrapper8_copies24 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c783 := (privateBatchWrapper8_copies24 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_17_14 := arithEq_of_rows h (row := 17) (i := 14) rfl (by decide)
+  have e_17_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row17 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_14
   simp only [← c778, ← c779, ← c780] at e_17_14
-  have e_19_0 := arithEq_of_rows h (row := 19) (i := 0) rfl (by decide)
+  have e_19_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row19 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_0
   simp only [← c781, ← c782, ← c783] at e_19_0
   have hr := e_19_0
@@ -2504,10 +2504,10 @@ theorem privateBatchWrapper8_f115 (a : Assignment p) (h : Satisfies (privateBatc
   have c787 := (privateBatchWrapper8_copies24 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c788 := (privateBatchWrapper8_copies24 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c789 := (privateBatchWrapper8_copies24 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_19_1 := arithEq_of_rows h (row := 19) (i := 1) rfl (by decide)
+  have e_19_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row19 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_1
   simp only [← c784, ← c785, ← c786] at e_19_1
-  have e_19_2 := arithEq_of_rows h (row := 19) (i := 2) rfl (by decide)
+  have e_19_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row19 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_2
   simp only [← c787, ← c788, ← c789] at e_19_2
   have hr := e_19_2
@@ -2523,10 +2523,10 @@ theorem privateBatchWrapper8_f116 (a : Assignment p) (h : Satisfies (privateBatc
   have c793 := (privateBatchWrapper8_copies24 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c794 := (privateBatchWrapper8_copies24 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c795 := (privateBatchWrapper8_copies24 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_19_3 := arithEq_of_rows h (row := 19) (i := 3) rfl (by decide)
+  have e_19_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row19 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_3
   simp only [← c790, ← c791, ← c792] at e_19_3
-  have e_19_4 := arithEq_of_rows h (row := 19) (i := 4) rfl (by decide)
+  have e_19_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row19 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_4
   simp only [← c793, ← c794, ← c795] at e_19_4
   have hr := e_19_4
@@ -2542,10 +2542,10 @@ theorem privateBatchWrapper8_f117 (a : Assignment p) (h : Satisfies (privateBatc
   have c799 := (privateBatchWrapper8_copies24 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c800 := (privateBatchWrapper8_copies25 a h).1
   have c801 := (privateBatchWrapper8_copies25 a h).2.1
-  have e_19_5 := arithEq_of_rows h (row := 19) (i := 5) rfl (by decide)
+  have e_19_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row19 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_5
   simp only [← c796, ← c797, ← c798] at e_19_5
-  have e_19_6 := arithEq_of_rows h (row := 19) (i := 6) rfl (by decide)
+  have e_19_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row19 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_6
   simp only [← c799, ← c800, ← c801] at e_19_6
   have hr := e_19_6
@@ -2563,10 +2563,10 @@ theorem privateBatchWrapper8_f118 (a : Assignment p) (h : Satisfies (privateBatc
   have c807 := (privateBatchWrapper8_copies25 a h).2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_14_5 := arithEq_of_rows h (row := 14) (i := 5) rfl (by decide)
+  have e_14_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row14 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_5
   simp only [← c802, ← c803, ← c804] at e_14_5
-  have e_18_1 := arithEq_of_rows h (row := 18) (i := 1) rfl (by decide)
+  have e_18_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row18 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_1
   simp only [← c805, ← c806, k3, ← c807] at e_18_1
   have hr := e_18_1
@@ -2581,7 +2581,7 @@ theorem privateBatchWrapper8_f119 (a : Assignment p) (h : Satisfies (privateBatc
   have c810 := (privateBatchWrapper8_copies25 a h).2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_19_7 := arithEq_of_rows h (row := 19) (i := 7) rfl (by decide)
+  have e_19_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row19 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_7
   simp only [← c808, k3, ← c809, k3, ← c810] at e_19_7
   have hr := e_19_7
@@ -2595,7 +2595,7 @@ theorem privateBatchWrapper8_f120 (a : Assignment p) (h : Satisfies (privateBatc
   have c813 := (privateBatchWrapper8_copies25 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_19_8 := arithEq_of_rows h (row := 19) (i := 8) rfl (by decide)
+  have e_19_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row19 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_8
   simp only [← c811, k3, ← c812, k3, ← c813] at e_19_8
   have hr := e_19_8
@@ -2607,7 +2607,7 @@ theorem privateBatchWrapper8_f121 (a : Assignment p) (h : Satisfies (privateBatc
   have c814 := (privateBatchWrapper8_copies25 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c815 := (privateBatchWrapper8_copies25 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c816 := (privateBatchWrapper8_copies25 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_12_7 := arithEq_of_rows h (row := 12) (i := 7) rfl (by decide)
+  have e_12_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row12 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_7
   simp only [← c814, ← c815, ← c816] at e_12_7
   have hr := e_12_7
@@ -2622,10 +2622,10 @@ theorem privateBatchWrapper8_f122 (a : Assignment p) (h : Satisfies (privateBatc
   have c820 := (privateBatchWrapper8_copies25 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c821 := (privateBatchWrapper8_copies25 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c822 := (privateBatchWrapper8_copies25 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_19_9 := arithEq_of_rows h (row := 19) (i := 9) rfl (by decide)
+  have e_19_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row19 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_9
   simp only [← c817, ← c818, ← c819] at e_19_9
-  have e_19_10 := arithEq_of_rows h (row := 19) (i := 10) rfl (by decide)
+  have e_19_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row19 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_10
   simp only [← c820, ← c821, ← c822] at e_19_10
   have hr := e_19_10
@@ -2641,10 +2641,10 @@ theorem privateBatchWrapper8_f123 (a : Assignment p) (h : Satisfies (privateBatc
   have c826 := (privateBatchWrapper8_copies25 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c827 := (privateBatchWrapper8_copies25 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c828 := (privateBatchWrapper8_copies25 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_19_11 := arithEq_of_rows h (row := 19) (i := 11) rfl (by decide)
+  have e_19_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row19 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_11
   simp only [← c823, ← c824, ← c825] at e_19_11
-  have e_19_12 := arithEq_of_rows h (row := 19) (i := 12) rfl (by decide)
+  have e_19_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row19 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_12
   simp only [← c826, ← c827, ← c828] at e_19_12
   have hr := e_19_12
@@ -2660,10 +2660,10 @@ theorem privateBatchWrapper8_f124 (a : Assignment p) (h : Satisfies (privateBatc
   have c832 := (privateBatchWrapper8_copies26 a h).1
   have c833 := (privateBatchWrapper8_copies26 a h).2.1
   have c834 := (privateBatchWrapper8_copies26 a h).2.2.1
-  have e_19_13 := arithEq_of_rows h (row := 19) (i := 13) rfl (by decide)
+  have e_19_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row19 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_13
   simp only [← c829, ← c830, ← c831] at e_19_13
-  have e_19_14 := arithEq_of_rows h (row := 19) (i := 14) rfl (by decide)
+  have e_19_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row19 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_14
   simp only [← c832, ← c833, ← c834] at e_19_14
   have hr := e_19_14
@@ -2679,10 +2679,10 @@ theorem privateBatchWrapper8_f125 (a : Assignment p) (h : Satisfies (privateBatc
   have c838 := (privateBatchWrapper8_copies26 a h).2.2.2.2.2.2.1
   have c839 := (privateBatchWrapper8_copies26 a h).2.2.2.2.2.2.2.1
   have c840 := (privateBatchWrapper8_copies26 a h).2.2.2.2.2.2.2.2.1
-  have e_20_0 := arithEq_of_rows h (row := 20) (i := 0) rfl (by decide)
+  have e_20_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row20 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_0
   simp only [← c835, ← c836, ← c837] at e_20_0
-  have e_20_1 := arithEq_of_rows h (row := 20) (i := 1) rfl (by decide)
+  have e_20_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row20 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_1
   simp only [← c838, ← c839, ← c840] at e_20_1
   have hr := e_20_1
@@ -2698,10 +2698,10 @@ theorem privateBatchWrapper8_f126 (a : Assignment p) (h : Satisfies (privateBatc
   have c844 := (privateBatchWrapper8_copies26 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c845 := (privateBatchWrapper8_copies26 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c846 := (privateBatchWrapper8_copies26 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_20_2 := arithEq_of_rows h (row := 20) (i := 2) rfl (by decide)
+  have e_20_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row20 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_2
   simp only [← c841, ← c842, ← c843] at e_20_2
-  have e_20_3 := arithEq_of_rows h (row := 20) (i := 3) rfl (by decide)
+  have e_20_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row20 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_3
   simp only [← c844, ← c845, ← c846] at e_20_3
   have hr := e_20_3
@@ -2719,10 +2719,10 @@ theorem privateBatchWrapper8_f127 (a : Assignment p) (h : Satisfies (privateBatc
   have c852 := (privateBatchWrapper8_copies26 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_14_6 := arithEq_of_rows h (row := 14) (i := 6) rfl (by decide)
+  have e_14_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row14 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_6
   simp only [← c847, ← c848, ← c849] at e_14_6
-  have e_18_2 := arithEq_of_rows h (row := 18) (i := 2) rfl (by decide)
+  have e_18_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row18 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_2
   simp only [← c850, ← c851, k3, ← c852] at e_18_2
   have hr := e_18_2
@@ -2751,19 +2751,19 @@ theorem privateBatchWrapper8_f128 (a : Assignment p) (h : Satisfies (privateBatc
   have c869 := (privateBatchWrapper8_copies27 a h).2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_12_8 := arithEq_of_rows h (row := 12) (i := 8) rfl (by decide)
+  have e_12_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row12 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_8
   simp only [← c859, ← c860, ← c861] at e_12_8
-  have e_12_9 := arithEq_of_rows h (row := 12) (i := 9) rfl (by decide)
+  have e_12_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row12 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_9
   simp only [← c862, ← c863, ← c864] at e_12_9
-  have e_20_4 := arithEq_of_rows h (row := 20) (i := 4) rfl (by decide)
+  have e_20_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row20 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_4
   simp only [← c853, k3, ← c854, k3, ← c855] at e_20_4
-  have e_20_5 := arithEq_of_rows h (row := 20) (i := 5) rfl (by decide)
+  have e_20_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row20 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_5
   simp only [← c856, ← c857, k3, ← c858] at e_20_5
-  have e_20_6 := arithEq_of_rows h (row := 20) (i := 6) rfl (by decide)
+  have e_20_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row20 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_6
   simp only [← c865, ← c866, k3, ← c867] at e_20_6
   refine ⟨?_, ?_⟩
@@ -2795,19 +2795,19 @@ theorem privateBatchWrapper8_f129 (a : Assignment p) (h : Satisfies (privateBatc
   have c886 := (privateBatchWrapper8_copies27 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_12_10 := arithEq_of_rows h (row := 12) (i := 10) rfl (by decide)
+  have e_12_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row12 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_10
   simp only [← c876, ← c877, ← c878] at e_12_10
-  have e_12_11 := arithEq_of_rows h (row := 12) (i := 11) rfl (by decide)
+  have e_12_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row12 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_11
   simp only [← c879, ← c880, ← c881] at e_12_11
-  have e_20_7 := arithEq_of_rows h (row := 20) (i := 7) rfl (by decide)
+  have e_20_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row20 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_7
   simp only [← c870, k3, ← c871, k3, ← c872] at e_20_7
-  have e_20_8 := arithEq_of_rows h (row := 20) (i := 8) rfl (by decide)
+  have e_20_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row20 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_8
   simp only [← c873, ← c874, k3, ← c875] at e_20_8
-  have e_20_9 := arithEq_of_rows h (row := 20) (i := 9) rfl (by decide)
+  have e_20_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row20 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_9
   simp only [← c882, ← c883, k3, ← c884] at e_20_9
   refine ⟨?_, ?_⟩
@@ -2839,19 +2839,19 @@ theorem privateBatchWrapper8_f130 (a : Assignment p) (h : Satisfies (privateBatc
   have c903 := (privateBatchWrapper8_copies28 a h).2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_12_12 := arithEq_of_rows h (row := 12) (i := 12) rfl (by decide)
+  have e_12_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row12 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_12
   simp only [← c893, ← c894, ← c895] at e_12_12
-  have e_12_13 := arithEq_of_rows h (row := 12) (i := 13) rfl (by decide)
+  have e_12_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row12 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_13
   simp only [← c896, ← c897, ← c898] at e_12_13
-  have e_20_10 := arithEq_of_rows h (row := 20) (i := 10) rfl (by decide)
+  have e_20_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row20 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_10
   simp only [← c887, k3, ← c888, k3, ← c889] at e_20_10
-  have e_20_11 := arithEq_of_rows h (row := 20) (i := 11) rfl (by decide)
+  have e_20_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row20 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_11
   simp only [← c890, ← c891, k3, ← c892] at e_20_11
-  have e_20_12 := arithEq_of_rows h (row := 20) (i := 12) rfl (by decide)
+  have e_20_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row20 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_12
   simp only [← c899, ← c900, k3, ← c901] at e_20_12
   refine ⟨?_, ?_⟩
@@ -2883,19 +2883,19 @@ theorem privateBatchWrapper8_f131 (a : Assignment p) (h : Satisfies (privateBatc
   have c920 := (privateBatchWrapper8_copies28 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_12_14 := arithEq_of_rows h (row := 12) (i := 14) rfl (by decide)
+  have e_12_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row12 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_12_14
   simp only [← c910, ← c911, ← c912] at e_12_14
-  have e_20_13 := arithEq_of_rows h (row := 20) (i := 13) rfl (by decide)
+  have e_20_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row20 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_13
   simp only [← c904, k3, ← c905, k3, ← c906] at e_20_13
-  have e_20_14 := arithEq_of_rows h (row := 20) (i := 14) rfl (by decide)
+  have e_20_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row20 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_20_14
   simp only [← c907, ← c908, k3, ← c909] at e_20_14
-  have e_21_0 := arithEq_of_rows h (row := 21) (i := 0) rfl (by decide)
+  have e_21_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row21 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_0
   simp only [← c913, ← c914, ← c915] at e_21_0
-  have e_22_0 := arithEq_of_rows h (row := 22) (i := 0) rfl (by decide)
+  have e_22_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row22 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_0
   simp only [← c916, ← c917, k3, ← c918] at e_22_0
   refine ⟨?_, ?_⟩
@@ -2911,7 +2911,7 @@ theorem privateBatchWrapper8_f132 (a : Assignment p) (h : Satisfies (privateBatc
   have c921 := (privateBatchWrapper8_copies28 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c922 := (privateBatchWrapper8_copies28 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c923 := (privateBatchWrapper8_copies28 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_21_1 := arithEq_of_rows h (row := 21) (i := 1) rfl (by decide)
+  have e_21_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row21 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_1
   simp only [← c921, ← c922, ← c923] at e_21_1
   have hr := e_21_1
@@ -2923,7 +2923,7 @@ theorem privateBatchWrapper8_f133 (a : Assignment p) (h : Satisfies (privateBatc
   have c924 := (privateBatchWrapper8_copies28 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c925 := (privateBatchWrapper8_copies28 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c926 := (privateBatchWrapper8_copies28 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_21_2 := arithEq_of_rows h (row := 21) (i := 2) rfl (by decide)
+  have e_21_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row21 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_2
   simp only [← c924, ← c925, ← c926] at e_21_2
   have hr := e_21_2
@@ -2935,7 +2935,7 @@ theorem privateBatchWrapper8_f134 (a : Assignment p) (h : Satisfies (privateBatc
   have c927 := (privateBatchWrapper8_copies28 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c928 := (privateBatchWrapper8_copies29 a h).1
   have c929 := (privateBatchWrapper8_copies29 a h).2.1
-  have e_21_3 := arithEq_of_rows h (row := 21) (i := 3) rfl (by decide)
+  have e_21_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row21 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_3
   simp only [← c927, ← c928, ← c929] at e_21_3
   have hr := e_21_3
@@ -2952,10 +2952,10 @@ theorem privateBatchWrapper8_f135 (a : Assignment p) (h : Satisfies (privateBatc
   have c935 := (privateBatchWrapper8_copies29 a h).2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_14_7 := arithEq_of_rows h (row := 14) (i := 7) rfl (by decide)
+  have e_14_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row14 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_7
   simp only [← c930, ← c931, ← c932] at e_14_7
-  have e_18_3 := arithEq_of_rows h (row := 18) (i := 3) rfl (by decide)
+  have e_18_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row18 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_3
   simp only [← c933, ← c934, k3, ← c935] at e_18_3
   have hr := e_18_3
@@ -2989,19 +2989,19 @@ theorem privateBatchWrapper8_f138 (a : Assignment p) (h : Satisfies (privateBatc
   have c954 := (privateBatchWrapper8_copies29 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_21_4 := arithEq_of_rows h (row := 21) (i := 4) rfl (by decide)
+  have e_21_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row21 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_4
   simp only [← c944, ← c945, ← c946] at e_21_4
-  have e_21_5 := arithEq_of_rows h (row := 21) (i := 5) rfl (by decide)
+  have e_21_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row21 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_5
   simp only [← c947, ← c948, ← c949] at e_21_5
-  have e_22_1 := arithEq_of_rows h (row := 22) (i := 1) rfl (by decide)
+  have e_22_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row22 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_1
   simp only [← c938, k3, ← c939, k3, ← c940] at e_22_1
-  have e_22_2 := arithEq_of_rows h (row := 22) (i := 2) rfl (by decide)
+  have e_22_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row22 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_2
   simp only [← c941, ← c942, k3, ← c943] at e_22_2
-  have e_22_3 := arithEq_of_rows h (row := 22) (i := 3) rfl (by decide)
+  have e_22_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row22 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_3
   simp only [← c950, ← c951, k3, ← c952] at e_22_3
   refine ⟨?_, ?_⟩
@@ -3033,19 +3033,19 @@ theorem privateBatchWrapper8_f139 (a : Assignment p) (h : Satisfies (privateBatc
   have c971 := (privateBatchWrapper8_copies30 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_21_6 := arithEq_of_rows h (row := 21) (i := 6) rfl (by decide)
+  have e_21_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row21 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_6
   simp only [← c961, ← c962, ← c963] at e_21_6
-  have e_21_7 := arithEq_of_rows h (row := 21) (i := 7) rfl (by decide)
+  have e_21_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row21 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_7
   simp only [← c964, ← c965, ← c966] at e_21_7
-  have e_22_4 := arithEq_of_rows h (row := 22) (i := 4) rfl (by decide)
+  have e_22_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row22 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_4
   simp only [← c955, k3, ← c956, k3, ← c957] at e_22_4
-  have e_22_5 := arithEq_of_rows h (row := 22) (i := 5) rfl (by decide)
+  have e_22_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row22 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_5
   simp only [← c958, ← c959, k3, ← c960] at e_22_5
-  have e_22_6 := arithEq_of_rows h (row := 22) (i := 6) rfl (by decide)
+  have e_22_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row22 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_6
   simp only [← c967, ← c968, k3, ← c969] at e_22_6
   refine ⟨?_, ?_⟩
@@ -3077,19 +3077,19 @@ theorem privateBatchWrapper8_f140 (a : Assignment p) (h : Satisfies (privateBatc
   have c988 := (privateBatchWrapper8_copies30 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_21_8 := arithEq_of_rows h (row := 21) (i := 8) rfl (by decide)
+  have e_21_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row21 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_8
   simp only [← c978, ← c979, ← c980] at e_21_8
-  have e_21_9 := arithEq_of_rows h (row := 21) (i := 9) rfl (by decide)
+  have e_21_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row21 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_9
   simp only [← c981, ← c982, ← c983] at e_21_9
-  have e_22_7 := arithEq_of_rows h (row := 22) (i := 7) rfl (by decide)
+  have e_22_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row22 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_7
   simp only [← c972, k3, ← c973, k3, ← c974] at e_22_7
-  have e_22_8 := arithEq_of_rows h (row := 22) (i := 8) rfl (by decide)
+  have e_22_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row22 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_8
   simp only [← c975, ← c976, k3, ← c977] at e_22_8
-  have e_22_9 := arithEq_of_rows h (row := 22) (i := 9) rfl (by decide)
+  have e_22_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row22 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_9
   simp only [← c984, ← c985, k3, ← c986] at e_22_9
   refine ⟨?_, ?_⟩
@@ -3121,19 +3121,19 @@ theorem privateBatchWrapper8_f141 (a : Assignment p) (h : Satisfies (privateBatc
   have c1005 := (privateBatchWrapper8_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_21_10 := arithEq_of_rows h (row := 21) (i := 10) rfl (by decide)
+  have e_21_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row21 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_10
   simp only [← c995, ← c996, ← c997] at e_21_10
-  have e_21_11 := arithEq_of_rows h (row := 21) (i := 11) rfl (by decide)
+  have e_21_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row21 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_11
   simp only [← c998, ← c999, ← c1000] at e_21_11
-  have e_22_10 := arithEq_of_rows h (row := 22) (i := 10) rfl (by decide)
+  have e_22_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row22 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_10
   simp only [← c989, k3, ← c990, k3, ← c991] at e_22_10
-  have e_22_11 := arithEq_of_rows h (row := 22) (i := 11) rfl (by decide)
+  have e_22_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row22 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_11
   simp only [← c992, ← c993, k3, ← c994] at e_22_11
-  have e_22_12 := arithEq_of_rows h (row := 22) (i := 12) rfl (by decide)
+  have e_22_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row22 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_12
   simp only [← c1001, ← c1002, k3, ← c1003] at e_22_12
   refine ⟨?_, ?_⟩
@@ -3149,7 +3149,7 @@ theorem privateBatchWrapper8_f142 (a : Assignment p) (h : Satisfies (privateBatc
   have c1006 := (privateBatchWrapper8_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1007 := (privateBatchWrapper8_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1008 := (privateBatchWrapper8_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_21_12 := arithEq_of_rows h (row := 21) (i := 12) rfl (by decide)
+  have e_21_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row21 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_12
   simp only [← c1006, ← c1007, ← c1008] at e_21_12
   have hr := e_21_12
@@ -3161,7 +3161,7 @@ theorem privateBatchWrapper8_f143 (a : Assignment p) (h : Satisfies (privateBatc
   have c1009 := (privateBatchWrapper8_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1010 := (privateBatchWrapper8_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1011 := (privateBatchWrapper8_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_21_13 := arithEq_of_rows h (row := 21) (i := 13) rfl (by decide)
+  have e_21_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row21 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_13
   simp only [← c1009, ← c1010, ← c1011] at e_21_13
   have hr := e_21_13
@@ -3173,7 +3173,7 @@ theorem privateBatchWrapper8_f144 (a : Assignment p) (h : Satisfies (privateBatc
   have c1012 := (privateBatchWrapper8_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1013 := (privateBatchWrapper8_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1014 := (privateBatchWrapper8_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_21_14 := arithEq_of_rows h (row := 21) (i := 14) rfl (by decide)
+  have e_21_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row21 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_21_14
   simp only [← c1012, ← c1013, ← c1014] at e_21_14
   have hr := e_21_14
@@ -3190,10 +3190,10 @@ theorem privateBatchWrapper8_f145 (a : Assignment p) (h : Satisfies (privateBatc
   have c1020 := (privateBatchWrapper8_copies31 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_14_8 := arithEq_of_rows h (row := 14) (i := 8) rfl (by decide)
+  have e_14_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row14 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_8
   simp only [← c1015, ← c1016, ← c1017] at e_14_8
-  have e_18_4 := arithEq_of_rows h (row := 18) (i := 4) rfl (by decide)
+  have e_18_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row18 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_4
   simp only [← c1018, ← c1019, k3, ← c1020] at e_18_4
   have hr := e_18_4
@@ -3232,19 +3232,19 @@ theorem privateBatchWrapper8_f148 (a : Assignment p) (h : Satisfies (privateBatc
   have c1039 := (privateBatchWrapper8_copies32 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_22_13 := arithEq_of_rows h (row := 22) (i := 13) rfl (by decide)
+  have e_22_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row22 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_13
   simp only [← c1023, k3, ← c1024, k3, ← c1025] at e_22_13
-  have e_22_14 := arithEq_of_rows h (row := 22) (i := 14) rfl (by decide)
+  have e_22_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row22 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_22_14
   simp only [← c1026, ← c1027, k3, ← c1028] at e_22_14
-  have e_23_0 := arithEq_of_rows h (row := 23) (i := 0) rfl (by decide)
+  have e_23_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row23 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_0
   simp only [← c1029, ← c1030, ← c1031] at e_23_0
-  have e_23_1 := arithEq_of_rows h (row := 23) (i := 1) rfl (by decide)
+  have e_23_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row23 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_1
   simp only [← c1032, ← c1033, ← c1034] at e_23_1
-  have e_24_0 := arithEq_of_rows h (row := 24) (i := 0) rfl (by decide)
+  have e_24_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row24 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_24_0
   simp only [← c1035, ← c1036, k3, ← c1037] at e_24_0
   refine ⟨?_, ?_⟩
@@ -3276,19 +3276,19 @@ theorem privateBatchWrapper8_f149 (a : Assignment p) (h : Satisfies (privateBatc
   have c1056 := (privateBatchWrapper8_copies33 a h).1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_23_2 := arithEq_of_rows h (row := 23) (i := 2) rfl (by decide)
+  have e_23_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row23 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_2
   simp only [← c1046, ← c1047, ← c1048] at e_23_2
-  have e_23_3 := arithEq_of_rows h (row := 23) (i := 3) rfl (by decide)
+  have e_23_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row23 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_3
   simp only [← c1049, ← c1050, ← c1051] at e_23_3
-  have e_24_1 := arithEq_of_rows h (row := 24) (i := 1) rfl (by decide)
+  have e_24_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row24 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_24_1
   simp only [← c1040, k3, ← c1041, k3, ← c1042] at e_24_1
-  have e_24_2 := arithEq_of_rows h (row := 24) (i := 2) rfl (by decide)
+  have e_24_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row24 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_24_2
   simp only [← c1043, ← c1044, k3, ← c1045] at e_24_2
-  have e_24_3 := arithEq_of_rows h (row := 24) (i := 3) rfl (by decide)
+  have e_24_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row24 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_24_3
   simp only [← c1052, ← c1053, k3, ← c1054] at e_24_3
   refine ⟨?_, ?_⟩
@@ -3320,19 +3320,19 @@ theorem privateBatchWrapper8_f150 (a : Assignment p) (h : Satisfies (privateBatc
   have c1073 := (privateBatchWrapper8_copies33 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_23_4 := arithEq_of_rows h (row := 23) (i := 4) rfl (by decide)
+  have e_23_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row23 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_4
   simp only [← c1063, ← c1064, ← c1065] at e_23_4
-  have e_23_5 := arithEq_of_rows h (row := 23) (i := 5) rfl (by decide)
+  have e_23_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row23 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_5
   simp only [← c1066, ← c1067, ← c1068] at e_23_5
-  have e_24_4 := arithEq_of_rows h (row := 24) (i := 4) rfl (by decide)
+  have e_24_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row24 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_24_4
   simp only [← c1057, k3, ← c1058, k3, ← c1059] at e_24_4
-  have e_24_5 := arithEq_of_rows h (row := 24) (i := 5) rfl (by decide)
+  have e_24_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row24 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_24_5
   simp only [← c1060, ← c1061, k3, ← c1062] at e_24_5
-  have e_24_6 := arithEq_of_rows h (row := 24) (i := 6) rfl (by decide)
+  have e_24_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row24 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_24_6
   simp only [← c1069, ← c1070, k3, ← c1071] at e_24_6
   refine ⟨?_, ?_⟩
@@ -3364,19 +3364,19 @@ theorem privateBatchWrapper8_f151 (a : Assignment p) (h : Satisfies (privateBatc
   have c1090 := (privateBatchWrapper8_copies34 a h).2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_23_6 := arithEq_of_rows h (row := 23) (i := 6) rfl (by decide)
+  have e_23_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row23 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_6
   simp only [← c1080, ← c1081, ← c1082] at e_23_6
-  have e_23_7 := arithEq_of_rows h (row := 23) (i := 7) rfl (by decide)
+  have e_23_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row23 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_7
   simp only [← c1083, ← c1084, ← c1085] at e_23_7
-  have e_24_7 := arithEq_of_rows h (row := 24) (i := 7) rfl (by decide)
+  have e_24_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row24 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_24_7
   simp only [← c1074, k3, ← c1075, k3, ← c1076] at e_24_7
-  have e_24_8 := arithEq_of_rows h (row := 24) (i := 8) rfl (by decide)
+  have e_24_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row24 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_24_8
   simp only [← c1077, ← c1078, k3, ← c1079] at e_24_8
-  have e_24_9 := arithEq_of_rows h (row := 24) (i := 9) rfl (by decide)
+  have e_24_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row24 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_24_9
   simp only [← c1086, ← c1087, k3, ← c1088] at e_24_9
   refine ⟨?_, ?_⟩
@@ -3392,7 +3392,7 @@ theorem privateBatchWrapper8_f152 (a : Assignment p) (h : Satisfies (privateBatc
   have c1091 := (privateBatchWrapper8_copies34 a h).2.2.2.1
   have c1092 := (privateBatchWrapper8_copies34 a h).2.2.2.2.1
   have c1093 := (privateBatchWrapper8_copies34 a h).2.2.2.2.2.1
-  have e_23_8 := arithEq_of_rows h (row := 23) (i := 8) rfl (by decide)
+  have e_23_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row23 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_8
   simp only [← c1091, ← c1092, ← c1093] at e_23_8
   have hr := e_23_8
@@ -3404,7 +3404,7 @@ theorem privateBatchWrapper8_f153 (a : Assignment p) (h : Satisfies (privateBatc
   have c1094 := (privateBatchWrapper8_copies34 a h).2.2.2.2.2.2.1
   have c1095 := (privateBatchWrapper8_copies34 a h).2.2.2.2.2.2.2.1
   have c1096 := (privateBatchWrapper8_copies34 a h).2.2.2.2.2.2.2.2.1
-  have e_23_9 := arithEq_of_rows h (row := 23) (i := 9) rfl (by decide)
+  have e_23_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row23 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_9
   simp only [← c1094, ← c1095, ← c1096] at e_23_9
   have hr := e_23_9
@@ -3416,7 +3416,7 @@ theorem privateBatchWrapper8_f154 (a : Assignment p) (h : Satisfies (privateBatc
   have c1097 := (privateBatchWrapper8_copies34 a h).2.2.2.2.2.2.2.2.2.1
   have c1098 := (privateBatchWrapper8_copies34 a h).2.2.2.2.2.2.2.2.2.2.1
   have c1099 := (privateBatchWrapper8_copies34 a h).2.2.2.2.2.2.2.2.2.2.2.1
-  have e_23_10 := arithEq_of_rows h (row := 23) (i := 10) rfl (by decide)
+  have e_23_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row23 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_10
   simp only [← c1097, ← c1098, ← c1099] at e_23_10
   have hr := e_23_10
@@ -3433,10 +3433,10 @@ theorem privateBatchWrapper8_f155 (a : Assignment p) (h : Satisfies (privateBatc
   have c1105 := (privateBatchWrapper8_copies34 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_14_9 := arithEq_of_rows h (row := 14) (i := 9) rfl (by decide)
+  have e_14_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row14 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_9
   simp only [← c1100, ← c1101, ← c1102] at e_14_9
-  have e_18_5 := arithEq_of_rows h (row := 18) (i := 5) rfl (by decide)
+  have e_18_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row18 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_5
   simp only [← c1103, ← c1104, k3, ← c1105] at e_18_5
   have hr := e_18_5
@@ -3475,19 +3475,19 @@ theorem privateBatchWrapper8_f158 (a : Assignment p) (h : Satisfies (privateBatc
   have c1124 := (privateBatchWrapper8_copies35 a h).2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_23_11 := arithEq_of_rows h (row := 23) (i := 11) rfl (by decide)
+  have e_23_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row23 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_11
   simp only [← c1114, ← c1115, ← c1116] at e_23_11
-  have e_23_12 := arithEq_of_rows h (row := 23) (i := 12) rfl (by decide)
+  have e_23_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row23 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_12
   simp only [← c1117, ← c1118, ← c1119] at e_23_12
-  have e_24_10 := arithEq_of_rows h (row := 24) (i := 10) rfl (by decide)
+  have e_24_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row24 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_24_10
   simp only [← c1108, k3, ← c1109, k3, ← c1110] at e_24_10
-  have e_24_11 := arithEq_of_rows h (row := 24) (i := 11) rfl (by decide)
+  have e_24_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row24 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_24_11
   simp only [← c1111, ← c1112, k3, ← c1113] at e_24_11
-  have e_24_12 := arithEq_of_rows h (row := 24) (i := 12) rfl (by decide)
+  have e_24_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row24 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_24_12
   simp only [← c1120, ← c1121, k3, ← c1122] at e_24_12
   refine ⟨?_, ?_⟩
@@ -3519,19 +3519,19 @@ theorem privateBatchWrapper8_f159 (a : Assignment p) (h : Satisfies (privateBatc
   have c1141 := (privateBatchWrapper8_copies35 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_23_13 := arithEq_of_rows h (row := 23) (i := 13) rfl (by decide)
+  have e_23_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row23 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_13
   simp only [← c1131, ← c1132, ← c1133] at e_23_13
-  have e_23_14 := arithEq_of_rows h (row := 23) (i := 14) rfl (by decide)
+  have e_23_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row23 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_23_14
   simp only [← c1134, ← c1135, ← c1136] at e_23_14
-  have e_24_13 := arithEq_of_rows h (row := 24) (i := 13) rfl (by decide)
+  have e_24_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row24 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_24_13
   simp only [← c1125, k3, ← c1126, k3, ← c1127] at e_24_13
-  have e_24_14 := arithEq_of_rows h (row := 24) (i := 14) rfl (by decide)
+  have e_24_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row24 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_24_14
   simp only [← c1128, ← c1129, k3, ← c1130] at e_24_14
-  have e_25_0 := arithEq_of_rows h (row := 25) (i := 0) rfl (by decide)
+  have e_25_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row25 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_25_0
   simp only [← c1137, ← c1138, k3, ← c1139] at e_25_0
   refine ⟨?_, ?_⟩
@@ -3563,19 +3563,19 @@ theorem privateBatchWrapper8_f160 (a : Assignment p) (h : Satisfies (privateBatc
   have c1158 := (privateBatchWrapper8_copies36 a h).2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_25_1 := arithEq_of_rows h (row := 25) (i := 1) rfl (by decide)
+  have e_25_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row25 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_25_1
   simp only [← c1142, k3, ← c1143, k3, ← c1144] at e_25_1
-  have e_25_2 := arithEq_of_rows h (row := 25) (i := 2) rfl (by decide)
+  have e_25_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row25 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_25_2
   simp only [← c1145, ← c1146, k3, ← c1147] at e_25_2
-  have e_25_3 := arithEq_of_rows h (row := 25) (i := 3) rfl (by decide)
+  have e_25_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row25 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_25_3
   simp only [← c1154, ← c1155, k3, ← c1156] at e_25_3
-  have e_26_0 := arithEq_of_rows h (row := 26) (i := 0) rfl (by decide)
+  have e_26_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row26 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_26_0
   simp only [← c1148, ← c1149, ← c1150] at e_26_0
-  have e_26_1 := arithEq_of_rows h (row := 26) (i := 1) rfl (by decide)
+  have e_26_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row26 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_26_1
   simp only [← c1151, ← c1152, ← c1153] at e_26_1
   refine ⟨?_, ?_⟩
@@ -3607,19 +3607,19 @@ theorem privateBatchWrapper8_f161 (a : Assignment p) (h : Satisfies (privateBatc
   have c1175 := (privateBatchWrapper8_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_25_4 := arithEq_of_rows h (row := 25) (i := 4) rfl (by decide)
+  have e_25_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row25 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_25_4
   simp only [← c1159, k3, ← c1160, k3, ← c1161] at e_25_4
-  have e_25_5 := arithEq_of_rows h (row := 25) (i := 5) rfl (by decide)
+  have e_25_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row25 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_25_5
   simp only [← c1162, ← c1163, k3, ← c1164] at e_25_5
-  have e_25_6 := arithEq_of_rows h (row := 25) (i := 6) rfl (by decide)
+  have e_25_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row25 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_25_6
   simp only [← c1171, ← c1172, k3, ← c1173] at e_25_6
-  have e_26_2 := arithEq_of_rows h (row := 26) (i := 2) rfl (by decide)
+  have e_26_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row26 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_26_2
   simp only [← c1165, ← c1166, ← c1167] at e_26_2
-  have e_26_3 := arithEq_of_rows h (row := 26) (i := 3) rfl (by decide)
+  have e_26_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row26 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_26_3
   simp only [← c1168, ← c1169, ← c1170] at e_26_3
   refine ⟨?_, ?_⟩
@@ -3635,7 +3635,7 @@ theorem privateBatchWrapper8_f162 (a : Assignment p) (h : Satisfies (privateBatc
   have c1176 := (privateBatchWrapper8_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1177 := (privateBatchWrapper8_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1178 := (privateBatchWrapper8_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_26_4 := arithEq_of_rows h (row := 26) (i := 4) rfl (by decide)
+  have e_26_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row26 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_26_4
   simp only [← c1176, ← c1177, ← c1178] at e_26_4
   have hr := e_26_4
@@ -3647,7 +3647,7 @@ theorem privateBatchWrapper8_f163 (a : Assignment p) (h : Satisfies (privateBatc
   have c1179 := (privateBatchWrapper8_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1180 := (privateBatchWrapper8_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1181 := (privateBatchWrapper8_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_26_5 := arithEq_of_rows h (row := 26) (i := 5) rfl (by decide)
+  have e_26_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row26 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_26_5
   simp only [← c1179, ← c1180, ← c1181] at e_26_5
   have hr := e_26_5
@@ -3659,7 +3659,7 @@ theorem privateBatchWrapper8_f164 (a : Assignment p) (h : Satisfies (privateBatc
   have c1182 := (privateBatchWrapper8_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1183 := (privateBatchWrapper8_copies36 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c1184 := (privateBatchWrapper8_copies37 a h).1
-  have e_26_6 := arithEq_of_rows h (row := 26) (i := 6) rfl (by decide)
+  have e_26_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row26 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_26_6
   simp only [← c1182, ← c1183, ← c1184] at e_26_6
   have hr := e_26_6
@@ -3676,10 +3676,10 @@ theorem privateBatchWrapper8_f165 (a : Assignment p) (h : Satisfies (privateBatc
   have c1190 := (privateBatchWrapper8_copies37 a h).2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_14_10 := arithEq_of_rows h (row := 14) (i := 10) rfl (by decide)
+  have e_14_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row14 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_10
   simp only [← c1185, ← c1186, ← c1187] at e_14_10
-  have e_18_6 := arithEq_of_rows h (row := 18) (i := 6) rfl (by decide)
+  have e_18_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row18 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_6
   simp only [← c1188, ← c1189, k3, ← c1190] at e_18_6
   have hr := e_18_6
@@ -3718,19 +3718,19 @@ theorem privateBatchWrapper8_f168 (a : Assignment p) (h : Satisfies (privateBatc
   have c1209 := (privateBatchWrapper8_copies37 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_25_7 := arithEq_of_rows h (row := 25) (i := 7) rfl (by decide)
+  have e_25_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row25 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_25_7
   simp only [← c1193, k3, ← c1194, k3, ← c1195] at e_25_7
-  have e_25_8 := arithEq_of_rows h (row := 25) (i := 8) rfl (by decide)
+  have e_25_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row25 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_25_8
   simp only [← c1196, ← c1197, k3, ← c1198] at e_25_8
-  have e_25_9 := arithEq_of_rows h (row := 25) (i := 9) rfl (by decide)
+  have e_25_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row25 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_25_9
   simp only [← c1205, ← c1206, k3, ← c1207] at e_25_9
-  have e_26_7 := arithEq_of_rows h (row := 26) (i := 7) rfl (by decide)
+  have e_26_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row26 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_26_7
   simp only [← c1199, ← c1200, ← c1201] at e_26_7
-  have e_26_8 := arithEq_of_rows h (row := 26) (i := 8) rfl (by decide)
+  have e_26_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row26 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_26_8
   simp only [← c1202, ← c1203, ← c1204] at e_26_8
   refine ⟨?_, ?_⟩
@@ -3762,19 +3762,19 @@ theorem privateBatchWrapper8_f169 (a : Assignment p) (h : Satisfies (privateBatc
   have c1226 := (privateBatchWrapper8_copies38 a h).2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_25_10 := arithEq_of_rows h (row := 25) (i := 10) rfl (by decide)
+  have e_25_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row25 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_25_10
   simp only [← c1210, k3, ← c1211, k3, ← c1212] at e_25_10
-  have e_25_11 := arithEq_of_rows h (row := 25) (i := 11) rfl (by decide)
+  have e_25_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row25 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_25_11
   simp only [← c1213, ← c1214, k3, ← c1215] at e_25_11
-  have e_25_12 := arithEq_of_rows h (row := 25) (i := 12) rfl (by decide)
+  have e_25_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row25 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_25_12
   simp only [← c1222, ← c1223, k3, ← c1224] at e_25_12
-  have e_26_9 := arithEq_of_rows h (row := 26) (i := 9) rfl (by decide)
+  have e_26_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row26 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_26_9
   simp only [← c1216, ← c1217, ← c1218] at e_26_9
-  have e_26_10 := arithEq_of_rows h (row := 26) (i := 10) rfl (by decide)
+  have e_26_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row26 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_26_10
   simp only [← c1219, ← c1220, ← c1221] at e_26_10
   refine ⟨?_, ?_⟩
@@ -3806,19 +3806,19 @@ theorem privateBatchWrapper8_f170 (a : Assignment p) (h : Satisfies (privateBatc
   have c1243 := (privateBatchWrapper8_copies38 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_25_13 := arithEq_of_rows h (row := 25) (i := 13) rfl (by decide)
+  have e_25_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row25 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_25_13
   simp only [← c1227, k3, ← c1228, k3, ← c1229] at e_25_13
-  have e_25_14 := arithEq_of_rows h (row := 25) (i := 14) rfl (by decide)
+  have e_25_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row25 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_25_14
   simp only [← c1230, ← c1231, k3, ← c1232] at e_25_14
-  have e_26_11 := arithEq_of_rows h (row := 26) (i := 11) rfl (by decide)
+  have e_26_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row26 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_26_11
   simp only [← c1233, ← c1234, ← c1235] at e_26_11
-  have e_26_12 := arithEq_of_rows h (row := 26) (i := 12) rfl (by decide)
+  have e_26_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row26 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_26_12
   simp only [← c1236, ← c1237, ← c1238] at e_26_12
-  have e_27_0 := arithEq_of_rows h (row := 27) (i := 0) rfl (by decide)
+  have e_27_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row27 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_27_0
   simp only [← c1239, ← c1240, k3, ← c1241] at e_27_0
   refine ⟨?_, ?_⟩
@@ -3850,19 +3850,19 @@ theorem privateBatchWrapper8_f171 (a : Assignment p) (h : Satisfies (privateBatc
   have c1260 := (privateBatchWrapper8_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_26_13 := arithEq_of_rows h (row := 26) (i := 13) rfl (by decide)
+  have e_26_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row26 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_26_13
   simp only [← c1250, ← c1251, ← c1252] at e_26_13
-  have e_26_14 := arithEq_of_rows h (row := 26) (i := 14) rfl (by decide)
+  have e_26_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row26 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_26_14
   simp only [← c1253, ← c1254, ← c1255] at e_26_14
-  have e_27_1 := arithEq_of_rows h (row := 27) (i := 1) rfl (by decide)
+  have e_27_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row27 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_27_1
   simp only [← c1244, k3, ← c1245, k3, ← c1246] at e_27_1
-  have e_27_2 := arithEq_of_rows h (row := 27) (i := 2) rfl (by decide)
+  have e_27_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row27 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_27_2
   simp only [← c1247, ← c1248, k3, ← c1249] at e_27_2
-  have e_27_3 := arithEq_of_rows h (row := 27) (i := 3) rfl (by decide)
+  have e_27_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row27 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_27_3
   simp only [← c1256, ← c1257, k3, ← c1258] at e_27_3
   refine ⟨?_, ?_⟩
@@ -3878,7 +3878,7 @@ theorem privateBatchWrapper8_f172 (a : Assignment p) (h : Satisfies (privateBatc
   have c1261 := (privateBatchWrapper8_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1262 := (privateBatchWrapper8_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1263 := (privateBatchWrapper8_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_28_0 := arithEq_of_rows h (row := 28) (i := 0) rfl (by decide)
+  have e_28_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row28 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_28_0
   simp only [← c1261, ← c1262, ← c1263] at e_28_0
   have hr := e_28_0
@@ -3890,7 +3890,7 @@ theorem privateBatchWrapper8_f173 (a : Assignment p) (h : Satisfies (privateBatc
   have c1264 := (privateBatchWrapper8_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1265 := (privateBatchWrapper8_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1266 := (privateBatchWrapper8_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_28_1 := arithEq_of_rows h (row := 28) (i := 1) rfl (by decide)
+  have e_28_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row28 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_28_1
   simp only [← c1264, ← c1265, ← c1266] at e_28_1
   have hr := e_28_1
@@ -3902,7 +3902,7 @@ theorem privateBatchWrapper8_f174 (a : Assignment p) (h : Satisfies (privateBatc
   have c1267 := (privateBatchWrapper8_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1268 := (privateBatchWrapper8_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1269 := (privateBatchWrapper8_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_28_2 := arithEq_of_rows h (row := 28) (i := 2) rfl (by decide)
+  have e_28_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row28 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_28_2
   simp only [← c1267, ← c1268, ← c1269] at e_28_2
   have hr := e_28_2
@@ -3919,10 +3919,10 @@ theorem privateBatchWrapper8_f175 (a : Assignment p) (h : Satisfies (privateBatc
   have c1275 := (privateBatchWrapper8_copies39 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_14_11 := arithEq_of_rows h (row := 14) (i := 11) rfl (by decide)
+  have e_14_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row14 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_11
   simp only [← c1270, ← c1271, ← c1272] at e_14_11
-  have e_18_7 := arithEq_of_rows h (row := 18) (i := 7) rfl (by decide)
+  have e_18_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row18 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_7
   simp only [← c1273, ← c1274, k3, ← c1275] at e_18_7
   have hr := e_18_7
@@ -3961,19 +3961,19 @@ theorem privateBatchWrapper8_f178 (a : Assignment p) (h : Satisfies (privateBatc
   have c1294 := (privateBatchWrapper8_copies40 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_27_4 := arithEq_of_rows h (row := 27) (i := 4) rfl (by decide)
+  have e_27_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row27 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_27_4
   simp only [← c1278, k3, ← c1279, k3, ← c1280] at e_27_4
-  have e_27_5 := arithEq_of_rows h (row := 27) (i := 5) rfl (by decide)
+  have e_27_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row27 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_27_5
   simp only [← c1281, ← c1282, k3, ← c1283] at e_27_5
-  have e_27_6 := arithEq_of_rows h (row := 27) (i := 6) rfl (by decide)
+  have e_27_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row27 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_27_6
   simp only [← c1290, ← c1291, k3, ← c1292] at e_27_6
-  have e_28_3 := arithEq_of_rows h (row := 28) (i := 3) rfl (by decide)
+  have e_28_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row28 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_28_3
   simp only [← c1284, ← c1285, ← c1286] at e_28_3
-  have e_28_4 := arithEq_of_rows h (row := 28) (i := 4) rfl (by decide)
+  have e_28_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row28 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_28_4
   simp only [← c1287, ← c1288, ← c1289] at e_28_4
   refine ⟨?_, ?_⟩
@@ -4005,19 +4005,19 @@ theorem privateBatchWrapper8_f179 (a : Assignment p) (h : Satisfies (privateBatc
   have c1311 := (privateBatchWrapper8_copies40 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_27_7 := arithEq_of_rows h (row := 27) (i := 7) rfl (by decide)
+  have e_27_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row27 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_27_7
   simp only [← c1295, k3, ← c1296, k3, ← c1297] at e_27_7
-  have e_27_8 := arithEq_of_rows h (row := 27) (i := 8) rfl (by decide)
+  have e_27_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row27 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_27_8
   simp only [← c1298, ← c1299, k3, ← c1300] at e_27_8
-  have e_27_9 := arithEq_of_rows h (row := 27) (i := 9) rfl (by decide)
+  have e_27_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row27 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_27_9
   simp only [← c1307, ← c1308, k3, ← c1309] at e_27_9
-  have e_28_5 := arithEq_of_rows h (row := 28) (i := 5) rfl (by decide)
+  have e_28_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row28 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_28_5
   simp only [← c1301, ← c1302, ← c1303] at e_28_5
-  have e_28_6 := arithEq_of_rows h (row := 28) (i := 6) rfl (by decide)
+  have e_28_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row28 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_28_6
   simp only [← c1304, ← c1305, ← c1306] at e_28_6
   refine ⟨?_, ?_⟩
@@ -4049,19 +4049,19 @@ theorem privateBatchWrapper8_f180 (a : Assignment p) (h : Satisfies (privateBatc
   have c1328 := (privateBatchWrapper8_copies41 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_27_10 := arithEq_of_rows h (row := 27) (i := 10) rfl (by decide)
+  have e_27_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row27 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_27_10
   simp only [← c1312, k3, ← c1313, k3, ← c1314] at e_27_10
-  have e_27_11 := arithEq_of_rows h (row := 27) (i := 11) rfl (by decide)
+  have e_27_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row27 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_27_11
   simp only [← c1315, ← c1316, k3, ← c1317] at e_27_11
-  have e_27_12 := arithEq_of_rows h (row := 27) (i := 12) rfl (by decide)
+  have e_27_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row27 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_27_12
   simp only [← c1324, ← c1325, k3, ← c1326] at e_27_12
-  have e_28_7 := arithEq_of_rows h (row := 28) (i := 7) rfl (by decide)
+  have e_28_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row28 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_28_7
   simp only [← c1318, ← c1319, ← c1320] at e_28_7
-  have e_28_8 := arithEq_of_rows h (row := 28) (i := 8) rfl (by decide)
+  have e_28_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row28 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_28_8
   simp only [← c1321, ← c1322, ← c1323] at e_28_8
   refine ⟨?_, ?_⟩
@@ -4093,19 +4093,19 @@ theorem privateBatchWrapper8_f181 (a : Assignment p) (h : Satisfies (privateBatc
   have c1345 := (privateBatchWrapper8_copies42 a h).2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_27_13 := arithEq_of_rows h (row := 27) (i := 13) rfl (by decide)
+  have e_27_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row27 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_27_13
   simp only [← c1329, k3, ← c1330, k3, ← c1331] at e_27_13
-  have e_27_14 := arithEq_of_rows h (row := 27) (i := 14) rfl (by decide)
+  have e_27_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row27 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_27_14
   simp only [← c1332, ← c1333, k3, ← c1334] at e_27_14
-  have e_28_9 := arithEq_of_rows h (row := 28) (i := 9) rfl (by decide)
+  have e_28_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row28 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_28_9
   simp only [← c1335, ← c1336, ← c1337] at e_28_9
-  have e_28_10 := arithEq_of_rows h (row := 28) (i := 10) rfl (by decide)
+  have e_28_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row28 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_28_10
   simp only [← c1338, ← c1339, ← c1340] at e_28_10
-  have e_29_0 := arithEq_of_rows h (row := 29) (i := 0) rfl (by decide)
+  have e_29_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row29 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_29_0
   simp only [← c1341, ← c1342, k3, ← c1343] at e_29_0
   refine ⟨?_, ?_⟩
@@ -4121,7 +4121,7 @@ theorem privateBatchWrapper8_f182 (a : Assignment p) (h : Satisfies (privateBatc
   have c1346 := (privateBatchWrapper8_copies42 a h).2.2.1
   have c1347 := (privateBatchWrapper8_copies42 a h).2.2.2.1
   have c1348 := (privateBatchWrapper8_copies42 a h).2.2.2.2.1
-  have e_28_11 := arithEq_of_rows h (row := 28) (i := 11) rfl (by decide)
+  have e_28_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row28 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_28_11
   simp only [← c1346, ← c1347, ← c1348] at e_28_11
   have hr := e_28_11
@@ -4133,7 +4133,7 @@ theorem privateBatchWrapper8_f183 (a : Assignment p) (h : Satisfies (privateBatc
   have c1349 := (privateBatchWrapper8_copies42 a h).2.2.2.2.2.1
   have c1350 := (privateBatchWrapper8_copies42 a h).2.2.2.2.2.2.1
   have c1351 := (privateBatchWrapper8_copies42 a h).2.2.2.2.2.2.2.1
-  have e_28_12 := arithEq_of_rows h (row := 28) (i := 12) rfl (by decide)
+  have e_28_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row28 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_28_12
   simp only [← c1349, ← c1350, ← c1351] at e_28_12
   have hr := e_28_12
@@ -4145,7 +4145,7 @@ theorem privateBatchWrapper8_f184 (a : Assignment p) (h : Satisfies (privateBatc
   have c1352 := (privateBatchWrapper8_copies42 a h).2.2.2.2.2.2.2.2.1
   have c1353 := (privateBatchWrapper8_copies42 a h).2.2.2.2.2.2.2.2.2.1
   have c1354 := (privateBatchWrapper8_copies42 a h).2.2.2.2.2.2.2.2.2.2.1
-  have e_28_13 := arithEq_of_rows h (row := 28) (i := 13) rfl (by decide)
+  have e_28_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row28 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_28_13
   simp only [← c1352, ← c1353, ← c1354] at e_28_13
   have hr := e_28_13
@@ -4162,10 +4162,10 @@ theorem privateBatchWrapper8_f185 (a : Assignment p) (h : Satisfies (privateBatc
   have c1360 := (privateBatchWrapper8_copies42 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_14_12 := arithEq_of_rows h (row := 14) (i := 12) rfl (by decide)
+  have e_14_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row14 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_12
   simp only [← c1355, ← c1356, ← c1357] at e_14_12
-  have e_18_8 := arithEq_of_rows h (row := 18) (i := 8) rfl (by decide)
+  have e_18_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row18 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_8
   simp only [← c1358, ← c1359, k3, ← c1360] at e_18_8
   have hr := e_18_8
@@ -4204,19 +4204,19 @@ theorem privateBatchWrapper8_f188 (a : Assignment p) (h : Satisfies (privateBatc
   have c1379 := (privateBatchWrapper8_copies43 a h).2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_28_14 := arithEq_of_rows h (row := 28) (i := 14) rfl (by decide)
+  have e_28_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row28 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_28_14
   simp only [← c1369, ← c1370, ← c1371] at e_28_14
-  have e_29_1 := arithEq_of_rows h (row := 29) (i := 1) rfl (by decide)
+  have e_29_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row29 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_29_1
   simp only [← c1363, k3, ← c1364, k3, ← c1365] at e_29_1
-  have e_29_2 := arithEq_of_rows h (row := 29) (i := 2) rfl (by decide)
+  have e_29_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row29 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_29_2
   simp only [← c1366, ← c1367, k3, ← c1368] at e_29_2
-  have e_29_3 := arithEq_of_rows h (row := 29) (i := 3) rfl (by decide)
+  have e_29_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row29 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_29_3
   simp only [← c1375, ← c1376, k3, ← c1377] at e_29_3
-  have e_30_0 := arithEq_of_rows h (row := 30) (i := 0) rfl (by decide)
+  have e_30_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row30 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_30_0
   simp only [← c1372, ← c1373, ← c1374] at e_30_0
   refine ⟨?_, ?_⟩
@@ -4248,19 +4248,19 @@ theorem privateBatchWrapper8_f189 (a : Assignment p) (h : Satisfies (privateBatc
   have c1396 := (privateBatchWrapper8_copies43 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_29_4 := arithEq_of_rows h (row := 29) (i := 4) rfl (by decide)
+  have e_29_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row29 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_29_4
   simp only [← c1380, k3, ← c1381, k3, ← c1382] at e_29_4
-  have e_29_5 := arithEq_of_rows h (row := 29) (i := 5) rfl (by decide)
+  have e_29_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row29 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_29_5
   simp only [← c1383, ← c1384, k3, ← c1385] at e_29_5
-  have e_29_6 := arithEq_of_rows h (row := 29) (i := 6) rfl (by decide)
+  have e_29_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row29 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_29_6
   simp only [← c1392, ← c1393, k3, ← c1394] at e_29_6
-  have e_30_1 := arithEq_of_rows h (row := 30) (i := 1) rfl (by decide)
+  have e_30_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row30 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_30_1
   simp only [← c1386, ← c1387, ← c1388] at e_30_1
-  have e_30_2 := arithEq_of_rows h (row := 30) (i := 2) rfl (by decide)
+  have e_30_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row30 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_30_2
   simp only [← c1389, ← c1390, ← c1391] at e_30_2
   refine ⟨?_, ?_⟩
@@ -4292,19 +4292,19 @@ theorem privateBatchWrapper8_f190 (a : Assignment p) (h : Satisfies (privateBatc
   have c1413 := (privateBatchWrapper8_copies44 a h).2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_29_7 := arithEq_of_rows h (row := 29) (i := 7) rfl (by decide)
+  have e_29_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row29 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_29_7
   simp only [← c1397, k3, ← c1398, k3, ← c1399] at e_29_7
-  have e_29_8 := arithEq_of_rows h (row := 29) (i := 8) rfl (by decide)
+  have e_29_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row29 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_29_8
   simp only [← c1400, ← c1401, k3, ← c1402] at e_29_8
-  have e_29_9 := arithEq_of_rows h (row := 29) (i := 9) rfl (by decide)
+  have e_29_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row29 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_29_9
   simp only [← c1409, ← c1410, k3, ← c1411] at e_29_9
-  have e_30_3 := arithEq_of_rows h (row := 30) (i := 3) rfl (by decide)
+  have e_30_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row30 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_30_3
   simp only [← c1403, ← c1404, ← c1405] at e_30_3
-  have e_30_4 := arithEq_of_rows h (row := 30) (i := 4) rfl (by decide)
+  have e_30_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row30 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_30_4
   simp only [← c1406, ← c1407, ← c1408] at e_30_4
   refine ⟨?_, ?_⟩
@@ -4336,19 +4336,19 @@ theorem privateBatchWrapper8_f191 (a : Assignment p) (h : Satisfies (privateBatc
   have c1430 := (privateBatchWrapper8_copies44 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_29_10 := arithEq_of_rows h (row := 29) (i := 10) rfl (by decide)
+  have e_29_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row29 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_29_10
   simp only [← c1414, k3, ← c1415, k3, ← c1416] at e_29_10
-  have e_29_11 := arithEq_of_rows h (row := 29) (i := 11) rfl (by decide)
+  have e_29_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row29 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_29_11
   simp only [← c1417, ← c1418, k3, ← c1419] at e_29_11
-  have e_29_12 := arithEq_of_rows h (row := 29) (i := 12) rfl (by decide)
+  have e_29_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row29 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_29_12
   simp only [← c1426, ← c1427, k3, ← c1428] at e_29_12
-  have e_30_5 := arithEq_of_rows h (row := 30) (i := 5) rfl (by decide)
+  have e_30_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row30 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_30_5
   simp only [← c1420, ← c1421, ← c1422] at e_30_5
-  have e_30_6 := arithEq_of_rows h (row := 30) (i := 6) rfl (by decide)
+  have e_30_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row30 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_30_6
   simp only [← c1423, ← c1424, ← c1425] at e_30_6
   refine ⟨?_, ?_⟩
@@ -4364,7 +4364,7 @@ theorem privateBatchWrapper8_f192 (a : Assignment p) (h : Satisfies (privateBatc
   have c1431 := (privateBatchWrapper8_copies44 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1432 := (privateBatchWrapper8_copies44 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1433 := (privateBatchWrapper8_copies44 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_30_7 := arithEq_of_rows h (row := 30) (i := 7) rfl (by decide)
+  have e_30_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row30 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_30_7
   simp only [← c1431, ← c1432, ← c1433] at e_30_7
   have hr := e_30_7
@@ -4376,7 +4376,7 @@ theorem privateBatchWrapper8_f193 (a : Assignment p) (h : Satisfies (privateBatc
   have c1434 := (privateBatchWrapper8_copies44 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1435 := (privateBatchWrapper8_copies44 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1436 := (privateBatchWrapper8_copies44 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_30_8 := arithEq_of_rows h (row := 30) (i := 8) rfl (by decide)
+  have e_30_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row30 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_30_8
   simp only [← c1434, ← c1435, ← c1436] at e_30_8
   have hr := e_30_8
@@ -4388,7 +4388,7 @@ theorem privateBatchWrapper8_f194 (a : Assignment p) (h : Satisfies (privateBatc
   have c1437 := (privateBatchWrapper8_copies44 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1438 := (privateBatchWrapper8_copies44 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1439 := (privateBatchWrapper8_copies44 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have e_30_9 := arithEq_of_rows h (row := 30) (i := 9) rfl (by decide)
+  have e_30_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row30 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_30_9
   simp only [← c1437, ← c1438, ← c1439] at e_30_9
   have hr := e_30_9
@@ -4405,10 +4405,10 @@ theorem privateBatchWrapper8_f195 (a : Assignment p) (h : Satisfies (privateBatc
   have c1445 := (privateBatchWrapper8_copies45 a h).2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_14_13 := arithEq_of_rows h (row := 14) (i := 13) rfl (by decide)
+  have e_14_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row14 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_13
   simp only [← c1440, ← c1441, ← c1442] at e_14_13
-  have e_18_9 := arithEq_of_rows h (row := 18) (i := 9) rfl (by decide)
+  have e_18_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row18 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_9
   simp only [← c1443, ← c1444, k3, ← c1445] at e_18_9
   have hr := e_18_9
@@ -4447,19 +4447,19 @@ theorem privateBatchWrapper8_f198 (a : Assignment p) (h : Satisfies (privateBatc
   have c1464 := (privateBatchWrapper8_copies45 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_29_13 := arithEq_of_rows h (row := 29) (i := 13) rfl (by decide)
+  have e_29_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row29 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_29_13
   simp only [← c1448, k3, ← c1449, k3, ← c1450] at e_29_13
-  have e_29_14 := arithEq_of_rows h (row := 29) (i := 14) rfl (by decide)
+  have e_29_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row29 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_29_14
   simp only [← c1451, ← c1452, k3, ← c1453] at e_29_14
-  have e_30_10 := arithEq_of_rows h (row := 30) (i := 10) rfl (by decide)
+  have e_30_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row30 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_30_10
   simp only [← c1454, ← c1455, ← c1456] at e_30_10
-  have e_30_11 := arithEq_of_rows h (row := 30) (i := 11) rfl (by decide)
+  have e_30_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row30 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_30_11
   simp only [← c1457, ← c1458, ← c1459] at e_30_11
-  have e_31_0 := arithEq_of_rows h (row := 31) (i := 0) rfl (by decide)
+  have e_31_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row31 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_31_0
   simp only [← c1460, ← c1461, k3, ← c1462] at e_31_0
   refine ⟨?_, ?_⟩
@@ -4491,19 +4491,19 @@ theorem privateBatchWrapper8_f199 (a : Assignment p) (h : Satisfies (privateBatc
   have c1481 := (privateBatchWrapper8_copies46 a h).2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_30_12 := arithEq_of_rows h (row := 30) (i := 12) rfl (by decide)
+  have e_30_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row30 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_30_12
   simp only [← c1471, ← c1472, ← c1473] at e_30_12
-  have e_30_13 := arithEq_of_rows h (row := 30) (i := 13) rfl (by decide)
+  have e_30_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row30 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_30_13
   simp only [← c1474, ← c1475, ← c1476] at e_30_13
-  have e_31_1 := arithEq_of_rows h (row := 31) (i := 1) rfl (by decide)
+  have e_31_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row31 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_31_1
   simp only [← c1465, k3, ← c1466, k3, ← c1467] at e_31_1
-  have e_31_2 := arithEq_of_rows h (row := 31) (i := 2) rfl (by decide)
+  have e_31_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row31 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_31_2
   simp only [← c1468, ← c1469, k3, ← c1470] at e_31_2
-  have e_31_3 := arithEq_of_rows h (row := 31) (i := 3) rfl (by decide)
+  have e_31_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row31 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_31_3
   simp only [← c1477, ← c1478, k3, ← c1479] at e_31_3
   refine ⟨?_, ?_⟩
@@ -4535,19 +4535,19 @@ theorem privateBatchWrapper8_f200 (a : Assignment p) (h : Satisfies (privateBatc
   have c1498 := (privateBatchWrapper8_copies46 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_30_14 := arithEq_of_rows h (row := 30) (i := 14) rfl (by decide)
+  have e_30_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row30 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_30_14
   simp only [← c1488, ← c1489, ← c1490] at e_30_14
-  have e_31_4 := arithEq_of_rows h (row := 31) (i := 4) rfl (by decide)
+  have e_31_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row31 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_31_4
   simp only [← c1482, k3, ← c1483, k3, ← c1484] at e_31_4
-  have e_31_5 := arithEq_of_rows h (row := 31) (i := 5) rfl (by decide)
+  have e_31_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row31 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_31_5
   simp only [← c1485, ← c1486, k3, ← c1487] at e_31_5
-  have e_31_6 := arithEq_of_rows h (row := 31) (i := 6) rfl (by decide)
+  have e_31_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row31 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_31_6
   simp only [← c1494, ← c1495, k3, ← c1496] at e_31_6
-  have e_32_0 := arithEq_of_rows h (row := 32) (i := 0) rfl (by decide)
+  have e_32_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row32 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_32_0
   simp only [← c1491, ← c1492, ← c1493] at e_32_0
   refine ⟨?_, ?_⟩
@@ -4579,19 +4579,19 @@ theorem privateBatchWrapper8_f201 (a : Assignment p) (h : Satisfies (privateBatc
   have c1515 := (privateBatchWrapper8_copies47 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_31_7 := arithEq_of_rows h (row := 31) (i := 7) rfl (by decide)
+  have e_31_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row31 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_31_7
   simp only [← c1499, k3, ← c1500, k3, ← c1501] at e_31_7
-  have e_31_8 := arithEq_of_rows h (row := 31) (i := 8) rfl (by decide)
+  have e_31_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row31 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_31_8
   simp only [← c1502, ← c1503, k3, ← c1504] at e_31_8
-  have e_31_9 := arithEq_of_rows h (row := 31) (i := 9) rfl (by decide)
+  have e_31_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row31 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_31_9
   simp only [← c1511, ← c1512, k3, ← c1513] at e_31_9
-  have e_32_1 := arithEq_of_rows h (row := 32) (i := 1) rfl (by decide)
+  have e_32_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row32 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_32_1
   simp only [← c1505, ← c1506, ← c1507] at e_32_1
-  have e_32_2 := arithEq_of_rows h (row := 32) (i := 2) rfl (by decide)
+  have e_32_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row32 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_32_2
   simp only [← c1508, ← c1509, ← c1510] at e_32_2
   refine ⟨?_, ?_⟩
@@ -4607,7 +4607,7 @@ theorem privateBatchWrapper8_f202 (a : Assignment p) (h : Satisfies (privateBatc
   have c1516 := (privateBatchWrapper8_copies47 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1517 := (privateBatchWrapper8_copies47 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1518 := (privateBatchWrapper8_copies47 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_32_3 := arithEq_of_rows h (row := 32) (i := 3) rfl (by decide)
+  have e_32_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row32 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_32_3
   simp only [← c1516, ← c1517, ← c1518] at e_32_3
   have hr := e_32_3
@@ -4619,7 +4619,7 @@ theorem privateBatchWrapper8_f203 (a : Assignment p) (h : Satisfies (privateBatc
   have c1519 := (privateBatchWrapper8_copies47 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1520 := (privateBatchWrapper8_copies47 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1521 := (privateBatchWrapper8_copies47 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_32_4 := arithEq_of_rows h (row := 32) (i := 4) rfl (by decide)
+  have e_32_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row32 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_32_4
   simp only [← c1519, ← c1520, ← c1521] at e_32_4
   have hr := e_32_4
@@ -4631,7 +4631,7 @@ theorem privateBatchWrapper8_f204 (a : Assignment p) (h : Satisfies (privateBatc
   have c1522 := (privateBatchWrapper8_copies47 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1523 := (privateBatchWrapper8_copies47 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c1524 := (privateBatchWrapper8_copies47 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_32_5 := arithEq_of_rows h (row := 32) (i := 5) rfl (by decide)
+  have e_32_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row32 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_32_5
   simp only [← c1522, ← c1523, ← c1524] at e_32_5
   have hr := e_32_5
@@ -4648,10 +4648,10 @@ theorem privateBatchWrapper8_f205 (a : Assignment p) (h : Satisfies (privateBatc
   have c1530 := (privateBatchWrapper8_copies47 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_14_14 := arithEq_of_rows h (row := 14) (i := 14) rfl (by decide)
+  have e_14_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row14 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_14_14
   simp only [← c1525, ← c1526, ← c1527] at e_14_14
-  have e_18_10 := arithEq_of_rows h (row := 18) (i := 10) rfl (by decide)
+  have e_18_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row18 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_10
   simp only [← c1528, ← c1529, k3, ← c1530] at e_18_10
   have hr := e_18_10
@@ -4679,10 +4679,10 @@ theorem privateBatchWrapper8_f208 (a : Assignment p) (h : Satisfies (privateBatc
   have c1538 := (privateBatchWrapper8_copies48 a h).2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_31_10 := arithEq_of_rows h (row := 31) (i := 10) rfl (by decide)
+  have e_31_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row31 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_31_10
   simp only [← c1533, ← c1534, ← c1535] at e_31_10
-  have e_31_11 := arithEq_of_rows h (row := 31) (i := 11) rfl (by decide)
+  have e_31_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row31 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_31_11
   simp only [← c1536, ← c1537, k2, ← c1538] at e_31_11
   have hr := e_31_11
@@ -4707,10 +4707,10 @@ theorem privateBatchWrapper8_f210 (a : Assignment p) (h : Satisfies (privateBatc
   have c1544 := (privateBatchWrapper8_copies48 a h).2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_31_12 := arithEq_of_rows h (row := 31) (i := 12) rfl (by decide)
+  have e_31_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row31 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_31_12
   simp only [← c1539, ← c1540, ← c1541] at e_31_12
-  have e_31_13 := arithEq_of_rows h (row := 31) (i := 13) rfl (by decide)
+  have e_31_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row31 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_31_13
   simp only [← c1542, ← c1543, k2, ← c1544] at e_31_13
   have hr := e_31_13
@@ -4725,7 +4725,7 @@ theorem privateBatchWrapper8_f211 (a : Assignment p) (h : Satisfies (privateBatc
   have c1547 := (privateBatchWrapper8_copies48 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_18_11 := arithEq_of_rows h (row := 18) (i := 11) rfl (by decide)
+  have e_18_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row18 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_11
   simp only [← c1545, ← c1546, k3, ← c1547] at e_18_11
   have hr := e_18_11
@@ -4741,10 +4741,10 @@ theorem privateBatchWrapper8_f212 (a : Assignment p) (h : Satisfies (privateBatc
   have c1553 := (privateBatchWrapper8_copies48 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_31_14 := arithEq_of_rows h (row := 31) (i := 14) rfl (by decide)
+  have e_31_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row31 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_31_14
   simp only [← c1548, ← c1549, ← c1550] at e_31_14
-  have e_33_0 := arithEq_of_rows h (row := 33) (i := 0) rfl (by decide)
+  have e_33_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row33 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_33_0
   simp only [← c1551, ← c1552, k2, ← c1553] at e_33_0
   have hr := e_33_0
@@ -4759,7 +4759,7 @@ theorem privateBatchWrapper8_f213 (a : Assignment p) (h : Satisfies (privateBatc
   have c1556 := (privateBatchWrapper8_copies48 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_18_12 := arithEq_of_rows h (row := 18) (i := 12) rfl (by decide)
+  have e_18_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row18 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_12
   simp only [← c1554, ← c1555, k3, ← c1556] at e_18_12
   have hr := e_18_12
@@ -4775,10 +4775,10 @@ theorem privateBatchWrapper8_f214 (a : Assignment p) (h : Satisfies (privateBatc
   have c1562 := (privateBatchWrapper8_copies48 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_33_1 := arithEq_of_rows h (row := 33) (i := 1) rfl (by decide)
+  have e_33_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row33 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_33_1
   simp only [← c1557, ← c1558, ← c1559] at e_33_1
-  have e_33_2 := arithEq_of_rows h (row := 33) (i := 2) rfl (by decide)
+  have e_33_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row33 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_33_2
   simp only [← c1560, ← c1561, k2, ← c1562] at e_33_2
   have hr := e_33_2
@@ -4793,7 +4793,7 @@ theorem privateBatchWrapper8_f215 (a : Assignment p) (h : Satisfies (privateBatc
   have c1565 := (privateBatchWrapper8_copies48 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_18_13 := arithEq_of_rows h (row := 18) (i := 13) rfl (by decide)
+  have e_18_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row18 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_13
   simp only [← c1563, ← c1564, k3, ← c1565] at e_18_13
   have hr := e_18_13
@@ -4809,10 +4809,10 @@ theorem privateBatchWrapper8_f216 (a : Assignment p) (h : Satisfies (privateBatc
   have c1571 := (privateBatchWrapper8_copies49 a h).2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_33_3 := arithEq_of_rows h (row := 33) (i := 3) rfl (by decide)
+  have e_33_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row33 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_33_3
   simp only [← c1566, ← c1567, ← c1568] at e_33_3
-  have e_33_4 := arithEq_of_rows h (row := 33) (i := 4) rfl (by decide)
+  have e_33_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row33 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_33_4
   simp only [← c1569, ← c1570, k2, ← c1571] at e_33_4
   have hr := e_33_4
@@ -4827,7 +4827,7 @@ theorem privateBatchWrapper8_f217 (a : Assignment p) (h : Satisfies (privateBatc
   have c1574 := (privateBatchWrapper8_copies49 a h).2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_18_14 := arithEq_of_rows h (row := 18) (i := 14) rfl (by decide)
+  have e_18_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row18 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_18_14
   simp only [← c1572, ← c1573, k3, ← c1574] at e_18_14
   have hr := e_18_14
@@ -4843,10 +4843,10 @@ theorem privateBatchWrapper8_f218 (a : Assignment p) (h : Satisfies (privateBatc
   have c1580 := (privateBatchWrapper8_copies49 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_33_5 := arithEq_of_rows h (row := 33) (i := 5) rfl (by decide)
+  have e_33_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row33 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_33_5
   simp only [← c1575, ← c1576, ← c1577] at e_33_5
-  have e_33_6 := arithEq_of_rows h (row := 33) (i := 6) rfl (by decide)
+  have e_33_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row33 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_33_6
   simp only [← c1578, ← c1579, k2, ← c1580] at e_33_6
   have hr := e_33_6
@@ -4861,7 +4861,7 @@ theorem privateBatchWrapper8_f219 (a : Assignment p) (h : Satisfies (privateBatc
   have c1583 := (privateBatchWrapper8_copies49 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_34_0 := arithEq_of_rows h (row := 34) (i := 0) rfl (by decide)
+  have e_34_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row34 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_34_0
   simp only [← c1581, ← c1582, k3, ← c1583] at e_34_0
   have hr := e_34_0
@@ -4877,10 +4877,10 @@ theorem privateBatchWrapper8_f220 (a : Assignment p) (h : Satisfies (privateBatc
   have c1589 := (privateBatchWrapper8_copies49 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_33_7 := arithEq_of_rows h (row := 33) (i := 7) rfl (by decide)
+  have e_33_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row33 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_33_7
   simp only [← c1584, ← c1585, ← c1586] at e_33_7
-  have e_33_8 := arithEq_of_rows h (row := 33) (i := 8) rfl (by decide)
+  have e_33_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row33 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_33_8
   simp only [← c1587, ← c1588, k2, ← c1589] at e_33_8
   have hr := e_33_8
@@ -4895,7 +4895,7 @@ theorem privateBatchWrapper8_f221 (a : Assignment p) (h : Satisfies (privateBatc
   have c1592 := (privateBatchWrapper8_copies49 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_34_1 := arithEq_of_rows h (row := 34) (i := 1) rfl (by decide)
+  have e_34_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row34 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_34_1
   simp only [← c1590, ← c1591, k3, ← c1592] at e_34_1
   have hr := e_34_1
@@ -4911,10 +4911,10 @@ theorem privateBatchWrapper8_f222 (a : Assignment p) (h : Satisfies (privateBatc
   have c1598 := (privateBatchWrapper8_copies49 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_33_9 := arithEq_of_rows h (row := 33) (i := 9) rfl (by decide)
+  have e_33_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row33 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_33_9
   simp only [← c1593, ← c1594, ← c1595] at e_33_9
-  have e_33_10 := arithEq_of_rows h (row := 33) (i := 10) rfl (by decide)
+  have e_33_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row33 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_33_10
   simp only [← c1596, ← c1597, k2, ← c1598] at e_33_10
   have hr := e_33_10
@@ -4929,7 +4929,7 @@ theorem privateBatchWrapper8_f223 (a : Assignment p) (h : Satisfies (privateBatc
   have c1601 := (privateBatchWrapper8_copies50 a h).2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_34_2 := arithEq_of_rows h (row := 34) (i := 2) rfl (by decide)
+  have e_34_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row34 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_34_2
   simp only [← c1599, ← c1600, k3, ← c1601] at e_34_2
   have hr := e_34_2
@@ -5079,7 +5079,7 @@ theorem privateBatchWrapper8_f227 (a : Assignment p) (h : Satisfies (privateBatc
   have c1660 := (privateBatchWrapper8_copies51 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_34_3 := arithEq_of_rows h (row := 34) (i := 3) rfl (by decide)
+  have e_34_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row34 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_34_3
   simp only [← c1658, ← c1659, k3, ← c1660] at e_34_3
   have hr := e_34_3
@@ -5157,7 +5157,7 @@ theorem privateBatchWrapper8_f229 (a : Assignment p) (h : Satisfies (privateBatc
   have c1691 := (privateBatchWrapper8_copies52 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_34_4 := arithEq_of_rows h (row := 34) (i := 4) rfl (by decide)
+  have e_34_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row34 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_34_4
   simp only [← c1689, ← c1690, k3, ← c1691] at e_34_4
   have hr := e_34_4
@@ -5235,7 +5235,7 @@ theorem privateBatchWrapper8_f231 (a : Assignment p) (h : Satisfies (privateBatc
   have c1722 := (privateBatchWrapper8_copies53 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_34_5 := arithEq_of_rows h (row := 34) (i := 5) rfl (by decide)
+  have e_34_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row34 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_34_5
   simp only [← c1720, ← c1721, k3, ← c1722] at e_34_5
   have hr := e_34_5
@@ -5313,7 +5313,7 @@ theorem privateBatchWrapper8_f233 (a : Assignment p) (h : Satisfies (privateBatc
   have c1753 := (privateBatchWrapper8_copies54 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_34_6 := arithEq_of_rows h (row := 34) (i := 6) rfl (by decide)
+  have e_34_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row34 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_34_6
   simp only [← c1751, ← c1752, k3, ← c1753] at e_34_6
   have hr := e_34_6
@@ -5391,7 +5391,7 @@ theorem privateBatchWrapper8_f235 (a : Assignment p) (h : Satisfies (privateBatc
   have c1784 := (privateBatchWrapper8_copies55 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_34_7 := arithEq_of_rows h (row := 34) (i := 7) rfl (by decide)
+  have e_34_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row34 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_34_7
   simp only [← c1782, ← c1783, k3, ← c1784] at e_34_7
   have hr := e_34_7
@@ -5469,7 +5469,7 @@ theorem privateBatchWrapper8_f237 (a : Assignment p) (h : Satisfies (privateBatc
   have c1815 := (privateBatchWrapper8_copies56 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_34_8 := arithEq_of_rows h (row := 34) (i := 8) rfl (by decide)
+  have e_34_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row34 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_34_8
   simp only [← c1813, ← c1814, k3, ← c1815] at e_34_8
   have hr := e_34_8
@@ -5547,7 +5547,7 @@ theorem privateBatchWrapper8_f239 (a : Assignment p) (h : Satisfies (privateBatc
   have c1846 := (privateBatchWrapper8_copies57 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_34_9 := arithEq_of_rows h (row := 34) (i := 9) rfl (by decide)
+  have e_34_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row34 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_34_9
   simp only [← c1844, ← c1845, k3, ← c1846] at e_34_9
   have hr := e_34_9
@@ -5625,7 +5625,7 @@ theorem privateBatchWrapper8_f241 (a : Assignment p) (h : Satisfies (privateBatc
   have c1877 := (privateBatchWrapper8_copies58 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_34_10 := arithEq_of_rows h (row := 34) (i := 10) rfl (by decide)
+  have e_34_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row34 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_34_10
   simp only [← c1875, ← c1876, k3, ← c1877] at e_34_10
   have hr := e_34_10
@@ -5703,7 +5703,7 @@ theorem privateBatchWrapper8_f243 (a : Assignment p) (h : Satisfies (privateBatc
   have c1908 := (privateBatchWrapper8_copies59 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_34_11 := arithEq_of_rows h (row := 34) (i := 11) rfl (by decide)
+  have e_34_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row34 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_34_11
   simp only [← c1906, ← c1907, k3, ← c1908] at e_34_11
   have hr := e_34_11
@@ -5781,7 +5781,7 @@ theorem privateBatchWrapper8_f245 (a : Assignment p) (h : Satisfies (privateBatc
   have c1939 := (privateBatchWrapper8_copies60 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_34_12 := arithEq_of_rows h (row := 34) (i := 12) rfl (by decide)
+  have e_34_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row34 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_34_12
   simp only [← c1937, ← c1938, k3, ← c1939] at e_34_12
   have hr := e_34_12
@@ -5859,7 +5859,7 @@ theorem privateBatchWrapper8_f247 (a : Assignment p) (h : Satisfies (privateBatc
   have c1970 := (privateBatchWrapper8_copies61 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_34_13 := arithEq_of_rows h (row := 34) (i := 13) rfl (by decide)
+  have e_34_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row34 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_34_13
   simp only [← c1968, ← c1969, k3, ← c1970] at e_34_13
   have hr := e_34_13
@@ -5937,7 +5937,7 @@ theorem privateBatchWrapper8_f249 (a : Assignment p) (h : Satisfies (privateBatc
   have c2001 := (privateBatchWrapper8_copies62 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_34_14 := arithEq_of_rows h (row := 34) (i := 14) rfl (by decide)
+  have e_34_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row34 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_34_14
   simp only [← c1999, ← c2000, k3, ← c2001] at e_34_14
   have hr := e_34_14
@@ -6015,7 +6015,7 @@ theorem privateBatchWrapper8_f251 (a : Assignment p) (h : Satisfies (privateBatc
   have c2032 := (privateBatchWrapper8_copies63 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_49_0 := arithEq_of_rows h (row := 49) (i := 0) rfl (by decide)
+  have e_49_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row49 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_49_0
   simp only [← c2030, ← c2031, k3, ← c2032] at e_49_0
   have hr := e_49_0
@@ -6093,7 +6093,7 @@ theorem privateBatchWrapper8_f253 (a : Assignment p) (h : Satisfies (privateBatc
   have c2063 := (privateBatchWrapper8_copies64 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_49_1 := arithEq_of_rows h (row := 49) (i := 1) rfl (by decide)
+  have e_49_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row49 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_49_1
   simp only [← c2061, ← c2062, k3, ← c2063] at e_49_1
   have hr := e_49_1
@@ -6171,7 +6171,7 @@ theorem privateBatchWrapper8_f255 (a : Assignment p) (h : Satisfies (privateBatc
   have c2094 := (privateBatchWrapper8_copies65 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_49_2 := arithEq_of_rows h (row := 49) (i := 2) rfl (by decide)
+  have e_49_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row49 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_49_2
   simp only [← c2092, ← c2093, k3, ← c2094] at e_49_2
   have hr := e_49_2
@@ -6249,7 +6249,7 @@ theorem privateBatchWrapper8_f257 (a : Assignment p) (h : Satisfies (privateBatc
   have c2125 := (privateBatchWrapper8_copies66 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_49_3 := arithEq_of_rows h (row := 49) (i := 3) rfl (by decide)
+  have e_49_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row49 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_49_3
   simp only [← c2123, ← c2124, k3, ← c2125] at e_49_3
   have hr := e_49_3
@@ -6327,7 +6327,7 @@ theorem privateBatchWrapper8_f259 (a : Assignment p) (h : Satisfies (privateBatc
   have c2156 := (privateBatchWrapper8_copies67 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_49_4 := arithEq_of_rows h (row := 49) (i := 4) rfl (by decide)
+  have e_49_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row49 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_49_4
   simp only [← c2154, ← c2155, k3, ← c2156] at e_49_4
   have hr := e_49_4
@@ -6405,7 +6405,7 @@ theorem privateBatchWrapper8_f261 (a : Assignment p) (h : Satisfies (privateBatc
   have c2187 := (privateBatchWrapper8_copies68 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_49_5 := arithEq_of_rows h (row := 49) (i := 5) rfl (by decide)
+  have e_49_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row49 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_49_5
   simp only [← c2185, ← c2186, k3, ← c2187] at e_49_5
   have hr := e_49_5
@@ -6483,7 +6483,7 @@ theorem privateBatchWrapper8_f263 (a : Assignment p) (h : Satisfies (privateBatc
   have c2218 := (privateBatchWrapper8_copies69 a h).2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_49_6 := arithEq_of_rows h (row := 49) (i := 6) rfl (by decide)
+  have e_49_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row49 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_49_6
   simp only [← c2216, ← c2217, k3, ← c2218] at e_49_6
   have hr := e_49_6
@@ -6561,7 +6561,7 @@ theorem privateBatchWrapper8_f265 (a : Assignment p) (h : Satisfies (privateBatc
   have c2249 := (privateBatchWrapper8_copies70 a h).2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_49_7 := arithEq_of_rows h (row := 49) (i := 7) rfl (by decide)
+  have e_49_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row49 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_49_7
   simp only [← c2247, ← c2248, k3, ← c2249] at e_49_7
   have hr := e_49_7
@@ -6639,7 +6639,7 @@ theorem privateBatchWrapper8_f267 (a : Assignment p) (h : Satisfies (privateBatc
   have c2280 := (privateBatchWrapper8_copies71 a h).2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_49_8 := arithEq_of_rows h (row := 49) (i := 8) rfl (by decide)
+  have e_49_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row49 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_49_8
   simp only [← c2278, ← c2279, k3, ← c2280] at e_49_8
   have hr := e_49_8
@@ -6717,7 +6717,7 @@ theorem privateBatchWrapper8_f269 (a : Assignment p) (h : Satisfies (privateBatc
   have c2311 := (privateBatchWrapper8_copies72 a h).2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_49_9 := arithEq_of_rows h (row := 49) (i := 9) rfl (by decide)
+  have e_49_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row49 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_49_9
   simp only [← c2309, ← c2310, k3, ← c2311] at e_49_9
   have hr := e_49_9
@@ -6795,7 +6795,7 @@ theorem privateBatchWrapper8_f271 (a : Assignment p) (h : Satisfies (privateBatc
   have c2342 := (privateBatchWrapper8_copies73 a h).2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_49_10 := arithEq_of_rows h (row := 49) (i := 10) rfl (by decide)
+  have e_49_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row49 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_49_10
   simp only [← c2340, ← c2341, k3, ← c2342] at e_49_10
   have hr := e_49_10
@@ -6873,7 +6873,7 @@ theorem privateBatchWrapper8_f273 (a : Assignment p) (h : Satisfies (privateBatc
   have c2373 := (privateBatchWrapper8_copies74 a h).2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_49_11 := arithEq_of_rows h (row := 49) (i := 11) rfl (by decide)
+  have e_49_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row49 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_49_11
   simp only [← c2371, ← c2372, k3, ← c2373] at e_49_11
   have hr := e_49_11
@@ -6951,7 +6951,7 @@ theorem privateBatchWrapper8_f275 (a : Assignment p) (h : Satisfies (privateBatc
   have c2404 := (privateBatchWrapper8_copies75 a h).2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_49_12 := arithEq_of_rows h (row := 49) (i := 12) rfl (by decide)
+  have e_49_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row49 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_49_12
   simp only [← c2402, ← c2403, k3, ← c2404] at e_49_12
   have hr := e_49_12
@@ -7029,7 +7029,7 @@ theorem privateBatchWrapper8_f277 (a : Assignment p) (h : Satisfies (privateBatc
   have c2435 := (privateBatchWrapper8_copies76 a h).2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_49_13 := arithEq_of_rows h (row := 49) (i := 13) rfl (by decide)
+  have e_49_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row49 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_49_13
   simp only [← c2433, ← c2434, k3, ← c2435] at e_49_13
   have hr := e_49_13
@@ -7107,7 +7107,7 @@ theorem privateBatchWrapper8_f279 (a : Assignment p) (h : Satisfies (privateBatc
   have c2466 := (privateBatchWrapper8_copies77 a h).2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_49_14 := arithEq_of_rows h (row := 49) (i := 14) rfl (by decide)
+  have e_49_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row49 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_49_14
   simp only [← c2464, ← c2465, k3, ← c2466] at e_49_14
   have hr := e_49_14
@@ -7185,7 +7185,7 @@ theorem privateBatchWrapper8_f281 (a : Assignment p) (h : Satisfies (privateBatc
   have c2497 := (privateBatchWrapper8_copies78 a h).2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_65_0 := arithEq_of_rows h (row := 65) (i := 0) rfl (by decide)
+  have e_65_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row65 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_65_0
   simp only [← c2495, ← c2496, k3, ← c2497] at e_65_0
   have hr := e_65_0
@@ -7263,7 +7263,7 @@ theorem privateBatchWrapper8_f283 (a : Assignment p) (h : Satisfies (privateBatc
   have c2528 := (privateBatchWrapper8_copies79 a h).1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_65_1 := arithEq_of_rows h (row := 65) (i := 1) rfl (by decide)
+  have e_65_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row65 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_65_1
   simp only [← c2526, ← c2527, k3, ← c2528] at e_65_1
   have hr := e_65_1
@@ -7341,7 +7341,7 @@ theorem privateBatchWrapper8_f285 (a : Assignment p) (h : Satisfies (privateBatc
   have c2559 := (privateBatchWrapper8_copies79 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_65_2 := arithEq_of_rows h (row := 65) (i := 2) rfl (by decide)
+  have e_65_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row65 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_65_2
   simp only [← c2557, ← c2558, k3, ← c2559] at e_65_2
   have hr := e_65_2
@@ -7419,7 +7419,7 @@ theorem privateBatchWrapper8_f287 (a : Assignment p) (h : Satisfies (privateBatc
   have c2590 := (privateBatchWrapper8_copies80 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_65_3 := arithEq_of_rows h (row := 65) (i := 3) rfl (by decide)
+  have e_65_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row65 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_65_3
   simp only [← c2588, ← c2589, k3, ← c2590] at e_65_3
   have hr := e_65_3
@@ -7533,7 +7533,7 @@ theorem privateBatchWrapper8_f289 (a : Assignment p) (h : Satisfies (privateBatc
   have c2639 := (privateBatchWrapper8_copies82 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_33_11 := arithEq_of_rows h (row := 33) (i := 11) rfl (by decide)
+  have e_33_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row33 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_33_11
   simp only [← c2637, k1, ← c2638, k3, ← c2639] at e_33_11
   have hr := e_33_11
@@ -7648,7 +7648,7 @@ theorem privateBatchWrapper8_f291 (a : Assignment p) (h : Satisfies (privateBatc
   have c2688 := (privateBatchWrapper8_copies84 a h).1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_32_6 := arithEq_of_rows h (row := 32) (i := 6) rfl (by decide)
+  have e_32_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row32 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_32_6
   simp only [← c2686, ← c2687, k1, ← c2688] at e_32_6
   have hr := e_32_6
@@ -7660,7 +7660,7 @@ theorem privateBatchWrapper8_f292 (a : Assignment p) (h : Satisfies (privateBatc
   have c2689 := (privateBatchWrapper8_copies84 a h).2.1
   have c2690 := (privateBatchWrapper8_copies84 a h).2.2.1
   have c2691 := (privateBatchWrapper8_copies84 a h).2.2.2.1
-  have e_32_7 := arithEq_of_rows h (row := 32) (i := 7) rfl (by decide)
+  have e_32_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row32 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_32_7
   simp only [← c2689, ← c2690, ← c2691] at e_32_7
   have hr := e_32_7
@@ -7673,7 +7673,7 @@ theorem privateBatchWrapper8_f293 (a : Assignment p) (h : Satisfies (privateBatc
   have c2694 := (privateBatchWrapper8_copies84 a h).2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_33_12 := arithEq_of_rows h (row := 33) (i := 12) rfl (by decide)
+  have e_33_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row33 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_33_12
   simp only [← c2692, ← c2693, k3, ← c2694] at e_33_12
   have hr := e_33_12
@@ -7711,7 +7711,7 @@ theorem privateBatchWrapper8_f295 (a : Assignment p) (h : Satisfies (privateBatc
   have c522 := (privateBatchWrapper8_copies16 a h).2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_11_4 := arithEq_of_rows h (row := 11) (i := 4) rfl (by decide)
+  have e_11_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row11 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_4
   simp only [← c520, k3, ← c521, k3, ← c522] at e_11_4
   have hr := e_11_4
@@ -7725,7 +7725,7 @@ theorem privateBatchWrapper8_f296 (a : Assignment p) (h : Satisfies (privateBatc
   have c540 := (privateBatchWrapper8_copies16 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_11_10 := arithEq_of_rows h (row := 11) (i := 10) rfl (by decide)
+  have e_11_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row11 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_10
   simp only [← c538, k3, ← c539, k3, ← c540] at e_11_10
   have hr := e_11_10
@@ -7737,7 +7737,7 @@ theorem privateBatchWrapper8_f297 (a : Assignment p) (h : Satisfies (privateBatc
   have c2703 := (privateBatchWrapper8_copies84 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c2704 := (privateBatchWrapper8_copies84 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c2705 := (privateBatchWrapper8_copies84 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_32_8 := arithEq_of_rows h (row := 32) (i := 8) rfl (by decide)
+  have e_32_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row32 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_32_8
   simp only [← c2703, ← c2704, ← c2705] at e_32_8
   have hr := e_32_8
@@ -7765,19 +7765,19 @@ theorem privateBatchWrapper8_f298 (a : Assignment p) (h : Satisfies (privateBatc
   have c2722 := (privateBatchWrapper8_copies85 a h).2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_32_9 := arithEq_of_rows h (row := 32) (i := 9) rfl (by decide)
+  have e_32_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row32 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_32_9
   simp only [← c2712, ← c2713, ← c2714] at e_32_9
-  have e_32_10 := arithEq_of_rows h (row := 32) (i := 10) rfl (by decide)
+  have e_32_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row32 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_32_10
   simp only [← c2715, ← c2716, ← c2717] at e_32_10
-  have e_33_13 := arithEq_of_rows h (row := 33) (i := 13) rfl (by decide)
+  have e_33_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row33 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_33_13
   simp only [← c2706, k3, ← c2707, k3, ← c2708] at e_33_13
-  have e_33_14 := arithEq_of_rows h (row := 33) (i := 14) rfl (by decide)
+  have e_33_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row33 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_33_14
   simp only [← c2709, ← c2710, k3, ← c2711] at e_33_14
-  have e_72_0 := arithEq_of_rows h (row := 72) (i := 0) rfl (by decide)
+  have e_72_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row72 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_72_0
   simp only [← c2718, ← c2719, k3, ← c2720] at e_72_0
   refine ⟨?_, ?_⟩
@@ -7809,19 +7809,19 @@ theorem privateBatchWrapper8_f299 (a : Assignment p) (h : Satisfies (privateBatc
   have c2739 := (privateBatchWrapper8_copies85 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_32_11 := arithEq_of_rows h (row := 32) (i := 11) rfl (by decide)
+  have e_32_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row32 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_32_11
   simp only [← c2729, ← c2730, ← c2731] at e_32_11
-  have e_32_12 := arithEq_of_rows h (row := 32) (i := 12) rfl (by decide)
+  have e_32_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row32 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_32_12
   simp only [← c2732, ← c2733, ← c2734] at e_32_12
-  have e_72_1 := arithEq_of_rows h (row := 72) (i := 1) rfl (by decide)
+  have e_72_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row72 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_72_1
   simp only [← c2723, k3, ← c2724, k3, ← c2725] at e_72_1
-  have e_72_2 := arithEq_of_rows h (row := 72) (i := 2) rfl (by decide)
+  have e_72_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row72 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_72_2
   simp only [← c2726, ← c2727, k3, ← c2728] at e_72_2
-  have e_72_3 := arithEq_of_rows h (row := 72) (i := 3) rfl (by decide)
+  have e_72_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row72 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_72_3
   simp only [← c2735, ← c2736, k3, ← c2737] at e_72_3
   refine ⟨?_, ?_⟩
@@ -7853,19 +7853,19 @@ theorem privateBatchWrapper8_f300 (a : Assignment p) (h : Satisfies (privateBatc
   have c2756 := (privateBatchWrapper8_copies86 a h).2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_32_13 := arithEq_of_rows h (row := 32) (i := 13) rfl (by decide)
+  have e_32_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row32 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_32_13
   simp only [← c2746, ← c2747, ← c2748] at e_32_13
-  have e_32_14 := arithEq_of_rows h (row := 32) (i := 14) rfl (by decide)
+  have e_32_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row32 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_32_14
   simp only [← c2749, ← c2750, ← c2751] at e_32_14
-  have e_72_4 := arithEq_of_rows h (row := 72) (i := 4) rfl (by decide)
+  have e_72_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row72 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_72_4
   simp only [← c2740, k3, ← c2741, k3, ← c2742] at e_72_4
-  have e_72_5 := arithEq_of_rows h (row := 72) (i := 5) rfl (by decide)
+  have e_72_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row72 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_72_5
   simp only [← c2743, ← c2744, k3, ← c2745] at e_72_5
-  have e_72_6 := arithEq_of_rows h (row := 72) (i := 6) rfl (by decide)
+  have e_72_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row72 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_72_6
   simp only [← c2752, ← c2753, k3, ← c2754] at e_72_6
   refine ⟨?_, ?_⟩
@@ -7897,19 +7897,19 @@ theorem privateBatchWrapper8_f301 (a : Assignment p) (h : Satisfies (privateBatc
   have c2773 := (privateBatchWrapper8_copies86 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_72_7 := arithEq_of_rows h (row := 72) (i := 7) rfl (by decide)
+  have e_72_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row72 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_72_7
   simp only [← c2757, k3, ← c2758, k3, ← c2759] at e_72_7
-  have e_72_8 := arithEq_of_rows h (row := 72) (i := 8) rfl (by decide)
+  have e_72_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row72 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_72_8
   simp only [← c2760, ← c2761, k3, ← c2762] at e_72_8
-  have e_72_9 := arithEq_of_rows h (row := 72) (i := 9) rfl (by decide)
+  have e_72_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row72 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_72_9
   simp only [← c2769, ← c2770, k3, ← c2771] at e_72_9
-  have e_73_0 := arithEq_of_rows h (row := 73) (i := 0) rfl (by decide)
+  have e_73_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row73 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_73_0
   simp only [← c2763, ← c2764, ← c2765] at e_73_0
-  have e_73_1 := arithEq_of_rows h (row := 73) (i := 1) rfl (by decide)
+  have e_73_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row73 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_73_1
   simp only [← c2766, ← c2767, ← c2768] at e_73_1
   refine ⟨?_, ?_⟩
@@ -7925,7 +7925,7 @@ theorem privateBatchWrapper8_f302 (a : Assignment p) (h : Satisfies (privateBatc
   have c2774 := (privateBatchWrapper8_copies86 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c2775 := (privateBatchWrapper8_copies86 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c2776 := (privateBatchWrapper8_copies86 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_73_2 := arithEq_of_rows h (row := 73) (i := 2) rfl (by decide)
+  have e_73_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row73 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_73_2
   simp only [← c2774, ← c2775, ← c2776] at e_73_2
   have hr := e_73_2
@@ -7937,7 +7937,7 @@ theorem privateBatchWrapper8_f303 (a : Assignment p) (h : Satisfies (privateBatc
   have c2777 := (privateBatchWrapper8_copies86 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c2778 := (privateBatchWrapper8_copies86 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c2779 := (privateBatchWrapper8_copies86 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_73_3 := arithEq_of_rows h (row := 73) (i := 3) rfl (by decide)
+  have e_73_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row73 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_73_3
   simp only [← c2777, ← c2778, ← c2779] at e_73_3
   have hr := e_73_3
@@ -7949,7 +7949,7 @@ theorem privateBatchWrapper8_f304 (a : Assignment p) (h : Satisfies (privateBatc
   have c2780 := (privateBatchWrapper8_copies86 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c2781 := (privateBatchWrapper8_copies86 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c2782 := (privateBatchWrapper8_copies86 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_73_4 := arithEq_of_rows h (row := 73) (i := 4) rfl (by decide)
+  have e_73_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row73 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_73_4
   simp only [← c2780, ← c2781, ← c2782] at e_73_4
   have hr := e_73_4
@@ -7961,7 +7961,7 @@ theorem privateBatchWrapper8_f305 (a : Assignment p) (h : Satisfies (privateBatc
   have c2783 := (privateBatchWrapper8_copies86 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c2784 := (privateBatchWrapper8_copies87 a h).1
   have c2785 := (privateBatchWrapper8_copies87 a h).2.1
-  have e_73_5 := arithEq_of_rows h (row := 73) (i := 5) rfl (by decide)
+  have e_73_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row73 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_73_5
   simp only [← c2783, ← c2784, ← c2785] at e_73_5
   have hr := e_73_5
@@ -7980,7 +7980,7 @@ theorem privateBatchWrapper8_f307 (a : Assignment p) (h : Satisfies (privateBatc
   have c585 := (privateBatchWrapper8_copies18 a h).2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_13_7 := arithEq_of_rows h (row := 13) (i := 7) rfl (by decide)
+  have e_13_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row13 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_7
   simp only [← c583, k3, ← c584, k3, ← c585] at e_13_7
   have hr := e_13_7
@@ -7992,7 +7992,7 @@ theorem privateBatchWrapper8_f308 (a : Assignment p) (h : Satisfies (privateBatc
   have c2787 := (privateBatchWrapper8_copies87 a h).2.2.2.1
   have c2788 := (privateBatchWrapper8_copies87 a h).2.2.2.2.1
   have c2789 := (privateBatchWrapper8_copies87 a h).2.2.2.2.2.1
-  have e_73_6 := arithEq_of_rows h (row := 73) (i := 6) rfl (by decide)
+  have e_73_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row73 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_73_6
   simp only [← c2787, ← c2788, ← c2789] at e_73_6
   have hr := e_73_6
@@ -8020,19 +8020,19 @@ theorem privateBatchWrapper8_f309 (a : Assignment p) (h : Satisfies (privateBatc
   have c2806 := (privateBatchWrapper8_copies87 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_72_10 := arithEq_of_rows h (row := 72) (i := 10) rfl (by decide)
+  have e_72_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row72 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_72_10
   simp only [← c2790, k3, ← c2791, k3, ← c2792] at e_72_10
-  have e_72_11 := arithEq_of_rows h (row := 72) (i := 11) rfl (by decide)
+  have e_72_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row72 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_72_11
   simp only [← c2793, ← c2794, k3, ← c2795] at e_72_11
-  have e_72_12 := arithEq_of_rows h (row := 72) (i := 12) rfl (by decide)
+  have e_72_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row72 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_72_12
   simp only [← c2802, ← c2803, k3, ← c2804] at e_72_12
-  have e_73_7 := arithEq_of_rows h (row := 73) (i := 7) rfl (by decide)
+  have e_73_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row73 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_73_7
   simp only [← c2796, ← c2797, ← c2798] at e_73_7
-  have e_73_8 := arithEq_of_rows h (row := 73) (i := 8) rfl (by decide)
+  have e_73_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row73 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_73_8
   simp only [← c2799, ← c2800, ← c2801] at e_73_8
   refine ⟨?_, ?_⟩
@@ -8064,19 +8064,19 @@ theorem privateBatchWrapper8_f310 (a : Assignment p) (h : Satisfies (privateBatc
   have c2823 := (privateBatchWrapper8_copies88 a h).2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_72_13 := arithEq_of_rows h (row := 72) (i := 13) rfl (by decide)
+  have e_72_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row72 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_72_13
   simp only [← c2807, k3, ← c2808, k3, ← c2809] at e_72_13
-  have e_72_14 := arithEq_of_rows h (row := 72) (i := 14) rfl (by decide)
+  have e_72_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row72 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_72_14
   simp only [← c2810, ← c2811, k3, ← c2812] at e_72_14
-  have e_73_9 := arithEq_of_rows h (row := 73) (i := 9) rfl (by decide)
+  have e_73_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row73 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_73_9
   simp only [← c2813, ← c2814, ← c2815] at e_73_9
-  have e_73_10 := arithEq_of_rows h (row := 73) (i := 10) rfl (by decide)
+  have e_73_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row73 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_73_10
   simp only [← c2816, ← c2817, ← c2818] at e_73_10
-  have e_74_0 := arithEq_of_rows h (row := 74) (i := 0) rfl (by decide)
+  have e_74_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row74 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_74_0
   simp only [← c2819, ← c2820, k3, ← c2821] at e_74_0
   refine ⟨?_, ?_⟩
@@ -8108,19 +8108,19 @@ theorem privateBatchWrapper8_f311 (a : Assignment p) (h : Satisfies (privateBatc
   have c2840 := (privateBatchWrapper8_copies88 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_73_11 := arithEq_of_rows h (row := 73) (i := 11) rfl (by decide)
+  have e_73_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row73 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_73_11
   simp only [← c2830, ← c2831, ← c2832] at e_73_11
-  have e_73_12 := arithEq_of_rows h (row := 73) (i := 12) rfl (by decide)
+  have e_73_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row73 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_73_12
   simp only [← c2833, ← c2834, ← c2835] at e_73_12
-  have e_74_1 := arithEq_of_rows h (row := 74) (i := 1) rfl (by decide)
+  have e_74_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row74 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_74_1
   simp only [← c2824, k3, ← c2825, k3, ← c2826] at e_74_1
-  have e_74_2 := arithEq_of_rows h (row := 74) (i := 2) rfl (by decide)
+  have e_74_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row74 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_74_2
   simp only [← c2827, ← c2828, k3, ← c2829] at e_74_2
-  have e_74_3 := arithEq_of_rows h (row := 74) (i := 3) rfl (by decide)
+  have e_74_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row74 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_74_3
   simp only [← c2836, ← c2837, k3, ← c2838] at e_74_3
   refine ⟨?_, ?_⟩
@@ -8152,19 +8152,19 @@ theorem privateBatchWrapper8_f312 (a : Assignment p) (h : Satisfies (privateBatc
   have c2857 := (privateBatchWrapper8_copies89 a h).2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_73_13 := arithEq_of_rows h (row := 73) (i := 13) rfl (by decide)
+  have e_73_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row73 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_73_13
   simp only [← c2847, ← c2848, ← c2849] at e_73_13
-  have e_73_14 := arithEq_of_rows h (row := 73) (i := 14) rfl (by decide)
+  have e_73_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row73 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_73_14
   simp only [← c2850, ← c2851, ← c2852] at e_73_14
-  have e_74_4 := arithEq_of_rows h (row := 74) (i := 4) rfl (by decide)
+  have e_74_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row74 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_74_4
   simp only [← c2841, k3, ← c2842, k3, ← c2843] at e_74_4
-  have e_74_5 := arithEq_of_rows h (row := 74) (i := 5) rfl (by decide)
+  have e_74_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row74 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_74_5
   simp only [← c2844, ← c2845, k3, ← c2846] at e_74_5
-  have e_74_6 := arithEq_of_rows h (row := 74) (i := 6) rfl (by decide)
+  have e_74_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row74 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_74_6
   simp only [← c2853, ← c2854, k3, ← c2855] at e_74_6
   refine ⟨?_, ?_⟩
@@ -8180,7 +8180,7 @@ theorem privateBatchWrapper8_f313 (a : Assignment p) (h : Satisfies (privateBatc
   have c2858 := (privateBatchWrapper8_copies89 a h).2.2.2.2.2.2.2.2.2.2.1
   have c2859 := (privateBatchWrapper8_copies89 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c2860 := (privateBatchWrapper8_copies89 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_75_0 := arithEq_of_rows h (row := 75) (i := 0) rfl (by decide)
+  have e_75_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row75 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_75_0
   simp only [← c2858, ← c2859, ← c2860] at e_75_0
   have hr := e_75_0
@@ -8192,7 +8192,7 @@ theorem privateBatchWrapper8_f314 (a : Assignment p) (h : Satisfies (privateBatc
   have c2861 := (privateBatchWrapper8_copies89 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c2862 := (privateBatchWrapper8_copies89 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c2863 := (privateBatchWrapper8_copies89 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_75_1 := arithEq_of_rows h (row := 75) (i := 1) rfl (by decide)
+  have e_75_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row75 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_75_1
   simp only [← c2861, ← c2862, ← c2863] at e_75_1
   have hr := e_75_1
@@ -8204,7 +8204,7 @@ theorem privateBatchWrapper8_f315 (a : Assignment p) (h : Satisfies (privateBatc
   have c2864 := (privateBatchWrapper8_copies89 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c2865 := (privateBatchWrapper8_copies89 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c2866 := (privateBatchWrapper8_copies89 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_75_2 := arithEq_of_rows h (row := 75) (i := 2) rfl (by decide)
+  have e_75_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row75 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_75_2
   simp only [← c2864, ← c2865, ← c2866] at e_75_2
   have hr := e_75_2
@@ -8216,7 +8216,7 @@ theorem privateBatchWrapper8_f316 (a : Assignment p) (h : Satisfies (privateBatc
   have c2867 := (privateBatchWrapper8_copies89 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c2868 := (privateBatchWrapper8_copies89 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c2869 := (privateBatchWrapper8_copies89 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_75_3 := arithEq_of_rows h (row := 75) (i := 3) rfl (by decide)
+  have e_75_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row75 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_75_3
   simp only [← c2867, ← c2868, ← c2869] at e_75_3
   have hr := e_75_3
@@ -8235,7 +8235,7 @@ theorem privateBatchWrapper8_f318 (a : Assignment p) (h : Satisfies (privateBatc
   have c630 := (privateBatchWrapper8_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_15_4 := arithEq_of_rows h (row := 15) (i := 4) rfl (by decide)
+  have e_15_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row15 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_4
   simp only [← c628, k3, ← c629, k3, ← c630] at e_15_4
   have hr := e_15_4
@@ -8247,7 +8247,7 @@ theorem privateBatchWrapper8_f319 (a : Assignment p) (h : Satisfies (privateBatc
   have c2871 := (privateBatchWrapper8_copies89 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c2872 := (privateBatchWrapper8_copies89 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c2873 := (privateBatchWrapper8_copies89 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_75_4 := arithEq_of_rows h (row := 75) (i := 4) rfl (by decide)
+  have e_75_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row75 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_75_4
   simp only [← c2871, ← c2872, ← c2873] at e_75_4
   have hr := e_75_4
@@ -8275,19 +8275,19 @@ theorem privateBatchWrapper8_f320 (a : Assignment p) (h : Satisfies (privateBatc
   have c2890 := (privateBatchWrapper8_copies90 a h).2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_74_7 := arithEq_of_rows h (row := 74) (i := 7) rfl (by decide)
+  have e_74_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row74 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_74_7
   simp only [← c2874, k3, ← c2875, k3, ← c2876] at e_74_7
-  have e_74_8 := arithEq_of_rows h (row := 74) (i := 8) rfl (by decide)
+  have e_74_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row74 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_74_8
   simp only [← c2877, ← c2878, k3, ← c2879] at e_74_8
-  have e_74_9 := arithEq_of_rows h (row := 74) (i := 9) rfl (by decide)
+  have e_74_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row74 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_74_9
   simp only [← c2886, ← c2887, k3, ← c2888] at e_74_9
-  have e_75_5 := arithEq_of_rows h (row := 75) (i := 5) rfl (by decide)
+  have e_75_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row75 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_75_5
   simp only [← c2880, ← c2881, ← c2882] at e_75_5
-  have e_75_6 := arithEq_of_rows h (row := 75) (i := 6) rfl (by decide)
+  have e_75_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row75 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_75_6
   simp only [← c2883, ← c2884, ← c2885] at e_75_6
   refine ⟨?_, ?_⟩
@@ -8319,19 +8319,19 @@ theorem privateBatchWrapper8_f321 (a : Assignment p) (h : Satisfies (privateBatc
   have c2907 := (privateBatchWrapper8_copies90 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_74_10 := arithEq_of_rows h (row := 74) (i := 10) rfl (by decide)
+  have e_74_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row74 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_74_10
   simp only [← c2891, k3, ← c2892, k3, ← c2893] at e_74_10
-  have e_74_11 := arithEq_of_rows h (row := 74) (i := 11) rfl (by decide)
+  have e_74_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row74 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_74_11
   simp only [← c2894, ← c2895, k3, ← c2896] at e_74_11
-  have e_74_12 := arithEq_of_rows h (row := 74) (i := 12) rfl (by decide)
+  have e_74_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row74 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_74_12
   simp only [← c2903, ← c2904, k3, ← c2905] at e_74_12
-  have e_75_7 := arithEq_of_rows h (row := 75) (i := 7) rfl (by decide)
+  have e_75_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row75 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_75_7
   simp only [← c2897, ← c2898, ← c2899] at e_75_7
-  have e_75_8 := arithEq_of_rows h (row := 75) (i := 8) rfl (by decide)
+  have e_75_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row75 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_75_8
   simp only [← c2900, ← c2901, ← c2902] at e_75_8
   refine ⟨?_, ?_⟩
@@ -8363,19 +8363,19 @@ theorem privateBatchWrapper8_f322 (a : Assignment p) (h : Satisfies (privateBatc
   have c2924 := (privateBatchWrapper8_copies91 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_74_13 := arithEq_of_rows h (row := 74) (i := 13) rfl (by decide)
+  have e_74_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row74 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_74_13
   simp only [← c2908, k3, ← c2909, k3, ← c2910] at e_74_13
-  have e_74_14 := arithEq_of_rows h (row := 74) (i := 14) rfl (by decide)
+  have e_74_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row74 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_74_14
   simp only [← c2911, ← c2912, k3, ← c2913] at e_74_14
-  have e_75_9 := arithEq_of_rows h (row := 75) (i := 9) rfl (by decide)
+  have e_75_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row75 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_75_9
   simp only [← c2914, ← c2915, ← c2916] at e_75_9
-  have e_75_10 := arithEq_of_rows h (row := 75) (i := 10) rfl (by decide)
+  have e_75_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row75 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_75_10
   simp only [← c2917, ← c2918, ← c2919] at e_75_10
-  have e_76_0 := arithEq_of_rows h (row := 76) (i := 0) rfl (by decide)
+  have e_76_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row76 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_76_0
   simp only [← c2920, ← c2921, k3, ← c2922] at e_76_0
   refine ⟨?_, ?_⟩
@@ -8407,19 +8407,19 @@ theorem privateBatchWrapper8_f323 (a : Assignment p) (h : Satisfies (privateBatc
   have c2941 := (privateBatchWrapper8_copies91 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_75_11 := arithEq_of_rows h (row := 75) (i := 11) rfl (by decide)
+  have e_75_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row75 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_75_11
   simp only [← c2931, ← c2932, ← c2933] at e_75_11
-  have e_75_12 := arithEq_of_rows h (row := 75) (i := 12) rfl (by decide)
+  have e_75_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row75 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_75_12
   simp only [← c2934, ← c2935, ← c2936] at e_75_12
-  have e_76_1 := arithEq_of_rows h (row := 76) (i := 1) rfl (by decide)
+  have e_76_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row76 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_76_1
   simp only [← c2925, k3, ← c2926, k3, ← c2927] at e_76_1
-  have e_76_2 := arithEq_of_rows h (row := 76) (i := 2) rfl (by decide)
+  have e_76_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row76 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_76_2
   simp only [← c2928, ← c2929, k3, ← c2930] at e_76_2
-  have e_76_3 := arithEq_of_rows h (row := 76) (i := 3) rfl (by decide)
+  have e_76_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row76 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_76_3
   simp only [← c2937, ← c2938, k3, ← c2939] at e_76_3
   refine ⟨?_, ?_⟩
@@ -8435,7 +8435,7 @@ theorem privateBatchWrapper8_f324 (a : Assignment p) (h : Satisfies (privateBatc
   have c2942 := (privateBatchWrapper8_copies91 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c2943 := (privateBatchWrapper8_copies91 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c2944 := (privateBatchWrapper8_copies92 a h).1
-  have e_75_13 := arithEq_of_rows h (row := 75) (i := 13) rfl (by decide)
+  have e_75_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row75 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_75_13
   simp only [← c2942, ← c2943, ← c2944] at e_75_13
   have hr := e_75_13
@@ -8447,7 +8447,7 @@ theorem privateBatchWrapper8_f325 (a : Assignment p) (h : Satisfies (privateBatc
   have c2945 := (privateBatchWrapper8_copies92 a h).2.1
   have c2946 := (privateBatchWrapper8_copies92 a h).2.2.1
   have c2947 := (privateBatchWrapper8_copies92 a h).2.2.2.1
-  have e_75_14 := arithEq_of_rows h (row := 75) (i := 14) rfl (by decide)
+  have e_75_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row75 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_75_14
   simp only [← c2945, ← c2946, ← c2947] at e_75_14
   have hr := e_75_14
@@ -8459,7 +8459,7 @@ theorem privateBatchWrapper8_f326 (a : Assignment p) (h : Satisfies (privateBatc
   have c2948 := (privateBatchWrapper8_copies92 a h).2.2.2.2.1
   have c2949 := (privateBatchWrapper8_copies92 a h).2.2.2.2.2.1
   have c2950 := (privateBatchWrapper8_copies92 a h).2.2.2.2.2.2.1
-  have e_77_0 := arithEq_of_rows h (row := 77) (i := 0) rfl (by decide)
+  have e_77_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row77 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_77_0
   simp only [← c2948, ← c2949, ← c2950] at e_77_0
   have hr := e_77_0
@@ -8471,7 +8471,7 @@ theorem privateBatchWrapper8_f327 (a : Assignment p) (h : Satisfies (privateBatc
   have c2951 := (privateBatchWrapper8_copies92 a h).2.2.2.2.2.2.2.1
   have c2952 := (privateBatchWrapper8_copies92 a h).2.2.2.2.2.2.2.2.1
   have c2953 := (privateBatchWrapper8_copies92 a h).2.2.2.2.2.2.2.2.2.1
-  have e_77_1 := arithEq_of_rows h (row := 77) (i := 1) rfl (by decide)
+  have e_77_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row77 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_77_1
   simp only [← c2951, ← c2952, ← c2953] at e_77_1
   have hr := e_77_1
@@ -8490,7 +8490,7 @@ theorem privateBatchWrapper8_f329 (a : Assignment p) (h : Satisfies (privateBatc
   have c675 := (privateBatchWrapper8_copies21 a h).2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_16_1 := arithEq_of_rows h (row := 16) (i := 1) rfl (by decide)
+  have e_16_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_1
   simp only [← c673, k3, ← c674, k3, ← c675] at e_16_1
   have hr := e_16_1
@@ -8502,7 +8502,7 @@ theorem privateBatchWrapper8_f330 (a : Assignment p) (h : Satisfies (privateBatc
   have c2955 := (privateBatchWrapper8_copies92 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c2956 := (privateBatchWrapper8_copies92 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c2957 := (privateBatchWrapper8_copies92 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_77_2 := arithEq_of_rows h (row := 77) (i := 2) rfl (by decide)
+  have e_77_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row77 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_77_2
   simp only [← c2955, ← c2956, ← c2957] at e_77_2
   have hr := e_77_2
@@ -8530,19 +8530,19 @@ theorem privateBatchWrapper8_f331 (a : Assignment p) (h : Satisfies (privateBatc
   have c2974 := (privateBatchWrapper8_copies92 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_76_4 := arithEq_of_rows h (row := 76) (i := 4) rfl (by decide)
+  have e_76_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row76 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_76_4
   simp only [← c2958, k3, ← c2959, k3, ← c2960] at e_76_4
-  have e_76_5 := arithEq_of_rows h (row := 76) (i := 5) rfl (by decide)
+  have e_76_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row76 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_76_5
   simp only [← c2961, ← c2962, k3, ← c2963] at e_76_5
-  have e_76_6 := arithEq_of_rows h (row := 76) (i := 6) rfl (by decide)
+  have e_76_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row76 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_76_6
   simp only [← c2970, ← c2971, k3, ← c2972] at e_76_6
-  have e_77_3 := arithEq_of_rows h (row := 77) (i := 3) rfl (by decide)
+  have e_77_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row77 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_77_3
   simp only [← c2964, ← c2965, ← c2966] at e_77_3
-  have e_77_4 := arithEq_of_rows h (row := 77) (i := 4) rfl (by decide)
+  have e_77_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row77 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_77_4
   simp only [← c2967, ← c2968, ← c2969] at e_77_4
   refine ⟨?_, ?_⟩
@@ -8574,19 +8574,19 @@ theorem privateBatchWrapper8_f332 (a : Assignment p) (h : Satisfies (privateBatc
   have c2991 := (privateBatchWrapper8_copies93 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_76_7 := arithEq_of_rows h (row := 76) (i := 7) rfl (by decide)
+  have e_76_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row76 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_76_7
   simp only [← c2975, k3, ← c2976, k3, ← c2977] at e_76_7
-  have e_76_8 := arithEq_of_rows h (row := 76) (i := 8) rfl (by decide)
+  have e_76_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row76 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_76_8
   simp only [← c2978, ← c2979, k3, ← c2980] at e_76_8
-  have e_76_9 := arithEq_of_rows h (row := 76) (i := 9) rfl (by decide)
+  have e_76_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row76 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_76_9
   simp only [← c2987, ← c2988, k3, ← c2989] at e_76_9
-  have e_77_5 := arithEq_of_rows h (row := 77) (i := 5) rfl (by decide)
+  have e_77_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row77 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_77_5
   simp only [← c2981, ← c2982, ← c2983] at e_77_5
-  have e_77_6 := arithEq_of_rows h (row := 77) (i := 6) rfl (by decide)
+  have e_77_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row77 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_77_6
   simp only [← c2984, ← c2985, ← c2986] at e_77_6
   refine ⟨?_, ?_⟩
@@ -8618,19 +8618,19 @@ theorem privateBatchWrapper8_f333 (a : Assignment p) (h : Satisfies (privateBatc
   have c3008 := (privateBatchWrapper8_copies94 a h).1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_76_10 := arithEq_of_rows h (row := 76) (i := 10) rfl (by decide)
+  have e_76_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row76 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_76_10
   simp only [← c2992, k3, ← c2993, k3, ← c2994] at e_76_10
-  have e_76_11 := arithEq_of_rows h (row := 76) (i := 11) rfl (by decide)
+  have e_76_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row76 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_76_11
   simp only [← c2995, ← c2996, k3, ← c2997] at e_76_11
-  have e_76_12 := arithEq_of_rows h (row := 76) (i := 12) rfl (by decide)
+  have e_76_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row76 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_76_12
   simp only [← c3004, ← c3005, k3, ← c3006] at e_76_12
-  have e_77_7 := arithEq_of_rows h (row := 77) (i := 7) rfl (by decide)
+  have e_77_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row77 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_77_7
   simp only [← c2998, ← c2999, ← c3000] at e_77_7
-  have e_77_8 := arithEq_of_rows h (row := 77) (i := 8) rfl (by decide)
+  have e_77_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row77 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_77_8
   simp only [← c3001, ← c3002, ← c3003] at e_77_8
   refine ⟨?_, ?_⟩
@@ -8662,19 +8662,19 @@ theorem privateBatchWrapper8_f334 (a : Assignment p) (h : Satisfies (privateBatc
   have c3025 := (privateBatchWrapper8_copies94 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_76_13 := arithEq_of_rows h (row := 76) (i := 13) rfl (by decide)
+  have e_76_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row76 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_76_13
   simp only [← c3009, k3, ← c3010, k3, ← c3011] at e_76_13
-  have e_76_14 := arithEq_of_rows h (row := 76) (i := 14) rfl (by decide)
+  have e_76_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row76 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_76_14
   simp only [← c3012, ← c3013, k3, ← c3014] at e_76_14
-  have e_77_9 := arithEq_of_rows h (row := 77) (i := 9) rfl (by decide)
+  have e_77_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row77 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_77_9
   simp only [← c3015, ← c3016, ← c3017] at e_77_9
-  have e_77_10 := arithEq_of_rows h (row := 77) (i := 10) rfl (by decide)
+  have e_77_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row77 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_77_10
   simp only [← c3018, ← c3019, ← c3020] at e_77_10
-  have e_78_0 := arithEq_of_rows h (row := 78) (i := 0) rfl (by decide)
+  have e_78_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row78 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_78_0
   simp only [← c3021, ← c3022, k3, ← c3023] at e_78_0
   refine ⟨?_, ?_⟩
@@ -8690,7 +8690,7 @@ theorem privateBatchWrapper8_f335 (a : Assignment p) (h : Satisfies (privateBatc
   have c3026 := (privateBatchWrapper8_copies94 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3027 := (privateBatchWrapper8_copies94 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3028 := (privateBatchWrapper8_copies94 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_77_11 := arithEq_of_rows h (row := 77) (i := 11) rfl (by decide)
+  have e_77_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row77 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_77_11
   simp only [← c3026, ← c3027, ← c3028] at e_77_11
   have hr := e_77_11
@@ -8702,7 +8702,7 @@ theorem privateBatchWrapper8_f336 (a : Assignment p) (h : Satisfies (privateBatc
   have c3029 := (privateBatchWrapper8_copies94 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3030 := (privateBatchWrapper8_copies94 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3031 := (privateBatchWrapper8_copies94 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_77_12 := arithEq_of_rows h (row := 77) (i := 12) rfl (by decide)
+  have e_77_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row77 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_77_12
   simp only [← c3029, ← c3030, ← c3031] at e_77_12
   have hr := e_77_12
@@ -8714,7 +8714,7 @@ theorem privateBatchWrapper8_f337 (a : Assignment p) (h : Satisfies (privateBatc
   have c3032 := (privateBatchWrapper8_copies94 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3033 := (privateBatchWrapper8_copies94 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3034 := (privateBatchWrapper8_copies94 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_77_13 := arithEq_of_rows h (row := 77) (i := 13) rfl (by decide)
+  have e_77_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row77 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_77_13
   simp only [← c3032, ← c3033, ← c3034] at e_77_13
   have hr := e_77_13
@@ -8726,7 +8726,7 @@ theorem privateBatchWrapper8_f338 (a : Assignment p) (h : Satisfies (privateBatc
   have c3035 := (privateBatchWrapper8_copies94 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3036 := (privateBatchWrapper8_copies94 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3037 := (privateBatchWrapper8_copies94 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_77_14 := arithEq_of_rows h (row := 77) (i := 14) rfl (by decide)
+  have e_77_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row77 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_77_14
   simp only [← c3035, ← c3036, ← c3037] at e_77_14
   have hr := e_77_14
@@ -8745,7 +8745,7 @@ theorem privateBatchWrapper8_f340 (a : Assignment p) (h : Satisfies (privateBatc
   have c720 := (privateBatchWrapper8_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_16_13 := arithEq_of_rows h (row := 16) (i := 13) rfl (by decide)
+  have e_16_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_13
   simp only [← c718, k3, ← c719, k3, ← c720] at e_16_13
   have hr := e_16_13
@@ -8757,7 +8757,7 @@ theorem privateBatchWrapper8_f341 (a : Assignment p) (h : Satisfies (privateBatc
   have c3039 := (privateBatchWrapper8_copies94 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c3040 := (privateBatchWrapper8_copies95 a h).1
   have c3041 := (privateBatchWrapper8_copies95 a h).2.1
-  have e_79_0 := arithEq_of_rows h (row := 79) (i := 0) rfl (by decide)
+  have e_79_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row79 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_79_0
   simp only [← c3039, ← c3040, ← c3041] at e_79_0
   have hr := e_79_0
@@ -8785,19 +8785,19 @@ theorem privateBatchWrapper8_f342 (a : Assignment p) (h : Satisfies (privateBatc
   have c3058 := (privateBatchWrapper8_copies95 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_78_1 := arithEq_of_rows h (row := 78) (i := 1) rfl (by decide)
+  have e_78_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row78 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_78_1
   simp only [← c3042, k3, ← c3043, k3, ← c3044] at e_78_1
-  have e_78_2 := arithEq_of_rows h (row := 78) (i := 2) rfl (by decide)
+  have e_78_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row78 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_78_2
   simp only [← c3045, ← c3046, k3, ← c3047] at e_78_2
-  have e_78_3 := arithEq_of_rows h (row := 78) (i := 3) rfl (by decide)
+  have e_78_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row78 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_78_3
   simp only [← c3054, ← c3055, k3, ← c3056] at e_78_3
-  have e_79_1 := arithEq_of_rows h (row := 79) (i := 1) rfl (by decide)
+  have e_79_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row79 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_79_1
   simp only [← c3048, ← c3049, ← c3050] at e_79_1
-  have e_79_2 := arithEq_of_rows h (row := 79) (i := 2) rfl (by decide)
+  have e_79_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row79 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_79_2
   simp only [← c3051, ← c3052, ← c3053] at e_79_2
   refine ⟨?_, ?_⟩
@@ -8829,19 +8829,19 @@ theorem privateBatchWrapper8_f343 (a : Assignment p) (h : Satisfies (privateBatc
   have c3075 := (privateBatchWrapper8_copies96 a h).2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_78_4 := arithEq_of_rows h (row := 78) (i := 4) rfl (by decide)
+  have e_78_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row78 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_78_4
   simp only [← c3059, k3, ← c3060, k3, ← c3061] at e_78_4
-  have e_78_5 := arithEq_of_rows h (row := 78) (i := 5) rfl (by decide)
+  have e_78_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row78 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_78_5
   simp only [← c3062, ← c3063, k3, ← c3064] at e_78_5
-  have e_78_6 := arithEq_of_rows h (row := 78) (i := 6) rfl (by decide)
+  have e_78_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row78 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_78_6
   simp only [← c3071, ← c3072, k3, ← c3073] at e_78_6
-  have e_79_3 := arithEq_of_rows h (row := 79) (i := 3) rfl (by decide)
+  have e_79_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row79 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_79_3
   simp only [← c3065, ← c3066, ← c3067] at e_79_3
-  have e_79_4 := arithEq_of_rows h (row := 79) (i := 4) rfl (by decide)
+  have e_79_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row79 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_79_4
   simp only [← c3068, ← c3069, ← c3070] at e_79_4
   refine ⟨?_, ?_⟩
@@ -8873,19 +8873,19 @@ theorem privateBatchWrapper8_f344 (a : Assignment p) (h : Satisfies (privateBatc
   have c3092 := (privateBatchWrapper8_copies96 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_78_7 := arithEq_of_rows h (row := 78) (i := 7) rfl (by decide)
+  have e_78_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row78 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_78_7
   simp only [← c3076, k3, ← c3077, k3, ← c3078] at e_78_7
-  have e_78_8 := arithEq_of_rows h (row := 78) (i := 8) rfl (by decide)
+  have e_78_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row78 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_78_8
   simp only [← c3079, ← c3080, k3, ← c3081] at e_78_8
-  have e_78_9 := arithEq_of_rows h (row := 78) (i := 9) rfl (by decide)
+  have e_78_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row78 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_78_9
   simp only [← c3088, ← c3089, k3, ← c3090] at e_78_9
-  have e_79_5 := arithEq_of_rows h (row := 79) (i := 5) rfl (by decide)
+  have e_79_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row79 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_79_5
   simp only [← c3082, ← c3083, ← c3084] at e_79_5
-  have e_79_6 := arithEq_of_rows h (row := 79) (i := 6) rfl (by decide)
+  have e_79_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row79 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_79_6
   simp only [← c3085, ← c3086, ← c3087] at e_79_6
   refine ⟨?_, ?_⟩
@@ -8917,19 +8917,19 @@ theorem privateBatchWrapper8_f345 (a : Assignment p) (h : Satisfies (privateBatc
   have c3109 := (privateBatchWrapper8_copies97 a h).2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_78_10 := arithEq_of_rows h (row := 78) (i := 10) rfl (by decide)
+  have e_78_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row78 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_78_10
   simp only [← c3093, k3, ← c3094, k3, ← c3095] at e_78_10
-  have e_78_11 := arithEq_of_rows h (row := 78) (i := 11) rfl (by decide)
+  have e_78_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row78 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_78_11
   simp only [← c3096, ← c3097, k3, ← c3098] at e_78_11
-  have e_78_12 := arithEq_of_rows h (row := 78) (i := 12) rfl (by decide)
+  have e_78_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row78 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_78_12
   simp only [← c3105, ← c3106, k3, ← c3107] at e_78_12
-  have e_79_7 := arithEq_of_rows h (row := 79) (i := 7) rfl (by decide)
+  have e_79_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row79 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_79_7
   simp only [← c3099, ← c3100, ← c3101] at e_79_7
-  have e_79_8 := arithEq_of_rows h (row := 79) (i := 8) rfl (by decide)
+  have e_79_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row79 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_79_8
   simp only [← c3102, ← c3103, ← c3104] at e_79_8
   refine ⟨?_, ?_⟩
@@ -8945,7 +8945,7 @@ theorem privateBatchWrapper8_f346 (a : Assignment p) (h : Satisfies (privateBatc
   have c3110 := (privateBatchWrapper8_copies97 a h).2.2.2.2.2.2.1
   have c3111 := (privateBatchWrapper8_copies97 a h).2.2.2.2.2.2.2.1
   have c3112 := (privateBatchWrapper8_copies97 a h).2.2.2.2.2.2.2.2.1
-  have e_79_9 := arithEq_of_rows h (row := 79) (i := 9) rfl (by decide)
+  have e_79_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row79 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_79_9
   simp only [← c3110, ← c3111, ← c3112] at e_79_9
   have hr := e_79_9
@@ -8957,7 +8957,7 @@ theorem privateBatchWrapper8_f347 (a : Assignment p) (h : Satisfies (privateBatc
   have c3113 := (privateBatchWrapper8_copies97 a h).2.2.2.2.2.2.2.2.2.1
   have c3114 := (privateBatchWrapper8_copies97 a h).2.2.2.2.2.2.2.2.2.2.1
   have c3115 := (privateBatchWrapper8_copies97 a h).2.2.2.2.2.2.2.2.2.2.2.1
-  have e_79_10 := arithEq_of_rows h (row := 79) (i := 10) rfl (by decide)
+  have e_79_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row79 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_79_10
   simp only [← c3113, ← c3114, ← c3115] at e_79_10
   have hr := e_79_10
@@ -8969,7 +8969,7 @@ theorem privateBatchWrapper8_f348 (a : Assignment p) (h : Satisfies (privateBatc
   have c3116 := (privateBatchWrapper8_copies97 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3117 := (privateBatchWrapper8_copies97 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3118 := (privateBatchWrapper8_copies97 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_79_11 := arithEq_of_rows h (row := 79) (i := 11) rfl (by decide)
+  have e_79_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row79 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_79_11
   simp only [← c3116, ← c3117, ← c3118] at e_79_11
   have hr := e_79_11
@@ -8981,7 +8981,7 @@ theorem privateBatchWrapper8_f349 (a : Assignment p) (h : Satisfies (privateBatc
   have c3119 := (privateBatchWrapper8_copies97 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3120 := (privateBatchWrapper8_copies97 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3121 := (privateBatchWrapper8_copies97 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_79_12 := arithEq_of_rows h (row := 79) (i := 12) rfl (by decide)
+  have e_79_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row79 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_79_12
   simp only [← c3119, ← c3120, ← c3121] at e_79_12
   have hr := e_79_12
@@ -9000,7 +9000,7 @@ theorem privateBatchWrapper8_f351 (a : Assignment p) (h : Satisfies (privateBatc
   have c765 := (privateBatchWrapper8_copies23 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_17_10 := arithEq_of_rows h (row := 17) (i := 10) rfl (by decide)
+  have e_17_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row17 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_10
   simp only [← c763, k3, ← c764, k3, ← c765] at e_17_10
   have hr := e_17_10
@@ -9012,7 +9012,7 @@ theorem privateBatchWrapper8_f352 (a : Assignment p) (h : Satisfies (privateBatc
   have c3123 := (privateBatchWrapper8_copies97 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3124 := (privateBatchWrapper8_copies97 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3125 := (privateBatchWrapper8_copies97 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_79_13 := arithEq_of_rows h (row := 79) (i := 13) rfl (by decide)
+  have e_79_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row79 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_79_13
   simp only [← c3123, ← c3124, ← c3125] at e_79_13
   have hr := e_79_13
@@ -9040,19 +9040,19 @@ theorem privateBatchWrapper8_f353 (a : Assignment p) (h : Satisfies (privateBatc
   have c3142 := (privateBatchWrapper8_copies98 a h).2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_78_13 := arithEq_of_rows h (row := 78) (i := 13) rfl (by decide)
+  have e_78_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row78 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_78_13
   simp only [← c3126, k3, ← c3127, k3, ← c3128] at e_78_13
-  have e_78_14 := arithEq_of_rows h (row := 78) (i := 14) rfl (by decide)
+  have e_78_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row78 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_78_14
   simp only [← c3129, ← c3130, k3, ← c3131] at e_78_14
-  have e_79_14 := arithEq_of_rows h (row := 79) (i := 14) rfl (by decide)
+  have e_79_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row79 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_79_14
   simp only [← c3132, ← c3133, ← c3134] at e_79_14
-  have e_80_0 := arithEq_of_rows h (row := 80) (i := 0) rfl (by decide)
+  have e_80_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row80 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_80_0
   simp only [← c3135, ← c3136, ← c3137] at e_80_0
-  have e_81_0 := arithEq_of_rows h (row := 81) (i := 0) rfl (by decide)
+  have e_81_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row81 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_81_0
   simp only [← c3138, ← c3139, k3, ← c3140] at e_81_0
   refine ⟨?_, ?_⟩
@@ -9084,19 +9084,19 @@ theorem privateBatchWrapper8_f354 (a : Assignment p) (h : Satisfies (privateBatc
   have c3159 := (privateBatchWrapper8_copies98 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_80_1 := arithEq_of_rows h (row := 80) (i := 1) rfl (by decide)
+  have e_80_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row80 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_80_1
   simp only [← c3149, ← c3150, ← c3151] at e_80_1
-  have e_80_2 := arithEq_of_rows h (row := 80) (i := 2) rfl (by decide)
+  have e_80_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row80 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_80_2
   simp only [← c3152, ← c3153, ← c3154] at e_80_2
-  have e_81_1 := arithEq_of_rows h (row := 81) (i := 1) rfl (by decide)
+  have e_81_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row81 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_81_1
   simp only [← c3143, k3, ← c3144, k3, ← c3145] at e_81_1
-  have e_81_2 := arithEq_of_rows h (row := 81) (i := 2) rfl (by decide)
+  have e_81_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row81 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_81_2
   simp only [← c3146, ← c3147, k3, ← c3148] at e_81_2
-  have e_81_3 := arithEq_of_rows h (row := 81) (i := 3) rfl (by decide)
+  have e_81_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row81 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_81_3
   simp only [← c3155, ← c3156, k3, ← c3157] at e_81_3
   refine ⟨?_, ?_⟩
@@ -9128,19 +9128,19 @@ theorem privateBatchWrapper8_f355 (a : Assignment p) (h : Satisfies (privateBatc
   have c3176 := (privateBatchWrapper8_copies99 a h).2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_80_3 := arithEq_of_rows h (row := 80) (i := 3) rfl (by decide)
+  have e_80_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row80 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_80_3
   simp only [← c3166, ← c3167, ← c3168] at e_80_3
-  have e_80_4 := arithEq_of_rows h (row := 80) (i := 4) rfl (by decide)
+  have e_80_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row80 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_80_4
   simp only [← c3169, ← c3170, ← c3171] at e_80_4
-  have e_81_4 := arithEq_of_rows h (row := 81) (i := 4) rfl (by decide)
+  have e_81_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row81 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_81_4
   simp only [← c3160, k3, ← c3161, k3, ← c3162] at e_81_4
-  have e_81_5 := arithEq_of_rows h (row := 81) (i := 5) rfl (by decide)
+  have e_81_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row81 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_81_5
   simp only [← c3163, ← c3164, k3, ← c3165] at e_81_5
-  have e_81_6 := arithEq_of_rows h (row := 81) (i := 6) rfl (by decide)
+  have e_81_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row81 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_81_6
   simp only [← c3172, ← c3173, k3, ← c3174] at e_81_6
   refine ⟨?_, ?_⟩
@@ -9172,19 +9172,19 @@ theorem privateBatchWrapper8_f356 (a : Assignment p) (h : Satisfies (privateBatc
   have c3193 := (privateBatchWrapper8_copies99 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_80_5 := arithEq_of_rows h (row := 80) (i := 5) rfl (by decide)
+  have e_80_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row80 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_80_5
   simp only [← c3183, ← c3184, ← c3185] at e_80_5
-  have e_80_6 := arithEq_of_rows h (row := 80) (i := 6) rfl (by decide)
+  have e_80_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row80 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_80_6
   simp only [← c3186, ← c3187, ← c3188] at e_80_6
-  have e_81_7 := arithEq_of_rows h (row := 81) (i := 7) rfl (by decide)
+  have e_81_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row81 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_81_7
   simp only [← c3177, k3, ← c3178, k3, ← c3179] at e_81_7
-  have e_81_8 := arithEq_of_rows h (row := 81) (i := 8) rfl (by decide)
+  have e_81_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row81 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_81_8
   simp only [← c3180, ← c3181, k3, ← c3182] at e_81_8
-  have e_81_9 := arithEq_of_rows h (row := 81) (i := 9) rfl (by decide)
+  have e_81_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row81 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_81_9
   simp only [← c3189, ← c3190, k3, ← c3191] at e_81_9
   refine ⟨?_, ?_⟩
@@ -9200,7 +9200,7 @@ theorem privateBatchWrapper8_f357 (a : Assignment p) (h : Satisfies (privateBatc
   have c3194 := (privateBatchWrapper8_copies99 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3195 := (privateBatchWrapper8_copies99 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3196 := (privateBatchWrapper8_copies99 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_80_7 := arithEq_of_rows h (row := 80) (i := 7) rfl (by decide)
+  have e_80_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row80 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_80_7
   simp only [← c3194, ← c3195, ← c3196] at e_80_7
   have hr := e_80_7
@@ -9212,7 +9212,7 @@ theorem privateBatchWrapper8_f358 (a : Assignment p) (h : Satisfies (privateBatc
   have c3197 := (privateBatchWrapper8_copies99 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3198 := (privateBatchWrapper8_copies99 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3199 := (privateBatchWrapper8_copies99 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have e_80_8 := arithEq_of_rows h (row := 80) (i := 8) rfl (by decide)
+  have e_80_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row80 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_80_8
   simp only [← c3197, ← c3198, ← c3199] at e_80_8
   have hr := e_80_8
@@ -9224,7 +9224,7 @@ theorem privateBatchWrapper8_f359 (a : Assignment p) (h : Satisfies (privateBatc
   have c3200 := (privateBatchWrapper8_copies100 a h).1
   have c3201 := (privateBatchWrapper8_copies100 a h).2.1
   have c3202 := (privateBatchWrapper8_copies100 a h).2.2.1
-  have e_80_9 := arithEq_of_rows h (row := 80) (i := 9) rfl (by decide)
+  have e_80_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row80 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_80_9
   simp only [← c3200, ← c3201, ← c3202] at e_80_9
   have hr := e_80_9
@@ -9236,7 +9236,7 @@ theorem privateBatchWrapper8_f360 (a : Assignment p) (h : Satisfies (privateBatc
   have c3203 := (privateBatchWrapper8_copies100 a h).2.2.2.1
   have c3204 := (privateBatchWrapper8_copies100 a h).2.2.2.2.1
   have c3205 := (privateBatchWrapper8_copies100 a h).2.2.2.2.2.1
-  have e_80_10 := arithEq_of_rows h (row := 80) (i := 10) rfl (by decide)
+  have e_80_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row80 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_80_10
   simp only [← c3203, ← c3204, ← c3205] at e_80_10
   have hr := e_80_10
@@ -9255,7 +9255,7 @@ theorem privateBatchWrapper8_f362 (a : Assignment p) (h : Satisfies (privateBatc
   have c810 := (privateBatchWrapper8_copies25 a h).2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_19_7 := arithEq_of_rows h (row := 19) (i := 7) rfl (by decide)
+  have e_19_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row19 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_7
   simp only [← c808, k3, ← c809, k3, ← c810] at e_19_7
   have hr := e_19_7
@@ -9267,7 +9267,7 @@ theorem privateBatchWrapper8_f363 (a : Assignment p) (h : Satisfies (privateBatc
   have c3207 := (privateBatchWrapper8_copies100 a h).2.2.2.2.2.2.2.1
   have c3208 := (privateBatchWrapper8_copies100 a h).2.2.2.2.2.2.2.2.1
   have c3209 := (privateBatchWrapper8_copies100 a h).2.2.2.2.2.2.2.2.2.1
-  have e_80_11 := arithEq_of_rows h (row := 80) (i := 11) rfl (by decide)
+  have e_80_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row80 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_80_11
   simp only [← c3207, ← c3208, ← c3209] at e_80_11
   have hr := e_80_11
@@ -9295,19 +9295,19 @@ theorem privateBatchWrapper8_f364 (a : Assignment p) (h : Satisfies (privateBatc
   have c3226 := (privateBatchWrapper8_copies100 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_80_12 := arithEq_of_rows h (row := 80) (i := 12) rfl (by decide)
+  have e_80_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row80 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_80_12
   simp only [← c3216, ← c3217, ← c3218] at e_80_12
-  have e_80_13 := arithEq_of_rows h (row := 80) (i := 13) rfl (by decide)
+  have e_80_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row80 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_80_13
   simp only [← c3219, ← c3220, ← c3221] at e_80_13
-  have e_81_10 := arithEq_of_rows h (row := 81) (i := 10) rfl (by decide)
+  have e_81_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row81 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_81_10
   simp only [← c3210, k3, ← c3211, k3, ← c3212] at e_81_10
-  have e_81_11 := arithEq_of_rows h (row := 81) (i := 11) rfl (by decide)
+  have e_81_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row81 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_81_11
   simp only [← c3213, ← c3214, k3, ← c3215] at e_81_11
-  have e_81_12 := arithEq_of_rows h (row := 81) (i := 12) rfl (by decide)
+  have e_81_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row81 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_81_12
   simp only [← c3222, ← c3223, k3, ← c3224] at e_81_12
   refine ⟨?_, ?_⟩
@@ -9339,19 +9339,19 @@ theorem privateBatchWrapper8_f365 (a : Assignment p) (h : Satisfies (privateBatc
   have c3243 := (privateBatchWrapper8_copies101 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_80_14 := arithEq_of_rows h (row := 80) (i := 14) rfl (by decide)
+  have e_80_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row80 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_80_14
   simp only [← c3233, ← c3234, ← c3235] at e_80_14
-  have e_81_13 := arithEq_of_rows h (row := 81) (i := 13) rfl (by decide)
+  have e_81_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row81 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_81_13
   simp only [← c3227, k3, ← c3228, k3, ← c3229] at e_81_13
-  have e_81_14 := arithEq_of_rows h (row := 81) (i := 14) rfl (by decide)
+  have e_81_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row81 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_81_14
   simp only [← c3230, ← c3231, k3, ← c3232] at e_81_14
-  have e_82_0 := arithEq_of_rows h (row := 82) (i := 0) rfl (by decide)
+  have e_82_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row82 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_82_0
   simp only [← c3236, ← c3237, ← c3238] at e_82_0
-  have e_83_0 := arithEq_of_rows h (row := 83) (i := 0) rfl (by decide)
+  have e_83_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row83 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_83_0
   simp only [← c3239, ← c3240, k3, ← c3241] at e_83_0
   refine ⟨?_, ?_⟩
@@ -9383,19 +9383,19 @@ theorem privateBatchWrapper8_f366 (a : Assignment p) (h : Satisfies (privateBatc
   have c3260 := (privateBatchWrapper8_copies101 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_82_1 := arithEq_of_rows h (row := 82) (i := 1) rfl (by decide)
+  have e_82_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row82 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_82_1
   simp only [← c3250, ← c3251, ← c3252] at e_82_1
-  have e_82_2 := arithEq_of_rows h (row := 82) (i := 2) rfl (by decide)
+  have e_82_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row82 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_82_2
   simp only [← c3253, ← c3254, ← c3255] at e_82_2
-  have e_83_1 := arithEq_of_rows h (row := 83) (i := 1) rfl (by decide)
+  have e_83_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row83 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_83_1
   simp only [← c3244, k3, ← c3245, k3, ← c3246] at e_83_1
-  have e_83_2 := arithEq_of_rows h (row := 83) (i := 2) rfl (by decide)
+  have e_83_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row83 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_83_2
   simp only [← c3247, ← c3248, k3, ← c3249] at e_83_2
-  have e_83_3 := arithEq_of_rows h (row := 83) (i := 3) rfl (by decide)
+  have e_83_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row83 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_83_3
   simp only [← c3256, ← c3257, k3, ← c3258] at e_83_3
   refine ⟨?_, ?_⟩
@@ -9427,19 +9427,19 @@ theorem privateBatchWrapper8_f367 (a : Assignment p) (h : Satisfies (privateBatc
   have c3277 := (privateBatchWrapper8_copies102 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_82_3 := arithEq_of_rows h (row := 82) (i := 3) rfl (by decide)
+  have e_82_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row82 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_82_3
   simp only [← c3267, ← c3268, ← c3269] at e_82_3
-  have e_82_4 := arithEq_of_rows h (row := 82) (i := 4) rfl (by decide)
+  have e_82_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row82 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_82_4
   simp only [← c3270, ← c3271, ← c3272] at e_82_4
-  have e_83_4 := arithEq_of_rows h (row := 83) (i := 4) rfl (by decide)
+  have e_83_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row83 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_83_4
   simp only [← c3261, k3, ← c3262, k3, ← c3263] at e_83_4
-  have e_83_5 := arithEq_of_rows h (row := 83) (i := 5) rfl (by decide)
+  have e_83_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row83 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_83_5
   simp only [← c3264, ← c3265, k3, ← c3266] at e_83_5
-  have e_83_6 := arithEq_of_rows h (row := 83) (i := 6) rfl (by decide)
+  have e_83_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row83 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_83_6
   simp only [← c3273, ← c3274, k3, ← c3275] at e_83_6
   refine ⟨?_, ?_⟩
@@ -9455,7 +9455,7 @@ theorem privateBatchWrapper8_f368 (a : Assignment p) (h : Satisfies (privateBatc
   have c3278 := (privateBatchWrapper8_copies102 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3279 := (privateBatchWrapper8_copies102 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3280 := (privateBatchWrapper8_copies102 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_82_5 := arithEq_of_rows h (row := 82) (i := 5) rfl (by decide)
+  have e_82_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row82 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_82_5
   simp only [← c3278, ← c3279, ← c3280] at e_82_5
   have hr := e_82_5
@@ -9467,7 +9467,7 @@ theorem privateBatchWrapper8_f369 (a : Assignment p) (h : Satisfies (privateBatc
   have c3281 := (privateBatchWrapper8_copies102 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3282 := (privateBatchWrapper8_copies102 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3283 := (privateBatchWrapper8_copies102 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_82_6 := arithEq_of_rows h (row := 82) (i := 6) rfl (by decide)
+  have e_82_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row82 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_82_6
   simp only [← c3281, ← c3282, ← c3283] at e_82_6
   have hr := e_82_6
@@ -9479,7 +9479,7 @@ theorem privateBatchWrapper8_f370 (a : Assignment p) (h : Satisfies (privateBatc
   have c3284 := (privateBatchWrapper8_copies102 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3285 := (privateBatchWrapper8_copies102 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3286 := (privateBatchWrapper8_copies102 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_82_7 := arithEq_of_rows h (row := 82) (i := 7) rfl (by decide)
+  have e_82_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row82 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_82_7
   simp only [← c3284, ← c3285, ← c3286] at e_82_7
   have hr := e_82_7
@@ -9491,7 +9491,7 @@ theorem privateBatchWrapper8_f371 (a : Assignment p) (h : Satisfies (privateBatc
   have c3287 := (privateBatchWrapper8_copies102 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3288 := (privateBatchWrapper8_copies102 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3289 := (privateBatchWrapper8_copies102 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_82_8 := arithEq_of_rows h (row := 82) (i := 8) rfl (by decide)
+  have e_82_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row82 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_82_8
   simp only [← c3287, ← c3288, ← c3289] at e_82_8
   have hr := e_82_8
@@ -9510,7 +9510,7 @@ theorem privateBatchWrapper8_f373 (a : Assignment p) (h : Satisfies (privateBatc
   have c540 := (privateBatchWrapper8_copies16 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_11_10 := arithEq_of_rows h (row := 11) (i := 10) rfl (by decide)
+  have e_11_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row11 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_11_10
   simp only [← c538, k3, ← c539, k3, ← c540] at e_11_10
   have hr := e_11_10
@@ -9524,7 +9524,7 @@ theorem privateBatchWrapper8_f374 (a : Assignment p) (h : Satisfies (privateBatc
   have c585 := (privateBatchWrapper8_copies18 a h).2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_13_7 := arithEq_of_rows h (row := 13) (i := 7) rfl (by decide)
+  have e_13_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row13 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_7
   simp only [← c583, k3, ← c584, k3, ← c585] at e_13_7
   have hr := e_13_7
@@ -9536,7 +9536,7 @@ theorem privateBatchWrapper8_f375 (a : Assignment p) (h : Satisfies (privateBatc
   have c3291 := (privateBatchWrapper8_copies102 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3292 := (privateBatchWrapper8_copies102 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3293 := (privateBatchWrapper8_copies102 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_82_9 := arithEq_of_rows h (row := 82) (i := 9) rfl (by decide)
+  have e_82_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row82 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_82_9
   simp only [← c3291, ← c3292, ← c3293] at e_82_9
   have hr := e_82_9
@@ -9564,19 +9564,19 @@ theorem privateBatchWrapper8_f376 (a : Assignment p) (h : Satisfies (privateBatc
   have c3310 := (privateBatchWrapper8_copies103 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_82_10 := arithEq_of_rows h (row := 82) (i := 10) rfl (by decide)
+  have e_82_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row82 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_82_10
   simp only [← c3300, ← c3301, ← c3302] at e_82_10
-  have e_82_11 := arithEq_of_rows h (row := 82) (i := 11) rfl (by decide)
+  have e_82_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row82 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_82_11
   simp only [← c3303, ← c3304, ← c3305] at e_82_11
-  have e_83_7 := arithEq_of_rows h (row := 83) (i := 7) rfl (by decide)
+  have e_83_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row83 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_83_7
   simp only [← c3294, k3, ← c3295, k3, ← c3296] at e_83_7
-  have e_83_8 := arithEq_of_rows h (row := 83) (i := 8) rfl (by decide)
+  have e_83_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row83 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_83_8
   simp only [← c3297, ← c3298, k3, ← c3299] at e_83_8
-  have e_83_9 := arithEq_of_rows h (row := 83) (i := 9) rfl (by decide)
+  have e_83_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row83 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_83_9
   simp only [← c3306, ← c3307, k3, ← c3308] at e_83_9
   refine ⟨?_, ?_⟩
@@ -9608,19 +9608,19 @@ theorem privateBatchWrapper8_f377 (a : Assignment p) (h : Satisfies (privateBatc
   have c3327 := (privateBatchWrapper8_copies103 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_82_12 := arithEq_of_rows h (row := 82) (i := 12) rfl (by decide)
+  have e_82_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row82 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_82_12
   simp only [← c3317, ← c3318, ← c3319] at e_82_12
-  have e_82_13 := arithEq_of_rows h (row := 82) (i := 13) rfl (by decide)
+  have e_82_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row82 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_82_13
   simp only [← c3320, ← c3321, ← c3322] at e_82_13
-  have e_83_10 := arithEq_of_rows h (row := 83) (i := 10) rfl (by decide)
+  have e_83_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row83 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_83_10
   simp only [← c3311, k3, ← c3312, k3, ← c3313] at e_83_10
-  have e_83_11 := arithEq_of_rows h (row := 83) (i := 11) rfl (by decide)
+  have e_83_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row83 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_83_11
   simp only [← c3314, ← c3315, k3, ← c3316] at e_83_11
-  have e_83_12 := arithEq_of_rows h (row := 83) (i := 12) rfl (by decide)
+  have e_83_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row83 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_83_12
   simp only [← c3323, ← c3324, k3, ← c3325] at e_83_12
   refine ⟨?_, ?_⟩
@@ -9652,19 +9652,19 @@ theorem privateBatchWrapper8_f378 (a : Assignment p) (h : Satisfies (privateBatc
   have c3344 := (privateBatchWrapper8_copies104 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_82_14 := arithEq_of_rows h (row := 82) (i := 14) rfl (by decide)
+  have e_82_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row82 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_82_14
   simp only [← c3334, ← c3335, ← c3336] at e_82_14
-  have e_83_13 := arithEq_of_rows h (row := 83) (i := 13) rfl (by decide)
+  have e_83_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row83 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_83_13
   simp only [← c3328, k3, ← c3329, k3, ← c3330] at e_83_13
-  have e_83_14 := arithEq_of_rows h (row := 83) (i := 14) rfl (by decide)
+  have e_83_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row83 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_83_14
   simp only [← c3331, ← c3332, k3, ← c3333] at e_83_14
-  have e_84_0 := arithEq_of_rows h (row := 84) (i := 0) rfl (by decide)
+  have e_84_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row84 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_84_0
   simp only [← c3337, ← c3338, ← c3339] at e_84_0
-  have e_85_0 := arithEq_of_rows h (row := 85) (i := 0) rfl (by decide)
+  have e_85_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row85 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_85_0
   simp only [← c3340, ← c3341, k3, ← c3342] at e_85_0
   refine ⟨?_, ?_⟩
@@ -9696,19 +9696,19 @@ theorem privateBatchWrapper8_f379 (a : Assignment p) (h : Satisfies (privateBatc
   have c3361 := (privateBatchWrapper8_copies105 a h).2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_84_1 := arithEq_of_rows h (row := 84) (i := 1) rfl (by decide)
+  have e_84_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row84 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_84_1
   simp only [← c3351, ← c3352, ← c3353] at e_84_1
-  have e_84_2 := arithEq_of_rows h (row := 84) (i := 2) rfl (by decide)
+  have e_84_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row84 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_84_2
   simp only [← c3354, ← c3355, ← c3356] at e_84_2
-  have e_85_1 := arithEq_of_rows h (row := 85) (i := 1) rfl (by decide)
+  have e_85_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row85 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_85_1
   simp only [← c3345, k3, ← c3346, k3, ← c3347] at e_85_1
-  have e_85_2 := arithEq_of_rows h (row := 85) (i := 2) rfl (by decide)
+  have e_85_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row85 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_85_2
   simp only [← c3348, ← c3349, k3, ← c3350] at e_85_2
-  have e_85_3 := arithEq_of_rows h (row := 85) (i := 3) rfl (by decide)
+  have e_85_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row85 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_85_3
   simp only [← c3357, ← c3358, k3, ← c3359] at e_85_3
   refine ⟨?_, ?_⟩
@@ -9724,7 +9724,7 @@ theorem privateBatchWrapper8_f380 (a : Assignment p) (h : Satisfies (privateBatc
   have c3362 := (privateBatchWrapper8_copies105 a h).2.2.1
   have c3363 := (privateBatchWrapper8_copies105 a h).2.2.2.1
   have c3364 := (privateBatchWrapper8_copies105 a h).2.2.2.2.1
-  have e_84_3 := arithEq_of_rows h (row := 84) (i := 3) rfl (by decide)
+  have e_84_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row84 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_84_3
   simp only [← c3362, ← c3363, ← c3364] at e_84_3
   have hr := e_84_3
@@ -9736,7 +9736,7 @@ theorem privateBatchWrapper8_f381 (a : Assignment p) (h : Satisfies (privateBatc
   have c3365 := (privateBatchWrapper8_copies105 a h).2.2.2.2.2.1
   have c3366 := (privateBatchWrapper8_copies105 a h).2.2.2.2.2.2.1
   have c3367 := (privateBatchWrapper8_copies105 a h).2.2.2.2.2.2.2.1
-  have e_84_4 := arithEq_of_rows h (row := 84) (i := 4) rfl (by decide)
+  have e_84_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row84 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_84_4
   simp only [← c3365, ← c3366, ← c3367] at e_84_4
   have hr := e_84_4
@@ -9748,7 +9748,7 @@ theorem privateBatchWrapper8_f382 (a : Assignment p) (h : Satisfies (privateBatc
   have c3368 := (privateBatchWrapper8_copies105 a h).2.2.2.2.2.2.2.2.1
   have c3369 := (privateBatchWrapper8_copies105 a h).2.2.2.2.2.2.2.2.2.1
   have c3370 := (privateBatchWrapper8_copies105 a h).2.2.2.2.2.2.2.2.2.2.1
-  have e_84_5 := arithEq_of_rows h (row := 84) (i := 5) rfl (by decide)
+  have e_84_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row84 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_84_5
   simp only [← c3368, ← c3369, ← c3370] at e_84_5
   have hr := e_84_5
@@ -9760,7 +9760,7 @@ theorem privateBatchWrapper8_f383 (a : Assignment p) (h : Satisfies (privateBatc
   have c3371 := (privateBatchWrapper8_copies105 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c3372 := (privateBatchWrapper8_copies105 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3373 := (privateBatchWrapper8_copies105 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_84_6 := arithEq_of_rows h (row := 84) (i := 6) rfl (by decide)
+  have e_84_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row84 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_84_6
   simp only [← c3371, ← c3372, ← c3373] at e_84_6
   have hr := e_84_6
@@ -9779,7 +9779,7 @@ theorem privateBatchWrapper8_f385 (a : Assignment p) (h : Satisfies (privateBatc
   have c630 := (privateBatchWrapper8_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_15_4 := arithEq_of_rows h (row := 15) (i := 4) rfl (by decide)
+  have e_15_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row15 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_4
   simp only [← c628, k3, ← c629, k3, ← c630] at e_15_4
   have hr := e_15_4
@@ -9791,7 +9791,7 @@ theorem privateBatchWrapper8_f386 (a : Assignment p) (h : Satisfies (privateBatc
   have c3375 := (privateBatchWrapper8_copies105 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3376 := (privateBatchWrapper8_copies105 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3377 := (privateBatchWrapper8_copies105 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_84_7 := arithEq_of_rows h (row := 84) (i := 7) rfl (by decide)
+  have e_84_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row84 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_84_7
   simp only [← c3375, ← c3376, ← c3377] at e_84_7
   have hr := e_84_7
@@ -9819,19 +9819,19 @@ theorem privateBatchWrapper8_f387 (a : Assignment p) (h : Satisfies (privateBatc
   have c3394 := (privateBatchWrapper8_copies106 a h).2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_84_8 := arithEq_of_rows h (row := 84) (i := 8) rfl (by decide)
+  have e_84_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row84 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_84_8
   simp only [← c3384, ← c3385, ← c3386] at e_84_8
-  have e_84_9 := arithEq_of_rows h (row := 84) (i := 9) rfl (by decide)
+  have e_84_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row84 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_84_9
   simp only [← c3387, ← c3388, ← c3389] at e_84_9
-  have e_85_4 := arithEq_of_rows h (row := 85) (i := 4) rfl (by decide)
+  have e_85_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row85 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_85_4
   simp only [← c3378, k3, ← c3379, k3, ← c3380] at e_85_4
-  have e_85_5 := arithEq_of_rows h (row := 85) (i := 5) rfl (by decide)
+  have e_85_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row85 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_85_5
   simp only [← c3381, ← c3382, k3, ← c3383] at e_85_5
-  have e_85_6 := arithEq_of_rows h (row := 85) (i := 6) rfl (by decide)
+  have e_85_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row85 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_85_6
   simp only [← c3390, ← c3391, k3, ← c3392] at e_85_6
   refine ⟨?_, ?_⟩
@@ -9863,19 +9863,19 @@ theorem privateBatchWrapper8_f388 (a : Assignment p) (h : Satisfies (privateBatc
   have c3411 := (privateBatchWrapper8_copies106 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_84_10 := arithEq_of_rows h (row := 84) (i := 10) rfl (by decide)
+  have e_84_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row84 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_84_10
   simp only [← c3401, ← c3402, ← c3403] at e_84_10
-  have e_84_11 := arithEq_of_rows h (row := 84) (i := 11) rfl (by decide)
+  have e_84_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row84 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_84_11
   simp only [← c3404, ← c3405, ← c3406] at e_84_11
-  have e_85_7 := arithEq_of_rows h (row := 85) (i := 7) rfl (by decide)
+  have e_85_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row85 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_85_7
   simp only [← c3395, k3, ← c3396, k3, ← c3397] at e_85_7
-  have e_85_8 := arithEq_of_rows h (row := 85) (i := 8) rfl (by decide)
+  have e_85_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row85 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_85_8
   simp only [← c3398, ← c3399, k3, ← c3400] at e_85_8
-  have e_85_9 := arithEq_of_rows h (row := 85) (i := 9) rfl (by decide)
+  have e_85_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row85 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_85_9
   simp only [← c3407, ← c3408, k3, ← c3409] at e_85_9
   refine ⟨?_, ?_⟩
@@ -9907,19 +9907,19 @@ theorem privateBatchWrapper8_f389 (a : Assignment p) (h : Satisfies (privateBatc
   have c3428 := (privateBatchWrapper8_copies107 a h).2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_84_12 := arithEq_of_rows h (row := 84) (i := 12) rfl (by decide)
+  have e_84_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row84 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_84_12
   simp only [← c3418, ← c3419, ← c3420] at e_84_12
-  have e_84_13 := arithEq_of_rows h (row := 84) (i := 13) rfl (by decide)
+  have e_84_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row84 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_84_13
   simp only [← c3421, ← c3422, ← c3423] at e_84_13
-  have e_85_10 := arithEq_of_rows h (row := 85) (i := 10) rfl (by decide)
+  have e_85_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row85 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_85_10
   simp only [← c3412, k3, ← c3413, k3, ← c3414] at e_85_10
-  have e_85_11 := arithEq_of_rows h (row := 85) (i := 11) rfl (by decide)
+  have e_85_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row85 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_85_11
   simp only [← c3415, ← c3416, k3, ← c3417] at e_85_11
-  have e_85_12 := arithEq_of_rows h (row := 85) (i := 12) rfl (by decide)
+  have e_85_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row85 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_85_12
   simp only [← c3424, ← c3425, k3, ← c3426] at e_85_12
   refine ⟨?_, ?_⟩
@@ -9951,19 +9951,19 @@ theorem privateBatchWrapper8_f390 (a : Assignment p) (h : Satisfies (privateBatc
   have c3445 := (privateBatchWrapper8_copies107 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_84_14 := arithEq_of_rows h (row := 84) (i := 14) rfl (by decide)
+  have e_84_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row84 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_84_14
   simp only [← c3435, ← c3436, ← c3437] at e_84_14
-  have e_85_13 := arithEq_of_rows h (row := 85) (i := 13) rfl (by decide)
+  have e_85_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row85 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_85_13
   simp only [← c3429, k3, ← c3430, k3, ← c3431] at e_85_13
-  have e_85_14 := arithEq_of_rows h (row := 85) (i := 14) rfl (by decide)
+  have e_85_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row85 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_85_14
   simp only [← c3432, ← c3433, k3, ← c3434] at e_85_14
-  have e_86_0 := arithEq_of_rows h (row := 86) (i := 0) rfl (by decide)
+  have e_86_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row86 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_86_0
   simp only [← c3438, ← c3439, ← c3440] at e_86_0
-  have e_87_0 := arithEq_of_rows h (row := 87) (i := 0) rfl (by decide)
+  have e_87_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row87 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_87_0
   simp only [← c3441, ← c3442, k3, ← c3443] at e_87_0
   refine ⟨?_, ?_⟩
@@ -9979,7 +9979,7 @@ theorem privateBatchWrapper8_f391 (a : Assignment p) (h : Satisfies (privateBatc
   have c3446 := (privateBatchWrapper8_copies107 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3447 := (privateBatchWrapper8_copies107 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3448 := (privateBatchWrapper8_copies107 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_86_1 := arithEq_of_rows h (row := 86) (i := 1) rfl (by decide)
+  have e_86_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row86 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_86_1
   simp only [← c3446, ← c3447, ← c3448] at e_86_1
   have hr := e_86_1
@@ -9991,7 +9991,7 @@ theorem privateBatchWrapper8_f392 (a : Assignment p) (h : Satisfies (privateBatc
   have c3449 := (privateBatchWrapper8_copies107 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3450 := (privateBatchWrapper8_copies107 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3451 := (privateBatchWrapper8_copies107 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_86_2 := arithEq_of_rows h (row := 86) (i := 2) rfl (by decide)
+  have e_86_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row86 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_86_2
   simp only [← c3449, ← c3450, ← c3451] at e_86_2
   have hr := e_86_2
@@ -10003,7 +10003,7 @@ theorem privateBatchWrapper8_f393 (a : Assignment p) (h : Satisfies (privateBatc
   have c3452 := (privateBatchWrapper8_copies107 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3453 := (privateBatchWrapper8_copies107 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3454 := (privateBatchWrapper8_copies107 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_86_3 := arithEq_of_rows h (row := 86) (i := 3) rfl (by decide)
+  have e_86_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row86 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_86_3
   simp only [← c3452, ← c3453, ← c3454] at e_86_3
   have hr := e_86_3
@@ -10015,7 +10015,7 @@ theorem privateBatchWrapper8_f394 (a : Assignment p) (h : Satisfies (privateBatc
   have c3455 := (privateBatchWrapper8_copies107 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c3456 := (privateBatchWrapper8_copies108 a h).1
   have c3457 := (privateBatchWrapper8_copies108 a h).2.1
-  have e_86_4 := arithEq_of_rows h (row := 86) (i := 4) rfl (by decide)
+  have e_86_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row86 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_86_4
   simp only [← c3455, ← c3456, ← c3457] at e_86_4
   have hr := e_86_4
@@ -10034,7 +10034,7 @@ theorem privateBatchWrapper8_f396 (a : Assignment p) (h : Satisfies (privateBatc
   have c675 := (privateBatchWrapper8_copies21 a h).2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_16_1 := arithEq_of_rows h (row := 16) (i := 1) rfl (by decide)
+  have e_16_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_1
   simp only [← c673, k3, ← c674, k3, ← c675] at e_16_1
   have hr := e_16_1
@@ -10046,7 +10046,7 @@ theorem privateBatchWrapper8_f397 (a : Assignment p) (h : Satisfies (privateBatc
   have c3459 := (privateBatchWrapper8_copies108 a h).2.2.2.1
   have c3460 := (privateBatchWrapper8_copies108 a h).2.2.2.2.1
   have c3461 := (privateBatchWrapper8_copies108 a h).2.2.2.2.2.1
-  have e_86_5 := arithEq_of_rows h (row := 86) (i := 5) rfl (by decide)
+  have e_86_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row86 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_86_5
   simp only [← c3459, ← c3460, ← c3461] at e_86_5
   have hr := e_86_5
@@ -10074,19 +10074,19 @@ theorem privateBatchWrapper8_f398 (a : Assignment p) (h : Satisfies (privateBatc
   have c3478 := (privateBatchWrapper8_copies108 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_86_6 := arithEq_of_rows h (row := 86) (i := 6) rfl (by decide)
+  have e_86_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row86 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_86_6
   simp only [← c3468, ← c3469, ← c3470] at e_86_6
-  have e_86_7 := arithEq_of_rows h (row := 86) (i := 7) rfl (by decide)
+  have e_86_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row86 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_86_7
   simp only [← c3471, ← c3472, ← c3473] at e_86_7
-  have e_87_1 := arithEq_of_rows h (row := 87) (i := 1) rfl (by decide)
+  have e_87_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row87 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_87_1
   simp only [← c3462, k3, ← c3463, k3, ← c3464] at e_87_1
-  have e_87_2 := arithEq_of_rows h (row := 87) (i := 2) rfl (by decide)
+  have e_87_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row87 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_87_2
   simp only [← c3465, ← c3466, k3, ← c3467] at e_87_2
-  have e_87_3 := arithEq_of_rows h (row := 87) (i := 3) rfl (by decide)
+  have e_87_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row87 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_87_3
   simp only [← c3474, ← c3475, k3, ← c3476] at e_87_3
   refine ⟨?_, ?_⟩
@@ -10118,19 +10118,19 @@ theorem privateBatchWrapper8_f399 (a : Assignment p) (h : Satisfies (privateBatc
   have c3495 := (privateBatchWrapper8_copies109 a h).2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_86_8 := arithEq_of_rows h (row := 86) (i := 8) rfl (by decide)
+  have e_86_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row86 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_86_8
   simp only [← c3485, ← c3486, ← c3487] at e_86_8
-  have e_86_9 := arithEq_of_rows h (row := 86) (i := 9) rfl (by decide)
+  have e_86_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row86 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_86_9
   simp only [← c3488, ← c3489, ← c3490] at e_86_9
-  have e_87_4 := arithEq_of_rows h (row := 87) (i := 4) rfl (by decide)
+  have e_87_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row87 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_87_4
   simp only [← c3479, k3, ← c3480, k3, ← c3481] at e_87_4
-  have e_87_5 := arithEq_of_rows h (row := 87) (i := 5) rfl (by decide)
+  have e_87_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row87 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_87_5
   simp only [← c3482, ← c3483, k3, ← c3484] at e_87_5
-  have e_87_6 := arithEq_of_rows h (row := 87) (i := 6) rfl (by decide)
+  have e_87_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row87 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_87_6
   simp only [← c3491, ← c3492, k3, ← c3493] at e_87_6
   refine ⟨?_, ?_⟩
@@ -10162,19 +10162,19 @@ theorem privateBatchWrapper8_f400 (a : Assignment p) (h : Satisfies (privateBatc
   have c3512 := (privateBatchWrapper8_copies109 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_86_10 := arithEq_of_rows h (row := 86) (i := 10) rfl (by decide)
+  have e_86_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row86 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_86_10
   simp only [← c3502, ← c3503, ← c3504] at e_86_10
-  have e_86_11 := arithEq_of_rows h (row := 86) (i := 11) rfl (by decide)
+  have e_86_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row86 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_86_11
   simp only [← c3505, ← c3506, ← c3507] at e_86_11
-  have e_87_7 := arithEq_of_rows h (row := 87) (i := 7) rfl (by decide)
+  have e_87_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row87 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_87_7
   simp only [← c3496, k3, ← c3497, k3, ← c3498] at e_87_7
-  have e_87_8 := arithEq_of_rows h (row := 87) (i := 8) rfl (by decide)
+  have e_87_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row87 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_87_8
   simp only [← c3499, ← c3500, k3, ← c3501] at e_87_8
-  have e_87_9 := arithEq_of_rows h (row := 87) (i := 9) rfl (by decide)
+  have e_87_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row87 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_87_9
   simp only [← c3508, ← c3509, k3, ← c3510] at e_87_9
   refine ⟨?_, ?_⟩
@@ -10206,19 +10206,19 @@ theorem privateBatchWrapper8_f401 (a : Assignment p) (h : Satisfies (privateBatc
   have c3529 := (privateBatchWrapper8_copies110 a h).2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_86_12 := arithEq_of_rows h (row := 86) (i := 12) rfl (by decide)
+  have e_86_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row86 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_86_12
   simp only [← c3519, ← c3520, ← c3521] at e_86_12
-  have e_86_13 := arithEq_of_rows h (row := 86) (i := 13) rfl (by decide)
+  have e_86_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row86 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_86_13
   simp only [← c3522, ← c3523, ← c3524] at e_86_13
-  have e_87_10 := arithEq_of_rows h (row := 87) (i := 10) rfl (by decide)
+  have e_87_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row87 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_87_10
   simp only [← c3513, k3, ← c3514, k3, ← c3515] at e_87_10
-  have e_87_11 := arithEq_of_rows h (row := 87) (i := 11) rfl (by decide)
+  have e_87_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row87 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_87_11
   simp only [← c3516, ← c3517, k3, ← c3518] at e_87_11
-  have e_87_12 := arithEq_of_rows h (row := 87) (i := 12) rfl (by decide)
+  have e_87_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row87 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_87_12
   simp only [← c3525, ← c3526, k3, ← c3527] at e_87_12
   refine ⟨?_, ?_⟩
@@ -10234,7 +10234,7 @@ theorem privateBatchWrapper8_f402 (a : Assignment p) (h : Satisfies (privateBatc
   have c3530 := (privateBatchWrapper8_copies110 a h).2.2.2.2.2.2.2.2.2.2.1
   have c3531 := (privateBatchWrapper8_copies110 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c3532 := (privateBatchWrapper8_copies110 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_86_14 := arithEq_of_rows h (row := 86) (i := 14) rfl (by decide)
+  have e_86_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row86 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_86_14
   simp only [← c3530, ← c3531, ← c3532] at e_86_14
   have hr := e_86_14
@@ -10246,7 +10246,7 @@ theorem privateBatchWrapper8_f403 (a : Assignment p) (h : Satisfies (privateBatc
   have c3533 := (privateBatchWrapper8_copies110 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3534 := (privateBatchWrapper8_copies110 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3535 := (privateBatchWrapper8_copies110 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_88_0 := arithEq_of_rows h (row := 88) (i := 0) rfl (by decide)
+  have e_88_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row88 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_88_0
   simp only [← c3533, ← c3534, ← c3535] at e_88_0
   have hr := e_88_0
@@ -10258,7 +10258,7 @@ theorem privateBatchWrapper8_f404 (a : Assignment p) (h : Satisfies (privateBatc
   have c3536 := (privateBatchWrapper8_copies110 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3537 := (privateBatchWrapper8_copies110 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3538 := (privateBatchWrapper8_copies110 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_88_1 := arithEq_of_rows h (row := 88) (i := 1) rfl (by decide)
+  have e_88_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row88 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_88_1
   simp only [← c3536, ← c3537, ← c3538] at e_88_1
   have hr := e_88_1
@@ -10270,7 +10270,7 @@ theorem privateBatchWrapper8_f405 (a : Assignment p) (h : Satisfies (privateBatc
   have c3539 := (privateBatchWrapper8_copies110 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3540 := (privateBatchWrapper8_copies110 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3541 := (privateBatchWrapper8_copies110 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_88_2 := arithEq_of_rows h (row := 88) (i := 2) rfl (by decide)
+  have e_88_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row88 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_88_2
   simp only [← c3539, ← c3540, ← c3541] at e_88_2
   have hr := e_88_2
@@ -10289,7 +10289,7 @@ theorem privateBatchWrapper8_f407 (a : Assignment p) (h : Satisfies (privateBatc
   have c720 := (privateBatchWrapper8_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_16_13 := arithEq_of_rows h (row := 16) (i := 13) rfl (by decide)
+  have e_16_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_13
   simp only [← c718, k3, ← c719, k3, ← c720] at e_16_13
   have hr := e_16_13
@@ -10301,7 +10301,7 @@ theorem privateBatchWrapper8_f408 (a : Assignment p) (h : Satisfies (privateBatc
   have c3543 := (privateBatchWrapper8_copies110 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3544 := (privateBatchWrapper8_copies110 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3545 := (privateBatchWrapper8_copies110 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_88_3 := arithEq_of_rows h (row := 88) (i := 3) rfl (by decide)
+  have e_88_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row88 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_88_3
   simp only [← c3543, ← c3544, ← c3545] at e_88_3
   have hr := e_88_3
@@ -10329,19 +10329,19 @@ theorem privateBatchWrapper8_f409 (a : Assignment p) (h : Satisfies (privateBatc
   have c3562 := (privateBatchWrapper8_copies111 a h).2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_87_13 := arithEq_of_rows h (row := 87) (i := 13) rfl (by decide)
+  have e_87_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row87 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_87_13
   simp only [← c3546, k3, ← c3547, k3, ← c3548] at e_87_13
-  have e_87_14 := arithEq_of_rows h (row := 87) (i := 14) rfl (by decide)
+  have e_87_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row87 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_87_14
   simp only [← c3549, ← c3550, k3, ← c3551] at e_87_14
-  have e_88_4 := arithEq_of_rows h (row := 88) (i := 4) rfl (by decide)
+  have e_88_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row88 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_88_4
   simp only [← c3552, ← c3553, ← c3554] at e_88_4
-  have e_88_5 := arithEq_of_rows h (row := 88) (i := 5) rfl (by decide)
+  have e_88_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row88 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_88_5
   simp only [← c3555, ← c3556, ← c3557] at e_88_5
-  have e_89_0 := arithEq_of_rows h (row := 89) (i := 0) rfl (by decide)
+  have e_89_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row89 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_89_0
   simp only [← c3558, ← c3559, k3, ← c3560] at e_89_0
   refine ⟨?_, ?_⟩
@@ -10373,19 +10373,19 @@ theorem privateBatchWrapper8_f410 (a : Assignment p) (h : Satisfies (privateBatc
   have c3579 := (privateBatchWrapper8_copies111 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_88_6 := arithEq_of_rows h (row := 88) (i := 6) rfl (by decide)
+  have e_88_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row88 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_88_6
   simp only [← c3569, ← c3570, ← c3571] at e_88_6
-  have e_88_7 := arithEq_of_rows h (row := 88) (i := 7) rfl (by decide)
+  have e_88_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row88 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_88_7
   simp only [← c3572, ← c3573, ← c3574] at e_88_7
-  have e_89_1 := arithEq_of_rows h (row := 89) (i := 1) rfl (by decide)
+  have e_89_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row89 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_89_1
   simp only [← c3563, k3, ← c3564, k3, ← c3565] at e_89_1
-  have e_89_2 := arithEq_of_rows h (row := 89) (i := 2) rfl (by decide)
+  have e_89_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row89 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_89_2
   simp only [← c3566, ← c3567, k3, ← c3568] at e_89_2
-  have e_89_3 := arithEq_of_rows h (row := 89) (i := 3) rfl (by decide)
+  have e_89_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row89 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_89_3
   simp only [← c3575, ← c3576, k3, ← c3577] at e_89_3
   refine ⟨?_, ?_⟩
@@ -10417,19 +10417,19 @@ theorem privateBatchWrapper8_f411 (a : Assignment p) (h : Satisfies (privateBatc
   have c3596 := (privateBatchWrapper8_copies112 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_88_8 := arithEq_of_rows h (row := 88) (i := 8) rfl (by decide)
+  have e_88_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row88 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_88_8
   simp only [← c3586, ← c3587, ← c3588] at e_88_8
-  have e_88_9 := arithEq_of_rows h (row := 88) (i := 9) rfl (by decide)
+  have e_88_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row88 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_88_9
   simp only [← c3589, ← c3590, ← c3591] at e_88_9
-  have e_89_4 := arithEq_of_rows h (row := 89) (i := 4) rfl (by decide)
+  have e_89_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row89 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_89_4
   simp only [← c3580, k3, ← c3581, k3, ← c3582] at e_89_4
-  have e_89_5 := arithEq_of_rows h (row := 89) (i := 5) rfl (by decide)
+  have e_89_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row89 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_89_5
   simp only [← c3583, ← c3584, k3, ← c3585] at e_89_5
-  have e_89_6 := arithEq_of_rows h (row := 89) (i := 6) rfl (by decide)
+  have e_89_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row89 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_89_6
   simp only [← c3592, ← c3593, k3, ← c3594] at e_89_6
   refine ⟨?_, ?_⟩
@@ -10461,19 +10461,19 @@ theorem privateBatchWrapper8_f412 (a : Assignment p) (h : Satisfies (privateBatc
   have c3613 := (privateBatchWrapper8_copies112 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_88_10 := arithEq_of_rows h (row := 88) (i := 10) rfl (by decide)
+  have e_88_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row88 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_88_10
   simp only [← c3603, ← c3604, ← c3605] at e_88_10
-  have e_88_11 := arithEq_of_rows h (row := 88) (i := 11) rfl (by decide)
+  have e_88_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row88 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_88_11
   simp only [← c3606, ← c3607, ← c3608] at e_88_11
-  have e_89_7 := arithEq_of_rows h (row := 89) (i := 7) rfl (by decide)
+  have e_89_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row89 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_89_7
   simp only [← c3597, k3, ← c3598, k3, ← c3599] at e_89_7
-  have e_89_8 := arithEq_of_rows h (row := 89) (i := 8) rfl (by decide)
+  have e_89_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row89 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_89_8
   simp only [← c3600, ← c3601, k3, ← c3602] at e_89_8
-  have e_89_9 := arithEq_of_rows h (row := 89) (i := 9) rfl (by decide)
+  have e_89_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row89 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_89_9
   simp only [← c3609, ← c3610, k3, ← c3611] at e_89_9
   refine ⟨?_, ?_⟩
@@ -10489,7 +10489,7 @@ theorem privateBatchWrapper8_f413 (a : Assignment p) (h : Satisfies (privateBatc
   have c3614 := (privateBatchWrapper8_copies112 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3615 := (privateBatchWrapper8_copies112 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c3616 := (privateBatchWrapper8_copies113 a h).1
-  have e_88_12 := arithEq_of_rows h (row := 88) (i := 12) rfl (by decide)
+  have e_88_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row88 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_88_12
   simp only [← c3614, ← c3615, ← c3616] at e_88_12
   have hr := e_88_12
@@ -10501,7 +10501,7 @@ theorem privateBatchWrapper8_f414 (a : Assignment p) (h : Satisfies (privateBatc
   have c3617 := (privateBatchWrapper8_copies113 a h).2.1
   have c3618 := (privateBatchWrapper8_copies113 a h).2.2.1
   have c3619 := (privateBatchWrapper8_copies113 a h).2.2.2.1
-  have e_88_13 := arithEq_of_rows h (row := 88) (i := 13) rfl (by decide)
+  have e_88_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row88 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_88_13
   simp only [← c3617, ← c3618, ← c3619] at e_88_13
   have hr := e_88_13
@@ -10513,7 +10513,7 @@ theorem privateBatchWrapper8_f415 (a : Assignment p) (h : Satisfies (privateBatc
   have c3620 := (privateBatchWrapper8_copies113 a h).2.2.2.2.1
   have c3621 := (privateBatchWrapper8_copies113 a h).2.2.2.2.2.1
   have c3622 := (privateBatchWrapper8_copies113 a h).2.2.2.2.2.2.1
-  have e_88_14 := arithEq_of_rows h (row := 88) (i := 14) rfl (by decide)
+  have e_88_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row88 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_88_14
   simp only [← c3620, ← c3621, ← c3622] at e_88_14
   have hr := e_88_14
@@ -10525,7 +10525,7 @@ theorem privateBatchWrapper8_f416 (a : Assignment p) (h : Satisfies (privateBatc
   have c3623 := (privateBatchWrapper8_copies113 a h).2.2.2.2.2.2.2.1
   have c3624 := (privateBatchWrapper8_copies113 a h).2.2.2.2.2.2.2.2.1
   have c3625 := (privateBatchWrapper8_copies113 a h).2.2.2.2.2.2.2.2.2.1
-  have e_90_0 := arithEq_of_rows h (row := 90) (i := 0) rfl (by decide)
+  have e_90_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row90 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_90_0
   simp only [← c3623, ← c3624, ← c3625] at e_90_0
   have hr := e_90_0
@@ -10544,7 +10544,7 @@ theorem privateBatchWrapper8_f418 (a : Assignment p) (h : Satisfies (privateBatc
   have c765 := (privateBatchWrapper8_copies23 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_17_10 := arithEq_of_rows h (row := 17) (i := 10) rfl (by decide)
+  have e_17_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row17 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_10
   simp only [← c763, k3, ← c764, k3, ← c765] at e_17_10
   have hr := e_17_10
@@ -10556,7 +10556,7 @@ theorem privateBatchWrapper8_f419 (a : Assignment p) (h : Satisfies (privateBatc
   have c3627 := (privateBatchWrapper8_copies113 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c3628 := (privateBatchWrapper8_copies113 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3629 := (privateBatchWrapper8_copies113 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_90_1 := arithEq_of_rows h (row := 90) (i := 1) rfl (by decide)
+  have e_90_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row90 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_90_1
   simp only [← c3627, ← c3628, ← c3629] at e_90_1
   have hr := e_90_1
@@ -10584,19 +10584,19 @@ theorem privateBatchWrapper8_f420 (a : Assignment p) (h : Satisfies (privateBatc
   have c3646 := (privateBatchWrapper8_copies113 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_89_10 := arithEq_of_rows h (row := 89) (i := 10) rfl (by decide)
+  have e_89_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row89 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_89_10
   simp only [← c3630, k3, ← c3631, k3, ← c3632] at e_89_10
-  have e_89_11 := arithEq_of_rows h (row := 89) (i := 11) rfl (by decide)
+  have e_89_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row89 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_89_11
   simp only [← c3633, ← c3634, k3, ← c3635] at e_89_11
-  have e_89_12 := arithEq_of_rows h (row := 89) (i := 12) rfl (by decide)
+  have e_89_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row89 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_89_12
   simp only [← c3642, ← c3643, k3, ← c3644] at e_89_12
-  have e_90_2 := arithEq_of_rows h (row := 90) (i := 2) rfl (by decide)
+  have e_90_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row90 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_90_2
   simp only [← c3636, ← c3637, ← c3638] at e_90_2
-  have e_90_3 := arithEq_of_rows h (row := 90) (i := 3) rfl (by decide)
+  have e_90_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row90 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_90_3
   simp only [← c3639, ← c3640, ← c3641] at e_90_3
   refine ⟨?_, ?_⟩
@@ -10628,19 +10628,19 @@ theorem privateBatchWrapper8_f421 (a : Assignment p) (h : Satisfies (privateBatc
   have c3663 := (privateBatchWrapper8_copies114 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_89_13 := arithEq_of_rows h (row := 89) (i := 13) rfl (by decide)
+  have e_89_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row89 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_89_13
   simp only [← c3647, k3, ← c3648, k3, ← c3649] at e_89_13
-  have e_89_14 := arithEq_of_rows h (row := 89) (i := 14) rfl (by decide)
+  have e_89_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row89 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_89_14
   simp only [← c3650, ← c3651, k3, ← c3652] at e_89_14
-  have e_90_4 := arithEq_of_rows h (row := 90) (i := 4) rfl (by decide)
+  have e_90_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row90 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_90_4
   simp only [← c3653, ← c3654, ← c3655] at e_90_4
-  have e_90_5 := arithEq_of_rows h (row := 90) (i := 5) rfl (by decide)
+  have e_90_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row90 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_90_5
   simp only [← c3656, ← c3657, ← c3658] at e_90_5
-  have e_91_0 := arithEq_of_rows h (row := 91) (i := 0) rfl (by decide)
+  have e_91_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row91 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_91_0
   simp only [← c3659, ← c3660, k3, ← c3661] at e_91_0
   refine ⟨?_, ?_⟩
@@ -10672,19 +10672,19 @@ theorem privateBatchWrapper8_f422 (a : Assignment p) (h : Satisfies (privateBatc
   have c3680 := (privateBatchWrapper8_copies115 a h).1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_90_6 := arithEq_of_rows h (row := 90) (i := 6) rfl (by decide)
+  have e_90_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row90 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_90_6
   simp only [← c3670, ← c3671, ← c3672] at e_90_6
-  have e_90_7 := arithEq_of_rows h (row := 90) (i := 7) rfl (by decide)
+  have e_90_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row90 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_90_7
   simp only [← c3673, ← c3674, ← c3675] at e_90_7
-  have e_91_1 := arithEq_of_rows h (row := 91) (i := 1) rfl (by decide)
+  have e_91_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row91 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_91_1
   simp only [← c3664, k3, ← c3665, k3, ← c3666] at e_91_1
-  have e_91_2 := arithEq_of_rows h (row := 91) (i := 2) rfl (by decide)
+  have e_91_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row91 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_91_2
   simp only [← c3667, ← c3668, k3, ← c3669] at e_91_2
-  have e_91_3 := arithEq_of_rows h (row := 91) (i := 3) rfl (by decide)
+  have e_91_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row91 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_91_3
   simp only [← c3676, ← c3677, k3, ← c3678] at e_91_3
   refine ⟨?_, ?_⟩
@@ -10716,19 +10716,19 @@ theorem privateBatchWrapper8_f423 (a : Assignment p) (h : Satisfies (privateBatc
   have c3697 := (privateBatchWrapper8_copies115 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_90_8 := arithEq_of_rows h (row := 90) (i := 8) rfl (by decide)
+  have e_90_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row90 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_90_8
   simp only [← c3687, ← c3688, ← c3689] at e_90_8
-  have e_90_9 := arithEq_of_rows h (row := 90) (i := 9) rfl (by decide)
+  have e_90_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row90 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_90_9
   simp only [← c3690, ← c3691, ← c3692] at e_90_9
-  have e_91_4 := arithEq_of_rows h (row := 91) (i := 4) rfl (by decide)
+  have e_91_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row91 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_91_4
   simp only [← c3681, k3, ← c3682, k3, ← c3683] at e_91_4
-  have e_91_5 := arithEq_of_rows h (row := 91) (i := 5) rfl (by decide)
+  have e_91_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row91 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_91_5
   simp only [← c3684, ← c3685, k3, ← c3686] at e_91_5
-  have e_91_6 := arithEq_of_rows h (row := 91) (i := 6) rfl (by decide)
+  have e_91_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row91 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_91_6
   simp only [← c3693, ← c3694, k3, ← c3695] at e_91_6
   refine ⟨?_, ?_⟩
@@ -10744,7 +10744,7 @@ theorem privateBatchWrapper8_f424 (a : Assignment p) (h : Satisfies (privateBatc
   have c3698 := (privateBatchWrapper8_copies115 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3699 := (privateBatchWrapper8_copies115 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3700 := (privateBatchWrapper8_copies115 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_90_10 := arithEq_of_rows h (row := 90) (i := 10) rfl (by decide)
+  have e_90_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row90 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_90_10
   simp only [← c3698, ← c3699, ← c3700] at e_90_10
   have hr := e_90_10
@@ -10756,7 +10756,7 @@ theorem privateBatchWrapper8_f425 (a : Assignment p) (h : Satisfies (privateBatc
   have c3701 := (privateBatchWrapper8_copies115 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3702 := (privateBatchWrapper8_copies115 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3703 := (privateBatchWrapper8_copies115 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_90_11 := arithEq_of_rows h (row := 90) (i := 11) rfl (by decide)
+  have e_90_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row90 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_90_11
   simp only [← c3701, ← c3702, ← c3703] at e_90_11
   have hr := e_90_11
@@ -10768,7 +10768,7 @@ theorem privateBatchWrapper8_f426 (a : Assignment p) (h : Satisfies (privateBatc
   have c3704 := (privateBatchWrapper8_copies115 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3705 := (privateBatchWrapper8_copies115 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3706 := (privateBatchWrapper8_copies115 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_90_12 := arithEq_of_rows h (row := 90) (i := 12) rfl (by decide)
+  have e_90_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row90 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_90_12
   simp only [← c3704, ← c3705, ← c3706] at e_90_12
   have hr := e_90_12
@@ -10780,7 +10780,7 @@ theorem privateBatchWrapper8_f427 (a : Assignment p) (h : Satisfies (privateBatc
   have c3707 := (privateBatchWrapper8_copies115 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3708 := (privateBatchWrapper8_copies115 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3709 := (privateBatchWrapper8_copies115 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_90_13 := arithEq_of_rows h (row := 90) (i := 13) rfl (by decide)
+  have e_90_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row90 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_90_13
   simp only [← c3707, ← c3708, ← c3709] at e_90_13
   have hr := e_90_13
@@ -10799,7 +10799,7 @@ theorem privateBatchWrapper8_f429 (a : Assignment p) (h : Satisfies (privateBatc
   have c810 := (privateBatchWrapper8_copies25 a h).2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_19_7 := arithEq_of_rows h (row := 19) (i := 7) rfl (by decide)
+  have e_19_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row19 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_7
   simp only [← c808, k3, ← c809, k3, ← c810] at e_19_7
   have hr := e_19_7
@@ -10811,7 +10811,7 @@ theorem privateBatchWrapper8_f430 (a : Assignment p) (h : Satisfies (privateBatc
   have c3711 := (privateBatchWrapper8_copies115 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c3712 := (privateBatchWrapper8_copies116 a h).1
   have c3713 := (privateBatchWrapper8_copies116 a h).2.1
-  have e_90_14 := arithEq_of_rows h (row := 90) (i := 14) rfl (by decide)
+  have e_90_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row90 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_90_14
   simp only [← c3711, ← c3712, ← c3713] at e_90_14
   have hr := e_90_14
@@ -10839,19 +10839,19 @@ theorem privateBatchWrapper8_f431 (a : Assignment p) (h : Satisfies (privateBatc
   have c3730 := (privateBatchWrapper8_copies116 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_91_7 := arithEq_of_rows h (row := 91) (i := 7) rfl (by decide)
+  have e_91_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row91 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_91_7
   simp only [← c3714, k3, ← c3715, k3, ← c3716] at e_91_7
-  have e_91_8 := arithEq_of_rows h (row := 91) (i := 8) rfl (by decide)
+  have e_91_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row91 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_91_8
   simp only [← c3717, ← c3718, k3, ← c3719] at e_91_8
-  have e_91_9 := arithEq_of_rows h (row := 91) (i := 9) rfl (by decide)
+  have e_91_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row91 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_91_9
   simp only [← c3726, ← c3727, k3, ← c3728] at e_91_9
-  have e_92_0 := arithEq_of_rows h (row := 92) (i := 0) rfl (by decide)
+  have e_92_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row92 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_92_0
   simp only [← c3720, ← c3721, ← c3722] at e_92_0
-  have e_92_1 := arithEq_of_rows h (row := 92) (i := 1) rfl (by decide)
+  have e_92_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row92 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_92_1
   simp only [← c3723, ← c3724, ← c3725] at e_92_1
   refine ⟨?_, ?_⟩
@@ -10883,19 +10883,19 @@ theorem privateBatchWrapper8_f432 (a : Assignment p) (h : Satisfies (privateBatc
   have c3747 := (privateBatchWrapper8_copies117 a h).2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_91_10 := arithEq_of_rows h (row := 91) (i := 10) rfl (by decide)
+  have e_91_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row91 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_91_10
   simp only [← c3731, k3, ← c3732, k3, ← c3733] at e_91_10
-  have e_91_11 := arithEq_of_rows h (row := 91) (i := 11) rfl (by decide)
+  have e_91_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row91 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_91_11
   simp only [← c3734, ← c3735, k3, ← c3736] at e_91_11
-  have e_91_12 := arithEq_of_rows h (row := 91) (i := 12) rfl (by decide)
+  have e_91_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row91 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_91_12
   simp only [← c3743, ← c3744, k3, ← c3745] at e_91_12
-  have e_92_2 := arithEq_of_rows h (row := 92) (i := 2) rfl (by decide)
+  have e_92_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row92 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_92_2
   simp only [← c3737, ← c3738, ← c3739] at e_92_2
-  have e_92_3 := arithEq_of_rows h (row := 92) (i := 3) rfl (by decide)
+  have e_92_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row92 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_92_3
   simp only [← c3740, ← c3741, ← c3742] at e_92_3
   refine ⟨?_, ?_⟩
@@ -10927,19 +10927,19 @@ theorem privateBatchWrapper8_f433 (a : Assignment p) (h : Satisfies (privateBatc
   have c3764 := (privateBatchWrapper8_copies117 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_91_13 := arithEq_of_rows h (row := 91) (i := 13) rfl (by decide)
+  have e_91_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row91 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_91_13
   simp only [← c3748, k3, ← c3749, k3, ← c3750] at e_91_13
-  have e_91_14 := arithEq_of_rows h (row := 91) (i := 14) rfl (by decide)
+  have e_91_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row91 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_91_14
   simp only [← c3751, ← c3752, k3, ← c3753] at e_91_14
-  have e_92_4 := arithEq_of_rows h (row := 92) (i := 4) rfl (by decide)
+  have e_92_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row92 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_92_4
   simp only [← c3754, ← c3755, ← c3756] at e_92_4
-  have e_92_5 := arithEq_of_rows h (row := 92) (i := 5) rfl (by decide)
+  have e_92_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row92 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_92_5
   simp only [← c3757, ← c3758, ← c3759] at e_92_5
-  have e_93_0 := arithEq_of_rows h (row := 93) (i := 0) rfl (by decide)
+  have e_93_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row93 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_93_0
   simp only [← c3760, ← c3761, k3, ← c3762] at e_93_0
   refine ⟨?_, ?_⟩
@@ -10971,19 +10971,19 @@ theorem privateBatchWrapper8_f434 (a : Assignment p) (h : Satisfies (privateBatc
   have c3781 := (privateBatchWrapper8_copies118 a h).2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_92_6 := arithEq_of_rows h (row := 92) (i := 6) rfl (by decide)
+  have e_92_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row92 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_92_6
   simp only [← c3771, ← c3772, ← c3773] at e_92_6
-  have e_92_7 := arithEq_of_rows h (row := 92) (i := 7) rfl (by decide)
+  have e_92_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row92 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_92_7
   simp only [← c3774, ← c3775, ← c3776] at e_92_7
-  have e_93_1 := arithEq_of_rows h (row := 93) (i := 1) rfl (by decide)
+  have e_93_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row93 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_93_1
   simp only [← c3765, k3, ← c3766, k3, ← c3767] at e_93_1
-  have e_93_2 := arithEq_of_rows h (row := 93) (i := 2) rfl (by decide)
+  have e_93_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row93 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_93_2
   simp only [← c3768, ← c3769, k3, ← c3770] at e_93_2
-  have e_93_3 := arithEq_of_rows h (row := 93) (i := 3) rfl (by decide)
+  have e_93_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row93 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_93_3
   simp only [← c3777, ← c3778, k3, ← c3779] at e_93_3
   refine ⟨?_, ?_⟩
@@ -10999,7 +10999,7 @@ theorem privateBatchWrapper8_f435 (a : Assignment p) (h : Satisfies (privateBatc
   have c3782 := (privateBatchWrapper8_copies118 a h).2.2.2.2.2.2.1
   have c3783 := (privateBatchWrapper8_copies118 a h).2.2.2.2.2.2.2.1
   have c3784 := (privateBatchWrapper8_copies118 a h).2.2.2.2.2.2.2.2.1
-  have e_92_8 := arithEq_of_rows h (row := 92) (i := 8) rfl (by decide)
+  have e_92_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row92 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_92_8
   simp only [← c3782, ← c3783, ← c3784] at e_92_8
   have hr := e_92_8
@@ -11011,7 +11011,7 @@ theorem privateBatchWrapper8_f436 (a : Assignment p) (h : Satisfies (privateBatc
   have c3785 := (privateBatchWrapper8_copies118 a h).2.2.2.2.2.2.2.2.2.1
   have c3786 := (privateBatchWrapper8_copies118 a h).2.2.2.2.2.2.2.2.2.2.1
   have c3787 := (privateBatchWrapper8_copies118 a h).2.2.2.2.2.2.2.2.2.2.2.1
-  have e_92_9 := arithEq_of_rows h (row := 92) (i := 9) rfl (by decide)
+  have e_92_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row92 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_92_9
   simp only [← c3785, ← c3786, ← c3787] at e_92_9
   have hr := e_92_9
@@ -11023,7 +11023,7 @@ theorem privateBatchWrapper8_f437 (a : Assignment p) (h : Satisfies (privateBatc
   have c3788 := (privateBatchWrapper8_copies118 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3789 := (privateBatchWrapper8_copies118 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3790 := (privateBatchWrapper8_copies118 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_92_10 := arithEq_of_rows h (row := 92) (i := 10) rfl (by decide)
+  have e_92_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row92 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_92_10
   simp only [← c3788, ← c3789, ← c3790] at e_92_10
   have hr := e_92_10
@@ -11035,7 +11035,7 @@ theorem privateBatchWrapper8_f438 (a : Assignment p) (h : Satisfies (privateBatc
   have c3791 := (privateBatchWrapper8_copies118 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3792 := (privateBatchWrapper8_copies118 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3793 := (privateBatchWrapper8_copies118 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_92_11 := arithEq_of_rows h (row := 92) (i := 11) rfl (by decide)
+  have e_92_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row92 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_92_11
   simp only [← c3791, ← c3792, ← c3793] at e_92_11
   have hr := e_92_11
@@ -11054,7 +11054,7 @@ theorem privateBatchWrapper8_f440 (a : Assignment p) (h : Satisfies (privateBatc
   have c585 := (privateBatchWrapper8_copies18 a h).2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_13_7 := arithEq_of_rows h (row := 13) (i := 7) rfl (by decide)
+  have e_13_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row13 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_13_7
   simp only [← c583, k3, ← c584, k3, ← c585] at e_13_7
   have hr := e_13_7
@@ -11068,7 +11068,7 @@ theorem privateBatchWrapper8_f441 (a : Assignment p) (h : Satisfies (privateBatc
   have c630 := (privateBatchWrapper8_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_15_4 := arithEq_of_rows h (row := 15) (i := 4) rfl (by decide)
+  have e_15_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row15 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_4
   simp only [← c628, k3, ← c629, k3, ← c630] at e_15_4
   have hr := e_15_4
@@ -11080,7 +11080,7 @@ theorem privateBatchWrapper8_f442 (a : Assignment p) (h : Satisfies (privateBatc
   have c3795 := (privateBatchWrapper8_copies118 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3796 := (privateBatchWrapper8_copies118 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3797 := (privateBatchWrapper8_copies118 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_92_12 := arithEq_of_rows h (row := 92) (i := 12) rfl (by decide)
+  have e_92_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row92 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_92_12
   simp only [← c3795, ← c3796, ← c3797] at e_92_12
   have hr := e_92_12
@@ -11108,19 +11108,19 @@ theorem privateBatchWrapper8_f443 (a : Assignment p) (h : Satisfies (privateBatc
   have c3814 := (privateBatchWrapper8_copies119 a h).2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_92_13 := arithEq_of_rows h (row := 92) (i := 13) rfl (by decide)
+  have e_92_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row92 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_92_13
   simp only [← c3804, ← c3805, ← c3806] at e_92_13
-  have e_92_14 := arithEq_of_rows h (row := 92) (i := 14) rfl (by decide)
+  have e_92_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row92 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_92_14
   simp only [← c3807, ← c3808, ← c3809] at e_92_14
-  have e_93_4 := arithEq_of_rows h (row := 93) (i := 4) rfl (by decide)
+  have e_93_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row93 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_93_4
   simp only [← c3798, k3, ← c3799, k3, ← c3800] at e_93_4
-  have e_93_5 := arithEq_of_rows h (row := 93) (i := 5) rfl (by decide)
+  have e_93_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row93 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_93_5
   simp only [← c3801, ← c3802, k3, ← c3803] at e_93_5
-  have e_93_6 := arithEq_of_rows h (row := 93) (i := 6) rfl (by decide)
+  have e_93_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row93 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_93_6
   simp only [← c3810, ← c3811, k3, ← c3812] at e_93_6
   refine ⟨?_, ?_⟩
@@ -11152,19 +11152,19 @@ theorem privateBatchWrapper8_f444 (a : Assignment p) (h : Satisfies (privateBatc
   have c3831 := (privateBatchWrapper8_copies119 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_93_7 := arithEq_of_rows h (row := 93) (i := 7) rfl (by decide)
+  have e_93_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row93 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_93_7
   simp only [← c3815, k3, ← c3816, k3, ← c3817] at e_93_7
-  have e_93_8 := arithEq_of_rows h (row := 93) (i := 8) rfl (by decide)
+  have e_93_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row93 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_93_8
   simp only [← c3818, ← c3819, k3, ← c3820] at e_93_8
-  have e_93_9 := arithEq_of_rows h (row := 93) (i := 9) rfl (by decide)
+  have e_93_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row93 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_93_9
   simp only [← c3827, ← c3828, k3, ← c3829] at e_93_9
-  have e_94_0 := arithEq_of_rows h (row := 94) (i := 0) rfl (by decide)
+  have e_94_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row94 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_94_0
   simp only [← c3821, ← c3822, ← c3823] at e_94_0
-  have e_94_1 := arithEq_of_rows h (row := 94) (i := 1) rfl (by decide)
+  have e_94_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row94 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_94_1
   simp only [← c3824, ← c3825, ← c3826] at e_94_1
   refine ⟨?_, ?_⟩
@@ -11196,19 +11196,19 @@ theorem privateBatchWrapper8_f445 (a : Assignment p) (h : Satisfies (privateBatc
   have c3848 := (privateBatchWrapper8_copies120 a h).2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_93_10 := arithEq_of_rows h (row := 93) (i := 10) rfl (by decide)
+  have e_93_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row93 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_93_10
   simp only [← c3832, k3, ← c3833, k3, ← c3834] at e_93_10
-  have e_93_11 := arithEq_of_rows h (row := 93) (i := 11) rfl (by decide)
+  have e_93_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row93 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_93_11
   simp only [← c3835, ← c3836, k3, ← c3837] at e_93_11
-  have e_93_12 := arithEq_of_rows h (row := 93) (i := 12) rfl (by decide)
+  have e_93_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row93 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_93_12
   simp only [← c3844, ← c3845, k3, ← c3846] at e_93_12
-  have e_94_2 := arithEq_of_rows h (row := 94) (i := 2) rfl (by decide)
+  have e_94_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row94 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_94_2
   simp only [← c3838, ← c3839, ← c3840] at e_94_2
-  have e_94_3 := arithEq_of_rows h (row := 94) (i := 3) rfl (by decide)
+  have e_94_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row94 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_94_3
   simp only [← c3841, ← c3842, ← c3843] at e_94_3
   refine ⟨?_, ?_⟩
@@ -11240,19 +11240,19 @@ theorem privateBatchWrapper8_f446 (a : Assignment p) (h : Satisfies (privateBatc
   have c3865 := (privateBatchWrapper8_copies120 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_93_13 := arithEq_of_rows h (row := 93) (i := 13) rfl (by decide)
+  have e_93_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row93 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_93_13
   simp only [← c3849, k3, ← c3850, k3, ← c3851] at e_93_13
-  have e_93_14 := arithEq_of_rows h (row := 93) (i := 14) rfl (by decide)
+  have e_93_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row93 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_93_14
   simp only [← c3852, ← c3853, k3, ← c3854] at e_93_14
-  have e_94_4 := arithEq_of_rows h (row := 94) (i := 4) rfl (by decide)
+  have e_94_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row94 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_94_4
   simp only [← c3855, ← c3856, ← c3857] at e_94_4
-  have e_94_5 := arithEq_of_rows h (row := 94) (i := 5) rfl (by decide)
+  have e_94_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row94 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_94_5
   simp only [← c3858, ← c3859, ← c3860] at e_94_5
-  have e_95_0 := arithEq_of_rows h (row := 95) (i := 0) rfl (by decide)
+  have e_95_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row95 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_95_0
   simp only [← c3861, ← c3862, k3, ← c3863] at e_95_0
   refine ⟨?_, ?_⟩
@@ -11268,7 +11268,7 @@ theorem privateBatchWrapper8_f447 (a : Assignment p) (h : Satisfies (privateBatc
   have c3866 := (privateBatchWrapper8_copies120 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3867 := (privateBatchWrapper8_copies120 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3868 := (privateBatchWrapper8_copies120 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_94_6 := arithEq_of_rows h (row := 94) (i := 6) rfl (by decide)
+  have e_94_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row94 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_94_6
   simp only [← c3866, ← c3867, ← c3868] at e_94_6
   have hr := e_94_6
@@ -11280,7 +11280,7 @@ theorem privateBatchWrapper8_f448 (a : Assignment p) (h : Satisfies (privateBatc
   have c3869 := (privateBatchWrapper8_copies120 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3870 := (privateBatchWrapper8_copies120 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3871 := (privateBatchWrapper8_copies120 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have e_94_7 := arithEq_of_rows h (row := 94) (i := 7) rfl (by decide)
+  have e_94_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row94 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_94_7
   simp only [← c3869, ← c3870, ← c3871] at e_94_7
   have hr := e_94_7
@@ -11292,7 +11292,7 @@ theorem privateBatchWrapper8_f449 (a : Assignment p) (h : Satisfies (privateBatc
   have c3872 := (privateBatchWrapper8_copies121 a h).1
   have c3873 := (privateBatchWrapper8_copies121 a h).2.1
   have c3874 := (privateBatchWrapper8_copies121 a h).2.2.1
-  have e_94_8 := arithEq_of_rows h (row := 94) (i := 8) rfl (by decide)
+  have e_94_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row94 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_94_8
   simp only [← c3872, ← c3873, ← c3874] at e_94_8
   have hr := e_94_8
@@ -11304,7 +11304,7 @@ theorem privateBatchWrapper8_f450 (a : Assignment p) (h : Satisfies (privateBatc
   have c3875 := (privateBatchWrapper8_copies121 a h).2.2.2.1
   have c3876 := (privateBatchWrapper8_copies121 a h).2.2.2.2.1
   have c3877 := (privateBatchWrapper8_copies121 a h).2.2.2.2.2.1
-  have e_94_9 := arithEq_of_rows h (row := 94) (i := 9) rfl (by decide)
+  have e_94_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row94 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_94_9
   simp only [← c3875, ← c3876, ← c3877] at e_94_9
   have hr := e_94_9
@@ -11323,7 +11323,7 @@ theorem privateBatchWrapper8_f452 (a : Assignment p) (h : Satisfies (privateBatc
   have c675 := (privateBatchWrapper8_copies21 a h).2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_16_1 := arithEq_of_rows h (row := 16) (i := 1) rfl (by decide)
+  have e_16_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_1
   simp only [← c673, k3, ← c674, k3, ← c675] at e_16_1
   have hr := e_16_1
@@ -11335,7 +11335,7 @@ theorem privateBatchWrapper8_f453 (a : Assignment p) (h : Satisfies (privateBatc
   have c3879 := (privateBatchWrapper8_copies121 a h).2.2.2.2.2.2.2.1
   have c3880 := (privateBatchWrapper8_copies121 a h).2.2.2.2.2.2.2.2.1
   have c3881 := (privateBatchWrapper8_copies121 a h).2.2.2.2.2.2.2.2.2.1
-  have e_94_10 := arithEq_of_rows h (row := 94) (i := 10) rfl (by decide)
+  have e_94_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row94 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_94_10
   simp only [← c3879, ← c3880, ← c3881] at e_94_10
   have hr := e_94_10
@@ -11363,19 +11363,19 @@ theorem privateBatchWrapper8_f454 (a : Assignment p) (h : Satisfies (privateBatc
   have c3898 := (privateBatchWrapper8_copies121 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_94_11 := arithEq_of_rows h (row := 94) (i := 11) rfl (by decide)
+  have e_94_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row94 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_94_11
   simp only [← c3888, ← c3889, ← c3890] at e_94_11
-  have e_94_12 := arithEq_of_rows h (row := 94) (i := 12) rfl (by decide)
+  have e_94_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row94 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_94_12
   simp only [← c3891, ← c3892, ← c3893] at e_94_12
-  have e_95_1 := arithEq_of_rows h (row := 95) (i := 1) rfl (by decide)
+  have e_95_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row95 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_95_1
   simp only [← c3882, k3, ← c3883, k3, ← c3884] at e_95_1
-  have e_95_2 := arithEq_of_rows h (row := 95) (i := 2) rfl (by decide)
+  have e_95_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row95 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_95_2
   simp only [← c3885, ← c3886, k3, ← c3887] at e_95_2
-  have e_95_3 := arithEq_of_rows h (row := 95) (i := 3) rfl (by decide)
+  have e_95_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row95 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_95_3
   simp only [← c3894, ← c3895, k3, ← c3896] at e_95_3
   refine ⟨?_, ?_⟩
@@ -11407,19 +11407,19 @@ theorem privateBatchWrapper8_f455 (a : Assignment p) (h : Satisfies (privateBatc
   have c3915 := (privateBatchWrapper8_copies122 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_94_13 := arithEq_of_rows h (row := 94) (i := 13) rfl (by decide)
+  have e_94_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row94 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_94_13
   simp only [← c3905, ← c3906, ← c3907] at e_94_13
-  have e_94_14 := arithEq_of_rows h (row := 94) (i := 14) rfl (by decide)
+  have e_94_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row94 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_94_14
   simp only [← c3908, ← c3909, ← c3910] at e_94_14
-  have e_95_4 := arithEq_of_rows h (row := 95) (i := 4) rfl (by decide)
+  have e_95_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row95 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_95_4
   simp only [← c3899, k3, ← c3900, k3, ← c3901] at e_95_4
-  have e_95_5 := arithEq_of_rows h (row := 95) (i := 5) rfl (by decide)
+  have e_95_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row95 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_95_5
   simp only [← c3902, ← c3903, k3, ← c3904] at e_95_5
-  have e_95_6 := arithEq_of_rows h (row := 95) (i := 6) rfl (by decide)
+  have e_95_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row95 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_95_6
   simp only [← c3911, ← c3912, k3, ← c3913] at e_95_6
   refine ⟨?_, ?_⟩
@@ -11451,19 +11451,19 @@ theorem privateBatchWrapper8_f456 (a : Assignment p) (h : Satisfies (privateBatc
   have c3932 := (privateBatchWrapper8_copies122 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_95_7 := arithEq_of_rows h (row := 95) (i := 7) rfl (by decide)
+  have e_95_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row95 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_95_7
   simp only [← c3916, k3, ← c3917, k3, ← c3918] at e_95_7
-  have e_95_8 := arithEq_of_rows h (row := 95) (i := 8) rfl (by decide)
+  have e_95_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row95 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_95_8
   simp only [← c3919, ← c3920, k3, ← c3921] at e_95_8
-  have e_95_9 := arithEq_of_rows h (row := 95) (i := 9) rfl (by decide)
+  have e_95_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row95 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_95_9
   simp only [← c3928, ← c3929, k3, ← c3930] at e_95_9
-  have e_96_0 := arithEq_of_rows h (row := 96) (i := 0) rfl (by decide)
+  have e_96_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row96 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_96_0
   simp only [← c3922, ← c3923, ← c3924] at e_96_0
-  have e_96_1 := arithEq_of_rows h (row := 96) (i := 1) rfl (by decide)
+  have e_96_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row96 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_96_1
   simp only [← c3925, ← c3926, ← c3927] at e_96_1
   refine ⟨?_, ?_⟩
@@ -11495,19 +11495,19 @@ theorem privateBatchWrapper8_f457 (a : Assignment p) (h : Satisfies (privateBatc
   have c3949 := (privateBatchWrapper8_copies123 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_95_10 := arithEq_of_rows h (row := 95) (i := 10) rfl (by decide)
+  have e_95_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row95 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_95_10
   simp only [← c3933, k3, ← c3934, k3, ← c3935] at e_95_10
-  have e_95_11 := arithEq_of_rows h (row := 95) (i := 11) rfl (by decide)
+  have e_95_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row95 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_95_11
   simp only [← c3936, ← c3937, k3, ← c3938] at e_95_11
-  have e_95_12 := arithEq_of_rows h (row := 95) (i := 12) rfl (by decide)
+  have e_95_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row95 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_95_12
   simp only [← c3945, ← c3946, k3, ← c3947] at e_95_12
-  have e_96_2 := arithEq_of_rows h (row := 96) (i := 2) rfl (by decide)
+  have e_96_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row96 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_96_2
   simp only [← c3939, ← c3940, ← c3941] at e_96_2
-  have e_96_3 := arithEq_of_rows h (row := 96) (i := 3) rfl (by decide)
+  have e_96_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row96 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_96_3
   simp only [← c3942, ← c3943, ← c3944] at e_96_3
   refine ⟨?_, ?_⟩
@@ -11523,7 +11523,7 @@ theorem privateBatchWrapper8_f458 (a : Assignment p) (h : Satisfies (privateBatc
   have c3950 := (privateBatchWrapper8_copies123 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3951 := (privateBatchWrapper8_copies123 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3952 := (privateBatchWrapper8_copies123 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_96_4 := arithEq_of_rows h (row := 96) (i := 4) rfl (by decide)
+  have e_96_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row96 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_96_4
   simp only [← c3950, ← c3951, ← c3952] at e_96_4
   have hr := e_96_4
@@ -11535,7 +11535,7 @@ theorem privateBatchWrapper8_f459 (a : Assignment p) (h : Satisfies (privateBatc
   have c3953 := (privateBatchWrapper8_copies123 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3954 := (privateBatchWrapper8_copies123 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3955 := (privateBatchWrapper8_copies123 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_96_5 := arithEq_of_rows h (row := 96) (i := 5) rfl (by decide)
+  have e_96_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row96 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_96_5
   simp only [← c3953, ← c3954, ← c3955] at e_96_5
   have hr := e_96_5
@@ -11547,7 +11547,7 @@ theorem privateBatchWrapper8_f460 (a : Assignment p) (h : Satisfies (privateBatc
   have c3956 := (privateBatchWrapper8_copies123 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3957 := (privateBatchWrapper8_copies123 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3958 := (privateBatchWrapper8_copies123 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_96_6 := arithEq_of_rows h (row := 96) (i := 6) rfl (by decide)
+  have e_96_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row96 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_96_6
   simp only [← c3956, ← c3957, ← c3958] at e_96_6
   have hr := e_96_6
@@ -11559,7 +11559,7 @@ theorem privateBatchWrapper8_f461 (a : Assignment p) (h : Satisfies (privateBatc
   have c3959 := (privateBatchWrapper8_copies123 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3960 := (privateBatchWrapper8_copies123 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3961 := (privateBatchWrapper8_copies123 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_96_7 := arithEq_of_rows h (row := 96) (i := 7) rfl (by decide)
+  have e_96_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row96 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_96_7
   simp only [← c3959, ← c3960, ← c3961] at e_96_7
   have hr := e_96_7
@@ -11578,7 +11578,7 @@ theorem privateBatchWrapper8_f463 (a : Assignment p) (h : Satisfies (privateBatc
   have c720 := (privateBatchWrapper8_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_16_13 := arithEq_of_rows h (row := 16) (i := 13) rfl (by decide)
+  have e_16_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_13
   simp only [← c718, k3, ← c719, k3, ← c720] at e_16_13
   have hr := e_16_13
@@ -11590,7 +11590,7 @@ theorem privateBatchWrapper8_f464 (a : Assignment p) (h : Satisfies (privateBatc
   have c3963 := (privateBatchWrapper8_copies123 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3964 := (privateBatchWrapper8_copies123 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c3965 := (privateBatchWrapper8_copies123 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_96_8 := arithEq_of_rows h (row := 96) (i := 8) rfl (by decide)
+  have e_96_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row96 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_96_8
   simp only [← c3963, ← c3964, ← c3965] at e_96_8
   have hr := e_96_8
@@ -11618,19 +11618,19 @@ theorem privateBatchWrapper8_f465 (a : Assignment p) (h : Satisfies (privateBatc
   have c3982 := (privateBatchWrapper8_copies124 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_95_13 := arithEq_of_rows h (row := 95) (i := 13) rfl (by decide)
+  have e_95_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row95 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_95_13
   simp only [← c3966, k3, ← c3967, k3, ← c3968] at e_95_13
-  have e_95_14 := arithEq_of_rows h (row := 95) (i := 14) rfl (by decide)
+  have e_95_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row95 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_95_14
   simp only [← c3969, ← c3970, k3, ← c3971] at e_95_14
-  have e_96_9 := arithEq_of_rows h (row := 96) (i := 9) rfl (by decide)
+  have e_96_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row96 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_96_9
   simp only [← c3972, ← c3973, ← c3974] at e_96_9
-  have e_96_10 := arithEq_of_rows h (row := 96) (i := 10) rfl (by decide)
+  have e_96_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row96 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_96_10
   simp only [← c3975, ← c3976, ← c3977] at e_96_10
-  have e_97_0 := arithEq_of_rows h (row := 97) (i := 0) rfl (by decide)
+  have e_97_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row97 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_97_0
   simp only [← c3978, ← c3979, k3, ← c3980] at e_97_0
   refine ⟨?_, ?_⟩
@@ -11662,19 +11662,19 @@ theorem privateBatchWrapper8_f466 (a : Assignment p) (h : Satisfies (privateBatc
   have c3999 := (privateBatchWrapper8_copies124 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_96_11 := arithEq_of_rows h (row := 96) (i := 11) rfl (by decide)
+  have e_96_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row96 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_96_11
   simp only [← c3989, ← c3990, ← c3991] at e_96_11
-  have e_96_12 := arithEq_of_rows h (row := 96) (i := 12) rfl (by decide)
+  have e_96_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row96 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_96_12
   simp only [← c3992, ← c3993, ← c3994] at e_96_12
-  have e_97_1 := arithEq_of_rows h (row := 97) (i := 1) rfl (by decide)
+  have e_97_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row97 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_97_1
   simp only [← c3983, k3, ← c3984, k3, ← c3985] at e_97_1
-  have e_97_2 := arithEq_of_rows h (row := 97) (i := 2) rfl (by decide)
+  have e_97_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row97 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_97_2
   simp only [← c3986, ← c3987, k3, ← c3988] at e_97_2
-  have e_97_3 := arithEq_of_rows h (row := 97) (i := 3) rfl (by decide)
+  have e_97_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row97 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_97_3
   simp only [← c3995, ← c3996, k3, ← c3997] at e_97_3
   refine ⟨?_, ?_⟩
@@ -11706,19 +11706,19 @@ theorem privateBatchWrapper8_f467 (a : Assignment p) (h : Satisfies (privateBatc
   have c4016 := (privateBatchWrapper8_copies125 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_96_13 := arithEq_of_rows h (row := 96) (i := 13) rfl (by decide)
+  have e_96_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row96 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_96_13
   simp only [← c4006, ← c4007, ← c4008] at e_96_13
-  have e_96_14 := arithEq_of_rows h (row := 96) (i := 14) rfl (by decide)
+  have e_96_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row96 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_96_14
   simp only [← c4009, ← c4010, ← c4011] at e_96_14
-  have e_97_4 := arithEq_of_rows h (row := 97) (i := 4) rfl (by decide)
+  have e_97_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row97 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_97_4
   simp only [← c4000, k3, ← c4001, k3, ← c4002] at e_97_4
-  have e_97_5 := arithEq_of_rows h (row := 97) (i := 5) rfl (by decide)
+  have e_97_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row97 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_97_5
   simp only [← c4003, ← c4004, k3, ← c4005] at e_97_5
-  have e_97_6 := arithEq_of_rows h (row := 97) (i := 6) rfl (by decide)
+  have e_97_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row97 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_97_6
   simp only [← c4012, ← c4013, k3, ← c4014] at e_97_6
   refine ⟨?_, ?_⟩
@@ -11750,19 +11750,19 @@ theorem privateBatchWrapper8_f468 (a : Assignment p) (h : Satisfies (privateBatc
   have c4033 := (privateBatchWrapper8_copies126 a h).2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_97_7 := arithEq_of_rows h (row := 97) (i := 7) rfl (by decide)
+  have e_97_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row97 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_97_7
   simp only [← c4017, k3, ← c4018, k3, ← c4019] at e_97_7
-  have e_97_8 := arithEq_of_rows h (row := 97) (i := 8) rfl (by decide)
+  have e_97_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row97 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_97_8
   simp only [← c4020, ← c4021, k3, ← c4022] at e_97_8
-  have e_97_9 := arithEq_of_rows h (row := 97) (i := 9) rfl (by decide)
+  have e_97_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row97 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_97_9
   simp only [← c4029, ← c4030, k3, ← c4031] at e_97_9
-  have e_98_0 := arithEq_of_rows h (row := 98) (i := 0) rfl (by decide)
+  have e_98_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row98 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_98_0
   simp only [← c4023, ← c4024, ← c4025] at e_98_0
-  have e_98_1 := arithEq_of_rows h (row := 98) (i := 1) rfl (by decide)
+  have e_98_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row98 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_98_1
   simp only [← c4026, ← c4027, ← c4028] at e_98_1
   refine ⟨?_, ?_⟩
@@ -11778,7 +11778,7 @@ theorem privateBatchWrapper8_f469 (a : Assignment p) (h : Satisfies (privateBatc
   have c4034 := (privateBatchWrapper8_copies126 a h).2.2.1
   have c4035 := (privateBatchWrapper8_copies126 a h).2.2.2.1
   have c4036 := (privateBatchWrapper8_copies126 a h).2.2.2.2.1
-  have e_98_2 := arithEq_of_rows h (row := 98) (i := 2) rfl (by decide)
+  have e_98_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row98 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_98_2
   simp only [← c4034, ← c4035, ← c4036] at e_98_2
   have hr := e_98_2
@@ -11790,7 +11790,7 @@ theorem privateBatchWrapper8_f470 (a : Assignment p) (h : Satisfies (privateBatc
   have c4037 := (privateBatchWrapper8_copies126 a h).2.2.2.2.2.1
   have c4038 := (privateBatchWrapper8_copies126 a h).2.2.2.2.2.2.1
   have c4039 := (privateBatchWrapper8_copies126 a h).2.2.2.2.2.2.2.1
-  have e_98_3 := arithEq_of_rows h (row := 98) (i := 3) rfl (by decide)
+  have e_98_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row98 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_98_3
   simp only [← c4037, ← c4038, ← c4039] at e_98_3
   have hr := e_98_3
@@ -11802,7 +11802,7 @@ theorem privateBatchWrapper8_f471 (a : Assignment p) (h : Satisfies (privateBatc
   have c4040 := (privateBatchWrapper8_copies126 a h).2.2.2.2.2.2.2.2.1
   have c4041 := (privateBatchWrapper8_copies126 a h).2.2.2.2.2.2.2.2.2.1
   have c4042 := (privateBatchWrapper8_copies126 a h).2.2.2.2.2.2.2.2.2.2.1
-  have e_98_4 := arithEq_of_rows h (row := 98) (i := 4) rfl (by decide)
+  have e_98_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row98 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_98_4
   simp only [← c4040, ← c4041, ← c4042] at e_98_4
   have hr := e_98_4
@@ -11814,7 +11814,7 @@ theorem privateBatchWrapper8_f472 (a : Assignment p) (h : Satisfies (privateBatc
   have c4043 := (privateBatchWrapper8_copies126 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c4044 := (privateBatchWrapper8_copies126 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4045 := (privateBatchWrapper8_copies126 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_98_5 := arithEq_of_rows h (row := 98) (i := 5) rfl (by decide)
+  have e_98_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row98 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_98_5
   simp only [← c4043, ← c4044, ← c4045] at e_98_5
   have hr := e_98_5
@@ -11833,7 +11833,7 @@ theorem privateBatchWrapper8_f474 (a : Assignment p) (h : Satisfies (privateBatc
   have c765 := (privateBatchWrapper8_copies23 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_17_10 := arithEq_of_rows h (row := 17) (i := 10) rfl (by decide)
+  have e_17_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row17 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_10
   simp only [← c763, k3, ← c764, k3, ← c765] at e_17_10
   have hr := e_17_10
@@ -11845,7 +11845,7 @@ theorem privateBatchWrapper8_f475 (a : Assignment p) (h : Satisfies (privateBatc
   have c4047 := (privateBatchWrapper8_copies126 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4048 := (privateBatchWrapper8_copies126 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4049 := (privateBatchWrapper8_copies126 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_98_6 := arithEq_of_rows h (row := 98) (i := 6) rfl (by decide)
+  have e_98_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row98 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_98_6
   simp only [← c4047, ← c4048, ← c4049] at e_98_6
   have hr := e_98_6
@@ -11873,19 +11873,19 @@ theorem privateBatchWrapper8_f476 (a : Assignment p) (h : Satisfies (privateBatc
   have c4066 := (privateBatchWrapper8_copies127 a h).2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_97_10 := arithEq_of_rows h (row := 97) (i := 10) rfl (by decide)
+  have e_97_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row97 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_97_10
   simp only [← c4050, k3, ← c4051, k3, ← c4052] at e_97_10
-  have e_97_11 := arithEq_of_rows h (row := 97) (i := 11) rfl (by decide)
+  have e_97_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row97 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_97_11
   simp only [← c4053, ← c4054, k3, ← c4055] at e_97_11
-  have e_97_12 := arithEq_of_rows h (row := 97) (i := 12) rfl (by decide)
+  have e_97_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row97 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_97_12
   simp only [← c4062, ← c4063, k3, ← c4064] at e_97_12
-  have e_98_7 := arithEq_of_rows h (row := 98) (i := 7) rfl (by decide)
+  have e_98_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row98 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_98_7
   simp only [← c4056, ← c4057, ← c4058] at e_98_7
-  have e_98_8 := arithEq_of_rows h (row := 98) (i := 8) rfl (by decide)
+  have e_98_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row98 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_98_8
   simp only [← c4059, ← c4060, ← c4061] at e_98_8
   refine ⟨?_, ?_⟩
@@ -11917,19 +11917,19 @@ theorem privateBatchWrapper8_f477 (a : Assignment p) (h : Satisfies (privateBatc
   have c4083 := (privateBatchWrapper8_copies127 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_97_13 := arithEq_of_rows h (row := 97) (i := 13) rfl (by decide)
+  have e_97_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row97 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_97_13
   simp only [← c4067, k3, ← c4068, k3, ← c4069] at e_97_13
-  have e_97_14 := arithEq_of_rows h (row := 97) (i := 14) rfl (by decide)
+  have e_97_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row97 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_97_14
   simp only [← c4070, ← c4071, k3, ← c4072] at e_97_14
-  have e_98_9 := arithEq_of_rows h (row := 98) (i := 9) rfl (by decide)
+  have e_98_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row98 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_98_9
   simp only [← c4073, ← c4074, ← c4075] at e_98_9
-  have e_98_10 := arithEq_of_rows h (row := 98) (i := 10) rfl (by decide)
+  have e_98_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row98 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_98_10
   simp only [← c4076, ← c4077, ← c4078] at e_98_10
-  have e_99_0 := arithEq_of_rows h (row := 99) (i := 0) rfl (by decide)
+  have e_99_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row99 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_99_0
   simp only [← c4079, ← c4080, k3, ← c4081] at e_99_0
   refine ⟨?_, ?_⟩
@@ -11961,19 +11961,19 @@ theorem privateBatchWrapper8_f478 (a : Assignment p) (h : Satisfies (privateBatc
   have c4100 := (privateBatchWrapper8_copies128 a h).2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_98_11 := arithEq_of_rows h (row := 98) (i := 11) rfl (by decide)
+  have e_98_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row98 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_98_11
   simp only [← c4090, ← c4091, ← c4092] at e_98_11
-  have e_98_12 := arithEq_of_rows h (row := 98) (i := 12) rfl (by decide)
+  have e_98_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row98 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_98_12
   simp only [← c4093, ← c4094, ← c4095] at e_98_12
-  have e_99_1 := arithEq_of_rows h (row := 99) (i := 1) rfl (by decide)
+  have e_99_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row99 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_99_1
   simp only [← c4084, k3, ← c4085, k3, ← c4086] at e_99_1
-  have e_99_2 := arithEq_of_rows h (row := 99) (i := 2) rfl (by decide)
+  have e_99_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row99 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_99_2
   simp only [← c4087, ← c4088, k3, ← c4089] at e_99_2
-  have e_99_3 := arithEq_of_rows h (row := 99) (i := 3) rfl (by decide)
+  have e_99_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row99 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_99_3
   simp only [← c4096, ← c4097, k3, ← c4098] at e_99_3
   refine ⟨?_, ?_⟩
@@ -12005,19 +12005,19 @@ theorem privateBatchWrapper8_f479 (a : Assignment p) (h : Satisfies (privateBatc
   have c4117 := (privateBatchWrapper8_copies128 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_98_13 := arithEq_of_rows h (row := 98) (i := 13) rfl (by decide)
+  have e_98_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row98 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_98_13
   simp only [← c4107, ← c4108, ← c4109] at e_98_13
-  have e_98_14 := arithEq_of_rows h (row := 98) (i := 14) rfl (by decide)
+  have e_98_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row98 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_98_14
   simp only [← c4110, ← c4111, ← c4112] at e_98_14
-  have e_99_4 := arithEq_of_rows h (row := 99) (i := 4) rfl (by decide)
+  have e_99_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row99 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_99_4
   simp only [← c4101, k3, ← c4102, k3, ← c4103] at e_99_4
-  have e_99_5 := arithEq_of_rows h (row := 99) (i := 5) rfl (by decide)
+  have e_99_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row99 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_99_5
   simp only [← c4104, ← c4105, k3, ← c4106] at e_99_5
-  have e_99_6 := arithEq_of_rows h (row := 99) (i := 6) rfl (by decide)
+  have e_99_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row99 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_99_6
   simp only [← c4113, ← c4114, k3, ← c4115] at e_99_6
   refine ⟨?_, ?_⟩
@@ -12033,7 +12033,7 @@ theorem privateBatchWrapper8_f480 (a : Assignment p) (h : Satisfies (privateBatc
   have c4118 := (privateBatchWrapper8_copies128 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4119 := (privateBatchWrapper8_copies128 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4120 := (privateBatchWrapper8_copies128 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_100_0 := arithEq_of_rows h (row := 100) (i := 0) rfl (by decide)
+  have e_100_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row100 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_100_0
   simp only [← c4118, ← c4119, ← c4120] at e_100_0
   have hr := e_100_0
@@ -12045,7 +12045,7 @@ theorem privateBatchWrapper8_f481 (a : Assignment p) (h : Satisfies (privateBatc
   have c4121 := (privateBatchWrapper8_copies128 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4122 := (privateBatchWrapper8_copies128 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4123 := (privateBatchWrapper8_copies128 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_100_1 := arithEq_of_rows h (row := 100) (i := 1) rfl (by decide)
+  have e_100_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row100 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_100_1
   simp only [← c4121, ← c4122, ← c4123] at e_100_1
   have hr := e_100_1
@@ -12057,7 +12057,7 @@ theorem privateBatchWrapper8_f482 (a : Assignment p) (h : Satisfies (privateBatc
   have c4124 := (privateBatchWrapper8_copies128 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4125 := (privateBatchWrapper8_copies128 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4126 := (privateBatchWrapper8_copies128 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_100_2 := arithEq_of_rows h (row := 100) (i := 2) rfl (by decide)
+  have e_100_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row100 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_100_2
   simp only [← c4124, ← c4125, ← c4126] at e_100_2
   have hr := e_100_2
@@ -12069,7 +12069,7 @@ theorem privateBatchWrapper8_f483 (a : Assignment p) (h : Satisfies (privateBatc
   have c4127 := (privateBatchWrapper8_copies128 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c4128 := (privateBatchWrapper8_copies129 a h).1
   have c4129 := (privateBatchWrapper8_copies129 a h).2.1
-  have e_100_3 := arithEq_of_rows h (row := 100) (i := 3) rfl (by decide)
+  have e_100_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row100 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_100_3
   simp only [← c4127, ← c4128, ← c4129] at e_100_3
   have hr := e_100_3
@@ -12088,7 +12088,7 @@ theorem privateBatchWrapper8_f485 (a : Assignment p) (h : Satisfies (privateBatc
   have c810 := (privateBatchWrapper8_copies25 a h).2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_19_7 := arithEq_of_rows h (row := 19) (i := 7) rfl (by decide)
+  have e_19_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row19 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_7
   simp only [← c808, k3, ← c809, k3, ← c810] at e_19_7
   have hr := e_19_7
@@ -12100,7 +12100,7 @@ theorem privateBatchWrapper8_f486 (a : Assignment p) (h : Satisfies (privateBatc
   have c4131 := (privateBatchWrapper8_copies129 a h).2.2.2.1
   have c4132 := (privateBatchWrapper8_copies129 a h).2.2.2.2.1
   have c4133 := (privateBatchWrapper8_copies129 a h).2.2.2.2.2.1
-  have e_100_4 := arithEq_of_rows h (row := 100) (i := 4) rfl (by decide)
+  have e_100_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row100 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_100_4
   simp only [← c4131, ← c4132, ← c4133] at e_100_4
   have hr := e_100_4
@@ -12128,19 +12128,19 @@ theorem privateBatchWrapper8_f487 (a : Assignment p) (h : Satisfies (privateBatc
   have c4150 := (privateBatchWrapper8_copies129 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_99_7 := arithEq_of_rows h (row := 99) (i := 7) rfl (by decide)
+  have e_99_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row99 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_99_7
   simp only [← c4134, k3, ← c4135, k3, ← c4136] at e_99_7
-  have e_99_8 := arithEq_of_rows h (row := 99) (i := 8) rfl (by decide)
+  have e_99_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row99 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_99_8
   simp only [← c4137, ← c4138, k3, ← c4139] at e_99_8
-  have e_99_9 := arithEq_of_rows h (row := 99) (i := 9) rfl (by decide)
+  have e_99_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row99 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_99_9
   simp only [← c4146, ← c4147, k3, ← c4148] at e_99_9
-  have e_100_5 := arithEq_of_rows h (row := 100) (i := 5) rfl (by decide)
+  have e_100_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row100 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_100_5
   simp only [← c4140, ← c4141, ← c4142] at e_100_5
-  have e_100_6 := arithEq_of_rows h (row := 100) (i := 6) rfl (by decide)
+  have e_100_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row100 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_100_6
   simp only [← c4143, ← c4144, ← c4145] at e_100_6
   refine ⟨?_, ?_⟩
@@ -12172,19 +12172,19 @@ theorem privateBatchWrapper8_f488 (a : Assignment p) (h : Satisfies (privateBatc
   have c4167 := (privateBatchWrapper8_copies130 a h).2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_99_10 := arithEq_of_rows h (row := 99) (i := 10) rfl (by decide)
+  have e_99_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row99 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_99_10
   simp only [← c4151, k3, ← c4152, k3, ← c4153] at e_99_10
-  have e_99_11 := arithEq_of_rows h (row := 99) (i := 11) rfl (by decide)
+  have e_99_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row99 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_99_11
   simp only [← c4154, ← c4155, k3, ← c4156] at e_99_11
-  have e_99_12 := arithEq_of_rows h (row := 99) (i := 12) rfl (by decide)
+  have e_99_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row99 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_99_12
   simp only [← c4163, ← c4164, k3, ← c4165] at e_99_12
-  have e_100_7 := arithEq_of_rows h (row := 100) (i := 7) rfl (by decide)
+  have e_100_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row100 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_100_7
   simp only [← c4157, ← c4158, ← c4159] at e_100_7
-  have e_100_8 := arithEq_of_rows h (row := 100) (i := 8) rfl (by decide)
+  have e_100_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row100 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_100_8
   simp only [← c4160, ← c4161, ← c4162] at e_100_8
   refine ⟨?_, ?_⟩
@@ -12216,19 +12216,19 @@ theorem privateBatchWrapper8_f489 (a : Assignment p) (h : Satisfies (privateBatc
   have c4184 := (privateBatchWrapper8_copies130 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_99_13 := arithEq_of_rows h (row := 99) (i := 13) rfl (by decide)
+  have e_99_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row99 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_99_13
   simp only [← c4168, k3, ← c4169, k3, ← c4170] at e_99_13
-  have e_99_14 := arithEq_of_rows h (row := 99) (i := 14) rfl (by decide)
+  have e_99_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row99 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_99_14
   simp only [← c4171, ← c4172, k3, ← c4173] at e_99_14
-  have e_100_9 := arithEq_of_rows h (row := 100) (i := 9) rfl (by decide)
+  have e_100_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row100 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_100_9
   simp only [← c4174, ← c4175, ← c4176] at e_100_9
-  have e_100_10 := arithEq_of_rows h (row := 100) (i := 10) rfl (by decide)
+  have e_100_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row100 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_100_10
   simp only [← c4177, ← c4178, ← c4179] at e_100_10
-  have e_101_0 := arithEq_of_rows h (row := 101) (i := 0) rfl (by decide)
+  have e_101_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row101 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_101_0
   simp only [← c4180, ← c4181, k3, ← c4182] at e_101_0
   refine ⟨?_, ?_⟩
@@ -12260,19 +12260,19 @@ theorem privateBatchWrapper8_f490 (a : Assignment p) (h : Satisfies (privateBatc
   have c4201 := (privateBatchWrapper8_copies131 a h).2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_100_11 := arithEq_of_rows h (row := 100) (i := 11) rfl (by decide)
+  have e_100_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row100 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_100_11
   simp only [← c4191, ← c4192, ← c4193] at e_100_11
-  have e_100_12 := arithEq_of_rows h (row := 100) (i := 12) rfl (by decide)
+  have e_100_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row100 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_100_12
   simp only [← c4194, ← c4195, ← c4196] at e_100_12
-  have e_101_1 := arithEq_of_rows h (row := 101) (i := 1) rfl (by decide)
+  have e_101_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row101 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_101_1
   simp only [← c4185, k3, ← c4186, k3, ← c4187] at e_101_1
-  have e_101_2 := arithEq_of_rows h (row := 101) (i := 2) rfl (by decide)
+  have e_101_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row101 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_101_2
   simp only [← c4188, ← c4189, k3, ← c4190] at e_101_2
-  have e_101_3 := arithEq_of_rows h (row := 101) (i := 3) rfl (by decide)
+  have e_101_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row101 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_101_3
   simp only [← c4197, ← c4198, k3, ← c4199] at e_101_3
   refine ⟨?_, ?_⟩
@@ -12288,7 +12288,7 @@ theorem privateBatchWrapper8_f491 (a : Assignment p) (h : Satisfies (privateBatc
   have c4202 := (privateBatchWrapper8_copies131 a h).2.2.2.2.2.2.2.2.2.2.1
   have c4203 := (privateBatchWrapper8_copies131 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c4204 := (privateBatchWrapper8_copies131 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_100_13 := arithEq_of_rows h (row := 100) (i := 13) rfl (by decide)
+  have e_100_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row100 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_100_13
   simp only [← c4202, ← c4203, ← c4204] at e_100_13
   have hr := e_100_13
@@ -12300,7 +12300,7 @@ theorem privateBatchWrapper8_f492 (a : Assignment p) (h : Satisfies (privateBatc
   have c4205 := (privateBatchWrapper8_copies131 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4206 := (privateBatchWrapper8_copies131 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4207 := (privateBatchWrapper8_copies131 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_100_14 := arithEq_of_rows h (row := 100) (i := 14) rfl (by decide)
+  have e_100_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row100 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_100_14
   simp only [← c4205, ← c4206, ← c4207] at e_100_14
   have hr := e_100_14
@@ -12312,7 +12312,7 @@ theorem privateBatchWrapper8_f493 (a : Assignment p) (h : Satisfies (privateBatc
   have c4208 := (privateBatchWrapper8_copies131 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4209 := (privateBatchWrapper8_copies131 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4210 := (privateBatchWrapper8_copies131 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_102_0 := arithEq_of_rows h (row := 102) (i := 0) rfl (by decide)
+  have e_102_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row102 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_102_0
   simp only [← c4208, ← c4209, ← c4210] at e_102_0
   have hr := e_102_0
@@ -12324,7 +12324,7 @@ theorem privateBatchWrapper8_f494 (a : Assignment p) (h : Satisfies (privateBatc
   have c4211 := (privateBatchWrapper8_copies131 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4212 := (privateBatchWrapper8_copies131 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4213 := (privateBatchWrapper8_copies131 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_102_1 := arithEq_of_rows h (row := 102) (i := 1) rfl (by decide)
+  have e_102_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row102 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_102_1
   simp only [← c4211, ← c4212, ← c4213] at e_102_1
   have hr := e_102_1
@@ -12343,7 +12343,7 @@ theorem privateBatchWrapper8_f496 (a : Assignment p) (h : Satisfies (privateBatc
   have c630 := (privateBatchWrapper8_copies19 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_15_4 := arithEq_of_rows h (row := 15) (i := 4) rfl (by decide)
+  have e_15_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row15 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_15_4
   simp only [← c628, k3, ← c629, k3, ← c630] at e_15_4
   have hr := e_15_4
@@ -12357,7 +12357,7 @@ theorem privateBatchWrapper8_f497 (a : Assignment p) (h : Satisfies (privateBatc
   have c675 := (privateBatchWrapper8_copies21 a h).2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_16_1 := arithEq_of_rows h (row := 16) (i := 1) rfl (by decide)
+  have e_16_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_1
   simp only [← c673, k3, ← c674, k3, ← c675] at e_16_1
   have hr := e_16_1
@@ -12369,7 +12369,7 @@ theorem privateBatchWrapper8_f498 (a : Assignment p) (h : Satisfies (privateBatc
   have c4215 := (privateBatchWrapper8_copies131 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4216 := (privateBatchWrapper8_copies131 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4217 := (privateBatchWrapper8_copies131 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_102_2 := arithEq_of_rows h (row := 102) (i := 2) rfl (by decide)
+  have e_102_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row102 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_102_2
   simp only [← c4215, ← c4216, ← c4217] at e_102_2
   have hr := e_102_2
@@ -12397,19 +12397,19 @@ theorem privateBatchWrapper8_f499 (a : Assignment p) (h : Satisfies (privateBatc
   have c4234 := (privateBatchWrapper8_copies132 a h).2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_101_4 := arithEq_of_rows h (row := 101) (i := 4) rfl (by decide)
+  have e_101_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row101 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_101_4
   simp only [← c4218, k3, ← c4219, k3, ← c4220] at e_101_4
-  have e_101_5 := arithEq_of_rows h (row := 101) (i := 5) rfl (by decide)
+  have e_101_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row101 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_101_5
   simp only [← c4221, ← c4222, k3, ← c4223] at e_101_5
-  have e_101_6 := arithEq_of_rows h (row := 101) (i := 6) rfl (by decide)
+  have e_101_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row101 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_101_6
   simp only [← c4230, ← c4231, k3, ← c4232] at e_101_6
-  have e_102_3 := arithEq_of_rows h (row := 102) (i := 3) rfl (by decide)
+  have e_102_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row102 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_102_3
   simp only [← c4224, ← c4225, ← c4226] at e_102_3
-  have e_102_4 := arithEq_of_rows h (row := 102) (i := 4) rfl (by decide)
+  have e_102_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row102 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_102_4
   simp only [← c4227, ← c4228, ← c4229] at e_102_4
   refine ⟨?_, ?_⟩
@@ -12441,19 +12441,19 @@ theorem privateBatchWrapper8_f500 (a : Assignment p) (h : Satisfies (privateBatc
   have c4251 := (privateBatchWrapper8_copies132 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_101_7 := arithEq_of_rows h (row := 101) (i := 7) rfl (by decide)
+  have e_101_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row101 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_101_7
   simp only [← c4235, k3, ← c4236, k3, ← c4237] at e_101_7
-  have e_101_8 := arithEq_of_rows h (row := 101) (i := 8) rfl (by decide)
+  have e_101_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row101 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_101_8
   simp only [← c4238, ← c4239, k3, ← c4240] at e_101_8
-  have e_101_9 := arithEq_of_rows h (row := 101) (i := 9) rfl (by decide)
+  have e_101_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row101 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_101_9
   simp only [← c4247, ← c4248, k3, ← c4249] at e_101_9
-  have e_102_5 := arithEq_of_rows h (row := 102) (i := 5) rfl (by decide)
+  have e_102_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row102 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_102_5
   simp only [← c4241, ← c4242, ← c4243] at e_102_5
-  have e_102_6 := arithEq_of_rows h (row := 102) (i := 6) rfl (by decide)
+  have e_102_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row102 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_102_6
   simp only [← c4244, ← c4245, ← c4246] at e_102_6
   refine ⟨?_, ?_⟩
@@ -12485,19 +12485,19 @@ theorem privateBatchWrapper8_f501 (a : Assignment p) (h : Satisfies (privateBatc
   have c4268 := (privateBatchWrapper8_copies133 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_101_10 := arithEq_of_rows h (row := 101) (i := 10) rfl (by decide)
+  have e_101_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row101 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_101_10
   simp only [← c4252, k3, ← c4253, k3, ← c4254] at e_101_10
-  have e_101_11 := arithEq_of_rows h (row := 101) (i := 11) rfl (by decide)
+  have e_101_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row101 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_101_11
   simp only [← c4255, ← c4256, k3, ← c4257] at e_101_11
-  have e_101_12 := arithEq_of_rows h (row := 101) (i := 12) rfl (by decide)
+  have e_101_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row101 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_101_12
   simp only [← c4264, ← c4265, k3, ← c4266] at e_101_12
-  have e_102_7 := arithEq_of_rows h (row := 102) (i := 7) rfl (by decide)
+  have e_102_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row102 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_102_7
   simp only [← c4258, ← c4259, ← c4260] at e_102_7
-  have e_102_8 := arithEq_of_rows h (row := 102) (i := 8) rfl (by decide)
+  have e_102_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row102 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_102_8
   simp only [← c4261, ← c4262, ← c4263] at e_102_8
   refine ⟨?_, ?_⟩
@@ -12529,19 +12529,19 @@ theorem privateBatchWrapper8_f502 (a : Assignment p) (h : Satisfies (privateBatc
   have c4285 := (privateBatchWrapper8_copies133 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_101_13 := arithEq_of_rows h (row := 101) (i := 13) rfl (by decide)
+  have e_101_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row101 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_101_13
   simp only [← c4269, k3, ← c4270, k3, ← c4271] at e_101_13
-  have e_101_14 := arithEq_of_rows h (row := 101) (i := 14) rfl (by decide)
+  have e_101_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row101 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_101_14
   simp only [← c4272, ← c4273, k3, ← c4274] at e_101_14
-  have e_102_9 := arithEq_of_rows h (row := 102) (i := 9) rfl (by decide)
+  have e_102_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row102 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_102_9
   simp only [← c4275, ← c4276, ← c4277] at e_102_9
-  have e_102_10 := arithEq_of_rows h (row := 102) (i := 10) rfl (by decide)
+  have e_102_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row102 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_102_10
   simp only [← c4278, ← c4279, ← c4280] at e_102_10
-  have e_103_0 := arithEq_of_rows h (row := 103) (i := 0) rfl (by decide)
+  have e_103_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row103 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_103_0
   simp only [← c4281, ← c4282, k3, ← c4283] at e_103_0
   refine ⟨?_, ?_⟩
@@ -12557,7 +12557,7 @@ theorem privateBatchWrapper8_f503 (a : Assignment p) (h : Satisfies (privateBatc
   have c4286 := (privateBatchWrapper8_copies133 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4287 := (privateBatchWrapper8_copies133 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c4288 := (privateBatchWrapper8_copies134 a h).1
-  have e_102_11 := arithEq_of_rows h (row := 102) (i := 11) rfl (by decide)
+  have e_102_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row102 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_102_11
   simp only [← c4286, ← c4287, ← c4288] at e_102_11
   have hr := e_102_11
@@ -12569,7 +12569,7 @@ theorem privateBatchWrapper8_f504 (a : Assignment p) (h : Satisfies (privateBatc
   have c4289 := (privateBatchWrapper8_copies134 a h).2.1
   have c4290 := (privateBatchWrapper8_copies134 a h).2.2.1
   have c4291 := (privateBatchWrapper8_copies134 a h).2.2.2.1
-  have e_102_12 := arithEq_of_rows h (row := 102) (i := 12) rfl (by decide)
+  have e_102_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row102 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_102_12
   simp only [← c4289, ← c4290, ← c4291] at e_102_12
   have hr := e_102_12
@@ -12581,7 +12581,7 @@ theorem privateBatchWrapper8_f505 (a : Assignment p) (h : Satisfies (privateBatc
   have c4292 := (privateBatchWrapper8_copies134 a h).2.2.2.2.1
   have c4293 := (privateBatchWrapper8_copies134 a h).2.2.2.2.2.1
   have c4294 := (privateBatchWrapper8_copies134 a h).2.2.2.2.2.2.1
-  have e_102_13 := arithEq_of_rows h (row := 102) (i := 13) rfl (by decide)
+  have e_102_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row102 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_102_13
   simp only [← c4292, ← c4293, ← c4294] at e_102_13
   have hr := e_102_13
@@ -12593,7 +12593,7 @@ theorem privateBatchWrapper8_f506 (a : Assignment p) (h : Satisfies (privateBatc
   have c4295 := (privateBatchWrapper8_copies134 a h).2.2.2.2.2.2.2.1
   have c4296 := (privateBatchWrapper8_copies134 a h).2.2.2.2.2.2.2.2.1
   have c4297 := (privateBatchWrapper8_copies134 a h).2.2.2.2.2.2.2.2.2.1
-  have e_102_14 := arithEq_of_rows h (row := 102) (i := 14) rfl (by decide)
+  have e_102_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row102 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_102_14
   simp only [← c4295, ← c4296, ← c4297] at e_102_14
   have hr := e_102_14
@@ -12612,7 +12612,7 @@ theorem privateBatchWrapper8_f508 (a : Assignment p) (h : Satisfies (privateBatc
   have c720 := (privateBatchWrapper8_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_16_13 := arithEq_of_rows h (row := 16) (i := 13) rfl (by decide)
+  have e_16_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_13
   simp only [← c718, k3, ← c719, k3, ← c720] at e_16_13
   have hr := e_16_13
@@ -12624,7 +12624,7 @@ theorem privateBatchWrapper8_f509 (a : Assignment p) (h : Satisfies (privateBatc
   have c4299 := (privateBatchWrapper8_copies134 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c4300 := (privateBatchWrapper8_copies134 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4301 := (privateBatchWrapper8_copies134 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_104_0 := arithEq_of_rows h (row := 104) (i := 0) rfl (by decide)
+  have e_104_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_0
   simp only [← c4299, ← c4300, ← c4301] at e_104_0
   have hr := e_104_0
@@ -12652,19 +12652,19 @@ theorem privateBatchWrapper8_f510 (a : Assignment p) (h : Satisfies (privateBatc
   have c4318 := (privateBatchWrapper8_copies134 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_103_1 := arithEq_of_rows h (row := 103) (i := 1) rfl (by decide)
+  have e_103_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row103 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_103_1
   simp only [← c4302, k3, ← c4303, k3, ← c4304] at e_103_1
-  have e_103_2 := arithEq_of_rows h (row := 103) (i := 2) rfl (by decide)
+  have e_103_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row103 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_103_2
   simp only [← c4305, ← c4306, k3, ← c4307] at e_103_2
-  have e_103_3 := arithEq_of_rows h (row := 103) (i := 3) rfl (by decide)
+  have e_103_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row103 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_103_3
   simp only [← c4314, ← c4315, k3, ← c4316] at e_103_3
-  have e_104_1 := arithEq_of_rows h (row := 104) (i := 1) rfl (by decide)
+  have e_104_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_1
   simp only [← c4308, ← c4309, ← c4310] at e_104_1
-  have e_104_2 := arithEq_of_rows h (row := 104) (i := 2) rfl (by decide)
+  have e_104_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_2
   simp only [← c4311, ← c4312, ← c4313] at e_104_2
   refine ⟨?_, ?_⟩
@@ -12696,19 +12696,19 @@ theorem privateBatchWrapper8_f511 (a : Assignment p) (h : Satisfies (privateBatc
   have c4335 := (privateBatchWrapper8_copies135 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_103_4 := arithEq_of_rows h (row := 103) (i := 4) rfl (by decide)
+  have e_103_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row103 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_103_4
   simp only [← c4319, k3, ← c4320, k3, ← c4321] at e_103_4
-  have e_103_5 := arithEq_of_rows h (row := 103) (i := 5) rfl (by decide)
+  have e_103_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row103 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_103_5
   simp only [← c4322, ← c4323, k3, ← c4324] at e_103_5
-  have e_103_6 := arithEq_of_rows h (row := 103) (i := 6) rfl (by decide)
+  have e_103_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row103 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_103_6
   simp only [← c4331, ← c4332, k3, ← c4333] at e_103_6
-  have e_104_3 := arithEq_of_rows h (row := 104) (i := 3) rfl (by decide)
+  have e_104_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_3
   simp only [← c4325, ← c4326, ← c4327] at e_104_3
-  have e_104_4 := arithEq_of_rows h (row := 104) (i := 4) rfl (by decide)
+  have e_104_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_4
   simp only [← c4328, ← c4329, ← c4330] at e_104_4
   refine ⟨?_, ?_⟩
@@ -12740,19 +12740,19 @@ theorem privateBatchWrapper8_f512 (a : Assignment p) (h : Satisfies (privateBatc
   have c4352 := (privateBatchWrapper8_copies136 a h).1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_103_7 := arithEq_of_rows h (row := 103) (i := 7) rfl (by decide)
+  have e_103_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row103 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_103_7
   simp only [← c4336, k3, ← c4337, k3, ← c4338] at e_103_7
-  have e_103_8 := arithEq_of_rows h (row := 103) (i := 8) rfl (by decide)
+  have e_103_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row103 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_103_8
   simp only [← c4339, ← c4340, k3, ← c4341] at e_103_8
-  have e_103_9 := arithEq_of_rows h (row := 103) (i := 9) rfl (by decide)
+  have e_103_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row103 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_103_9
   simp only [← c4348, ← c4349, k3, ← c4350] at e_103_9
-  have e_104_5 := arithEq_of_rows h (row := 104) (i := 5) rfl (by decide)
+  have e_104_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_5
   simp only [← c4342, ← c4343, ← c4344] at e_104_5
-  have e_104_6 := arithEq_of_rows h (row := 104) (i := 6) rfl (by decide)
+  have e_104_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_6
   simp only [← c4345, ← c4346, ← c4347] at e_104_6
   refine ⟨?_, ?_⟩
@@ -12784,19 +12784,19 @@ theorem privateBatchWrapper8_f513 (a : Assignment p) (h : Satisfies (privateBatc
   have c4369 := (privateBatchWrapper8_copies136 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_103_10 := arithEq_of_rows h (row := 103) (i := 10) rfl (by decide)
+  have e_103_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row103 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_103_10
   simp only [← c4353, k3, ← c4354, k3, ← c4355] at e_103_10
-  have e_103_11 := arithEq_of_rows h (row := 103) (i := 11) rfl (by decide)
+  have e_103_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row103 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_103_11
   simp only [← c4356, ← c4357, k3, ← c4358] at e_103_11
-  have e_103_12 := arithEq_of_rows h (row := 103) (i := 12) rfl (by decide)
+  have e_103_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row103 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_103_12
   simp only [← c4365, ← c4366, k3, ← c4367] at e_103_12
-  have e_104_7 := arithEq_of_rows h (row := 104) (i := 7) rfl (by decide)
+  have e_104_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_7
   simp only [← c4359, ← c4360, ← c4361] at e_104_7
-  have e_104_8 := arithEq_of_rows h (row := 104) (i := 8) rfl (by decide)
+  have e_104_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_8
   simp only [← c4362, ← c4363, ← c4364] at e_104_8
   refine ⟨?_, ?_⟩
@@ -12812,7 +12812,7 @@ theorem privateBatchWrapper8_f514 (a : Assignment p) (h : Satisfies (privateBatc
   have c4370 := (privateBatchWrapper8_copies136 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4371 := (privateBatchWrapper8_copies136 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4372 := (privateBatchWrapper8_copies136 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_104_9 := arithEq_of_rows h (row := 104) (i := 9) rfl (by decide)
+  have e_104_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_9
   simp only [← c4370, ← c4371, ← c4372] at e_104_9
   have hr := e_104_9
@@ -12824,7 +12824,7 @@ theorem privateBatchWrapper8_f515 (a : Assignment p) (h : Satisfies (privateBatc
   have c4373 := (privateBatchWrapper8_copies136 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4374 := (privateBatchWrapper8_copies136 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4375 := (privateBatchWrapper8_copies136 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_104_10 := arithEq_of_rows h (row := 104) (i := 10) rfl (by decide)
+  have e_104_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_10
   simp only [← c4373, ← c4374, ← c4375] at e_104_10
   have hr := e_104_10
@@ -12836,7 +12836,7 @@ theorem privateBatchWrapper8_f516 (a : Assignment p) (h : Satisfies (privateBatc
   have c4376 := (privateBatchWrapper8_copies136 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4377 := (privateBatchWrapper8_copies136 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4378 := (privateBatchWrapper8_copies136 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_104_11 := arithEq_of_rows h (row := 104) (i := 11) rfl (by decide)
+  have e_104_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_11
   simp only [← c4376, ← c4377, ← c4378] at e_104_11
   have hr := e_104_11
@@ -12848,7 +12848,7 @@ theorem privateBatchWrapper8_f517 (a : Assignment p) (h : Satisfies (privateBatc
   have c4379 := (privateBatchWrapper8_copies136 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4380 := (privateBatchWrapper8_copies136 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4381 := (privateBatchWrapper8_copies136 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_104_12 := arithEq_of_rows h (row := 104) (i := 12) rfl (by decide)
+  have e_104_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_12
   simp only [← c4379, ← c4380, ← c4381] at e_104_12
   have hr := e_104_12
@@ -12867,7 +12867,7 @@ theorem privateBatchWrapper8_f519 (a : Assignment p) (h : Satisfies (privateBatc
   have c765 := (privateBatchWrapper8_copies23 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_17_10 := arithEq_of_rows h (row := 17) (i := 10) rfl (by decide)
+  have e_17_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row17 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_10
   simp only [← c763, k3, ← c764, k3, ← c765] at e_17_10
   have hr := e_17_10
@@ -12879,7 +12879,7 @@ theorem privateBatchWrapper8_f520 (a : Assignment p) (h : Satisfies (privateBatc
   have c4383 := (privateBatchWrapper8_copies136 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c4384 := (privateBatchWrapper8_copies137 a h).1
   have c4385 := (privateBatchWrapper8_copies137 a h).2.1
-  have e_104_13 := arithEq_of_rows h (row := 104) (i := 13) rfl (by decide)
+  have e_104_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_13
   simp only [← c4383, ← c4384, ← c4385] at e_104_13
   have hr := e_104_13
@@ -12907,19 +12907,19 @@ theorem privateBatchWrapper8_f521 (a : Assignment p) (h : Satisfies (privateBatc
   have c4402 := (privateBatchWrapper8_copies137 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_103_13 := arithEq_of_rows h (row := 103) (i := 13) rfl (by decide)
+  have e_103_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row103 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_103_13
   simp only [← c4386, k3, ← c4387, k3, ← c4388] at e_103_13
-  have e_103_14 := arithEq_of_rows h (row := 103) (i := 14) rfl (by decide)
+  have e_103_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row103 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_103_14
   simp only [← c4389, ← c4390, k3, ← c4391] at e_103_14
-  have e_104_14 := arithEq_of_rows h (row := 104) (i := 14) rfl (by decide)
+  have e_104_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row104 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_104_14
   simp only [← c4392, ← c4393, ← c4394] at e_104_14
-  have e_105_0 := arithEq_of_rows h (row := 105) (i := 0) rfl (by decide)
+  have e_105_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row105 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_105_0
   simp only [← c4395, ← c4396, ← c4397] at e_105_0
-  have e_106_0 := arithEq_of_rows h (row := 106) (i := 0) rfl (by decide)
+  have e_106_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row106 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_106_0
   simp only [← c4398, ← c4399, k3, ← c4400] at e_106_0
   refine ⟨?_, ?_⟩
@@ -12951,19 +12951,19 @@ theorem privateBatchWrapper8_f522 (a : Assignment p) (h : Satisfies (privateBatc
   have c4419 := (privateBatchWrapper8_copies138 a h).2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_105_1 := arithEq_of_rows h (row := 105) (i := 1) rfl (by decide)
+  have e_105_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row105 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_105_1
   simp only [← c4409, ← c4410, ← c4411] at e_105_1
-  have e_105_2 := arithEq_of_rows h (row := 105) (i := 2) rfl (by decide)
+  have e_105_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row105 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_105_2
   simp only [← c4412, ← c4413, ← c4414] at e_105_2
-  have e_106_1 := arithEq_of_rows h (row := 106) (i := 1) rfl (by decide)
+  have e_106_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row106 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_106_1
   simp only [← c4403, k3, ← c4404, k3, ← c4405] at e_106_1
-  have e_106_2 := arithEq_of_rows h (row := 106) (i := 2) rfl (by decide)
+  have e_106_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row106 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_106_2
   simp only [← c4406, ← c4407, k3, ← c4408] at e_106_2
-  have e_106_3 := arithEq_of_rows h (row := 106) (i := 3) rfl (by decide)
+  have e_106_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row106 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_106_3
   simp only [← c4415, ← c4416, k3, ← c4417] at e_106_3
   refine ⟨?_, ?_⟩
@@ -12995,19 +12995,19 @@ theorem privateBatchWrapper8_f523 (a : Assignment p) (h : Satisfies (privateBatc
   have c4436 := (privateBatchWrapper8_copies138 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_105_3 := arithEq_of_rows h (row := 105) (i := 3) rfl (by decide)
+  have e_105_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row105 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_105_3
   simp only [← c4426, ← c4427, ← c4428] at e_105_3
-  have e_105_4 := arithEq_of_rows h (row := 105) (i := 4) rfl (by decide)
+  have e_105_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row105 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_105_4
   simp only [← c4429, ← c4430, ← c4431] at e_105_4
-  have e_106_4 := arithEq_of_rows h (row := 106) (i := 4) rfl (by decide)
+  have e_106_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row106 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_106_4
   simp only [← c4420, k3, ← c4421, k3, ← c4422] at e_106_4
-  have e_106_5 := arithEq_of_rows h (row := 106) (i := 5) rfl (by decide)
+  have e_106_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row106 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_106_5
   simp only [← c4423, ← c4424, k3, ← c4425] at e_106_5
-  have e_106_6 := arithEq_of_rows h (row := 106) (i := 6) rfl (by decide)
+  have e_106_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row106 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_106_6
   simp only [← c4432, ← c4433, k3, ← c4434] at e_106_6
   refine ⟨?_, ?_⟩
@@ -13039,19 +13039,19 @@ theorem privateBatchWrapper8_f524 (a : Assignment p) (h : Satisfies (privateBatc
   have c4453 := (privateBatchWrapper8_copies139 a h).2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_105_5 := arithEq_of_rows h (row := 105) (i := 5) rfl (by decide)
+  have e_105_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row105 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_105_5
   simp only [← c4443, ← c4444, ← c4445] at e_105_5
-  have e_105_6 := arithEq_of_rows h (row := 105) (i := 6) rfl (by decide)
+  have e_105_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row105 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_105_6
   simp only [← c4446, ← c4447, ← c4448] at e_105_6
-  have e_106_7 := arithEq_of_rows h (row := 106) (i := 7) rfl (by decide)
+  have e_106_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row106 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_106_7
   simp only [← c4437, k3, ← c4438, k3, ← c4439] at e_106_7
-  have e_106_8 := arithEq_of_rows h (row := 106) (i := 8) rfl (by decide)
+  have e_106_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row106 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_106_8
   simp only [← c4440, ← c4441, k3, ← c4442] at e_106_8
-  have e_106_9 := arithEq_of_rows h (row := 106) (i := 9) rfl (by decide)
+  have e_106_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row106 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_106_9
   simp only [← c4449, ← c4450, k3, ← c4451] at e_106_9
   refine ⟨?_, ?_⟩
@@ -13067,7 +13067,7 @@ theorem privateBatchWrapper8_f525 (a : Assignment p) (h : Satisfies (privateBatc
   have c4454 := (privateBatchWrapper8_copies139 a h).2.2.2.2.2.2.1
   have c4455 := (privateBatchWrapper8_copies139 a h).2.2.2.2.2.2.2.1
   have c4456 := (privateBatchWrapper8_copies139 a h).2.2.2.2.2.2.2.2.1
-  have e_105_7 := arithEq_of_rows h (row := 105) (i := 7) rfl (by decide)
+  have e_105_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row105 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_105_7
   simp only [← c4454, ← c4455, ← c4456] at e_105_7
   have hr := e_105_7
@@ -13079,7 +13079,7 @@ theorem privateBatchWrapper8_f526 (a : Assignment p) (h : Satisfies (privateBatc
   have c4457 := (privateBatchWrapper8_copies139 a h).2.2.2.2.2.2.2.2.2.1
   have c4458 := (privateBatchWrapper8_copies139 a h).2.2.2.2.2.2.2.2.2.2.1
   have c4459 := (privateBatchWrapper8_copies139 a h).2.2.2.2.2.2.2.2.2.2.2.1
-  have e_105_8 := arithEq_of_rows h (row := 105) (i := 8) rfl (by decide)
+  have e_105_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row105 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_105_8
   simp only [← c4457, ← c4458, ← c4459] at e_105_8
   have hr := e_105_8
@@ -13091,7 +13091,7 @@ theorem privateBatchWrapper8_f527 (a : Assignment p) (h : Satisfies (privateBatc
   have c4460 := (privateBatchWrapper8_copies139 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4461 := (privateBatchWrapper8_copies139 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4462 := (privateBatchWrapper8_copies139 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_105_9 := arithEq_of_rows h (row := 105) (i := 9) rfl (by decide)
+  have e_105_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row105 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_105_9
   simp only [← c4460, ← c4461, ← c4462] at e_105_9
   have hr := e_105_9
@@ -13103,7 +13103,7 @@ theorem privateBatchWrapper8_f528 (a : Assignment p) (h : Satisfies (privateBatc
   have c4463 := (privateBatchWrapper8_copies139 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4464 := (privateBatchWrapper8_copies139 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4465 := (privateBatchWrapper8_copies139 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_105_10 := arithEq_of_rows h (row := 105) (i := 10) rfl (by decide)
+  have e_105_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row105 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_105_10
   simp only [← c4463, ← c4464, ← c4465] at e_105_10
   have hr := e_105_10
@@ -13122,7 +13122,7 @@ theorem privateBatchWrapper8_f530 (a : Assignment p) (h : Satisfies (privateBatc
   have c810 := (privateBatchWrapper8_copies25 a h).2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_19_7 := arithEq_of_rows h (row := 19) (i := 7) rfl (by decide)
+  have e_19_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row19 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_7
   simp only [← c808, k3, ← c809, k3, ← c810] at e_19_7
   have hr := e_19_7
@@ -13134,7 +13134,7 @@ theorem privateBatchWrapper8_f531 (a : Assignment p) (h : Satisfies (privateBatc
   have c4467 := (privateBatchWrapper8_copies139 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4468 := (privateBatchWrapper8_copies139 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4469 := (privateBatchWrapper8_copies139 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_105_11 := arithEq_of_rows h (row := 105) (i := 11) rfl (by decide)
+  have e_105_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row105 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_105_11
   simp only [← c4467, ← c4468, ← c4469] at e_105_11
   have hr := e_105_11
@@ -13162,19 +13162,19 @@ theorem privateBatchWrapper8_f532 (a : Assignment p) (h : Satisfies (privateBatc
   have c4486 := (privateBatchWrapper8_copies140 a h).2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_105_12 := arithEq_of_rows h (row := 105) (i := 12) rfl (by decide)
+  have e_105_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row105 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_105_12
   simp only [← c4476, ← c4477, ← c4478] at e_105_12
-  have e_105_13 := arithEq_of_rows h (row := 105) (i := 13) rfl (by decide)
+  have e_105_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row105 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_105_13
   simp only [← c4479, ← c4480, ← c4481] at e_105_13
-  have e_106_10 := arithEq_of_rows h (row := 106) (i := 10) rfl (by decide)
+  have e_106_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row106 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_106_10
   simp only [← c4470, k3, ← c4471, k3, ← c4472] at e_106_10
-  have e_106_11 := arithEq_of_rows h (row := 106) (i := 11) rfl (by decide)
+  have e_106_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row106 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_106_11
   simp only [← c4473, ← c4474, k3, ← c4475] at e_106_11
-  have e_106_12 := arithEq_of_rows h (row := 106) (i := 12) rfl (by decide)
+  have e_106_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row106 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_106_12
   simp only [← c4482, ← c4483, k3, ← c4484] at e_106_12
   refine ⟨?_, ?_⟩
@@ -13206,19 +13206,19 @@ theorem privateBatchWrapper8_f533 (a : Assignment p) (h : Satisfies (privateBatc
   have c4503 := (privateBatchWrapper8_copies140 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_105_14 := arithEq_of_rows h (row := 105) (i := 14) rfl (by decide)
+  have e_105_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row105 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_105_14
   simp only [← c4493, ← c4494, ← c4495] at e_105_14
-  have e_106_13 := arithEq_of_rows h (row := 106) (i := 13) rfl (by decide)
+  have e_106_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row106 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_106_13
   simp only [← c4487, k3, ← c4488, k3, ← c4489] at e_106_13
-  have e_106_14 := arithEq_of_rows h (row := 106) (i := 14) rfl (by decide)
+  have e_106_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row106 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_106_14
   simp only [← c4490, ← c4491, k3, ← c4492] at e_106_14
-  have e_107_0 := arithEq_of_rows h (row := 107) (i := 0) rfl (by decide)
+  have e_107_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row107 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_107_0
   simp only [← c4496, ← c4497, ← c4498] at e_107_0
-  have e_108_0 := arithEq_of_rows h (row := 108) (i := 0) rfl (by decide)
+  have e_108_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row108 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_108_0
   simp only [← c4499, ← c4500, k3, ← c4501] at e_108_0
   refine ⟨?_, ?_⟩
@@ -13250,19 +13250,19 @@ theorem privateBatchWrapper8_f534 (a : Assignment p) (h : Satisfies (privateBatc
   have c4520 := (privateBatchWrapper8_copies141 a h).2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_107_1 := arithEq_of_rows h (row := 107) (i := 1) rfl (by decide)
+  have e_107_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row107 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_107_1
   simp only [← c4510, ← c4511, ← c4512] at e_107_1
-  have e_107_2 := arithEq_of_rows h (row := 107) (i := 2) rfl (by decide)
+  have e_107_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row107 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_107_2
   simp only [← c4513, ← c4514, ← c4515] at e_107_2
-  have e_108_1 := arithEq_of_rows h (row := 108) (i := 1) rfl (by decide)
+  have e_108_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row108 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_108_1
   simp only [← c4504, k3, ← c4505, k3, ← c4506] at e_108_1
-  have e_108_2 := arithEq_of_rows h (row := 108) (i := 2) rfl (by decide)
+  have e_108_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row108 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_108_2
   simp only [← c4507, ← c4508, k3, ← c4509] at e_108_2
-  have e_108_3 := arithEq_of_rows h (row := 108) (i := 3) rfl (by decide)
+  have e_108_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row108 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_108_3
   simp only [← c4516, ← c4517, k3, ← c4518] at e_108_3
   refine ⟨?_, ?_⟩
@@ -13294,19 +13294,19 @@ theorem privateBatchWrapper8_f535 (a : Assignment p) (h : Satisfies (privateBatc
   have c4537 := (privateBatchWrapper8_copies141 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_107_3 := arithEq_of_rows h (row := 107) (i := 3) rfl (by decide)
+  have e_107_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row107 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_107_3
   simp only [← c4527, ← c4528, ← c4529] at e_107_3
-  have e_107_4 := arithEq_of_rows h (row := 107) (i := 4) rfl (by decide)
+  have e_107_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row107 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_107_4
   simp only [← c4530, ← c4531, ← c4532] at e_107_4
-  have e_108_4 := arithEq_of_rows h (row := 108) (i := 4) rfl (by decide)
+  have e_108_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row108 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_108_4
   simp only [← c4521, k3, ← c4522, k3, ← c4523] at e_108_4
-  have e_108_5 := arithEq_of_rows h (row := 108) (i := 5) rfl (by decide)
+  have e_108_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row108 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_108_5
   simp only [← c4524, ← c4525, k3, ← c4526] at e_108_5
-  have e_108_6 := arithEq_of_rows h (row := 108) (i := 6) rfl (by decide)
+  have e_108_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row108 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_108_6
   simp only [← c4533, ← c4534, k3, ← c4535] at e_108_6
   refine ⟨?_, ?_⟩
@@ -13322,7 +13322,7 @@ theorem privateBatchWrapper8_f536 (a : Assignment p) (h : Satisfies (privateBatc
   have c4538 := (privateBatchWrapper8_copies141 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4539 := (privateBatchWrapper8_copies141 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4540 := (privateBatchWrapper8_copies141 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_107_5 := arithEq_of_rows h (row := 107) (i := 5) rfl (by decide)
+  have e_107_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row107 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_107_5
   simp only [← c4538, ← c4539, ← c4540] at e_107_5
   have hr := e_107_5
@@ -13334,7 +13334,7 @@ theorem privateBatchWrapper8_f537 (a : Assignment p) (h : Satisfies (privateBatc
   have c4541 := (privateBatchWrapper8_copies141 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4542 := (privateBatchWrapper8_copies141 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4543 := (privateBatchWrapper8_copies141 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have e_107_6 := arithEq_of_rows h (row := 107) (i := 6) rfl (by decide)
+  have e_107_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row107 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_107_6
   simp only [← c4541, ← c4542, ← c4543] at e_107_6
   have hr := e_107_6
@@ -13346,7 +13346,7 @@ theorem privateBatchWrapper8_f538 (a : Assignment p) (h : Satisfies (privateBatc
   have c4544 := (privateBatchWrapper8_copies142 a h).1
   have c4545 := (privateBatchWrapper8_copies142 a h).2.1
   have c4546 := (privateBatchWrapper8_copies142 a h).2.2.1
-  have e_107_7 := arithEq_of_rows h (row := 107) (i := 7) rfl (by decide)
+  have e_107_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row107 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_107_7
   simp only [← c4544, ← c4545, ← c4546] at e_107_7
   have hr := e_107_7
@@ -13358,7 +13358,7 @@ theorem privateBatchWrapper8_f539 (a : Assignment p) (h : Satisfies (privateBatc
   have c4547 := (privateBatchWrapper8_copies142 a h).2.2.2.1
   have c4548 := (privateBatchWrapper8_copies142 a h).2.2.2.2.1
   have c4549 := (privateBatchWrapper8_copies142 a h).2.2.2.2.2.1
-  have e_107_8 := arithEq_of_rows h (row := 107) (i := 8) rfl (by decide)
+  have e_107_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row107 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_107_8
   simp only [← c4547, ← c4548, ← c4549] at e_107_8
   have hr := e_107_8
@@ -13377,7 +13377,7 @@ theorem privateBatchWrapper8_f541 (a : Assignment p) (h : Satisfies (privateBatc
   have c675 := (privateBatchWrapper8_copies21 a h).2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_16_1 := arithEq_of_rows h (row := 16) (i := 1) rfl (by decide)
+  have e_16_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_1
   simp only [← c673, k3, ← c674, k3, ← c675] at e_16_1
   have hr := e_16_1
@@ -13391,7 +13391,7 @@ theorem privateBatchWrapper8_f542 (a : Assignment p) (h : Satisfies (privateBatc
   have c720 := (privateBatchWrapper8_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_16_13 := arithEq_of_rows h (row := 16) (i := 13) rfl (by decide)
+  have e_16_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_13
   simp only [← c718, k3, ← c719, k3, ← c720] at e_16_13
   have hr := e_16_13
@@ -13403,7 +13403,7 @@ theorem privateBatchWrapper8_f543 (a : Assignment p) (h : Satisfies (privateBatc
   have c4551 := (privateBatchWrapper8_copies142 a h).2.2.2.2.2.2.2.1
   have c4552 := (privateBatchWrapper8_copies142 a h).2.2.2.2.2.2.2.2.1
   have c4553 := (privateBatchWrapper8_copies142 a h).2.2.2.2.2.2.2.2.2.1
-  have e_107_9 := arithEq_of_rows h (row := 107) (i := 9) rfl (by decide)
+  have e_107_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row107 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_107_9
   simp only [← c4551, ← c4552, ← c4553] at e_107_9
   have hr := e_107_9
@@ -13431,19 +13431,19 @@ theorem privateBatchWrapper8_f544 (a : Assignment p) (h : Satisfies (privateBatc
   have c4570 := (privateBatchWrapper8_copies142 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_107_10 := arithEq_of_rows h (row := 107) (i := 10) rfl (by decide)
+  have e_107_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row107 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_107_10
   simp only [← c4560, ← c4561, ← c4562] at e_107_10
-  have e_107_11 := arithEq_of_rows h (row := 107) (i := 11) rfl (by decide)
+  have e_107_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row107 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_107_11
   simp only [← c4563, ← c4564, ← c4565] at e_107_11
-  have e_108_7 := arithEq_of_rows h (row := 108) (i := 7) rfl (by decide)
+  have e_108_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row108 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_108_7
   simp only [← c4554, k3, ← c4555, k3, ← c4556] at e_108_7
-  have e_108_8 := arithEq_of_rows h (row := 108) (i := 8) rfl (by decide)
+  have e_108_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row108 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_108_8
   simp only [← c4557, ← c4558, k3, ← c4559] at e_108_8
-  have e_108_9 := arithEq_of_rows h (row := 108) (i := 9) rfl (by decide)
+  have e_108_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row108 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_108_9
   simp only [← c4566, ← c4567, k3, ← c4568] at e_108_9
   refine ⟨?_, ?_⟩
@@ -13475,19 +13475,19 @@ theorem privateBatchWrapper8_f545 (a : Assignment p) (h : Satisfies (privateBatc
   have c4587 := (privateBatchWrapper8_copies143 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_107_12 := arithEq_of_rows h (row := 107) (i := 12) rfl (by decide)
+  have e_107_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row107 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_107_12
   simp only [← c4577, ← c4578, ← c4579] at e_107_12
-  have e_107_13 := arithEq_of_rows h (row := 107) (i := 13) rfl (by decide)
+  have e_107_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row107 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_107_13
   simp only [← c4580, ← c4581, ← c4582] at e_107_13
-  have e_108_10 := arithEq_of_rows h (row := 108) (i := 10) rfl (by decide)
+  have e_108_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row108 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_108_10
   simp only [← c4571, k3, ← c4572, k3, ← c4573] at e_108_10
-  have e_108_11 := arithEq_of_rows h (row := 108) (i := 11) rfl (by decide)
+  have e_108_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row108 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_108_11
   simp only [← c4574, ← c4575, k3, ← c4576] at e_108_11
-  have e_108_12 := arithEq_of_rows h (row := 108) (i := 12) rfl (by decide)
+  have e_108_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row108 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_108_12
   simp only [← c4583, ← c4584, k3, ← c4585] at e_108_12
   refine ⟨?_, ?_⟩
@@ -13519,19 +13519,19 @@ theorem privateBatchWrapper8_f546 (a : Assignment p) (h : Satisfies (privateBatc
   have c4604 := (privateBatchWrapper8_copies143 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_107_14 := arithEq_of_rows h (row := 107) (i := 14) rfl (by decide)
+  have e_107_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row107 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_107_14
   simp only [← c4594, ← c4595, ← c4596] at e_107_14
-  have e_108_13 := arithEq_of_rows h (row := 108) (i := 13) rfl (by decide)
+  have e_108_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row108 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_108_13
   simp only [← c4588, k3, ← c4589, k3, ← c4590] at e_108_13
-  have e_108_14 := arithEq_of_rows h (row := 108) (i := 14) rfl (by decide)
+  have e_108_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row108 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_108_14
   simp only [← c4591, ← c4592, k3, ← c4593] at e_108_14
-  have e_109_0 := arithEq_of_rows h (row := 109) (i := 0) rfl (by decide)
+  have e_109_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row109 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_109_0
   simp only [← c4597, ← c4598, ← c4599] at e_109_0
-  have e_110_0 := arithEq_of_rows h (row := 110) (i := 0) rfl (by decide)
+  have e_110_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row110 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_110_0
   simp only [← c4600, ← c4601, k3, ← c4602] at e_110_0
   refine ⟨?_, ?_⟩
@@ -13563,19 +13563,19 @@ theorem privateBatchWrapper8_f547 (a : Assignment p) (h : Satisfies (privateBatc
   have c4621 := (privateBatchWrapper8_copies144 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_109_1 := arithEq_of_rows h (row := 109) (i := 1) rfl (by decide)
+  have e_109_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row109 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_109_1
   simp only [← c4611, ← c4612, ← c4613] at e_109_1
-  have e_109_2 := arithEq_of_rows h (row := 109) (i := 2) rfl (by decide)
+  have e_109_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row109 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_109_2
   simp only [← c4614, ← c4615, ← c4616] at e_109_2
-  have e_110_1 := arithEq_of_rows h (row := 110) (i := 1) rfl (by decide)
+  have e_110_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row110 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_110_1
   simp only [← c4605, k3, ← c4606, k3, ← c4607] at e_110_1
-  have e_110_2 := arithEq_of_rows h (row := 110) (i := 2) rfl (by decide)
+  have e_110_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row110 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_110_2
   simp only [← c4608, ← c4609, k3, ← c4610] at e_110_2
-  have e_110_3 := arithEq_of_rows h (row := 110) (i := 3) rfl (by decide)
+  have e_110_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row110 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_110_3
   simp only [← c4617, ← c4618, k3, ← c4619] at e_110_3
   refine ⟨?_, ?_⟩
@@ -13591,7 +13591,7 @@ theorem privateBatchWrapper8_f548 (a : Assignment p) (h : Satisfies (privateBatc
   have c4622 := (privateBatchWrapper8_copies144 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4623 := (privateBatchWrapper8_copies144 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4624 := (privateBatchWrapper8_copies144 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_109_3 := arithEq_of_rows h (row := 109) (i := 3) rfl (by decide)
+  have e_109_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row109 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_109_3
   simp only [← c4622, ← c4623, ← c4624] at e_109_3
   have hr := e_109_3
@@ -13603,7 +13603,7 @@ theorem privateBatchWrapper8_f549 (a : Assignment p) (h : Satisfies (privateBatc
   have c4625 := (privateBatchWrapper8_copies144 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4626 := (privateBatchWrapper8_copies144 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4627 := (privateBatchWrapper8_copies144 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_109_4 := arithEq_of_rows h (row := 109) (i := 4) rfl (by decide)
+  have e_109_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row109 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_109_4
   simp only [← c4625, ← c4626, ← c4627] at e_109_4
   have hr := e_109_4
@@ -13615,7 +13615,7 @@ theorem privateBatchWrapper8_f550 (a : Assignment p) (h : Satisfies (privateBatc
   have c4628 := (privateBatchWrapper8_copies144 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4629 := (privateBatchWrapper8_copies144 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4630 := (privateBatchWrapper8_copies144 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_109_5 := arithEq_of_rows h (row := 109) (i := 5) rfl (by decide)
+  have e_109_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row109 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_109_5
   simp only [← c4628, ← c4629, ← c4630] at e_109_5
   have hr := e_109_5
@@ -13627,7 +13627,7 @@ theorem privateBatchWrapper8_f551 (a : Assignment p) (h : Satisfies (privateBatc
   have c4631 := (privateBatchWrapper8_copies144 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4632 := (privateBatchWrapper8_copies144 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4633 := (privateBatchWrapper8_copies144 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_109_6 := arithEq_of_rows h (row := 109) (i := 6) rfl (by decide)
+  have e_109_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row109 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_109_6
   simp only [← c4631, ← c4632, ← c4633] at e_109_6
   have hr := e_109_6
@@ -13646,7 +13646,7 @@ theorem privateBatchWrapper8_f553 (a : Assignment p) (h : Satisfies (privateBatc
   have c765 := (privateBatchWrapper8_copies23 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_17_10 := arithEq_of_rows h (row := 17) (i := 10) rfl (by decide)
+  have e_17_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row17 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_10
   simp only [← c763, k3, ← c764, k3, ← c765] at e_17_10
   have hr := e_17_10
@@ -13658,7 +13658,7 @@ theorem privateBatchWrapper8_f554 (a : Assignment p) (h : Satisfies (privateBatc
   have c4635 := (privateBatchWrapper8_copies144 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4636 := (privateBatchWrapper8_copies144 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4637 := (privateBatchWrapper8_copies144 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_109_7 := arithEq_of_rows h (row := 109) (i := 7) rfl (by decide)
+  have e_109_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row109 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_109_7
   simp only [← c4635, ← c4636, ← c4637] at e_109_7
   have hr := e_109_7
@@ -13686,19 +13686,19 @@ theorem privateBatchWrapper8_f555 (a : Assignment p) (h : Satisfies (privateBatc
   have c4654 := (privateBatchWrapper8_copies145 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_109_8 := arithEq_of_rows h (row := 109) (i := 8) rfl (by decide)
+  have e_109_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row109 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_109_8
   simp only [← c4644, ← c4645, ← c4646] at e_109_8
-  have e_109_9 := arithEq_of_rows h (row := 109) (i := 9) rfl (by decide)
+  have e_109_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row109 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_109_9
   simp only [← c4647, ← c4648, ← c4649] at e_109_9
-  have e_110_4 := arithEq_of_rows h (row := 110) (i := 4) rfl (by decide)
+  have e_110_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row110 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_110_4
   simp only [← c4638, k3, ← c4639, k3, ← c4640] at e_110_4
-  have e_110_5 := arithEq_of_rows h (row := 110) (i := 5) rfl (by decide)
+  have e_110_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row110 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_110_5
   simp only [← c4641, ← c4642, k3, ← c4643] at e_110_5
-  have e_110_6 := arithEq_of_rows h (row := 110) (i := 6) rfl (by decide)
+  have e_110_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row110 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_110_6
   simp only [← c4650, ← c4651, k3, ← c4652] at e_110_6
   refine ⟨?_, ?_⟩
@@ -13730,19 +13730,19 @@ theorem privateBatchWrapper8_f556 (a : Assignment p) (h : Satisfies (privateBatc
   have c4671 := (privateBatchWrapper8_copies145 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_109_10 := arithEq_of_rows h (row := 109) (i := 10) rfl (by decide)
+  have e_109_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row109 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_109_10
   simp only [← c4661, ← c4662, ← c4663] at e_109_10
-  have e_109_11 := arithEq_of_rows h (row := 109) (i := 11) rfl (by decide)
+  have e_109_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row109 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_109_11
   simp only [← c4664, ← c4665, ← c4666] at e_109_11
-  have e_110_7 := arithEq_of_rows h (row := 110) (i := 7) rfl (by decide)
+  have e_110_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row110 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_110_7
   simp only [← c4655, k3, ← c4656, k3, ← c4657] at e_110_7
-  have e_110_8 := arithEq_of_rows h (row := 110) (i := 8) rfl (by decide)
+  have e_110_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row110 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_110_8
   simp only [← c4658, ← c4659, k3, ← c4660] at e_110_8
-  have e_110_9 := arithEq_of_rows h (row := 110) (i := 9) rfl (by decide)
+  have e_110_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row110 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_110_9
   simp only [← c4667, ← c4668, k3, ← c4669] at e_110_9
   refine ⟨?_, ?_⟩
@@ -13774,19 +13774,19 @@ theorem privateBatchWrapper8_f557 (a : Assignment p) (h : Satisfies (privateBatc
   have c4688 := (privateBatchWrapper8_copies146 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_109_12 := arithEq_of_rows h (row := 109) (i := 12) rfl (by decide)
+  have e_109_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row109 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_109_12
   simp only [← c4678, ← c4679, ← c4680] at e_109_12
-  have e_109_13 := arithEq_of_rows h (row := 109) (i := 13) rfl (by decide)
+  have e_109_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row109 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_109_13
   simp only [← c4681, ← c4682, ← c4683] at e_109_13
-  have e_110_10 := arithEq_of_rows h (row := 110) (i := 10) rfl (by decide)
+  have e_110_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row110 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_110_10
   simp only [← c4672, k3, ← c4673, k3, ← c4674] at e_110_10
-  have e_110_11 := arithEq_of_rows h (row := 110) (i := 11) rfl (by decide)
+  have e_110_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row110 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_110_11
   simp only [← c4675, ← c4676, k3, ← c4677] at e_110_11
-  have e_110_12 := arithEq_of_rows h (row := 110) (i := 12) rfl (by decide)
+  have e_110_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row110 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_110_12
   simp only [← c4684, ← c4685, k3, ← c4686] at e_110_12
   refine ⟨?_, ?_⟩
@@ -13818,19 +13818,19 @@ theorem privateBatchWrapper8_f558 (a : Assignment p) (h : Satisfies (privateBatc
   have c4705 := (privateBatchWrapper8_copies147 a h).2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_109_14 := arithEq_of_rows h (row := 109) (i := 14) rfl (by decide)
+  have e_109_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row109 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_109_14
   simp only [← c4695, ← c4696, ← c4697] at e_109_14
-  have e_110_13 := arithEq_of_rows h (row := 110) (i := 13) rfl (by decide)
+  have e_110_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row110 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_110_13
   simp only [← c4689, k3, ← c4690, k3, ← c4691] at e_110_13
-  have e_110_14 := arithEq_of_rows h (row := 110) (i := 14) rfl (by decide)
+  have e_110_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row110 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_110_14
   simp only [← c4692, ← c4693, k3, ← c4694] at e_110_14
-  have e_111_0 := arithEq_of_rows h (row := 111) (i := 0) rfl (by decide)
+  have e_111_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row111 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_111_0
   simp only [← c4698, ← c4699, ← c4700] at e_111_0
-  have e_112_0 := arithEq_of_rows h (row := 112) (i := 0) rfl (by decide)
+  have e_112_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row112 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_112_0
   simp only [← c4701, ← c4702, k3, ← c4703] at e_112_0
   refine ⟨?_, ?_⟩
@@ -13846,7 +13846,7 @@ theorem privateBatchWrapper8_f559 (a : Assignment p) (h : Satisfies (privateBatc
   have c4706 := (privateBatchWrapper8_copies147 a h).2.2.1
   have c4707 := (privateBatchWrapper8_copies147 a h).2.2.2.1
   have c4708 := (privateBatchWrapper8_copies147 a h).2.2.2.2.1
-  have e_111_1 := arithEq_of_rows h (row := 111) (i := 1) rfl (by decide)
+  have e_111_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row111 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_111_1
   simp only [← c4706, ← c4707, ← c4708] at e_111_1
   have hr := e_111_1
@@ -13858,7 +13858,7 @@ theorem privateBatchWrapper8_f560 (a : Assignment p) (h : Satisfies (privateBatc
   have c4709 := (privateBatchWrapper8_copies147 a h).2.2.2.2.2.1
   have c4710 := (privateBatchWrapper8_copies147 a h).2.2.2.2.2.2.1
   have c4711 := (privateBatchWrapper8_copies147 a h).2.2.2.2.2.2.2.1
-  have e_111_2 := arithEq_of_rows h (row := 111) (i := 2) rfl (by decide)
+  have e_111_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row111 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_111_2
   simp only [← c4709, ← c4710, ← c4711] at e_111_2
   have hr := e_111_2
@@ -13870,7 +13870,7 @@ theorem privateBatchWrapper8_f561 (a : Assignment p) (h : Satisfies (privateBatc
   have c4712 := (privateBatchWrapper8_copies147 a h).2.2.2.2.2.2.2.2.1
   have c4713 := (privateBatchWrapper8_copies147 a h).2.2.2.2.2.2.2.2.2.1
   have c4714 := (privateBatchWrapper8_copies147 a h).2.2.2.2.2.2.2.2.2.2.1
-  have e_111_3 := arithEq_of_rows h (row := 111) (i := 3) rfl (by decide)
+  have e_111_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row111 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_111_3
   simp only [← c4712, ← c4713, ← c4714] at e_111_3
   have hr := e_111_3
@@ -13882,7 +13882,7 @@ theorem privateBatchWrapper8_f562 (a : Assignment p) (h : Satisfies (privateBatc
   have c4715 := (privateBatchWrapper8_copies147 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c4716 := (privateBatchWrapper8_copies147 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4717 := (privateBatchWrapper8_copies147 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_111_4 := arithEq_of_rows h (row := 111) (i := 4) rfl (by decide)
+  have e_111_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row111 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_111_4
   simp only [← c4715, ← c4716, ← c4717] at e_111_4
   have hr := e_111_4
@@ -13901,7 +13901,7 @@ theorem privateBatchWrapper8_f564 (a : Assignment p) (h : Satisfies (privateBatc
   have c810 := (privateBatchWrapper8_copies25 a h).2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_19_7 := arithEq_of_rows h (row := 19) (i := 7) rfl (by decide)
+  have e_19_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row19 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_7
   simp only [← c808, k3, ← c809, k3, ← c810] at e_19_7
   have hr := e_19_7
@@ -13913,7 +13913,7 @@ theorem privateBatchWrapper8_f565 (a : Assignment p) (h : Satisfies (privateBatc
   have c4719 := (privateBatchWrapper8_copies147 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4720 := (privateBatchWrapper8_copies147 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4721 := (privateBatchWrapper8_copies147 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_111_5 := arithEq_of_rows h (row := 111) (i := 5) rfl (by decide)
+  have e_111_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row111 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_111_5
   simp only [← c4719, ← c4720, ← c4721] at e_111_5
   have hr := e_111_5
@@ -13941,19 +13941,19 @@ theorem privateBatchWrapper8_f566 (a : Assignment p) (h : Satisfies (privateBatc
   have c4738 := (privateBatchWrapper8_copies148 a h).2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_111_6 := arithEq_of_rows h (row := 111) (i := 6) rfl (by decide)
+  have e_111_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row111 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_111_6
   simp only [← c4728, ← c4729, ← c4730] at e_111_6
-  have e_111_7 := arithEq_of_rows h (row := 111) (i := 7) rfl (by decide)
+  have e_111_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row111 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_111_7
   simp only [← c4731, ← c4732, ← c4733] at e_111_7
-  have e_112_1 := arithEq_of_rows h (row := 112) (i := 1) rfl (by decide)
+  have e_112_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row112 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_112_1
   simp only [← c4722, k3, ← c4723, k3, ← c4724] at e_112_1
-  have e_112_2 := arithEq_of_rows h (row := 112) (i := 2) rfl (by decide)
+  have e_112_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row112 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_112_2
   simp only [← c4725, ← c4726, k3, ← c4727] at e_112_2
-  have e_112_3 := arithEq_of_rows h (row := 112) (i := 3) rfl (by decide)
+  have e_112_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row112 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_112_3
   simp only [← c4734, ← c4735, k3, ← c4736] at e_112_3
   refine ⟨?_, ?_⟩
@@ -13985,19 +13985,19 @@ theorem privateBatchWrapper8_f567 (a : Assignment p) (h : Satisfies (privateBatc
   have c4755 := (privateBatchWrapper8_copies148 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_111_8 := arithEq_of_rows h (row := 111) (i := 8) rfl (by decide)
+  have e_111_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row111 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_111_8
   simp only [← c4745, ← c4746, ← c4747] at e_111_8
-  have e_111_9 := arithEq_of_rows h (row := 111) (i := 9) rfl (by decide)
+  have e_111_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row111 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_111_9
   simp only [← c4748, ← c4749, ← c4750] at e_111_9
-  have e_112_4 := arithEq_of_rows h (row := 112) (i := 4) rfl (by decide)
+  have e_112_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row112 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_112_4
   simp only [← c4739, k3, ← c4740, k3, ← c4741] at e_112_4
-  have e_112_5 := arithEq_of_rows h (row := 112) (i := 5) rfl (by decide)
+  have e_112_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row112 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_112_5
   simp only [← c4742, ← c4743, k3, ← c4744] at e_112_5
-  have e_112_6 := arithEq_of_rows h (row := 112) (i := 6) rfl (by decide)
+  have e_112_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row112 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_112_6
   simp only [← c4751, ← c4752, k3, ← c4753] at e_112_6
   refine ⟨?_, ?_⟩
@@ -14029,19 +14029,19 @@ theorem privateBatchWrapper8_f568 (a : Assignment p) (h : Satisfies (privateBatc
   have c4772 := (privateBatchWrapper8_copies149 a h).2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_111_10 := arithEq_of_rows h (row := 111) (i := 10) rfl (by decide)
+  have e_111_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row111 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_111_10
   simp only [← c4762, ← c4763, ← c4764] at e_111_10
-  have e_111_11 := arithEq_of_rows h (row := 111) (i := 11) rfl (by decide)
+  have e_111_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row111 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_111_11
   simp only [← c4765, ← c4766, ← c4767] at e_111_11
-  have e_112_7 := arithEq_of_rows h (row := 112) (i := 7) rfl (by decide)
+  have e_112_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row112 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_112_7
   simp only [← c4756, k3, ← c4757, k3, ← c4758] at e_112_7
-  have e_112_8 := arithEq_of_rows h (row := 112) (i := 8) rfl (by decide)
+  have e_112_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row112 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_112_8
   simp only [← c4759, ← c4760, k3, ← c4761] at e_112_8
-  have e_112_9 := arithEq_of_rows h (row := 112) (i := 9) rfl (by decide)
+  have e_112_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row112 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_112_9
   simp only [← c4768, ← c4769, k3, ← c4770] at e_112_9
   refine ⟨?_, ?_⟩
@@ -14073,19 +14073,19 @@ theorem privateBatchWrapper8_f569 (a : Assignment p) (h : Satisfies (privateBatc
   have c4789 := (privateBatchWrapper8_copies149 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_111_12 := arithEq_of_rows h (row := 111) (i := 12) rfl (by decide)
+  have e_111_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row111 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_111_12
   simp only [← c4779, ← c4780, ← c4781] at e_111_12
-  have e_111_13 := arithEq_of_rows h (row := 111) (i := 13) rfl (by decide)
+  have e_111_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row111 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_111_13
   simp only [← c4782, ← c4783, ← c4784] at e_111_13
-  have e_112_10 := arithEq_of_rows h (row := 112) (i := 10) rfl (by decide)
+  have e_112_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row112 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_112_10
   simp only [← c4773, k3, ← c4774, k3, ← c4775] at e_112_10
-  have e_112_11 := arithEq_of_rows h (row := 112) (i := 11) rfl (by decide)
+  have e_112_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row112 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_112_11
   simp only [← c4776, ← c4777, k3, ← c4778] at e_112_11
-  have e_112_12 := arithEq_of_rows h (row := 112) (i := 12) rfl (by decide)
+  have e_112_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row112 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_112_12
   simp only [← c4785, ← c4786, k3, ← c4787] at e_112_12
   refine ⟨?_, ?_⟩
@@ -14101,7 +14101,7 @@ theorem privateBatchWrapper8_f570 (a : Assignment p) (h : Satisfies (privateBatc
   have c4790 := (privateBatchWrapper8_copies149 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4791 := (privateBatchWrapper8_copies149 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4792 := (privateBatchWrapper8_copies149 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_111_14 := arithEq_of_rows h (row := 111) (i := 14) rfl (by decide)
+  have e_111_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row111 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_111_14
   simp only [← c4790, ← c4791, ← c4792] at e_111_14
   have hr := e_111_14
@@ -14113,7 +14113,7 @@ theorem privateBatchWrapper8_f571 (a : Assignment p) (h : Satisfies (privateBatc
   have c4793 := (privateBatchWrapper8_copies149 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4794 := (privateBatchWrapper8_copies149 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4795 := (privateBatchWrapper8_copies149 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_113_0 := arithEq_of_rows h (row := 113) (i := 0) rfl (by decide)
+  have e_113_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row113 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_113_0
   simp only [← c4793, ← c4794, ← c4795] at e_113_0
   have hr := e_113_0
@@ -14125,7 +14125,7 @@ theorem privateBatchWrapper8_f572 (a : Assignment p) (h : Satisfies (privateBatc
   have c4796 := (privateBatchWrapper8_copies149 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4797 := (privateBatchWrapper8_copies149 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4798 := (privateBatchWrapper8_copies149 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_113_1 := arithEq_of_rows h (row := 113) (i := 1) rfl (by decide)
+  have e_113_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row113 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_113_1
   simp only [← c4796, ← c4797, ← c4798] at e_113_1
   have hr := e_113_1
@@ -14137,7 +14137,7 @@ theorem privateBatchWrapper8_f573 (a : Assignment p) (h : Satisfies (privateBatc
   have c4799 := (privateBatchWrapper8_copies149 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c4800 := (privateBatchWrapper8_copies150 a h).1
   have c4801 := (privateBatchWrapper8_copies150 a h).2.1
-  have e_113_2 := arithEq_of_rows h (row := 113) (i := 2) rfl (by decide)
+  have e_113_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row113 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_113_2
   simp only [← c4799, ← c4800, ← c4801] at e_113_2
   have hr := e_113_2
@@ -14156,7 +14156,7 @@ theorem privateBatchWrapper8_f575 (a : Assignment p) (h : Satisfies (privateBatc
   have c720 := (privateBatchWrapper8_copies22 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_16_13 := arithEq_of_rows h (row := 16) (i := 13) rfl (by decide)
+  have e_16_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row16 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_16_13
   simp only [← c718, k3, ← c719, k3, ← c720] at e_16_13
   have hr := e_16_13
@@ -14170,7 +14170,7 @@ theorem privateBatchWrapper8_f576 (a : Assignment p) (h : Satisfies (privateBatc
   have c765 := (privateBatchWrapper8_copies23 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_17_10 := arithEq_of_rows h (row := 17) (i := 10) rfl (by decide)
+  have e_17_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row17 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_10
   simp only [← c763, k3, ← c764, k3, ← c765] at e_17_10
   have hr := e_17_10
@@ -14182,7 +14182,7 @@ theorem privateBatchWrapper8_f577 (a : Assignment p) (h : Satisfies (privateBatc
   have c4803 := (privateBatchWrapper8_copies150 a h).2.2.2.1
   have c4804 := (privateBatchWrapper8_copies150 a h).2.2.2.2.1
   have c4805 := (privateBatchWrapper8_copies150 a h).2.2.2.2.2.1
-  have e_113_3 := arithEq_of_rows h (row := 113) (i := 3) rfl (by decide)
+  have e_113_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row113 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_113_3
   simp only [← c4803, ← c4804, ← c4805] at e_113_3
   have hr := e_113_3
@@ -14210,19 +14210,19 @@ theorem privateBatchWrapper8_f578 (a : Assignment p) (h : Satisfies (privateBatc
   have c4822 := (privateBatchWrapper8_copies150 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_112_13 := arithEq_of_rows h (row := 112) (i := 13) rfl (by decide)
+  have e_112_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row112 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_112_13
   simp only [← c4806, k3, ← c4807, k3, ← c4808] at e_112_13
-  have e_112_14 := arithEq_of_rows h (row := 112) (i := 14) rfl (by decide)
+  have e_112_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row112 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_112_14
   simp only [← c4809, ← c4810, k3, ← c4811] at e_112_14
-  have e_113_4 := arithEq_of_rows h (row := 113) (i := 4) rfl (by decide)
+  have e_113_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row113 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_113_4
   simp only [← c4812, ← c4813, ← c4814] at e_113_4
-  have e_113_5 := arithEq_of_rows h (row := 113) (i := 5) rfl (by decide)
+  have e_113_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row113 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_113_5
   simp only [← c4815, ← c4816, ← c4817] at e_113_5
-  have e_114_0 := arithEq_of_rows h (row := 114) (i := 0) rfl (by decide)
+  have e_114_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row114 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_114_0
   simp only [← c4818, ← c4819, k3, ← c4820] at e_114_0
   refine ⟨?_, ?_⟩
@@ -14254,19 +14254,19 @@ theorem privateBatchWrapper8_f579 (a : Assignment p) (h : Satisfies (privateBatc
   have c4839 := (privateBatchWrapper8_copies151 a h).2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_113_6 := arithEq_of_rows h (row := 113) (i := 6) rfl (by decide)
+  have e_113_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row113 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_113_6
   simp only [← c4829, ← c4830, ← c4831] at e_113_6
-  have e_113_7 := arithEq_of_rows h (row := 113) (i := 7) rfl (by decide)
+  have e_113_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row113 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_113_7
   simp only [← c4832, ← c4833, ← c4834] at e_113_7
-  have e_114_1 := arithEq_of_rows h (row := 114) (i := 1) rfl (by decide)
+  have e_114_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row114 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_114_1
   simp only [← c4823, k3, ← c4824, k3, ← c4825] at e_114_1
-  have e_114_2 := arithEq_of_rows h (row := 114) (i := 2) rfl (by decide)
+  have e_114_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row114 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_114_2
   simp only [← c4826, ← c4827, k3, ← c4828] at e_114_2
-  have e_114_3 := arithEq_of_rows h (row := 114) (i := 3) rfl (by decide)
+  have e_114_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row114 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_114_3
   simp only [← c4835, ← c4836, k3, ← c4837] at e_114_3
   refine ⟨?_, ?_⟩
@@ -14298,19 +14298,19 @@ theorem privateBatchWrapper8_f580 (a : Assignment p) (h : Satisfies (privateBatc
   have c4856 := (privateBatchWrapper8_copies151 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_113_8 := arithEq_of_rows h (row := 113) (i := 8) rfl (by decide)
+  have e_113_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row113 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_113_8
   simp only [← c4846, ← c4847, ← c4848] at e_113_8
-  have e_113_9 := arithEq_of_rows h (row := 113) (i := 9) rfl (by decide)
+  have e_113_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row113 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_113_9
   simp only [← c4849, ← c4850, ← c4851] at e_113_9
-  have e_114_4 := arithEq_of_rows h (row := 114) (i := 4) rfl (by decide)
+  have e_114_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row114 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_114_4
   simp only [← c4840, k3, ← c4841, k3, ← c4842] at e_114_4
-  have e_114_5 := arithEq_of_rows h (row := 114) (i := 5) rfl (by decide)
+  have e_114_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row114 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_114_5
   simp only [← c4843, ← c4844, k3, ← c4845] at e_114_5
-  have e_114_6 := arithEq_of_rows h (row := 114) (i := 6) rfl (by decide)
+  have e_114_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row114 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_114_6
   simp only [← c4852, ← c4853, k3, ← c4854] at e_114_6
   refine ⟨?_, ?_⟩
@@ -14342,19 +14342,19 @@ theorem privateBatchWrapper8_f581 (a : Assignment p) (h : Satisfies (privateBatc
   have c4873 := (privateBatchWrapper8_copies152 a h).2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_113_10 := arithEq_of_rows h (row := 113) (i := 10) rfl (by decide)
+  have e_113_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row113 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_113_10
   simp only [← c4863, ← c4864, ← c4865] at e_113_10
-  have e_113_11 := arithEq_of_rows h (row := 113) (i := 11) rfl (by decide)
+  have e_113_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row113 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_113_11
   simp only [← c4866, ← c4867, ← c4868] at e_113_11
-  have e_114_7 := arithEq_of_rows h (row := 114) (i := 7) rfl (by decide)
+  have e_114_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row114 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_114_7
   simp only [← c4857, k3, ← c4858, k3, ← c4859] at e_114_7
-  have e_114_8 := arithEq_of_rows h (row := 114) (i := 8) rfl (by decide)
+  have e_114_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row114 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_114_8
   simp only [← c4860, ← c4861, k3, ← c4862] at e_114_8
-  have e_114_9 := arithEq_of_rows h (row := 114) (i := 9) rfl (by decide)
+  have e_114_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row114 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_114_9
   simp only [← c4869, ← c4870, k3, ← c4871] at e_114_9
   refine ⟨?_, ?_⟩
@@ -14370,7 +14370,7 @@ theorem privateBatchWrapper8_f582 (a : Assignment p) (h : Satisfies (privateBatc
   have c4874 := (privateBatchWrapper8_copies152 a h).2.2.2.2.2.2.2.2.2.2.1
   have c4875 := (privateBatchWrapper8_copies152 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c4876 := (privateBatchWrapper8_copies152 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_113_12 := arithEq_of_rows h (row := 113) (i := 12) rfl (by decide)
+  have e_113_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row113 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_113_12
   simp only [← c4874, ← c4875, ← c4876] at e_113_12
   have hr := e_113_12
@@ -14382,7 +14382,7 @@ theorem privateBatchWrapper8_f583 (a : Assignment p) (h : Satisfies (privateBatc
   have c4877 := (privateBatchWrapper8_copies152 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4878 := (privateBatchWrapper8_copies152 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4879 := (privateBatchWrapper8_copies152 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_113_13 := arithEq_of_rows h (row := 113) (i := 13) rfl (by decide)
+  have e_113_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row113 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_113_13
   simp only [← c4877, ← c4878, ← c4879] at e_113_13
   have hr := e_113_13
@@ -14394,7 +14394,7 @@ theorem privateBatchWrapper8_f584 (a : Assignment p) (h : Satisfies (privateBatc
   have c4880 := (privateBatchWrapper8_copies152 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4881 := (privateBatchWrapper8_copies152 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4882 := (privateBatchWrapper8_copies152 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_113_14 := arithEq_of_rows h (row := 113) (i := 14) rfl (by decide)
+  have e_113_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row113 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_113_14
   simp only [← c4880, ← c4881, ← c4882] at e_113_14
   have hr := e_113_14
@@ -14406,7 +14406,7 @@ theorem privateBatchWrapper8_f585 (a : Assignment p) (h : Satisfies (privateBatc
   have c4883 := (privateBatchWrapper8_copies152 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4884 := (privateBatchWrapper8_copies152 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4885 := (privateBatchWrapper8_copies152 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_115_0 := arithEq_of_rows h (row := 115) (i := 0) rfl (by decide)
+  have e_115_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row115 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_115_0
   simp only [← c4883, ← c4884, ← c4885] at e_115_0
   have hr := e_115_0
@@ -14425,7 +14425,7 @@ theorem privateBatchWrapper8_f587 (a : Assignment p) (h : Satisfies (privateBatc
   have c810 := (privateBatchWrapper8_copies25 a h).2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_19_7 := arithEq_of_rows h (row := 19) (i := 7) rfl (by decide)
+  have e_19_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row19 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_7
   simp only [← c808, k3, ← c809, k3, ← c810] at e_19_7
   have hr := e_19_7
@@ -14437,7 +14437,7 @@ theorem privateBatchWrapper8_f588 (a : Assignment p) (h : Satisfies (privateBatc
   have c4887 := (privateBatchWrapper8_copies152 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4888 := (privateBatchWrapper8_copies152 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4889 := (privateBatchWrapper8_copies152 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_115_1 := arithEq_of_rows h (row := 115) (i := 1) rfl (by decide)
+  have e_115_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row115 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_115_1
   simp only [← c4887, ← c4888, ← c4889] at e_115_1
   have hr := e_115_1
@@ -14465,19 +14465,19 @@ theorem privateBatchWrapper8_f589 (a : Assignment p) (h : Satisfies (privateBatc
   have c4906 := (privateBatchWrapper8_copies153 a h).2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_114_10 := arithEq_of_rows h (row := 114) (i := 10) rfl (by decide)
+  have e_114_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row114 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_114_10
   simp only [← c4890, k3, ← c4891, k3, ← c4892] at e_114_10
-  have e_114_11 := arithEq_of_rows h (row := 114) (i := 11) rfl (by decide)
+  have e_114_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row114 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_114_11
   simp only [← c4893, ← c4894, k3, ← c4895] at e_114_11
-  have e_114_12 := arithEq_of_rows h (row := 114) (i := 12) rfl (by decide)
+  have e_114_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row114 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_114_12
   simp only [← c4902, ← c4903, k3, ← c4904] at e_114_12
-  have e_115_2 := arithEq_of_rows h (row := 115) (i := 2) rfl (by decide)
+  have e_115_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row115 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_115_2
   simp only [← c4896, ← c4897, ← c4898] at e_115_2
-  have e_115_3 := arithEq_of_rows h (row := 115) (i := 3) rfl (by decide)
+  have e_115_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row115 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_115_3
   simp only [← c4899, ← c4900, ← c4901] at e_115_3
   refine ⟨?_, ?_⟩
@@ -14509,19 +14509,19 @@ theorem privateBatchWrapper8_f590 (a : Assignment p) (h : Satisfies (privateBatc
   have c4923 := (privateBatchWrapper8_copies153 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_114_13 := arithEq_of_rows h (row := 114) (i := 13) rfl (by decide)
+  have e_114_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row114 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_114_13
   simp only [← c4907, k3, ← c4908, k3, ← c4909] at e_114_13
-  have e_114_14 := arithEq_of_rows h (row := 114) (i := 14) rfl (by decide)
+  have e_114_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row114 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_114_14
   simp only [← c4910, ← c4911, k3, ← c4912] at e_114_14
-  have e_115_4 := arithEq_of_rows h (row := 115) (i := 4) rfl (by decide)
+  have e_115_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row115 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_115_4
   simp only [← c4913, ← c4914, ← c4915] at e_115_4
-  have e_115_5 := arithEq_of_rows h (row := 115) (i := 5) rfl (by decide)
+  have e_115_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row115 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_115_5
   simp only [← c4916, ← c4917, ← c4918] at e_115_5
-  have e_116_0 := arithEq_of_rows h (row := 116) (i := 0) rfl (by decide)
+  have e_116_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row116 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_116_0
   simp only [← c4919, ← c4920, k3, ← c4921] at e_116_0
   refine ⟨?_, ?_⟩
@@ -14553,19 +14553,19 @@ theorem privateBatchWrapper8_f591 (a : Assignment p) (h : Satisfies (privateBatc
   have c4940 := (privateBatchWrapper8_copies154 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_115_6 := arithEq_of_rows h (row := 115) (i := 6) rfl (by decide)
+  have e_115_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row115 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_115_6
   simp only [← c4930, ← c4931, ← c4932] at e_115_6
-  have e_115_7 := arithEq_of_rows h (row := 115) (i := 7) rfl (by decide)
+  have e_115_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row115 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_115_7
   simp only [← c4933, ← c4934, ← c4935] at e_115_7
-  have e_116_1 := arithEq_of_rows h (row := 116) (i := 1) rfl (by decide)
+  have e_116_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row116 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_116_1
   simp only [← c4924, k3, ← c4925, k3, ← c4926] at e_116_1
-  have e_116_2 := arithEq_of_rows h (row := 116) (i := 2) rfl (by decide)
+  have e_116_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row116 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_116_2
   simp only [← c4927, ← c4928, k3, ← c4929] at e_116_2
-  have e_116_3 := arithEq_of_rows h (row := 116) (i := 3) rfl (by decide)
+  have e_116_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row116 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_116_3
   simp only [← c4936, ← c4937, k3, ← c4938] at e_116_3
   refine ⟨?_, ?_⟩
@@ -14597,19 +14597,19 @@ theorem privateBatchWrapper8_f592 (a : Assignment p) (h : Satisfies (privateBatc
   have c4957 := (privateBatchWrapper8_copies154 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_115_8 := arithEq_of_rows h (row := 115) (i := 8) rfl (by decide)
+  have e_115_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row115 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_115_8
   simp only [← c4947, ← c4948, ← c4949] at e_115_8
-  have e_115_9 := arithEq_of_rows h (row := 115) (i := 9) rfl (by decide)
+  have e_115_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row115 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_115_9
   simp only [← c4950, ← c4951, ← c4952] at e_115_9
-  have e_116_4 := arithEq_of_rows h (row := 116) (i := 4) rfl (by decide)
+  have e_116_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row116 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_116_4
   simp only [← c4941, k3, ← c4942, k3, ← c4943] at e_116_4
-  have e_116_5 := arithEq_of_rows h (row := 116) (i := 5) rfl (by decide)
+  have e_116_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row116 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_116_5
   simp only [← c4944, ← c4945, k3, ← c4946] at e_116_5
-  have e_116_6 := arithEq_of_rows h (row := 116) (i := 6) rfl (by decide)
+  have e_116_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row116 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_116_6
   simp only [← c4953, ← c4954, k3, ← c4955] at e_116_6
   refine ⟨?_, ?_⟩
@@ -14625,7 +14625,7 @@ theorem privateBatchWrapper8_f593 (a : Assignment p) (h : Satisfies (privateBatc
   have c4958 := (privateBatchWrapper8_copies154 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4959 := (privateBatchWrapper8_copies154 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
   have c4960 := (privateBatchWrapper8_copies155 a h).1
-  have e_115_10 := arithEq_of_rows h (row := 115) (i := 10) rfl (by decide)
+  have e_115_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row115 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_115_10
   simp only [← c4958, ← c4959, ← c4960] at e_115_10
   have hr := e_115_10
@@ -14637,7 +14637,7 @@ theorem privateBatchWrapper8_f594 (a : Assignment p) (h : Satisfies (privateBatc
   have c4961 := (privateBatchWrapper8_copies155 a h).2.1
   have c4962 := (privateBatchWrapper8_copies155 a h).2.2.1
   have c4963 := (privateBatchWrapper8_copies155 a h).2.2.2.1
-  have e_115_11 := arithEq_of_rows h (row := 115) (i := 11) rfl (by decide)
+  have e_115_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row115 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_115_11
   simp only [← c4961, ← c4962, ← c4963] at e_115_11
   have hr := e_115_11
@@ -14649,7 +14649,7 @@ theorem privateBatchWrapper8_f595 (a : Assignment p) (h : Satisfies (privateBatc
   have c4964 := (privateBatchWrapper8_copies155 a h).2.2.2.2.1
   have c4965 := (privateBatchWrapper8_copies155 a h).2.2.2.2.2.1
   have c4966 := (privateBatchWrapper8_copies155 a h).2.2.2.2.2.2.1
-  have e_115_12 := arithEq_of_rows h (row := 115) (i := 12) rfl (by decide)
+  have e_115_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row115 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_115_12
   simp only [← c4964, ← c4965, ← c4966] at e_115_12
   have hr := e_115_12
@@ -14661,7 +14661,7 @@ theorem privateBatchWrapper8_f596 (a : Assignment p) (h : Satisfies (privateBatc
   have c4967 := (privateBatchWrapper8_copies155 a h).2.2.2.2.2.2.2.1
   have c4968 := (privateBatchWrapper8_copies155 a h).2.2.2.2.2.2.2.2.1
   have c4969 := (privateBatchWrapper8_copies155 a h).2.2.2.2.2.2.2.2.2.1
-  have e_115_13 := arithEq_of_rows h (row := 115) (i := 13) rfl (by decide)
+  have e_115_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row115 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_115_13
   simp only [← c4967, ← c4968, ← c4969] at e_115_13
   have hr := e_115_13
@@ -14680,7 +14680,7 @@ theorem privateBatchWrapper8_f598 (a : Assignment p) (h : Satisfies (privateBatc
   have c765 := (privateBatchWrapper8_copies23 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_17_10 := arithEq_of_rows h (row := 17) (i := 10) rfl (by decide)
+  have e_17_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row17 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_17_10
   simp only [← c763, k3, ← c764, k3, ← c765] at e_17_10
   have hr := e_17_10
@@ -14694,7 +14694,7 @@ theorem privateBatchWrapper8_f599 (a : Assignment p) (h : Satisfies (privateBatc
   have c810 := (privateBatchWrapper8_copies25 a h).2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_19_7 := arithEq_of_rows h (row := 19) (i := 7) rfl (by decide)
+  have e_19_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row19 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_7
   simp only [← c808, k3, ← c809, k3, ← c810] at e_19_7
   have hr := e_19_7
@@ -14706,7 +14706,7 @@ theorem privateBatchWrapper8_f600 (a : Assignment p) (h : Satisfies (privateBatc
   have c4971 := (privateBatchWrapper8_copies155 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c4972 := (privateBatchWrapper8_copies155 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c4973 := (privateBatchWrapper8_copies155 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_115_14 := arithEq_of_rows h (row := 115) (i := 14) rfl (by decide)
+  have e_115_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row115 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_115_14
   simp only [← c4971, ← c4972, ← c4973] at e_115_14
   have hr := e_115_14
@@ -14734,19 +14734,19 @@ theorem privateBatchWrapper8_f601 (a : Assignment p) (h : Satisfies (privateBatc
   have c4990 := (privateBatchWrapper8_copies155 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_116_7 := arithEq_of_rows h (row := 116) (i := 7) rfl (by decide)
+  have e_116_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row116 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_116_7
   simp only [← c4974, k3, ← c4975, k3, ← c4976] at e_116_7
-  have e_116_8 := arithEq_of_rows h (row := 116) (i := 8) rfl (by decide)
+  have e_116_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row116 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_116_8
   simp only [← c4977, ← c4978, k3, ← c4979] at e_116_8
-  have e_116_9 := arithEq_of_rows h (row := 116) (i := 9) rfl (by decide)
+  have e_116_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row116 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_116_9
   simp only [← c4986, ← c4987, k3, ← c4988] at e_116_9
-  have e_117_0 := arithEq_of_rows h (row := 117) (i := 0) rfl (by decide)
+  have e_117_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row117 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_117_0
   simp only [← c4980, ← c4981, ← c4982] at e_117_0
-  have e_117_1 := arithEq_of_rows h (row := 117) (i := 1) rfl (by decide)
+  have e_117_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row117 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_117_1
   simp only [← c4983, ← c4984, ← c4985] at e_117_1
   refine ⟨?_, ?_⟩
@@ -14778,19 +14778,19 @@ theorem privateBatchWrapper8_f602 (a : Assignment p) (h : Satisfies (privateBatc
   have c5007 := (privateBatchWrapper8_copies156 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_116_10 := arithEq_of_rows h (row := 116) (i := 10) rfl (by decide)
+  have e_116_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row116 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_116_10
   simp only [← c4991, k3, ← c4992, k3, ← c4993] at e_116_10
-  have e_116_11 := arithEq_of_rows h (row := 116) (i := 11) rfl (by decide)
+  have e_116_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row116 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_116_11
   simp only [← c4994, ← c4995, k3, ← c4996] at e_116_11
-  have e_116_12 := arithEq_of_rows h (row := 116) (i := 12) rfl (by decide)
+  have e_116_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row116 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_116_12
   simp only [← c5003, ← c5004, k3, ← c5005] at e_116_12
-  have e_117_2 := arithEq_of_rows h (row := 117) (i := 2) rfl (by decide)
+  have e_117_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row117 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_117_2
   simp only [← c4997, ← c4998, ← c4999] at e_117_2
-  have e_117_3 := arithEq_of_rows h (row := 117) (i := 3) rfl (by decide)
+  have e_117_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row117 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_117_3
   simp only [← c5000, ← c5001, ← c5002] at e_117_3
   refine ⟨?_, ?_⟩
@@ -14822,19 +14822,19 @@ theorem privateBatchWrapper8_f603 (a : Assignment p) (h : Satisfies (privateBatc
   have c5024 := (privateBatchWrapper8_copies157 a h).1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_116_13 := arithEq_of_rows h (row := 116) (i := 13) rfl (by decide)
+  have e_116_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row116 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_116_13
   simp only [← c5008, k3, ← c5009, k3, ← c5010] at e_116_13
-  have e_116_14 := arithEq_of_rows h (row := 116) (i := 14) rfl (by decide)
+  have e_116_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row116 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_116_14
   simp only [← c5011, ← c5012, k3, ← c5013] at e_116_14
-  have e_117_4 := arithEq_of_rows h (row := 117) (i := 4) rfl (by decide)
+  have e_117_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row117 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_117_4
   simp only [← c5014, ← c5015, ← c5016] at e_117_4
-  have e_117_5 := arithEq_of_rows h (row := 117) (i := 5) rfl (by decide)
+  have e_117_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row117 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_117_5
   simp only [← c5017, ← c5018, ← c5019] at e_117_5
-  have e_118_0 := arithEq_of_rows h (row := 118) (i := 0) rfl (by decide)
+  have e_118_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row118 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_118_0
   simp only [← c5020, ← c5021, k3, ← c5022] at e_118_0
   refine ⟨?_, ?_⟩
@@ -14866,19 +14866,19 @@ theorem privateBatchWrapper8_f604 (a : Assignment p) (h : Satisfies (privateBatc
   have c5041 := (privateBatchWrapper8_copies157 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_117_6 := arithEq_of_rows h (row := 117) (i := 6) rfl (by decide)
+  have e_117_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row117 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_117_6
   simp only [← c5031, ← c5032, ← c5033] at e_117_6
-  have e_117_7 := arithEq_of_rows h (row := 117) (i := 7) rfl (by decide)
+  have e_117_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row117 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_117_7
   simp only [← c5034, ← c5035, ← c5036] at e_117_7
-  have e_118_1 := arithEq_of_rows h (row := 118) (i := 1) rfl (by decide)
+  have e_118_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row118 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_118_1
   simp only [← c5025, k3, ← c5026, k3, ← c5027] at e_118_1
-  have e_118_2 := arithEq_of_rows h (row := 118) (i := 2) rfl (by decide)
+  have e_118_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row118 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_118_2
   simp only [← c5028, ← c5029, k3, ← c5030] at e_118_2
-  have e_118_3 := arithEq_of_rows h (row := 118) (i := 3) rfl (by decide)
+  have e_118_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row118 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_118_3
   simp only [← c5037, ← c5038, k3, ← c5039] at e_118_3
   refine ⟨?_, ?_⟩
@@ -14894,7 +14894,7 @@ theorem privateBatchWrapper8_f605 (a : Assignment p) (h : Satisfies (privateBatc
   have c5042 := (privateBatchWrapper8_copies157 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5043 := (privateBatchWrapper8_copies157 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5044 := (privateBatchWrapper8_copies157 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_117_8 := arithEq_of_rows h (row := 117) (i := 8) rfl (by decide)
+  have e_117_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row117 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_117_8
   simp only [← c5042, ← c5043, ← c5044] at e_117_8
   have hr := e_117_8
@@ -14906,7 +14906,7 @@ theorem privateBatchWrapper8_f606 (a : Assignment p) (h : Satisfies (privateBatc
   have c5045 := (privateBatchWrapper8_copies157 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5046 := (privateBatchWrapper8_copies157 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5047 := (privateBatchWrapper8_copies157 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_117_9 := arithEq_of_rows h (row := 117) (i := 9) rfl (by decide)
+  have e_117_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row117 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_117_9
   simp only [← c5045, ← c5046, ← c5047] at e_117_9
   have hr := e_117_9
@@ -14918,7 +14918,7 @@ theorem privateBatchWrapper8_f607 (a : Assignment p) (h : Satisfies (privateBatc
   have c5048 := (privateBatchWrapper8_copies157 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5049 := (privateBatchWrapper8_copies157 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5050 := (privateBatchWrapper8_copies157 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_117_10 := arithEq_of_rows h (row := 117) (i := 10) rfl (by decide)
+  have e_117_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row117 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_117_10
   simp only [← c5048, ← c5049, ← c5050] at e_117_10
   have hr := e_117_10
@@ -14930,7 +14930,7 @@ theorem privateBatchWrapper8_f608 (a : Assignment p) (h : Satisfies (privateBatc
   have c5051 := (privateBatchWrapper8_copies157 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5052 := (privateBatchWrapper8_copies157 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5053 := (privateBatchWrapper8_copies157 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_117_11 := arithEq_of_rows h (row := 117) (i := 11) rfl (by decide)
+  have e_117_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row117 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_117_11
   simp only [← c5051, ← c5052, ← c5053] at e_117_11
   have hr := e_117_11
@@ -14949,7 +14949,7 @@ theorem privateBatchWrapper8_f610 (a : Assignment p) (h : Satisfies (privateBatc
   have c810 := (privateBatchWrapper8_copies25 a h).2.2.2.2.2.2.2.2.2.2.1
   have hk := privateBatchWrapper8_consts a h
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have e_19_7 := arithEq_of_rows h (row := 19) (i := 7) rfl (by decide)
+  have e_19_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row19 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_19_7
   simp only [← c808, k3, ← c809, k3, ← c810] at e_19_7
   have hr := e_19_7
@@ -15016,10 +15016,10 @@ theorem privateBatchWrapper8_f613 (a : Assignment p) (h : Satisfies (privateBatc
   have c5082 := (privateBatchWrapper8_copies158 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5083 := (privateBatchWrapper8_copies158 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5084 := (privateBatchWrapper8_copies158 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_118_4 := arithEq_of_rows h (row := 118) (i := 4) rfl (by decide)
+  have e_118_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row118 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_118_4
   simp only [← c5079, ← c5080, ← c5081] at e_118_4
-  have e_118_5 := arithEq_of_rows h (row := 118) (i := 5) rfl (by decide)
+  have e_118_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row118 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_118_5
   simp only [← c5082, ← c5083, ← c5084] at e_118_5
   have hr := e_118_5
@@ -15035,10 +15035,10 @@ theorem privateBatchWrapper8_f614 (a : Assignment p) (h : Satisfies (privateBatc
   have c5088 := (privateBatchWrapper8_copies159 a h).1
   have c5089 := (privateBatchWrapper8_copies159 a h).2.1
   have c5090 := (privateBatchWrapper8_copies159 a h).2.2.1
-  have e_118_6 := arithEq_of_rows h (row := 118) (i := 6) rfl (by decide)
+  have e_118_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row118 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_118_6
   simp only [← c5085, ← c5086, ← c5087] at e_118_6
-  have e_118_7 := arithEq_of_rows h (row := 118) (i := 7) rfl (by decide)
+  have e_118_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row118 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_118_7
   simp only [← c5088, ← c5089, ← c5090] at e_118_7
   have hr := e_118_7
@@ -15054,10 +15054,10 @@ theorem privateBatchWrapper8_f615 (a : Assignment p) (h : Satisfies (privateBatc
   have c5094 := (privateBatchWrapper8_copies159 a h).2.2.2.2.2.2.1
   have c5095 := (privateBatchWrapper8_copies159 a h).2.2.2.2.2.2.2.1
   have c5096 := (privateBatchWrapper8_copies159 a h).2.2.2.2.2.2.2.2.1
-  have e_118_8 := arithEq_of_rows h (row := 118) (i := 8) rfl (by decide)
+  have e_118_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row118 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_118_8
   simp only [← c5091, ← c5092, ← c5093] at e_118_8
-  have e_118_9 := arithEq_of_rows h (row := 118) (i := 9) rfl (by decide)
+  have e_118_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row118 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_118_9
   simp only [← c5094, ← c5095, ← c5096] at e_118_9
   have hr := e_118_9
@@ -15073,10 +15073,10 @@ theorem privateBatchWrapper8_f616 (a : Assignment p) (h : Satisfies (privateBatc
   have c5100 := (privateBatchWrapper8_copies159 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5101 := (privateBatchWrapper8_copies159 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5102 := (privateBatchWrapper8_copies159 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_118_10 := arithEq_of_rows h (row := 118) (i := 10) rfl (by decide)
+  have e_118_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row118 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_118_10
   simp only [← c5097, ← c5098, ← c5099] at e_118_10
-  have e_118_11 := arithEq_of_rows h (row := 118) (i := 11) rfl (by decide)
+  have e_118_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row118 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_118_11
   simp only [← c5100, ← c5101, ← c5102] at e_118_11
   have hr := e_118_11
@@ -15144,10 +15144,10 @@ theorem privateBatchWrapper8_f619 (a : Assignment p) (h : Satisfies (privateBatc
   have c5130 := (privateBatchWrapper8_copies160 a h).2.2.2.2.2.2.2.2.2.2.1
   have c5131 := (privateBatchWrapper8_copies160 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c5132 := (privateBatchWrapper8_copies160 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_118_12 := arithEq_of_rows h (row := 118) (i := 12) rfl (by decide)
+  have e_118_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row118 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_118_12
   simp only [← c5127, ← c5128, ← c5129] at e_118_12
-  have e_118_13 := arithEq_of_rows h (row := 118) (i := 13) rfl (by decide)
+  have e_118_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row118 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_118_13
   simp only [← c5130, ← c5131, ← c5132] at e_118_13
   have hr := e_118_13
@@ -15163,10 +15163,10 @@ theorem privateBatchWrapper8_f620 (a : Assignment p) (h : Satisfies (privateBatc
   have c5136 := (privateBatchWrapper8_copies160 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5137 := (privateBatchWrapper8_copies160 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5138 := (privateBatchWrapper8_copies160 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_118_14 := arithEq_of_rows h (row := 118) (i := 14) rfl (by decide)
+  have e_118_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row118 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_118_14
   simp only [← c5133, ← c5134, ← c5135] at e_118_14
-  have e_123_0 := arithEq_of_rows h (row := 123) (i := 0) rfl (by decide)
+  have e_123_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row123 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_123_0
   simp only [← c5136, ← c5137, ← c5138] at e_123_0
   have hr := e_123_0
@@ -15182,10 +15182,10 @@ theorem privateBatchWrapper8_f621 (a : Assignment p) (h : Satisfies (privateBatc
   have c5142 := (privateBatchWrapper8_copies160 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5143 := (privateBatchWrapper8_copies160 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5144 := (privateBatchWrapper8_copies160 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_123_1 := arithEq_of_rows h (row := 123) (i := 1) rfl (by decide)
+  have e_123_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row123 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_123_1
   simp only [← c5139, ← c5140, ← c5141] at e_123_1
-  have e_123_2 := arithEq_of_rows h (row := 123) (i := 2) rfl (by decide)
+  have e_123_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row123 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_123_2
   simp only [← c5142, ← c5143, ← c5144] at e_123_2
   have hr := e_123_2
@@ -15201,10 +15201,10 @@ theorem privateBatchWrapper8_f622 (a : Assignment p) (h : Satisfies (privateBatc
   have c5148 := (privateBatchWrapper8_copies160 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5149 := (privateBatchWrapper8_copies160 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5150 := (privateBatchWrapper8_copies160 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_123_3 := arithEq_of_rows h (row := 123) (i := 3) rfl (by decide)
+  have e_123_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row123 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_123_3
   simp only [← c5145, ← c5146, ← c5147] at e_123_3
-  have e_123_4 := arithEq_of_rows h (row := 123) (i := 4) rfl (by decide)
+  have e_123_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row123 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_123_4
   simp only [← c5148, ← c5149, ← c5150] at e_123_4
   have hr := e_123_4
@@ -15272,10 +15272,10 @@ theorem privateBatchWrapper8_f625 (a : Assignment p) (h : Satisfies (privateBatc
   have c5178 := (privateBatchWrapper8_copies161 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5179 := (privateBatchWrapper8_copies161 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5180 := (privateBatchWrapper8_copies161 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_123_5 := arithEq_of_rows h (row := 123) (i := 5) rfl (by decide)
+  have e_123_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row123 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_123_5
   simp only [← c5175, ← c5176, ← c5177] at e_123_5
-  have e_123_6 := arithEq_of_rows h (row := 123) (i := 6) rfl (by decide)
+  have e_123_6 := arithEq_of_rows h (i := 6) privateBatchWrapper8_row123 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_123_6
   simp only [← c5178, ← c5179, ← c5180] at e_123_6
   have hr := e_123_6
@@ -15291,10 +15291,10 @@ theorem privateBatchWrapper8_f626 (a : Assignment p) (h : Satisfies (privateBatc
   have c5184 := (privateBatchWrapper8_copies162 a h).1
   have c5185 := (privateBatchWrapper8_copies162 a h).2.1
   have c5186 := (privateBatchWrapper8_copies162 a h).2.2.1
-  have e_123_7 := arithEq_of_rows h (row := 123) (i := 7) rfl (by decide)
+  have e_123_7 := arithEq_of_rows h (i := 7) privateBatchWrapper8_row123 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_123_7
   simp only [← c5181, ← c5182, ← c5183] at e_123_7
-  have e_123_8 := arithEq_of_rows h (row := 123) (i := 8) rfl (by decide)
+  have e_123_8 := arithEq_of_rows h (i := 8) privateBatchWrapper8_row123 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_123_8
   simp only [← c5184, ← c5185, ← c5186] at e_123_8
   have hr := e_123_8
@@ -15310,10 +15310,10 @@ theorem privateBatchWrapper8_f627 (a : Assignment p) (h : Satisfies (privateBatc
   have c5190 := (privateBatchWrapper8_copies162 a h).2.2.2.2.2.2.1
   have c5191 := (privateBatchWrapper8_copies162 a h).2.2.2.2.2.2.2.1
   have c5192 := (privateBatchWrapper8_copies162 a h).2.2.2.2.2.2.2.2.1
-  have e_123_9 := arithEq_of_rows h (row := 123) (i := 9) rfl (by decide)
+  have e_123_9 := arithEq_of_rows h (i := 9) privateBatchWrapper8_row123 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_123_9
   simp only [← c5187, ← c5188, ← c5189] at e_123_9
-  have e_123_10 := arithEq_of_rows h (row := 123) (i := 10) rfl (by decide)
+  have e_123_10 := arithEq_of_rows h (i := 10) privateBatchWrapper8_row123 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_123_10
   simp only [← c5190, ← c5191, ← c5192] at e_123_10
   have hr := e_123_10
@@ -15329,10 +15329,10 @@ theorem privateBatchWrapper8_f628 (a : Assignment p) (h : Satisfies (privateBatc
   have c5196 := (privateBatchWrapper8_copies162 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5197 := (privateBatchWrapper8_copies162 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5198 := (privateBatchWrapper8_copies162 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_123_11 := arithEq_of_rows h (row := 123) (i := 11) rfl (by decide)
+  have e_123_11 := arithEq_of_rows h (i := 11) privateBatchWrapper8_row123 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_123_11
   simp only [← c5193, ← c5194, ← c5195] at e_123_11
-  have e_123_12 := arithEq_of_rows h (row := 123) (i := 12) rfl (by decide)
+  have e_123_12 := arithEq_of_rows h (i := 12) privateBatchWrapper8_row123 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_123_12
   simp only [← c5196, ← c5197, ← c5198] at e_123_12
   have hr := e_123_12
@@ -15400,10 +15400,10 @@ theorem privateBatchWrapper8_f631 (a : Assignment p) (h : Satisfies (privateBatc
   have c5226 := (privateBatchWrapper8_copies163 a h).2.2.2.2.2.2.2.2.2.2.1
   have c5227 := (privateBatchWrapper8_copies163 a h).2.2.2.2.2.2.2.2.2.2.2.1
   have c5228 := (privateBatchWrapper8_copies163 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_123_13 := arithEq_of_rows h (row := 123) (i := 13) rfl (by decide)
+  have e_123_13 := arithEq_of_rows h (i := 13) privateBatchWrapper8_row123 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_123_13
   simp only [← c5223, ← c5224, ← c5225] at e_123_13
-  have e_123_14 := arithEq_of_rows h (row := 123) (i := 14) rfl (by decide)
+  have e_123_14 := arithEq_of_rows h (i := 14) privateBatchWrapper8_row123 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_123_14
   simp only [← c5226, ← c5227, ← c5228] at e_123_14
   have hr := e_123_14
@@ -15419,10 +15419,10 @@ theorem privateBatchWrapper8_f632 (a : Assignment p) (h : Satisfies (privateBatc
   have c5232 := (privateBatchWrapper8_copies163 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5233 := (privateBatchWrapper8_copies163 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5234 := (privateBatchWrapper8_copies163 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_128_0 := arithEq_of_rows h (row := 128) (i := 0) rfl (by decide)
+  have e_128_0 := arithEq_of_rows h (i := 0) privateBatchWrapper8_row128 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_128_0
   simp only [← c5229, ← c5230, ← c5231] at e_128_0
-  have e_128_1 := arithEq_of_rows h (row := 128) (i := 1) rfl (by decide)
+  have e_128_1 := arithEq_of_rows h (i := 1) privateBatchWrapper8_row128 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_128_1
   simp only [← c5232, ← c5233, ← c5234] at e_128_1
   have hr := e_128_1
@@ -15438,10 +15438,10 @@ theorem privateBatchWrapper8_f633 (a : Assignment p) (h : Satisfies (privateBatc
   have c5238 := (privateBatchWrapper8_copies163 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5239 := (privateBatchWrapper8_copies163 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5240 := (privateBatchWrapper8_copies163 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_128_2 := arithEq_of_rows h (row := 128) (i := 2) rfl (by decide)
+  have e_128_2 := arithEq_of_rows h (i := 2) privateBatchWrapper8_row128 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_128_2
   simp only [← c5235, ← c5236, ← c5237] at e_128_2
-  have e_128_3 := arithEq_of_rows h (row := 128) (i := 3) rfl (by decide)
+  have e_128_3 := arithEq_of_rows h (i := 3) privateBatchWrapper8_row128 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_128_3
   simp only [← c5238, ← c5239, ← c5240] at e_128_3
   have hr := e_128_3
@@ -15457,10 +15457,10 @@ theorem privateBatchWrapper8_f634 (a : Assignment p) (h : Satisfies (privateBatc
   have c5244 := (privateBatchWrapper8_copies163 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5245 := (privateBatchWrapper8_copies163 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
   have c5246 := (privateBatchWrapper8_copies163 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_128_4 := arithEq_of_rows h (row := 128) (i := 4) rfl (by decide)
+  have e_128_4 := arithEq_of_rows h (i := 4) privateBatchWrapper8_row128 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_128_4
   simp only [← c5241, ← c5242, ← c5243] at e_128_4
-  have e_128_5 := arithEq_of_rows h (row := 128) (i := 5) rfl (by decide)
+  have e_128_5 := arithEq_of_rows h (i := 5) privateBatchWrapper8_row128 (by decide)
   simp only [Nat.reduceMul, Nat.reduceAdd] at e_128_5
   simp only [← c5244, ← c5245, ← c5246] at e_128_5
   have hr := e_128_5
@@ -15493,178 +15493,5 @@ theorem privateBatchWrapper8_f635 (perm : St p → St p) (a : Assignment p) (h :
     simp [pad10, rate, List.replicate]
   rw [spongeHash, hpad, absorbMsg_block8, absorbMsg_nil, ← hout0]
   exact ⟨rfl, rfl, rfl, rfl⟩
-
-theorem privateBatchWrapper8_f636 (perm : St p → St p) (a : Assignment p) (h : Satisfies (privateBatchWrapper8 p) a)
-    (hp : Poseidon2Rows perm (privateBatchWrapper8 p) a) :
-    (a (.wire 130 12) = spongeHash perm [a (.wire 129 12), a (.wire 129 13), a (.wire 129 14), a (.wire 129 15)] 0 ∧ a (.wire 130 13) = spongeHash perm [a (.wire 129 12), a (.wire 129 13), a (.wire 129 14), a (.wire 129 15)] 1 ∧ a (.wire 130 14) = spongeHash perm [a (.wire 129 12), a (.wire 129 13), a (.wire 129 14), a (.wire 129 15)] 2 ∧ a (.wire 130 15) = spongeHash perm [a (.wire 129 12), a (.wire 129 13), a (.wire 129 14), a (.wire 129 15)] 3) := by
-  have c5259 := (privateBatchWrapper8_copies164 a h).2.2.2.2.2.2.2.2.2.2.2.1
-  have c5260 := (privateBatchWrapper8_copies164 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5261 := (privateBatchWrapper8_copies164 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5262 := (privateBatchWrapper8_copies164 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5263 := (privateBatchWrapper8_copies164 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5264 := (privateBatchWrapper8_copies164 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5265 := (privateBatchWrapper8_copies164 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5266 := (privateBatchWrapper8_copies164 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5267 := (privateBatchWrapper8_copies164 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5268 := (privateBatchWrapper8_copies164 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5269 := (privateBatchWrapper8_copies164 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5270 := (privateBatchWrapper8_copies164 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have hk := privateBatchWrapper8_consts a h
-  obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have hin0 : poseidon2In a 130 = addBlock (fun _ => 0) [a (.wire 129 12), a (.wire 129 13), a (.wire 129 14), a (.wire 129 15), 1, 0, 0, 0] :=
-    poseidon2In_first c5259.symm c5260.symm c5261.symm c5262.symm (c5263.symm.trans k3) (c5264.symm.trans k2) (c5265.symm.trans k2) (c5266.symm.trans k2) (c5267.symm.trans k2) (c5268.symm.trans k2) (c5269.symm.trans k2) (c5270.symm.trans k2)
-  have hout0 := poseidon2Row_absorb perm hp (row := 130) rfl rfl hin0
-  have hpad : pad10 [a (.wire 129 12), a (.wire 129 13), a (.wire 129 14), a (.wire 129 15)] =
-      [a (.wire 129 12), a (.wire 129 13), a (.wire 129 14), a (.wire 129 15), 1, 0, 0, 0] ++ [] := by
-    simp [pad10, rate, List.replicate]
-  rw [spongeHash, hpad, absorbMsg_block8, absorbMsg_nil, ← hout0]
-  exact ⟨rfl, rfl, rfl, rfl⟩
-
-theorem privateBatchWrapper8_f637 (a : Assignment p) (h : Satisfies (privateBatchWrapper8 p) a) :
-    a (.wire 128 31) = bselect (a (.wire 7 51)) (a (.wire 130 12)) (a (.virt 47)) := by
-  have c5271 := (privateBatchWrapper8_copies164 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5272 := (privateBatchWrapper8_copies164 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5273 := (privateBatchWrapper8_copies164 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5274 := (privateBatchWrapper8_copies164 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5275 := (privateBatchWrapper8_copies164 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5276 := (privateBatchWrapper8_copies164 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_128_6 := arithEq_of_rows h (row := 128) (i := 6) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_128_6
-  simp only [← c5271, ← c5272, ← c5273] at e_128_6
-  have e_128_7 := arithEq_of_rows h (row := 128) (i := 7) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_128_7
-  simp only [← c5274, ← c5275, ← c5276] at e_128_7
-  have hr := e_128_7
-  simp only [e_128_6] at hr
-  simp only [bselect]
-  linear_combination hr
-
-theorem privateBatchWrapper8_f638 (a : Assignment p) (h : Satisfies (privateBatchWrapper8 p) a) :
-    a (.wire 128 39) = bselect (a (.wire 7 51)) (a (.wire 130 13)) (a (.virt 48)) := by
-  have c5277 := (privateBatchWrapper8_copies164 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5278 := (privateBatchWrapper8_copies164 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5279 := (privateBatchWrapper8_copies164 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have c5280 := (privateBatchWrapper8_copies165 a h).1
-  have c5281 := (privateBatchWrapper8_copies165 a h).2.1
-  have c5282 := (privateBatchWrapper8_copies165 a h).2.2.1
-  have e_128_8 := arithEq_of_rows h (row := 128) (i := 8) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_128_8
-  simp only [← c5277, ← c5278, ← c5279] at e_128_8
-  have e_128_9 := arithEq_of_rows h (row := 128) (i := 9) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_128_9
-  simp only [← c5280, ← c5281, ← c5282] at e_128_9
-  have hr := e_128_9
-  simp only [e_128_8] at hr
-  simp only [bselect]
-  linear_combination hr
-
-theorem privateBatchWrapper8_f639 (a : Assignment p) (h : Satisfies (privateBatchWrapper8 p) a) :
-    a (.wire 128 47) = bselect (a (.wire 7 51)) (a (.wire 130 14)) (a (.virt 49)) := by
-  have c5283 := (privateBatchWrapper8_copies165 a h).2.2.2.1
-  have c5284 := (privateBatchWrapper8_copies165 a h).2.2.2.2.1
-  have c5285 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.1
-  have c5286 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.1
-  have c5287 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.2.1
-  have c5288 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.2.2.1
-  have e_128_10 := arithEq_of_rows h (row := 128) (i := 10) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_128_10
-  simp only [← c5283, ← c5284, ← c5285] at e_128_10
-  have e_128_11 := arithEq_of_rows h (row := 128) (i := 11) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_128_11
-  simp only [← c5286, ← c5287, ← c5288] at e_128_11
-  have hr := e_128_11
-  simp only [e_128_10] at hr
-  simp only [bselect]
-  linear_combination hr
-
-theorem privateBatchWrapper8_f640 (a : Assignment p) (h : Satisfies (privateBatchWrapper8 p) a) :
-    a (.wire 128 55) = bselect (a (.wire 7 51)) (a (.wire 130 15)) (a (.virt 50)) := by
-  have c5289 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.2.2.2.1
-  have c5290 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.2.2.2.2.1
-  have c5291 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.2.2.2.2.2.1
-  have c5292 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5293 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5294 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_128_12 := arithEq_of_rows h (row := 128) (i := 12) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_128_12
-  simp only [← c5289, ← c5290, ← c5291] at e_128_12
-  have e_128_13 := arithEq_of_rows h (row := 128) (i := 13) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_128_13
-  simp only [← c5292, ← c5293, ← c5294] at e_128_13
-  have hr := e_128_13
-  simp only [e_128_12] at hr
-  simp only [bselect]
-  linear_combination hr
-
-theorem privateBatchWrapper8_f641 (perm : St p → St p) (a : Assignment p) (h : Satisfies (privateBatchWrapper8 p) a)
-    (hp : Poseidon2Rows perm (privateBatchWrapper8 p) a) :
-    (a (.wire 131 12) = spongeHash perm [a (.virt 271), a (.virt 272), a (.virt 273), a (.virt 274)] 0 ∧ a (.wire 131 13) = spongeHash perm [a (.virt 271), a (.virt 272), a (.virt 273), a (.virt 274)] 1 ∧ a (.wire 131 14) = spongeHash perm [a (.virt 271), a (.virt 272), a (.virt 273), a (.virt 274)] 2 ∧ a (.wire 131 15) = spongeHash perm [a (.virt 271), a (.virt 272), a (.virt 273), a (.virt 274)] 3) := by
-  have c5295 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5296 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5297 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5298 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5299 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5300 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5301 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5302 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5303 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5304 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5305 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5306 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have hk := privateBatchWrapper8_consts a h
-  obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have hin0 : poseidon2In a 131 = addBlock (fun _ => 0) [a (.virt 271), a (.virt 272), a (.virt 273), a (.virt 274), 1, 0, 0, 0] :=
-    poseidon2In_first c5295.symm c5296.symm c5297.symm c5298.symm (c5299.symm.trans k3) (c5300.symm.trans k2) (c5301.symm.trans k2) (c5302.symm.trans k2) (c5303.symm.trans k2) (c5304.symm.trans k2) (c5305.symm.trans k2) (c5306.symm.trans k2)
-  have hout0 := poseidon2Row_absorb perm hp (row := 131) rfl rfl hin0
-  have hpad : pad10 [a (.virt 271), a (.virt 272), a (.virt 273), a (.virt 274)] =
-      [a (.virt 271), a (.virt 272), a (.virt 273), a (.virt 274), 1, 0, 0, 0] ++ [] := by
-    simp [pad10, rate, List.replicate]
-  rw [spongeHash, hpad, absorbMsg_block8, absorbMsg_nil, ← hout0]
-  exact ⟨rfl, rfl, rfl, rfl⟩
-
-theorem privateBatchWrapper8_f642 (perm : St p → St p) (a : Assignment p) (h : Satisfies (privateBatchWrapper8 p) a)
-    (hp : Poseidon2Rows perm (privateBatchWrapper8 p) a) :
-    (a (.wire 132 12) = spongeHash perm [a (.wire 131 12), a (.wire 131 13), a (.wire 131 14), a (.wire 131 15)] 0 ∧ a (.wire 132 13) = spongeHash perm [a (.wire 131 12), a (.wire 131 13), a (.wire 131 14), a (.wire 131 15)] 1 ∧ a (.wire 132 14) = spongeHash perm [a (.wire 131 12), a (.wire 131 13), a (.wire 131 14), a (.wire 131 15)] 2 ∧ a (.wire 132 15) = spongeHash perm [a (.wire 131 12), a (.wire 131 13), a (.wire 131 14), a (.wire 131 15)] 3) := by
-  have c5307 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5308 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5309 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5310 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
-  have c5311 := (privateBatchWrapper8_copies165 a h).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
-  have c5312 := (privateBatchWrapper8_copies166 a h).1
-  have c5313 := (privateBatchWrapper8_copies166 a h).2.1
-  have c5314 := (privateBatchWrapper8_copies166 a h).2.2.1
-  have c5315 := (privateBatchWrapper8_copies166 a h).2.2.2.1
-  have c5316 := (privateBatchWrapper8_copies166 a h).2.2.2.2.1
-  have c5317 := (privateBatchWrapper8_copies166 a h).2.2.2.2.2.1
-  have c5318 := (privateBatchWrapper8_copies166 a h).2.2.2.2.2.2.1
-  have hk := privateBatchWrapper8_consts a h
-  obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31⟩ := hk.1.1.1.1
-  have hin0 : poseidon2In a 132 = addBlock (fun _ => 0) [a (.wire 131 12), a (.wire 131 13), a (.wire 131 14), a (.wire 131 15), 1, 0, 0, 0] :=
-    poseidon2In_first c5307.symm c5308.symm c5309.symm c5310.symm (c5311.symm.trans k3) (c5312.symm.trans k2) (c5313.symm.trans k2) (c5314.symm.trans k2) (c5315.symm.trans k2) (c5316.symm.trans k2) (c5317.symm.trans k2) (c5318.symm.trans k2)
-  have hout0 := poseidon2Row_absorb perm hp (row := 132) rfl rfl hin0
-  have hpad : pad10 [a (.wire 131 12), a (.wire 131 13), a (.wire 131 14), a (.wire 131 15)] =
-      [a (.wire 131 12), a (.wire 131 13), a (.wire 131 14), a (.wire 131 15), 1, 0, 0, 0] ++ [] := by
-    simp [pad10, rate, List.replicate]
-  rw [spongeHash, hpad, absorbMsg_block8, absorbMsg_nil, ← hout0]
-  exact ⟨rfl, rfl, rfl, rfl⟩
-
-theorem privateBatchWrapper8_f643 (a : Assignment p) (h : Satisfies (privateBatchWrapper8 p) a) :
-    a (.wire 133 3) = bselect (a (.wire 8 35)) (a (.wire 132 12)) (a (.virt 58)) := by
-  have c5319 := (privateBatchWrapper8_copies166 a h).2.2.2.2.2.2.2.1
-  have c5320 := (privateBatchWrapper8_copies166 a h).2.2.2.2.2.2.2.2.1
-  have c5321 := (privateBatchWrapper8_copies166 a h).2.2.2.2.2.2.2.2.2.1
-  have c5322 := (privateBatchWrapper8_copies166 a h).2.2.2.2.2.2.2.2.2.2.1
-  have c5323 := (privateBatchWrapper8_copies166 a h).2.2.2.2.2.2.2.2.2.2.2.1
-  have c5324 := (privateBatchWrapper8_copies166 a h).2.2.2.2.2.2.2.2.2.2.2.2.1
-  have e_128_14 := arithEq_of_rows h (row := 128) (i := 14) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_128_14
-  simp only [← c5319, ← c5320, ← c5321] at e_128_14
-  have e_133_0 := arithEq_of_rows h (row := 133) (i := 0) rfl (by decide)
-  simp only [Nat.reduceMul, Nat.reduceAdd] at e_133_0
-  simp only [← c5322, ← c5323, ← c5324] at e_133_0
-  have hr := e_133_0
-  simp only [e_128_14] at hr
-  simp only [bselect]
-  linear_combination hr
 
 end Plonky2Spec.Generated
