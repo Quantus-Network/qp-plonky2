@@ -49,7 +49,6 @@ use crate::plonk::plonk_common::PlonkOracle;
 use crate::plonk::proof::ProofWithPublicInputs;
 use crate::plonk::prover::prove;
 use crate::plonk::verifier::verify;
-use crate::util::log2_ceil;
 use crate::util::serialization::{
     Buffer, GateSerializer, IoResult, Read, WitnessGeneratorSerializer, Write,
 };
@@ -393,18 +392,11 @@ pub struct CommonCircuitData<F: RichField + Extendable<D>, const D: usize> {
 
     pub fri_params: FriParams,
 
-    /// Shared public degree bits for the initial phase-1 FRI oracle commitments.
-    /// This may be larger than the trace degree for certain configurations.
-    pub public_initial_degree_bits: usize,
-
     /// The types of gates used in this circuit, along with their prefixes.
     pub gates: Vec<GateRef<F, D>>,
 
     /// Information on the circuit's selector polynomials.
     pub selectors_info: SelectorsInfo,
-
-    /// The degree of the PLONK quotient polynomial.
-    pub quotient_degree_factor: usize,
 
     /// The largest number of constraints imposed by any gate.
     pub num_gate_constraints: usize,
@@ -431,20 +423,7 @@ pub struct CommonCircuitData<F: RichField + Extendable<D>, const D: usize> {
 }
 
 impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
-    /// Validate invariants required by the prover.
-    ///
-    /// This checks that degree parameters are consistent and within bounds.
-    pub fn check_valid(&self) -> Result<(), &'static str> {
-        qp_plonky2_core::circuit_config::check_common_data_valid(
-            &self.config,
-            self.quotient_degree_factor,
-            self.config.fri_config.rate_bits,
-            self.public_initial_degree_bits,
-            self.trace_degree_bits,
-            self.fri_params.degree_bits,
-            || self.luts.iter().any(|lut| lut.is_empty()),
-        )
-    }
+    qp_plonky2_core::common_circuit_data_constructors!();
 
     pub fn to_bytes(&self, gate_serializer: &dyn GateSerializer<F, D>) -> IoResult<Vec<u8>> {
         let mut buffer = Vec::new();
@@ -463,36 +442,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
     /// Trace degree bits used by the PLONK identity checks and subgroup arithmetic.
     pub const fn degree_bits(&self) -> usize {
         self.trace_degree_bits
-    }
-
-    /// Degree bits for the public initial FRI codeword used by masked phase-1 oracles.
-    pub const fn public_initial_degree_bits(&self) -> usize {
-        self.public_initial_degree_bits
-    }
-
-    /// Degree of the public initial FRI codeword used by masked phase-1 oracles.
-    pub const fn public_initial_degree(&self) -> usize {
-        1 << self.public_initial_degree_bits()
-    }
-
-    /// LDE size of the public initial codeword used by masked phase-1 oracles.
-    pub const fn public_initial_lde_size(&self) -> usize {
-        self.public_initial_degree() << self.config.fri_config.rate_bits
-    }
-
-    /// Number of FFT points precomputed for the largest phase-1 commitment.
-    ///
-    /// Returns `None` when the degree parameters overflow `usize`, so deserialization can reject
-    /// malformed circuit data instead of panicking.
-    pub fn max_fft_points(&self) -> Option<usize> {
-        let max_fft_degree_bits = self.degree_bits().max(self.public_initial_degree_bits());
-        let fft_extra_bits = self
-            .config
-            .fri_config
-            .rate_bits
-            .max(log2_ceil(self.quotient_degree_factor));
-        let fft_bits = max_fft_degree_bits.checked_add(fft_extra_bits)?;
-        1usize.checked_shl(fft_bits as u32)
     }
 
     pub const fn degree(&self) -> usize {
@@ -515,19 +464,24 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
             .expect("No gates?")
     }
 
+    /// The degree of the PLONK quotient polynomial, in multiples of the trace degree.
+    pub const fn quotient_degree_factor(&self) -> usize {
+        self.config.max_quotient_degree_factor
+    }
+
     pub const fn quotient_degree(&self) -> usize {
-        self.quotient_degree_factor * self.degree()
+        self.quotient_degree_factor() * self.degree()
     }
 
     /// The quotient degree factor determines partial-product chunk size.
-    pub fn permutation_partial_product_degree(&self) -> usize {
-        self.quotient_degree_factor
+    pub const fn permutation_partial_product_degree(&self) -> usize {
+        self.quotient_degree_factor()
     }
 
     /// Lookup running-sum accumulators consume one degree in the filtered constraints,
     /// so their chunk size is one less than the quotient degree factor.
-    pub fn lookup_accumulator_degree(&self) -> usize {
-        self.quotient_degree_factor - 1
+    pub const fn lookup_accumulator_degree(&self) -> usize {
+        self.quotient_degree_factor() - 1
     }
 
     /// Range of the constants polynomials in the `constants_sigmas_commitment`.
@@ -703,7 +657,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonCircuitData<F, D> {
     }
 
     pub(crate) const fn num_quotient_polys(&self) -> usize {
-        self.config.num_challenges * self.quotient_degree_factor
+        self.config.num_challenges * self.quotient_degree_factor()
     }
 
     fn fri_all_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
@@ -747,7 +701,7 @@ mod tests {
     use crate::gates::noop::NoopGate;
     use crate::plonk::circuit_builder::CircuitBuilder;
     use crate::plonk::config::{GenericConfig, PoseidonGoldilocksConfig};
-    use crate::util::partial_products::num_partial_products;
+    use crate::plonk::plonk_common::num_partial_products;
 
     const D: usize = 2;
     type C = PoseidonGoldilocksConfig;
@@ -773,7 +727,7 @@ mod tests {
         let common = build_common(CircuitConfig::standard_recursion_config());
         let degree = common.permutation_partial_product_degree();
 
-        assert_eq!(degree, common.quotient_degree_factor);
+        assert_eq!(degree, common.quotient_degree_factor());
         assert_eq!(
             common.num_partial_products,
             num_partial_products(common.config.num_routed_wires, degree)
@@ -786,7 +740,7 @@ mod tests {
         let degree = common.lookup_accumulator_degree();
 
         assert!(common.num_lookup_polys > 0);
-        assert_eq!(degree, common.quotient_degree_factor - 1);
+        assert_eq!(degree, common.quotient_degree_factor() - 1);
         assert_eq!(
             common.num_lookup_polys,
             LookupGate::num_slots(&common.config).div_ceil(degree) + 1,
@@ -799,11 +753,11 @@ mod tests {
 
         assert_eq!(
             common.permutation_partial_product_degree(),
-            common.quotient_degree_factor
+            common.quotient_degree_factor()
         );
         assert_eq!(
             common.lookup_accumulator_degree(),
-            common.quotient_degree_factor - 1
+            common.quotient_degree_factor() - 1
         );
     }
 

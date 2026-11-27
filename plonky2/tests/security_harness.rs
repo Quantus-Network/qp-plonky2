@@ -1,7 +1,9 @@
 use std::panic::{catch_unwind, AssertUnwindSafe};
+use std::sync::Arc;
 
 use plonky2::field::types::Field;
 use plonky2::field::zero_poly_coset::ZeroPolyOnCoset;
+use plonky2::fri::FriReductionStrategy;
 use plonky2::gates::base_sum::BaseSumGate;
 use plonky2::gates::coset_interpolation::CosetInterpolationGate;
 use plonky2::gates::exponentiation::ExponentiationGate;
@@ -341,7 +343,24 @@ fn malformed_fft_root_table_rejected() {
 }
 
 #[test]
-fn valid_fft_root_table_roundtrip_recomputes() {
+fn fft_root_table_with_one_wrong_root_rejected() {
+    let mut data = simple_circuit_data();
+    let table = data.prover_only.fft_root_table.as_mut().unwrap();
+    table[1][1] += F::ONE;
+    let serializer = DefaultGeneratorSerializer::<C, D>::default();
+
+    let bytes = data
+        .prover_only
+        .to_bytes(&serializer, &data.common)
+        .unwrap();
+
+    assert!(
+        ProverOnlyCircuitData::<F, C, D>::from_bytes(&bytes, &serializer, &data.common).is_err()
+    );
+}
+
+#[test]
+fn valid_fft_root_table_roundtrips() {
     let data = simple_circuit_data();
     let serializer = DefaultGeneratorSerializer::<C, D>::default();
 
@@ -352,7 +371,7 @@ fn valid_fft_root_table_roundtrip_recomputes() {
     let decoded =
         ProverOnlyCircuitData::<F, C, D>::from_bytes(&bytes, &serializer, &data.common).unwrap();
 
-    assert!(decoded.fft_root_table.is_some());
+    assert_eq!(decoded.fft_root_table, data.prover_only.fft_root_table);
 }
 
 #[test]
@@ -374,27 +393,473 @@ fn zero_poly_on_coset_valid_domain_works() {
     assert_eq!(eval * eval_inverse, F::ONE);
 }
 
-/// #64700: deserialization must reject a `CommonCircuitData` whose `public_initial_degree_bits`
-/// (which seeds FRI query sampling) disagrees with the transcript-bound `fri_params.degree_bits`,
-/// otherwise a malicious blob could shrink the sampled query domain.
+/// A FRI rate of 1 or zero query rounds leaves FRI with nothing to test; the builder must refuse
+/// such a config even when `security_bits` is set low enough to pass the security-level check.
 #[test]
-fn mismatched_degree_bits_common_data_deserialization_rejected() {
-    let mut data = simple_circuit_data();
-    data.common.public_initial_degree_bits = data.common.fri_params.degree_bits + 1;
-
-    let gate_serializer = DefaultGateSerializer;
-    let bytes = data.common.to_bytes(&gate_serializer).unwrap();
-
-    assert!(CommonCircuitData::<F, D>::from_bytes(bytes, &gate_serializer).is_err());
+fn degenerate_fri_config_rejected_at_build() {
+    for (rate_bits, num_query_rounds) in [(0, 28), (3, 0)] {
+        let result = catch_unwind(AssertUnwindSafe(|| {
+            let mut config = CircuitConfig::standard_recursion_config();
+            config.security_bits = 0;
+            config.fri_config.rate_bits = rate_bits;
+            config.fri_config.num_query_rounds = num_query_rounds;
+            CircuitBuilder::<F, D>::new(config)
+        }));
+        assert!(result.is_err());
+    }
 }
 
-#[test]
-fn matching_degree_bits_common_data_roundtrips() {
-    let data = simple_circuit_data();
-    let gate_serializer = DefaultGateSerializer;
-    let bytes = data.common.to_bytes(&gate_serializer).unwrap();
+fn panic_message(payload: Box<dyn std::any::Any + Send>) -> String {
+    payload
+        .downcast_ref::<String>()
+        .cloned()
+        .or_else(|| payload.downcast_ref::<&str>().map(|s| s.to_string()))
+        .unwrap_or_default()
+}
 
-    assert!(CommonCircuitData::<F, D>::from_bytes(bytes, &gate_serializer).is_ok());
+/// Blinding shifts and multiplies by the `Fixed` arities before any trace degree is known, so a
+/// schedule the field cannot hold (`[32, 32]` wraps the product to zero; `[62]` wraps the opening
+/// count) is rejected when the builder is created, as is a rate with no room for a trace.
+#[test]
+fn fixed_fri_schedule_beyond_the_field_rejected_at_new() {
+    let rejected = |mutate: &dyn Fn(&mut CircuitConfig), message: &str| {
+        let result = catch_unwind(AssertUnwindSafe(|| {
+            let mut config = CircuitConfig::standard_recursion_zk_config();
+            mutate(&mut config);
+            CircuitBuilder::<F, D>::new(config)
+        }));
+        assert_eq!(panic_message(result.unwrap_err()), message);
+    };
+    // The standard rate of 3 leaves 29 bits of trace in Goldilocks.
+    for arity_bits in [
+        vec![30],
+        vec![40],
+        vec![32, 32],
+        vec![62],
+        vec![usize::MAX, 1],
+    ] {
+        rejected(
+            &|config| {
+                config.fri_config.reduction_strategy =
+                    FriReductionStrategy::Fixed(arity_bits.clone())
+            },
+            "FRI total reduction arity exceeds the field's largest domain",
+        );
+    }
+    rejected(
+        &|config| config.fri_config.rate_bits = 40,
+        "FRI rate_bits exceed the field's two-adicity",
+    );
+}
+
+/// A `Fixed` schedule that fits the field but that no trace can carry has blinding double its
+/// degree estimate past the field's largest domain; the estimate stops there instead.
+#[test]
+fn impossible_fixed_fri_schedule_rejected_before_blinding() {
+    let result = catch_unwind(AssertUnwindSafe(|| {
+        let mut config = CircuitConfig::standard_recursion_zk_config();
+        config.fri_config.reduction_strategy = FriReductionStrategy::Fixed(vec![29]);
+        let mut builder = CircuitBuilder::<F, D>::new(config);
+        let x = builder.add_virtual_target();
+        builder.register_public_input(x);
+        builder.build::<C>()
+    }));
+    assert_eq!(
+        panic_message(result.unwrap_err()),
+        "the FRI schedule needs more blinding rows than the field's largest domain holds"
+    );
+}
+
+/// Blinding sizes the trace from estimates below the final degree, so a `Fixed` schedule is only
+/// checked against the degree the circuit ends up with. With `cap_height < rate_bits` this
+/// schedule fits the final degree but not the first estimate.
+#[test]
+fn fixed_fri_schedule_that_fits_only_after_blinding_builds() -> anyhow::Result<()> {
+    let mut config = CircuitConfig::standard_recursion_zk_config();
+    config.fri_config.rate_bits = 8;
+    config.fri_config.cap_height = 0;
+    config.fri_config.num_query_rounds = 12;
+    config.fri_config.proof_of_work_bits = 20;
+    config.fri_config.reduction_strategy = FriReductionStrategy::Fixed(vec![4, 4]);
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let x = builder.add_virtual_target();
+    let y = builder.mul(x, x);
+    builder.register_public_input(y);
+    let data = builder.build::<C>();
+
+    let mut witness = PartialWitness::new();
+    witness.set_target(x, F::from_canonical_u64(3))?;
+    let proof = data.prove(witness)?;
+    data.verify(proof)
+}
+
+/// A config too narrow for a gate to hold a single operation must fail loudly when that gate
+/// is first needed, not misbehave in slot bookkeeping.
+#[test]
+fn zero_slot_gate_rejected() {
+    let result = catch_unwind(AssertUnwindSafe(|| {
+        let config = CircuitConfig {
+            num_routed_wires: 3,
+            max_quotient_degree_factor: 2,
+            ..CircuitConfig::standard_recursion_config()
+        };
+        let mut builder = CircuitBuilder::<F, D>::new(config);
+        let x = builder.add_virtual_target();
+        builder.add(x, x)
+    }));
+    let message = panic_message(result.unwrap_err());
+    assert!(message.contains("no operation slots"), "{message}");
+}
+
+/// Only the config, degree, gates, public input count and lookup tables are serialized; the
+/// loader derives the rest the way the builder does, after checking those primitives are ones the
+/// builder could have fixed. Both crates reject the same bytes.
+#[test]
+fn common_data_primitives_are_checked_on_load() {
+    let data = simple_circuit_data();
+    let rejected = |mutate: fn(&mut CommonCircuitData<F, D>), error: &str| {
+        let mut common = data.common.clone();
+        mutate(&mut common);
+        assert_eq!(
+            CommonCircuitData::<F, D>::new(
+                common.config.clone(),
+                common.trace_degree_bits,
+                common.gates.clone(),
+                common.num_public_inputs,
+                common.luts.clone(),
+            )
+            .err(),
+            Some(error)
+        );
+
+        let gate_serializer = DefaultGateSerializer;
+        let bytes = common.to_bytes(&gate_serializer).unwrap();
+        assert!(CommonCircuitData::<F, D>::from_bytes(bytes.clone(), &gate_serializer).is_err());
+        assert!(
+            plonky2_verifier::plonk::circuit_data::CommonCircuitData::<F, D>::from_bytes(
+                bytes,
+                &plonky2_verifier::util::serialization::DefaultGateSerializer,
+            )
+            .is_err()
+        );
+    };
+
+    // Consistent data that weakens FRI below `security_bits` fails the rule the builder applies.
+    rejected(
+        |common| {
+            common.config.fri_config.num_query_rounds = 1;
+            common.config.fri_config.proof_of_work_bits = 0;
+        },
+        "FRI params fall short of target security",
+    );
+    rejected(
+        |common| common.trace_degree_bits = 40,
+        "FRI LDE domain exceeds the field's two-adicity",
+    );
+    // The schedule search would wrap on this rate; the domain is bounded before it runs.
+    rejected(
+        |common| {
+            common.config.fri_config.rate_bits = usize::MAX;
+            common.config.fri_config.reduction_strategy = FriReductionStrategy::MinSize(None);
+        },
+        "FRI LDE domain exceeds the field's two-adicity",
+    );
+    rejected(
+        |common| common.gates.swap(0, 1),
+        "gates must be sorted by degree and id without duplicates",
+    );
+    rejected(
+        |common| common.config.num_wires = common.config.num_routed_wires,
+        "gate does not fit within the circuit config",
+    );
+    rejected(
+        |common| common.config.num_wires = CircuitConfig::MAX_WIDTH + 1,
+        "num_wires and num_constants must not exceed 2^16",
+    );
+}
+
+/// Gate parameters are checked against the config before any gate method can overflow,
+/// underflow or divide by zero on them and before the common data is derived from those methods.
+/// The same bounds apply to bytes read by either crate and to common data built in memory.
+#[test]
+fn hostile_gate_parameters_rejected() {
+    use plonky2::gates::arithmetic_base::ArithmeticGate;
+    use plonky2::gates::base_sum::BaseSumGate;
+    use plonky2::gates::gate::GateRef;
+    use plonky2::gates::random_access::RandomAccessGate;
+    use plonky2::util::serialization::GateSerializer;
+    use plonky2_verifier::util::serialization::{
+        Buffer as VerifierBuffer, DefaultGateSerializer as VerifierGateSerializer,
+        GateSerializer as _,
+    };
+
+    let common = simple_circuit_data().common;
+    let serializer = DefaultGateSerializer;
+    let verifier_serializer = VerifierGateSerializer;
+    let verifier_common =
+        plonky2_verifier::plonk::circuit_data::CommonCircuitData::<F, D>::from_bytes(
+            common.to_bytes(&serializer).unwrap(),
+            &verifier_serializer,
+        )
+        .unwrap();
+
+    let accepted = |gate: GateRef<F, D>| {
+        let mut bytes = Vec::new();
+        serializer.write_gate(&mut bytes, &gate, &common).unwrap();
+        let prover_accepts = serializer
+            .read_gate(&mut Buffer::new(&bytes), &common)
+            .is_ok();
+        let verifier_accepts = verifier_serializer
+            .read_gate(&mut VerifierBuffer::new(&bytes), &verifier_common)
+            .is_ok();
+        assert_eq!(prover_accepts, verifier_accepts, "{gate:?}");
+
+        let mut gates = common.gates.clone();
+        gates.push(gate.clone());
+        let in_memory_accepts = CommonCircuitData::<F, D>::new(
+            common.config.clone(),
+            common.trace_degree_bits,
+            gates,
+            common.num_public_inputs,
+            common.luts.clone(),
+        ) != Err("gate parameters do not fit within the circuit config");
+        assert_eq!(prover_accepts, in_memory_accepts, "{gate:?}");
+        prover_accepts
+    };
+
+    assert!(accepted(GateRef::new(ArithmeticGate::new_from_config(
+        &common.config
+    ))));
+    // `num_wires()` would wrap to zero and slip past the width check.
+    assert!(!accepted(GateRef::new(ArithmeticGate { num_ops: 1 << 62 })));
+
+    assert!(accepted(GateRef::new(CosetInterpolationGate::<F, D>::new(
+        4
+    ))));
+    let mut divides_by_zero = CosetInterpolationGate::<F, D>::new(4);
+    divides_by_zero.degree = 1;
+    assert!(!accepted(GateRef::new(divides_by_zero)));
+
+    assert!(accepted(GateRef::new(ExponentiationGate::<F, D>::new(8))));
+    assert!(!accepted(GateRef::new(ExponentiationGate::<F, D>::new(0))));
+    assert!(!accepted(GateRef::new(ExponentiationGate::<F, D>::new(
+        common.config.num_wires
+    ))));
+
+    // 2^64 exceeds the field order, so 64 base-2 limbs cannot decompose uniquely.
+    assert!(accepted(GateRef::new(BaseSumGate::<2>::new(63))));
+    assert!(!accepted(GateRef::new(BaseSumGate::<2>::new(64))));
+    assert!(!accepted(GateRef::new(BaseSumGate::<2>::new(usize::MAX))));
+
+    let widest = RandomAccessGate::<F, D>::new_from_config(&common.config, 4);
+    assert!(accepted(GateRef::new(widest)));
+    let mut too_many_constants = widest;
+    too_many_constants.num_extra_constants += 1;
+    assert!(!accepted(GateRef::new(too_many_constants)));
+
+    assert!(accepted(GateRef::new(ReducingGate::<D>::new(4))));
+    assert!(!accepted(GateRef::new(ReducingGate::<D>::new(
+        common.config.num_wires
+    ))));
+}
+
+/// Primitives may carry a config no honest gate fits; the config is rejected before the fit
+/// checks take logarithms of its widths.
+#[test]
+fn zero_width_config_rejected_before_gate_checks() {
+    let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+    builder.add_gate(CosetInterpolationGate::<F, D>::new(2), vec![]);
+    let index = builder.add_virtual_target();
+    let values = builder.add_virtual_targets(4);
+    builder.random_access(index, values);
+    let common = builder.build::<C>().common;
+    let serializer = DefaultGateSerializer;
+    let verifier_common =
+        plonky2_verifier::plonk::circuit_data::CommonCircuitData::<F, D>::from_bytes(
+            common.to_bytes(&serializer).unwrap(),
+            &plonky2_verifier::util::serialization::DefaultGateSerializer,
+        )
+        .unwrap();
+
+    for zero_width in [
+        |config: &mut CircuitConfig| config.num_wires = 0,
+        |config: &mut CircuitConfig| config.num_routed_wires = 0,
+    ] {
+        let mut config = common.config.clone();
+        zero_width(&mut config);
+        assert!(CommonCircuitData::<F, D>::new(
+            config.clone(),
+            common.trace_degree_bits,
+            common.gates.clone(),
+            common.num_public_inputs,
+            common.luts.clone(),
+        )
+        .is_err());
+        assert!(
+            plonky2_verifier::plonk::circuit_data::CommonCircuitData::<F, D>::new(
+                config,
+                verifier_common.trace_degree_bits,
+                verifier_common.gates.clone(),
+                verifier_common.num_public_inputs,
+                verifier_common.luts.clone(),
+            )
+            .is_err()
+        );
+    }
+}
+
+/// Proofs built in memory (or via serde) skip `from_bytes`, so the verifier's own shape checks
+/// must return errors rather than panic: on an odd cap, and on Merkle proofs that stop short of
+/// the cap or whose layer heights never match the leaf data.
+#[test]
+fn malformed_in_memory_proof_rejected_not_panicking() -> anyhow::Result<()> {
+    use plonky2::hash::merkle_proofs::{
+        verify_batch_merkle_proof_to_cap, verify_merkle_proof_to_cap, MerkleProof,
+    };
+    use plonky2::hash::merkle_tree::MerkleTree;
+
+    type H = <C as GenericConfig<D>>::Hasher;
+
+    let data = simple_circuit_data();
+    let mut odd_cap = data.prove(PartialWitness::new())?;
+    odd_cap.proof.wires_cap.0.pop();
+    assert!(data.verify(odd_cap).is_err());
+
+    let leaves: Vec<Vec<F>> = (0..8u64).map(|i| vec![F::from_canonical_u64(i)]).collect();
+    let tree = MerkleTree::<F, H>::new(leaves.clone(), 1);
+    // With no siblings, leaf 7 would index the two-entry cap at 7.
+    let no_siblings = MerkleProof::<F, H> { siblings: vec![] };
+    assert!(verify_merkle_proof_to_cap(leaves[7].clone(), 7, &tree.cap, &no_siblings).is_err());
+
+    let merkle_proof = tree.prove(3);
+    assert!(
+        verify_batch_merkle_proof_to_cap::<F, H>(&[], &[], 3, &tree.cap, &merkle_proof).is_err()
+    );
+    // No layer has height 9, so the second leaf is never absorbed.
+    assert!(verify_batch_merkle_proof_to_cap::<F, H>(
+        &[leaves[3].clone(), leaves[0].clone()],
+        &[3, 9],
+        3,
+        &tree.cap,
+        &merkle_proof
+    )
+    .is_err());
+    Ok(())
+}
+
+/// Generators are read from prover-only bytes, which this harness treats as untrusted: a lookup
+/// table index past `luts`, a slot count the gate cannot hold, or more limbs than a wire row has
+/// are errors rather than panics.
+#[test]
+fn hostile_generator_parameters_rejected_on_deserialization() {
+    use plonky2::util::serialization::WitnessGeneratorSerializer;
+
+    let config = CircuitConfig::standard_recursion_config();
+    let mut builder = CircuitBuilder::<F, D>::new(config);
+    let table_index = builder.add_lookup_table_from_pairs(Arc::new(vec![(0, 1), (1, 2)]));
+    let input = builder.add_virtual_target();
+    builder.register_public_input(input);
+    builder.add_lookup_from_index(input, table_index);
+    builder.split_le(input, 8);
+    let data = builder.build::<C>();
+    let serializer = DefaultGeneratorSerializer::<C, D>::default();
+
+    let generator_bytes = |id: &str| {
+        let generator = data
+            .prover_only
+            .generators
+            .iter()
+            .find(|generator| generator.0.id() == id)
+            .unwrap();
+        let mut bytes = Vec::new();
+        serializer
+            .write_generator(&mut bytes, generator, &data.common)
+            .unwrap();
+        bytes
+    };
+    let accepted = |bytes: &[u8]| {
+        serializer
+            .read_generator(&mut Buffer::new(bytes), &data.common)
+            .is_ok()
+    };
+    let word = 8;
+
+    // The lookup table index is each lookup generator's last field.
+    for id in ["LookupGenerator", "LookupTableGenerator"] {
+        let mut bytes = generator_bytes(id);
+        assert!(accepted(&bytes), "{id}");
+        let lut_index = bytes.len() - word;
+        bytes[lut_index..].copy_from_slice(&u64::MAX.to_le_bytes());
+        assert!(!accepted(&bytes), "{id}");
+    }
+
+    // `num_slots` is the third-last field; the generator divides by it.
+    let mut bytes = generator_bytes("LookupTableGenerator");
+    let num_slots = bytes.len() - 3 * word;
+    bytes[num_slots..num_slots + word].copy_from_slice(&0u64.to_le_bytes());
+    assert!(!accepted(&bytes));
+
+    let mut bytes = generator_bytes("BaseSplitGenerator + Base: 2");
+    assert!(accepted(&bytes));
+    let num_limbs = bytes.len() - word;
+    bytes[num_limbs..].copy_from_slice(&u64::MAX.to_le_bytes());
+    assert!(!accepted(&bytes));
+}
+
+/// Derived fields are not in the encoding, so altering one in memory changes nothing on the wire:
+/// the bytes decode to what the builder produced. Gates are read against the circuit's own
+/// config, so circuits wider than the default config round-trip too; that half only bites once
+/// gate readers check their parameters against the config (#145).
+#[test]
+fn common_data_roundtrips_from_its_primitives() {
+    let gate_serializer = DefaultGateSerializer;
+    for (num_wires, num_routed_wires) in [(143, 120), (234, 200)] {
+        let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig {
+            num_wires,
+            num_routed_wires,
+            ..CircuitConfig::standard_recursion_config()
+        });
+        let x = builder.add_virtual_target();
+        let y = builder.mul(x, x);
+        builder.register_public_input(y);
+        let common = builder.build::<C>().common;
+        let bytes = common.to_bytes(&gate_serializer).unwrap();
+        assert_eq!(
+            CommonCircuitData::<F, D>::from_bytes(bytes.clone(), &gate_serializer).unwrap(),
+            common
+        );
+        assert!(
+            plonky2_verifier::plonk::circuit_data::CommonCircuitData::<F, D>::from_bytes(
+                bytes,
+                &plonky2_verifier::util::serialization::DefaultGateSerializer,
+            )
+            .is_ok()
+        );
+    }
+
+    let data = simple_circuit_data();
+    for mutate in [
+        |_: &mut CommonCircuitData<F, D>| {},
+        |common: &mut CommonCircuitData<F, D>| common.num_constants += 1,
+        |common: &mut CommonCircuitData<F, D>| common.fri_params.config.num_query_rounds = 1,
+        |common: &mut CommonCircuitData<F, D>| common.k_is[1] = common.k_is[0],
+        |common: &mut CommonCircuitData<F, D>| common.selectors_info.groups.truncate(1),
+    ] {
+        let mut common = data.common.clone();
+        mutate(&mut common);
+        let bytes = common.to_bytes(&gate_serializer).unwrap();
+        assert_eq!(
+            CommonCircuitData::<F, D>::from_bytes(bytes.clone(), &gate_serializer).unwrap(),
+            data.common
+        );
+        assert!(
+            plonky2_verifier::plonk::circuit_data::CommonCircuitData::<F, D>::from_bytes(
+                bytes,
+                &plonky2_verifier::util::serialization::DefaultGateSerializer,
+            )
+            .is_ok()
+        );
+    }
 }
 
 /// #64703: the in-circuit `hash_leaf` is length-binding, so a zero-suffixed leaf cannot be coerced

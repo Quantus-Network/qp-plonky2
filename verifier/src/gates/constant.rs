@@ -9,7 +9,7 @@ use crate::gates::gate::VerificationGate;
 use crate::gates::packed_util::PackedEvaluableBase;
 use crate::gates::util::StridedConstraintConsumer;
 use crate::hash::hash_types::RichField;
-use crate::plonk::circuit_data::CommonCircuitData;
+use crate::plonk::circuit_data::{CircuitConfig, CommonCircuitData};
 use crate::plonk::vars::{
     EvaluationVars, EvaluationVarsBase, EvaluationVarsBaseBatch, EvaluationVarsBasePacked,
 };
@@ -46,9 +46,15 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for Co
         dst.write_usize(self.num_consts)
     }
 
-    fn deserialize(src: &mut Buffer, _common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
-        let num_consts = src.read_usize()?;
-        Ok(Self { num_consts })
+    fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
+        Self {
+            num_consts: src.read_usize()?,
+        }
+        .fitting(common_data)
+    }
+
+    fn parameters_fit(&self, config: &CircuitConfig) -> bool {
+        self.num_consts <= config.num_constants
     }
 
     fn eval_unfiltered(&self, vars: EvaluationVars<F, D>) -> Vec<F::Extension> {

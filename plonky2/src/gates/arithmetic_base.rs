@@ -69,9 +69,15 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for ArithmeticGate
         dst.write_usize(self.num_ops)
     }
 
-    fn deserialize(src: &mut Buffer, _common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
-        let num_ops = src.read_usize()?;
-        Ok(Self { num_ops })
+    fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
+        Self {
+            num_ops: src.read_usize()?,
+        }
+        .fitting(common_data)
+    }
+
+    fn parameters_fit(&self, config: &CircuitConfig) -> bool {
+        self.num_ops <= Self::num_ops(config)
     }
 
     fn eval_unfiltered(&self, vars: EvaluationVars<F, D>) -> Vec<F::Extension> {

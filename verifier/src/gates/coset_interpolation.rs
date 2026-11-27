@@ -10,9 +10,9 @@ use crate::field::types::Field;
 use crate::gates::gate::VerificationGate;
 use crate::gates::util::StridedConstraintConsumer;
 use crate::hash::hash_types::RichField;
-use crate::plonk::circuit_data::CommonCircuitData;
+use crate::plonk::circuit_data::{CircuitConfig, CommonCircuitData};
 use crate::plonk::vars::{EvaluationVars, EvaluationVarsBase};
-use crate::util::serialization::{Buffer, IoResult, Read, Write};
+use crate::util::serialization::{Buffer, IoError, IoResult, Read, Write};
 
 /// One of the instantiations of `InterpolationGate`: allows constraints of variable
 /// degree, up to `1<<subgroup_bits`.
@@ -130,6 +130,13 @@ impl<F: RichField + Extendable<D>, const D: usize> CosetInterpolationGate<F, D> 
         self.start_intermediates()
     }
 
+    /// The interpolation points alone need `num_points` wires, and the intermediate count
+    /// divides by `degree - 1`.
+    fn shape_fits(config: &CircuitConfig, subgroup_bits: usize, degree: usize) -> bool {
+        (1..=config.num_wires.ilog2() as usize).contains(&subgroup_bits)
+            && (2..=1 << subgroup_bits).contains(&degree)
+    }
+
     const fn num_intermediates(&self) -> usize {
         (self.num_points() - 2) / (self.degree - 1)
     }
@@ -178,17 +185,25 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D>
         dst.write_field_vec(&self.barycentric_weights)
     }
 
-    fn deserialize(src: &mut Buffer, _common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
+    fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
         let subgroup_bits = src.read_usize()?;
         let degree = src.read_usize()?;
-        let length = src.read_usize()?;
-        let barycentric_weights: Vec<F> = src.read_field_vec(length)?;
+        if !Self::shape_fits(&common_data.config, subgroup_bits, degree) {
+            return Err(IoError);
+        }
+        let num_points = 1 << subgroup_bits;
+        let length = src.read_usize_in(num_points..=num_points)?;
         Ok(Self {
             subgroup_bits,
             degree,
-            barycentric_weights,
+            barycentric_weights: src.read_field_vec(length)?,
             _phantom: PhantomData,
         })
+    }
+
+    fn parameters_fit(&self, config: &CircuitConfig) -> bool {
+        Self::shape_fits(config, self.subgroup_bits, self.degree)
+            && self.barycentric_weights.len() == self.num_points()
     }
 
     fn eval_unfiltered(&self, vars: EvaluationVars<F, D>) -> Vec<F::Extension> {

@@ -19,11 +19,11 @@ use crate::hash::hash_types::RichField;
 use crate::iop::ext_target::ExtensionTarget;
 use crate::iop::generator::WitnessGeneratorRef;
 use crate::plonk::circuit_builder::CircuitBuilder;
-use crate::plonk::circuit_data::CommonCircuitData;
+use crate::plonk::circuit_data::{CircuitConfig, CommonCircuitData};
 use crate::plonk::vars::{
     EvaluationTargets, EvaluationVars, EvaluationVarsBase, EvaluationVarsBaseBatch,
 };
-use crate::util::serialization::{Buffer, IoResult};
+use crate::util::serialization::{Buffer, IoError, IoResult};
 
 /// A custom gate.
 ///
@@ -59,10 +59,33 @@ pub trait Gate<F: RichField + Extendable<D>, const D: usize>: 'static + Send + S
     /// Serializes this custom gate to the targeted byte buffer, with the provided [`CommonCircuitData`].
     fn serialize(&self, dst: &mut Vec<u8>, common_data: &CommonCircuitData<F, D>) -> IoResult<()>;
 
-    /// Deserializes the bytes in the provided buffer into this custom gate, given some [`CommonCircuitData`].
+    /// Deserializes the bytes in the provided buffer into this custom gate.
+    ///
+    /// Gates are read before the fields derived from them exist, so `common_data` is a
+    /// placeholder in which only `config` and `luts` are the circuit's own.
     fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self>
     where
         Self: Sized;
+
+    /// Whether the builder could have produced this gate's parameters under `config`. The width
+    /// and constraint-count methods are only meaningful on such parameters; on others they may
+    /// overflow or divide by zero, so callers must check this first.
+    fn parameters_fit(&self, _config: &CircuitConfig) -> bool {
+        true
+    }
+
+    /// `self` if its parameters fit `common_data.config`, for deserializers reading untrusted
+    /// bytes.
+    fn fitting(self, common_data: &CommonCircuitData<F, D>) -> IoResult<Self>
+    where
+        Self: Sized,
+    {
+        if self.parameters_fit(&common_data.config) {
+            Ok(self)
+        } else {
+            Err(IoError)
+        }
+    }
 
     /// Defines and evaluates the constraints that enforce the statement represented by this gate.
     /// Constraints must be defined in the extension of this custom gate base field.

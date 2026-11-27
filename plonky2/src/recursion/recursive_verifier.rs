@@ -104,7 +104,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             let mut scale = ReducingFactorTarget::new(zeta_pow_deg);
             let z_h_zeta = self.sub_extension(zeta_pow_deg, one);
             for (i, chunk) in quotient_polys_zeta
-                .chunks(inner_common_data.quotient_degree_factor)
+                .chunks(inner_common_data.quotient_degree_factor())
                 .enumerate()
             {
                 let recombined_quotient = scale.reduce(chunk, self);
@@ -164,7 +164,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
                 + common_data.num_all_lookup_polys()
                 + salt,
             // QUOTIENT: quotient_degree_factor * num_challenges + salt (blinded)
-            common_data.quotient_degree_factor * config.num_challenges + salt,
+            common_data.quotient_degree_factor() * config.num_challenges + salt,
         ];
 
         ProofTarget {

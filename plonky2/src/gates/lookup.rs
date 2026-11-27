@@ -23,11 +23,12 @@ use crate::iop::target::Target;
 use crate::iop::witness::{PartitionWitness, Witness, WitnessWrite};
 use crate::plonk::circuit_builder::CircuitBuilder;
 use crate::plonk::circuit_data::{CircuitConfig, CommonCircuitData};
+use crate::plonk::plonk_common::lookup_gate_slots;
 use crate::plonk::vars::{
     EvaluationTargets, EvaluationVars, EvaluationVarsBase, EvaluationVarsBaseBatch,
     EvaluationVarsBasePacked,
 };
-use crate::util::serialization::{Buffer, IoResult, Read, Write};
+use crate::util::serialization::{Buffer, IoError, IoResult, Read, Write};
 
 pub type Lookup = Vec<(Target, Target)>;
 
@@ -56,8 +57,7 @@ impl LookupGate {
         }
     }
     pub(crate) const fn num_slots(config: &CircuitConfig) -> usize {
-        let wires_per_lookup = 2;
-        config.num_routed_wires / wires_per_lookup
+        lookup_gate_slots(config.num_routed_wires)
     }
 
     pub const fn wire_ith_looking_inp(i: usize) -> usize {
@@ -93,14 +93,20 @@ impl<F: RichField + Extendable<D>, const D: usize> Gate<F, D> for LookupGate {
     fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
         let num_slots = src.read_usize()?;
         let lut_index = src.read_usize()?;
+        let lut = common_data.luts.get(lut_index).ok_or(IoError)?.clone();
         let mut lut_hash = [0u8; 32];
         src.read_exact(&mut lut_hash)?;
 
-        Ok(Self {
+        Self {
             num_slots,
-            lut: common_data.luts[lut_index].clone(),
+            lut,
             lut_hash,
-        })
+        }
+        .fitting(common_data)
+    }
+
+    fn parameters_fit(&self, config: &CircuitConfig) -> bool {
+        self.num_slots <= Self::num_slots(config)
     }
 
     fn eval_unfiltered(&self, _vars: EvaluationVars<F, D>) -> Vec<F::Extension> {
@@ -235,12 +241,12 @@ impl<F: RichField + Extendable<D>, const D: usize> SimpleGenerator<F, D> for Loo
 
     fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
         let row = src.read_usize()?;
-        let slot_nb = src.read_usize()?;
+        let slot_nb = src.read_usize_in(0..=LookupGate::num_slots(&common_data.config) - 1)?;
         let lut_index = src.read_usize()?;
 
         Ok(Self {
             row,
-            lut: common_data.luts[lut_index].clone(),
+            lut: common_data.luts.get(lut_index).ok_or(IoError)?.clone(),
             slot_nb,
         })
     }

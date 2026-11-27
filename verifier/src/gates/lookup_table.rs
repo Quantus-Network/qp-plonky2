@@ -1,10 +1,9 @@
 #[cfg(not(feature = "std"))]
-use alloc::{format, string::String, sync::Arc, vec, vec::Vec};
-#[cfg(feature = "std")]
-use std::sync::Arc;
+use alloc::{format, string::String, vec, vec::Vec};
 
 use itertools::Itertools;
 use qp_plonky2_core::keccak::keccak256;
+pub use qp_plonky2_core::plonk_common::LookupTable;
 
 use crate::field::extension::Extendable;
 use crate::field::packed::PackedField;
@@ -16,9 +15,7 @@ use crate::plonk::circuit_data::{CircuitConfig, CommonCircuitData};
 use crate::plonk::vars::{
     EvaluationVars, EvaluationVarsBase, EvaluationVarsBaseBatch, EvaluationVarsBasePacked,
 };
-use crate::util::serialization::{Buffer, IoResult, Read, Write};
-
-pub type LookupTable = Arc<Vec<(u16, u16)>>;
+use crate::util::serialization::{Buffer, IoError, IoResult, Read, Write};
 
 /// A gate which stores the set of (input, output) value pairs of a lookup table, and their multiplicities.
 #[derive(Debug, Clone)]
@@ -95,15 +92,21 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for Lo
         let num_slots = src.read_usize()?;
         let last_lut_row = src.read_usize()?;
         let lut_index = src.read_usize()?;
+        let lut = common_data.luts.get(lut_index).ok_or(IoError)?.clone();
         let mut lut_hash = [0u8; 32];
         src.read_exact(&mut lut_hash)?;
 
-        Ok(Self {
+        Self {
             num_slots,
-            lut: common_data.luts[lut_index].clone(),
+            lut,
             lut_hash,
             last_lut_row,
-        })
+        }
+        .fitting(common_data)
+    }
+
+    fn parameters_fit(&self, config: &CircuitConfig) -> bool {
+        self.num_slots <= Self::num_slots(config)
     }
 
     fn eval_unfiltered(&self, _vars: EvaluationVars<F, D>) -> Vec<F::Extension> {

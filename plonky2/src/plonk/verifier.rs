@@ -91,7 +91,7 @@ pub(crate) fn verify_with_challenges<
     // So to reconstruct `t(zeta)` we can compute `reduce_with_powers(chunk, zeta^n)` for each
     // `quotient_degree_factor`-sized chunk of the original evaluations.
     for (i, chunk) in quotient_polys_zeta
-        .chunks(common_data.quotient_degree_factor)
+        .chunks(common_data.quotient_degree_factor())
         .enumerate()
     {
         ensure!(vanishing_polys_zeta[i] == z_h_zeta * reduce_with_powers(chunk, zeta_pow_deg));
@@ -115,4 +115,61 @@ pub(crate) fn verify_with_challenges<
     )?;
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use anyhow::Result;
+
+    use super::*;
+    use crate::field::types::Field;
+    use crate::iop::witness::PartialWitness;
+    use crate::plonk::circuit_builder::CircuitBuilder;
+    use crate::plonk::circuit_data::CircuitConfig;
+    use crate::plonk::config::PoseidonGoldilocksConfig;
+
+    const D: usize = 2;
+    type C = PoseidonGoldilocksConfig;
+    type F = <C as GenericConfig<D>>::F;
+    type H = <C as GenericConfig<D>>::Hasher;
+
+    /// A prover who drops a commit-phase cap regrinds the proof of work and opens the initial
+    /// trees honestly at the new query indices, so only the shape check stands between the
+    /// verifier and a reduction step whose beta was never drawn. Honest challenges stand in for
+    /// that regrind.
+    #[test]
+    fn fri_proof_missing_commit_cap_rejected_not_panicking() -> Result<()> {
+        let mut builder = CircuitBuilder::<F, D>::new(CircuitConfig::standard_recursion_config());
+        let mut digest = builder.constant_hash(H::hash_no_pad(&[F::ONE]));
+        for _ in 0..64 {
+            digest = builder.hash_n_to_hash_no_pad::<H>(digest.elements.to_vec());
+        }
+        builder.register_public_inputs(&digest.elements);
+        let data = builder.build::<C>();
+        let proof = data.prove(PartialWitness::new())?;
+        let challenges = proof.get_challenges(
+            proof.get_public_inputs_hash(),
+            &data.verifier_only.circuit_digest,
+            &data.common,
+        )?;
+        let merkle_caps = &[
+            data.verifier_only.constants_sigmas_cap.clone(),
+            proof.proof.wires_cap.clone(),
+            proof.proof.plonk_zs_partial_products_cap.clone(),
+            proof.proof.quotient_polys_cap.clone(),
+        ];
+        let mut missing_commit_cap = proof.proof.opening_proof.clone();
+        assert!(missing_commit_cap.commit_phase_merkle_caps.pop().is_some());
+
+        assert!(verify_fri_proof::<F, C, D>(
+            &data.common.get_fri_instance(challenges.plonk_zeta),
+            &proof.proof.openings.to_fri_openings(),
+            &challenges.fri_challenges,
+            merkle_caps,
+            &missing_commit_cap,
+            &data.common.fri_params,
+        )
+        .is_err());
+        Ok(())
+    }
 }
