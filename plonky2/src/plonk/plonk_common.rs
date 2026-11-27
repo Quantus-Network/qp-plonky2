@@ -5,8 +5,8 @@
 
 // Re-export common types and functions from core
 pub use qp_plonky2_core::plonk_common::{
-    eval_l_0, eval_zero_poly, reduce_with_powers, reduce_with_powers_multi, salt_size, PlonkOracle,
-    SALT_SIZE,
+    eval_l_0, eval_zero_poly, num_partial_products, reduce_with_powers, reduce_with_powers_multi,
+    salt_size, PlonkOracle, SALT_SIZE,
 };
 
 use crate::field::extension::Extendable;

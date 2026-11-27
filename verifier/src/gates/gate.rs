@@ -16,9 +16,9 @@ use crate::field::types::Field;
 use crate::gates::selectors::UNUSED_SELECTOR;
 use crate::gates::util::StridedConstraintConsumer;
 use crate::hash::hash_types::RichField;
-use crate::plonk::circuit_data::CommonCircuitData;
+use crate::plonk::circuit_data::{CircuitConfig, CommonCircuitData};
 use crate::plonk::vars::{EvaluationVars, EvaluationVarsBase, EvaluationVarsBaseBatch};
-use crate::util::serialization::{Buffer, IoResult};
+use crate::util::serialization::{Buffer, IoError, IoResult};
 
 /// A verification-only gate trait.
 ///
@@ -60,10 +60,33 @@ pub trait VerificationGate<F: RichField + Extendable<D>, const D: usize>:
     /// Serializes this custom gate to the targeted byte buffer, with the provided [`CommonCircuitData`].
     fn serialize(&self, dst: &mut Vec<u8>, common_data: &CommonCircuitData<F, D>) -> IoResult<()>;
 
-    /// Deserializes the bytes in the provided buffer into this custom gate, given some [`CommonCircuitData`].
+    /// Deserializes the bytes in the provided buffer into this custom gate.
+    ///
+    /// Gates are read before the fields derived from them exist, so `common_data` is a
+    /// placeholder in which only `config` is the circuit's own.
     fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self>
     where
         Self: Sized;
+
+    /// Whether the builder could have produced this gate's parameters under `config`. The width
+    /// and constraint-count methods are only meaningful on such parameters; on others they may
+    /// overflow or divide by zero, so callers must check this first.
+    fn parameters_fit(&self, _config: &CircuitConfig) -> bool {
+        true
+    }
+
+    /// `self` if its parameters fit `common_data.config`, for deserializers reading untrusted
+    /// bytes.
+    fn fitting(self, common_data: &CommonCircuitData<F, D>) -> IoResult<Self>
+    where
+        Self: Sized,
+    {
+        if self.parameters_fit(&common_data.config) {
+            Ok(self)
+        } else {
+            Err(IoError)
+        }
+    }
 
     /// Defines and evaluates the constraints that enforce the statement represented by this gate.
     /// Constraints must be defined in the extension of this custom gate base field.
@@ -127,7 +150,6 @@ pub trait VerificationGate<F: RichField + Extendable<D>, const D: usize>:
         selector_index: usize,
         group_range: Range<usize>,
         num_selectors: usize,
-        num_lookup_selectors: usize,
     ) -> Vec<F::Extension> {
         let filter = compute_filter(
             row,
@@ -136,7 +158,6 @@ pub trait VerificationGate<F: RichField + Extendable<D>, const D: usize>:
             num_selectors > 1,
         );
         vars.remove_prefix(num_selectors);
-        vars.remove_prefix(num_lookup_selectors);
         self.eval_unfiltered(vars)
             .into_iter()
             .map(|c| filter * c)
@@ -152,7 +173,6 @@ pub trait VerificationGate<F: RichField + Extendable<D>, const D: usize>:
         selector_index: usize,
         group_range: Range<usize>,
         num_selectors: usize,
-        num_lookup_selectors: usize,
     ) -> Vec<F> {
         let filters: Vec<_> = vars_batch
             .iter()
@@ -165,7 +185,7 @@ pub trait VerificationGate<F: RichField + Extendable<D>, const D: usize>:
                 )
             })
             .collect();
-        vars_batch.remove_prefix(num_selectors + num_lookup_selectors);
+        vars_batch.remove_prefix(num_selectors);
         let mut res_batch = self.eval_unfiltered_base_batch(vars_batch);
         for res_chunk in res_batch.chunks_exact_mut(filters.len()) {
             batch_multiply_inplace(res_chunk, &filters);

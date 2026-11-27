@@ -4,11 +4,11 @@
 
 #[cfg(not(feature = "std"))]
 use alloc::{vec, vec::Vec};
-use core::ops::{Range, RangeFrom};
+use core::ops::Range;
 
 use anyhow::{ensure, Result};
-use qp_plonky2_core::merkle_tree::MerkleCap;
 // Re-export CircuitConfig from core
+use qp_plonky2_core::merkle_tree::MerkleCap;
 pub use qp_plonky2_core::CircuitConfig;
 use qp_plonky2_core::FriParams;
 use serde::Serialize;
@@ -19,7 +19,6 @@ use crate::fri::structure::{
     FriBatchInfo, FriInstanceInfo, FriOpeningExpression, FriOracleInfo, FriPolynomialInfo,
 };
 use crate::gates::gate::GateRef;
-use crate::gates::lookup_table::LookupTable;
 use crate::gates::selectors::SelectorsInfo;
 use crate::hash::hash_types::{HashOut, RichField};
 use crate::plonk::config::{GenericConfig, Hasher};
@@ -52,8 +51,9 @@ impl<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, const D: usize>
         bytes: Vec<u8>,
         gate_serializer: &dyn GateSerializer<F, D>,
     ) -> IoResult<Self> {
-        let mut buffer = Buffer::new(&bytes);
-        buffer.read_verifier_circuit_data(gate_serializer)
+        Buffer::decode_all(&bytes, |buffer| {
+            buffer.read_verifier_circuit_data(gate_serializer)
+        })
     }
 
     /// Verify a proof for this circuit.
@@ -112,8 +112,7 @@ impl<C: GenericConfig<D>, const D: usize> VerifierOnlyCircuitData<C, D> {
     }
 
     pub fn from_bytes(bytes: Vec<u8>) -> IoResult<Self> {
-        let mut buffer = Buffer::new(&bytes);
-        buffer.read_verifier_only_circuit_data()
+        Buffer::decode_all(&bytes, |buffer| buffer.read_verifier_only_circuit_data())
     }
 
     /// Extract verifier data from public inputs (for cyclic proof verification).
@@ -190,17 +189,11 @@ pub struct CommonVerifierData<F: RichField + Extendable<D>, const D: usize> {
 
     pub fri_params: FriParams,
 
-    /// Shared public degree bits for the initial phase-1 FRI oracle commitments.
-    pub public_initial_degree_bits: usize,
-
     /// The types of gates used in this circuit, along with their prefixes.
     pub gates: Vec<GateRef<F, D>>,
 
     /// Information on the circuit's selector polynomials.
     pub selectors_info: SelectorsInfo,
-
-    /// The degree of the PLONK quotient polynomial.
-    pub quotient_degree_factor: usize,
 
     /// The largest number of constraints imposed by any gate.
     pub num_gate_constraints: usize,
@@ -215,32 +208,10 @@ pub struct CommonVerifierData<F: RichField + Extendable<D>, const D: usize> {
 
     /// The number of partial products needed to compute the `Z` polynomials.
     pub num_partial_products: usize,
-
-    /// The number of lookup polynomials.
-    pub num_lookup_polys: usize,
-
-    /// The number of lookup selectors.
-    pub num_lookup_selectors: usize,
-
-    /// The stored lookup tables.
-    pub luts: Vec<LookupTable>,
 }
 
 impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
-    /// Validate invariants required by the verifier.
-    ///
-    /// This checks that degree parameters are consistent and within bounds.
-    pub fn check_valid(&self) -> Result<(), &'static str> {
-        qp_plonky2_core::circuit_config::check_common_data_valid(
-            &self.config,
-            self.quotient_degree_factor,
-            self.config.fri_config.rate_bits,
-            self.public_initial_degree_bits,
-            self.trace_degree_bits,
-            self.fri_params.degree_bits,
-            || self.luts.iter().any(|lut| lut.is_empty()),
-        )
-    }
+    qp_plonky2_core::common_circuit_data_constructors!();
 
     pub fn to_bytes(&self, gate_serializer: &dyn GateSerializer<F, D>) -> IoResult<Vec<u8>> {
         let mut buffer = Vec::new();
@@ -252,27 +223,13 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
         bytes: Vec<u8>,
         gate_serializer: &dyn GateSerializer<F, D>,
     ) -> IoResult<Self> {
-        let mut buffer = Buffer::new(&bytes);
-        buffer.read_common_circuit_data(gate_serializer)
+        Buffer::decode_all(&bytes, |buffer| {
+            buffer.read_common_circuit_data(gate_serializer)
+        })
     }
 
     pub const fn degree_bits(&self) -> usize {
         self.trace_degree_bits
-    }
-
-    /// Degree bits for the public initial FRI codeword used by masked phase-1 oracles.
-    pub const fn public_initial_degree_bits(&self) -> usize {
-        self.public_initial_degree_bits
-    }
-
-    /// Degree of the public initial FRI codeword used by masked phase-1 oracles.
-    pub const fn public_initial_degree(&self) -> usize {
-        1 << self.public_initial_degree_bits()
-    }
-
-    /// LDE size of the public initial codeword used by masked phase-1 oracles.
-    pub const fn public_initial_lde_size(&self) -> usize {
-        self.public_initial_degree() << self.config.fri_config.rate_bits
     }
 
     pub const fn degree(&self) -> usize {
@@ -295,19 +252,18 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
             .expect("No gates?")
     }
 
+    /// The degree of the PLONK quotient polynomial, in multiples of the trace degree.
+    pub const fn quotient_degree_factor(&self) -> usize {
+        self.config.max_quotient_degree_factor
+    }
+
     pub const fn quotient_degree(&self) -> usize {
-        self.quotient_degree_factor * self.degree()
+        self.quotient_degree_factor() * self.degree()
     }
 
     /// The quotient degree factor determines partial-product chunk size.
-    pub fn permutation_partial_product_degree(&self) -> usize {
-        self.quotient_degree_factor
-    }
-
-    /// Lookup running-sum accumulators consume one degree in the filtered constraints,
-    /// so their chunk size is one less than the quotient degree factor.
-    pub fn lookup_accumulator_degree(&self) -> usize {
-        self.quotient_degree_factor - 1
+    pub const fn permutation_partial_product_degree(&self) -> usize {
+        self.quotient_degree_factor()
     }
 
     /// Range of the constants polynomials in the `constants_sigmas_commitment`.
@@ -325,20 +281,9 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
         0..self.config.num_challenges
     }
 
-    /// Range of the partial products polynomials in the `zs_partial_products_lookup_commitment`.
+    /// Range of the partial products polynomials in the `zs_partial_products_commitment`.
     pub const fn partial_products_range(&self) -> Range<usize> {
         self.config.num_challenges..(self.num_partial_products + 1) * self.config.num_challenges
-    }
-
-    /// Range of lookup polynomials in the `zs_partial_products_lookup_commitment`.
-    pub const fn lookup_range(&self) -> RangeFrom<usize> {
-        self.num_zs_partial_products_polys()..
-    }
-
-    /// Range of lookup polynomials needed for evaluation at `g * zeta`.
-    pub const fn next_lookup_range(&self, i: usize) -> Range<usize> {
-        self.num_zs_partial_products_polys() + i * self.num_lookup_polys
-            ..self.num_zs_partial_products_polys() + i * self.num_lookup_polys + 2
     }
 
     pub(crate) fn get_fri_instance(&self, zeta: F::Extension) -> FriInstanceInfo<F, D> {
@@ -374,7 +319,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
                 blinding: PlonkOracle::WIRES.blinding,
             },
             FriOracleInfo {
-                num_polys: self.num_zs_partial_products_polys() + self.num_all_lookup_polys(),
+                num_polys: self.num_zs_partial_products_polys(),
                 blinding: PlonkOracle::ZS_PARTIAL_PRODUCTS.blinding,
             },
             FriOracleInfo {
@@ -429,33 +374,20 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
         )
     }
 
-    /// Returns the total number of lookup polynomials.
-    pub(crate) const fn num_all_lookup_polys(&self) -> usize {
-        self.config.num_challenges * self.num_lookup_polys
-    }
-
     fn fri_zs_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
         self.fri_oracle_openings(PlonkOracle::ZS_PARTIAL_PRODUCTS, self.zs_range())
     }
 
     fn fri_next_batch_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
-        [self.fri_zs_openings(), self.fri_lookup_openings()].concat()
+        self.fri_zs_openings()
     }
 
     fn fri_quotient_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
         self.fri_oracle_openings(PlonkOracle::QUOTIENT, 0..self.num_quotient_polys())
     }
 
-    /// Returns the information for lookup polynomials, i.e. the index within the oracle and the indices of the polynomials within the commitment.
-    fn fri_lookup_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
-        self.fri_oracle_openings(
-            PlonkOracle::ZS_PARTIAL_PRODUCTS,
-            self.num_zs_partial_products_polys()
-                ..self.num_zs_partial_products_polys() + self.num_all_lookup_polys(),
-        )
-    }
     pub(crate) const fn num_quotient_polys(&self) -> usize {
-        self.config.num_challenges * self.quotient_degree_factor
+        self.config.num_challenges * self.quotient_degree_factor()
     }
 
     fn fri_all_openings(&self) -> Vec<FriOpeningExpression<F, D>> {
@@ -464,7 +396,6 @@ impl<F: RichField + Extendable<D>, const D: usize> CommonVerifierData<F, D> {
             self.fri_wire_openings(),
             self.fri_zs_partial_products_openings(),
             self.fri_quotient_openings(),
-            self.fri_lookup_openings(),
         ]
         .concat()
     }

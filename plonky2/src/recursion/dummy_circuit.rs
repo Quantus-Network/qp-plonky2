@@ -11,9 +11,7 @@ use plonky2_field::extension::Extendable;
 use plonky2_field::polynomial::PolynomialCoeffs;
 
 use crate::fri::proof::{FriProof, FriProofTarget};
-use crate::fri::{FriConfig, FriParams, FriReductionStrategy};
 use crate::gates::noop::NoopGate;
-use crate::gates::selectors::SelectorsInfo;
 use crate::hash::hash_types::{MerkleCapTarget, RichField};
 use crate::hash::merkle_tree::MerkleCap;
 use crate::iop::generator::{GeneratedValues, SimpleGenerator};
@@ -207,37 +205,7 @@ where
             public_inputs: vec![],
         };
 
-        let common_data = CommonCircuitData {
-            config: CircuitConfig::default(),
-            trace_degree_bits: 0,
-            fri_params: FriParams {
-                config: FriConfig {
-                    rate_bits: 0,
-                    cap_height: 0,
-                    proof_of_work_bits: 0,
-                    reduction_strategy: FriReductionStrategy::MinSize(None),
-                    num_query_rounds: 0,
-                },
-                leaf_hiding: false,
-                degree_bits: 0,
-                reduction_arity_bits: vec![],
-            },
-            public_initial_degree_bits: 0,
-            gates: vec![],
-            selectors_info: SelectorsInfo {
-                selector_indices: vec![],
-                groups: vec![],
-            },
-            quotient_degree_factor: 0,
-            num_gate_constraints: 0,
-            num_constants: 0,
-            num_public_inputs: 0,
-            k_is: vec![],
-            num_partial_products: 0,
-            num_lookup_polys: 0,
-            num_lookup_selectors: 0,
-            luts: vec![],
-        };
+        let common_data = CommonCircuitData::config_only(CircuitConfig::default());
 
         Self {
             proof_with_pis_target,

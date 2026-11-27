@@ -182,15 +182,23 @@ unconditional on them.
   (`PoseidonGoldilocksConfig`) is a random oracle on the verifier transcript
   (QROM for the post-quantum reading). Merkle binding is a corollary. This is not
   collision resistance, and it is not the wormhole Poseidon2.
-- **`fri_proximity_gap`** — FRI proximity gaps at the circuit's FRI parameters.
-  For `standard_recursion_config` the statistical query error is `(1/8)^28 = 2^{-84}`
-  (`friQueryBits = 84`). The extra 16 bits in `friConjecturedBits = 100` are grinding,
-  a work factor against the oracle, not another statistical `2^{-16}`.
+- **`fri_proximity_gap`** — FRI proximity gaps at the circuit's FRI parameters, pinned
+  from the traces in `Generated/FriParams.lean` (Step 22): the leaf at rate `1/64` with
+  `19` queries and `16` grinding bits, both batch wrappers at rate `1/8` with `36` and
+  `20`. What is proved (BCIKS'20, Johnson radius) makes a query worth `rateBits / 2`
+  bits: `friJohnsonQueryBits` is `57` for the leaf and `54` for the wrappers, less a few
+  bits of commit-phase error on the larger domains (about `51` for the production public
+  batch). The configs' `security_bits = 128` counted `rateBits` per query
+  (`friQueryBits`: `114`, `108`), the capacity conjecture of ethSTARK and BCIKS'20,
+  which is refuted (Crites–Stewart, ePrint 2025/2046; Krachun–Kazanin–Haböck, ePrint
+  2026/782, on FRI's own domains); its replacement (S-two, ePrint 2026/532) gives
+  `0.83`–`0.91 · rateBits` per query, about `110`–`118` with grinding for the wrappers.
+  The grinding bits are a work factor against the oracle at the query round, not
+  another statistical term, and they do not protect the earlier challenges.
 - **`algebraic_sampling`** — low degree plus the Fiat–Shamir checks imply identical
   constraints only on a good event of probability `1 − ε`. The failure probability
-  `ε` is a sum of two kinds of terms. `α`, `β`, and `γ` (and lookup deltas, when
-  present) are base-field elements, repeated `num_challenges` times, independent of
-  the extension degree. Only the opening point `ζ` is sampled in the extension.
+  `ε` is a sum of two kinds of terms. `α`, `β`, and `γ` are base-field elements,
+  repeated `num_challenges` times, independent of the extension degree. Only the opening point `ζ` is sampled in the extension.
   A single factor of `1/|F^D|` drops the base-field terms. No closed form is stated
   until that bound is derived. The error remains when the hash is ideal and FRI
   proximity is perfect.
@@ -729,10 +737,6 @@ it. Pieces:
    blocker is the dependency: qp-zk-circuits consumes the *published* `qp-plonky2 =1.5.6`
    and a local `[patch.crates-io]` does not resolve (rayon `=1.11.0` vs `=1.12.0` pins), so
    `formal_export_view` must ship in a release before an in-crate export test can call it.
-   *Lookups* are outside the model: `formal_export_view` exposes the pending
-   `(looking_in, looking_out)` lists and `circuit::export` refuses a builder that has any
-   (`export_rejects_pending_lookups`), since `build` would add lookup rows the export
-   would silently lack. The wrapper places none.
 2. *Gate coverage.* `Satisfies` interprets `ArithmeticGate` and (since 8b) `BaseSumGate<2>`;
    `Poseidon2Gate` rows are stated through `Poseidon2Rows`. The wrapper also places
    `ConstantGate`, `PublicInputGate` (both `build`-time, absent pre-`build`) and the
@@ -1523,6 +1527,60 @@ the export's own rows.
   `Wrapper{n}.build_complete`: `propext`, `Quot.sound` and `Wrapper{n}.build_agrees`, as
   `build_refines`. No capstone footprint grew.
 
+### Step 22 — The deployed FRI parameters pinned; the proximity-gap conjecture's status  ✅ DONE
+`Trusted.lean` documented `fri_proximity_gap` with plonky2's default `FriConfig`
+(`28` queries at rate `1/8`, `2^{-84}`) and "the ethSTARK proximity-gap conjecture". The
+deployed circuits use other parameters, and that conjecture was disproved in the
+meantime. Nothing in the axiom's statement changes: it is an implication on the opaque
+`ProximityGood`. What changes is the probability the docs attach to that event.
+
+- **Pins.** `Generated/FriParams.lean` (exporter: `generate_fri_params_lean`) reads each
+  family's `FriConfig` off its traces, checks the sizes agree, and defines `leafFri`
+  (`6, 19, 16`), `privateBatchFri` and `publicBatchFri` (`3, 36, 20`) as
+  `FriQueryParams`, with the three exponents as `rfl` checks. `friJohnsonQueryBits`
+  (`numQueries * rateBits / 2`) joins `friQueryBits` and `friConjecturedBits` in
+  `Trusted.lean`; `standardRecursionFri` stays as plonky2's default, for comparison.
+- **Status.** Proved: proximity gaps to the Johnson radius `1 − √ρ` (BCIKS'20; ePrint
+  2025/2055 improves the error terms), hence `√ρ` per query. Refuted: correlated
+  agreement to capacity `1 − ρ` (Crites–Stewart, ePrint 2025/2046, CRYPTO 2026, over
+  large fields; Krachun–Kazanin–Haböck, ePrint 2026/782, for codes over multiplicative
+  subgroups of prime fields at `η = Θ(1/log n)` below capacity). Replacement conjecture
+  (S-two, ePrint 2026/532, App. A.5): correlated agreement to the Elias radius with
+  error exponential in the gap to it; `0.83`–`0.91 · rateBits` per query under a
+  grinding cap. The counterexamples are asymptotic and give no forgery at the deployed
+  sizes.
+- **Numbers.** Per query exponent and `security_bits` accounting:
+
+  | circuit | `friQueryBits` (+ grinding) | revised conjecture (+ grinding) | `friJohnsonQueryBits` (+ grinding) |
+  |---|---|---|---|
+  | leaf (`1/64`, 19, 16) | 114 (130) | ≈ 95–104 (111–120) | 57 (73), ≈ 56 after commit-phase error |
+  | private batch (`1/8`, 36, 20) | 108 (128) | ≈ 90–98 (110–118) | 54 (74), ≈ 52 |
+  | public batch (`1/8`, 36, 20) | 108 (128) | ≈ 90–98 (110–118) | 54 (74), ≈ 51 |
+
+  These are the FRI term alone. The sampling terms before it are not reached by
+  grinding (`get_challenges` draws `β, γ, α` before the proof of work, and the sampling
+  error in `Trusted.lean` is stated independently of it): `β, γ` are base-field
+  challenges, `≈ (rows · routedWires / 2^{64})^{numChallenges}`, which at the deployed
+  `num_challenges = 2` is `2^{-100}` on the leaf, `2^{-86}` on the private batch and
+  `2^{-77}` on the production public batch (`(2^{19} · 80 / 2^{64})^2`); `ζ` in `F^2`
+  is `≈ 2^{-106}` there and cannot move; the proof-system hash is `128` bits. Errors
+  add, so the system's soundness is the minimum over all of them: about `77` bits on
+  the public batch under either FRI conjecture, set by `β, γ`, and about `71` bits of
+  classical work proved, set by FRI with `β, γ` next at `77`. These are classical
+  figures; no quantum (QROM) bound is claimed here, since quantum search applies to the
+  Fiat–Shamir challenges as well as the grinding (Block et al., "Fiat-Shamir Security
+  of FRI", ePrint 2023/1071, Cor. 4.3). More FRI queries alone therefore restore
+  nothing above `77`;
+  qp-zk-circuits#219 raises `num_challenges` to `3` on the leaf and private batch and
+  `4` on the public batch (`150`, `129`, `152` bits), after which the public batch is
+  capped by `ζ` at `≈ 106` under either conjecture (the revised FRI term, `110`–`118`,
+  sits above it; `ζ` is sampled before the proof of work too). Under the revised
+  conjecture `128` on the FRI term alone would take about `42` queries on the wrappers
+  and `21` on the leaf; proved, about `72` and `37`. Parameter changes are
+  qp-zk-circuits decisions; this step records the accounting.
+- **Axiom gate.** Unchanged; `FriParams` is a root of `Plonky2Bridge` so its `rfl`
+  checks build.
+
 ## 9. Definition of done
 
 `R_leaf` fully bridged (T0–T3), `R_L0`/`R_L1` bridged modulo the enumerated
@@ -1544,5 +1602,5 @@ and `n_inner = 2, 4, 86`, bridges generated from the traces; 8 leaves / 32 slots
 capstones stated on the exported wiring, with no decode hypotheses; Step 9 closes it for
 the leaf: `leaf_wired` is `Rleaf` on the exported leaf wiring, standard-axioms-only)
 and (b) the layer-1 assumptions (§7) — `poseidon_transcript_oracle`, `fri_proximity_gap`,
-`algebraic_sampling`, and under `verifier_algebra` the four obligations and
-`public_input_binding`, composed as `proof_sound`.
+`algebraic_sampling`, and under `verifier_algebra` the one obligation
+(`recursive_verifier_transcript`) and `public_input_binding`, composed as `proof_sound`.

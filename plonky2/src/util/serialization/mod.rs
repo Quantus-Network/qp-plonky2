@@ -5,13 +5,13 @@ pub mod generator_serialization;
 pub mod gate_serialization;
 
 #[cfg(not(feature = "std"))]
-use alloc::{collections::BTreeMap, sync::Arc, vec, vec::Vec};
+use alloc::{collections::BTreeMap, vec, vec::Vec};
 use core::convert::Infallible;
 use core::fmt::{Debug, Display, Formatter};
 use core::mem::size_of;
-use core::ops::Range;
+use core::ops::RangeInclusive;
 #[cfg(feature = "std")]
-use std::{collections::BTreeMap, sync::Arc};
+use std::collections::BTreeMap;
 
 pub use gate_serialization::default::DefaultGateSerializer;
 pub use gate_serialization::GateSerializer;
@@ -20,7 +20,7 @@ pub use generator_serialization::WitnessGeneratorSerializer;
 use qp_plonky2_core::CircuitConfig;
 
 use crate::field::extension::{Extendable, FieldExtension};
-use crate::field::fft::fft_root_table;
+use crate::field::fft::fft_root_table_row;
 use crate::field::polynomial::PolynomialCoeffs;
 use crate::field::types::{Field64, PrimeField64};
 use crate::fri::oracle::PolynomialBatch;
@@ -28,11 +28,9 @@ use crate::fri::proof::{
     FriInitialTreeProof, FriInitialTreeProofTarget, FriProof, FriProofTarget, FriQueryRound,
     FriQueryRoundTarget, FriQueryStep, FriQueryStepTarget,
 };
-use crate::fri::{FriConfig, FriParams, FriReductionStrategy};
+use crate::fri::{FriConfig, FriReductionStrategy};
 use crate::gadgets::polynomial::PolynomialCoeffsExtTarget;
 use crate::gates::gate::GateRef;
-use crate::gates::lookup::Lookup;
-use crate::gates::selectors::SelectorsInfo;
 use crate::hash::hash_types::{HashOutTarget, MerkleCapTarget, RichField};
 use crate::hash::merkle_proofs::{MerkleProof, MerkleProofTarget};
 use crate::hash::merkle_tree::{MerkleCap, MerkleTree};
@@ -40,7 +38,6 @@ use crate::iop::ext_target::ExtensionTarget;
 use crate::iop::generator::WitnessGeneratorRef;
 use crate::iop::target::{BoolTarget, Target};
 use crate::iop::wire::Wire;
-use crate::plonk::circuit_builder::LookupWire;
 use crate::plonk::circuit_data::{
     CircuitData, CommonCircuitData, ProverCircuitData, ProverOnlyCircuitData, VerifierCircuitData,
     VerifierCircuitTarget, VerifierOnlyCircuitData,
@@ -64,6 +61,12 @@ impl Display for IoError {
 
 /// A no_std compatible variant of `std::io::Result`
 pub type IoResult<T> = Result<T, IoError>;
+
+/// `IoError` carries no message, so the reason a decoded value was rejected is logged instead.
+fn rejected(reason: &'static str) -> IoError {
+    log::warn!("rejected deserialized data: {reason}");
+    IoError
+}
 
 /// Creates a Vec with the requested capacity, returning IoError if allocation fails.
 /// This prevents panics from malicious/malformed input specifying huge lengths.
@@ -147,7 +150,19 @@ pub trait Read {
     fn read_usize(&mut self) -> IoResult<usize> {
         let mut buf = [0; core::mem::size_of::<u64>()];
         self.read_exact(&mut buf)?;
-        Ok(u64::from_le_bytes(buf) as usize)
+        usize::try_from(u64::from_le_bytes(buf)).map_err(|_| IoError)
+    }
+
+    /// Reads a `usize` that must lie within `allowed`, so that a count read from untrusted bytes
+    /// cannot overflow, underflow or zero-divide the arithmetic performed on it.
+    #[inline]
+    fn read_usize_in(&mut self, allowed: RangeInclusive<usize>) -> IoResult<usize> {
+        let value = self.read_usize()?;
+        if allowed.contains(&value) {
+            Ok(value)
+        } else {
+            Err(IoError)
+        }
     }
 
     /// Reads a vector of `usize` value from `self`.
@@ -170,7 +185,8 @@ pub trait Read {
     {
         let mut buf = [0; size_of::<u64>()];
         self.read_exact(&mut buf)?;
-        Ok(F::from_canonical_u64(u64::from_le_bytes(buf)))
+        F::try_from_canonical_u64(u64::from_le_bytes(buf))
+            .ok_or_else(|| rejected("non-canonical field element"))
     }
 
     /// Reads a vector of elements from the field `F` from `self`.
@@ -282,7 +298,7 @@ pub trait Read {
     {
         let mut buf = vec![0; H::HASH_SIZE];
         self.read_exact(&mut buf)?;
-        Ok(H::Hash::from_bytes(&buf))
+        H::Hash::from_bytes(&buf).ok_or_else(|| rejected("non-canonical hash"))
     }
 
     /// Reads a HashOutTarget value from `self`.
@@ -384,12 +400,10 @@ pub trait Read {
         let wires = self.read_field_ext_vec::<F, D>(config.num_wires)?;
         let plonk_zs = self.read_field_ext_vec::<F, D>(config.num_challenges)?;
         let plonk_zs_next = self.read_field_ext_vec::<F, D>(config.num_challenges)?;
-        let lookup_zs = self.read_field_ext_vec::<F, D>(common_data.num_all_lookup_polys())?;
-        let lookup_zs_next = self.read_field_ext_vec::<F, D>(common_data.num_all_lookup_polys())?;
         let partial_products = self
             .read_field_ext_vec::<F, D>(common_data.num_partial_products * config.num_challenges)?;
         let quotient_polys = self.read_field_ext_vec::<F, D>(
-            common_data.quotient_degree_factor * config.num_challenges,
+            common_data.quotient_degree_factor() * config.num_challenges,
         )?;
         Ok(OpeningSet {
             constants,
@@ -399,8 +413,6 @@ pub trait Read {
             plonk_zs_next,
             partial_products,
             quotient_polys,
-            lookup_zs,
-            lookup_zs_next,
         })
     }
 
@@ -412,8 +424,6 @@ pub trait Read {
         let wires = self.read_target_ext_vec::<D>()?;
         let plonk_zs = self.read_target_ext_vec::<D>()?;
         let plonk_zs_next = self.read_target_ext_vec::<D>()?;
-        let lookup_zs = self.read_target_ext_vec::<D>()?;
-        let next_lookup_zs = self.read_target_ext_vec::<D>()?;
         let partial_products = self.read_target_ext_vec::<D>()?;
         let quotient_polys = self.read_target_ext_vec::<D>()?;
 
@@ -423,8 +433,6 @@ pub trait Read {
             wires,
             plonk_zs,
             plonk_zs_next,
-            lookup_zs,
-            next_lookup_zs,
             partial_products,
             quotient_polys,
         })
@@ -482,16 +490,15 @@ pub trait Read {
         let wires_p = self.read_merkle_proof()?;
         evals_proofs.push((wires_v, wires_p));
 
-        // ZS_PARTIAL_PRODUCTS: (num_challenges * (1 + num_partial_products) + num_all_lookup_polys) + salt
-        let zs_partial_count = config.num_challenges * (1 + common_data.num_partial_products)
-            + common_data.num_all_lookup_polys();
+        // ZS_PARTIAL_PRODUCTS: num_challenges * (1 + num_partial_products) + salt
+        let zs_partial_count = config.num_challenges * (1 + common_data.num_partial_products);
         let zs_partial_v = self.read_field_vec(zs_partial_count + salt)?;
         let zs_partial_p = self.read_merkle_proof()?;
         evals_proofs.push((zs_partial_v, zs_partial_p));
 
         // QUOTIENT: quotient_degree_factor * num_challenges + salt
-        let quotient_v =
-            self.read_field_vec(common_data.quotient_degree_factor * config.num_challenges + salt)?;
+        let quotient_v = self
+            .read_field_vec(common_data.quotient_degree_factor() * config.num_challenges + salt)?;
         let quotient_p = self.read_merkle_proof()?;
         evals_proofs.push((quotient_v, quotient_p));
 
@@ -706,22 +713,8 @@ pub trait Read {
             zero_knowledge,
             fri_config,
         };
-        config.check_valid().map_err(|_| IoError)?;
+        config.check_valid().map_err(rejected)?;
         Ok(config)
-    }
-
-    fn read_fri_params(&mut self) -> IoResult<FriParams> {
-        let config = self.read_fri_config()?;
-        let reduction_arity_bits = self.read_usize_vec()?;
-        let degree_bits = self.read_usize()?;
-        let leaf_hiding = self.read_bool()?;
-
-        Ok(FriParams {
-            config,
-            reduction_arity_bits,
-            degree_bits,
-            leaf_hiding,
-        })
     }
 
     fn read_gate<F: RichField + Extendable<D>, const D: usize>(
@@ -735,22 +728,6 @@ pub trait Read {
         generator_serializer: &dyn WitnessGeneratorSerializer<F, D>,
         common_data: &CommonCircuitData<F, D>,
     ) -> IoResult<WitnessGeneratorRef<F, D>>;
-
-    fn read_selectors_info(&mut self) -> IoResult<SelectorsInfo> {
-        let selector_indices = self.read_usize_vec()?;
-        let groups_len = self.read_usize()?;
-        let mut groups = try_with_capacity(groups_len)?;
-        for _ in 0..groups_len {
-            let start = self.read_usize()?;
-            let end = self.read_usize()?;
-            groups.push(Range { start, end });
-        }
-
-        Ok(SelectorsInfo {
-            selector_indices,
-            groups,
-        })
-    }
 
     fn read_polynomial_batch<
         F: RichField + Extendable<D>,
@@ -785,71 +762,16 @@ pub trait Read {
         gate_serializer: &dyn GateSerializer<F, D>,
     ) -> IoResult<CommonCircuitData<F, D>> {
         let config = self.read_circuit_config()?;
-        let trace_degree_bits = self.read_usize()?;
-        let fri_params = self.read_fri_params()?;
-        let public_initial_degree_bits = self.read_usize()?;
-
-        let selectors_info = self.read_selectors_info()?;
-        let quotient_degree_factor = self.read_usize()?;
-        let num_gate_constraints = self.read_usize()?;
-        let num_constants = self.read_usize()?;
+        let degree_bits = self.read_usize()?;
         let num_public_inputs = self.read_usize()?;
-
-        let k_is_len = self.read_usize()?;
-        let k_is = self.read_field_vec(k_is_len)?;
-
-        let num_partial_products = self.read_usize()?;
-
-        let num_lookup_polys = self.read_usize()?;
-        let num_lookup_selectors = self.read_usize()?;
-        let length = self.read_usize()?;
-        let mut luts = try_with_capacity(length)?;
-
-        for _ in 0..length {
-            luts.push(Arc::new(self.read_lut()?));
-        }
-
+        let shell = CommonCircuitData::<F, D>::config_only(config);
         let gates_len = self.read_usize()?;
         let mut gates = try_with_capacity(gates_len)?;
-
-        // We construct the common data without gates first,
-        // to pass it as argument when reading the gates.
-        let mut common_data = CommonCircuitData {
-            config,
-            trace_degree_bits,
-            fri_params,
-            public_initial_degree_bits,
-            gates: vec![],
-            selectors_info,
-            quotient_degree_factor,
-            num_gate_constraints,
-            num_constants,
-            num_public_inputs,
-            k_is,
-            num_partial_products,
-            num_lookup_polys,
-            num_lookup_selectors,
-            luts,
-        };
-
         for _ in 0..gates_len {
-            let gate = self.read_gate::<F, D>(gate_serializer, &common_data)?;
-            gates.push(gate);
+            gates.push(self.read_gate::<F, D>(gate_serializer, &shell)?);
         }
-
-        common_data.gates = gates;
-        qp_plonky2_core::circuit_config::check_common_data_valid(
-            &common_data.config,
-            common_data.quotient_degree_factor,
-            common_data.config.fri_config.rate_bits,
-            common_data.public_initial_degree_bits,
-            common_data.trace_degree_bits,
-            common_data.fri_params.degree_bits,
-            || common_data.luts.iter().any(|lut| lut.is_empty()),
-        )
-        .map_err(|_| IoError)?;
-
-        Ok(common_data)
+        CommonCircuitData::new(shell.config, degree_bits, gates, num_public_inputs)
+            .map_err(rejected)
     }
 
     fn read_circuit_data<
@@ -888,8 +810,15 @@ pub trait Read {
         let map_len = self.read_usize()?;
         let mut generator_indices_by_watches = BTreeMap::new();
         for _ in 0..map_len {
-            let k = self.read_usize()?;
-            generator_indices_by_watches.insert(k, self.read_usize_vec()?);
+            let key = self.read_usize()?;
+            // The map is written in key order, so only strictly increasing keys are read back.
+            if generator_indices_by_watches
+                .last_key_value()
+                .is_some_and(|(last, _)| *last >= key)
+            {
+                return Err(rejected("generator watch keys out of order"));
+            }
+            generator_indices_by_watches.insert(key, self.read_usize_vec()?);
         }
 
         let constants_sigmas_commitment = self.read_polynomial_batch()?;
@@ -907,43 +836,36 @@ pub trait Read {
 
         let representative_map = self.read_usize_vec()?;
 
-        // Discard any attacker-supplied FFT root table and rebuild it from the trusted circuit
-        // shape, shape-checking the serialized table only to advance the buffer cursor.
-        let recomputed_fft_root_table =
-            fft_root_table::<F>(common_data.max_fft_points().ok_or(IoError)?);
-        let is_some = self.read_bool()?;
-        if is_some {
-            let table_len = self.read_usize()?;
-            if table_len != recomputed_fft_root_table.len() {
+        // The FFT root table is a cache of the circuit shape, so a serialized one must equal the
+        // table the prover would recompute; anything else would steer the prover's FFTs. It is
+        // checked a row at a time against the bytes, so a header claiming a field-sized domain
+        // cannot make the loader build the whole table before the bytes have paid for it.
+        let fft_root_table = if self.read_bool()? {
+            let lde_bits = common_data.fri_params.lde_bits();
+            if self.read_usize()? != lde_bits {
                 return Err(IoError);
             }
-            for expected_row in &recomputed_fft_root_table {
-                let len = self.read_usize()?;
-                if len != expected_row.len() {
+            let mut table = Vec::with_capacity(lde_bits);
+            for lg_m in 1..=lde_bits {
+                let row_len = self.read_usize()?;
+                let mut row = Vec::new();
+                for expected in fft_root_table_row::<F>(lg_m) {
+                    if self.read_field::<F>()? != expected {
+                        return Err(IoError);
+                    }
+                    row.push(expected);
+                }
+                if row_len != row.len() {
                     return Err(IoError);
                 }
-                let _ = self.read_field_vec::<F>(len)?;
+                table.push(row);
             }
-        }
-        let fft_root_table = Some(recomputed_fft_root_table);
+            Some(table)
+        } else {
+            None
+        };
 
         let circuit_digest = self.read_hash::<F, <C as GenericConfig<D>>::Hasher>()?;
-
-        let length = self.read_usize()?;
-        let mut lookup_rows = try_with_capacity(length)?;
-        for _ in 0..length {
-            lookup_rows.push(LookupWire {
-                last_lu_gate: self.read_usize()?,
-                last_lut_gate: self.read_usize()?,
-                first_lut_gate: self.read_usize()?,
-            });
-        }
-
-        let length = self.read_usize()?;
-        let mut lut_to_lookups = try_with_capacity(length)?;
-        for _ in 0..length {
-            lut_to_lookups.push(self.read_target_lut()?);
-        }
 
         Ok(ProverOnlyCircuitData {
             generators,
@@ -955,8 +877,6 @@ pub trait Read {
             representative_map,
             fft_root_table,
             circuit_digest,
-            lookup_rows,
-            lut_to_lookups,
         })
     }
 
@@ -1098,33 +1018,6 @@ pub trait Read {
             proof,
             public_inputs,
         })
-    }
-
-    /// Reads a lookup table stored as `Vec<(u16, u16)>` from `self`.
-    #[inline]
-    fn read_lut(&mut self) -> IoResult<Vec<(u16, u16)>> {
-        let length = self.read_usize()?;
-        if length == 0 {
-            return Err(IoError);
-        }
-        let mut lut = try_with_capacity(length)?;
-        for _ in 0..length {
-            lut.push((self.read_u16()?, self.read_u16()?));
-        }
-
-        Ok(lut)
-    }
-
-    /// Reads a target lookup table stored as `Lookup` from `self`.
-    #[inline]
-    fn read_target_lut(&mut self) -> IoResult<Lookup> {
-        let length = self.read_usize()?;
-        let mut lut = try_with_capacity(length)?;
-        for _ in 0..length {
-            lut.push((self.read_target()?, self.read_target()?));
-        }
-
-        Ok(lut)
     }
 }
 
@@ -1387,8 +1280,6 @@ pub trait Write {
         self.write_field_ext_vec::<F, D>(&os.wires)?;
         self.write_field_ext_vec::<F, D>(&os.plonk_zs)?;
         self.write_field_ext_vec::<F, D>(&os.plonk_zs_next)?;
-        self.write_field_ext_vec::<F, D>(&os.lookup_zs)?;
-        self.write_field_ext_vec::<F, D>(&os.lookup_zs_next)?;
         self.write_field_ext_vec::<F, D>(&os.partial_products)?;
         self.write_field_ext_vec::<F, D>(&os.quotient_polys)
     }
@@ -1404,8 +1295,6 @@ pub trait Write {
         self.write_target_ext_vec::<D>(&os.wires)?;
         self.write_target_ext_vec::<D>(&os.plonk_zs)?;
         self.write_target_ext_vec::<D>(&os.plonk_zs_next)?;
-        self.write_target_ext_vec::<D>(&os.lookup_zs)?;
-        self.write_target_ext_vec::<D>(&os.next_lookup_zs)?;
         self.write_target_ext_vec::<D>(&os.partial_products)?;
         self.write_target_ext_vec::<D>(&os.quotient_polys)
     }
@@ -1615,22 +1504,6 @@ pub trait Write {
         Ok(())
     }
 
-    fn write_fri_params(&mut self, fri_params: &FriParams) -> IoResult<()> {
-        let FriParams {
-            config,
-            reduction_arity_bits,
-            degree_bits,
-            leaf_hiding,
-        } = fri_params;
-
-        self.write_fri_config(config)?;
-        self.write_usize_vec(reduction_arity_bits.as_slice())?;
-        self.write_usize(*degree_bits)?;
-        self.write_bool(*leaf_hiding)?;
-
-        Ok(())
-    }
-
     fn write_circuit_config(&mut self, config: &CircuitConfig) -> IoResult<()> {
         let CircuitConfig {
             num_wires,
@@ -1671,21 +1544,6 @@ pub trait Write {
         common_data: &CommonCircuitData<F, D>,
     ) -> IoResult<()>;
 
-    fn write_selectors_info(&mut self, selectors_info: &SelectorsInfo) -> IoResult<()> {
-        let SelectorsInfo {
-            selector_indices,
-            groups,
-        } = selectors_info;
-
-        self.write_usize_vec(selector_indices.as_slice())?;
-        self.write_usize(groups.len())?;
-        for group in groups.iter() {
-            self.write_usize(group.start)?;
-            self.write_usize(group.end)?;
-        }
-        Ok(())
-    }
-
     fn write_polynomial_batch<
         F: RichField + Extendable<D>,
         C: GenericConfig<D, F = F>,
@@ -1715,44 +1573,14 @@ pub trait Write {
         let CommonCircuitData {
             config,
             trace_degree_bits,
-            fri_params,
-            public_initial_degree_bits,
             gates,
-            selectors_info,
-            quotient_degree_factor,
-            num_gate_constraints,
-            num_constants,
             num_public_inputs,
-            k_is,
-            num_partial_products,
-            num_lookup_polys,
-            num_lookup_selectors,
-            luts,
+            ..
         } = common_data;
 
         self.write_circuit_config(config)?;
         self.write_usize(*trace_degree_bits)?;
-        self.write_fri_params(fri_params)?;
-        self.write_usize(*public_initial_degree_bits)?;
-
-        self.write_selectors_info(selectors_info)?;
-        self.write_usize(*quotient_degree_factor)?;
-        self.write_usize(*num_gate_constraints)?;
-        self.write_usize(*num_constants)?;
         self.write_usize(*num_public_inputs)?;
-
-        self.write_usize(k_is.len())?;
-        self.write_field_vec(k_is.as_slice())?;
-
-        self.write_usize(*num_partial_products)?;
-
-        self.write_usize(*num_lookup_polys)?;
-        self.write_usize(*num_lookup_selectors)?;
-        self.write_usize(luts.len())?;
-        for lut in luts.iter() {
-            self.write_lut(lut)?;
-        }
-
         self.write_usize(gates.len())?;
         for gate in gates.iter() {
             self.write_gate::<F, D>(gate, gate_serializer, common_data)?;
@@ -1800,8 +1628,6 @@ pub trait Write {
             representative_map,
             fft_root_table,
             circuit_digest,
-            lookup_rows,
-            lut_to_lookups,
         } = prover_only_circuit_data;
 
         self.write_usize(generators.len())?;
@@ -1839,18 +1665,6 @@ pub trait Write {
         }
 
         self.write_hash::<F, <C as GenericConfig<D>>::Hasher>(*circuit_digest)?;
-
-        self.write_usize(lookup_rows.len())?;
-        for wire in lookup_rows.iter() {
-            self.write_usize(wire.last_lu_gate)?;
-            self.write_usize(wire.last_lut_gate)?;
-            self.write_usize(wire.first_lut_gate)?;
-        }
-
-        self.write_usize(lut_to_lookups.len())?;
-        for tlut in lut_to_lookups.iter() {
-            self.write_target_lut(tlut)?;
-        }
 
         Ok(())
     }
@@ -1977,30 +1791,6 @@ pub trait Write {
         self.write_target_proof(proof)?;
         self.write_target_vec(public_inputs)
     }
-
-    /// Writes a lookup table to `self`.
-    #[inline]
-    fn write_lut(&mut self, lut: &[(u16, u16)]) -> IoResult<()> {
-        self.write_usize(lut.len())?;
-        for (a, b) in lut.iter() {
-            self.write_u16(*a)?;
-            self.write_u16(*b)?;
-        }
-
-        Ok(())
-    }
-
-    /// Writes a target lookup table to `self`.
-    #[inline]
-    fn write_target_lut(&mut self, lut: &[(Target, Target)]) -> IoResult<()> {
-        self.write_usize(lut.len())?;
-        for (a, b) in lut.iter() {
-            self.write_target(*a)?;
-            self.write_target(*b)?;
-        }
-
-        Ok(())
-    }
 }
 
 impl Write for Vec<u8> {
@@ -2061,6 +1851,20 @@ impl<'a> Buffer<'a> {
     #[inline]
     pub fn unread_bytes(&self) -> &'a [u8] {
         &self.bytes()[self.pos()..]
+    }
+
+    /// Decodes the whole of `bytes` with `read`, rejecting trailing data.
+    pub fn decode_all<T>(
+        bytes: &'a [u8],
+        read: impl FnOnce(&mut Self) -> IoResult<T>,
+    ) -> IoResult<T> {
+        let mut buffer = Self::new(bytes);
+        let value = read(&mut buffer)?;
+        if buffer.is_empty() {
+            Ok(value)
+        } else {
+            Err(rejected("trailing bytes"))
+        }
     }
 }
 

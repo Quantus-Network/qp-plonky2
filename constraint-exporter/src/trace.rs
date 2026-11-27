@@ -631,3 +631,84 @@ fn generate_wrapper_lean(
         }],
     ))
 }
+
+/// The circuit families whose FRI parameters `generate_fri_params_lean` pins: the Lean
+/// name, the config's name in `qp-zk-circuits/common/src/circuit.rs`, and the recorded
+/// traces that share it.
+const FRI_FAMILIES: [(&str, &str, &[&str]); 3] = [
+    ("leafFri", "wormhole_leaf_circuit_config", &["leaf_circuit"]),
+    (
+        "privateBatchFri",
+        "wormhole_private_batch_circuit_config",
+        &[
+            "private_batch_wrapper_n2",
+            "private_batch_wrapper_n4",
+            "private_batch_wrapper_n8",
+        ],
+    ),
+    (
+        "publicBatchFri",
+        "wormhole_public_batch_circuit_config",
+        &[
+            "public_batch_wrapper_n2",
+            "public_batch_wrapper_n4",
+            "public_batch_wrapper_n89",
+        ],
+    ),
+];
+
+/// Build `formal/Plonky2Bridge/Generated/FriParams.lean`: the FRI query parameters of the
+/// recorded circuits as `FriQueryParams`, with the query exponents they determine
+/// (`Plonky2Bridge/Trusted.lean`) as `rfl` checks. Each family's traces must agree.
+pub fn generate_fri_params_lean() -> Result<String, String> {
+    use core::fmt::Write as _;
+    let mut o = String::from(
+        "/-\n\
+         \x20 AUTO-GENERATED — do not edit by hand.\n\n\
+         \x20 The FRI query parameters of the deployed circuits, read off their recorded traces\n\
+         \x20 (`constraint-exporter/traces/`), and the query exponents they determine: the capacity\n\
+         \x20 conjecture's (`friQueryBits`, refuted), the proved Johnson-radius one\n\
+         \x20 (`friJohnsonQueryBits`), and `security_bits`'s accounting (`friConjecturedBits`). See\n\
+         \x20 the FRI section of `Plonky2Bridge/Trusted.lean`. Regenerate with:\n\n\
+         \x20     cargo run -p qp-plonky2-constraint-exporter --bin export-constraints\n\
+         -/\n\
+         import Plonky2Bridge.Trusted\n\n\
+         namespace Plonky2Bridge\n\n",
+    );
+    for (name, config, circuits) in FRI_FAMILIES {
+        let mut fri = None;
+        for circuit in circuits {
+            let t = load(&traces_dir().join(format!("{circuit}.json")))?;
+            let f = t.config.fri_config;
+            let same = (f.rate_bits, f.num_query_rounds, f.proof_of_work_bits);
+            if *fri.get_or_insert(same) != same {
+                return Err(format!(
+                    "{circuit} does not share {config}'s FRI parameters"
+                ));
+            }
+        }
+        let (rate_bits, num_queries, pow) = fri.expect("a family has a trace");
+        let _ = writeln!(
+            o,
+            "/-- `{config}` (`qp-zk-circuits/common/src/circuit.rs`), as the traces\n\
+             \x20   {} record. -/\n\
+             def {name} : FriQueryParams where\n\
+             \x20 rateBits := {rate_bits}\n\
+             \x20 numQueries := {num_queries}\n\
+             \x20 proofOfWorkBits := {pow}\n\n\
+             example : friQueryBits {name} = {} := rfl\n\
+             example : friJohnsonQueryBits {name} = {} := rfl\n\
+             example : friConjecturedBits {name} = {} := rfl\n",
+            circuits
+                .iter()
+                .map(|c| format!("`{c}`"))
+                .collect::<Vec<_>>()
+                .join(", "),
+            num_queries * rate_bits,
+            num_queries * rate_bits / 2,
+            num_queries * rate_bits + pow as usize,
+        );
+    }
+    o.push_str("end Plonky2Bridge\n");
+    Ok(o)
+}

@@ -191,6 +191,11 @@ where
     )
     .map_err(anyhow::Error::msg)?;
     let cap_height = params.config.cap_height;
+    // One beta is drawn per cap, and the query loop indexes both by reduction step.
+    ensure!(
+        commit_phase_merkle_caps.len() == params.reduction_arity_bits.len(),
+        "FRI commit phase cap count does not match the reduction schedule"
+    );
     for cap in commit_phase_merkle_caps {
         ensure!(cap.has_height(cap_height));
     }

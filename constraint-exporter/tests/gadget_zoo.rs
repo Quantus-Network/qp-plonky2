@@ -21,7 +21,7 @@ type F = GoldilocksField;
 fn gadget_zoo_export_shape() {
     let config = CircuitConfig::standard_recursion_config();
     let (r, t) = build_gadget_zoo();
-    let ex = r.export(vec![]).unwrap();
+    let ex = r.export(vec![]);
 
     // ArithmeticGate rows are keyed by their (c0, c1) pair, so the zoo's `mul`/`sub`/`or`/
     // `mul_sub` land on separate rows; ConstantGate rows only appear after `build()`.
@@ -129,7 +129,7 @@ fn gadget_zoo_export_shape() {
 #[test]
 fn gadget_zoo_export_satisfied_by_real_witness() {
     let (r, t) = build_gadget_zoo();
-    let ex = r.export(vec![]).unwrap();
+    let ex = r.export(vec![]);
     let data = r.builder.build::<PoseidonGoldilocksConfig>();
 
     let mut seed = 0x5eed_u64;

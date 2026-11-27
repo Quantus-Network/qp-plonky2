@@ -123,11 +123,21 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D>
         Ok(())
     }
 
-    fn deserialize(src: &mut Buffer, _common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
+    fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self> {
         let bits = src.read_usize()?;
         let num_copies = src.read_usize()?;
         let num_extra_constants = src.read_usize()?;
-        Ok(Self::new(num_copies, bits, num_extra_constants))
+        Self::new(num_copies, bits, num_extra_constants).fitting(common_data)
+    }
+
+    /// The widest gate the builder makes for `bits` bounds the copies and extra constants.
+    fn parameters_fit(&self, config: &CircuitConfig) -> bool {
+        if !(1..=config.num_routed_wires.ilog2() as usize).contains(&self.bits) {
+            return false;
+        }
+        let widest = Self::new_from_config(config, self.bits);
+        (1..=widest.num_copies).contains(&self.num_copies)
+            && self.num_extra_constants <= widest.num_extra_constants
     }
 
     fn eval_unfiltered(&self, vars: EvaluationVars<F, D>) -> Vec<F::Extension> {

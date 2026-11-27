@@ -6,7 +6,7 @@ use crate::field::extension::{Extendable, FieldExtension};
 use crate::gates::gate::VerificationGate;
 use crate::gates::util::StridedConstraintConsumer;
 use crate::hash::hash_types::RichField;
-use crate::plonk::circuit_data::CommonCircuitData;
+use crate::plonk::circuit_data::{CircuitConfig, CommonCircuitData};
 use crate::plonk::vars::{EvaluationVars, EvaluationVarsBase};
 use crate::util::serialization::{Buffer, IoResult, Read, Write};
 
@@ -23,7 +23,7 @@ impl<const D: usize> ReducingGate<D> {
     }
 
     pub fn max_coeffs_len(num_wires: usize, num_routed_wires: usize) -> usize {
-        (num_routed_wires - 3 * D).min((num_wires - 2 * D) / (D + 1))
+        (num_routed_wires.saturating_sub(3 * D)).min(num_wires.saturating_sub(2 * D) / (D + 1))
     }
 
     pub(crate) const fn wires_output() -> Range<usize> {
@@ -61,15 +61,19 @@ impl<F: RichField + Extendable<D>, const D: usize> VerificationGate<F, D> for Re
         Ok(())
     }
 
-    fn deserialize(src: &mut Buffer, _common_data: &CommonCircuitData<F, D>) -> IoResult<Self>
+    fn deserialize(src: &mut Buffer, common_data: &CommonCircuitData<F, D>) -> IoResult<Self>
     where
         Self: Sized,
     {
-        let num_coeffs = src.read_usize()?;
-        if num_coeffs == 0 {
-            return Err(crate::util::serialization::IoError);
+        Self {
+            num_coeffs: src.read_usize()?,
         }
-        Ok(Self::new(num_coeffs))
+        .fitting(common_data)
+    }
+
+    fn parameters_fit(&self, config: &CircuitConfig) -> bool {
+        (1..=Self::max_coeffs_len(config.num_wires, config.num_routed_wires))
+            .contains(&self.num_coeffs)
     }
 
     fn eval_unfiltered(&self, vars: EvaluationVars<F, D>) -> Vec<F::Extension> {

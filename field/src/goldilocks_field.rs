@@ -1,3 +1,4 @@
+use core::cmp::Ordering;
 use core::fmt::{self, Debug, Display, Formatter};
 use core::hash::{Hash, Hasher};
 use core::iter::{Product, Sum};
@@ -20,7 +21,11 @@ const EPSILON: u64 = (1 << 32) - 1;
 ///   = 2**64 - 2**32 + 1
 ///   = 2**32 * (2**32 - 1) + 1
 /// ```
-#[derive(Copy, Clone, Serialize, Deserialize, Ord, PartialOrd)]
+///
+/// The serde encoding is the raw `u64`, so it is not canonical: values at or above `P` serialize
+/// and deserialize unchanged. The byte format read by `from_bytes` is canonical; use it wherever
+/// one encoding per value matters.
+#[derive(Copy, Clone, Serialize, Deserialize)]
 #[repr(transparent)]
 pub struct GoldilocksField(pub u64);
 
@@ -37,6 +42,18 @@ impl PartialEq for GoldilocksField {
 }
 
 impl Eq for GoldilocksField {}
+
+impl PartialOrd for GoldilocksField {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for GoldilocksField {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.to_canonical_u64().cmp(&other.to_canonical_u64())
+    }
+}
 
 impl Hash for GoldilocksField {
     fn hash<H: Hasher>(&self, state: &mut H) {
@@ -449,4 +466,15 @@ mod tests {
 
     test_prime_field_arithmetic!(crate::goldilocks_field::GoldilocksField);
     test_field_arithmetic!(crate::goldilocks_field::GoldilocksField);
+
+    #[test]
+    fn ordering_is_canonical() {
+        use crate::goldilocks_field::GoldilocksField;
+        use crate::types::Field64;
+
+        let one = GoldilocksField(1);
+        let also_one = GoldilocksField(GoldilocksField::ORDER + 1);
+        assert_eq!(one.cmp(&also_one), core::cmp::Ordering::Equal);
+        assert!(also_one < GoldilocksField(2));
+    }
 }

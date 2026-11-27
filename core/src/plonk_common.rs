@@ -35,6 +35,13 @@ impl PlonkOracle {
     };
 }
 
+/// Number of partial-product polynomials the permutation argument needs over `num_routed_wires`
+/// wires multiplied `max_degree` at a time: one per chunk, the last chunk being `Z(gx)` itself.
+/// Needs `max_degree >= 2` and `num_routed_wires >= 1`, which `CircuitConfig::check_valid` ensures.
+pub const fn num_partial_products(num_routed_wires: usize, max_degree: usize) -> usize {
+    num_routed_wires.div_ceil(max_degree) - 1
+}
+
 pub const fn salt_size(salted: bool) -> usize {
     if salted {
         SALT_SIZE
